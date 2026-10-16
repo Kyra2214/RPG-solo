@@ -1,0 +1,154 @@
+# id|dimensao|categoria|nome
+setting.fantasia-medieval|setting|fantasia|Fantasia medieval
+setting.fantasia-epica|setting|fantasia|Fantasia épica
+setting.alta-fantasia|setting|fantasia|Alta fantasia
+setting.fantasia-sombria|setting|fantasia|Fantasia sombria
+setting.fantasia-heroica|setting|fantasia|Fantasia heroica
+setting.fantasia-de-baixa-magia|setting|fantasia|Fantasia de baixa magia
+setting.fantasia-urbana|setting|fantasia|Fantasia urbana
+setting.fantasia-mitologica|setting|fantasia|Fantasia mitológica
+setting.fantasia-historica|setting|fantasia|Fantasia histórica
+setting.espada-e-feiticaria|setting|fantasia|Espada e feitiçaria
+setting.reinos-em-guerra|setting|fantasia|Reinos em guerra
+setting.contos-de-fadas|setting|fantasia|Contos de fadas
+setting.fantasia-surreal|setting|fantasia|Fantasia surreal
+setting.wuxia|setting|cultivo|Wuxia
+setting.xianxia|setting|cultivo|Xianxia
+setting.xuanhuan|setting|cultivo|Xuanhuan
+setting.cultivo-espiritual|setting|cultivo|Cultivo espiritual
+setting.seitas-e-clas|setting|cultivo|Seitas e clãs
+setting.artes-marciais|setting|cultivo|Artes marciais
+setting.torneios-e-duelos|setting|cultivo|Torneios e duelos
+setting.alquimia-e-refinamento|setting|cultivo|Alquimia e refinamento
+setting.pilulas-e-tesouros|setting|cultivo|Pílulas e tesouros
+setting.tecnicas-secretas|setting|cultivo|Técnicas secretas
+setting.tribulacoes-celestiais|setting|cultivo|Tribulações celestiais
+setting.ascensao-a-imortalidade|setting|cultivo|Ascensão à imortalidade
+setting.reencarnacao-e-transmigracao|setting|cultivo|Reencarnação e transmigração
+setting.demonios-imortais-e-divindades|setting|cultivo|Demônios, imortais e divindades
+setting.japao-feudal|setting|historico|Japão feudal
+setting.china-historica|setting|historico|China histórica
+setting.europa-medieval|setting|historico|Europa medieval
+setting.antiguidade-classica|setting|historico|Antiguidade clássica
+setting.egito-antigo|setting|historico|Egito antigo
+setting.era-dos-vikings|setting|historico|Era dos vikings
+setting.renascimento|setting|historico|Renascimento
+setting.pirataria|setting|historico|Pirataria
+setting.faroeste|setting|historico|Faroeste
+setting.guerras-historicas|setting|historico|Guerras históricas
+setting.intrigas-de-corte|setting|historico|Intrigas de corte
+setting.aventuras-historicas-sem-elementos-sobrenaturais|setting|historico|Aventuras históricas sem elementos sobrenaturais
+setting.ficcao-cientifica-classica|setting|scifi|Ficção científica clássica
+setting.space-opera|setting|scifi|Space opera
+setting.exploracao-espacial|setting|scifi|Exploração espacial
+setting.cyberpunk|setting|scifi|Cyberpunk
+setting.solarpunk|setting|scifi|Solarpunk
+setting.steampunk|setting|scifi|Steampunk
+setting.dieselpunk|setting|scifi|Dieselpunk
+setting.biopunk|setting|scifi|Biopunk
+setting.pos-humanismo|setting|scifi|Pós-humanismo
+setting.inteligencia-artificial|setting|scifi|Inteligência artificial
+setting.robotica|setting|scifi|Robótica
+setting.mechas|setting|scifi|Mechas
+setting.colonizacao-espacial|setting|scifi|Colonização espacial
+setting.viagens-no-tempo|setting|scifi|Viagens no tempo
+setting.primeiro-contato-alienigena|setting|scifi|Primeiro contato alienígena
+setting.distopia-tecnologica|setting|scifi|Distopia tecnológica
+setting.guerra-espacial|setting|scifi|Guerra espacial
+setting.horror-gotico|setting|terror|Horror gótico
+setting.horror-cosmico|setting|terror|Horror cósmico
+setting.terror-psicologico|setting|terror|Terror psicológico
+setting.horror-corporal|setting|terror|Horror corporal
+setting.sobrevivencia-em-horror|setting|terror|Sobrevivência em horror
+setting.investigacao-sobrenatural|setting|terror|Investigação sobrenatural
+setting.ocultismo|setting|terror|Ocultismo
+setting.vampiros|setting|terror|Vampiros
+setting.lobisomens|setting|terror|Lobisomens
+setting.fantasmas|setting|terror|Fantasmas
+setting.demonios|setting|terror|Demônios
+setting.folclore-e-lendas|setting|terror|Folclore e lendas
+setting.apocalipse-zumbi|setting|terror|Apocalipse zumbi
+setting.pos-apocaliptico|setting|outros|Pós-apocalíptico
+setting.sobrevivencia|setting|outros|Sobrevivência
+setting.super-herois|setting|outros|Super-heróis
+setting.espionagem|setting|outros|Espionagem
+setting.investigacao-criminal|setting|outros|Investigação criminal
+setting.misterio-policial|setting|outros|Mistério policial
+setting.drama-contemporaneo|setting|outros|Drama contemporâneo
+setting.romance-e-relacionamentos|setting|outros|Romance e relacionamentos
+setting.intriga-politica|setting|outros|Intriga política
+setting.guerra-e-estrategia-militar|setting|outros|Guerra e estratégia militar
+setting.esportes-e-competicao|setting|outros|Esportes e competição
+setting.comedia-e-parodia|setting|outros|Comédia e paródia
+setting.aventura-pulp|setting|outros|Aventura pulp
+setting.exploracao-maritima|setting|outros|Exploração marítima
+setting.gestao-de-negocios|setting|outros|Gestão de negócios
+setting.simulacao-de-profissoes|setting|outros|Simulação de profissões
+structure.sandbox|structure|estrutura|Sandbox
+structure.campanha-guiada-por-historia|structure|estrutura|Campanha guiada por história
+structure.campanha-episodica|structure|estrutura|Campanha episódica
+structure.campanha-dividida-em-capitulos|structure|estrutura|Campanha dividida em capítulos
+structure.missoes-independentes|structure|estrutura|Missões independentes
+structure.exploracao-de-mundo-aberto|structure|estrutura|Exploração de mundo aberto
+structure.exploracao-de-masmorras|structure|estrutura|Exploração de masmorras
+structure.hexcrawl-e-exploracao-por-regioes|structure|estrutura|Hexcrawl e exploração por regiões
+structure.investigacao-e-misterio|structure|estrutura|Investigação e mistério
+structure.intriga-politica-e-social|structure|estrutura|Intriga política e social
+structure.combate-tatico|structure|estrutura|Combate tático
+structure.estrategia-militar|structure|estrutura|Estratégia militar
+structure.sobrevivencia-e-gestao-de-recursos|structure|estrutura|Sobrevivência e gestão de recursos
+structure.viagens-e-jornadas|structure|estrutura|Viagens e jornadas
+structure.construcao-de-bases-reinos-ou-organizacoes|structure|estrutura|Construção de bases, reinos ou organizações
+structure.gestao-economica|structure|estrutura|Gestão econômica
+structure.progressao-de-poder|structure|estrutura|Progressão de poder
+structure.treinamento-e-desenvolvimento-de-habilidades|structure|estrutura|Treinamento e desenvolvimento de habilidades
+structure.torneios-e-competicoes|structure|estrutura|Torneios e competições
+structure.drama-de-personagens|structure|estrutura|Drama de personagens
+structure.amizades-rivalidades-e-romances|structure|estrutura|Amizades, rivalidades e romances
+structure.fuga-perseguicao-e-infiltracao|structure|estrutura|Fuga, perseguição e infiltração
+structure.horror-e-vulnerabilidade|structure|estrutura|Horror e vulnerabilidade
+structure.historias-emergentes|structure|estrutura|Histórias emergentes
+philosophy.rules-light|philosophy|filosofia-de-design|Rules-light
+philosophy.rules-heavy|philosophy|filosofia-de-design|Rules-heavy
+philosophy.narrativo|philosophy|filosofia-de-design|Narrativo
+philosophy.tatico|philosophy|filosofia-de-design|Tático
+philosophy.simulacionista|philosophy|filosofia-de-design|Simulacionista
+philosophy.cinematografico|philosophy|filosofia-de-design|Cinematográfico
+philosophy.testes-de-pericia|philosophy|metodo-de-resolucao|Testes de perícia
+philosophy.atributos-e-modificadores|philosophy|metodo-de-resolucao|Atributos e modificadores
+philosophy.pools-de-dados|philosophy|metodo-de-resolucao|Pools de dados
+philosophy.dados-percentuais|philosophy|metodo-de-resolucao|Dados percentuais
+philosophy.cartas-ou-dados-especiais|philosophy|metodo-de-resolucao|Cartas ou dados especiais
+philosophy.aleatoriedade-reduzida-ou-inexistente|philosophy|metodo-de-resolucao|Aleatoriedade reduzida ou inexistente
+philosophy.teatro-da-mente|philosophy|representacao-de-cena|Teatro da mente
+philosophy.combate-com-mapas-e-posicionamento|philosophy|representacao-de-cena|Combate com mapas e posicionamento
+tone.heroico|tone|tom|Heroico
+tone.epico|tone|tom|Épico
+tone.sombrio|tone|tom|Sombrio
+tone.realista|tone|tom|Realista
+tone.humoristico|tone|tom|Humorístico
+tone.tragico|tone|tom|Trágico
+tone.misterioso|tone|tom|Misterioso
+tone.aventureiro|tone|tom|Aventureiro
+tone.brutal|tone|tom|Brutal
+tone.esperancoso|tone|tom|Esperançoso
+tone.cinematografico|tone|tom|Cinematográfico
+tone.politico|tone|tom|Político
+tone.intimista|tone|tom|Intimista
+difficulty.facil|difficulty|dificuldade|Fácil
+difficulty.normal|difficulty|dificuldade|Normal
+difficulty.dificil-hard|difficulty|dificuldade|Difícil (Hard)
+difficulty.mortal|difficulty|dificuldade|Mortal
+difficulty.personalizada|difficulty|dificuldade|Personalizada
+progression.niveis|progression|progressao|Níveis
+progression.experiencia|progression|progressao|Experiência
+progression.compra-de-atributos-ou-habilidades|progression|progressao|Compra de atributos ou habilidades
+progression.marcos-narrativos|progression|progressao|Marcos narrativos
+progression.treinamento|progression|progressao|Treinamento
+progression.reputacao-e-influencia|progression|progressao|Reputação e influência
+progression.equipamentos-e-recursos|progression|progressao|Equipamentos e recursos
+progression.conquistas|progression|progressao|Conquistas
+progression.reinos-de-cultivo|progression|progressao|Reinos de cultivo
+progression.transformacao-sobrenatural|progression|progressao|Transformação sobrenatural
+progression.evolucao-de-organizacoes-e-bases|progression|progressao|Evolução de organizações e bases
+progression.progressao-horizontal|progression|progressao|Progressão horizontal

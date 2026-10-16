@@ -1,0 +1,4 @@
+# id|nome|min|max|padrao
+forca|Força|0|5|1
+agilidade|Agilidade|0|5|1
+mente|Mente|0|5|1

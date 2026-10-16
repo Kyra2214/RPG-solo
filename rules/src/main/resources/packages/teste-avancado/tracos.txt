@@ -1,0 +1,1 @@
+ambidestro|vantagem|Ambidestro|2|agilidade>=3|Usa as duas mãos com a mesma habilidade.

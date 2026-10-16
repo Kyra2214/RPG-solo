@@ -1,0 +1,6 @@
+1|Perícias|São 19 perícias de 0 (Mediocre) a +4 (Great). Cada nível acima de 0 custa 1 ponto.
+2|Pirâmide|O desenho padrão é 1 perícia em +4, 2 em +3, 3 em +2 e 4 em +1, o que dá 20 pontos. O pacote aceita até 20 pontos e não força esse formato.
+3|Testes|Role 4 dados Fate (cada um dá -1, 0 ou +1), some a perícia e compare com a dificuldade. A diferença é a margem de sucesso.
+4|Ficha|Aspectos, proezas e o estresse são texto livre ou dependem da mesa; o pacote só valida as perícias. A Recarga padrão é 3 pontos de destino.
+5|Evolução|O Fate evolui por marcos definidos pelo mestre, não por XP.
+6|Dados|O motor rola 4d3 e soma a perícia; as dificuldades deste pacote já incluem +8 por causa disso. Mostre ao jogador o total menos 8.

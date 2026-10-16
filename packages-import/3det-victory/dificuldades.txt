@@ -1,0 +1,4 @@
+facil|Fácil|6
+media|Média|9
+dificil|Difícil|12
+muito-dificil|Muito difícil|15

@@ -1,0 +1,4 @@
+# id|nome|dados|lados|atributo|mult|comparacao|parcial|crit_sucesso|crit_falha   ("-" = não existe)
+ataque|Ataque|1|20|forca|1|ROLL_OVER|3|20..20|1..1
+esquiva|Esquiva|1|20|agilidade|1|ROLL_OVER|-|-|-
+sorte|Teste de sorte|2|6||0|ROLL_UNDER|-|-|-

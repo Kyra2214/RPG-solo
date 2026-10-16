@@ -1,0 +1,4 @@
+# sistema|ambientacao|status|nota (analise do projeto, nao oficial)
+cepheus-engine|setting.space-opera|NATIVE|Cepheus Engine e um sistema 2D6 de ficcao cientifica (Andromeda usa o pacote sci-fi)
+dnd-5-2-srd|setting.cyberpunk|ADAPTED|exige regras adicionais de tecnologia, hacking e implantes
+dnd-5-2-srd|setting.japao-feudal|ADAPTED|exige adaptar classes e equipamento ao periodo

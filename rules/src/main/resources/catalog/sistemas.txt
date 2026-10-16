@@ -1,0 +1,39 @@
+# id|familia|nome|edicao|categoria|pesquisa|licenca_status|nota
+dnd-5-2-srd|dnd|Dungeons & Dragons|SRD 5.2 (regras 2024)|fantasia|PESQUISADO_PARCIAL|VERIFICADA|CC-BY-4.0 segundo noticias e post do D&D Beyond; texto da licenca no PDF do SRD nao foi lido
+dnd-5-1-srd|dnd|Dungeons & Dragons|SRD 5.1 (regras 2014)|fantasia|PESQUISADO_PARCIAL|VERIFICADA|OGL 1.0a e CC-BY-4.0 segundo noticias; PDF nao lido
+dnd-2024-basic-rules|dnd|Dungeons & Dragons|Basic Rules 2024 (D&D Beyond)|fantasia|PESQUISADO_PARCIAL|VERIFICADA|(c) Wizards of the Coast; NAO e Creative Commons; so consulta (rodape da pagina e noticias)
+pf2e-remaster|pathfinder|Pathfinder|2e Remaster|fantasia|PESQUISADO_PARCIAL|INDICADA|ORC segundo PathfinderWiki; Paizo cita Community Use Policy no blog; textos oficiais nao lidos
+pf2e-premaster|pathfinder|Pathfinder|2e pre-Remaster|fantasia|PESQUISADO_PARCIAL|INDICADA|OGL segundo fontes comunitarias; nao confirmado em fonte oficial
+tormenta20|tormenta|Tormenta20|edicao a identificar|fantasia|PENDENTE|PENDENTE|Jambo; marca registrada; politica de licenca a verificar
+3det-alpha|3det|3D&T|Alpha|fantasia|PENDENTE|PENDENTE|Licenca Aberta da Jambo v1.0 (24/06/2026, lida na fonte primaria) cobre so 3DeT Victory e Tormenta20: Alpha fora; sem licenca encontrada; so por importacao do usuario
+3det-victory|3det|3D&T|Victory|fantasia|PESQUISADO_PARCIAL|PENDENTE|Licenca Aberta da Jambo v1.0 (24/06/2026, lida na fonte primaria) libera texto de regras e mecanicas mas NAO permite publicar em aplicativos (clausula 2.2.1); excecao so para fichas preenchiveis (5.2) sem reproduzir trechos; nao autoriza embutir; so por importacao do usuario ou autorizacao da Jambo; criacao de personagem ainda nao pesquisada
+ose|ose|Old-School Essentials|edicao a identificar|fantasia|PENDENTE|PENDENTE|
+dcc|dcc|Dungeon Crawl Classics|edicao a identificar|fantasia|PENDENTE|PENDENTE|
+forbidden-lands|forbidden-lands|Forbidden Lands|edicao a identificar|fantasia|PENDENTE|PENDENTE|
+wfrp|wfrp|Warhammer Fantasy Roleplay|edicao a identificar|fantasia|PENDENTE|PENDENTE|
+gurps|gurps|GURPS|edicao a identificar|generico|PENDENTE|PENDENTE|
+savage-worlds|savage-worlds|Savage Worlds|edicao a identificar|generico|PENDENTE|PENDENTE|
+fate-core|fate|Fate Core|Core|generico|PENDENTE|PENDENTE|fonte listada nao foi aberta nesta rodada
+fate-condensed|fate|Fate Condensed|Condensed|generico|PESQUISADO_PARCIAL|VERIFICADA|faterpg.com/licensing lida em 16/10/2026: SRD do Fate Condensed liberado sob CC-BY 3.0 (texto de atribuicao obrigatorio, nao viral) ou OGL; sem restricao a aplicativos; criacao de personagem lida via fate-srd.com (espelho nao oficial)
+fate-accelerated|fate|Fate Accelerated|FAE|generico|PENDENTE|PENDENTE|
+basic-roleplaying|brp|Basic Roleplaying|edicao a identificar|generico|PENDENTE|PENDENTE|fonte listada nao foi aberta nesta rodada
+cortex-prime|cortex|Cortex Prime|edicao a identificar|generico|PENDENTE|PENDENTE|
+cypher|cypher|Cypher System|edicao a identificar|generico|PENDENTE|PENDENTE|
+opend6|opend6|OpenD6|edicao a identificar|generico|PENDENTE|PENDENTE|
+pbta|pbta|Powered by the Apocalypse (familia)|varios jogos|narrativo|PENDENTE|PENDENTE|
+fitd|fitd|Forged in the Dark (familia)|varios jogos|narrativo|PENDENTE|PENDENTE|
+blades-in-the-dark|fitd|Blades in the Dark|edicao a identificar|narrativo|PENDENTE|PENDENTE|
+ironsworn|ironsworn|Ironsworn|Ironsworn / Starforged|narrativo|PESQUISADO_PARCIAL|INDICADA|Datasworn: CC BY 4.0 (conteudo Ironsworn/Starforged) segundo README do Straightjacket, lido na auditoria; Sundered Isles e NC-SA
+call-of-cthulhu|coc|Call of Cthulhu|edicao a identificar|horror|PENDENTE|PENDENTE|fonte listada nao foi aberta nesta rodada
+vtm|vtm|Vampire: The Masquerade|edicao a identificar|horror|PENDENTE|PENDENTE|
+wta|wta|Werewolf: The Apocalypse|edicao a identificar|horror|PENDENTE|PENDENTE|
+kult|kult|Kult: Divinity Lost|edicao a identificar|horror|PENDENTE|PENDENTE|
+delta-green|delta-green|Delta Green|edicao a identificar|horror|PENDENTE|PENDENTE|
+vaesen|vaesen|Vaesen|edicao a identificar|horror|PENDENTE|PENDENTE|
+traveller|traveller|Traveller|edicao a identificar|scifi|PENDENTE|PENDENTE|
+cepheus-engine|cepheus|Cepheus Engine|SRD|scifi|PESQUISADO_PARCIAL|INDICADA|OGL 1.0a segundo o LICENSE.OGL do repositorio Andromeda, lido na auditoria
+starfinder|starfinder|Starfinder|edicao a identificar|scifi|PENDENTE|PENDENTE|fonte comunitaria cita OGL para todo o Starfinder; nao confirmado
+cyberpunk-red|cyberpunk-red|Cyberpunk RED|Red|scifi|PENDENTE|PENDENTE|
+eclipse-phase|eclipse-phase|Eclipse Phase|edicao a identificar|scifi|PENDENTE|PENDENTE|
+mothership|mothership|Mothership|edicao a identificar|scifi|PENDENTE|PENDENTE|
+lancer|lancer|Lancer|edicao a identificar|scifi|PENDENTE|PENDENTE|

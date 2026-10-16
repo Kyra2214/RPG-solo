@@ -1,0 +1,3 @@
+# id|nome|dados|lados|atributo_bonus
+arma-leve|Arma leve|1|4|forca
+arma-pesada|Arma pesada|1|8|forca

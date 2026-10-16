@@ -1,0 +1,4 @@
+# id|nome|base|atributo|mult   (maximo = base + mult * atributo)
+pa|Pontos de Ação|0|poder|1
+pm|Pontos de Mana|0|habilidade|5
+pv|Pontos de Vida|0|resistencia|5

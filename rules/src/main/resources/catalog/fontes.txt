@@ -1,0 +1,8 @@
+# id|sistema|titulo|tipo|url|idioma|verificado   (links para onde o material oficial está; o app não copia o PDF)
+# verificado = SIM só quando o link foi aberto e conferido. NAO = confira antes de confiar.
+fate-licenciamento|fate-condensed|Fate: SRDs e licenciamento (Evil Hat)|REGRAS|https://www.faterpg.com/licensing/|en|SIM
+fate-srd-condensed|fate-condensed|Fate Condensed: regras online (SRD)|REGRAS|https://fate-srd.com/fate-condensed/getting-started|en|SIM
+fate-srd-core-criacao|fate-core|Fate Core: criação rápida de personagem (SRD)|INICIANTE|https://fate-srd.com/fate-core/quick-character-creation|en|SIM
+dnd-regras-gratuitas|dnd-5-2-srd|D&D 2024: regras gratuitas no D&D Beyond (inclui ficha preenchível)|REGRAS|https://www.dndbeyond.com/posts/754-new-players-guide-everything-you-need-to-use-d-d|en|SIM
+3det-victory-demo|3det-victory|3DeT Victory: kit demo e financiamento (Catarse)|INICIANTE|https://www.catarse.me/3det|pt|NAO
+pf2e-fichas-e-conversao|pf2e-remaster|Pathfinder 2e: fichas e guia de conversão (Paizo)|FICHA|https://paizo.com/pathfinder|en|NAO

@@ -1,0 +1,143 @@
+package dev.rpgsolo.engine
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class GameEngineTest {
+    private fun hero() = Entity("hero", "Herói", EntityKind.PLAYER,
+        resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(3, 5)))
+    private fun orc() = Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6)))
+
+    private fun engine(): GameEngine {
+        val e = GameEngine(seed = 1)
+        assertTrue(e.executeAll(listOf(CreateEntity(hero()), CreateEntity(orc()))) is ExecResult.Accepted)
+        return e
+    }
+
+    private fun rejected(r: ExecResult) = r as ExecResult.Rejected
+
+    @Test fun danoReduzEPodeMatar() {
+        val e = engine()
+        e.execute(Damage("orc", "hp", 4))
+        assertEquals(2, e.state.entities.getValue("orc").resources.getValue("hp").current)
+        e.execute(Damage("orc", "hp", 99))
+        val orc = e.state.entities.getValue("orc")
+        assertEquals(0, orc.resources.getValue("hp").current)
+        assertFalse(orc.alive)
+    }
+
+    @Test fun mortoNaoRecebeCuraNemDano() {
+        val e = engine()
+        e.execute(Damage("orc", "hp", 99))
+        assertTrue(e.execute(Heal("orc", "hp", 5)) is ExecResult.Rejected)
+        assertTrue(e.execute(Damage("orc", "hp", 1)) is ExecResult.Rejected)
+        assertFalse(e.state.entities.getValue("orc").alive)
+    }
+
+    @Test fun curaNaoPassaDoMaximo() {
+        val e = engine()
+        e.execute(Damage("hero", "hp", 3))
+        e.execute(Heal("hero", "hp", 100))
+        assertEquals(10, e.state.entities.getValue("hero").resources.getValue("hp").current)
+    }
+
+    @Test fun gastoInsuficienteEhRejeitadoESemEfeito() {
+        val e = engine()
+        val before = e.state
+        val r = rejected(e.execute(SpendResource("hero", "mana", 4)))
+        assertTrue(r.reason.contains("insuficiente"))
+        assertEquals(before, e.state)
+    }
+
+    @Test fun itemConsumidoNaoReaparece() {
+        val e = engine()
+        e.execute(AddItem("hero", "pocao", 1))
+        assertTrue(e.execute(ConsumeItem("hero", "pocao")) is ExecResult.Accepted)
+        assertTrue(e.execute(ConsumeItem("hero", "pocao")) is ExecResult.Rejected)
+        assertNull(e.state.inventory["hero"]?.get("pocao"))
+    }
+
+    @Test fun ressurreicaoExigeJustificativa() {
+        val e = engine()
+        e.execute(Damage("orc", "hp", 99))
+        assertTrue(e.execute(Revive("orc", "  ")) is ExecResult.Rejected)
+        assertTrue(e.execute(Revive("orc", "magia de ressurreição")) is ExecResult.Accepted)
+        val orc = e.state.entities.getValue("orc")
+        assertTrue(orc.alive)
+        assertEquals(1, orc.resources.getValue("hp").current)
+    }
+
+    @Test fun loteEhAtomico() {
+        val e = engine()
+        val before = e.state
+        val count = e.eventCount
+        val r = rejected(e.executeAll(listOf(
+            Damage("orc", "hp", 2),
+            ConsumeItem("hero", "inexistente"),
+            Damage("orc", "hp", 2)
+        )))
+        assertEquals(1, r.commandIndex)
+        assertEquals(before, e.state)
+        assertEquals(count, e.eventCount)
+    }
+
+    @Test fun entidadeDuplicadaERejeitada() {
+        assertTrue(engine().execute(CreateEntity(hero())) is ExecResult.Rejected)
+    }
+
+    @Test fun semRecursoDeMorteNaoMorreAutomaticamente() {
+        val e = GameEngine(1, EngineConfig(deathResource = null))
+        e.execute(CreateEntity(orc()))
+        e.execute(Damage("orc", "hp", 99))
+        assertTrue(e.state.entities.getValue("orc").alive)
+    }
+
+    @Test fun replayDoLogReproduzOEstado() {
+        val e = engine()
+        e.execute(AddItem("hero", "espada"))
+        e.execute(Damage("hero", "hp", 4))
+        e.execute(GainXp("hero", 50))
+        e.execute(RecordFact("promessa", "levar a carta ao mestre"))
+        e.check(CheckSpec("ataque", 1, 20, 3, 12))
+        assertEquals(e.state, replay(e.events))
+        assertTrue(validateState(e.state).isEmpty())
+    }
+
+    @Test fun restaurarDoLogMantemEstadoEDados() {
+        val e = engine()
+        val spec = CheckSpec("t", 2, 6, 0, 7)
+        e.check(spec); e.check(spec)
+        val restored = GameEngine.restore(1, EngineConfig(), e.events)
+        assertEquals(e.state, restored.state)
+        assertEquals(e.check(spec).roll, restored.check(spec).roll)
+    }
+
+    @Test fun desfazerVoltaEstadoEGeraOsMesmosDados() {
+        val e = engine()
+        val spec = CheckSpec("atk", 1, 20, 0, 10)
+        val mark = e.mark()
+        val first = e.check(spec)
+        e.execute(Damage("orc", "hp", 3))
+        e.rollbackTo(mark)
+        assertEquals(6, e.state.entities.getValue("orc").resources.getValue("hp").current)
+        assertEquals(first.roll, e.check(spec).roll)
+    }
+
+    @Test fun rolagemFicaRegistradaNoLog() {
+        val e = engine()
+        e.check(CheckSpec("furtividade", 2, 6, 1, 8))
+        val ev = e.events.last() as RollRecorded
+        assertEquals("furtividade", ev.label)
+        assertEquals(ev.dice.sum() + 1, ev.total)
+    }
+
+    @Test fun promessaRegistradaPermanece() {
+        val e = engine()
+        e.execute(RecordFact("npc.ana.promessa", "pagar 10 moedas"))
+        e.execute(Damage("hero", "hp", 1))
+        assertEquals("pagar 10 moedas", e.state.facts["npc.ana.promessa"])
+    }
+}

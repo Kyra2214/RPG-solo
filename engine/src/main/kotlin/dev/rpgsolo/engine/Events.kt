@@ -1,0 +1,106 @@
+package dev.rpgsolo.engine
+
+import kotlinx.serialization.Serializable
+
+/** Fatos já validados e confirmados. O log de eventos só cresce (append-only). */
+@Serializable
+sealed interface Event
+
+@Serializable
+data class EntityCreated(val entity: Entity) : Event
+@Serializable
+data class ResourceChanged(val entityId: String, val resource: String, val newValue: Int, val delta: Int) : Event
+@Serializable
+data class EntityDied(val entityId: String) : Event
+@Serializable
+data class EntityRevived(val entityId: String, val reason: String) : Event
+@Serializable
+data class ItemChanged(val ownerId: String, val itemId: String, val delta: Int) : Event
+@Serializable
+data class XpGained(val entityId: String, val amount: Int) : Event
+@Serializable
+data class LevelGained(val entityId: String, val level: Int) : Event
+@Serializable
+data class FactRecorded(val key: String, val value: String) : Event
+@Serializable
+data class KnowledgeGained(val key: String, val text: String, val source: String, val believed: Boolean) : Event
+@Serializable
+data class PromiseMade(val id: String, val npcId: String, val text: String) : Event
+@Serializable
+data class PromiseKept(val id: String) : Event
+@Serializable
+data class ConditionAdded(val entityId: String, val condition: String) : Event
+@Serializable
+data class RelationChanged(val fromId: String, val toId: String, val delta: Int, val value: Int, val reason: String) : Event
+@Serializable
+data class ClockCreated(val id: String, val name: String, val segments: Int) : Event
+@Serializable
+data class ClockAdvanced(val id: String, val filled: Int, val delta: Int) : Event
+@Serializable
+data class ConditionRemoved(val entityId: String, val condition: String) : Event
+@Serializable
+data class CombatStarted(val order: List<String>) : Event
+@Serializable
+data class TurnAdvanced(val turnIndex: Int, val round: Int) : Event
+@Serializable
+object CombatEnded : Event
+@Serializable
+data class RollRecorded(val label: String, val expression: String, val dice: List<Int>, val modifier: Int, val total: Int) : Event
+
+private fun GameState.entity(id: String): Entity =
+    requireNotNull(entities[id]) { "evento aponta para entidade inexistente: $id" }
+
+/** Reducer: estado novo = estado antigo + evento. Assume evento já validado por [decide]. */
+fun GameState.apply(e: Event): GameState {
+    val next = when (e) {
+        is EntityCreated -> copy(entities = entities + (e.entity.id to e.entity))
+        is ResourceChanged -> {
+            val ent = entity(e.entityId)
+            val res = requireNotNull(ent.resources[e.resource]) { "recurso inexistente: ${e.resource}" }
+            copy(entities = entities + (ent.id to ent.copy(resources = ent.resources + (e.resource to res.copy(current = e.newValue)))))
+        }
+        is EntityDied -> copy(entities = entities + (e.entityId to entity(e.entityId).copy(alive = false)))
+        is EntityRevived -> copy(entities = entities + (e.entityId to entity(e.entityId).copy(alive = true)))
+        is ItemChanged -> {
+            val owner = inventory[e.ownerId] ?: emptyMap()
+            val qty = (owner[e.itemId] ?: 0) + e.delta
+            val newOwner = if (qty <= 0) owner - e.itemId else owner + (e.itemId to qty)
+            copy(inventory = inventory + (e.ownerId to newOwner))
+        }
+        is XpGained -> {
+            val ent = entity(e.entityId)
+            copy(entities = entities + (ent.id to ent.copy(xp = ent.xp + e.amount)))
+        }
+        is LevelGained -> copy(entities = entities + (e.entityId to entity(e.entityId).copy(level = e.level)))
+        is FactRecorded -> copy(facts = facts + (e.key to e.value))
+        is KnowledgeGained -> copy(knowledge = knowledge + (e.key to Knowledge(e.key, e.text, e.source, e.believed)))
+        is PromiseMade -> copy(promises = promises + (e.id to Promise(e.id, e.npcId, e.text)))
+        is PromiseKept -> {
+            val p = requireNotNull(promises[e.id]) { "promessa inexistente: ${e.id}" }
+            copy(promises = promises + (e.id to p.copy(kept = true)))
+        }
+        is RelationChanged -> copy(relations = relations + (relationKey(e.fromId, e.toId) to e.value))
+        is ClockCreated -> copy(clocks = clocks + (e.id to Clock(e.id, e.name, e.segments)))
+        is ClockAdvanced -> {
+            val c = requireNotNull(clocks[e.id]) { "relógio inexistente: ${e.id}" }
+            copy(clocks = clocks + (e.id to c.copy(filled = e.filled)))
+        }
+        is ConditionAdded -> copy(conditions = conditions + (e.entityId to ((conditions[e.entityId] ?: emptySet()) + e.condition)))
+        is ConditionRemoved -> {
+            val left = (conditions[e.entityId] ?: emptySet()) - e.condition
+            copy(conditions = if (left.isEmpty()) conditions - e.entityId else conditions + (e.entityId to left))
+        }
+        is CombatStarted -> copy(combat = CombatState(e.order))
+        is TurnAdvanced -> {
+            val c = requireNotNull(combat) { "sem combate ativo" }
+            copy(combat = c.copy(turnIndex = e.turnIndex, round = e.round))
+        }
+        CombatEnded -> copy(combat = null)
+        is RollRecorded -> this
+    }
+    return next.copy(eventCount = eventCount + 1)
+}
+
+/** Reconstrói o estado a partir do log. */
+fun replay(events: List<Event>, initial: GameState = GameState()): GameState =
+    events.fold(initial) { s, e -> s.apply(e) }

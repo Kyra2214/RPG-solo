@@ -1,0 +1,10 @@
+# Pacote de TESTE: mecânica própria do projeto, só para validar o formato. Não é um sistema real.
+id|teste-basico
+sistema|teste
+edicao|teste-1
+versao|1.0.0
+origem|autoral
+licenca|Mecanica propria do projeto RpgSolo
+licenca_status|VERIFICADA
+tipo|TESTE
+morte|hp

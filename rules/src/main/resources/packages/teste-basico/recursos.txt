@@ -1,0 +1,3 @@
+# id|nome|base|atributo|mult   (maximo = base + mult * atributo)
+hp|Vida|4|forca|2
+mana|Mana|0|mente|2

@@ -1,0 +1,2 @@
+# id|titulo|atributos|tracos
+detetive|Detetive de exemplo|investigate=4,notice=3,empathy=3,contacts=2,deceive=2,will=2,athletics=1,rapport=1,academics=1,drive=1|

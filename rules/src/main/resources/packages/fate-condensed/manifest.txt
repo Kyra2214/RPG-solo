@@ -1,0 +1,9 @@
+# Pacote REAL embutido. Mecânica reescrita com palavras próprias a partir do SRD do Fate Condensed.
+id|fate-condensed
+sistema|fate
+edicao|fate-condensed
+versao|0.1.0
+origem|embutido
+licenca|CC-BY 3.0. Este trabalho é baseado no Fate Condensed (https://www.faterpg.com/), produto da Evil Hat Productions, LLC, desenvolvido, escrito e editado por PK Sullivan, Lara Turner, Fred Hicks, Richard Bellingham, Robert Hanz e Sophie Lagacé, e licenciado para uso sob a licença Creative Commons Attribution 3.0 Unported (https://creativecommons.org/licenses/by/3.0/)
+licenca_status|VERIFICADA
+tipo|REAL

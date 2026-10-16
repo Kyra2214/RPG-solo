@@ -1,0 +1,3 @@
+1|Atributos|Cada atributo vai de 0 a 5. Cada ponto acima de 0 custa 1 ponto de criação.
+2|Pontos|Você tem 8 pontos para atributos e traços. Desvantagens devolvem pontos.
+3|Testes|Role 1d20 somando o atributo e compare com a dificuldade. Falhar por até 3 é sucesso parcial.

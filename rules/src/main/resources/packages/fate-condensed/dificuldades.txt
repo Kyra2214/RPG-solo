@@ -1,0 +1,12 @@
+# valor = degrau da escada + 8 (ver testes.txt)
+terrible|Terrible (-2)|6
+poor|Poor (-1)|7
+mediocre|Mediocre (+0)|8
+average|Average (+1)|9
+fair|Fair (+2)|10
+good|Good (+3)|11
+great|Great (+4)|12
+superb|Superb (+5)|13
+fantastic|Fantastic (+6)|14
+epic|Epic (+7)|15
+legendary|Legendary (+8)|16

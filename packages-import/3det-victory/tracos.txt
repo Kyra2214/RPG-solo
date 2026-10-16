@@ -1,0 +1,54 @@
+# id|tipo|nome|custo|requisitos|descricao   (requisitos: atributo>=N ; trait:id)
+animais|pericia|Animais|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-animais|vantagem|Maestria (Animais)|1|trait:animais|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Animais.
+arte|pericia|Arte|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-arte|vantagem|Maestria (Arte)|1|trait:arte|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Arte.
+conhecimento|pericia|Conhecimento|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-conhecimento|vantagem|Maestria (Conhecimento)|1|trait:conhecimento|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Conhecimento.
+esporte|pericia|Esporte|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-esporte|vantagem|Maestria (Esporte)|1|trait:esporte|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Esporte.
+influencia|pericia|Influência|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-influencia|vantagem|Maestria (Influência)|1|trait:influencia|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Influência.
+luta|pericia|Luta|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-luta|vantagem|Maestria (Luta)|1|trait:luta|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Luta.
+manha|pericia|Manha|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-manha|vantagem|Maestria (Manha)|1|trait:manha|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Manha.
+maquinas|pericia|Máquinas|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-maquinas|vantagem|Maestria (Máquinas)|1|trait:maquinas|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Máquinas.
+medicina|pericia|Medicina|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-medicina|vantagem|Maestria (Medicina)|1|trait:medicina|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Medicina.
+mistica|pericia|Mística|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-mistica|vantagem|Maestria (Mística)|1|trait:mistica|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Mística.
+percepcao|pericia|Percepção|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-percepcao|vantagem|Maestria (Percepção)|1|trait:percepcao|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Percepção.
+sustento|pericia|Sustento|1||Perícia: dá um dado extra em testes adequados à situação.
+maestria-sustento|vantagem|Maestria (Sustento)|1|trait:sustento|Gasta 1 PM para ter crítico com 5 ou 6 em testes de Sustento.
+agil|vantagem|Ágil|1|not:atrapalhado|Bônus em testes de Habilidade de agilidade e coordenação, incluindo iniciativa. Gastando 2 PM, crítico com 5 ou 6.
+anulacao|vantagem|Anulação|1||Gasta 3 PM para impedir um alvo de usar uma vantagem até o fim da cena; o alvo tenta evitar com teste de Resistência.
+alcance-1|vantagem|Alcance (1 ponto)|1||Ataca alvos Longe sem penalidade e Muito Longe com Perda.
+alcance-2|vantagem|Alcance (2 pontos)|1|trait:alcance-1|Ataca alvos Muito Longe também sem penalidade.
+ataque-especial-espiritual|vantagem|Ataque Especial: Espiritual|1||O alvo perde PM em vez de PV. Custa 1 PM.
+ataque-especial-potente|vantagem|Ataque Especial: Potente|1||Aumenta o Poder do ataque em +2 por 1 PM. Pode ser repetido.
+ataque-especial-penetrante|vantagem|Ataque Especial: Penetrante|1||O alvo fica com Perda na defesa. Custa 3 PM.
+ataque-especial-perigoso|vantagem|Ataque Especial: Perigoso|1||O ataque tem crítico com 5 ou 6. Custa 1 PM.
+ataque-especial-preciso|vantagem|Ataque Especial: Preciso|1||Ataca com Habilidade no lugar de Poder. Custa 2 PM.
+carismatico|vantagem|Carismático|1|not:antipatico|Bônus em Poder para testes sociais. Gastando 2 PM, crítico com 5 ou 6.
+defesa-especial-esquiva|vantagem|Defesa Especial: Esquiva|1||Defende com Habilidade no lugar de Resistência. Custa 2 PM.
+defesa-especial-reflexao|vantagem|Defesa Especial: Reflexão|1||Se a defesa superar o ataque, a diferença volta como dano ao atacante. Custa 1 PM.
+defesa-especial-robusta|vantagem|Defesa Especial: Robusta|1||Em crítico na defesa, gasta 2 PM para somar Resistência de novo.
+defesa-especial-tenaz|vantagem|Defesa Especial: Tenaz|1||Bônus de +2 na defesa por 1 PM. Pode ser repetido.
+forte|vantagem|Forte|1|not:fracote|Bônus em testes de Poder de esforço físico. Gastando 2 PM, crítico com 5 ou 6.
+genio|vantagem|Gênio|1|not:tapado|Bônus em testes de Habilidade de raciocínio e conhecimento. Gastando 2 PM, crítico com 5 ou 6.
+resoluto|vantagem|Resoluto|1|not:indeciso|Bônus em testes de Resistência de força de vontade, inclusive teste de morte. Gastando 2 PM, crítico com 5 ou 6.
+vigoroso|vantagem|Vigoroso|1|not:fragil|Bônus em testes de Resistência de saúde física, inclusive teste de morte. Gastando 2 PM, crítico com 5 ou 6.
+antipatico|desvantagem|Antipático|-1|not:carismatico|Perda e nunca crítico em testes sociais de Poder.
+atrapalhado|desvantagem|Atrapalhado|-1|not:agil|Perda e nunca crítico em testes de Habilidade de coordenação e agilidade.
+codigo-cacador|desvantagem|Código do Caçador|-1||Conduta de caça: poupar filhotes e fêmeas grávidas, não abandonar a caça, enfrentar o mais perigoso. Violar dá Perda em tudo até se redimir.
+codigo-combate|desvantagem|Código do Combate|-1||Nunca atacar oponente em desvantagem (em Perda). Violar dá Perda em tudo até se redimir.
+codigo-derrota|desvantagem|Código da Derrota|-1||Parar de lutar ao ser derrotado e aceitar as condições do vencedor. Violar dá Perda em tudo até se redimir.
+codigo-herois|desvantagem|Código dos Heróis|-1||Cumprir a palavra, proteger os mais fracos e atender pedidos de ajuda. Violar dá Perda em tudo até se redimir.
+fracote|desvantagem|Fracote|-1|not:forte|Perda e nunca crítico em testes de Poder de esforço físico.
+fragil|desvantagem|Frágil|-1|not:vigoroso|Perda e nunca crítico em testes de Resistência de saúde física, inclusive teste de morte.
+indeciso|desvantagem|Indeciso|-1|not:resoluto|Perda e nunca crítico em testes de Resistência de força de vontade.
+infame|desvantagem|Infame|-1||Perda em testes sociais com quem reconhece a má fama do personagem.
+tapado|desvantagem|Tapado|-1|not:genio|Perda e nunca crítico em testes de Habilidade de raciocínio.

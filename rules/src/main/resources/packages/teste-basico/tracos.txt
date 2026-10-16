@@ -1,0 +1,6 @@
+# id|tipo|nome|custo|requisitos|descricao   (requisitos: atributo>=N ; trait:id)
+lutador|vantagem|Lutador|2|forca>=2|Treino de combate corpo a corpo.
+arcano|poder|Arcano|3|mente>=2|Permite gastar mana para efeitos mágicos.
+fragil|desvantagem|Frágil|-1||Corpo delicado, machuca com facilidade.
+espadas|pericia|Espadas|1||Treino com espadas.
+mestre-espadas|pericia|Mestre das Espadas|2|trait:espadas|Evolução da perícia Espadas.

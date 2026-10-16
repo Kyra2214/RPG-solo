@@ -1,0 +1,3 @@
+# id|titulo|atributos|tracos
+guerreiro|Guerreiro de exemplo|forca=3,agilidade=1,mente=0|lutador,espadas
+mago|Mago de exemplo|forca=0,agilidade=1,mente=3|arcano

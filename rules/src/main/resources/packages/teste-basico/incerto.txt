@@ -1,0 +1,2 @@
+# id|nota   (regra ambígua: nunca apresentar como oficial)
+atordoado|Duração exata do atordoamento não está definida; o mestre deve avisar que é uma decisão dele.

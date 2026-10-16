@@ -1,0 +1,11 @@
+# Pacote REAL por importação do usuário. Descrições com palavras próprias (não copiam o manual).
+# Cobre apenas o subconjunto do kit demo introdutório; a edição completa terá mais opções.
+id|3det-victory-demo
+sistema|3det
+edicao|3det-victory
+versao|0.1.0
+origem|importacao-usuario
+licenca|Importado pelo usuário a partir do próprio material. Não embutir no app nem commitar
+licenca_status|PENDENTE
+tipo|REAL
+morte|pv

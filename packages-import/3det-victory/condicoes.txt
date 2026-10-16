@@ -1,0 +1,3 @@
+ganho|Ganho|Situação favorável: o teste ganha um dado extra. Ganhos e Perdas se anulam; o limite é 3 dados.
+perda|Perda|Situação desfavorável: o teste perde um dado, mas nunca fica abaixo de 1 dado.
+nocauteado|Nocauteado|Chegou a 0 PV: está fora do combate.

@@ -1,0 +1,3 @@
+facil|Fácil|8
+media|Média|12
+dificil|Difícil|16

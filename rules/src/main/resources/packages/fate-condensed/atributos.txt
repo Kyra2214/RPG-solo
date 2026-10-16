@@ -1,0 +1,20 @@
+# id|nome|min|max|padrao   (perícias do Fate Condensed; +0 = Mediocre)
+academics|Academics|0|4|0
+athletics|Athletics|0|4|0
+burglary|Burglary|0|4|0
+contacts|Contacts|0|4|0
+crafts|Crafts|0|4|0
+deceive|Deceive|0|4|0
+drive|Drive|0|4|0
+empathy|Empathy|0|4|0
+fight|Fight|0|4|0
+investigate|Investigate|0|4|0
+lore|Lore|0|4|0
+notice|Notice|0|4|0
+physique|Physique|0|4|0
+provoke|Provoke|0|4|0
+rapport|Rapport|0|4|0
+resources|Resources|0|4|0
+shoot|Shoot|0|4|0
+stealth|Stealth|0|4|0
+will|Will|0|4|0

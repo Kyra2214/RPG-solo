@@ -1,0 +1,4 @@
+# id|nome|min|max|padrao
+poder|Poder|0|5|0
+habilidade|Habilidade|0|5|0
+resistencia|Resistência|0|5|0

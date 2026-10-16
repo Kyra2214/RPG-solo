@@ -1,0 +1,6 @@
+1|Atributos|Poder, Habilidade e Resistência vão de 0 a 5; cada ponto custa 1 ponto de criação.
+2|Recursos|PA igual ao Poder, PM igual a 5 vezes a Habilidade e PV igual a 5 vezes a Resistência.
+3|Pontos|São 10 pontos para atributos, perícias (1 cada) e vantagens. Desvantagens devolvem pontos, até -2 no total.
+4|Testes|Role 1d6, mais 1d6 com perícia adequada e mais 1d6 com Ganho (máximo 3d6, mínimo 1d6). Some um atributo e compare com a meta: 6, 9, 12 ou 15.
+5|Combate|Iniciativa por teste de Habilidade. Quem ataca testa Poder, quem defende testa Resistência; a diferença sai dos PV. Todo ataque causa ao menos 1 de dano, exceto se a defesa for o dobro do ataque ou mais.
+6|Evolução|1 XP por vitória em combate e 5 XP contra um oponente muito mais forte. 10 XP compram 1 ponto de personagem.

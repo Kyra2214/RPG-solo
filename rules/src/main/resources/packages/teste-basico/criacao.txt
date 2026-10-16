@@ -1,0 +1,2 @@
+pontos|8
+custo_atributo|1

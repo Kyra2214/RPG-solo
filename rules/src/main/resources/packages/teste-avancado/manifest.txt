@@ -1,0 +1,10 @@
+# Variante do pacote de teste: herda tudo de teste-basico e muda só o que difere.
+id|teste-avancado
+sistema|teste
+edicao|teste-2
+versao|1.0.0
+origem|autoral
+licenca|Mecanica propria do projeto RpgSolo
+licenca_status|VERIFICADA
+tipo|TESTE
+estende|teste-basico
