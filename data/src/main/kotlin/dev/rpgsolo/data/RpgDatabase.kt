@@ -9,13 +9,13 @@ import dev.rpgsolo.engine.Codec
 import dev.rpgsolo.engine.EventStore
 
 /**
- * Versão 2. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
+ * Versão 3. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
  * os esquemas exportados ficam em `data/schemas/` (3.1.2). Nunca use fallbackToDestructiveMigration:
  * apagaria as campanhas do jogador.
  */
 @Database(
     entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class RpgDatabase : RoomDatabase() {
@@ -29,6 +29,15 @@ abstract class RpgDatabase : RoomDatabase() {
             object : androidx.room.migration.Migration(1, 2) {
                 override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                     db.execSQL("CREATE TABLE IF NOT EXISTS campanha_meta (campanhaId TEXT NOT NULL PRIMARY KEY, chaptersJson TEXT NOT NULL, questsJson TEXT NOT NULL, timelineJson TEXT NOT NULL)")
+                }
+            },
+            object : androidx.room.migration.Migration(2, 3) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE campanha_meta ADD COLUMN playerId TEXT")
+                    db.execSQL("ALTER TABLE campanha_meta ADD COLUMN fichaId TEXT")
+                    db.execSQL("ALTER TABLE campanha_meta ADD COLUMN packageId TEXT")
+                    db.execSQL("ALTER TABLE campanha_meta ADD COLUMN systemId TEXT")
+                    db.execSQL("ALTER TABLE campanha_meta ADD COLUMN editionId TEXT")
                 }
             }
         )

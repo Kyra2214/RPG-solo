@@ -42,6 +42,7 @@ import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.CampanhaMetaRow
 import dev.rpgsolo.data.FichaRow
+import dev.rpgsolo.rules.CampaignStarter
 
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
@@ -68,6 +69,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private val database = RpgDatabase.build(application)
     private val store = RoomEventStore(database)
     private val activeCampaignPrefs = application.getSharedPreferences("rpgsolo_session", Application.MODE_PRIVATE)
+    private var playerId = "hero"
+    private var activePackage: RulePackage? = content.registry.get("sistema-proprio")
+    private var activeFicha: Ficha? = null
+    private var activeFichaId: String? = null
+    private var activeSystemId: String? = null
+    private var activeEditionId: String? = null
     private var session: CampaignSession = openOrCreateCampaign()
 
     /** null enquanto não houver provedor configurado. */
@@ -129,6 +136,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun activeCampaignId(): String = session.campaignId
 
+    /** Reabre uma campanha salva e restaura o pacote/ficha associados sem reutilizar o contexto da campanha anterior. */
+    fun activateCampaign(campaignId: String): String? = try {
+        if (campaignId != session.campaignId) {
+            switchCampaign(campaignId)
+            refreshCampaigns()
+            campaignVersion++
+        }
+        null
+    } catch (e: IllegalArgumentException) {
+        e.message
+    } catch (e: IllegalStateException) {
+        e.message
+    }
+
     /** Inicia a iniciativa dos participantes vivos da campanha; os números vêm exclusivamente do motor. */
     fun startCombat(): String? = try {
         val participants = session.state.entities.values.filter { it.alive }.map { it.id }
@@ -156,19 +177,42 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun importBackup(text: String): String? = try {
         val id = dev.rpgsolo.engine.Backup.import(store, text.trim(), "import-${System.nanoTime()}")
-        session = CampaignSession.open(store, id)
-        activeCampaignPrefs.edit().putString("active_campaign", id).apply()
-        chapters = ChapterBook(); quests = QuestLog(); restoreMetadata()
-        controller = roles?.let { buildController(it) }
+        switchCampaign(id)
         refreshCampaigns(); campaignVersion++; null
     } catch (e: IllegalArgumentException) { e.message }
 
     private fun restoreMetadata() {
-        val row = store.metadata(session.campaignId) ?: return
-        runCatching {
-            chapters.restore(dev.rpgsolo.engine.Codec.decodeChapters(row.chaptersJson))
-            quests.restore(dev.rpgsolo.engine.Codec.decodeQuests(row.questsJson), dev.rpgsolo.engine.Codec.decodeTimeline(row.timelineJson))
+        chapters = ChapterBook()
+        quests = QuestLog()
+        val row = store.metadata(session.campaignId)
+        if (row != null) {
+            runCatching {
+                chapters.restore(dev.rpgsolo.engine.Codec.decodeChapters(row.chaptersJson))
+                quests.restore(dev.rpgsolo.engine.Codec.decodeQuests(row.questsJson), dev.rpgsolo.engine.Codec.decodeTimeline(row.timelineJson))
+            }
         }
+
+        val firstPlayerId = session.state.entities.values.firstOrNull { it.kind == EntityKind.PLAYER }?.id
+        playerId = row?.playerId?.takeIf { session.state.entities.containsKey(it) } ?: firstPlayerId ?: "hero"
+        activeFichaId = row?.fichaId ?: playerId
+        activeFicha = activeFichaId?.let { id -> fichas.firstOrNull { it.id == id } }
+        activeSystemId = row?.systemId ?: activeFicha?.system?.systemId
+        activeEditionId = row?.editionId ?: activeFicha?.system?.editionId
+        activePackage = when {
+            row?.editionId != null -> row.packageId?.let(content.registry::get)
+            activeFicha != null -> CampaignStarter.packageFor(content.registry, activeFicha!!.system.editionId)
+            session.campaignId == "demo" -> content.registry.get("sistema-proprio")
+            else -> null
+        }
+    }
+
+    /** Troca primeiro para uma sessão já validada; depois restaura contexto e controlador da campanha selecionada. */
+    private fun switchCampaign(campaignId: String) {
+        val next = CampaignSession.open(store, campaignId)
+        session = next
+        activeCampaignPrefs.edit().putString("active_campaign", campaignId).apply()
+        restoreMetadata()
+        controller = roles?.let { buildController(it) }
     }
 
     private fun saveMetadata() {
@@ -177,7 +221,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 session.campaignId,
                 dev.rpgsolo.engine.Codec.encodeChapters(chapters.chapters),
                 dev.rpgsolo.engine.Codec.encodeQuests(quests.all()),
-                dev.rpgsolo.engine.Codec.encodeTimeline(quests.timeline())
+                dev.rpgsolo.engine.Codec.encodeTimeline(quests.timeline()),
+                playerId = playerId,
+                fichaId = activeFichaId ?: activeFicha?.id,
+                packageId = activePackage?.manifest?.id,
+                systemId = activeSystemId ?: activeFicha?.system?.systemId,
+                editionId = activeEditionId ?: activeFicha?.system?.editionId
             )
         )
     }
@@ -197,12 +246,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         require(campaigns.size > 1) { "mantenha pelo menos uma campanha" }
         store.delete(session.campaignId)
         val next = store.campaigns().first()
-        session = CampaignSession.open(store, next.id)
-        activeCampaignPrefs.edit().putString("active_campaign", next.id).apply()
-        chapters = ChapterBook()
-        quests = QuestLog()
-        restoreMetadata()
-        controller = roles?.let { buildController(it) }
+        switchCampaign(next.id)
         refreshCampaigns(); campaignVersion++; null
     } catch (e: IllegalArgumentException) { e.message }
 
@@ -256,13 +300,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return IntentClassifier(provider).asCheckFor(options) { classifierWarning = it }
     }
 
-    /** Personagem do jogador e pacote da campanha ativa. A demonstração usa o herói e o `sistema-proprio`. */
-    private var playerId = "hero"
-    private var activePackage: RulePackage? = content.registry.get("sistema-proprio")
-
-    /** Ficha da campanha ativa (vantagens/desvantagens). A demonstração não tem ficha: o mestre vê só atributos e recursos. */
-    private var activeFicha: Ficha? = null
-
     private fun buildController(r: AiRoles): PlayController =
         PlayController(
             session,
@@ -274,7 +311,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 playerTraits = { activeFicha?.traits.orEmpty() }
             ),
             playerId,
-            healthResource = activePackage?.manifest?.deathResource ?: "pv",
+            healthResource = activePackage?.manifest?.deathResource
+                ?: session.state.entities[playerId]?.resources?.keys?.firstOrNull()
+                ?: "pv",
             checkFor = checkFor(r.cheap), quests = quests,
             sheet = PlayerSheet(activePackage, activeFicha),
             conditionNames = activePackage?.data?.conditions?.associate { it.id to it.name }.orEmpty()
@@ -293,6 +332,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         playerId = started.playerId
         activePackage = started.pkg
         activeFicha = fichas.firstOrNull { it.id == started.campanha.fichaId }
+        activeFichaId = started.campanha.fichaId
+        activeSystemId = started.campanha.system.systemId
+        activeEditionId = started.campanha.system.editionId
         activeCampaignPrefs.edit().putString("active_campaign", session.campaignId).apply()
         chapters = ChapterBook()
         quests = QuestLog()

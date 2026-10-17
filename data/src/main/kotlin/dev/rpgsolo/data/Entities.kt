@@ -36,5 +36,10 @@ data class CampanhaMetaRow(
     @androidx.room.PrimaryKey val campanhaId: String,
     val chaptersJson: String,
     val questsJson: String,
-    val timelineJson: String
+    val timelineJson: String,
+    val playerId: String? = null,
+    val fichaId: String? = null,
+    val packageId: String? = null,
+    val systemId: String? = null,
+    val editionId: String? = null
 )

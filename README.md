@@ -1,108 +1,56 @@
-# RPG Solo (Android, sem servidor)
-Plano completo: `docs/PLANO_DESENVOLVIMENTO.md`
+# RPG Solo
 
-## Status
-- **Fase 1 (esqueleto):** escrita, mas o app Android **não foi compilado** (o ambiente do agente não tem Gradle/SDK).
-- **Fase 4A (catálogo):** `rules` com 153 estilos, 38 edições de sistemas, compatibilidade e configuração de campanha. 22 testes passaram (kotlinc, mini-JUnit). Pesquisa de sistemas: só D&D, parcial. Ver `docs/catalogo/`.
-- **Fase 2 (motor, núcleo):** `engine` em Kotlin puro. Compilado com kotlinc 2.0.21 e **28 testes passaram**. Atenção: a verificação usou um mini-JUnit local, não o JUnit real. Rode `./gradlew :engine:test` para confirmar com o JUnit de verdade.
-- **Fase 2 (restante, 2.2/2.3):** conhecimento do jogador, promessas de NPC, condições, combate (iniciativa rolada pelo motor, turnos, rodadas) e camadas Ficha/Sistema/Ambientação/RegraAdicional/Campanha (`Layers.kt`). **Escrito mas NÃO compilado nem testado** (sem kotlinc neste ambiente). Rode `./gradlew :engine:test` e corrija o que aparecer. Progressão por nível por XP (2.3.4, `EngineConfig.levelThresholds`) também escrita. **Fase 2 completa em código; falta só compilar/testar.**
-- **Fase 3 (persistência):** escrita, **não compilada**. `engine/Persistence.kt` (Codec JSON dos eventos, `EventStore`, `InMemoryEventStore`, `CampaignSession` com autosave e desfazer) com testes em `PersistenceTest`. `data` tem Room (campanhas, eventos, fichas) e `RoomEventStore`. Adicionados kotlinx-serialization, Room e KSP ao Gradle (versões em `libs.versions.toml`; aceite atualizações do Android Studio). Sem teste instrumentado do Room ainda. Tabelas de NPC privado, capítulos e resumos ficam para as Fases 8/9; "descobertas do jogador" já saem do log (`GameState.knowledge`).
-- **Fase 4 (pacotes de regras, 4.1–4.4 e 4.3.1/4.3.3):** escrita, **não compilada**. Formato em `docs/pacotes/FORMATO_PACOTE.md`; código em `rules` (`PackageParser`, `PackageValidator`, `RulePackage`, `PackageRegistry`, `Adaptation`); pacotes de teste próprios em `rules/src/main/resources/packages/` (`teste-basico` e `teste-avancado`, que herda do primeiro). Testes em `RulePackageTest`. **Sistema real (4.3.2): 3D&T escolhido, mas a Licença Aberta da Jambô não permite aplicativos; pacote só por importação do usuário ou autorização da Jambô. Nenhum pacote 3D&T foi escrito ainda.**
+Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um mestre de IA configurável. As regras e o estado são validados pelo motor local; a IA narra e propõe mudanças, mas não decide os resultados dos dados.
 
-## Como abrir
-1. Android Studio (versão recente) → Open → pasta `RpgSolo`.
-2. Aguarde o Gradle sincronizar (se sugerir atualizar AGP/Kotlin, aceite).
-3. Testes: `./gradlew :engine:test :rules:test` (não precisam de emulador).
-4. Rodar o app: botão Run.
+- Plano de desenvolvimento: [`docs/PLANO_DESENVOLVIMENTO.md`](docs/PLANO_DESENVOLVIMENTO.md)
+- Auditoria e melhorias sugeridas: [`PLANO_MELHORIAS_RPG_SOLO.md`](PLANO_MELHORIAS_RPG_SOLO.md)
+- Histórico das entregas recentes: [`CHANGELOG.md`](CHANGELOG.md)
+- Formato dos pacotes de regras: [`docs/pacotes/FORMATO_PACOTE.md`](docs/pacotes/FORMATO_PACOTE.md)
+
+## Estado atual
+
+Em 17/10/2026, `./gradlew test :app:assembleDebug` passou neste ambiente com JDK 17 e Android SDK 35. O APK de depuração é gerado em `app/build/outputs/apk/debug/app-debug.apk`.
+
+Esse resultado confirma a compilação e os testes Gradle, mas não substitui a validação visual em emulador/aparelho nem testes instrumentados do Room. O APK ainda não foi validado em dispositivo físico.
+
+## Funcionalidades implementadas
+
+- Seis áreas Compose: Jogar, Heróis, Regras, Campanhas, Sistemas e Configuração.
+- Motor determinístico em Kotlin puro, com comandos validados, log de eventos, rolagens reproduzíveis, rollback e backup de campanha.
+- Pacote próprio de regras carregado de recursos, criação de ficha, arquétipos e opções de traços.
+- Camada de IA com provedores configuráveis, classificação de intenção, narração, propostas validadas, sugestões e ações locais sem chamada de IA.
+- Persistência local via Room para campanhas, eventos, fichas e metadados; a sessão principal é mantida em `ViewModel`. A lista de Campanhas permite reabrir e alternar entre campanhas salvas.
+- Chave do provedor cifrada com AES/GCM usando Android Keystore; a chave não é incluída no backup.
+- Backup JSON local do log de eventos e da configuração do motor, com salvar/restaurar pelo seletor de arquivos Android (SAF) ou copiar/colar texto. Restaurar cria uma nova campanha. Capítulos, missões e linha do tempo ainda não fazem parte do arquivo exportado.
 
 ## Módulos
-- `app` — interface Compose, 6 abas (telas vazias)
-- `engine` — motor de regras, independente de sistema:
-  - `Dice` — rolagem com seed, rebobinável (desfazer + jogar de novo gera os mesmos dados)
-  - `Check` — teste genérico (rolar acima/abaixo, parcial e crítico só se o sistema declarar)
-  - `Commands` / `Events` / `Model` — funil de comandos, log de eventos append-only, estado
-  - `GameEngine` — valida e aplica (lotes atômicos), desfazer, restaurar do log
-- `data` — banco local (Fase 3)
-- `ai` — provedores de IA (Fase 6)
-- `rules` — catálogo de estilos/sistemas, compatibilidade e configuração de campanha (Fase 4A); pacotes de regras virão na Fase 4
 
-## Regras já garantidas pelo motor (com teste)
-Dano/cura/gasto validados · morto não recebe cura nem dano · cura não passa do máximo · item consumido não reaparece · ressurreição exige justificativa · lote de comandos é tudo-ou-nada · log reproduz o estado · desfazer volta ao estado e aos mesmos dados.
+- `app` — telas Compose, navegação, configuração e integração do aplicativo.
+- `engine` — estado canônico, comandos/eventos, dados, capítulos, diário e backup.
+- `rules` — catálogo, pacotes de regras, validação de fichas e criação de campanha.
+- `ai` — provedores, loop de jogo, contexto e parsing das propostas.
+- `data` — banco Room e adaptador de armazenamento de eventos.
 
-## Fase 4.3.2 (3D&T Victory, demo) — escrita, **não compilada**
-Pacote `3det-victory-demo` em `packages-import/3det-victory/` (fora do repositório, por licença; importação do usuário), escrito com palavras próprias a partir do kit demo. 12 perícias, vantagens e desvantagens do demo, recursos PA/PM/PV, testes de 1d6 a 3d6 e os 4 personagens prontos como exemplos (todos fecham 10 pontos; conferido por script Python). Testes em `ImportedPackage3DetTest` (ignorados se a pasta não existir). Formato estendido com `not:id` (exclusões) e `limite_desvantagens` (teto de -2), testados em `ExclusoesELimiteTest`. **Ainda não modelados:** crítico/falha crítica por dado e Ganho/Perda automáticos (em `incerto.txt`).
+## Como compilar e testar
 
-## Fase 4.3.2 (Fate Condensed) — escrita, **não compilada**
-Pacote **embutido** `fate-condensed` em `rules/src/main/resources/packages/` (licença CC-BY 3.0 verificada em faterpg.com; atribuição no manifest, a exibir na Biblioteca de sistemas). 19 perícias de 0 a +4 com 20 pontos, 4dF modelado como 4d3 (dificuldades já somadas de +8; mostre o total menos 8), Pontos de Destino 3. Não modelados: pirâmide exata, estresse, consequências, aspectos, proezas (ver `incerto.txt`). Testes em `FateCondensedTest`. Edição `fate-condensed` registrada no catálogo.
+Requisitos: JDK 17, Android SDK com API 35 e licenças do SDK aceitas.
 
-## Fase 4B (fontes e PDFs do usuário) — escrita, **não compilada**
-Nova direção: o app não embute material; usa PDFs como guia, linka onde estão (`catalog/fontes.txt`, `SourceLibrary`) e deixa o usuário inserir os próprios PDFs (`DocumentIndex` + contrato `PdfTextExtractor`, a implementar no Android). A licença não bloqueia mais a instalação de pacotes (`licenca_status` é só informativo). Testes em `FontesEPdfTest`. Pendente: extrator Android, tela, persistência (ver Fase 4B no plano).
+```bash
+./gradlew test :app:assembleDebug
+```
 
-## Fase 5.0 e 8.0 (criação de ficha e NPC) — núcleo escrito, **não compilado**
-`CharacterDraft` (rascunho guiado pelo pacote, funciona sem PDF; PDF só dá dicas extras), `SystemModels` (modelos e fichas prontas da aba de criação), `RuleLookupChain` (pacote → PDF do usuário → pesquisa na rede pela IA), `NpcFactory`/`NpcSheet` (NPC proposto pela IA, validado pelo motor, privado; vantagens e desvantagens só entram no combate). Testes em `CriacaoDeFichaENpcTest`. Pendente: telas (Fase 10), pesquisa na rede e proposta pela IA (Fase 6), persistência de NPC privado (Fase 8).
+Os testes dos módulos Kotlin puros também podem ser executados separadamente:
 
-## Fase 6 (camada de IA, núcleo) — escrita, **não compilada**
-Módulo `ai` em Kotlin puro (sem Android). `AiProvider` (6.1.1, com `stream`), `ProviderConfig` com chave mascarada e https obrigatório (6.1.4/6.1.5), `OpenAiCompatibleProvider` e `AnthropicProvider` sobre `HttpTransport` (6.1.3; `JavaNetTransport` é a rede real, os testes usam transporte falso), `AiError` com mensagens claras (6.2.3), `RetryingProvider` com espera crescente e `Retry-After` (6.2.2), `RateLimiter`/`RateLimitedProvider` (6.2.1), `UsageTracker` (6.2.4), `ProposalParser` + `ProposalSchema` (6.3.1/6.3.3) e `TurnRunner`: IA propõe, o motor valida em lote atômico, uma correção automática, e em qualquer falha final o estado fica intacto (6.2.5). A IA não pode propor rolagem, teste, combate nem criar entidade. Testes: `ProposalParserTest`, `ProvidersTest`, `ResilienceTest`, `TurnRunnerTest`. **Pendente:** escolher o primeiro provedor gratuito (6.1.2, depende de testar limites reais), guardar a chave com EncryptedSharedPreferences no app, economia de IA (6.4), prompt fixo do mestre e montador de contexto (Fase 7).
+```bash
+./gradlew :engine:test :rules:test :ai:test
+```
 
-## Fase 7 (mestre e loop de jogo, núcleo) — escrita, **não compilada**
-Em `ai`: `MasterPrompt` (7.3.1/7.3.2/7.3.3/7.3.5), `ContextAssembler` com orçamento de tokens e saúde só em palavras (7.2), `GameLoop` (7.1: motor rola → contexto → IA narra e propõe → motor valida e grava; falha desfaz tudo, inclusive a rolagem), desfazer e refazer narração mantendo os dados (7.4). Testes em `GameLoopTest`. **Pendente:** classificador de intenção por IA (7.1.2), resumo de capítulo (Fase 9), busca de regra ligada ao `RuleLookupChain`, sugestões de ação (7.3.4), telas (Fase 10).
+Abra a pasta do repositório no Android Studio para executar o app em emulador ou dispositivo.
 
-## Fase 8 (NPCs e conhecimento, núcleo) — escrita, **não compilada**
-`engine/Npc.kt`: `NpcDossier` privado (personalidade, objetivos, relações, segredos e informação falsa; 8.1), `DossierBook.contextFor` (só NPCs da cena e só segredos exigidos ou liberados, os demais marcados como proibidos; 8.5), `Reveal.run` (confere a habilidade, rola pelo motor e grava só os níveis liberados como conhecimento com fonte; 8.4), `journal` (diário só com o descoberto, falso como "acreditado"; 8.3). `ContextInput.npcPrivate` leva isso à IA. Testes em `NpcTest`. Promessas de NPC (8.2.1) e conhecimento (8.3.1) já existiam no motor. **Pendente:** persistir dossiês no Room, memória do que o NPC viu, relações dinâmicas e agenda/relógios (8.2.2/8.2.3, exigem novos eventos), geração do dossiê pela IA.
+## Lacunas conhecidas
 
-## Fase 9 (campanhas e capítulos, núcleo) — escrita, **não compilada**
-`engine/Chapters.kt`: `ChapterBook` (abre a partir do estado atual, encerra com resumo gravado uma vez, tamanho configurável, `reconcile` após desfazer; 9.2), `digestOf` (decisões, itens, promessas, descobertas e mortes calculados do log; 9.2.4), `QuestLog` com missões, objetivos e linha do tempo (9.3.1/9.3.2). `ai/ChapterSummarizer`: resumo por IA; se falhar, o capítulo segue aberto. Ambientação como dado e troca sem mexer na ficha já existiam (`Layers.kt`) e agora têm teste. Testes: `ChapterTest`, `ChapterSummarizerTest`. **Pendente:** criação de campanha por descrição livre com IA (9.1), mapa textual de locais (9.3.3), IA adaptando NPCs/itens à ambientação (9.4.2/9.4.3), persistência de capítulos, missões e linha do tempo no Room.
+A interface e a migração Room ainda precisam de testes em aparelho/emulador e testes instrumentados, respectivamente. O app também ainda não oferece importação de pacotes de regras ou PDFs do usuário. Combate completo, equipamento e efeitos mecânicos abrangentes dos traços permanecem por implementar na experiência de jogo. O pacote próprio contém decisões de regra marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
 
-## Fase 10 (interface, parte 1) — escrita, **não compilada**
-`ai/PlayController` (lógica da aba Jogar em Kotlin puro: chat, rolagens do motor, painel só do jogador, desfazer, narrar de novo; testes em `PlayControllerTest`) e `ProviderFactory` (fila + retentativas + uso). No `app`: `AppModel` (campanha de demonstração em memória), `PlayScreen` (10.1.1/10.1.3/10.1.4/10.1.5, chamada à IA fora da thread principal), `ConfigScreen` (10.6.1/10.6.4, chave mascarada), abas ligadas em `RpgSoloApp`. **Não validado no Android Studio: os layouts Compose nunca rodaram.** Pendente: abas Personagens, Regras, Campanhas e Sistemas (10.2–10.5), sugestões de ação (10.1.2), chave em EncryptedSharedPreferences, ligar o Room e os pacotes, classificador de intenção (hoje toda ação é sem teste), backup (10.6.3).
+## Princípios de conteúdo e licença
 
-## Fase 11 (continuidade e acabamento, parte 1) — escrita, **não compilada**
-`engine/ContinuityBatteryTest` (11.1.1–11.1.6 e 11.1.9: promessa lembrada, item consumido, morte, segredo descoberto, custo e requisito, ficha isolada entre campanhas, regra adicional só como adaptação; 11.2.1: ~4.500 eventos reabrem em menos de 5 s; 11.3.1: backup). `engine/Backup.kt`: exporta/importa uma campanha em um arquivo de texto com seed e config; backup ilegível, de outra versão, com evento corrompido ou com id repetido falha sem criar nada. `rules/AnaoCyberpunkPorPacoteTest` (11.1.8): roteiro mecânico do anão minerador em cenário cyberpunk com cada pacote instalado (teste-basico, teste-avancado, fate-condensed e o 3D&T importado, se a pasta existir). Já cobertos antes: 11.1.7 e falha de API (`TurnRunnerTest`, `GameLoopTest`), 11.1.10 (`ChapterTest`). **Pendente:** 11.2.2 (bateria/dados, só medível no aparelho), tela e arquivo de backup no Android (SAF), 11.3.2 aviso de privacidade (já há texto na aba Config), 11.3.3 APK. O limite de 5 s do teste de desempenho é folgado; meça no aparelho.
-
-## Fase 10 (interface, parte 2) — escrita, **não compilada**
-No `app`: `BundledContent` (lê catálogo, pacotes embutidos e `fontes.txt` dos recursos do módulo `rules`; erros viram aviso na tela), `SystemsScreen` (10.5.1/4B.1.2: pacotes, licença, atribuição, botões para abrir o material oficial, link não verificado marcado), `RulesScreen` (10.3: tutorial do pacote, regras incertas, busca), `CharactersScreen` (10.2/5.0: criação guiada com fichas prontas, atributos, pontos, traços permitidos, validação pelo motor, biblioteca em memória), `CampaignsScreen` (10.4: capítulos com resumo por IA, missões, diário só do descoberto). `AppModel` ganhou conteúdo, fichas, capítulos e missões. **Nada disso rodou: os layouts Compose e o carregamento de recursos no Android nunca foram executados.** Pendente: importar pacote por arquivo (10.5.2), importar PDF (4B.2), ligar a ficha criada à campanha, abrir várias campanhas, persistir fichas/capítulos/missões no Room, sugestões de ação (10.1.2), preferências de geração e backup na Config (10.6.2/10.6.3).
-
-## Fase 7.1.2, 6.4.1, 6.4.3 e 7.3.4 (classificador, ações locais, sugestões) — escritas, **não compiladas**
-Em `ai`: `IntentClassifier` (modelo barato, JSON, temperatura 0; a IA só escolhe o id de um `CheckOption` do pacote, id desconhecido vira "sem teste", falha de IA vira `Intent.Unavailable` e a ação segue sem teste com aviso; `asCheckFor` liga ao `PlayController`). `LocalActions` resolve sem IA e sem dados "ver ficha", "inventário" e "descansar" (só frases exatas; o descanso recupera apenas os recursos que o pacote/configuração define, é recusado em combate ou se morto, e é desfazível). `ProposalParser` aceita `suggestions` (até 3, opcionais; formato errado é descartado sem invalidar a jogada), que passam por `TurnOutcome.Applied` e `TurnRecord`; `PlayController.suggestions()` as expõe. Testes em `IntentAndLocalTest`. **Pendente:** botões de sugestão na `PlayScreen` (10.1.2), montar as `CheckOption` a partir do pacote de regras no `app`, 6.4.2 e 6.4.4.
-
-## Opções de teste do pacote e chips de sugestão — escritos, **não compilados**
-`RulePackage.checkChoices(stats)` (`rules`) monta os testes do pacote já com o modificador do personagem e a dificuldade padrão (`media`, ou a do meio; sem dificuldades no pacote não há testes a oferecer). Testes em `CheckChoicesTest`. No `app`: `AppModel` liga essas opções ao `IntentClassifier` (demo com `teste-basico`; falha do classificador vira aviso na `PlayScreen`) e `PlayScreen` mostra as sugestões como chips que só preenchem o campo. **Pendente:** pacote ativo da campanha em vez do fixo, modelo barato separado para classificar (6.4.2), nada disso rodou no Android.
-
-## Fase 6.4.2 (modelos por papel) — escrita, **não compilada**
-`ai/ModelRouting.kt`: `AiRoles` (barato / narrador / premium) e `Importance` (só crítico de sucesso ou falha vale narração premium; decisão do motor, nunca da IA). `ProviderFactory.buildRoles` cria os três sobre o mesmo endpoint e chave, mudando só o modelo; modelo em branco ou igual ao principal reutiliza o mesmo provedor. `GameLoop` aceita `premiumRunner` (também ao narrar de novo). No `app`: `ConfigScreen` ganhou os campos opcionais de modelo barato e melhor; classificador e resumo de capítulo usam o barato. Testes em `ModelRoutingTest`. Observação: cada papel tem a sua fila de limite de requisições (20/min cada), não uma compartilhada. **Pendente:** 6.4.4 (cache do bloco fixo), fila única por endpoint.
-
-## Fase 9.1 / 4A.4.4 (campanha por descrição livre) — escrita, **não compilada**
-`ai/CampaignInterpreter.kt` (o módulo `ai` agora depende de `rules`): a IA recebe o catálogo (sistemas, edições, estilos) e devolve só ids; ids inexistentes ou da dimensão errada são descartados e listados em `CampaignDraft.ignored`; ambientação fora do catálogo vira `customSetting` (texto livre). `resolve` nunca chuta: sem sistema, sem dificuldade ou com edição ambígua devolve `Interpretation.Ask` (o jogador responde com `answer`, determinístico e sem IA; trocar de sistema limpa a edição); combinação bloqueada vira `Invalid`; o resto passa por `resolveConfig` e sai como `Ready` com as notas de adaptação. Testes em `CampaignInterpreterTest` (usa o catálogo real). **Pendente:** tela de criação de campanha, formulário auxiliar (9.1.2), criar a campanha e a ficha a partir do `Ready`, escolher o pacote pela edição.
-
-## Início de campanha (`CampaignStarter`) — escrito, **não compilado**
-`rules/CampaignStarter.kt`: `packageFor` acha o pacote pela edição do catálogo (sem pacote, a campanha inicia com aviso "não validada pelo motor", 5.0.4); `start` recebe o `ConfigResult.Ready`, a ficha aprovada, o nome, a seed e a ambientação livre opcional. Recusa (sem gravar nada) ficha de outra edição ("fichas de sistemas diferentes não se misturam"), ficha inválida pelo pacote, nome vazio e id repetido. Cria o `Campanha` com `Ambientacao` (livre > nome do catálogo), usa o `EngineConfig` do pacote, grava o personagem como primeiro evento e já deixa a campanha reabrível. Testes em `CampaignStarterTest`. **Pendente:** tela "Nova campanha" no `app` (descrição livre → perguntas → ficha → começar), várias campanhas abertas, trocar o `AppModel` de demonstração por este fluxo, persistir no Room.
-
-## Nova campanha (fluxo e tela) — escritos, **não compilados**
-`ai/NewCampaignFlow.kt` (Kotlin puro): passos `Describe → Asking → Review → Started`, mais `Problem` para falhas. Só oferece fichas da mesma edição da campanha; ficha recusada volta à revisão com os erros; nada é gravado antes de `start` ser aceito. Testes em `NewCampaignFlowTest`. No `app`: `NewCampaignSection` (no topo da aba Campanhas) desenha o passo atual (a chamada à IA roda fora da thread principal) e `AppModel.activate` troca sessão, personagem, pacote, capítulos e missões pela campanha criada (o controlador de jogo e o classificador passam a usar o pacote da edição escolhida). **Nunca rodou no Android.** **Pendente:** formulário auxiliar (9.1.2), lista de várias campanhas e reabrir (precisa do Room ligado), importar pacote por arquivo (10.5.2).
-
-## Verificação com compilador real (engine, rules, ai) — 2026-10-16
-Compilados com Kotlin 2.0.21 e testados com **JUnit 4.13.2 de verdade** (fora do Gradle, porque o Maven Central estava bloqueado). Resultado: **rules 94/94**, **ai 93/93**, **engine 89/90**. A única falha (`backupRuimNaoCriaNada`) é artefato do ambiente: sem o plugin de serialização, o JSON foi trocado por um codec de teste em memória, que não lê texto adulterado. **Rode `./gradlew :engine:test` para confirmar `PersistenceTest` e `Backup` com o JSON real.** Dois bugs reais corrigidos: a linha de rolagem repetia o modificador (`1d20+2 [..] +2`) e metade da vida contava como "ferido" em vez de "gravemente ferido". Os módulos `app` e `data` (Android/Room) continuam **sem compilar**.
-
-## Fase 9.3.3 e 9.1.2 — escritas e testadas (mesmo ambiente acima)
-`engine/Places.kt`: `PlaceMap` (mapa textual: passagens de mão dupla, só o descoberto aparece para o jogador, rota só por locais conhecidos, segredo do local só vai à IA no local atual; `PlaceMapTest`). `ai/CampaignForm.kt`: formulário auxiliar (gênero, época, tom, dificuldade, temas, duração) que vira texto para o `CampaignInterpreter`; texto livre continua valendo (`CampaignFormTest`). **Pendente:** tela do formulário, persistir locais no Room, evento para registrar descoberta de local no log.
-
-## Fase 8.2.2 e 8.2.3 (relações e relógios) — escritos e testados (engine 94/95, falha só do codec de teste)
-Comandos `ChangeRelation` (relação de A com B, -100 a 100, exige motivo, limites respeitados, sem relação consigo mesmo), `CreateClock` (2 a 12 casas) e `AdvanceClock` (não passa do fim; relógio cheio recusa avanço), com eventos `RelationChanged`, `ClockCreated`, `ClockAdvanced` e estado em `GameState.relations`/`clocks`; `GameState.relation()` e `fullClocks()`. Testes em `AgendaTest` (inclui reprodução pelo log). **Pendente:** a IA propor esses comandos (`Proposals.kt`), levar relações e relógios ao `ContextAssembler`, tela, Room. Novos eventos entram no JSON pelo nome da classe (ver aviso em `Codec`).
-
-## Relações e relógios na IA — escritos e testados (ai 97/97)
-`ProposalSchema` aceita `change_relation`, `create_clock` e `advance_clock` (o motor valida e pode recusar). `ContextAssembler` mostra relações **só em palavras** (devoção, confiança, simpatia, neutra, antipatia, hostilidade, ódio) e relógios como seção privada, com aviso de "COMPLETO: narre a consequência" quando o motor completa um. Testes em `AgendaProposalTest`. **Pendente:** instrução no prompt do mestre sobre quando avançar relógios, tela, Room.
-
-## Sistema próprio (limpeza do sistema antigo) — escrito, **não compilado**
-Seguindo `PLANO_FICHA_SISTEMA_PROPRIO.md`: o único pacote embutido agora é `sistema-proprio` (`rules/src/main/resources/packages/sistema-proprio/`): atributos Poder/Habilidade/Resistência (0 a 5), recursos PA/PM/PV (fórmulas em rascunho), 10 pontos de criação, 8 perícias, vantagens e desvantagens próprias (limite de 3 pontos devolvidos), testes de 2d6 e 2 fichas de exemplo. O pacote `fate-condensed` e o `FateCondensedTest` foram apagados, assim como as entradas e links do Fate Condensed no catálogo. `teste-basico` e `teste-avancado` saíram do app e viraram fixtures em `rules/src/test/resources/packages/` (usados só pelos testes de formato). O app carrega só o sistema próprio. Testes de campanha (`CampaignStarterTest`, `NewCampaignFlowTest`) migraram para ele. **Pendente:** compilar e rodar `./gradlew :rules:test :ai:test` no Android Studio; `arquetipos.txt` e as telas de criação (passos 2 a 9 do plano).
-
-## Arquétipos (passo 2 do plano) — escritos, **não compilados**
-`arquetipos.txt` (formato em `docs/pacotes/FORMATO_PACOTE.md`) com `Archetype`, parser, validação na instalação (um arquétipo que quebre pontos, limites ou requisitos impede o pacote), herança por id, `RulePackage.archetypesSorted(busca)` (alfabética sem acento, com busca) e `CharacterDraft.loadArchetype`. O sistema próprio traz 63 arquétipos originais (espécies como anão, elfo, elfo negro, lobisomem, vampiro, ciborgue, orc, golem e ofícios como duelista, hacker, monge) e 25 traços novos para diferenciá-los. Testes em `ArquetiposTest`. **Pendente:** telas (início, arquétipo com cartões que abrem, lore, pontos, revisão), campos de lore na ficha, persistência.
-
-## Traços de classe (vantagem + desvantagem em par) — escritos, **não compilados**
-`tracos.txt` do sistema próprio ganhou 50 pares: cada vantagem de classe (custo 2) exige a sua desvantagem equivalente (custo -1), então o par sai por 1 ponto líquido e o limite de 3 pontos de desvantagens permite até 3 pares por ficha. Exemplos: Bárbaro (Fúria guerreira / Não foge de luta), Paladino (Bênção da fé / Juramento sagrado). Há também pares de espécies (Lobisomem, Vampiro, Ciborgue, Anão, Elfo negro etc.) e de ofícios. **Os efeitos (+1d6, uma vez por cena...) estão só na descrição: o motor valida custo e requisitos, mas ainda não aplica bônus automaticamente.** Mais 9 arquétipos de classe (Bárbaro, Paladino, Guerreiro, Mago, Patrulheiro, Bruxo, Samurai, Ninja, Inquisidor) já usam os pares. Testes em `TracosDeClasseTest`. Custos e efeitos são rascunho de balanço.
-
-## Sistema próprio: equilíbrio e cardápio de arquétipos — escrito; módulo `rules` compilado e testado (131 testes OK, mini-runner JUnit)
-Vantagens/poderes/desvantagens custam 0 pontos e se equilibram por quantidade: 1 vantagem→1 desvantagem, 2→3, 3→5, depois dobra (4→10, 5→20). Pode pegar quantas vantagens quiser; desvantagens a mais = modo difícil. 41 desvantagens gerais novas (Atrapalhado, Desatento, Má visão...) e `opcoes-arquetipo.txt`: os 72 arquétipos têm 3 vantagens e 4 desvantagens (específicas + gerais). Testes em `EquilibrioEOpcoesTest`. `BundledContent` agora também carrega `arquetipos` e `opcoes-arquetipo`. **Pendente:** tela de escolha de arquétipo/cardápio no app (a `CharactersScreen` só mostra o equilíbrio); `app` e `ai` não foram compilados aqui.
-
-## Layout novo e rolagem animada de dados — escritos; `ai` e `rules` testados, telas **não compiladas**
-`ai/PlayController`: linhas ROLL agora trazem `RollView` (dados reais do motor, modificador, total, dificuldade, resultado); teste em `PlayControllerTest` (98 testes do `ai` OK). `rules`: `validateCharacter(..., checkBalance)`; a tela só oferece traços sem exigir o mínimo de desvantagens na hora (132 testes OK). No `app`: `Theme.kt` (tema taverna/pergaminho, títulos com serifa), `Components.kt` (ScreenColumn, AppCard, Pill...), `DiceUi.kt` (`RollCard`: botão "Rolar dados", dados que giram, quicam e trocam de número e assentam nos valores do motor; d6 desenhado com pontos), `PlayScreen` (painel com barras de PV/PM/PA, bolhas de chat, narração em serifa; a narração de uma jogada com teste só aparece depois da rolagem), `CharactersScreen` (arquétipo, cardápio de vantagens/desvantagens, busca de traços) e as outras abas no mesmo estilo. **Nada disso foi compilado nem rodado no Android Studio** (o ambiente não alcança o Maven Central).
+Não embuta texto de sistemas de terceiros sem licença apropriada. Sistemas sem pacote instalado podem exigir conteúdo importado pelo usuário ou uma adaptação explicitamente identificada. A mecânica efetivamente jogada é sempre a do pacote escolhido e do motor, não uma regra improvisada pela IA.
