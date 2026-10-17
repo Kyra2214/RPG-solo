@@ -27,10 +27,12 @@ data class Ficha(
     /** Vantagens, desvantagens, perícias, poderes: nomes definidos pelo pacote de regras. */
     val traits: List<String> = emptyList(),
     /** Ids das regras adicionais aplicadas: o "selo" de adaptação na ficha (4.4.4). */
-    val adaptations: List<String> = emptyList()
+    val adaptations: List<String> = emptyList(),
+    /** Pontos por perícia, separados dos atributos e dos traços narrativos. */
+    val skills: Map<String, Int> = emptyMap()
 ) {
     fun toEntity(kind: EntityKind = EntityKind.PLAYER): Entity =
-        Entity(id = id, name = name, kind = kind, stats = stats, resources = resources)
+        Entity(id = id, name = name, kind = kind, stats = stats, resources = resources, skills = skills)
 }
 
 /** Universo ficcional. Referencia a campanha, nunca a ficha. */

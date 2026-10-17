@@ -23,7 +23,9 @@ data class Entity(
     val resources: Map<String, Resource> = emptyMap(),
     val alive: Boolean = true,
     val xp: Int = 0,
-    val level: Int = 1
+    val level: Int = 1,
+    /** Pontos por perícia; ids e limites vêm do pacote de regras. */
+    val skills: Map<String, Int> = emptyMap()
 )
 
 /** Estado canônico da campanha. Só muda aplicando eventos (ver [apply]). */

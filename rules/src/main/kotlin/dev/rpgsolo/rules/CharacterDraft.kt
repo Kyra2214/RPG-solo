@@ -14,15 +14,24 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
     var name: String = ""
     var concept: String = ""
     private val stats = linkedMapOf<String, Int>().also { m -> pkg.data.stats.forEach { m[it.id] = it.default } }
+    private val skills = linkedMapOf<String, Int>()
     private val traits = linkedSetOf<String>()
 
     fun stats(): Map<String, Int> = stats.toMap()
+    fun skills(): Map<String, Int> = skills.toMap()
     fun traits(): List<String> = traits.toList()
     fun stat(id: String): Int = stats[id] ?: 0
 
     fun setStat(statId: String, value: Int): Boolean {
         if (pkg.stat(statId) == null) return false
         stats[statId] = value
+        return true
+    }
+
+    /** Define os pontos da perícia; o pacote continua sendo a autoridade final sobre limites e custo. */
+    fun setSkill(skillId: String, value: Int): Boolean {
+        if (skillId.isBlank() || value !in 0..5) return false
+        skills[skillId] = value
         return true
     }
 
@@ -70,7 +79,7 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
 
     fun build(): FichaBuild {
         if (name.isBlank()) return FichaBuild.Invalid(listOf("dê um nome ao personagem"))
-        return pkg.buildFicha(id, name.trim(), concept.trim(), stats, traits.toList())
+        return pkg.buildFicha(id, name.trim(), concept.trim(), stats, traits.toList(), skills)
     }
 }
 

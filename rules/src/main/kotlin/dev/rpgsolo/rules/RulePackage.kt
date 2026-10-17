@@ -140,11 +140,20 @@ class RulePackage internal constructor(val data: PackageData) {
     }
 
     /** Cria a ficha pelas regras da edição: valida, deriva recursos e marca o sistema/edição. */
-    fun buildFicha(id: String, name: String, concept: String, stats: Map<String, Int>, traits: List<String>): FichaBuild {
+    fun buildFicha(id: String, name: String, concept: String, stats: Map<String, Int>, traits: List<String>, skills: Map<String, Int> = emptyMap()): FichaBuild {
         val report = validateCharacter(stats, traits)
         if (!report.valid) return FichaBuild.Invalid(report.errors)
         val full = data.stats.associate { it.id to (stats[it.id] ?: it.default) }
-        val ficha = Ficha(id, name, SystemRef(manifest.system, manifest.edition), concept, full, resourcesFor(full), traits)
+        val ficha = Ficha(
+            id = id,
+            name = name,
+            system = SystemRef(manifest.system, manifest.edition),
+            concept = concept,
+            stats = full,
+            resources = resourcesFor(full),
+            traits = traits,
+            skills = skills
+        )
         return FichaBuild.Created(ficha, report.warnings)
     }
 
@@ -176,9 +185,9 @@ class RulePackage internal constructor(val data: PackageData) {
     }
 
     /** Monta o teste para o motor. O resultado é decidido pelo motor; aqui só se descreve o teste. */
-    fun check(checkId: String, stats: Map<String, Int>, difficulty: Int): CheckSpec {
+    fun check(checkId: String, stats: Map<String, Int>, difficulty: Int, skills: Map<String, Int> = emptyMap()): CheckSpec {
         val c = requireNotNull(checkById[checkId]) { "teste inexistente: $checkId" }
-        val base = c.stat?.let { (stats[it] ?: statById[it]?.default ?: 0) * c.mult } ?: 0
+        val base = c.skill?.let { skills[it] ?: 0 } ?: c.stat?.let { (stats[it] ?: statById[it]?.default ?: 0) * c.mult } ?: 0
         // Teste de pontos não tem CD: a dificuldade escolhida troca o tamanho do dado (fácil d4, média d6, difícil d8...).
         val sides = if (c.comparison == Comparison.POINTS) poolDie(c.diceSides, difficulty) else c.diceSides
         return CheckSpec(
@@ -240,11 +249,11 @@ class RulePackage internal constructor(val data: PackageData) {
     }
 
     /** Todos os testes do pacote, prontos para o classificador escolher um (7.1.2). [stats] = atributos do personagem. */
-    fun checkChoices(stats: Map<String, Int>, difficulty: Int? = defaultDifficulty()): List<CheckChoice> {
+    fun checkChoices(stats: Map<String, Int>, difficulty: Int? = defaultDifficulty(), skills: Map<String, Int> = emptyMap()): List<CheckChoice> {
         val d = difficulty ?: return emptyList()
         return data.checks.map { c ->
-            val using = c.stat?.let { statById[it]?.name ?: it }
-            CheckChoice(c.id, c.name + (using?.let { " (usa $it)" } ?: ""), check(c.id, stats, d))
+            val using = c.skill ?: c.stat?.let { statById[it]?.name ?: it }
+            CheckChoice(c.id, c.name + (using?.let { " (usa $it)" } ?: ""), check(c.id, stats, d, skills))
         }
     }
 

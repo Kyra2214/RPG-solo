@@ -60,7 +60,9 @@ data class CheckDef(
     val comparison: Comparison,
     val partialMargin: Int?,
     val critSuccess: IntRange?,
-    val critFailure: IntRange?
+    val critFailure: IntRange?,
+    /** Id opcional de perícia; quando presente, seus pontos são a base do teste. */
+    val skill: String? = null
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)

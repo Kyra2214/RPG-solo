@@ -77,7 +77,15 @@ object NpcFactory {
         val ref = systemRef ?: return NpcResult.Rejected(listOf("sem pacote: informe o sistema/edição do NPC"))
         val res = proposal.resources.mapValues { (_, max) -> Resource(max, max) }
         if (proposal.resources.values.any { it < 0 }) return NpcResult.Rejected(listOf("recurso negativo"))
-        val ficha = Ficha(proposal.id, proposal.name.trim(), ref, proposal.concept.trim(), proposal.stats, res, proposal.traits)
+        val ficha = Ficha(
+            id = proposal.id,
+            name = proposal.name.trim(),
+            system = ref,
+            concept = proposal.concept.trim(),
+            stats = proposal.stats,
+            resources = res,
+            traits = proposal.traits
+        )
         return NpcResult.Created(NpcSheet(ficha, false, proposal.ruleSource, listOf("sistema sem pacote instalado: ficha não validada pelo motor")))
     }
 }

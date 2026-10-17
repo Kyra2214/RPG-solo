@@ -47,6 +47,25 @@ class PointCheckPackageTest {
         assertEquals(listOf(4, 5, 6), winningFaces(r))
     }
 
+    @Test fun testePodeUsarPontosDePericiaEmVezDoAtributo() {
+        val f = files().toMutableMap()
+        f["testes.txt"] = f.getValue("testes.txt").lines()
+            .joinToString("\n") {
+                if (!it.startsWith("esquiva|")) it
+                else it.split("|").toMutableList().also { fields ->
+                    fields[3] = "6"
+                    fields[6] = "POINTS"
+                    fields += "furtividade"
+                }.joinToString("|")
+            }
+        val r = PackageRegistry()
+        assertTrue(r.install(f) is InstallResult.Success)
+        val p = r.get("teste-basico")!!
+        val spec = p.check("esquiva", mapOf("agilidade" to 5), media(p), mapOf("furtividade" to 2))
+        assertEquals(2, spec.modifier)
+        assertEquals(listOf(5, 6), winningFaces(spec))
+    }
+
     @Test fun condicaoMudaPontosENaoOsDados() {
         val p = pacote()
         val spec = p.check("esquiva", mapOf("agilidade" to 3), media(p))
