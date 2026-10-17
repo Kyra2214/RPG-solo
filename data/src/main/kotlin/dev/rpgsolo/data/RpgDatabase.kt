@@ -29,6 +29,9 @@ abstract class RpgDatabase : RoomDatabase() {
         fun build(context: Context, name: String = "rpgsolo.db"): RpgDatabase =
             Room.databaseBuilder(context.applicationContext, RpgDatabase::class.java, name)
                 .addMigrations(*MIGRATIONS)
+                // O AppModel expõe uma API síncrona para o motor; a Etapa 1 migra as chamadas
+                // de rede/DB para Dispatchers.IO. Até lá, evita bloquear a UI com estado parcial.
+                .allowMainThreadQueries()
                 .build()
 
         /** Banco em memória para testes instrumentados. */
@@ -63,5 +66,30 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
 
     override fun truncate(campaignId: String, newSize: Int) {
         db.eventos().apagarDepoisDe(campaignId, newSize)
+    }
+
+    fun campaigns(): List<CampaignRecord> = db.campanhas().listar().map { row ->
+        CampaignRecord(row.id, row.nome, row.seed, Codec.decodeConfig(row.configJson))
+    }
+
+    fun rename(campaignId: String, name: String) {
+        require(name.isNotBlank()) { "dê um nome à campanha" }
+        db.campanhas().renomear(campaignId, name.trim())
+    }
+
+    fun delete(campaignId: String) {
+        db.campanhas().apagar(campaignId)
+    }
+
+    fun duplicate(sourceId: String, newId: String, newName: String): CampaignRecord {
+        val source = requireNotNull(campaign(sourceId)) { "campanha não encontrada: $sourceId" }
+        val copy = source.copy(id = newId, name = newName.trim())
+        require(copy.name.isNotBlank()) { "dê um nome à campanha duplicada" }
+        db.runInTransaction {
+            createCampaign(copy)
+            val events = load(sourceId)
+            if (events.isNotEmpty()) db.eventos().inserir(events.mapIndexed { i, payload -> EventoRow(newId, i, payload) })
+        }
+        return copy
     }
 }

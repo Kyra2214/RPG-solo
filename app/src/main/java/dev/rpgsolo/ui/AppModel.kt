@@ -37,11 +37,12 @@ import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
 import dev.rpgsolo.engine.EntityKind
-import dev.rpgsolo.engine.InMemoryEventStore
 import dev.rpgsolo.engine.Resource
+import dev.rpgsolo.data.RpgDatabase
+import dev.rpgsolo.data.RoomEventStore
 
 /**
- * Estado do app. O ViewModel sobrevive à recriação da Activity; a campanha segue em memória até a Etapa 1.
+ * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
  * A configuração do provedor é restaurada e a chave fica cifrada pelo Android Keystore.
  */
 class AppModel(application: Application) : AndroidViewModel(application) {
@@ -50,8 +51,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private val secureSettings = SecureSettings(application)
     private var storedSettings: StoredProviderSettings? = secureSettings.load()
 
-    /** Biblioteca de fichas criadas (5.2.1, só em memória por enquanto). */
+    /** Biblioteca de fichas criadas (a tabela de fichas será ligada na próxima etapa da persistência). */
     val fichas = mutableStateListOf<Ficha>()
+    val campaigns = mutableStateListOf<CampaignRecord>()
     var chapters = ChapterBook()
         private set
     var quests = QuestLog()
@@ -61,15 +63,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var campaignVersion by mutableIntStateOf(0)
         private set
     private var roles: AiRoles? = null
-    private val store = InMemoryEventStore()
-    private var session: CampaignSession = CampaignSession.create(
-        store, CampaignRecord("demo", "Aventura de teste", 42L, EngineConfig(deathResource = "pv"))
-    ).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Aventureiro", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))),
-            CreateEntity(Entity("guarda", "Guarda do portão", EntityKind.NPC, resources = mapOf("pv" to Resource(8, 8))))
-        ))
-    }
+    private val database = RpgDatabase.build(application)
+    private val store = RoomEventStore(database)
+    private val activeCampaignPrefs = application.getSharedPreferences("rpgsolo_session", Application.MODE_PRIVATE)
+    private var session: CampaignSession = openOrCreateCampaign()
 
     /** null enquanto não houver provedor configurado. */
     var controller: PlayController? by mutableStateOf(null)
@@ -79,6 +76,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         private set
 
     init {
+        refreshCampaigns()
         storedSettings?.let { saved ->
             runCatching {
                 applySettings(
@@ -88,6 +86,53 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    private fun openOrCreateCampaign(): CampaignSession {
+        val savedId = activeCampaignPrefs.getString("active_campaign", null)
+        val saved = savedId?.let { store.campaign(it) } ?: store.campaigns().firstOrNull()
+        if (saved != null) {
+            activeCampaignPrefs.edit().putString("active_campaign", saved.id).apply()
+            return CampaignSession.open(store, saved.id)
+        }
+        val record = CampaignRecord("demo", "Aventura de teste", 42L, EngineConfig(deathResource = "pv"))
+        return CampaignSession.create(store, record).also {
+            it.executeAll(listOf(
+                CreateEntity(Entity("hero", "Aventureiro", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))),
+                CreateEntity(Entity("guarda", "Guarda do portão", EntityKind.NPC, resources = mapOf("pv" to Resource(8, 8))))
+            ))
+            activeCampaignPrefs.edit().putString("active_campaign", record.id).apply()
+        }
+    }
+
+    private fun refreshCampaigns() {
+        campaigns.clear()
+        campaigns.addAll(store.campaigns())
+    }
+
+    fun activeCampaignId(): String = session.campaignId
+
+    fun renameCampaign(name: String): String? = try {
+        store.rename(session.campaignId, name)
+        refreshCampaigns(); campaignVersion++; null
+    } catch (e: IllegalArgumentException) { e.message }
+
+    fun duplicateCampaign(): String? = try {
+        val source = requireNotNull(store.campaign(session.campaignId))
+        store.duplicate(source.id, "${source.id}-copy-${System.nanoTime()}", "${source.name} (cópia)")
+        refreshCampaigns(); campaignVersion++; null
+    } catch (e: IllegalArgumentException) { e.message }
+
+    fun deleteCurrentCampaign(): String? = try {
+        require(campaigns.size > 1) { "mantenha pelo menos uma campanha" }
+        store.delete(session.campaignId)
+        val next = store.campaigns().first()
+        session = CampaignSession.open(store, next.id)
+        activeCampaignPrefs.edit().putString("active_campaign", next.id).apply()
+        chapters = ChapterBook()
+        quests = QuestLog()
+        controller = roles?.let { buildController(it) }
+        refreshCampaigns(); campaignVersion++; null
+    } catch (e: IllegalArgumentException) { e.message }
 
     /** Valida e aplica a configuração. Erro claro na tela se o endpoint ou o modelo forem inválidos. */
     fun applySettings(
@@ -175,9 +220,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         playerId = started.playerId
         activePackage = started.pkg
         activeFicha = fichas.firstOrNull { it.id == started.campanha.fichaId }
+        activeCampaignPrefs.edit().putString("active_campaign", session.campaignId).apply()
         chapters = ChapterBook()
         quests = QuestLog()
         controller = roles?.let { buildController(it) }
+        refreshCampaigns()
         campaignVersion++
     }
 

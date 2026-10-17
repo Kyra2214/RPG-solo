@@ -27,6 +27,7 @@ fun CampaignsScreen(model: AppModel) {
     val scope = rememberCoroutineScope()
     var title by remember { mutableStateOf("") }
     var quest by remember { mutableStateOf("") }
+    var newName by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     val v = model.campaignVersion
@@ -37,6 +38,23 @@ fun CampaignsScreen(model: AppModel) {
 
     ScreenColumn {
         AppCard(accent = MaterialTheme.colorScheme.primary) { NewCampaignSection(model) }
+
+        SectionTitle("Campanhas salvas")
+        model.campaigns.forEach { campaign ->
+            AppCard(accent = if (campaign.id == model.activeCampaignId()) MaterialTheme.colorScheme.tertiary else null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(campaign.name, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    if (campaign.id == model.activeCampaignId()) Pill("aberta", MaterialTheme.colorScheme.tertiary)
+                }
+                Muted("${campaign.id} · seed ${campaign.seed}")
+            }
+        }
+        OutlinedTextField(newName, { newName = it }, Modifier.fillMaxWidth(), label = { Text("Novo nome da campanha ativa") }, singleLine = true)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(modifier = Modifier.weight(1f), onClick = { message = model.renameCampaign(newName); if (message == null) newName = "" }) { Text("Renomear") }
+            Button(modifier = Modifier.weight(1f), onClick = { message = model.duplicateCampaign() }) { Text("Duplicar") }
+        }
+        Button(modifier = Modifier.fillMaxWidth(), onClick = { message = model.deleteCurrentCampaign() }) { Text("Apagar campanha ativa") }
 
         SectionTitle("Capítulos")
         if (chapters.isEmpty()) Muted("Nenhum capítulo ainda.")

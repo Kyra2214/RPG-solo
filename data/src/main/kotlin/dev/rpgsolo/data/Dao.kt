@@ -15,6 +15,12 @@ interface CampanhaDao {
 
     @Query("SELECT * FROM campanhas ORDER BY nome")
     fun listar(): List<CampanhaRow>
+
+    @Query("UPDATE campanhas SET nome = :nome WHERE id = :id")
+    fun renomear(id: String, nome: String)
+
+    @Query("DELETE FROM campanhas WHERE id = :id")
+    fun apagar(id: String)
 }
 
 @Dao
