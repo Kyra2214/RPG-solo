@@ -129,6 +129,29 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun activeCampaignId(): String = session.campaignId
 
+    /** Inicia a iniciativa dos participantes vivos da campanha; os números vêm exclusivamente do motor. */
+    fun startCombat(): String? = try {
+        val participants = session.state.entities.values.filter { it.alive }.map { it.id }
+        require(participants.size >= 2) { "combate exige pelo menos duas entidades vivas" }
+        when (val result = session.rollInitiative(participants, statKey = "habilidade")) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+    } catch (e: IllegalArgumentException) { e.message }
+
+    /** Avança para o próximo participante vivo; a ordem e a rodada são decididas pelo motor. */
+    fun nextCombatTurn(): String? = when (val result = session.execute(dev.rpgsolo.engine.NextTurn)) {
+        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+    }
+
+    fun endCombat(): String? = when (val result = session.execute(dev.rpgsolo.engine.EndCombat)) {
+        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+    }
+
+    fun combatState(): dev.rpgsolo.engine.CombatState? = session.state.combat
+
     fun exportBackup(): String = dev.rpgsolo.engine.Backup.export(store, session.campaignId)
 
     fun importBackup(text: String): String? = try {

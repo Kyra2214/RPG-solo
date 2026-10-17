@@ -71,11 +71,11 @@ fun PlayScreen(model: AppModel) {
         }
         return
     }
-    PlayContent(c, model.classifierWarning)
+    PlayContent(c, model, model.classifierWarning)
 }
 
 @Composable
-private fun PlayContent(c: PlayController, classifierWarning: String?) {
+private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: String?) {
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
@@ -112,6 +112,7 @@ private fun PlayContent(c: PlayController, classifierWarning: String?) {
 
     Column(Modifier.fillMaxSize()) {
         panel?.let { StatusPanel(it) }
+        CombatControls(model)
 
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth(),
@@ -137,6 +138,33 @@ private fun PlayContent(c: PlayController, classifierWarning: String?) {
             onUndo = { run { c.undo() } },
             onRegenerate = { run { c.regenerate() } }
         )
+    }
+}
+
+@Composable
+private fun CombatControls(model: AppModel) {
+    val campaignVersion = model.campaignVersion
+    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+    var message by remember(campaignVersion) { mutableStateOf<String?>(null) }
+    val combat = model.combatState()
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            if (combat == null) {
+                Button(onClick = { message = model.startCombat() }, modifier = Modifier.fillMaxWidth()) {
+                    Text("⚔ Iniciar combate")
+                }
+            } else {
+                Text("Rodada ${combat.round} · turno ${combat.turnIndex + 1}/${combat.order.size}: ${combat.current}", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Próximo turno") }
+                    TextButton(onClick = { message = model.endCombat() }) { Text("Encerrar") }
+                }
+            }
+            message?.let { ErrorText(it) }
+        }
     }
 }
 
