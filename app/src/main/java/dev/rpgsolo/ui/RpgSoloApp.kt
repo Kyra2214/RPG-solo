@@ -17,8 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -37,8 +38,9 @@ enum class Tab(val label: String, val icon: String, val title: String) {
 @Composable
 fun RpgSoloApp() {
     RpgTheme {
-        val model = remember { AppModel() }
-        var selected by remember { mutableStateOf(Tab.JOGAR) }
+        val model: AppModel = viewModel()
+        var selectedName by rememberSaveable { mutableStateOf(Tab.JOGAR.name) }
+        val selected = Tab.valueOf(selectedName)
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
@@ -55,7 +57,7 @@ fun RpgSoloApp() {
                     Tab.values().forEach { tab ->
                         NavigationBarItem(
                             selected = tab == selected,
-                            onClick = { selected = tab },
+                            onClick = { selectedName = tab.name },
                             icon = { Text(tab.icon, fontSize = 20.sp) },
                             label = { Text(tab.label, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                             colors = NavigationBarItemDefaults.colors(

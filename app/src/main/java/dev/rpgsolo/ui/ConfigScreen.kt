@@ -27,12 +27,15 @@ import dev.rpgsolo.ai.maskKey
 /** Aba Config (10.6.1/10.6.4): provedor, endpoint, modelo, chave mascarada e uso estimado. */
 @Composable
 fun ConfigScreen(model: AppModel) {
-    var kind by remember { mutableStateOf(ProviderKind.OPENAI_COMPATIBLE) }
-    var endpoint by remember { mutableStateOf("https://") }
-    var modelName by remember { mutableStateOf("") }
-    var key by remember { mutableStateOf("") }
-    var cheapModel by remember { mutableStateOf("") }
-    var premiumModel by remember { mutableStateOf("") }
+    val stored = model.savedSettings()
+    var kind by remember {
+        mutableStateOf(stored?.kind?.let { runCatching { ProviderKind.valueOf(it) }.getOrNull() } ?: ProviderKind.OPENAI_COMPATIBLE)
+    }
+    var endpoint by remember { mutableStateOf(stored?.endpoint ?: "https://") }
+    var modelName by remember { mutableStateOf(stored?.model.orEmpty()) }
+    var key by remember { mutableStateOf(stored?.apiKey.orEmpty()) }
+    var cheapModel by remember { mutableStateOf(stored?.cheapModel.orEmpty()) }
+    var premiumModel by remember { mutableStateOf(stored?.premiumModel.orEmpty()) }
     var saved by remember { mutableStateOf(false) }
 
     ScreenColumn {
@@ -52,11 +55,16 @@ fun ConfigScreen(model: AppModel) {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
         Button(modifier = Modifier.fillMaxWidth(), onClick = { saved = model.applySettings(kind, endpoint, modelName, key, cheapModel, premiumModel) }) { Text("Salvar e usar") }
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+            model.forgetProvider()
+            key = ""
+            saved = false
+        }) { Text("Esquecer chave e desativar provedor") }
         model.configError?.let { ErrorText(it) }
         if (saved && model.configError == null) AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text("Provedor ativo. Chave: ${maskKey(key)}") }
         AppCard {
             Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
-            Muted("A chave fica só na memória do app nesta versão e é apagada ao fechar. A jogada que você escreve é enviada ao provedor escolhido.")
+            Muted("A chave é cifrada pelo Android Keystore e não entra em backups nem logs. A jogada que você escreve é enviada ao provedor escolhido.")
             Muted("Uso estimado nesta sessão: ${model.usage.calls} chamadas, ${model.usage.inputTokens} tokens de entrada, ${model.usage.outputTokens} de saída.")
         }
     }

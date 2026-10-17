@@ -111,7 +111,10 @@ class PlayerSheetTest {
         assertTrue(c.submit("ataco o orc") is PlayResult.Played)
         val user = provider.requests.single().messages.last().content
         assertNotNull(user)
-        assertTrue("Lutador" in user && "Frágil" in user && "Vida 10/10" in user)
+        // Fora de combate o controlador envia a ficha em nível BRIEF; o status detalhado
+        // (incluindo Vida) só entra no início do combate ou durante uma rodada de combate.
+        assertTrue("Lutador" in user && "Frágil" in user)
+        assertFalse("Vida 10/10" in user)
         assertEquals(1, provider.requests.size)
     }
 

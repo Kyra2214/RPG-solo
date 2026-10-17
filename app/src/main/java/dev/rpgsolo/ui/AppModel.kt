@@ -1,10 +1,12 @@
 package dev.rpgsolo.ui
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
 import dev.rpgsolo.ai.AiProvider
 import dev.rpgsolo.ai.AiRoles
 import dev.rpgsolo.ai.CampaignInterpreter
@@ -39,12 +41,14 @@ import dev.rpgsolo.engine.InMemoryEventStore
 import dev.rpgsolo.engine.Resource
 
 /**
- * Estado do app. Campanha de demonstração em memória (a ligação com o Room e com os pacotes vem depois).
- * A chave só vive na memória do processo; EncryptedSharedPreferences ainda não foi ligado.
+ * Estado do app. O ViewModel sobrevive à recriação da Activity; a campanha segue em memória até a Etapa 1.
+ * A configuração do provedor é restaurada e a chave fica cifrada pelo Android Keystore.
  */
-class AppModel {
+class AppModel(application: Application) : AndroidViewModel(application) {
     val usage = UsageTracker()
     val content: Content = BundledContent.load()
+    private val secureSettings = SecureSettings(application)
+    private var storedSettings: StoredProviderSettings? = secureSettings.load()
 
     /** Biblioteca de fichas criadas (5.2.1, só em memória por enquanto). */
     val fichas = mutableStateListOf<Ficha>()
@@ -74,6 +78,17 @@ class AppModel {
     var configError: String? by mutableStateOf(null)
         private set
 
+    init {
+        storedSettings?.let { saved ->
+            runCatching {
+                applySettings(
+                    ProviderKind.valueOf(saved.kind), saved.endpoint, saved.model, saved.apiKey,
+                    saved.cheapModel, saved.premiumModel
+                )
+            }
+        }
+    }
+
     /** Valida e aplica a configuração. Erro claro na tela se o endpoint ou o modelo forem inválidos. */
     fun applySettings(
         kind: ProviderKind, endpoint: String, model: String, apiKey: String,
@@ -86,12 +101,31 @@ class AppModel {
             )
             roles = r
             controller = buildController(r)
+            storedSettings = StoredProviderSettings(
+                kind = kind.name,
+                endpoint = endpoint.trim(),
+                model = model.trim(),
+                cheapModel = cheapModel.trim(),
+                premiumModel = premiumModel.trim(),
+                apiKey = apiKey.trim()
+            ).also(secureSettings::save)
             configError = null
             true
         } catch (e: IllegalArgumentException) {
             configError = e.message
             false
         }
+
+    fun savedSettings(): StoredProviderSettings? = storedSettings
+
+    /** Remove a chave cifrada e desativa o provedor atual. */
+    fun forgetProvider() {
+        secureSettings.clear()
+        storedSettings = null
+        roles = null
+        controller = null
+        configError = null
+    }
 
     /**
      * 7.1.2: testes do pacote ativo (demo: sistema-proprio) com os atributos do herói. Sem pacote, sem testes:

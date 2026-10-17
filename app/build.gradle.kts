@@ -28,4 +28,5 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 }
