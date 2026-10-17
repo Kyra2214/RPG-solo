@@ -1,6 +1,9 @@
 package dev.rpgsolo.engine
 
+import kotlinx.serialization.Serializable
+
 /** Fase 9.2.4: o que aconteceu num capítulo, calculado do log (nada é guardado em duplicidade). */
+@Serializable
 data class ChapterDigest(
     /** "dono/item" -> variação líquida. */
     val itemDeltas: Map<String, Int> = emptyMap(),
@@ -34,6 +37,7 @@ fun digestOf(events: List<Event>): ChapterDigest {
     return ChapterDigest(items.filterValues { it != 0 }, deaths, made, kept, disc, facts, xp)
 }
 
+@Serializable
 data class Chapter(
     val number: Int,
     val title: String,
@@ -58,6 +62,7 @@ class ChapterBook(private val maxEvents: Int = 200) {
 
     private val list = mutableListOf<Chapter>()
     val chapters: List<Chapter> get() = list.toList()
+    fun restore(items: List<Chapter>) { list.clear(); list.addAll(items) }
     fun current(): Chapter? = list.lastOrNull()?.takeIf { it.isOpen }
 
     fun open(session: CampaignSession, title: String): Chapter {
@@ -100,10 +105,13 @@ class ChapterBook(private val maxEvents: Int = 200) {
     fun summaries(): List<String> = list.mapNotNull { c -> c.summary?.let { "Capítulo ${c.number} (${c.title}): $it" } }
 }
 
+@Serializable
 enum class QuestStatus { ACTIVE, DONE, FAILED }
 
+@Serializable
 data class Objective(val text: String, val done: Boolean = false)
 
+@Serializable
 data class Quest(val id: String, val title: String, val objectives: List<Objective> = emptyList(), val status: QuestStatus = QuestStatus.ACTIVE)
 
 /** Fase 9.3: missões e linha do tempo. */
@@ -119,6 +127,10 @@ class QuestLog {
 
     fun get(id: String) = quests[id]
     fun active(): List<Quest> = quests.values.filter { it.status == QuestStatus.ACTIVE }
+    fun all(): List<Quest> = quests.values.toList()
+    fun restore(items: List<Quest>, timeline: List<Pair<Int, String>>) {
+        quests.clear(); line.clear(); items.forEach { quests[it.id] = it }; line.addAll(timeline)
+    }
 
     fun completeObjective(id: String, index: Int) {
         val q = requireNotNull(quests[id]) { "missão inexistente: $id" }

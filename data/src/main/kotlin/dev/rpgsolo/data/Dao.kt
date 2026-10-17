@@ -49,3 +49,15 @@ interface FichaDao {
     @Query("SELECT * FROM fichas WHERE arquivada = 0 ORDER BY nome")
     fun listar(): List<FichaRow>
 }
+
+@Dao
+interface CampanhaMetaDao {
+    @Query("SELECT * FROM campanha_meta WHERE campanhaId = :id")
+    fun buscar(id: String): CampanhaMetaRow?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: CampanhaMetaRow)
+
+    @Query("DELETE FROM campanha_meta WHERE campanhaId = :id")
+    fun apagar(id: String)
+}

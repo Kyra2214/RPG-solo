@@ -1,6 +1,8 @@
 package dev.rpgsolo.engine
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 
 /** Texto <-> objetos para salvar. Os nomes das classes entram no JSON: renomear um evento exige migração. */
 object Codec {
@@ -18,6 +20,17 @@ object Codec {
 
     fun encode(f: Ficha): String = json.encodeToString(Ficha.serializer(), f)
     fun decodeFicha(s: String): Ficha = json.decodeFromString(Ficha.serializer(), s)
+
+    fun encodeChapters(value: List<Chapter>): String = json.encodeToString(ListSerializer(Chapter.serializer()), value)
+    fun decodeChapters(value: String): List<Chapter> = json.decodeFromString(ListSerializer(Chapter.serializer()), value)
+    fun encodeQuests(value: List<Quest>): String = json.encodeToString(ListSerializer(Quest.serializer()), value)
+    fun decodeQuests(value: String): List<Quest> = json.decodeFromString(ListSerializer(Quest.serializer()), value)
+    fun encodeTimeline(value: List<Pair<Int, String>>): String =
+        json.encodeToString(ListSerializer(String.serializer()), value.map { "${it.first}\u0000${it.second}" })
+    fun decodeTimeline(value: String): List<Pair<Int, String>> = json.decodeFromString(ListSerializer(String.serializer()), value).map {
+        val split = it.split('\u0000', limit = 2)
+        split.first().toInt() to split.getOrElse(1) { "" }
+    }
 }
 
 /** Dados que identificam uma campanha salva (a seed e a config são parte do que reproduz o estado). */

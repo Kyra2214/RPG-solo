@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "15edb576135ccf71ddae095fa726b131",
+    "version": 2,
+    "identityHash": "61f00114fc72b88dc8136c06e03bc017",
     "entities": [
       {
         "tableName": "campanhas",
@@ -134,12 +134,50 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "campanha_meta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`campanhaId` TEXT NOT NULL, `chaptersJson` TEXT NOT NULL, `questsJson` TEXT NOT NULL, `timelineJson` TEXT NOT NULL, PRIMARY KEY(`campanhaId`))",
+        "fields": [
+          {
+            "fieldPath": "campanhaId",
+            "columnName": "campanhaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chaptersJson",
+            "columnName": "chaptersJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questsJson",
+            "columnName": "questsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timelineJson",
+            "columnName": "timelineJson",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "campanhaId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '15edb576135ccf71ddae095fa726b131')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '61f00114fc72b88dc8136c06e03bc017')"
     ]
   }
 }

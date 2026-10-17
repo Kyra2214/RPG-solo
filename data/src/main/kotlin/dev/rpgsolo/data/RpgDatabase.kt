@@ -9,22 +9,29 @@ import dev.rpgsolo.engine.Codec
 import dev.rpgsolo.engine.EventStore
 
 /**
- * Versão 1. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
+ * Versão 2. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
  * os esquemas exportados ficam em `data/schemas/` (3.1.2). Nunca use fallbackToDestructiveMigration:
  * apagaria as campanhas do jogador.
  */
 @Database(
-    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class],
-    version = 1,
+    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class],
+    version = 2,
     exportSchema = true
 )
 abstract class RpgDatabase : RoomDatabase() {
     abstract fun campanhas(): CampanhaDao
     abstract fun eventos(): EventoDao
     abstract fun fichas(): FichaDao
+    abstract fun meta(): CampanhaMetaDao
 
     companion object {
-        val MIGRATIONS: Array<androidx.room.migration.Migration> = emptyArray()
+        val MIGRATIONS = arrayOf(
+            object : androidx.room.migration.Migration(1, 2) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("CREATE TABLE IF NOT EXISTS campanha_meta (campanhaId TEXT NOT NULL PRIMARY KEY, chaptersJson TEXT NOT NULL, questsJson TEXT NOT NULL, timelineJson TEXT NOT NULL)")
+                }
+            }
+        )
 
         fun build(context: Context, name: String = "rpgsolo.db"): RpgDatabase =
             Room.databaseBuilder(context.applicationContext, RpgDatabase::class.java, name)
@@ -79,7 +86,11 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
 
     fun delete(campaignId: String) {
         db.campanhas().apagar(campaignId)
+        db.meta().apagar(campaignId)
     }
+
+    fun metadata(campaignId: String): CampanhaMetaRow? = db.meta().buscar(campaignId)
+    fun saveMetadata(row: CampanhaMetaRow) = db.meta().salvar(row)
 
     fun duplicate(sourceId: String, newId: String, newName: String): CampaignRecord {
         val source = requireNotNull(campaign(sourceId)) { "campanha não encontrada: $sourceId" }
@@ -89,6 +100,7 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
             createCampaign(copy)
             val events = load(sourceId)
             if (events.isNotEmpty()) db.eventos().inserir(events.mapIndexed { i, payload -> EventoRow(newId, i, payload) })
+            metadata(sourceId)?.let { meta -> db.meta().salvar(meta.copy(campanhaId = newId)) }
         }
         return copy
     }

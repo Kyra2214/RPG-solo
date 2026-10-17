@@ -40,6 +40,7 @@ import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.RoomEventStore
+import dev.rpgsolo.data.CampanhaMetaRow
 
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
@@ -77,6 +78,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     init {
         refreshCampaigns()
+        restoreMetadata()
         storedSettings?.let { saved ->
             runCatching {
                 applySettings(
@@ -111,6 +113,36 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun activeCampaignId(): String = session.campaignId
 
+    fun exportBackup(): String = dev.rpgsolo.engine.Backup.export(store, session.campaignId)
+
+    fun importBackup(text: String): String? = try {
+        val id = dev.rpgsolo.engine.Backup.import(store, text.trim(), "import-${System.nanoTime()}")
+        session = CampaignSession.open(store, id)
+        activeCampaignPrefs.edit().putString("active_campaign", id).apply()
+        chapters = ChapterBook(); quests = QuestLog(); restoreMetadata()
+        controller = roles?.let { buildController(it) }
+        refreshCampaigns(); campaignVersion++; null
+    } catch (e: IllegalArgumentException) { e.message }
+
+    private fun restoreMetadata() {
+        val row = store.metadata(session.campaignId) ?: return
+        runCatching {
+            chapters.restore(dev.rpgsolo.engine.Codec.decodeChapters(row.chaptersJson))
+            quests.restore(dev.rpgsolo.engine.Codec.decodeQuests(row.questsJson), dev.rpgsolo.engine.Codec.decodeTimeline(row.timelineJson))
+        }
+    }
+
+    private fun saveMetadata() {
+        store.saveMetadata(
+            CampanhaMetaRow(
+                session.campaignId,
+                dev.rpgsolo.engine.Codec.encodeChapters(chapters.chapters),
+                dev.rpgsolo.engine.Codec.encodeQuests(quests.all()),
+                dev.rpgsolo.engine.Codec.encodeTimeline(quests.timeline())
+            )
+        )
+    }
+
     fun renameCampaign(name: String): String? = try {
         store.rename(session.campaignId, name)
         refreshCampaigns(); campaignVersion++; null
@@ -130,6 +162,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         activeCampaignPrefs.edit().putString("active_campaign", next.id).apply()
         chapters = ChapterBook()
         quests = QuestLog()
+        restoreMetadata()
         controller = roles?.let { buildController(it) }
         refreshCampaigns(); campaignVersion++; null
     } catch (e: IllegalArgumentException) { e.message }
@@ -223,6 +256,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         activeCampaignPrefs.edit().putString("active_campaign", session.campaignId).apply()
         chapters = ChapterBook()
         quests = QuestLog()
+        saveMetadata()
         controller = roles?.let { buildController(it) }
         refreshCampaigns()
         campaignVersion++
@@ -236,6 +270,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun openChapter(title: String): String? =
         try {
             chapters.open(session, title)
+            saveMetadata()
             campaignVersion++
             null
         } catch (e: IllegalArgumentException) {
@@ -249,7 +284,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val p = roles?.cheap ?: return "configure o provedor de IA na aba Config"
         val narrations = controller?.lines.orEmpty().filter { it.author == Author.MASTER }.map { it.text }
         return when (val r = ChapterSummarizer(p).closeWithSummary(session, chapters, narrations)) {
-            is ChapterSummarizer.Result.Closed -> { campaignVersion++; null }
+            is ChapterSummarizer.Result.Closed -> { saveMetadata(); campaignVersion++; null }
             is ChapterSummarizer.Result.Failed -> r.reason
         }
     }
@@ -258,6 +293,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         try {
             require(title.isNotBlank()) { "dê um título à missão" }
             quests.add(Quest("q${quests.active().size + 1}-${title.hashCode()}", title.trim()))
+            saveMetadata()
             campaignVersion++
             null
         } catch (e: IllegalArgumentException) {

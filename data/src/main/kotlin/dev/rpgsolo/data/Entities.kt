@@ -30,3 +30,11 @@ data class FichaRow(
     val json: String,
     val arquivada: Boolean = false
 )
+
+@Entity(tableName = "campanha_meta")
+data class CampanhaMetaRow(
+    @androidx.room.PrimaryKey val campanhaId: String,
+    val chaptersJson: String,
+    val questsJson: String,
+    val timelineJson: String
+)

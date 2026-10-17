@@ -28,6 +28,7 @@ fun CampaignsScreen(model: AppModel) {
     var title by remember { mutableStateOf("") }
     var quest by remember { mutableStateOf("") }
     var newName by remember { mutableStateOf("") }
+    var backup by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     val v = model.campaignVersion
@@ -55,6 +56,14 @@ fun CampaignsScreen(model: AppModel) {
             Button(modifier = Modifier.weight(1f), onClick = { message = model.duplicateCampaign() }) { Text("Duplicar") }
         }
         Button(modifier = Modifier.fillMaxWidth(), onClick = { message = model.deleteCurrentCampaign() }) { Text("Apagar campanha ativa") }
+
+        SectionTitle("Backup local")
+        Muted("Exporte o texto para um arquivo seguro. A restauração cria uma cópia e não sobrescreve campanhas.")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(modifier = Modifier.weight(1f), onClick = { backup = model.exportBackup(); message = null }) { Text("Exportar") }
+            Button(modifier = Modifier.weight(1f), enabled = backup.isNotBlank(), onClick = { message = model.importBackup(backup) }) { Text("Restaurar") }
+        }
+        OutlinedTextField(backup, { backup = it }, Modifier.fillMaxWidth(), label = { Text("Texto do backup") }, minLines = 3)
 
         SectionTitle("Capítulos")
         if (chapters.isEmpty()) Muted("Nenhum capítulo ainda.")
