@@ -17,7 +17,7 @@ Esse resultado confirma a compilação e os testes Gradle, mas não substitui a 
 
 - Seis áreas Compose: Jogar, Heróis, Regras, Campanhas, Sistemas e Configuração.
 - Motor determinístico em Kotlin puro, com comandos validados, log de eventos, rolagens reproduzíveis, rollback e backup de campanha.
-- Pacote próprio de regras carregado de recursos, criação de ficha, arquétipos e opções de traços.
+- Pacote próprio de regras carregado de recursos, criação de ficha, arquétipos, opções de traços e orçamento de perícias validado no pacote (0–5 pontos por perícia).
 - Camada de IA com provedores configuráveis, classificação de intenção, narração, propostas validadas, sugestões e ações locais sem chamada de IA.
 - Persistência local via Room para campanhas, eventos, fichas e metadados; a sessão principal é mantida em `ViewModel`. A lista de Campanhas permite reabrir e alternar entre campanhas salvas.
 - Chave do provedor cifrada com AES/GCM usando Android Keystore; a chave não é incluída no backup.
@@ -49,7 +49,7 @@ Abra a pasta do repositório no Android Studio para executar o app em emulador o
 
 ## Lacunas conhecidas
 
-A interface e a migração Room ainda precisam de testes em aparelho/emulador e testes instrumentados, respectivamente. O app também ainda não oferece importação de pacotes de regras ou PDFs do usuário. Combate completo, equipamento e efeitos mecânicos abrangentes dos traços permanecem por implementar na experiência de jogo. O pacote próprio contém decisões de regra marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
+A interface e a migração Room ainda precisam de testes em aparelho/emulador e testes instrumentados, respectivamente. O app também ainda não oferece importação de pacotes de regras ou PDFs do usuário. A fase de mecânica está em andamento: falta resolução completa de ataques, equipamento e condições com duração; o efeito diferencial do primeiro ponto de perícia (0 versus 1) permanece uma decisão de regra pendente. O pacote próprio contém decisões de regra marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
 
 ## Princípios de conteúdo e licença
 

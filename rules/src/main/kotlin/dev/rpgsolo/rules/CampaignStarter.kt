@@ -58,7 +58,7 @@ object CampaignStarter {
         }
         val pkg = packageFor(registry, edition.id)
         if (pkg != null && ficha.system.editionId == edition.id) {
-            val report = pkg.validateCharacter(ficha.stats, ficha.traits)
+            val report = pkg.validateCharacter(ficha.stats, ficha.traits, skills = ficha.skills)
             if (!report.valid) problems += report.errors.map { "ficha inválida pelo pacote: $it" }
         }
         if (problems.isNotEmpty()) return StartResult.Refused(problems)

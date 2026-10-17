@@ -35,6 +35,7 @@ data class CheckChoice(val id: String, val description: String, val spec: CheckS
 
 /** Tipos de traço que contam como "vantagem" no equilíbrio vantagens x desvantagens. */
 internal val ADVANTAGE_TYPES = setOf("vantagem", "poder")
+internal const val MAX_SKILL_POINTS = 5
 private const val BALANCE_CAP = 1_000_000L
 internal fun parseBalance(s: String?): List<Int> = s?.split(",")?.mapNotNull { it.trim().toIntOrNull() } ?: emptyList()
 
@@ -92,7 +93,12 @@ class RulePackage internal constructor(val data: PackageData) {
      * Valida atributos e traços pelas regras de criação do pacote. Atributos ausentes usam o padrão.
      * [checkBalance] = false ignora só o mínimo de desvantagens (a tela usa para ofertar traços: o equilíbrio é uma conta corrente, não um requisito do traço).
      */
-    fun validateCharacter(stats: Map<String, Int>, traits: List<String>, checkBalance: Boolean = true): CharacterReport {
+    fun validateCharacter(
+        stats: Map<String, Int>,
+        traits: List<String>,
+        checkBalance: Boolean = true,
+        skills: Map<String, Int> = emptyMap()
+    ): CharacterReport {
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
         stats.keys.filter { it !in statById }.forEach { errors += "atributo desconhecido: $it" }
@@ -119,6 +125,32 @@ class RulePackage internal constructor(val data: PackageData) {
             }
             if (isUncertain(tid)) warnings += "regra incerta em ${t.name}: ${uncertainById.getValue(tid).note}"
         }
+        for ((skillId, value) in skills) {
+            val skill = traitById[skillId]
+            if (skill?.type != "pericia") errors += "perícia desconhecida: $skillId"
+            if (value !in 0..MAX_SKILL_POINTS) {
+                errors += "pontos da perícia ${skill?.name ?: skillId} fora do limite 0..$MAX_SKILL_POINTS: $value"
+            }
+            // Um nível positivo ativa os requisitos da perícia; 0 equivale a não tê-la selecionado.
+            if (skill?.type == "pericia" && value > 0 && skillId !in traits) {
+                for (requirement in skill.requires) when (requirement) {
+                    is Requirement.MinStat ->
+                        if ((full[requirement.stat] ?: Int.MIN_VALUE) < requirement.min) {
+                            errors += "${skill.name} exige ${statById[requirement.stat]?.name ?: requirement.stat} >= ${requirement.min}"
+                        }
+                    is Requirement.HasTrait ->
+                        if (requirement.traitId !in traits) {
+                            errors += "${skill.name} exige o traço ${traitById[requirement.traitId]?.name ?: requirement.traitId}"
+                        }
+                    is Requirement.Excludes ->
+                        if (requirement.traitId in traits) {
+                            errors += "${skill.name} não pode ser combinado com ${traitById[requirement.traitId]?.name ?: requirement.traitId}"
+                        }
+                }
+            }
+            spent = (spent.toLong() + value.coerceAtLeast(0).toLong())
+                .coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+        }
         val known = traits.distinct().mapNotNull { traitById[it] }
         val advCount = known.count { isAdvantage(it) }
         val disCount = known.count { it.type == "desvantagem" }
@@ -141,7 +173,7 @@ class RulePackage internal constructor(val data: PackageData) {
 
     /** Cria a ficha pelas regras da edição: valida, deriva recursos e marca o sistema/edição. */
     fun buildFicha(id: String, name: String, concept: String, stats: Map<String, Int>, traits: List<String>, skills: Map<String, Int> = emptyMap()): FichaBuild {
-        val report = validateCharacter(stats, traits)
+        val report = validateCharacter(stats, traits, skills = skills)
         if (!report.valid) return FichaBuild.Invalid(report.errors)
         val full = data.stats.associate { it.id to (stats[it.id] ?: it.default) }
         val ficha = Ficha(

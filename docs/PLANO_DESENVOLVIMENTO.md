@@ -106,7 +106,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 2.3.4 Experiência e progressão
 - 2.3.5 Resultados: falha, sucesso parcial, sucesso, crítico (só quando o sistema permite)
 
-**Status:** núcleo + 2.2.1b/2.2.3/2.2.4/2.3.2 escritos, não compilados (ver README). 2.3.4 (nível por XP) escrito, não compilado.
+**Status em 17/10/2026:** `:engine:test :rules:test :ai:test :app:assembleDebug` passaram. O motor já oferece iniciativa/turnos, dano/cura, condições sem duração e XP/níveis; a validação de criação agora confere ids, pré-requisitos, limite 0–5 e custo de perícias também ao iniciar campanha. Ainda faltam uma resolução completa de ataque, equipamento, duração/efeitos mecânicos de condições e uma luta completa sem a IA decidir números. A escolha sobre a diferença entre 0 e 1 ponto de perícia continua pendente.
 
 **Pronto quando:** uma luta completa e uma sequência de testes rodam só com código, sem IA, e os testes provam as contradições bloqueadas.
 
@@ -114,7 +114,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 
 ## FASE 3 — Persistência local
 
-**Status:** 3.1 (fichas, eventos, campanhas; esquemas versionados) e 3.2 (autosave, recuperação) escritos, não compilados. Pendente: tabelas de NPC/capítulos/resumos (Fases 8/9), teste instrumentado do Room, ligar ao app (DI, Fase 1.1.2).
+**Status em 17/10/2026:** campanhas, eventos, fichas e metadados usam Room com esquemas/migrações v1–v3; o autosave e a recuperação estão ligados ao app. Testes Gradle e `:app:assembleDebug` passam. Pendente: teste instrumentado de migração Room e validação em aparelho/emulador. Capítulos, missões e linha do tempo ficam hoje como metadados da campanha, não em tabelas dedicadas; os resumos automáticos previstos nas Fases 8/9 ainda faltam.
 
 ### Módulo 3.1 — Banco
 - 3.1.1 Tabelas: fichas, NPCs (com campo `privado`), eventos, capítulos, resumos, descobertas do jogador

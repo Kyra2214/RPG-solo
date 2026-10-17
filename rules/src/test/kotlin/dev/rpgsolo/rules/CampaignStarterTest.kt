@@ -92,6 +92,16 @@ class CampaignStarterTest {
         assertNull(store.campaign("c1"))
     }
 
+    @Test fun fichaComPreRequisitoDePericiaPendenteERecusadaAntesDeCriarCampanha() {
+        val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
+        val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
+        val ficha = fate(cat, reg).copy(skills = mapOf("olhar-atento" to 2))
+        val result = CampaignStarter.start(store, reg, cat, rd, cfg, ficha, "c1", "X", 1L)
+        assertTrue(result is StartResult.Refused)
+        assertTrue((result as StartResult.Refused).reasons.any { "exige o traço Percepção" in it })
+        assertNull(store.campaign("c1"))
+    }
+
     @Test fun semPacoteIniciaMasAvisaQueNaoHaValidacao() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "3det", "3det-victory")

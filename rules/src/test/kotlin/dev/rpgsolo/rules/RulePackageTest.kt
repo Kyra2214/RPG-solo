@@ -33,6 +33,12 @@ class RulePackageTest {
     }
 
     private fun basico() = registry().get("teste-basico")!!
+    private fun pacoteComPericias(): RulePackage {
+        val content = files("teste-basico").toMutableMap()
+        content["tracos.txt"] = content.getValue("tracos.txt") +
+            "\npericia-corrida|pericia|Corrida|0||Correr e saltar.\npericia-furtividade|pericia|Furtividade|0|trait:pericia-corrida|Mover-se sem ser visto.\n"
+        return (PackageRegistry().install(content) as InstallResult.Success).pkg
+    }
     private fun failure(r: InstallResult) = (r as InstallResult.Failure).errors
 
     // ---- formato e carregamento (4.1, 4.2.1) ----
@@ -94,6 +100,43 @@ class RulePackageTest {
         assertTrue(errs(emptyMap(), listOf("espadas", "espadas")).any { it.contains("repetido") })
         assertTrue(errs(emptyMap(), listOf("fantasma")).any { it.contains("desconhecido") })
         assertTrue(errs(mapOf("forca" to 5, "agilidade" to 5, "mente" to 5), emptyList()).any { it.contains("pontos gastos") })
+    }
+
+    @Test fun pontosDePericiaEntramNoOrcamentoEValidamIdsELimites() {
+        val p = pacoteComPericias()
+        val stats = p.data.stats.associate { it.id to it.default }
+        val base = p.validateCharacter(stats, emptyList())
+        val report = p.validateCharacter(stats, emptyList(), skills = mapOf("pericia-corrida" to 2))
+        assertTrue(report.valid)
+        assertEquals(base.pointsSpent + 2, report.pointsSpent)
+
+        val desconhecida = p.validateCharacter(stats, emptyList(), skills = mapOf("fantasma" to 1))
+        assertTrue(desconhecida.errors.any { it.contains("perícia desconhecida") })
+        val acimaDoLimite = p.validateCharacter(stats, emptyList(), skills = mapOf("pericia-corrida" to 6))
+        assertTrue(acimaDoLimite.errors.any { it.contains("fora do limite 0..5") })
+        val semPreRequisito = p.validateCharacter(stats, emptyList(), skills = mapOf("pericia-furtividade" to 1))
+        assertTrue(semPreRequisito.errors.any { it.contains("exige o traço Corrida") })
+        val nivelZero = p.validateCharacter(stats, emptyList(), skills = mapOf("pericia-furtividade" to 0))
+        assertTrue(nivelZero.errors.none { it.contains("exige o traço Corrida") })
+        val acimaDoOrcamento = p.validateCharacter(
+            stats, listOf("pericia-corrida"), skills = mapOf("pericia-corrida" to 5, "pericia-furtividade" to 5)
+        )
+        assertTrue(acimaDoOrcamento.errors.any { it.contains("pontos gastos") })
+        assertTrue(p.validateCharacter(stats, listOf("pericia-corrida"), skills = mapOf("pericia-furtividade" to 1)).valid)
+
+        assertTrue(p.buildFicha("ruim", "Inválido", "", stats, emptyList(), mapOf("fantasma" to 1)) is FichaBuild.Invalid)
+    }
+
+    @Test fun rascunhoUsaOMesmoRelatorioParaPericiasECriaFichaValidada() {
+        val p = pacoteComPericias()
+        val draft = CharacterDraft(p, "skill-draft")
+        draft.name = "Corredora"
+        val initialPoints = draft.pointsLeft()
+        assertFalse(draft.setSkill("pericia-corrida", 6))
+        assertTrue(draft.setSkill("pericia-corrida", 2))
+        assertEquals(initialPoints - 2, draft.pointsLeft())
+        val created = draft.build() as FichaBuild.Created
+        assertEquals(2, created.ficha.skills.getValue("pericia-corrida"))
     }
 
     @Test fun desvantagemDevolvePontos() {
