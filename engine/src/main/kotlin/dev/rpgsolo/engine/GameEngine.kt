@@ -54,11 +54,57 @@ class GameEngine private constructor(
         return result
     }
 
+    /**
+     * Resolve um ataque inteiramente no motor. A IA pode narrar a consequência,
+     * mas não escolhe a rolagem, a defesa nem o dano.
+     */
+    fun attack(spec: AttackSpec): AttackResult {
+        val combat = state.combat ?: return AttackResult.Rejected("não há combate ativo")
+        if (combat.current != spec.attackerId) {
+            return AttackResult.Rejected("não é o turno de ${spec.attackerId}")
+        }
+        val attacker = state.entities[spec.attackerId]
+            ?: return AttackResult.Rejected("entidade inexistente: ${spec.attackerId}")
+        val target = state.entities[spec.targetId]
+            ?: return AttackResult.Rejected("entidade inexistente: ${spec.targetId}")
+        if (attacker.id == target.id) return AttackResult.Rejected("ataque contra si mesmo")
+        if (!attacker.alive) return AttackResult.Rejected("${attacker.name} está morto")
+        if (!target.alive) return AttackResult.Rejected("${target.name} está morto")
+        if (spec.targetId !in combat.order) return AttackResult.Rejected("alvo fora do combate")
+        val damageResource = target.resources[spec.damageResource]
+            ?: return AttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
+        if (spec.damage > damageResource.max) return AttackResult.Rejected("dano acima do máximo do recurso")
+
+        val defense = target.stats[spec.defenseStat] ?: spec.defenseDefault
+        val mark = mark()
+        val roll = dice.roll(1, 20, attacker.stats[spec.attackStat] ?: 0)
+        recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
+        val hit = roll.total >= defense
+        val actualDamage = if (hit) spec.damage else 0
+        recordEvent(AttackResolved(spec.attackerId, spec.targetId, defense, hit, actualDamage))
+        if (hit) {
+            when (val result = execute(Damage(spec.targetId, spec.damageResource, spec.damage))) {
+                is ExecResult.Accepted -> return AttackResult.Resolved(roll, true, defense, actualDamage, eventsSince(mark))
+                is ExecResult.Rejected -> {
+                    rollbackTo(mark)
+                    return AttackResult.Rejected(result.reason)
+                }
+            }
+        }
+        return AttackResult.Resolved(roll, false, defense, 0, eventsSince(mark))
+    }
+
     private fun recordRoll(label: String, roll: RollResult) {
         val ev = RollRecorded(label, roll.expression, roll.dice, roll.modifier, roll.total)
-        log += ev
-        state = state.apply(ev)
+        recordEvent(ev)
     }
+
+    private fun recordEvent(event: Event) {
+        log += event
+        state = state.apply(event)
+    }
+
+    private fun eventsSince(mark: Int): List<Event> = log.drop(mark)
 
     /**
      * Rola a iniciativa de cada participante (dados do motor, gravados no log) e inicia o combate.

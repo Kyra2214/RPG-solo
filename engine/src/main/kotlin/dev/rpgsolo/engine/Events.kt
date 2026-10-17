@@ -46,6 +46,14 @@ data class TurnAdvanced(val turnIndex: Int, val round: Int) : Event
 object CombatEnded : Event
 @Serializable
 data class RollRecorded(val label: String, val expression: String, val dice: List<Int>, val modifier: Int, val total: Int) : Event
+@Serializable
+data class AttackResolved(
+    val attackerId: String,
+    val targetId: String,
+    val defense: Int,
+    val hit: Boolean,
+    val damage: Int
+) : Event
 
 private fun GameState.entity(id: String): Entity =
     requireNotNull(entities[id]) { "evento aponta para entidade inexistente: $id" }
@@ -97,6 +105,7 @@ fun GameState.apply(e: Event): GameState {
         }
         CombatEnded -> copy(combat = null)
         is RollRecorded -> this
+        is AttackResolved -> this
     }
     return next.copy(eventCount = eventCount + 1)
 }

@@ -136,6 +136,47 @@ class Phase2bTest {
         assertEquals(before, e.eventCount)
     }
 
+    @Test fun ataqueAcertaEReduzRecursoPeloMotor() {
+        val e = GameEngine(7)
+        e.executeAll(listOf(
+            CreateEntity(ent("hero", stats = mapOf("forca" to 100))),
+            CreateEntity(ent("orc", stats = mapOf("defesa" to 10)))
+        ))
+        ok(e.execute(StartCombat(listOf("hero", "orc"))))
+        val result = e.attack(AttackSpec("hero", "orc", attackStat = "forca", damage = 3))
+        assertTrue(result is AttackResult.Resolved)
+        result as AttackResult.Resolved
+        assertTrue(result.hit)
+        assertEquals(3, result.damage)
+        assertEquals(7, e.state.entities.getValue("orc").resources.getValue("hp").current)
+        assertEquals(1, e.events.count { it is AttackResolved })
+    }
+
+    @Test fun ataqueFalhaSemAplicarDanoMasFicaNoLog() {
+        val e = GameEngine(7)
+        e.executeAll(listOf(
+            CreateEntity(ent("hero", stats = mapOf("forca" to -100))),
+            CreateEntity(ent("orc", stats = mapOf("defesa" to 20)))
+        ))
+        ok(e.execute(StartCombat(listOf("hero", "orc"))))
+        val result = e.attack(AttackSpec("hero", "orc", attackStat = "forca", damage = 3))
+        assertTrue(result is AttackResult.Resolved)
+        result as AttackResult.Resolved
+        assertFalse(result.hit)
+        assertEquals(10, e.state.entities.getValue("orc").resources.getValue("hp").current)
+        assertEquals(false, e.events.filterIsInstance<AttackResolved>().single().hit)
+    }
+
+    @Test fun ataqueExigeTurnoEReplayMantemResultado() {
+        val e = engine("hero", "orc", seed = 31)
+        ok(e.execute(StartCombat(listOf("hero", "orc"))))
+        val first = e.attack(AttackSpec("hero", "orc", damage = 2))
+        assertTrue(first is AttackResult.Resolved)
+        val restored = GameEngine.restore(31, EngineConfig(), e.events)
+        assertEquals(e.state, restored.state)
+        assertTrue(e.attack(AttackSpec("orc", "hero")) is AttackResult.Rejected)
+    }
+
     @Test fun desfazerCombateRestauraEstadoEDados() {
         val e = engine("hero", "orc", seed = 5)
         val m = e.mark()
