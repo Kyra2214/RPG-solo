@@ -9,7 +9,7 @@ import java.io.File
 
 class CriacaoDeFichaENpcTest {
     private fun registry(): PackageRegistry {
-        val dir = listOf("src/main/resources/packages/teste-basico", "rules/src/main/resources/packages/teste-basico").map(::File).first { it.exists() }
+        val dir = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico").map(::File).first { it.exists() }
         val files = dir.listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }
         val r = PackageRegistry()
         assertTrue(r.install(files) is InstallResult.Success)

@@ -4,16 +4,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
 import dev.rpgsolo.ai.ProviderKind
 import dev.rpgsolo.ai.maskKey
 
@@ -36,9 +35,9 @@ fun ConfigScreen(model: AppModel) {
     var premiumModel by remember { mutableStateOf("") }
     var saved by remember { mutableStateOf(false) }
 
-    Column(Modifier.padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Provedor de IA", style = MaterialTheme.typography.titleMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    ScreenColumn {
+        SectionTitle("Provedor de IA", "Quem faz o papel de mestre. O motor continua sendo quem rola os dados.")
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ProviderKind.values().forEach { k ->
                 FilterChip(selected = kind == k, onClick = { kind = k }, label = { Text(k.label) })
             }
@@ -52,16 +51,13 @@ fun ConfigScreen(model: AppModel) {
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
-        Button(onClick = { saved = model.applySettings(kind, endpoint, modelName, key, cheapModel, premiumModel) }) { Text("Salvar e usar") }
-        model.configError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        if (saved && model.configError == null) Text("Provedor ativo. Chave: ${maskKey(key)}")
-        Text(
-            "A chave fica só na memória do app nesta versão e é apagada ao fechar. A jogada que você escreve é enviada ao provedor escolhido.",
-            style = MaterialTheme.typography.bodySmall
-        )
-        Text(
-            "Uso estimado nesta sessão: ${model.usage.calls} chamadas, ${model.usage.inputTokens} tokens de entrada, ${model.usage.outputTokens} de saída.",
-            style = MaterialTheme.typography.bodySmall
-        )
+        Button(modifier = Modifier.fillMaxWidth(), onClick = { saved = model.applySettings(kind, endpoint, modelName, key, cheapModel, premiumModel) }) { Text("Salvar e usar") }
+        model.configError?.let { ErrorText(it) }
+        if (saved && model.configError == null) AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text("Provedor ativo. Chave: ${maskKey(key)}") }
+        AppCard {
+            Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
+            Muted("A chave fica só na memória do app nesta versão e é apagada ao fechar. A jogada que você escreve é enviada ao provedor escolhido.")
+            Muted("Uso estimado nesta sessão: ${model.usage.calls} chamadas, ${model.usage.inputTokens} tokens de entrada, ${model.usage.outputTokens} de saída.")
+        }
     }
 }

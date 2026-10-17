@@ -21,7 +21,7 @@ class NewCampaignFlowTest {
 
     private val registry = PackageRegistry(catalog).also {
         val files = listOf("manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes", "dano", "criacao", "progressao", "incerto", "tutorial", "exemplos")
-            .mapNotNull { f -> runCatching { "$f.txt" to res("packages/fate-condensed/$f.txt") }.getOrNull() }.toMap()
+            .mapNotNull { f -> runCatching { "$f.txt" to res("packages/sistema-proprio/$f.txt") }.getOrNull() }.toMap()
         assertTrue(it.install(files) is InstallResult.Success)
     }
 
@@ -30,11 +30,11 @@ class NewCampaignFlowTest {
         NewCampaignFlow(CampaignInterpreter(ScriptedProvider(replies.toList())), catalog, registry, store) { "camp1" }
 
     private fun fateFicha(): Ficha {
-        val p = registry.get("fate-condensed")!!
+        val p = registry.get("sistema-proprio")!!
         return (p.buildFicha("pj1", "Brokk", "anão minerador", p.data.stats.associate { it.id to it.default }, emptyList()) as FichaBuild.Created).ficha
     }
 
-    private val fate = """{"system":"fate","edition":"fate-condensed","settings":["setting.cyberpunk"],"difficulty":"difficulty.normal"}"""
+    private val fate = """{"system":"proprio","edition":"sistema-proprio","settings":["setting.cyberpunk"],"difficulty":"difficulty.normal"}"""
 
     @Test fun caminhoFelizDescricaoRevisaoInicio() {
         val f = flow(fate)

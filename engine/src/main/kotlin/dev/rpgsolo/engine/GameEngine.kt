@@ -46,7 +46,8 @@ class GameEngine private constructor(
     }
 
     /** Rola o teste, registra no log e devolve o resultado definitivo. */
-    fun check(spec: CheckSpec): CheckResult {
+    fun check(original: CheckSpec): CheckResult {
+        val spec = original.resolvedPool()
         val roll = dice.roll(spec.diceCount, spec.diceSides, spec.modifier)
         val result = resolveCheck(spec, roll)
         recordRoll(spec.label, roll)

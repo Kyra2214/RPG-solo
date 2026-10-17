@@ -125,7 +125,9 @@ class PackageRegistry(private val catalog: Catalog? = null) {
         progression = c.progression ?: b.progression,
         uncertain = byId(b.uncertain, c.uncertain) { it.id },
         tutorial = byId(b.tutorial, c.tutorial) { it.order.toString() }.sortedBy { it.order },
-        examples = byId(b.examples, c.examples) { it.id }
+        examples = byId(b.examples, c.examples) { it.id },
+        archetypes = byId(b.archetypes, c.archetypes) { it.id },
+        archetypeOptions = byId(b.archetypeOptions, c.archetypeOptions) { it.archetype }
     )
 
     companion object {

@@ -7,7 +7,7 @@ import java.io.File
 /** Formato: `not:id` nos requisitos e `limite_desvantagens` em criacao.txt (usa só o pacote de teste). */
 class ExclusoesELimiteTest {
     private fun base(): MutableMap<String, String> {
-        val dir = listOf("src/main/resources/packages/teste-basico", "rules/src/main/resources/packages/teste-basico")
+        val dir = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
             .map(::File).first { it.exists() }
         return dir.listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }.toMutableMap()
     }

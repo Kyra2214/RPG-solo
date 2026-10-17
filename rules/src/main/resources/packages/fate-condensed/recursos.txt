@@ -1,2 +1,0 @@
-# id|nome|base|atributo|mult
-pd|Pontos de Destino|3|-|0

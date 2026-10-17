@@ -19,6 +19,7 @@ import dev.rpgsolo.engine.Revive
 import dev.rpgsolo.engine.SpendResource
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
@@ -29,7 +30,11 @@ data class TurnOutput(
     val narrative: String,
     val proposals: List<Command>,
     /** 7.3.4: sugestões de ação, opcionais. Nunca obrigatórias e nunca viram estado. */
-    val suggestions: List<String> = emptyList()
+    val suggestions: List<String> = emptyList(),
+    /** Teste que o mestre pede ao jogador no meio da história. Quando existe, a narração para antes do resultado. */
+    val checkRequest: CheckRequest? = null,
+    /** Rolagem com tabela (ex.: d6 para onde a flecha acerta). Também para a narração antes do resultado. */
+    val rollRequest: RollRequest? = null
 )
 
 sealed interface ParseResult {
@@ -51,6 +56,10 @@ object ProposalSchema {
         revive(entityId, reason) · record_fact(key, value) · learn(key, text, source, believed)
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
         change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments) · advance_clock(id, by)
+        Campo opcional "request_roll" (regra 9), uma entrada para CADA face: {"sides": 6, "label": "Onde a flecha acerta", "table": {"1": {"text": "raspa no ombro", "damage": 1}, "2": {...}, "4": {"text": "fura a coxa", "damage": 4, "conditions": ["sangramento"]}, "6": {"text": "atinge perto do coração", "damage": 6}}}
+        "conditions" (opcional em cada face) é uma lista de ids de condição do sistema que o motor aplica ao personagem junto com o dano.
+        Só um pedido por resposta: request_check OU request_roll.
+        Campo opcional "request_check" (veja a regra 8): {"check": "id", "difficulty": "id", "label": "nome curto, ex.: Percepção", "onSuccess": "o que acontece se passar", "onFailure": "o que acontece se falhar", "onPartial": "opcional", "skill": "opcional: tipo da situação, ex.: esquiva ou sorte"}
     """.trimIndent()
 
     val TYPES = listOf(
@@ -109,7 +118,34 @@ object ProposalParser {
             .filter { it.isNotEmpty() }
             .distinct()
             .take(MAX_SUGGESTIONS)
-        return if (errors.isEmpty()) ParseResult.Ok(TurnOutput(narrative!!.trim(), commands, suggestions))
+        val checkRequest = when (val rc = obj["request_check"]) {
+            null, is JsonNull -> null
+            is JsonObject -> try {
+                toCheckRequest(rc)
+            } catch (e: Bad) {
+                errors += "request_check: ${e.message}"
+                null
+            }
+            else -> {
+                errors += "'request_check' deve ser um objeto"
+                null
+            }
+        }
+        val rollRequest = when (val rr = obj["request_roll"]) {
+            null, is JsonNull -> null
+            is JsonObject -> try {
+                toRollRequest(rr)
+            } catch (e: Bad) {
+                errors += "request_roll: ${e.message}"
+                null
+            }
+            else -> {
+                errors += "'request_roll' deve ser um objeto"
+                null
+            }
+        }
+        if (checkRequest != null && rollRequest != null) errors += "peça só um por vez: request_check ou request_roll"
+        return if (errors.isEmpty()) ParseResult.Ok(TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest))
         else ParseResult.Invalid(errors)
     }
 
@@ -127,6 +163,53 @@ object ProposalParser {
 
     private fun JsonObject.bool(key: String): Boolean? =
         (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull
+
+    private fun toRollRequest(o: JsonObject): RollRequest {
+        val sides = o.int("sides") ?: throw Bad("campo 'sides' ausente ou não numérico")
+        if (sides !in 2..20) throw Bad("'sides' deve estar entre 2 e 20")
+        val tableObj = o["table"] as? JsonObject ?: throw Bad("campo 'table' ausente (objeto face -> {text, damage})")
+        val table = mutableMapOf<Int, RollEntry>()
+        for ((key, value) in tableObj) {
+            val face = key.trim().toIntOrNull() ?: throw Bad("table: a face '$key' não é um número")
+            val e = value as? JsonObject ?: throw Bad("table[$key] deve ser um objeto {text, damage}")
+            val text = e.str("text")?.trim()?.takeIf { it.isNotEmpty() } ?: throw Bad("table[$key]: campo 'text' ausente ou vazio")
+            val damage = if (!e.containsKey("damage")) 0 else (e.int("damage") ?: throw Bad("table[$key]: 'damage' deve ser número"))
+            if (damage < 0) throw Bad("table[$key]: 'damage' negativo")
+            val conditions = when (val c = e["conditions"]) {
+                null, is JsonNull -> emptyList()
+                is JsonArray -> c.map { el ->
+                    (el as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                        ?: throw Bad("table[$key]: 'conditions' deve ser uma lista de ids em texto")
+                }.distinct()
+                else -> throw Bad("table[$key]: 'conditions' deve ser uma lista de ids em texto")
+            }
+            table[face] = RollEntry(text, damage, conditions)
+        }
+        val missing = (1..sides).filter { it !in table }
+        if (missing.isNotEmpty() || table.keys.any { it !in 1..sides }) {
+            throw Bad("table deve ter exatamente uma entrada para cada face de 1 a $sides (faltam: ${missing.joinToString()})")
+        }
+        return RollRequest(sides, o.str("label")?.trim()?.takeIf { it.isNotEmpty() }, table)
+    }
+
+    /** "Esquiva Rápida" -> "esquiva-rapida" (mesmo formato dos escopos de bônus do pacote). */
+    private fun slug(s: String): String =
+        java.text.Normalizer.normalize(s.trim().lowercase(), java.text.Normalizer.Form.NFD)
+            .replace(Regex("\\p{M}+"), "").replace(Regex("[^a-z0-9]+"), "-").trim('-')
+
+    private fun toCheckRequest(o: JsonObject): CheckRequest {
+        fun req(k: String): String = o.str(k)?.takeIf { it.isNotBlank() } ?: throw Bad("campo '$k' ausente ou vazio")
+        fun opt(k: String): String? = o.str(k)?.trim()?.takeIf { it.isNotEmpty() }
+        return CheckRequest(
+            checkId = req("check").trim(),
+            difficultyId = opt("difficulty"),
+            label = opt("label"),
+            onSuccess = req("onSuccess").trim(),
+            onFailure = req("onFailure").trim(),
+            onPartial = opt("onPartial"),
+            skill = opt("skill")?.let(::slug)
+        )
+    }
 
     private fun toCommand(o: JsonObject): Command {
         val type = o.str("type") ?: throw Bad("campo 'type' ausente")

@@ -38,18 +38,26 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
         return true
     }
 
+    /** Carrega um arquétipo do pacote como ponto de partida; o jogador pode editar tudo depois. */
+    fun loadArchetype(archetypeId: String): Boolean {
+        val a = pkg.archetype(archetypeId) ?: return false
+        pkg.data.stats.forEach { stats[it.id] = a.stats[it.id] ?: it.default }
+        traits.clear(); traits.addAll(a.traits)
+        return true
+    }
+
     fun report(): CharacterReport = pkg.validateCharacter(stats, traits.toList())
     fun pointsLeft(): Int = pkg.creationPoints - report().pointsSpent
 
     /** Traços que ainda cabem: não escolhidos e que não gerariam erro se adicionados agora. */
     fun allowedTraits(): List<TraitDef> =
-        pkg.data.traits.filter { it.id !in traits && pkg.validateCharacter(stats, traits.toList() + it.id).valid }
+        pkg.data.traits.filter { it.id !in traits && pkg.validateCharacter(stats, traits.toList() + it.id, checkBalance = false).valid }
 
     /** Por que um traço não pode ser adicionado agora (lista vazia = pode). */
     fun whyNot(traitId: String): List<String> {
         if (pkg.trait(traitId) == null) return listOf("traço desconhecido: $traitId")
         if (traitId in traits) return listOf("traço já escolhido")
-        return pkg.validateCharacter(stats, traits.toList() + traitId).errors
+        return pkg.validateCharacter(stats, traits.toList() + traitId, checkBalance = false).errors
     }
 
     /** Busca regras para ajudar. Sem `docs` (sem PDF), usa só o pacote. Nunca exige PDF. */

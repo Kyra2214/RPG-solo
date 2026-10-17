@@ -5,8 +5,21 @@ enum class Comparison {
     /** Sucesso se total >= dificuldade (ex.: d20 + mod contra CD). */
     ROLL_OVER,
     /** Sucesso se total <= dificuldade (ex.: 3d6 contra valor da perícia). */
-    ROLL_UNDER
+    ROLL_UNDER,
+    /**
+     * Teste de pontos: um dado só (dos dados reais, [REAL_DICE]); o modificador do teste são os pontos da habilidade
+     * (já somados talentos e condições) e cada ponto vale uma face de sucesso, contando do topo (d6, 2 pontos: 5 e 6).
+     * Sempre entre [MIN_POINT_FACES] e (lados − 1) faces: sem pontos só a face mais alta acerta; o 1 sempre falha.
+     */
+    POINTS
 }
+
+/** Dados que existem na mesa; a dificuldade de um teste de pontos escolhe um deles. */
+val REAL_DICE = listOf(4, 6, 8, 10, 12, 20)
+const val MIN_POINT_FACES = 1
+
+/** Quantas faces de um dado de [sides] lados dão sucesso com [points] pontos: de 1 até lados − 1 (sempre há chance de acertar e de falhar). */
+fun pointFaces(points: Int, sides: Int): Int = points.coerceIn(MIN_POINT_FACES, maxOf(MIN_POINT_FACES, sides - 1))
 
 enum class Outcome {
     CRITICAL_FAILURE, FAILURE, PARTIAL_SUCCESS, SUCCESS, CRITICAL_SUCCESS;
@@ -31,7 +44,11 @@ data class CheckSpec(
     val partialMargin: Int? = null,
     /** Soma natural dos dados nesta faixa = crítico. null = o sistema não tem crítico. */
     val criticalSuccessRange: IntRange? = null,
-    val criticalFailureRange: IntRange? = null
+    val criticalFailureRange: IntRange? = null,
+    /** Atributo que o teste usa (id do pacote), se houver. Serve para condições que dão Ganho/Perda por atributo. */
+    val stat: String? = null,
+    /** Id do teste no pacote, se veio de um. Serve para bônus de traços ligados a um teste. */
+    val checkId: String? = null
 )
 
 data class CheckResult(
@@ -42,10 +59,25 @@ data class CheckResult(
     val outcome: Outcome
 )
 
+/**
+ * Teste de pontos ([Comparison.POINTS]) vira um 1dN comum, sem modificador, contra a menor face que acerta
+ * (N + 1 - faces). Assim o log, a animação e o cartão do dado mostram exatamente o que vale. Outros testes voltam intactos.
+ */
+fun CheckSpec.resolvedPool(): CheckSpec {
+    if (comparison != Comparison.POINTS) return this
+    val faces = pointFaces(modifier, diceSides)
+    val lowest = diceSides + 1 - faces
+    return copy(
+        label = "$label · d$diceSides · acerta com ${if (faces == 1) "$diceSides" else "$lowest–$diceSides"}",
+        diceCount = 1, modifier = 0, difficulty = lowest, comparison = Comparison.ROLL_OVER
+    )
+}
+
 /** Resolve um teste de forma pura: o resultado é decidido aqui, a IA só narra. */
-fun resolveCheck(spec: CheckSpec, roll: RollResult): CheckResult {
+fun resolveCheck(original: CheckSpec, roll: RollResult): CheckResult {
+    val spec = original.resolvedPool()
     val margin = when (spec.comparison) {
-        Comparison.ROLL_OVER -> roll.total - spec.difficulty
+        Comparison.ROLL_OVER, Comparison.POINTS -> roll.total - spec.difficulty
         Comparison.ROLL_UNDER -> spec.difficulty - roll.total
     }
     val outcome = when {

@@ -22,7 +22,7 @@ class CampaignStarterTest {
 
     private fun registry(cat: Catalog): PackageRegistry {
         val r = PackageRegistry(cat)
-        for (n in listOf("fate-condensed")) {
+        for (n in listOf("sistema-proprio")) {
             val files = res("packages/$n").listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }
             assertTrue(r.install(files) is InstallResult.Success)
         }
@@ -44,17 +44,17 @@ class CampaignStarterTest {
         return (b as FichaBuild.Created).ficha
     }
 
-    private fun packageFor(reg: PackageRegistry) = CampaignStarter.packageFor(reg, "fate-condensed")!!
+    private fun packageFor(reg: PackageRegistry) = CampaignStarter.packageFor(reg, "sistema-proprio")!!
 
     @Test fun achaOPacotePelaEdicao() {
         val reg = registry(catalog())
-        assertEquals("fate-condensed", packageFor(reg).manifest.id)
+        assertEquals("sistema-proprio", packageFor(reg).manifest.id)
         assertNull(CampaignStarter.packageFor(reg, "3det-victory"))
     }
 
     @Test fun iniciaCampanhaComFichaPacoteEAmbientacao() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
-        val (cfg, rd) = ready(cat, "fate", "fate-condensed")
+        val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, fate(cat, reg), "c1", "Minas de neon", 7L) as StartResult.Started
         assertNotNull(r.pkg)
         assertEquals("pj1", r.playerId)
@@ -69,14 +69,14 @@ class CampaignStarterTest {
 
     @Test fun ambientacaoLivreTemPrioridadeSobreOCatalogo() {
         val cat = catalog(); val reg = registry(cat)
-        val (cfg, rd) = ready(cat, "fate", "fate-condensed")
+        val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val r = CampaignStarter.start(InMemoryEventStore(), reg, cat, rd, cfg, fate(cat, reg), "c1", "X", 1L, "cyberpunk com mineração em asteroides")
         assertEquals("cyberpunk com mineração em asteroides", (r as StartResult.Started).campanha.ambientacao.name)
     }
 
     @Test fun fichaDeOutraEdicaoNaoEntraEmSilencio() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
-        val (cfg, rd) = ready(cat, "fate", "fate-condensed")
+        val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val estranha = Ficha("pj2", "Intruso", SystemRef("3det", "3det-victory"), stats = mapOf("forca" to 3))
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, estranha, "c1", "X", 1L) as StartResult.Refused
         assertTrue(r.reasons.any { "não se misturam" in it })
@@ -85,7 +85,7 @@ class CampaignStarterTest {
 
     @Test fun fichaInvalidaPeloPacoteERecusada() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
-        val (cfg, rd) = ready(cat, "fate", "fate-condensed")
+        val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val ruim = fate(cat, reg).copy(stats = mapOf("inexistente" to 99), traits = listOf("tracoInexistente"))
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, ruim, "c1", "X", 1L)
         assertTrue(r is StartResult.Refused)
@@ -104,7 +104,7 @@ class CampaignStarterTest {
 
     @Test fun nomeVazioEIdRepetidoSaoRecusados() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
-        val (cfg, rd) = ready(cat, "fate", "fate-condensed")
+        val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val f = fate(cat, reg)
         assertTrue(CampaignStarter.start(store, reg, cat, rd, cfg, f, "c1", "  ", 1L) is StartResult.Refused)
         assertTrue(CampaignStarter.start(store, reg, cat, rd, cfg, f, "c1", "Ok", 1L) is StartResult.Started)

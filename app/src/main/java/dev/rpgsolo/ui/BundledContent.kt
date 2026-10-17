@@ -21,11 +21,11 @@ class Content(
 object BundledContent {
     private val FILES = listOf(
         "manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes",
-        "dano", "criacao", "progressao", "incerto", "tutorial", "exemplos"
+        "dano", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo"
     )
 
-    // A ordem importa: teste-avancado herda de teste-basico.
-    private val PACKAGES = listOf("teste-basico", "teste-avancado", "fate-condensed")
+    // Único sistema embutido: o sistema próprio. Pacotes de teste ficam só nos testes.
+    private val PACKAGES = listOf("sistema-proprio")
 
     private fun read(path: String): String? =
         BundledContent::class.java.classLoader?.getResourceAsStream(path)?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }

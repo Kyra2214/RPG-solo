@@ -4,21 +4,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,20 +35,25 @@ fun CampaignsScreen(model: AppModel) {
     val active = remember(v) { model.quests.active() }
     val journal = remember(v, model.controller?.lines?.size) { model.journal() }
 
-    Column(Modifier.padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        NewCampaignSection(model)
+    ScreenColumn {
+        AppCard(accent = MaterialTheme.colorScheme.primary) { NewCampaignSection(model) }
 
-        Text("Capítulos", style = MaterialTheme.typography.titleMedium)
-        if (chapters.isEmpty()) Text("Nenhum capítulo ainda.", style = MaterialTheme.typography.bodySmall)
+        SectionTitle("Capítulos")
+        if (chapters.isEmpty()) Muted("Nenhum capítulo ainda.")
         chapters.forEach { c ->
-            Text("${c.number}. ${c.title}${if (c.isOpen) " (em andamento)" else ""}", style = MaterialTheme.typography.titleSmall)
-            c.summary?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+            AppCard(accent = if (c.isOpen) MaterialTheme.colorScheme.tertiary else null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("${c.number}. ${c.title}", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    if (c.isOpen) Pill("em andamento", MaterialTheme.colorScheme.tertiary)
+                }
+                c.summary?.let { Muted(it) }
+            }
         }
         if (open == null) {
             OutlinedTextField(title, { title = it }, Modifier.fillMaxWidth(), label = { Text("Título do novo capítulo") }, singleLine = true)
-            Button(onClick = { message = model.openChapter(title); if (message == null) title = "" }) { Text("Abrir capítulo") }
+            Button(modifier = Modifier.fillMaxWidth(), onClick = { message = model.openChapter(title); if (message == null) title = "" }) { Text("Abrir capítulo") }
         } else {
-            Button(enabled = !busy, onClick = {
+            Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
                 busy = true
                 scope.launch {
                     message = withContext(Dispatchers.IO) { model.closeChapter() }
@@ -58,18 +61,18 @@ fun CampaignsScreen(model: AppModel) {
                 }
             }) { Text(if (busy) "Gerando resumo…" else "Encerrar capítulo com resumo") }
         }
-        message?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+        message?.let { ErrorText(it) }
 
-        Text("Missões", style = MaterialTheme.typography.titleMedium)
-        if (active.isEmpty()) Text("Nenhuma missão ativa.", style = MaterialTheme.typography.bodySmall)
-        active.forEach { Text("• ${it.title}", style = MaterialTheme.typography.bodyMedium) }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle("Missões")
+        if (active.isEmpty()) Muted("Nenhuma missão ativa.")
+        active.forEach { AppCard(accent = MaterialTheme.colorScheme.secondary) { Text(it.title, style = MaterialTheme.typography.bodyLarge) } }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(quest, { quest = it }, Modifier.weight(1f), label = { Text("Nova missão") }, singleLine = true)
             Button(onClick = { message = model.addQuest(quest); if (message == null) quest = "" }) { Text("Adicionar") }
         }
 
-        Text("Diário", style = MaterialTheme.typography.titleMedium)
-        if (journal.isEmpty()) Text("Você ainda não descobriu nada.", style = MaterialTheme.typography.bodySmall)
-        journal.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
+        SectionTitle("Diário", "Só o que você já descobriu.")
+        if (journal.isEmpty()) Muted("Você ainda não descobriu nada.")
+        journal.forEach { AppCard { Text(it, style = MaterialTheme.typography.bodyMedium) } }
     }
 }

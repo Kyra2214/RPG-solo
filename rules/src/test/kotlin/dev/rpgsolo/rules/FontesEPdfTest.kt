@@ -18,7 +18,7 @@ class FontesEPdfTest {
         val r = SourceLibraryParser.parse(res("catalog/fontes.txt"), catalog())
         assertTrue(r.toString(), r is SourcesResult.Ok)
         val lib = SourceLibrary((r as SourcesResult.Ok).links)
-        assertTrue(lib.forSystem("fate-condensed").isNotEmpty())
+        assertTrue(lib.forSystem("3det-victory").isNotEmpty())
         assertTrue(lib.links.all { it.url.startsWith("https://") })
     }
 
@@ -61,9 +61,9 @@ class FontesEPdfTest {
     @Test fun buscaFiltraPorSistemaMasDocumentoSemSistemaSempreEntra() {
         val idx = DocumentIndex()
         idx.add(ImportedDocument("a", "A", "dnd-5-2-srd", listOf("Regras de iniciativa e ordem de turno no combate do jogo base.")))
-        idx.add(ImportedDocument("b", "B", "fate-condensed", listOf("Iniciativa não existe aqui; a ordem é decidida pela mesa em cada cena.")))
+        idx.add(ImportedDocument("b", "B", "sistema-proprio", listOf("Iniciativa não existe aqui; a ordem é decidida pela mesa em cada cena.")))
         idx.add(ImportedDocument("c", "C", null, listOf("Dica geral sobre iniciativa em qualquer sistema de mesa que você usar.")))
-        val ids = idx.search("iniciativa", systemId = "fate-condensed").map { it.docId }.toSet()
+        val ids = idx.search("iniciativa", systemId = "sistema-proprio").map { it.docId }.toSet()
         assertEquals(setOf("b", "c"), ids)
     }
 

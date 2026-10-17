@@ -58,3 +58,59 @@ class CheckTest {
         assertTrue(Outcome.CRITICAL_SUCCESS.isSuccess)
     }
 }
+
+class PointCheckTest {
+    private fun pool(points: Int, sides: Int = 6) = CheckSpec("esquiva", 1, sides, points, 0, Comparison.POINTS)
+    private fun roll(face: Int, sides: Int = 6) = RollResult("1d$sides", listOf(face), 0)
+    private fun wins(points: Int, sides: Int = 6) =
+        (1..sides).filter { resolveCheck(pool(points, sides), roll(it, sides)).outcome.isSuccess }
+
+    @Test fun semPontosSoAcertaComAFaceMaisAlta() {
+        assertEquals(listOf(6), wins(0))
+        assertEquals(listOf(6), wins(-3))
+        assertEquals(listOf(10), wins(0, 10))
+    }
+
+    @Test fun cadaPontoEhUmaFaceContandoDoTopo() {
+        assertEquals(listOf(5, 6), wins(2))
+        assertEquals(listOf(4, 5, 6), wins(3))
+        assertEquals(listOf(3, 4, 5, 6), wins(4))
+        assertEquals(listOf(7, 8), wins(2, 8))
+    }
+
+    @Test fun nuncaPassaDeLadosMenosUmEntaoSempreFalhaComUm() {
+        assertEquals(listOf(2, 3, 4, 5, 6), wins(5))
+        assertEquals(listOf(2, 3, 4, 5, 6), wins(9))
+        assertEquals(listOf(2, 3, 4), wins(9, 4))
+        assertEquals(19, wins(30, 20).size)
+        assertEquals(Outcome.FAILURE, resolveCheck(pool(9), roll(1)).outcome)
+        assertEquals(Outcome.FAILURE, resolveCheck(pool(99, 20), roll(1, 20)).outcome)
+    }
+
+    @Test fun talentoSomaPontos() {
+        // 1 ponto + talento (+2) = 3 pontos → 4, 5 e 6
+        assertEquals(listOf(4, 5, 6), wins(1 + 2))
+    }
+
+    @Test fun cartaoMostraODadoSemModificadorEADificuldadeDaFace() {
+        val r = resolveCheck(pool(2, 8), roll(7, 8))
+        assertEquals(1, r.spec.diceCount); assertEquals(8, r.spec.diceSides)
+        assertEquals(0, r.spec.modifier); assertEquals(7, r.spec.difficulty)
+        assertEquals(Comparison.ROLL_OVER, r.spec.comparison)
+        assertTrue(r.spec.label.contains("d8") && r.spec.label.contains("7–8"))
+        assertTrue(r.outcome.isSuccess)
+    }
+
+    @Test fun motorRolaSemSomarPontosAoDado() {
+        val e = GameEngine(1L)
+        val r = e.check(pool(3, 10))
+        assertEquals(0, r.roll.modifier)
+        assertEquals(10, r.spec.diceSides)
+        assertEquals(r.roll.dice.single(), r.roll.total)
+        assertEquals(r.roll.total >= 8, r.outcome.isSuccess)
+    }
+
+    @Test fun escadaDeDadosReais() {
+        assertEquals(listOf(4, 6, 8, 10, 12, 20), REAL_DICE)
+    }
+}

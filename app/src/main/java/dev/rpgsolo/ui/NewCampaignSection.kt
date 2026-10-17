@@ -31,9 +31,9 @@ import kotlin.random.Random
 @Composable
 fun NewCampaignSection(model: AppModel) {
     val flow = remember(model.controller != null) { model.newCampaignFlow() }
-    Text("Nova campanha", style = MaterialTheme.typography.titleMedium)
+    Text("Nova campanha", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
     if (flow == null) {
-        Text("Configure o provedor de IA na aba Config para criar uma campanha.", style = MaterialTheme.typography.bodySmall)
+        Muted("Configure o provedor de IA na aba Config para criar uma campanha.")
         return
     }
     val scope = rememberCoroutineScope()
@@ -50,7 +50,7 @@ fun NewCampaignSection(model: AppModel) {
                     text, { text = it }, Modifier.fillMaxWidth(), enabled = !busy,
                     label = { Text("Descreva a campanha (sistema, cenário, tom, dificuldade…)") }
                 )
-                Button(enabled = !busy && text.isNotBlank(), onClick = {
+                Button(modifier = Modifier.fillMaxWidth(), enabled = !busy && text.isNotBlank(), onClick = {
                     busy = true
                     scope.launch {
                         // Chamada à IA: fora da thread principal.
@@ -86,7 +86,7 @@ fun NewCampaignSection(model: AppModel) {
                 }
                 OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth(), label = { Text("Nome da campanha") }, singleLine = true)
                 s.errors.forEach { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
-                Button(enabled = chosen != null && name.isNotBlank(), onClick = {
+                Button(modifier = Modifier.fillMaxWidth(), enabled = chosen != null && name.isNotBlank(), onClick = {
                     val result = flow.start(chosen!!, name, Random.nextLong())
                     step = result
                     if (result is NewCampaignFlow.Step.Started) model.activate(result.result)

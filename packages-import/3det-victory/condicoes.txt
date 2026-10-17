@@ -1,3 +1,8 @@
 ganho|Ganho|Situação favorável: o teste ganha um dado extra. Ganhos e Perdas se anulam; o limite é 3 dados.
 perda|Perda|Situação desfavorável: o teste perde um dado, mas nunca fica abaixo de 1 dado.
 nocauteado|Nocauteado|Chegou a 0 PV: está fora do combate.
+sangramento|Sangramento|Ferida aberta que enfraquece aos poucos: Perda nos testes de Poder e Habilidade até estancar o sangue (cura ou primeiros socorros).|perda:poder,habilidade
+visao-turva|Visão turva|A vista falha: Perda nos testes de Habilidade (mirar, notar detalhes) até passar.|perda:habilidade
+envenenado|Envenenado|Veneno no corpo: perde vida com o tempo e sofre Perda nos testes de Resistência até ser tratado.|perda:resistencia
+amaldicoado|Amaldiçoado|Maldição sobre o personagem: Perda em todos os testes até ser desfeita.|perda:*
+abencoado|Abençoado|Bênção sobre o personagem: Ganho em todos os testes até acabar.|ganho:*

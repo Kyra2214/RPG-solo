@@ -1,8 +1,10 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.CheckSpec
+import dev.rpgsolo.engine.Comparison
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.engine.REAL_DICE
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SystemRef
 import java.text.Normalizer
@@ -11,7 +13,11 @@ data class CharacterReport(
     val errors: List<String>,
     val warnings: List<String>,
     val pointsSpent: Int,
-    val pointsAvailable: Int
+    val pointsAvailable: Int,
+    /** Equilíbrio vantagens x desvantagens (só tem efeito se o pacote declara `equilibrio` em criacao.txt). */
+    val advantages: Int = 0,
+    val disadvantages: Int = 0,
+    val disadvantagesRequired: Int = 0
 ) {
     val valid: Boolean get() = errors.isEmpty()
 }
@@ -27,6 +33,11 @@ data class RuleSnippet(val kind: String, val id: String, val title: String, val 
 /** Teste que o pacote oferece para ações do jogador (7.1.2). O [spec] já traz modificador e dificuldade. */
 data class CheckChoice(val id: String, val description: String, val spec: CheckSpec)
 
+/** Tipos de traço que contam como "vantagem" no equilíbrio vantagens x desvantagens. */
+internal val ADVANTAGE_TYPES = setOf("vantagem", "poder")
+private const val BALANCE_CAP = 1_000_000L
+internal fun parseBalance(s: String?): List<Int> = s?.split(",")?.mapNotNull { it.trim().toIntOrNull() } ?: emptyList()
+
 class RulePackage internal constructor(val data: PackageData) {
     val manifest: Manifest get() = data.manifest
 
@@ -38,6 +49,27 @@ class RulePackage internal constructor(val data: PackageData) {
 
     val creationPoints: Int get() = data.creation["pontos"]?.toIntOrNull() ?: 0
     val statCost: Int get() = data.creation["custo_atributo"]?.toIntOrNull() ?: 1
+
+    /**
+     * Tabela de equilíbrio (`equilibrio|1,3,5`): com N vantagens (N = 1, 2, 3...) a ficha precisa de pelo menos
+     * tabela[N-1] desvantagens. Vazia = o pacote não usa equilíbrio por quantidade.
+     */
+    val balanceTable: List<Int> get() = parseBalance(data.creation["equilibrio"])
+
+    /** Desvantagens mínimas para [advantages] vantagens. Passando do fim da tabela, `equilibrio_apos|dobrar` dobra a cada vantagem (4→10, 5→20...). */
+    fun requiredDisadvantages(advantages: Int): Int {
+        val table = balanceTable
+        if (advantages <= 0 || table.isEmpty()) return 0
+        if (advantages <= table.size) return table[advantages - 1]
+        var v = table.last().toLong()
+        if (data.creation["equilibrio_apos"] == "dobrar") {
+            repeat(advantages - table.size) { v = minOf(v * 2, BALANCE_CAP) }
+        }
+        return v.toInt()
+    }
+
+    /** Vantagens (e poderes) contam do lado das vantagens; perícias não entram na conta. */
+    fun isAdvantage(t: TraitDef): Boolean = t.type in ADVANTAGE_TYPES
 
     fun stat(id: String): StatDef? = statById[id]
     fun trait(id: String): TraitDef? = traitById[id]
@@ -56,8 +88,11 @@ class RulePackage internal constructor(val data: PackageData) {
             r.id to Resource(max, max)
         }
 
-    /** Valida atributos e traços pelas regras de criação do pacote. Atributos ausentes usam o padrão. */
-    fun validateCharacter(stats: Map<String, Int>, traits: List<String>): CharacterReport {
+    /**
+     * Valida atributos e traços pelas regras de criação do pacote. Atributos ausentes usam o padrão.
+     * [checkBalance] = false ignora só o mínimo de desvantagens (a tela usa para ofertar traços: o equilíbrio é uma conta corrente, não um requisito do traço).
+     */
+    fun validateCharacter(stats: Map<String, Int>, traits: List<String>, checkBalance: Boolean = true): CharacterReport {
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
         stats.keys.filter { it !in statById }.forEach { errors += "atributo desconhecido: $it" }
@@ -84,6 +119,14 @@ class RulePackage internal constructor(val data: PackageData) {
             }
             if (isUncertain(tid)) warnings += "regra incerta em ${t.name}: ${uncertainById.getValue(tid).note}"
         }
+        val known = traits.distinct().mapNotNull { traitById[it] }
+        val advCount = known.count { isAdvantage(it) }
+        val disCount = known.count { it.type == "desvantagem" }
+        val disNeeded = requiredDisadvantages(advCount)
+        if (checkBalance && disCount < disNeeded) {
+            val v = if (advCount == 1) "1 vantagem exige" else "$advCount vantagens exigem"
+            errors += "$v pelo menos $disNeeded ${if (disNeeded == 1) "desvantagem" else "desvantagens"}; a ficha tem $disCount (faltam ${disNeeded - disCount})"
+        }
         val negativos = -traits.distinct().mapNotNull { traitById[it] }.filter { it.type == "desvantagem" }.sumOf { it.cost }
         data.creation["limite_desvantagens"]?.toIntOrNull()?.let { lim ->
             if (negativos > lim) errors += "desvantagens somam $negativos pontos; o limite é $lim"
@@ -93,7 +136,7 @@ class RulePackage internal constructor(val data: PackageData) {
             val v = r.stat?.let { full[it] ?: 0 } ?: 0
             if (r.base + r.mult * v < 0) errors += "recurso ${r.name} ficaria negativo"
         }
-        return CharacterReport(errors, warnings, spent, creationPoints)
+        return CharacterReport(errors, warnings, spent, creationPoints, advCount, disCount, disNeeded)
     }
 
     /** Cria a ficha pelas regras da edição: valida, deriva recursos e marca o sistema/edição. */
@@ -105,15 +148,85 @@ class RulePackage internal constructor(val data: PackageData) {
         return FichaBuild.Created(ficha, report.warnings)
     }
 
+    fun archetype(id: String): Archetype? = data.archetypes.firstOrNull { it.id == id }
+
+    /** Cardápio de vantagens e desvantagens do arquétipo (null se o pacote não define). */
+    fun archetypeOptions(id: String): ArchetypeOptions? = data.archetypeOptions.firstOrNull { it.archetype == id }
+
+    /** Arquétipos em ordem alfabética, sem considerar acento nem maiúsculas ("Órfão" vem entre "M" e "V"). */
+    fun archetypesSorted(query: String = ""): List<Archetype> {
+        val q = norm(query).trim()
+        return data.archetypes
+            .filter { q.isEmpty() || norm(it.name).contains(q) || norm(it.description).contains(q) }
+            .sortedWith(compareBy({ norm(it.name) }, { it.id }))
+    }
+
+    /**
+     * Dado de um teste de pontos na dificuldade escolhida: o dado do teste ([base], na "média") sobe ou desce na escada
+     * dos dados reais (d4, d6, d8, d10, d12, d20) conforme a posição da dificuldade em relação à média.
+     * Dificuldade fora da lista não muda o dado; a escada nunca passa do d4 nem do d20.
+     */
+    private fun poolDie(base: Int, difficulty: Int): Int {
+        val sorted = data.difficulties.map { it.value }.distinct().sorted()
+        val i = sorted.indexOf(difficulty)
+        val ref = defaultDifficulty()?.let { sorted.indexOf(it) } ?: -1
+        val at = REAL_DICE.indexOf(base)
+        if (i < 0 || ref < 0 || at < 0) return base
+        return REAL_DICE[(at + i - ref).coerceIn(0, REAL_DICE.lastIndex)]
+    }
+
     /** Monta o teste para o motor. O resultado é decidido pelo motor; aqui só se descreve o teste. */
     fun check(checkId: String, stats: Map<String, Int>, difficulty: Int): CheckSpec {
         val c = requireNotNull(checkById[checkId]) { "teste inexistente: $checkId" }
-        val mod = c.stat?.let { (stats[it] ?: statById[it]?.default ?: 0) * c.mult } ?: 0
+        val base = c.stat?.let { (stats[it] ?: statById[it]?.default ?: 0) * c.mult } ?: 0
+        // Teste de pontos não tem CD: a dificuldade escolhida troca o tamanho do dado (fácil d4, média d6, difícil d8...).
+        val sides = if (c.comparison == Comparison.POINTS) poolDie(c.diceSides, difficulty) else c.diceSides
         return CheckSpec(
-            label = c.name, diceCount = c.diceCount, diceSides = c.diceSides, modifier = mod, difficulty = difficulty,
+            label = c.name, diceCount = c.diceCount, diceSides = sides, modifier = base, difficulty = difficulty,
             comparison = c.comparison, partialMargin = c.partialMargin,
-            criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure
+            criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure, stat = c.stat, checkId = c.id
         )
+    }
+
+    /**
+     * Ajustes automáticos do teste na hora de rolar.
+     * Condições: cada uma ativa com efeito sobre o atributo do teste soma +1 (Ganho) ou -1 (Perda) dado; se anulam;
+     * nunca abaixo de 1 dado nem acima de 3 (ou dos dados que o teste já tinha, se mais).
+     * Traços: cada traço do personagem com bônus cujo escopo bate com o id do teste, com o atributo dele ou com a
+     * situação ([skill], ex.: "esquiva") soma esse valor ao total. Sem nada aplicável, o teste volta intacto.
+     * Teste de pontos (POINTS): o bônus do traço soma pontos (talento "mestre em esquiva" = +2) e Ganho/Perda
+     * somam +1/-1 ponto, em vez de mexer nos dados; as faces de sucesso ficam sempre entre 1 e (lados − 1).
+     */
+    fun adjustCheck(
+        spec: CheckSpec, conditions: Collection<String>,
+        traits: Collection<String> = emptyList(), skill: String? = null
+    ): CheckSpec {
+        val stat: String? = spec.stat
+        val shift = conditions.sumOf { id ->
+            val e = data.conditions.firstOrNull { it.id == id }?.effect
+            val scope: Set<String>? = e?.stats
+            if (e != null && (scope == null || (stat != null && stat in scope))) e.dice else 0
+        }
+        // Teste de pontos: Ganho/Perda não mexem nos dados (é sempre 1 dado), mudam os pontos em +1/-1.
+        val pool = spec.comparison == Comparison.POINTS
+        val count = if (pool) spec.diceCount else (spec.diceCount + shift).coerceIn(1, maxOf(spec.diceCount, MAX_CONDITION_DICE))
+        val checkId: String? = spec.checkId
+        val bonus = traits.distinct().sumOf { tid ->
+            traitById[tid]?.bonuses.orEmpty()
+                .filter { b -> b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill) }
+                .map { it.scope }.distinct().sumOf { sc -> traitById[tid]!!.bonuses.filter { it.scope == sc }.sumOf { it.bonus } }
+        }
+        val pointShift = if (pool) shift else 0
+        if (count == spec.diceCount && bonus == 0 && pointShift == 0) return spec
+        // O cartão do dado mostra por que mudou: "(2d6)" vira "(1d6) · Perda"; o bônus aparece como "· +2".
+        var label = spec.label
+        if (count != spec.diceCount) {
+            label = label.replace(Regex("\\(\\d+d\\d+\\)"), "(${count}d${spec.diceSides})") +
+                if (count > spec.diceCount) " · Ganho" else " · Perda"
+        }
+        if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
+        if (bonus != 0) label += if (bonus > 0) " · +$bonus" else " · $bonus"
+        return spec.copy(diceCount = count, modifier = spec.modifier + bonus + pointShift, label = label)
     }
 
     /**
@@ -168,6 +281,7 @@ object PackageValidator {
         if (d.stats.isEmpty()) p += "pacote sem atributos"
         d.resources.filter { it.stat != null && it.stat !in stats }.forEach { p += "recurso ${it.id}: atributo inexistente ${it.stat}" }
         d.checks.filter { it.stat != null && it.stat !in stats }.forEach { p += "teste ${it.id}: atributo inexistente ${it.stat}" }
+        d.conditions.forEach { c -> c.effect?.stats?.filter { it !in stats }?.forEach { p += "condição ${c.id}: atributo inexistente no efeito $it" } }
         d.damage.filter { it.bonusStat != null && it.bonusStat !in stats }.forEach { p += "dano ${it.id}: atributo inexistente ${it.bonusStat}" }
         for (t in d.traits) for (r in t.requires) when (r) {
             is Requirement.MinStat -> if (r.stat !in stats) p += "traço ${t.id}: requisito de atributo inexistente ${r.stat}"
@@ -181,6 +295,15 @@ object PackageValidator {
         if (pontos == null || pontos < 0) p += "criacao.txt: 'pontos' ausente ou inválido"
         d.creation["limite_desvantagens"]?.let { if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'limite_desvantagens' inválido" }
         d.creation["custo_atributo"]?.let { if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'custo_atributo' inválido" }
+        d.creation["equilibrio"]?.let { raw ->
+            val parts = raw.split(",").map { it.trim() }
+            val nums = parts.mapNotNull { it.toIntOrNull() }
+            if (nums.size != parts.size || nums.isEmpty() || nums.any { it < 1 } || nums.zipWithNext().any { (a, b) -> b < a })
+                p += "criacao.txt: 'equilibrio' inválido (use números crescentes, ex.: 1,3,5)"
+        }
+        d.creation["equilibrio_apos"]?.let { if (it != "dobrar" && it != "manter") p += "criacao.txt: 'equilibrio_apos' inválido (dobrar ou manter)" }
+        if (d.creation.containsKey("equilibrio_apos") && !d.creation.containsKey("equilibrio")) p += "criacao.txt: 'equilibrio_apos' sem 'equilibrio'"
+        d.creation["minimo_opcoes"]?.let { if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'minimo_opcoes' inválido" }
         val everyId = stats + traits + d.resources.map { it.id } + d.checks.map { it.id } +
             d.difficulties.map { it.id } + d.conditions.map { it.id } + d.damage.map { it.id }
         d.uncertain.filter { it.id !in everyId }.forEach { p += "incerto.txt: id inexistente ${it.id}" }
@@ -191,6 +314,56 @@ object PackageValidator {
             val r = pkg.validateCharacter(ex.stats, ex.traits)
             r.errors.forEach { p += "exemplo ${ex.id}: $it" }
         }
+        // Arquétipos também: nenhum pode nascer quebrando pontos, limites ou requisitos.
+        for (a in d.archetypes) {
+            val r = pkg.validateCharacter(a.stats, a.traits)
+            r.errors.forEach { p += "arquétipo ${a.id}: $it" }
+        }
+        // Cardápio dos arquétipos (opcoes-arquetipo.txt).
+        val traitById = d.traits.associateBy { it.id }
+        val archById = d.archetypes.associateBy { it.id }
+        for (o in d.archetypeOptions) {
+            val a = archById[o.archetype]
+            if (a == null) { p += "opções: arquétipo inexistente ${o.archetype}"; continue }
+            val chosen = o.advantages + o.disadvantages
+            chosen.groupBy { it }.filter { it.value.size > 1 }.keys.forEach { p += "opções de ${o.archetype}: traço repetido $it" }
+            for (id in o.advantages) {
+                val t = traitById[id]
+                if (t == null) { p += "opções de ${o.archetype}: traço inexistente $id"; continue }
+                if (t.type !in ADVANTAGE_TYPES) p += "opções de ${o.archetype}: $id não é vantagem (é ${t.type})"
+            }
+            for (id in o.disadvantages) {
+                val t = traitById[id]
+                if (t == null) { p += "opções de ${o.archetype}: traço inexistente $id"; continue }
+                if (t.type != "desvantagem") p += "opções de ${o.archetype}: $id não é desvantagem (é ${t.type})"
+            }
+            // Todo item do cardápio precisa ser escolhível por quem tem os atributos do arquétipo.
+            for (id in chosen) {
+                val t = traitById[id] ?: continue
+                for (r in t.requires) when (r) {
+                    is Requirement.MinStat ->
+                        if ((a.stats[r.stat] ?: d.stats.firstOrNull { it.id == r.stat }?.default ?: 0) < r.min)
+                            p += "opções de ${o.archetype}: $id exige ${r.stat} >= ${r.min}, mais do que o arquétipo tem"
+                    is Requirement.HasTrait ->
+                        if (r.traitId !in chosen) p += "opções de ${o.archetype}: $id exige ${r.traitId}, que não está no cardápio"
+                    is Requirement.Excludes ->
+                        if (r.traitId in chosen) p += "opções de ${o.archetype}: $id não combina com ${r.traitId}, também no cardápio"
+                }
+            }
+        }
+        d.creation["minimo_opcoes"]?.toIntOrNull()?.let { min ->
+            val byArch = d.archetypeOptions.associateBy { it.archetype }
+            for (a in d.archetypes) {
+                val o = byArch[a.id]
+                val v = o?.advantages?.size ?: 0
+                val ds = o?.disadvantages?.size ?: 0
+                if (v < min) p += "arquétipo ${a.id}: precisa de pelo menos $min vantagens no cardápio (tem $v)"
+                if (ds < min) p += "arquétipo ${a.id}: precisa de pelo menos $min desvantagens no cardápio (tem $ds)"
+            }
+        }
         return p
     }
 }
+
+/** Limite de dados de um teste ao somar Ganhos (3D&T). */
+private const val MAX_CONDITION_DICE = 3

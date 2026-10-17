@@ -18,6 +18,8 @@ import dev.rpgsolo.ai.Author
 import dev.rpgsolo.ai.ChapterSummarizer
 import dev.rpgsolo.ai.GameLoop
 import dev.rpgsolo.ai.PlayController
+import dev.rpgsolo.ai.CheckMenu
+import dev.rpgsolo.ai.PlayerSheet
 import dev.rpgsolo.ai.ProviderConfig
 import dev.rpgsolo.ai.ProviderFactory
 import dev.rpgsolo.ai.ProviderKind
@@ -92,7 +94,7 @@ class AppModel {
         }
 
     /**
-     * 7.1.2: testes do pacote ativo (demo: teste-basico) com os atributos do herói. Sem pacote, sem testes:
+     * 7.1.2: testes do pacote ativo (demo: sistema-proprio) com os atributos do herói. Sem pacote, sem testes:
      * toda ação segue sem teste e o mestre só narra. Falha do classificador vira aviso no chat, não erro.
      */
     private fun checkFor(provider: AiProvider): (String) -> dev.rpgsolo.engine.CheckSpec? {
@@ -102,15 +104,28 @@ class AppModel {
         return IntentClassifier(provider).asCheckFor(options) { classifierWarning = it }
     }
 
-    /** Personagem do jogador e pacote da campanha ativa. A demonstração usa o herói e o `teste-basico`. */
+    /** Personagem do jogador e pacote da campanha ativa. A demonstração usa o herói e o `sistema-proprio`. */
     private var playerId = "hero"
-    private var activePackage: RulePackage? = content.registry.get("teste-basico")
+    private var activePackage: RulePackage? = content.registry.get("sistema-proprio")
+
+    /** Ficha da campanha ativa (vantagens/desvantagens). A demonstração não tem ficha: o mestre vê só atributos e recursos. */
+    private var activeFicha: Ficha? = null
 
     private fun buildController(r: AiRoles): PlayController =
         PlayController(
-            session, GameLoop(r.narrator, premiumRunner = if (r.hasPremium) TurnRunner(r.premium) else null), playerId,
+            session,
+            GameLoop(
+                r.narrator,
+                premiumRunner = if (r.hasPremium) TurnRunner(r.premium) else null,
+                // O mestre só pode pedir os testes que o pacote da campanha oferece.
+                menu = activePackage?.let { CheckMenu(it) },
+                playerTraits = { activeFicha?.traits.orEmpty() }
+            ),
+            playerId,
             healthResource = activePackage?.manifest?.deathResource ?: "pv",
-            checkFor = checkFor(r.cheap), quests = quests
+            checkFor = checkFor(r.cheap), quests = quests,
+            sheet = PlayerSheet(activePackage, activeFicha),
+            conditionNames = activePackage?.data?.conditions?.associate { it.id to it.name }.orEmpty()
         )
 
     /** Fluxo "Nova campanha" (9.1). null até haver provedor de IA configurado. */
@@ -125,6 +140,7 @@ class AppModel {
         session = started.session
         playerId = started.playerId
         activePackage = started.pkg
+        activeFicha = fichas.firstOrNull { it.id == started.campanha.fichaId }
         chapters = ChapterBook()
         quests = QuestLog()
         controller = roles?.let { buildController(it) }

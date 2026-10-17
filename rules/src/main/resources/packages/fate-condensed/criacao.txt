@@ -1,2 +1,0 @@
-pontos|20
-custo_atributo|1

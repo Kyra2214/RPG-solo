@@ -1,0 +1,5 @@
+pontos|10
+custo_atributo|1
+equilibrio|1,3,5
+equilibrio_apos|dobrar
+minimo_opcoes|3

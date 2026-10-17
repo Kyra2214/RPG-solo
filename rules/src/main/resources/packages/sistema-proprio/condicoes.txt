@@ -1,0 +1,7 @@
+caido|Caído|O personagem está no chão; levantar custa uma ação.
+atordoado|Atordoado|Perde a próxima ação; termina ao fim da rodada seguinte.
+exausto|Exausto|Fadiga acumulada; o mestre pede descanso antes de novos esforços grandes.
+sangramento|Sangramento|Ferida aberta que enfraquece aos poucos até ser estancada.
+visao-turva|Visão turva|A vista falha: ações que dependem de enxergar ficam mais difíceis até passar.
+amaldicoado|Amaldiçoado|Maldição sobre o personagem; o mestre a faz pesar nas cenas até ser desfeita.
+abencoado|Abençoado|Bênção sobre o personagem; o mestre a faz ajudar nas cenas até acabar.

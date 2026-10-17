@@ -9,7 +9,11 @@ sealed interface TurnOutcome {
     data class Applied(
         val narrative: String,
         val events: List<Event>,
-        val suggestions: List<String> = emptyList()
+        val suggestions: List<String> = emptyList(),
+        /** O mestre pediu um teste: nada foi aplicado ainda; o jogo espera o jogador rolar. */
+        val checkRequest: CheckRequest? = null,
+        /** O mestre pediu uma rolagem com tabela: nada foi aplicado ainda; o jogo espera o jogador rolar. */
+        val rollRequest: RollRequest? = null
     ) : TurnOutcome
 
     /** A IA respondeu, mas o motor recusou as propostas mesmo após a correção. Nada foi alterado. */
@@ -36,7 +40,8 @@ class TurnRunner(
         data class Retry(val problem: String, val fromEngine: Boolean) : Attempt
     }
 
-    fun run(session: CampaignSession, request: AiRequest): TurnOutcome {
+    /** [menu] = testes que o mestre pode pedir neste jogo (null = o mestre não pode pedir teste). */
+    fun run(session: CampaignSession, request: AiRequest, menu: CheckMenu? = null, canRequest: Boolean = true): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
         var lastProblem = ""
@@ -48,7 +53,7 @@ class TurnRunner(
             } catch (e: AiError) {
                 return TurnOutcome.Failed(e.message ?: "erro de IA", e)
             }
-            when (val a = attempt(session, response.text)) {
+            when (val a = attempt(session, response.text, menu, canRequest)) {
                 is Attempt.Done -> return a.outcome
                 is Attempt.Retry -> {
                     lastProblem = a.problem
@@ -68,13 +73,27 @@ class TurnRunner(
         return if (lastFromEngine) TurnOutcome.Refused(lastProblem) else TurnOutcome.Failed(lastProblem)
     }
 
-    private fun attempt(session: CampaignSession, text: String): Attempt =
+    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean): Attempt =
         when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
                 Attempt.Retry("formato inválido: " + parsed.errors.joinToString("; "), false)
             is ParseResult.Ok -> {
                 val out = parsed.output
-                if (out.proposals.isEmpty()) {
+                val req = out.checkRequest
+                val roll = out.rollRequest
+                if (req != null || roll != null) {
+                    // Teste ou rolagem pedidos: valida contra o pacote e só guarda o pedido. Mudanças de estado esperam o resultado.
+                    val invalid = req?.let { menu?.validate(it) } ?: roll?.let { menu?.validateRoll(it, session.state) }
+                    val problem: String? = when {
+                        menu == null -> "este jogo não oferece testes nem rolagens; não use request_check nem request_roll"
+                        !canRequest -> "você já pediu testes demais em sequência; narre o desfecho agora, sem request_check nem request_roll"
+                        invalid != null -> "pedido inválido: $invalid"
+                        out.proposals.isNotEmpty() -> "com request_check/request_roll não envie proposals; proponha mudanças só depois do resultado"
+                        else -> null
+                    }
+                    if (problem != null) Attempt.Retry(problem, false)
+                    else Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), emptyList(), req, roll))
+                } else if (out.proposals.isEmpty()) {
                     Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), out.suggestions))
                 } else {
                     when (val r = session.executeAll(out.proposals)) {

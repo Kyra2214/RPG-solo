@@ -8,7 +8,25 @@ import dev.rpgsolo.engine.QuestLog
 
 enum class Author { PLAYER, ROLL, MASTER, SYSTEM }
 
-data class ChatLine(val author: Author, val text: String)
+/**
+ * Rolagem pronta para a tela animar. Os números já foram decididos pelo motor; a animação é só visual
+ * e sempre termina exatamente em [dice].
+ */
+data class RollView(
+    val label: String,
+    val sides: Int,
+    val dice: List<Int>,
+    val modifier: Int,
+    val total: Int,
+    val difficulty: Int,
+    val outcome: Outcome,
+    val outcomeWord: String,
+    /** Rolagem simples (sem dificuldade nem sucesso/falha): a tela mostra só o dado. */
+    val plain: Boolean = false
+)
+
+/** [roll] só vem preenchido nas linhas ROLL; [text] continua com a versão em texto da mesma rolagem. */
+data class ChatLine(val author: Author, val text: String, val roll: RollView? = null)
 
 /** Painel rápido (10.1.3): só o personagem do jogador. Nada de vida ou atributos de NPC (10.1.5). */
 data class PanelState(
@@ -32,7 +50,11 @@ class PlayController(
     private val checkFor: (String) -> CheckSpec? = { null },
     private val quests: QuestLog? = null,
     /** Recursos que "descansar" recupera (6.4.3). Padrão: só o de saúde; vazio = descanso recusado. */
-    private val restResources: Set<String> = healthResource?.let { setOf(it) } ?: emptySet()
+    private val restResources: Set<String> = healthResource?.let { setOf(it) } ?: emptySet(),
+    /** Ficha do jogador para o mestre ver (vantagens, desvantagens, atributos...). null = o mestre só vê a saúde em palavras. */
+    private val sheet: PlayerSheet? = null,
+    /** id da condição -> nome para mostrar no painel (ex.: "visao-turva" -> "Visão turva"). Sem entrada, mostra o id. */
+    private val conditionNames: Map<String, String> = emptyMap()
 ) {
     /** Uma jogada no chat: onde começa e, se foi ação local que gravou estado, a marca para desfazer. */
     private data class Entry(val start: Int, val localMark: Int? = null, val viaLoop: Boolean = true)
@@ -46,12 +68,58 @@ class PlayController(
     fun suggestions(): List<String> =
         if (entries.lastOrNull()?.viaLoop == true) loop.turns.lastOrNull()?.suggestions.orEmpty() else emptyList()
 
+    /** Teste ou rolagem que o mestre pediu e o jogador ainda não rolou. A tela mostra o botão de rolar enquanto houver um. */
+    fun pending(): Pending? = loop.pending()
+
+    /**
+     * Quanto da ficha enviar agora (cada pedido à IA é independente):
+     *  - fora de combate: resumo curto;
+     *  - primeira jogada do combate: ficha completa, com as descrições dos traços;
+     *  - demais jogadas do combate: só o status da rodada.
+     * Deriva do histórico, então desfazer ou refazer a jogada recalcula sozinho.
+     */
+    private fun sheetNow(): Pair<SheetLevel, String?>? {
+        val s = sheet ?: return null
+        val inCombat = session.state.combat != null
+        val previous = loop.turns.lastOrNull()?.input?.sheetLevel
+        val level = when {
+            !inCombat -> SheetLevel.BRIEF
+            previous == SheetLevel.FULL || previous == SheetLevel.ROUND -> SheetLevel.ROUND
+            else -> SheetLevel.FULL
+        }
+        return level to s.render(session.state, playerId, level)
+    }
+
     fun submit(text: String): PlayResult {
         if (text.isBlank()) return PlayResult.Failed("texto vazio")
+        if (loop.pending() != null) return PlayResult.Failed("o mestre pediu uma rolagem: role-a antes de continuar")
         val start = chat.size
         chat += ChatLine(Author.PLAYER, text.trim())
         LocalActions.match(text)?.let { return submitLocal(it, start) }
-        val result = loop.play(session, PlayInput(playerId, text, checkFor(text), healthResource))
+        val sheetNow = sheetNow()
+        val result = loop.play(
+            session,
+            PlayInput(playerId, text, checkFor(text), healthResource, playerSheet = sheetNow?.second, sheetLevel = sheetNow?.first)
+        )
+        when (result) {
+            is PlayResult.Played -> {
+                entries.addLast(Entry(start))
+                showTurn(result)
+            }
+            is PlayResult.Failed -> chat += ChatLine(Author.SYSTEM, result.reason)
+        }
+        return result
+    }
+
+    /** O jogador rola o teste pedido pelo mestre: o motor rola e o mestre narra o desfecho. Chamada de rede. */
+    fun rollPending(): PlayResult {
+        val pending = loop.pending() ?: return PlayResult.Failed("não há teste pendente")
+        val start = chat.size
+        val sheetNow = sheetNow()
+        val result = loop.resolvePending(
+            session,
+            PlayInput(playerId, pending.playerText, null, healthResource, playerSheet = sheetNow?.second, sheetLevel = sheetNow?.first)
+        )
         when (result) {
             is PlayResult.Played -> {
                 entries.addLast(Entry(start))
@@ -117,7 +185,7 @@ class PlayController(
         return PanelState(
             name = e.name,
             resources = e.resources.mapValues { (_, r) -> r.current to r.max },
-            conditions = session.state.conditions[playerId].orEmpty().sorted(),
+            conditions = session.state.conditions[playerId].orEmpty().sorted().map { conditionNames[it] ?: it },
             quest = quests?.active()?.firstOrNull()?.title,
             inCombat = session.state.combat != null
         )
@@ -129,7 +197,9 @@ class PlayController(
     }
 
     private fun showTurn(r: PlayResult.Played) {
-        r.record.check?.let { chat += ChatLine(Author.ROLL, rollText(it)) }
+        // Rolagem com tabela (ex.: d6 do dano) não tem dificuldade nem sucesso/falha: o cartão mostra só o dado.
+        val plain = r.record.input.resolving is PendingRoll
+        r.record.check?.let { chat += ChatLine(Author.ROLL, rollText(it, plain), rollView(it, plain)) }
         chat += ChatLine(Author.MASTER, r.record.narrative)
     }
 
@@ -142,9 +212,17 @@ class PlayController(
             Outcome.CRITICAL_SUCCESS -> "sucesso crítico"
         }
 
+        /** Dados do motor para a animação da tela (10.1.4). */
+        fun rollView(c: CheckResult, plain: Boolean = false) = RollView(
+            label = c.spec.label, sides = c.spec.diceSides, dice = c.roll.dice, modifier = c.roll.modifier,
+            total = c.roll.total, difficulty = c.spec.difficulty, outcome = c.outcome,
+            outcomeWord = if (plain) "" else word(c.outcome), plain = plain
+        )
+
         /** Rolagem do motor, clara (10.1.4): dados, modificador, total e resultado. */
-        fun rollText(c: CheckResult): String {
+        fun rollText(c: CheckResult, plain: Boolean = false): String {
             val r = c.roll
+            if (plain) return "${c.spec.label}: ${r.expression} [${r.dice.joinToString(", ")}] = ${r.total}"
             val mod = if (r.modifier == 0) "" else if (r.modifier > 0) " +${r.modifier}" else " ${r.modifier}"
             return "${c.spec.label}: ${r.expression.takeWhile { ch -> ch != '+' && ch != '-' }} [${r.dice.joinToString(", ")}]$mod = ${r.total} → ${word(c.outcome)}"
         }

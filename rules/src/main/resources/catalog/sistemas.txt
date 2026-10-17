@@ -14,7 +14,7 @@ wfrp|wfrp|Warhammer Fantasy Roleplay|edicao a identificar|fantasia|PENDENTE|PEND
 gurps|gurps|GURPS|edicao a identificar|generico|PENDENTE|PENDENTE|
 savage-worlds|savage-worlds|Savage Worlds|edicao a identificar|generico|PENDENTE|PENDENTE|
 fate-core|fate|Fate Core|Core|generico|PENDENTE|PENDENTE|fonte listada nao foi aberta nesta rodada
-fate-condensed|fate|Fate Condensed|Condensed|generico|PESQUISADO_PARCIAL|VERIFICADA|faterpg.com/licensing lida em 16/10/2026: SRD do Fate Condensed liberado sob CC-BY 3.0 (texto de atribuicao obrigatorio, nao viral) ou OGL; sem restricao a aplicativos; criacao de personagem lida via fate-srd.com (espelho nao oficial)
+sistema-proprio|proprio|Sistema proprio|v0.1|generico|PESQUISADO_PARCIAL|VERIFICADA|sistema autoral do projeto; sem fonte externa; textos e conteudo proprios
 fate-accelerated|fate|Fate Accelerated|FAE|generico|PENDENTE|PENDENTE|
 basic-roleplaying|brp|Basic Roleplaying|edicao a identificar|generico|PENDENTE|PENDENTE|fonte listada nao foi aberta nesta rodada
 cortex-prime|cortex|Cortex Prime|edicao a identificar|generico|PENDENTE|PENDENTE|

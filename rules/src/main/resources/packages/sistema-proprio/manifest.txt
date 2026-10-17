@@ -1,0 +1,10 @@
+# Pacote REAL embutido: sistema autoral do projeto. Estrutura (3 atributos, PA/PM/PV, perícias, vantagens e desvantagens) com conteúdo e textos próprios.
+id|sistema-proprio
+sistema|proprio
+edicao|sistema-proprio
+versao|0.1.0
+origem|autoral
+licenca|Sistema autoral do projeto RPG Solo. Nenhum texto de terceiros foi copiado.
+licenca_status|VERIFICADA
+tipo|REAL
+morte|pv

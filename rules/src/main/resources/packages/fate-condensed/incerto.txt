@@ -1,4 +1,0 @@
-# id|nota
-sem-pericia|Estresse, consequências/condições, aspectos e proezas não são modelados por este pacote; a mesa e o mestre os registram.
-fight|A pirâmide (1/2/3/4) não é imposta: o pacote só limita a 20 pontos e +4. Confira o formato do personagem à mão.
-mediocre|Dificuldades têm +8 embutido (4dF = 4d3 menos 8). O resultado e a margem estão corretos, mas o total bruto exibido precisa descontar 8.

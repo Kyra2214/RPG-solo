@@ -1,0 +1,5 @@
+# id|nome|valor (CD no d20; nos testes de pontos troca o dado: fácil d4, média d6, difícil d8, heroica d10)
+facil|Fácil|8
+media|Média|12
+dificil|Difícil|15
+heroica|Heroica|18

@@ -34,6 +34,22 @@ class PlayControllerTest {
         assertTrue(" +2 = " in c.lines[1].text)
     }
 
+    @Test fun linhaDeRolagemTrazOsDadosReaisDoMotorParaAnimar() {
+        val c = ctrl(session(), listOf(ok("Você golpeia.")))
+        c.submit("ataco o orc")
+        val v = c.lines[1].roll!!
+        assertEquals("ataque", v.label)
+        assertEquals(20, v.sides)
+        assertEquals(1, v.dice.size)
+        assertTrue(v.dice.single() in 1..20)
+        assertEquals(2, v.modifier)
+        assertEquals(v.dice.sum() + 2, v.total)
+        assertEquals(10, v.difficulty)
+        assertTrue("[${v.dice.single()}]" in c.lines[1].text)
+        assertNull(c.lines[0].roll)
+        assertNull(c.lines[2].roll)
+    }
+
     @Test fun semTesteNaoHaLinhaDeRolagem() {
         val c = ctrl(session(), listOf(ok("Nada acontece.")), check = { null })
         c.submit("olho em volta")

@@ -36,13 +36,17 @@ sealed interface Requirement {
 }
 
 /** Vantagem, desvantagem, perícia ou poder. Custo negativo devolve pontos. */
+/** Bônus fixo no total de um teste. [scope] = id de teste, id de atributo ou tipo de situação (ex.: "esquiva", "sorte"). */
+data class TraitBonus(val scope: String, val bonus: Int)
+
 data class TraitDef(
     val id: String,
     val type: String,
     val name: String,
     val cost: Int,
     val requires: List<Requirement>,
-    val description: String
+    val description: String,
+    val bonuses: List<TraitBonus> = emptyList()
 )
 
 /** Modelo de teste. modificador = atributo * mult. Parcial e críticos só existem se o pacote declarar. */
@@ -60,13 +64,30 @@ data class CheckDef(
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)
-data class ConditionDef(val id: String, val name: String, val description: String)
+/**
+ * Efeito automático de uma condição nos testes: [dice] = +1 (Ganho, um dado extra) ou -1 (Perda, um dado a menos).
+ * [stats] = atributos afetados; null = todos os testes.
+ */
+data class ConditionEffect(val dice: Int, val stats: Set<String>?)
+data class ConditionDef(val id: String, val name: String, val description: String, val effect: ConditionEffect? = null)
 data class DamageDef(val id: String, val name: String, val diceCount: Int, val diceSides: Int, val bonusStat: String?)
 
 /** Regra ambígua: nunca apresentada como oficial (4.1.6). */
 data class UncertainRule(val id: String, val note: String)
 data class TutorialStep(val order: Int, val title: String, val text: String)
 data class ExampleCharacter(val id: String, val title: String, val stats: Map<String, Int>, val traits: List<String>)
+
+/** Arquétipo: ponto de partida da criação de ficha (atributos e traços iniciais que o jogador pode editar). */
+data class Archetype(
+    val id: String, val name: String, val description: String,
+    val stats: Map<String, Int>, val traits: List<String>
+)
+
+/**
+ * Cardápio de um arquétipo: vantagens e desvantagens que combinam com ele (específicas e gerais misturadas).
+ * É só sugestão: o jogador pode escolher qualquer traço do pacote, desde que passe nas regras de criação.
+ */
+data class ArchetypeOptions(val archetype: String, val advantages: List<String>, val disadvantages: List<String>)
 
 /** Conteúdo lido de um pacote, antes de resolver herança. */
 data class PackageData(
@@ -83,5 +104,7 @@ data class PackageData(
     val progression: List<Int>? = null,
     val uncertain: List<UncertainRule> = emptyList(),
     val tutorial: List<TutorialStep> = emptyList(),
-    val examples: List<ExampleCharacter> = emptyList()
+    val examples: List<ExampleCharacter> = emptyList(),
+    val archetypes: List<Archetype> = emptyList(),
+    val archetypeOptions: List<ArchetypeOptions> = emptyList()
 )

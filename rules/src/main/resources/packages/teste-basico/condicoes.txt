@@ -1,2 +1,0 @@
-envenenado|Envenenado|Perde vida com o passar do tempo até ser tratado.
-atordoado|Atordoado|Não consegue agir por algum tempo.

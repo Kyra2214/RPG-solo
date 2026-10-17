@@ -8,7 +8,7 @@ import java.io.File
 
 class CheckChoicesTest {
     private fun files(name: String): Map<String, String> =
-        listOf("src/main/resources/packages/$name", "rules/src/main/resources/packages/$name").map(::File).first { it.exists() }
+        listOf("src/test/resources/packages/$name", "rules/src/test/resources/packages/$name").map(::File).first { it.exists() }
             .listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }
 
     private fun basico(): RulePackage {

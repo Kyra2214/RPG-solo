@@ -1,0 +1,4 @@
+# id|nome|base|atributo|mult   (maximo = base + mult * atributo). Fórmulas em rascunho.
+pa|Pontos de Ação|1|poder|1
+pm|Pontos de Magia|2|habilidade|2
+pv|Pontos de Vida|4|resistencia|3

@@ -16,6 +16,9 @@ object MasterPrompt {
         4. Se uma regra não existir ou for incerta, diga que é incerta; nunca apresente regra inventada como oficial. Adaptações são sempre identificadas como adaptação.
         5. Respeite promessas de NPC em aberto, itens já consumidos e mortes.
         6. Sugestões de ação ao jogador são opcionais, nunca obrigatórias.
+        7. Você recebe a ficha completa do jogador (atributos, recursos, vantagens, desvantagens, perícias, condições, itens). Use-a em toda cena, principalmente em combate: respeite o que o personagem sabe e não sabe fazer, faça vantagens e desvantagens aparecerem na história e nunca conceda a ele algo que a ficha não permite. A ficha é só para você: não a recite nem cite números, pontos ou nomes de mecânica.
+        8. Testes pedidos por você: quando o desfecho de algo for realmente incerto, em vez de decidir você pode PEDIR um teste ao jogador com "request_check", usando só os testes e dificuldades da seção "Testes que você pode pedir" do pedido (se a seção não existir, nunca peça teste). Vale para descobertas (notar algo escondido, forçar, convencer, lembrar) e para eventos surpresa (armadilha, emboscada, uma flecha vinda do escuro: peça o teste que permite evitar). Ao pedir: narre apenas até o momento do teste e termine convidando o jogador a rolar; não revele nem decida o resultado; não envie proposals; escreva em onSuccess e onFailure (privados) o que acontece em cada caso. Se o teste falhar numa descoberta, o jogador simplesmente não percebe o que estava escondido e a história segue, sem avisar que algo foi perdido. Peça poucos testes, só quando a descoberta ou o risco importar, e não peça outro se a jogada já trouxe um resultado de teste. Se a ficha do jogador listar um traço com "bônus nos testes" (ex.: +2 em esquiva) e o teste for dessa situação, preencha "skill" com o escopo (esquiva, sorte...): o motor soma o bônus sozinho, você não calcula nem cita números.
+        9. Rolagem com tabela: quando uma falha ou evento precisa de variação (onde a flecha acerta, quanto fere, o que cai do baú), peça com "request_roll", na mesma resposta em que narra o resultado do teste: 1 dado e uma entrada para CADA face, com "text" (privado), "damage" (dano que o motor aplicará; 0 se não fere; faces maiores são mais graves, até a vida máxima do personagem, e só fatais quando a cena justificar) e, se couber, "conditions" (status do sistema que o motor aplicará, como sangramento ou veneno; use só ids da lista de condições do pedido). Ao pedir, diga ao jogador o que o dado decide (ex.: "role um d6: quanto maior, pior"), sem revelar a tabela. Depois da rolagem o motor JÁ aplicou o dano e as condições: você só narra, sem números, e nunca propõe isso de novo. Condições ativas continuam valendo: faça-as pesar nas cenas seguintes (visão turva atrapalha mirar, sangramento enfraquece) e proponha remove_condition quando forem tratadas ou passarem. Não encadeie mais de dois pedidos seguidos.
         ${ProposalSchema.INSTRUCTIONS}
     """.trimIndent()
 }
@@ -33,6 +36,12 @@ data class ContextInput(
     val chapterSummary: String? = null,
     /** Texto privado de NPCs da cena (ver DossierBook.contextFor); só o que a cena exige (8.5.1). */
     val npcPrivate: List<String> = emptyList(),
+    /** Ficha do jogador em texto (ver [PlayerSheet]). Sempre entra no pedido, antes do resto, e não é cortada pelo orçamento. */
+    val playerSheet: String? = null,
+    /** Testes e dificuldades que o mestre pode pedir (ver [CheckMenu.describe]). null = o mestre não pode pedir teste. */
+    val checkMenu: String? = null,
+    /** Teste ou rolagem que o mestre pediu e o jogador acabou de rolar: [check] traz o resultado e a nota privada do resultado volta à IA. */
+    val resolving: Pending? = null,
     /** Últimas narrações, da mais antiga para a mais nova. */
     val recentNarrative: List<String> = emptyList(),
     /** Orçamento de tokens do pedido inteiro (7.2.4). */
@@ -58,6 +67,30 @@ object ContextAssembler {
         else -> "ódio"
     }
 
+    /** Nota privada da face sorteada. O dano, se houver, já foi aplicado pelo motor: a IA não o repete nem cita valores. */
+    internal fun rollNote(e: RollEntry): String {
+        val applied = buildList {
+            if (e.damage > 0) add("o dano")
+            if (e.conditions.isNotEmpty()) add("a condição (${e.conditions.joinToString(", ")})")
+        }
+        val tail = if (applied.isEmpty()) "Esta face não causa dano."
+        else "O motor JÁ aplicou ${applied.joinToString(" e ")}: não proponha damage nem add_condition para isso nem cite valores; descreva o ferimento e o efeito só em palavras."
+        return "Nota privada para este resultado (siga-a; narre sem números): ${e.text}. $tail"
+    }
+
+    /** Só a nota privada que corresponde ao resultado: a outra nunca volta para a IA, para não vazar. */
+    internal fun notesFor(req: CheckRequest, o: Outcome): String = when (o) {
+        Outcome.SUCCESS, Outcome.CRITICAL_SUCCESS ->
+            "Nota privada do seu pedido para este resultado (siga-a; não revele nada além dela): ${req.onSuccess}"
+        Outcome.FAILURE, Outcome.CRITICAL_FAILURE ->
+            "Nota privada do seu pedido para este resultado (siga-a): ${req.onFailure}. " +
+                "Não revele o que o personagem deixou de perceber nem avise que perdeu algo; a história segue."
+        Outcome.PARTIAL_SUCCESS ->
+            (req.onPartial?.let { "Nota privada para sucesso parcial (siga-a): $it" }
+                ?: "Sucesso parcial: o personagem consegue só em parte, com custo ou complicação. " +
+                "Se passasse: ${req.onSuccess}. Se falhasse: ${req.onFailure}.")
+    }
+
     /** Estado de saúde só em palavras: nada de números vai para a narração. */
     internal fun healthWord(e: Entity, resource: String?): String {
         if (!e.alive) return "morto"
@@ -76,11 +109,20 @@ object ContextAssembler {
      */
     fun build(input: ContextInput): AiRequest {
         val s = input.state
+        val resolving = input.resolving
         val required = buildString {
-            append("Ação do jogador: ").append(input.playerText.trim())
-            input.check?.let {
-                append("\nResultado decidido pelo motor para '").append(it.spec.label).append("': ")
-                append(outcomeWord(it.outcome)).append(". Narre exatamente esse resultado.")
+            append(if (resolving == null) "Ação do jogador: " else "Ação do jogador (antes do teste ou rolagem que você pediu): ")
+            append(input.playerText.trim())
+            val rolled = input.check
+            if (rolled != null && resolving is PendingRoll) {
+                // Rolagem com tabela: não há sucesso nem falha; a face decide. Só a nota da face sorteada volta à IA.
+                val face = rolled.roll.dice.singleOrNull()
+                append("\nO jogador rolou '").append(resolving.label).append("' e saiu ").append(face ?: "?").append(". Narre exatamente esse resultado.")
+                face?.let { resolving.request.table[it] }?.let { append("\n").append(rollNote(it)) }
+            } else if (rolled != null) {
+                append("\nResultado decidido pelo motor para '").append(rolled.spec.label).append("': ")
+                append(outcomeWord(rolled.outcome)).append(". Narre exatamente esse resultado.")
+                if (resolving is PendingCheck) append("\n").append(notesFor(resolving.request, rolled.outcome))
             }
         }
         val present = s.entities.values.joinToString("\n") { e ->
@@ -113,7 +155,10 @@ object ContextAssembler {
             input.chapterSummary?.takeIf { it.isNotBlank() }?.let { "Resumo do capítulo:\n$it" },
             input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") }
         )
-        var used = TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required)
+        // Sempre entram (não são cortadas pelo orçamento): ficha do jogador e menu de testes.
+        val always = listOfNotNull(input.playerSheet?.takeIf { it.isNotBlank() }, input.checkMenu?.takeIf { it.isNotBlank() })
+        var used = TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required) +
+            always.sumOf { TokenEstimator.estimate(it) }
         val kept = mutableListOf<String>()
         for (section in optional) {
             val cost = TokenEstimator.estimate(section)
@@ -122,7 +167,7 @@ object ContextAssembler {
                 used += cost
             }
         }
-        val user = (kept + required).joinToString("\n\n")
+        val user = (always + kept + required).joinToString("\n\n")
         return AiRequest(listOf(AiMessage(Role.SYSTEM, MasterPrompt.SYSTEM), AiMessage(Role.USER, user)))
     }
 }

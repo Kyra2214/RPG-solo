@@ -1,0 +1,7 @@
+# id|nome|dados|lados|atributo|mult|comparacao|parcial|crit_sucesso|crit_falha   ("-" = não existe)
+# d20 (CD da dificuldade): momentos grandes. POINTS (1 dado que a dificuldade troca: fácil d4, média d6, difícil d8, heroica d10; pontos = atributo): perícias do dia a dia.
+ataque|Ataque|1|20|poder|1|ROLL_OVER|3|20..20|1..1
+resistir|Resistir|1|20|resistencia|1|ROLL_OVER|3|-|-
+sorte|Teste de sorte|1|20||0|ROLL_OVER|-|-|-
+esquiva|Esquiva|1|6|habilidade|1|POINTS|-|-|-
+pericia|Teste de perícia|1|6|habilidade|1|POINTS|-|-|-

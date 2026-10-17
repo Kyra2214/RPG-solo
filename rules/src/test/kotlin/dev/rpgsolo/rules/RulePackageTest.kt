@@ -21,7 +21,7 @@ import java.util.zip.ZipOutputStream
 
 class RulePackageTest {
     private fun dir(name: String): File =
-        listOf("src/main/resources/packages/$name", "rules/src/main/resources/packages/$name").map(::File).first { it.exists() }
+        listOf("src/test/resources/packages/$name", "rules/src/test/resources/packages/$name").map(::File).first { it.exists() }
 
     private fun files(name: String): Map<String, String> =
         dir(name).listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }
@@ -323,5 +323,105 @@ class RulePackageTest {
         assertEquals(brokk().stats.keys, a.stats.keys)
         assertEquals(brokk().resources.keys, a.resources.keys)
         assertEquals(brokk().system, a.system)
+    }
+
+    // ---- condições que dão Ganho/Perda automáticos ----
+    private fun sorte() = basico().check("sorte", emptyMap(), 7)   // 2d6, sem atributo
+
+    @Test fun perdaTiraUmDadoEGanhoCancelaAPerda() {
+        val p = basico()
+        assertEquals(1, p.adjustCheck(sorte(), listOf("amaldicoado")).diceCount)
+        assertEquals(2, p.adjustCheck(sorte(), listOf("amaldicoado", "abencoado")).diceCount)
+        assertEquals(3, p.adjustCheck(sorte(), listOf("abencoado")).diceCount)
+        assertEquals(2, p.adjustCheck(sorte(), emptyList()).diceCount)
+    }
+
+    @Test fun efeitoPorAtributoSoAfetaOsTestesDaquelesAtributos() {
+        val p = basico()
+        val esquiva = p.check("esquiva", mapOf("agilidade" to 2), 10).copy(diceCount = 2)
+        assertEquals(1, p.adjustCheck(esquiva, listOf("visao-turva")).diceCount)
+        assertEquals(2, p.adjustCheck(esquiva, listOf("sangramento")).diceCount)   // sangramento é de força
+        assertEquals(2, p.adjustCheck(sorte(), listOf("visao-turva")).diceCount)   // sem atributo: só efeitos para todos
+    }
+
+    @Test fun nuncaFicaAbaixoDeUmDadoNemPassaDoLimite() {
+        val p = basico()
+        val um = sorte().copy(diceCount = 1)
+        assertEquals(1, p.adjustCheck(um, listOf("amaldicoado", "visao-turva")).diceCount)
+        val tres = sorte().copy(diceCount = 3)
+        assertEquals(3, p.adjustCheck(tres, listOf("abencoado")).diceCount)
+    }
+
+    @Test fun cartaoDoDadoMostraGanhoOuPerda() {
+        val p = basico()
+        val base = sorte().copy(label = "Teste de sorte (2d6)")
+        assertEquals("Teste de sorte (1d6) · Perda", p.adjustCheck(base, listOf("amaldicoado")).label)
+        assertEquals("Teste de sorte (3d6) · Ganho", p.adjustCheck(base, listOf("abencoado")).label)
+        assertEquals("Teste de sorte (2d6)", p.adjustCheck(base, listOf("abencoado", "amaldicoado")).label)
+    }
+
+    @Test fun condicaoSemEfeitoNaoMudaOTeste() {
+        val p = basico()
+        assertEquals(sorte(), p.adjustCheck(sorte(), listOf("envenenado", "atordoado", "desconhecida")))
+    }
+
+    @Test fun efeitoInvalidoOuComAtributoInexistenteEhRecusado() {
+        val a = files("teste-basico").toMutableMap()
+        a["condicoes.txt"] = "x|X|d|inventado:forca\n"
+        assertTrue(failure(PackageRegistry().install(a)).any { it.contains("efeito inválido") })
+        val b = files("teste-basico").toMutableMap()
+        b["condicoes.txt"] = "x|X|d|perda:fantasma\n"
+        assertTrue(failure(PackageRegistry().install(b)).any { it.contains("atributo inexistente no efeito") })
+    }
+
+    // ---- bônus de traços (vantagens e perícias) nos testes ----
+    @Test fun tracoDaBonusNaSituacaoCerta() {
+        val p = basico()
+        val esquiva = p.check("esquiva", mapOf("agilidade" to 1), 10)
+        val r = p.adjustCheck(esquiva, emptyList(), listOf("esquivador"))
+        assertEquals(esquiva.modifier + 2, r.modifier)
+        assertTrue(r.label.endsWith("· +2"))
+        assertEquals(esquiva, p.adjustCheck(esquiva, emptyList(), listOf("sortudo")))   // sortudo é de sorte
+        assertEquals(esquiva, p.adjustCheck(esquiva, emptyList(), emptyList()))
+    }
+
+    @Test fun skillInformadaPeloMestreAtivaOBonus() {
+        val p = basico()
+        val forcaTeste = p.check("sorte", emptyMap(), 7)
+        assertEquals(forcaTeste.modifier + 1, p.adjustCheck(forcaTeste, emptyList(), listOf("sortudo")).modifier)   // id do teste
+        val esquiva = p.check("esquiva", emptyMap(), 10)
+        assertEquals(esquiva, p.adjustCheck(esquiva, emptyList(), listOf("sortudo")))
+        assertEquals(esquiva.modifier + 1, p.adjustCheck(esquiva, emptyList(), listOf("sortudo"), skill = "sorte").modifier)
+    }
+
+    @Test fun bonusPorAtributoEMultiplosTracosSomam() {
+        val p = basico()
+        val porForca = p.data.checks.firstOrNull { it.stat == "forca" }
+        if (porForca != null) {
+            val spec = p.check(porForca.id, mapOf("forca" to 2), 10)
+            assertEquals(spec.modifier + 1, p.adjustCheck(spec, emptyList(), listOf("lutador-nato")).modifier)
+        }
+        val esquiva = p.check("esquiva", emptyMap(), 10)
+        val dois = p.adjustCheck(esquiva, emptyList(), listOf("esquivador", "sortudo"), skill = "sorte")
+        assertEquals(esquiva.modifier + 3, dois.modifier)
+        assertEquals(esquiva.modifier + 2, p.adjustCheck(esquiva, emptyList(), listOf("esquivador", "esquivador")).modifier)  // não duplica
+    }
+
+    @Test fun bonusJuntoComPerdaMostraOsDois() {
+        val p = basico()
+        val s = sorte().copy(label = "Sorte (2d6)")
+        val r = p.adjustCheck(s, listOf("amaldicoado"), listOf("sortudo"))
+        assertEquals("Sorte (1d6) · Perda · +1", r.label)
+        assertEquals(1, r.diceCount)
+        assertEquals(s.modifier + 1, r.modifier)
+    }
+
+    @Test fun bonusMalFormadoEhRecusado() {
+        val a = files("teste-basico").toMutableMap()
+        a["tracos.txt"] = "x|vantagem|X|1||d|esquiva\n"
+        assertTrue(failure(PackageRegistry().install(a)).any { it.contains("bônus inválido") })
+        val b = files("teste-basico").toMutableMap()
+        b["tracos.txt"] = "x|vantagem|X|1||d|esquiva:muito\n"
+        assertTrue(failure(PackageRegistry().install(b)).isNotEmpty())
     }
 }

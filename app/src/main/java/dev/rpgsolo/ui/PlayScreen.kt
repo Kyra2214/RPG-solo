@@ -1,22 +1,39 @@
 package dev.rpgsolo.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,21 +42,32 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.rpgsolo.ai.Author
+import dev.rpgsolo.ai.ChatLine
+import dev.rpgsolo.ai.PanelState
 import dev.rpgsolo.ai.PlayController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Aba Jogar (10.1): chat com o mestre, rolagens do motor e painel rápido do personagem. */
+/** Aba Jogar (10.1): chat com o mestre, rolagem animada de dados e painel rápido do personagem. */
 @Composable
 fun PlayScreen(model: AppModel) {
     val c = model.controller
     if (c == null) {
-        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center) {
-            Text("Configure o provedor de IA na aba Config para começar a jogar.", style = MaterialTheme.typography.bodyLarge)
+        Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+            AppCard {
+                Text("🎲", fontSize = 40.sp)
+                Text("A mesa ainda está vazia", style = MaterialTheme.typography.titleLarge)
+                Muted("Configure o provedor de IA na aba Config e crie uma campanha na aba Campanhas para começar a jogar.")
+            }
         }
         return
     }
@@ -55,9 +83,21 @@ private fun PlayContent(c: PlayController, classifierWarning: String?) {
     val lines = remember(version) { c.lines }
     val panel = remember(version) { c.panel() }
     val suggestions = remember(version) { c.suggestions() }
+    // Teste pedido pelo mestre no meio da história: o jogo espera o jogador rolar.
+    val pendingCheck = remember(version) { c.pending()?.label }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(lines.size) { if (lines.isNotEmpty()) listState.animateScrollToItem(lines.lastIndex) }
+    // Rolagens que o jogador já fez (índice da linha no chat). A narração de uma jogada com teste só
+    // aparece depois da rolagem, para a animação não ser estragada.
+    var revealed by remember { mutableStateOf(setOf<Int>()) }
+    LaunchedEffect(lines.size) { revealed = revealed.filter { it < lines.size }.toSet() }
+
+    val visible = lines.withIndex().filter { (i, l) ->
+        !(l.author == Author.MASTER && i > 0 && lines[i - 1].roll != null && (i - 1) !in revealed)
+    }
+    val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && i !in revealed }
+
+    LaunchedEffect(visible.size, revealed.size) { if (visible.isNotEmpty()) listState.animateScrollToItem(visible.lastIndex) }
 
     // A chamada à IA é de rede: sempre fora da thread principal.
     fun run(block: () -> Unit) {
@@ -70,51 +110,144 @@ private fun PlayContent(c: PlayController, classifierWarning: String?) {
         }
     }
 
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        panel?.let { p ->
-            Column(Modifier.fillMaxWidth()) {
-                Text(p.name, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    p.resources.entries.joinToString("   ") { "${it.key} ${it.value.first}/${it.value.second}" } +
-                        (if (p.conditions.isEmpty()) "" else "   •   ${p.conditions.joinToString(", ")}") +
-                        (if (p.inCombat) "   •   em combate" else ""),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                p.quest?.let { Text("Missão: $it", style = MaterialTheme.typography.bodySmall) }
-            }
-        }
-        LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp), state = listState, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            items(lines) { line ->
-                when (line.author) {
-                    Author.PLAYER -> Text("Você: ${line.text}", style = MaterialTheme.typography.bodyLarge)
-                    Author.ROLL -> Text("🎲 ${line.text}", style = MaterialTheme.typography.labelLarge)
-                    Author.MASTER -> Text(line.text, style = MaterialTheme.typography.bodyLarge)
-                    Author.SYSTEM -> Text(line.text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+    Column(Modifier.fillMaxSize()) {
+        panel?.let { StatusPanel(it) }
+
+        LazyColumn(
+            Modifier.weight(1f).fillMaxWidth(),
+            state = listState,
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (lines.isEmpty()) {
+                item(key = "vazio") {
+                    Muted("Descreva o que seu personagem faz. O mestre responde, e quando a ação exigir um teste, é você quem rola os dados.")
                 }
             }
-        }
-        classifierWarning?.let {
-            Text("Não consegui decidir se a ação exige teste ($it). Seguindo sem teste.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-        }
-        if (busy) Text("O mestre está pensando…", style = MaterialTheme.typography.bodySmall)
-        // 10.1.2: sugestões opcionais. Tocar só preenche o campo; o jogador pode editar ou ignorar.
-        if (suggestions.isNotEmpty() && !busy) {
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                suggestions.forEach { sug -> AssistChip(onClick = { text = sug }, label = { Text(sug) }) }
+            itemsIndexed(visible, key = { _, iv -> iv.index }) { _, iv ->
+                ChatItem(iv.value, revealed = iv.index in revealed, onRevealed = { revealed = revealed + iv.index })
             }
         }
-        OutlinedTextField(
-            value = text, onValueChange = { text = it }, modifier = Modifier.fillMaxWidth(),
-            label = { Text("O que você faz?") }, enabled = !busy
+
+        BottomBar(
+            busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck, text = text, onText = { text = it },
+            suggestions = suggestions, warning = classifierWarning,
+            onSend = { val t = text; text = ""; run { c.submit(t) } },
+            onRollCheck = { run { c.rollPending() } },
+            onUndo = { run { c.undo() } },
+            onRegenerate = { run { c.regenerate() } }
         )
-        Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(enabled = !busy && text.isNotBlank(), onClick = {
-                val t = text
-                text = ""
-                run { c.submit(t) }
-            }) { Text("Enviar") }
-            OutlinedButton(enabled = !busy, onClick = { run { c.undo() } }) { Text("Desfazer") }
-            OutlinedButton(enabled = !busy, onClick = { run { c.regenerate() } }) { Text("Narrar de novo") }
+    }
+}
+
+@Composable
+private fun StatusPanel(p: PanelState) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 2.dp) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(p.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                if (p.inCombat) Pill("⚔ em combate", MaterialTheme.colorScheme.error)
+            }
+            p.resources.forEach { (id, v) -> ResourceBar(id, v.first, v.second) }
+            if (p.conditions.isNotEmpty()) {
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    p.conditions.forEach { Pill(it, MaterialTheme.colorScheme.tertiary) }
+                }
+            }
+            p.quest?.let { Muted("📜 $it") }
+        }
+    }
+}
+
+@Composable
+private fun ResourceBar(id: String, current: Int, max: Int) {
+    val color = resourceColor(id)
+    val frac = if (max <= 0) 0f else (current.toFloat() / max).coerceIn(0f, 1f)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(id.uppercase(), Modifier.width(30.dp), style = MaterialTheme.typography.labelLarge, color = color)
+        LinearProgressIndicator(
+            progress = { frac },
+            modifier = Modifier.weight(1f).height(8.dp).clip(CircleShape),
+            color = color,
+            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        )
+        Text("$current/$max", Modifier.widthIn(min = 44.dp), style = MaterialTheme.typography.labelMedium)
+    }
+}
+
+@Composable
+private fun ChatItem(line: ChatLine, revealed: Boolean, onRevealed: () -> Unit) {
+    when (line.author) {
+        Author.PLAYER -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(18.dp, 18.dp, 4.dp, 18.dp),
+                modifier = Modifier.widthIn(max = 320.dp)
+            ) {
+                Text(
+                    line.text, Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+        Author.ROLL -> {
+            val view = line.roll
+            if (view != null) RollCard(view, revealed, onRevealed)
+            else Pill("🎲 ${line.text}", MaterialTheme.colorScheme.secondary)
+        }
+        Author.MASTER -> Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+            Box(
+                Modifier.width(3.dp).fillMaxHeight().clip(RoundedCornerShape(2.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(line.text, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Serif, lineHeight = 27.sp, fontSize = 17.sp))
+        }
+        Author.SYSTEM -> ErrorText(line.text)
+    }
+}
+
+@Composable
+private fun Thinking() {
+    val t = rememberInfiniteTransition(label = "pensando")
+    val a by t.animateFloat(0.3f, 1f, infiniteRepeatable(tween(700), RepeatMode.Reverse), label = "alfa")
+    Text("O mestre está pensando…", Modifier.alpha(a), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+}
+
+@Composable
+private fun BottomBar(
+    busy: Boolean, pendingRoll: Boolean, pendingCheck: String?, text: String, onText: (String) -> Unit,
+    suggestions: List<String>, warning: String?,
+    onSend: () -> Unit, onRollCheck: () -> Unit, onUndo: () -> Unit, onRegenerate: () -> Unit
+) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 3.dp) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            warning?.let { ErrorText("Não consegui decidir se a ação exige teste ($it). Seguindo sem teste.") }
+            if (busy) Thinking()
+            if (pendingRoll && !busy) Text("🎲 Role os dados para continuar.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+            // O mestre pediu um teste: só resta rolar (ou desfazer). O motor rola e o mestre narra o desfecho.
+            if (pendingCheck != null && !busy && !pendingRoll) {
+                Button(onClick = onRollCheck, modifier = Modifier.fillMaxWidth()) { Text("🎲 Rolar $pendingCheck") }
+            }
+            // 10.1.2: sugestões opcionais. Tocar só preenche o campo; o jogador pode editar ou ignorar.
+            if (suggestions.isNotEmpty() && !busy && !pendingRoll) {
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    suggestions.forEach { sug -> AssistChip(onClick = { onText(sug) }, label = { Text(sug) }) }
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = text, onValueChange = onText, modifier = Modifier.weight(1f),
+                    placeholder = { Text(if (pendingCheck != null) "Role o teste para continuar" else "O que você faz?") },
+                    enabled = !busy && !pendingRoll && pendingCheck == null,
+                    shape = MaterialTheme.shapes.large, maxLines = 4
+                )
+                Button(enabled = !busy && !pendingRoll && pendingCheck == null && text.isNotBlank(), onClick = onSend) { Text("Enviar") }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(enabled = !busy, onClick = onUndo) { Text("↩ Desfazer") }
+                TextButton(enabled = !busy && !pendingRoll, onClick = onRegenerate) { Text("🔄 Narrar de novo") }
+            }
         }
     }
 }

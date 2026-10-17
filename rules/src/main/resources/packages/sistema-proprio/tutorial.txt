@@ -1,0 +1,7 @@
+1|Atributos|Poder, Habilidade e Resistência vão de 0 a 5. Cada ponto de atributo custa 1 ponto de criação.
+2|Recursos|PA, PM e PV saem dos atributos. PV chegando a zero tira o personagem de combate.
+3|Perícias|Cada perícia custa 1 ponto. Algumas evoluções custam mais e pedem a perícia anterior.
+4|Vantagens e desvantagens|Vantagens e poderes não custam pontos: pagam-se com desvantagens. 1 vantagem exige 1 desvantagem; 2 exigem 3; 3 exigem 5; da quarta em diante o total dobra a cada vantagem (4 exigem 10, 5 exigem 20). Pode pegar quantas vantagens quiser, mas cada uma pesa mais. Mais desvantagens que o mínimo é permitido: é a campanha em modo difícil.
+5|Cardápio do arquétipo|Cada arquétipo sugere pelo menos 3 vantagens e 3 desvantagens, misturando traços da classe e traços gerais (Atrapalhado, Desatento, Má visão...). O arquétipo começa com 1 vantagem e 1 desvantagem (as conjuradoras, com 2 e 3). Qualquer traço do pacote pode ser escolhido, desde que passe nas regras.
+6|Desvantagens valem em jogo|Uma desvantagem só conta se aparece na história: o mestre usa o gatilho de cada uma e o motor aplica as penalidades.
+7|Testes|O motor rola 2d6, soma o atributo e compara com a dificuldade. Quem rola é sempre o motor, nunca a IA.

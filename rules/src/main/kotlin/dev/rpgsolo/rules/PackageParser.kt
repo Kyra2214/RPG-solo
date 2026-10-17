@@ -1,6 +1,7 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.Comparison
+import dev.rpgsolo.engine.REAL_DICE
 
 object PackageFiles {
     const val MANIFEST = "manifest.txt"
@@ -16,8 +17,10 @@ object PackageFiles {
     const val UNCERTAIN = "incerto.txt"
     const val TUTORIAL = "tutorial.txt"
     const val EXAMPLES = "exemplos.txt"
+    const val ARCHETYPES = "arquetipos.txt"
+    const val ARCHETYPE_OPTIONS = "opcoes-arquetipo.txt"
     val ALL = setOf(MANIFEST, STATS, RESOURCES, TRAITS, CHECKS, DIFFICULTIES, CONDITIONS, DAMAGE,
-        CREATION, PROGRESSION, UNCERTAIN, TUTORIAL, EXAMPLES)
+        CREATION, PROGRESSION, UNCERTAIN, TUTORIAL, EXAMPLES, ARCHETYPES, ARCHETYPE_OPTIONS)
 }
 
 sealed interface ParseResult {
@@ -41,6 +44,33 @@ object PackageParser {
     private fun text(s: String, what: String): String = if (s.isEmpty()) bad("$what vazio") else s
     private fun blank(s: String) = s.isEmpty() || s == "-"
     private fun optInt(s: String, what: String): Int? = if (blank(s)) null else int(s, what)
+    /** "esquiva:+2;sorte:+1" ou "-" / vazio (sem bônus). Escopo = id de teste, de atributo ou tipo de situação. */
+    private fun traitBonuses(s: String?): List<TraitBonus> {
+        val t = s?.trim().orEmpty()
+        if (t.isEmpty() || t == "-") return emptyList()
+        return t.split(";").map { part ->
+            val kv = part.split(":", limit = 2)
+            if (kv.size != 2) bad("bônus inválido: '$part' (use escopo:+N, ex.: esquiva:+2)")
+            TraitBonus(id(kv[0].trim(), "escopo do bônus"), int(kv[1].trim(), "valor do bônus"))
+        }
+    }
+
+    /** "ganho:poder,habilidade", "perda:*" ou "-" (sem efeito). */
+    private fun conditionEffect(s: String): ConditionEffect? {
+        val t = s.trim()
+        if (t.isEmpty() || t == "-") return null
+        val parts = t.split(":", limit = 2)
+        val dice = when (parts[0].trim()) {
+            "ganho" -> 1
+            "perda" -> -1
+            else -> bad("efeito inválido: '$t' (use ganho:<atributos>, perda:<atributos> ou -)")
+        }
+        val scope = parts.getOrNull(1)?.trim().orEmpty()
+        if (scope.isEmpty()) bad("efeito sem atributos: '$t' (use * para todos)")
+        val stats = if (scope == "*") null else scope.split(",").map { id(it.trim(), "atributo do efeito") }.toSet()
+        return ConditionEffect(dice, stats)
+    }
+
     private fun optId(s: String, what: String): String? = if (blank(s)) null else id(s, what)
 
     private fun range(s: String, what: String): IntRange? {
@@ -84,10 +114,10 @@ object PackageParser {
                 ?.map { it.first to it.second.split("|").map(String::trim) }
                 ?: emptyList()
 
-        fun <T> table(file: String, size: Int, build: (List<String>) -> T): List<T> =
+        fun <T> table(file: String, size: Int, maxSize: Int = size, build: (List<String>) -> T): List<T> =
             rows(file).mapNotNull { (n, f) ->
-                if (f.size != size) {
-                    errors += "$file linha $n: esperado $size campos, veio ${f.size}"
+                if (f.size !in size..maxSize) {
+                    errors += "$file linha $n: esperado ${if (maxSize == size) "$size" else "$size a $maxSize"} campos, veio ${f.size}"
                     return@mapNotNull null
                 }
                 try {
@@ -139,26 +169,27 @@ object PackageParser {
         val resources = table(PackageFiles.RESOURCES, 5) { f ->
             ResourceDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "base"), optId(f[3], "atributo"), int(f[4], "mult"))
         }
-        val traits = table(PackageFiles.TRAITS, 6) { f ->
+        val traits = table(PackageFiles.TRAITS, 6, 7) { f ->
             val type = f[1]
             if (type !in TRAIT_TYPES) bad("tipo inválido: '$type' (${TRAIT_TYPES.joinToString()})")
-            TraitDef(id(f[0], "id"), type, text(f[2], "nome"), int(f[3], "custo"), requirements(f[4]), f[5])
+            TraitDef(id(f[0], "id"), type, text(f[2], "nome"), int(f[3], "custo"), requirements(f[4]), f[5], traitBonuses(f.getOrNull(6)))
         }
         val checks = table(PackageFiles.CHECKS, 10) { f ->
             val cmp = Comparison.values().firstOrNull { it.name == f[6] }
-                ?: bad("comparacao inválida: '${f[6]}' (ROLL_OVER ou ROLL_UNDER)")
+                ?: bad("comparacao inválida: '${f[6]}' (ROLL_OVER, ROLL_UNDER ou POINTS)")
             val count = int(f[2], "dados")
             val sides = int(f[3], "lados")
             if (count !in 1..100) bad("dados fora de 1..100")
             if (sides < 2) bad("lados menor que 2")
+            if (cmp == Comparison.POINTS && (count != 1 || sides !in REAL_DICE)) bad("POINTS exige 1 dado real (dados=1, lados ${REAL_DICE.joinToString(", ")})")
             CheckDef(id(f[0], "id"), text(f[1], "nome"), count, sides, optId(f[4], "atributo"), int(f[5], "mult"),
                 cmp, optInt(f[7], "parcial"), range(f[8], "crit_sucesso"), range(f[9], "crit_falha"))
         }
         val difficulties = table(PackageFiles.DIFFICULTIES, 3) { f ->
             DifficultyDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "valor"))
         }
-        val conditions = table(PackageFiles.CONDITIONS, 3) { f ->
-            ConditionDef(id(f[0], "id"), text(f[1], "nome"), f[2])
+        val conditions = table(PackageFiles.CONDITIONS, 3, 4) { f ->
+            ConditionDef(id(f[0], "id"), text(f[1], "nome"), f[2], f.getOrNull(3)?.let { conditionEffect(it) })
         }
         val damage = table(PackageFiles.DAMAGE, 5) { f ->
             val count = int(f[2], "dados")
@@ -188,6 +219,17 @@ object PackageParser {
             ExampleCharacter(id(f[0], "id"), text(f[1], "titulo"), statMap(f[2]), traitIds)
         }
 
+        val archetypes = table(PackageFiles.ARCHETYPES, 5) { f ->
+            val traitIds = if (blank(f[4])) emptyList() else f[4].split(",").map { id(it.trim(), "traço") }
+            Archetype(id(f[0], "id"), text(f[1], "nome"), text(f[2], "descricao"), statMap(f[3]), traitIds)
+        }
+
+        fun idList(s: String, what: String): List<String> =
+            if (blank(s)) emptyList() else s.split(",").map { id(it.trim(), what) }
+        val archetypeOptions = table(PackageFiles.ARCHETYPE_OPTIONS, 3) { f ->
+            ArchetypeOptions(id(f[0], "arquétipo"), idList(f[1], "vantagem"), idList(f[2], "desvantagem"))
+        }
+
         noDups(PackageFiles.STATS, stats.map { it.id })
         noDups(PackageFiles.RESOURCES, resources.map { it.id })
         noDups(PackageFiles.TRAITS, traits.map { it.id })
@@ -198,9 +240,11 @@ object PackageParser {
         noDups(PackageFiles.UNCERTAIN, uncertain.map { it.id })
         noDups(PackageFiles.TUTORIAL, tutorial.map { it.order.toString() })
         noDups(PackageFiles.EXAMPLES, examples.map { it.id })
+        noDups(PackageFiles.ARCHETYPES, archetypes.map { it.id })
+        noDups(PackageFiles.ARCHETYPE_OPTIONS, archetypeOptions.map { it.archetype })
 
         if (errors.isNotEmpty()) return ParseResult.Fail(errors)
         return ParseResult.Ok(PackageData(manifest, stats, resources, traits, checks, difficulties, conditions, damage,
-            creationRows.toMap(), progression, uncertain, tutorial, examples))
+            creationRows.toMap(), progression, uncertain, tutorial, examples, archetypes, archetypeOptions))
     }
 }

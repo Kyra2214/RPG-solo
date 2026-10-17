@@ -26,8 +26,9 @@ class AnaoCyberpunkPorPacoteTest {
 
     private fun packages(): List<RulePackage> {
         val reg = PackageRegistry()
-        listOf("teste-basico", "teste-avancado", "fate-condensed").forEach { n ->
-            val d = requireNotNull(dir("src/main/resources/packages/$n")) { "pacote embutido ausente: $n" }
+        listOf("teste-basico", "teste-avancado", "sistema-proprio").forEach { n ->
+            val base = if (n == "sistema-proprio") "main" else "test"
+            val d = requireNotNull(dir("src/$base/resources/packages/$n")) { "pacote ausente: $n" }
             val r = reg.install(files(d))
             assertTrue("$n: ${(r as? InstallResult.Failure)?.errors}", r is InstallResult.Success)
         }
