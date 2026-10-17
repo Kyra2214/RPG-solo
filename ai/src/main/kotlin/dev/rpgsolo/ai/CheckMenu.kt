@@ -81,10 +81,10 @@ class CheckMenu(private val pkg: RulePackage) {
     }
 
     /** Monta o teste com os atributos do jogador. null se o pedido é inválido. */
-    fun build(req: CheckRequest, stats: Map<String, Int>): CheckSpec? {
+    fun build(req: CheckRequest, stats: Map<String, Int>, skills: Map<String, Int> = emptyMap()): CheckSpec? {
         if (validate(req) != null) return null
         val value = req.difficultyId?.let { pkg.difficultyValue(it) } ?: pkg.defaultDifficulty() ?: return null
-        val spec = pkg.check(req.checkId, stats, value)
+        val spec = pkg.check(req.checkId, stats, value, skills)
         val label = req.label?.trim()?.take(40)?.takeIf { it.isNotEmpty() }
         return if (label != null) spec.copy(label = label) else spec
     }

@@ -132,7 +132,27 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         }
     }
 
-    // ---------- 4. Contas da ficha ----------
+    // ---------- 4. Pontos de perícia ----------
+    val skills = pkg.data.traits.filter { it.type == "pericia" }
+    if (skills.isNotEmpty()) {
+        SectionTitle("Perícias", "Distribua de 0 a 5 pontos. Cada ponto consome 1 ponto de criação.")
+        AppCard {
+            skills.forEach { skill ->
+                val value = draft.skills()[skill.id] ?: 0
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(Modifier.weight(1f)) {
+                        Text(skill.name, style = MaterialTheme.typography.titleSmall)
+                        Muted(skill.description)
+                    }
+                    OutlinedButton(enabled = value > 0, onClick = { draft.setSkill(skill.id, value - 1); version++ }) { Text("−") }
+                    Text(value.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
+                    OutlinedButton(enabled = value < 5 && draft.pointsLeft() > 0, onClick = { draft.setSkill(skill.id, value + 1); version++ }) { Text("+") }
+                }
+            }
+        }
+    }
+
+    // ---------- 5. Contas da ficha ----------
     val report = draft.report()
     AppCard(accent = if (report.valid) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) {
         Row(verticalAlignment = Alignment.CenterVertically) {

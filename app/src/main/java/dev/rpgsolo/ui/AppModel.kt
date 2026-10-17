@@ -228,7 +228,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun checkFor(provider: AiProvider): (String) -> dev.rpgsolo.engine.CheckSpec? {
         val pkg = activePackage ?: return { null }
         val stats = session.state.entities[playerId]?.stats.orEmpty()
-        val options = pkg.checkChoices(stats).map { CheckOption(it.id, it.description, it.spec) }
+        val skills = session.state.entities[playerId]?.skills.orEmpty()
+        val options = pkg.checkChoices(stats, skills = skills).map { CheckOption(it.id, it.description, it.spec) }
         return IntentClassifier(provider).asCheckFor(options) { classifierWarning = it }
     }
 

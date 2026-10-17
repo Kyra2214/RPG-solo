@@ -174,11 +174,12 @@ class GameLoop(
             is TurnOutcome.Applied -> {
                 narrations += o.narrative
                 val stats = session.state.entities[input.playerEntityId]?.stats.orEmpty()
+                val skills = session.state.entities[input.playerEntityId]?.skills.orEmpty()
                 val baseText = input.resolving?.playerText ?: input.text
                 val checkReq = o.checkRequest
                 val rollReq = o.rollRequest
                 val pending: Pending? = when {
-                    checkReq != null -> menu?.build(checkReq, stats)?.let { PendingCheck(checkReq, it, baseText) }
+                    checkReq != null -> menu?.build(checkReq, stats, skills)?.let { PendingCheck(checkReq, it, baseText) }
                     rollReq != null -> menu?.let { PendingRoll(rollReq, it.buildRoll(rollReq), baseText) }
                     else -> null
                 }

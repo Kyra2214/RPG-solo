@@ -30,7 +30,7 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
 
     /** Define os pontos da perícia; o pacote continua sendo a autoridade final sobre limites e custo. */
     fun setSkill(skillId: String, value: Int): Boolean {
-        if (skillId.isBlank() || value !in 0..5) return false
+        if (pkg.trait(skillId)?.type != "pericia" || value !in 0..5) return false
         skills[skillId] = value
         return true
     }
@@ -56,7 +56,7 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
     }
 
     fun report(): CharacterReport = pkg.validateCharacter(stats, traits.toList())
-    fun pointsLeft(): Int = pkg.creationPoints - report().pointsSpent
+    fun pointsLeft(): Int = pkg.creationPoints - report().pointsSpent - skills.values.sum()
 
     /** Traços que ainda cabem: não escolhidos e que não gerariam erro se adicionados agora. */
     fun allowedTraits(): List<TraitDef> =
@@ -79,6 +79,7 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
 
     fun build(): FichaBuild {
         if (name.isBlank()) return FichaBuild.Invalid(listOf("dê um nome ao personagem"))
+        if (pointsLeft() < 0) return FichaBuild.Invalid(listOf("pontos gastos passam do limite (${pkg.creationPoints})"))
         return pkg.buildFicha(id, name.trim(), concept.trim(), stats, traits.toList(), skills)
     }
 }
