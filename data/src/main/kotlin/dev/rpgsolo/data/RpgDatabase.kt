@@ -92,6 +92,9 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
     fun metadata(campaignId: String): CampanhaMetaRow? = db.meta().buscar(campaignId)
     fun saveMetadata(row: CampanhaMetaRow) = db.meta().salvar(row)
 
+    fun fichas(): List<FichaRow> = db.fichas().listar()
+    fun saveFicha(row: FichaRow) = db.fichas().salvar(row)
+
     fun duplicate(sourceId: String, newId: String, newName: String): CampaignRecord {
         val source = requireNotNull(campaign(sourceId)) { "campanha não encontrada: $sourceId" }
         val copy = source.copy(id = newId, name = newName.trim())

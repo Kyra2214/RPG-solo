@@ -41,6 +41,7 @@ import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.CampanhaMetaRow
+import dev.rpgsolo.data.FichaRow
 
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
@@ -52,7 +53,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private val secureSettings = SecureSettings(application)
     private var storedSettings: StoredProviderSettings? = secureSettings.load()
 
-    /** Biblioteca de fichas criadas (a tabela de fichas será ligada na próxima etapa da persistência). */
+    /** Biblioteca de fichas reutilizáveis, persistida separadamente das campanhas. */
     val fichas = mutableStateListOf<Ficha>()
     val campaigns = mutableStateListOf<CampaignRecord>()
     var chapters = ChapterBook()
@@ -77,6 +78,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         private set
 
     init {
+        restoreFichas()
         refreshCampaigns()
         restoreMetadata()
         storedSettings?.let { saved ->
@@ -109,6 +111,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun refreshCampaigns() {
         campaigns.clear()
         campaigns.addAll(store.campaigns())
+    }
+
+    private fun restoreFichas() {
+        fichas.clear()
+        fichas.addAll(store.fichas().mapNotNull { row ->
+            runCatching { dev.rpgsolo.engine.Codec.decodeFicha(row.json) }.getOrNull()
+        })
+    }
+
+    /** Salva uma ficha na biblioteca e atualiza a cópia observável em memória. */
+    fun saveFicha(ficha: Ficha) {
+        store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha)))
+        val index = fichas.indexOfFirst { it.id == ficha.id }
+        if (index >= 0) fichas[index] = ficha else fichas.add(ficha)
     }
 
     fun activeCampaignId(): String = session.campaignId

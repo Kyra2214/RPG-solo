@@ -196,7 +196,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     // ---------- 8. Criar ----------
     Button(modifier = Modifier.fillMaxWidth(), onClick = {
         message = when (val b = draft.build()) {
-            is FichaBuild.Created -> { model.fichas += b.ficha; "Ficha de ${b.ficha.name} criada." }
+            is FichaBuild.Created -> { model.saveFicha(b.ficha); "Ficha de ${b.ficha.name} criada e salva." }
             is FichaBuild.Invalid -> b.errors.joinToString("; ")
         }
         version++
