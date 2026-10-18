@@ -347,6 +347,9 @@ private fun CombatControls(model: AppModel) {
                 }
             } else {
                 Text("Rodada ${combat.round} · turno ${combat.turnIndex + 1}/${combat.order.size}: ${model.combatantName(combat.current)}", style = MaterialTheme.typography.labelLarge)
+                model.combatOrderDescription()?.let { order ->
+                    Muted("Ordem de iniciativa: $order")
+                }
                 if (model.isPlayerCombatTurn()) {
                     val targets = model.combatTargets()
                     if (targets.isEmpty()) {
