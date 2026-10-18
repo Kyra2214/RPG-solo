@@ -97,3 +97,25 @@ data class CombatState(
 ) {
     val current: String get() = order[turnIndex]
 }
+
+
+/** Relógio de agenda com preenchimento validado pelo motor. */
+@Serializable
+data class Clock(
+    val id: String,
+    val name: String,
+    val segments: Int,
+    val filled: Int = 0
+) {
+    init {
+        require(id.isNotBlank() && id.length <= 80) { "id de relógio inválido" }
+        require(name.isNotBlank() && name.length <= 120) { "nome de relógio inválido" }
+        require(segments in 2..12) { "relógio precisa de 2 a 12 casas" }
+        require(filled in 0..segments) { "preenchimento de relógio fora dos limites" }
+    }
+
+    val full: Boolean get() = filled >= segments
+}
+
+/** Chave não ambígua para a relação direcional entre duas entidades. */
+internal fun relationKey(fromId: String, toId: String): String = "$fromId\u0000$toId"
