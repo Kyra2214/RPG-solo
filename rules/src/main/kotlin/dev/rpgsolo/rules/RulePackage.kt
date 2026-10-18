@@ -91,7 +91,11 @@ class RulePackage internal constructor(val data: PackageData) {
 
     /** Configuração para o motor: o que mata e os níveis. Sem isso no pacote, o motor não mata nem sobe de nível. */
     fun engineConfig(): EngineConfig =
-        EngineConfig(deathResource = manifest.deathResource, levelThresholds = data.progression ?: emptyList())
+        EngineConfig(
+            deathResource = manifest.deathResource,
+            levelThresholds = data.progression ?: emptyList(),
+            defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 2
+        )
 
     /** Recursos derivados dos atributos (vida, mana...), cheios. */
     fun resourcesFor(stats: Map<String, Int>): Map<String, Resource> =
@@ -483,6 +487,9 @@ object PackageValidator {
         }
         d.creation["combate_xp_vitoria"]?.let {
             if ((it.toIntOrNull() ?: -1) !in 0..100000) p += "criacao.txt: 'combate_xp_vitoria' deve ficar entre 0 e 100000"
+        }
+        d.creation["combate_bonus_defender"]?.let {
+            if ((it.toIntOrNull() ?: -1) !in 0..10) p += "criacao.txt: 'combate_bonus_defender' deve ficar entre 0 e 10"
         }
         d.creation["combate_dano"]?.let { id ->
             if (d.damage.none { it.id == id }) p += "criacao.txt: perfil de dano inexistente: $id"
