@@ -302,7 +302,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun combatTargets(): List<CombatTarget> = session.state.combat?.order.orEmpty()
         .filter { it != playerId }
-        .mapNotNull { id -> session.state.entities[id]?.takeIf { it.alive }?.let { CombatTarget(it.id, it.name) } }
+        .mapNotNull { id -> session.state.entities[id]?.takeIf { it.alive }?.let { CombatTarget(it.id, it.name, it.rulesValidated) } }
 
     fun isPlayerCombatTurn(): Boolean = session.state.combat?.current == playerId
 
