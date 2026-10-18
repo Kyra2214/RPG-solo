@@ -347,12 +347,23 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             return if (state.combat == null) no("não há combate ativo") else Decision.Ok(listOf(CombatEnded))
 
         is SetNpcDossier -> {
-            val npc = entity(cmd.dossier.npcId) ?: return no("NPC inexistente: ${cmd.dossier.npcId}")
+            val dossier = cmd.dossier
+            val npc = entity(dossier.npcId) ?: return no("NPC inexistente: ${dossier.npcId}")
             if (npc.kind != EntityKind.NPC) return no("dossiê privado só pode pertencer a NPC")
-            if (cmd.dossier.npcId.isBlank()) return no("dossiê sem id de NPC")
-            if (cmd.dossier.secrets.any { it.id.isBlank() || it.text.isBlank() }) return no("segredo sem id ou texto")
-            if (cmd.dossier.secrets.map { it.id }.distinct().size != cmd.dossier.secrets.size) return no("id de segredo repetido")
-            return Decision.Ok(listOf(NpcDossierStored(cmd.dossier)))
+            if (dossier.npcId.isBlank() || dossier.npcId.length > 80) return no("dossiê exige id de NPC válido")
+            if (dossier.personality.length > 2000) return no("personalidade do NPC excede 2000 caracteres")
+            if (dossier.goals.size > 30 || dossier.motivations.size > 30 ||
+                (dossier.goals + dossier.motivations).any { it.isBlank() || it.length > 300 }) {
+                return no("objetivos e motivações aceitam até 30 itens de até 300 caracteres")
+            }
+            if (dossier.relations.size > 50 || dossier.relations.any { (id, relation) ->
+                    id.isBlank() || id.length > 80 || relation.isBlank() || relation.length > 300
+                }) return no("relações do NPC inválidas")
+            if (dossier.secrets.size > 50 || dossier.secrets.any {
+                    it.id.isBlank() || it.id.length > 80 || it.text.isBlank() || it.text.length > 1000
+                }) return no("segredos aceitam até 50 itens, id de até 80 e texto de até 1000 caracteres")
+            if (dossier.secrets.map { it.id }.distinct().size != dossier.secrets.size) return no("id de segredo repetido")
+            return Decision.Ok(listOf(NpcDossierStored(dossier)))
         }
 
         is SetAmbientacao -> {
