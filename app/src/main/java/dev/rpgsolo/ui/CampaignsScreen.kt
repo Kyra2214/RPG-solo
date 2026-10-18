@@ -111,6 +111,7 @@ fun CampaignsScreen(model: AppModel) {
     val timeline = remember(v) { model.quests.timeline() }
     val journal = remember(v, model.controller?.lines?.size) { model.journal() }
     val progressionHistory = remember(v) { model.progressionHistory() }
+    val relationships = remember(v) { model.relationshipsView() }
 
     ScreenColumn {
         AppCard(accent = MaterialTheme.colorScheme.primary) { NewCampaignSection(model) }
@@ -180,6 +181,17 @@ fun CampaignsScreen(model: AppModel) {
             }) { Text(if (busy) "Gerando resumo…" else "Encerrar capítulo com resumo") }
         }
         message?.let { ErrorText(it) }
+
+        SectionTitle("Relações")
+        if (relationships.isEmpty()) Muted("As atitudes dos NPCs ainda não foram registradas.")
+        relationships.forEach { relation ->
+            AppCard { 
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(relation.npcName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                    Pill(relation.attitude, MaterialTheme.colorScheme.secondary)
+                }
+            }
+        }
 
         SectionTitle("Evolução do personagem")
         if (progressionHistory.isEmpty()) Muted("Nenhum ganho de XP ou nível registrado ainda.")
