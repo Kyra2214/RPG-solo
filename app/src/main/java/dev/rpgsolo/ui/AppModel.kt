@@ -119,6 +119,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         private set
 
     init {
+        restoreImportedPackages()
         restoreFichas()
         refreshCampaigns()
         restoreMetadata()
@@ -130,6 +131,19 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
+    }
+
+    /** Reinstala no registro em memória os pacotes ZIP guardados no armazenamento privado do app. */
+    private fun restoreImportedPackages() {
+        val dir = File(getApplication<Application>().filesDir, "packages-import")
+        dir.listFiles { file -> file.isFile && file.extension.equals("zip", ignoreCase = true) }
+            .orEmpty()
+            .sortedBy { it.name }
+            .forEach { archive ->
+                runCatching {
+                    archive.inputStream().use { content.registry.installZip(it, replace = false) }
+                }
+            }
     }
 
     private fun openOrCreateCampaign(): CampaignSession {
