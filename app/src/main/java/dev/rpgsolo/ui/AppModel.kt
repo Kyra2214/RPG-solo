@@ -51,6 +51,10 @@ import dev.rpgsolo.rules.CampaignStarter
 data class ConnectionTestResult(val success: Boolean, val message: String)
 data class CombatTarget(val id: String, val name: String)
 data class EquipmentView(val id: String, val name: String, val quantity: Int, val slot: String, val equipped: Boolean)
+data class InventoryView(
+    val id: String, val name: String, val quantity: Int, val kind: String,
+    val slot: String?, val equipped: Boolean, val description: String
+)
 
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
@@ -160,9 +164,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Inicia a iniciativa dos participantes vivos da campanha; os números vêm exclusivamente do motor. */
     fun startCombat(): String? = try {
+        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
+        val initiativeStat = pkg.data.creation["combate_atributo_iniciativa"]
+            ?: return "o pacote não define o atributo de iniciativa"
         val participants = session.state.entities.values.filter { it.alive }.map { it.id }
         require(participants.size >= 2) { "combate exige pelo menos duas entidades vivas" }
-        when (val result = session.rollInitiative(participants, statKey = "habilidade")) {
+        when (val result = session.rollInitiative(participants, statKey = initiativeStat)) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
@@ -179,8 +186,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val combat = requireNotNull(session.state.combat) { "não há combate ativo" }
         require(combat.current != playerId) { "é o turno do jogador" }
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
-        val resource = pkg.manifest.deathResource ?: pkg.data.resources.firstOrNull()?.id
-            ?: return "o pacote não define um recurso de vida"
+        val resource = pkg.manifest.deathResource
+            ?: return "o pacote não define o recurso de vida usado no combate"
+        val attackStat = pkg.data.creation["combate_atributo_ataque"]
+            ?: return "o pacote não define o atributo de ataque"
+        val defenseStat = pkg.data.creation["combate_atributo_defesa"]
+            ?: return "o pacote não define o atributo de defesa"
+        val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dano_base"
+        val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
+            ?: return "o pacote não define combate_defesa_base"
+        val damageDef = pkg.data.creation["combate_dano"]?.let { id ->
+            pkg.data.damage.firstOrNull { it.id == id }
+                ?: return "o pacote referencia um perfil de dano inexistente: $id"
+        }
         val attacker = combat.current
         val attackerEquipment = session.state.equipped[attacker].orEmpty().values
         val targetEquipment = session.state.equipped[playerId].orEmpty().values
@@ -188,14 +207,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             dev.rpgsolo.engine.AttackSpec(
                 attackerId = attacker,
                 targetId = playerId,
-                attackStat = pkg.data.creation["combate_atributo_ataque"] ?: "poder",
-                defenseStat = pkg.data.creation["combate_atributo_defesa"] ?: "habilidade",
+                attackStat = attackStat,
+                defenseStat = defenseStat,
                 damageResource = resource,
-                damage = pkg.data.creation["combate_dano_base"]?.toIntOrNull() ?: 1,
-                defenseDefault = pkg.data.creation["combate_defesa_base"]?.toIntOrNull() ?: 10,
+                damage = baseDamage,
+                defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque"),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano"),
-                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa")
+                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa"),
+                damageDiceCount = damageDef?.diceCount ?: 0,
+                damageDiceSides = damageDef?.diceSides ?: 0,
+                damageStat = damageDef?.bonusStat
             )
         )
         val text = when (result) {
@@ -230,14 +252,53 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun isPlayerCombatTurn(): Boolean = session.state.combat?.current == playerId
 
-    fun equipmentView(): List<EquipmentView> {
+    fun inventoryView(): List<InventoryView> {
+        val pkg = activePackage
         val equipped = session.state.equipped[playerId].orEmpty()
-        return session.state.inventory[playerId].orEmpty().mapNotNull { (id, quantity) ->
-            val item = activePackage?.item(id) ?: return@mapNotNull null
-            if (item.kind != "equipamento" || item.slot == null || quantity <= 0) return@mapNotNull null
-            EquipmentView(id, item.name, quantity, item.slot, equipped[item.slot] == id)
-        }.sortedBy { it.name }
+        return session.state.inventory[playerId].orEmpty().map { (id, quantity) ->
+            val item = pkg?.item(id)
+            InventoryView(
+                id = id,
+                name = item?.name ?: id,
+                quantity = quantity,
+                kind = item?.kind ?: "desconhecido",
+                slot = item?.slot,
+                equipped = item?.slot?.let { equipped[it] == id } == true,
+                description = item?.description ?: "Item não existe no pacote ativo."
+            )
+        }.filter { it.quantity > 0 }.sortedWith(compareBy<InventoryView>({ it.kind }, { it.name }))
     }
+
+    /** Usa consumíveis apenas quando o pacote declara uma ação mecânica explícita. */
+    fun useItem(itemId: String): String? = try {
+        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
+        val item = requireNotNull(pkg.item(itemId)) { "item não existe no pacote ativo: $itemId" }
+        require(item.kind == "consumivel") { "este item não é consumível" }
+        val action = pkg.data.creation["item_${itemId}_acao"]
+            ?: return "o pacote não definiu o efeito mecânico de $itemId"
+        val commands: List<dev.rpgsolo.engine.Command> = when (action) {
+            "cura" -> {
+                val resource = pkg.data.creation["item_${itemId}_recurso"]
+                    ?: return "o pacote não definiu o recurso restaurado por $itemId"
+                val amount = pkg.data.creation["item_${itemId}_quantidade"]?.toIntOrNull()
+                    ?: return "o pacote não definiu a quantidade restaurada por $itemId"
+                require(amount > 0) { "quantidade de cura deve ser positiva" }
+                listOf(
+                    dev.rpgsolo.engine.Heal(playerId, resource, amount),
+                    dev.rpgsolo.engine.ConsumeItem(playerId, itemId, 1)
+                )
+            }
+            else -> return "ação de consumível não suportada pelo app: $action"
+        }
+        when (val result = session.executeAll(commands)) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                campaignVersion++
+                "${item.name} usado."
+            }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+    } catch (e: IllegalArgumentException) { e.message }
+      catch (e: IllegalStateException) { e.message }
 
     fun equipItem(itemId: String): String? = try {
         val item = requireNotNull(activePackage?.item(itemId)) { "item não existe no catálogo: $itemId" }
@@ -257,22 +318,37 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun attack(targetId: String): String? = try {
         require(isPlayerCombatTurn()) { "não é o turno do jogador" }
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
-        val resource = pkg.manifest.deathResource ?: pkg.data.resources.firstOrNull()?.id
-            ?: return "o pacote não define um recurso de vida"
+        val resource = pkg.manifest.deathResource
+            ?: return "o pacote não define o recurso de vida usado no combate"
+        val attackStat = pkg.data.creation["combate_atributo_ataque"]
+            ?: return "o pacote não define o atributo de ataque"
+        val defenseStat = pkg.data.creation["combate_atributo_defesa"]
+            ?: return "o pacote não define o atributo de defesa"
+        val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dano_base"
+        val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
+            ?: return "o pacote não define combate_defesa_base"
+        val damageDef = pkg.data.creation["combate_dano"]?.let { id ->
+            pkg.data.damage.firstOrNull { it.id == id }
+                ?: return "o pacote referencia um perfil de dano inexistente: $id"
+        }
         val attackerEquipment = session.state.equipped[playerId].orEmpty().values
         val targetEquipment = session.state.equipped[targetId].orEmpty().values
         when (val result = session.attack(
             dev.rpgsolo.engine.AttackSpec(
                 attackerId = playerId,
                 targetId = targetId,
-                attackStat = pkg.data.creation["combate_atributo_ataque"] ?: "poder",
-                defenseStat = pkg.data.creation["combate_atributo_defesa"] ?: "habilidade",
+                attackStat = attackStat,
+                defenseStat = defenseStat,
                 damageResource = resource,
-                damage = pkg.data.creation["combate_dano_base"]?.toIntOrNull() ?: 1,
-                defenseDefault = pkg.data.creation["combate_defesa_base"]?.toIntOrNull() ?: 10,
+                damage = baseDamage,
+                defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque"),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano"),
-                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa")
+                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa"),
+                damageDiceCount = damageDef?.diceCount ?: 0,
+                damageDiceSides = damageDef?.diceSides ?: 0,
+                damageStat = damageDef?.bonusStat
             )
         )) {
             is dev.rpgsolo.engine.AttackResult.Resolved -> {
