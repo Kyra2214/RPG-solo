@@ -653,12 +653,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     val traits = npc.traits.mapNotNull { traitId ->
                         activePackage?.trait(traitId)?.let { "${it.name}: ${it.description}" }
                     }
+                    val dossier = session.state.npcDossiers[id]
                     buildString {
                         append("Ficha privada de NPC — ").append(npc.name)
                         if (npc.concept.isNotBlank()) append("; conceito: ").append(npc.concept)
                         if (npc.stats.isNotEmpty()) append("; atributos mecânicos: ").append(npc.stats.entries.joinToString(", ") { "${it.key}=${it.value}" })
                         if (traits.isNotEmpty()) append("; traços: ").append(traits.joinToString(" | "))
                         if (npc.skills.isNotEmpty()) append("; perícias: ").append(npc.skills.entries.joinToString(", ") { "${it.key}=${it.value}" })
+                        dossier?.personality?.takeIf { it.isNotBlank() }?.let { append("; personalidade: ").append(it) }
+                        dossier?.goals?.takeIf { it.isNotEmpty() }?.let { append("; objetivos: ").append(it.joinToString(", ")) }
+                        dossier?.motivations?.takeIf { it.isNotEmpty() }?.let { append("; motivações: ").append(it.joinToString(", ")) }
+                        dossier?.relations?.takeIf { it.isNotEmpty() }?.let { append("; relações privadas: ").append(it.entries.joinToString(", ") { pair -> "${pair.key}: ${pair.value}" }) }
+                        if (dossier?.secrets?.isNotEmpty() == true) {
+                            append("; há segredos privados armazenados, mas seus textos não foram enviados neste contexto; não os invente nem revele")
+                        }
                         append(". Nunca exponha estes números nem nomes de mecânica ao jogador.")
                     }
                 }
