@@ -79,6 +79,7 @@ fun PlayScreen(model: AppModel) {
 private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: String?) {
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
+    var playError by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var version by remember { mutableIntStateOf(0) }
     val lines = remember(version) { c.lines }
@@ -142,13 +143,44 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
             }
         }
 
+        playError?.let { ErrorText(it) }
         BottomBar(
-            busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck, text = text, onText = { text = it },
+            busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck, text = text,
+            onText = { text = it; playError = null },
             suggestions = suggestions, warning = classifierWarning,
-            onSend = { val t = text; text = ""; run { c.submit(t); model.autoCloseChapterIfNeeded() } },
-            onRollCheck = { run { c.rollPending(); model.autoCloseChapterIfNeeded() } },
-            onUndo = { run { c.undo() } },
-            onRegenerate = { run { c.regenerate() } }
+            onSend = {
+                val submitted = text
+                run {
+                    val result = c.submit(submitted)
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        if (result is dev.rpgsolo.ai.PlayResult.Failed) playError = result.reason
+                        else {
+                            text = ""
+                            playError = null
+                        }
+                    }
+                    model.autoCloseChapterIfNeeded()
+                }
+            },
+            onRollCheck = { run {
+                val result = c.rollPending()
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                }
+                model.autoCloseChapterIfNeeded()
+            } },
+            onUndo = { run {
+                val undone = c.undo()
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    playError = if (undone) null else "Não há jogada para desfazer."
+                }
+            } },
+            onRegenerate = { run {
+                val result = c.regenerate()
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                }
+            } }
         )
     }
 }
