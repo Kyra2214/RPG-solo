@@ -51,6 +51,7 @@ fun NewCampaignSection(model: AppModel) {
     var difficulty by remember { mutableStateOf("") }
     var themes by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
+    var contentLimits by remember { mutableStateOf("") }
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         TextButton(onClick = { showForm = !showForm }) {
@@ -64,13 +65,17 @@ fun NewCampaignSection(model: AppModel) {
             OutlinedTextField(difficulty, { difficulty = it }, Modifier.fillMaxWidth(), label = { Text("Dificuldade") }, singleLine = true)
             OutlinedTextField(themes, { themes = it }, Modifier.fillMaxWidth(), label = { Text("Temas (separados por vírgula)") })
             OutlinedTextField(duration, { duration = it }, Modifier.fillMaxWidth(), label = { Text("Duração desejada") }, singleLine = true)
+            OutlinedTextField(
+                contentLimits, { contentLimits = it }, Modifier.fillMaxWidth(),
+                label = { Text("Limites de conteúdo (ex.: sem violência sexual, sem crueldade explícita)") }
+            )
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     text = CampaignForm(
                         genre = genre, era = era, tone = tone, difficulty = difficulty,
                         themes = themes.split(',').map { it.trim() }.filter { it.isNotEmpty() },
-                        duration = duration, freeText = text
+                        duration = duration, contentLimits = contentLimits, freeText = text
                     ).toDescription()
                 }
             ) { Text("Adicionar campos à descrição") }
