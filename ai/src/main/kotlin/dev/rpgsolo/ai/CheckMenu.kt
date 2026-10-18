@@ -83,6 +83,9 @@ class CheckMenu(private val pkg: RulePackage) {
         if (rule.name.isBlank() || rule.description.isBlank() || rule.limit.isBlank()) {
             return "adaptação exige nome, descrição e limite"
         }
+        if (rule.limit.trim().lowercase() !in setOf("passivo", "passiva", "sempre", "permanente")) {
+            return "este motor só aplica efeitos passivos; declare limite 'passivo' ou 'sempre' até existir controle mecânico de cargas"
+        }
         if (rule.origin != dev.rpgsolo.engine.RuleOrigin.ADAPTACAO) return "a origem deve ser ADAPTACAO"
         if (rule.effects.isEmpty()) return "adaptação sem efeitos mecânicos"
         val allowed = pkg.data.stats.map { it.id }.toSet() + setOf("ataque", "dano", "defesa")
