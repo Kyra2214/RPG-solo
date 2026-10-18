@@ -830,6 +830,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Troca primeiro para uma sessão já validada; depois restaura contexto e controlador da campanha selecionada. */
     private fun switchCampaign(campaignId: String) {
         val next = CampaignSession.open(store, campaignId)
+        pendingCombatNpcIds.clear()
         session = next
         activeCampaignPrefs.edit().putString("active_campaign", campaignId).apply()
         restoreMetadata()
@@ -1126,6 +1127,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Troca a campanha ativa pela recém-criada: sessão, personagem, pacote, capítulos e missões novos. */
     fun activate(started: StartResult.Started) {
+        pendingCombatNpcIds.clear()
         session = started.session
         playerId = started.playerId
         activePackage = started.pkg
