@@ -320,7 +320,8 @@ private fun CombatControls(model: AppModel) {
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (model.isPlayerCombatTurn()) {
-                        Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Próximo turno") }
+                        Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Passar turno") }
+                        OutlinedButton(onClick = { message = model.fleeCombat() }, modifier = Modifier.weight(1f)) { Text("Fugir") }
                     } else {
                         Button(onClick = { message = model.resolveNpcTurn() }, modifier = Modifier.weight(1f)) { Text("Resolver turno inimigo") }
                     }
