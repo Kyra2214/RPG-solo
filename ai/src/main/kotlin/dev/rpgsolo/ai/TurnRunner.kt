@@ -118,11 +118,13 @@ class TurnRunner(
                             is dev.rpgsolo.engine.SpendResource -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
                             is dev.rpgsolo.engine.GainXp -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
                             is dev.rpgsolo.engine.ConsumeItem -> session.state.entities[command.ownerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.AddCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.RemoveCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
                             else -> false
                         }
                         if (playerTarget) {
                             return Attempt.Retry(
-                                "esta proposta alteraria diretamente recursos, XP ou inventário do jogador; use uma ação local ou uma rolagem mecânica do motor",
+                                "esta proposta alteraria diretamente recursos, XP, inventário ou condições do jogador; use uma ação local ou uma rolagem mecânica do motor",
                                 false
                             )
                         }
