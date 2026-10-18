@@ -281,9 +281,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 damageResource = resource,
                 damage = baseDamage,
                 defenseDefault = baseDefense,
-                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(attacker), "ataque"),
-                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(attacker), "dano"),
-                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") + pkg.traitBonus(combatTraitIds(playerId), "defesa") +
+                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
+                    pkg.traitBonus(combatTraitIds(attacker), "ataque") +
+                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat),
+                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
+                    pkg.traitBonus(combatTraitIds(attacker), "dano") +
+                    approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
+                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
+                    pkg.traitBonus(combatTraitIds(playerId), "defesa") +
                     approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
