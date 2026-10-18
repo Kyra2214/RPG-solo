@@ -122,7 +122,7 @@ fun CampaignsScreen(model: AppModel) {
         Button(modifier = Modifier.fillMaxWidth(), onClick = { message = model.deleteCurrentCampaign() }) { Text("Apagar campanha ativa") }
 
         SectionTitle("Backup local")
-        Muted("Inclui log de eventos e configuração do motor. Capítulos, missões, linha do tempo, biblioteca de fichas e chave de API não entram no arquivo. Restaurar cria uma nova campanha.")
+        Muted("Inclui log de eventos, configuração do motor, capítulos, missões, linha do tempo e fichas salvas. A chave de API e preferências secretas nunca entram no arquivo. Restaurar cria uma nova campanha.")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { backup = model.exportBackup(); message = null }) { Text("Gerar texto") }
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { exportFile.launch("rpg-solo-backup.json") }) { Text("Salvar arquivo") }
