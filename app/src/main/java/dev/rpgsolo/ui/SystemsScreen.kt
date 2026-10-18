@@ -45,8 +45,11 @@ fun SystemsScreen(model: AppModel) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Pill("v${manifest.version}")
                     Pill(manifest.kind.name, MaterialTheme.colorScheme.secondary)
+                    if (model.activePackageId() == manifest.id) Pill("Ativo nesta campanha", MaterialTheme.colorScheme.tertiary)
                 }
                 Muted("Pacote ${manifest.id}")
+                Muted("Origem: ${manifest.source} · Licença: ${manifest.license}")
+                Muted("Estado da licença: ${manifest.licenseStatus.name}")
                 c.sources?.forSystem(manifest.edition).orEmpty().forEach { link -> LinkRow(link) { uri.openUri(link.url) } }
             }
         }
