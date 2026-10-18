@@ -87,6 +87,26 @@ object Reveal {
         return session.execute(LearnKnowledge(key, secret.text, "teste:${result.spec.label}", secret.falseInfo))
     }
 
+    /** Descobre o segredo do local atual após sucesso parcial ou melhor; o texto vai ao diário do jogador. */
+    fun discoverPlaceSecret(
+        session: CampaignSession,
+        playerId: String,
+        placeId: String,
+        result: CheckResult
+    ): ExecResult? {
+        if (result.outcome !in setOf(Outcome.PARTIAL_SUCCESS, Outcome.SUCCESS, Outcome.CRITICAL_SUCCESS)) return null
+        val player = session.state.entities[playerId] ?: return ExecResult.Rejected("personagem inexistente: $playerId", 0)
+        if (!player.alive) return ExecResult.Rejected("personagem está morto", 0)
+        if (session.state.currentPlaceId != placeId || placeId !in session.state.knownPlaces) {
+            return ExecResult.Rejected("o personagem não está neste local descoberto", 0)
+        }
+        val place = session.state.places[placeId] ?: return ExecResult.Rejected("local inexistente: $placeId", 0)
+        if (place.secret.isBlank()) return ExecResult.Rejected("local sem segredo", 0)
+        val key = "place-secret:$placeId"
+        if (session.state.knowledge.containsKey(key)) return null
+        return session.execute(LearnKnowledge(key, place.secret, "teste:${result.spec.label}", false))
+    }
+
     private fun levelsFor(o: Outcome) = when (o) {
         Outcome.CRITICAL_FAILURE, Outcome.FAILURE -> 0
         Outcome.PARTIAL_SUCCESS -> 1
