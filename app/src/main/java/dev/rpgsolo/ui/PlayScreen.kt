@@ -142,8 +142,8 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
         BottomBar(
             busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck, text = text, onText = { text = it },
             suggestions = suggestions, warning = classifierWarning,
-            onSend = { val t = text; text = ""; run { c.submit(t) } },
-            onRollCheck = { run { c.rollPending() } },
+            onSend = { val t = text; text = ""; run { c.submit(t); model.autoCloseChapterIfNeeded() } },
+            onRollCheck = { run { c.rollPending(); model.autoCloseChapterIfNeeded() } },
             onUndo = { run { c.undo() } },
             onRegenerate = { run { c.regenerate() } }
         )
