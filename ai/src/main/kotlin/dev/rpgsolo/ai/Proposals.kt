@@ -17,6 +17,8 @@ import dev.rpgsolo.engine.RecordFact
 import dev.rpgsolo.engine.RemoveCondition
 import dev.rpgsolo.engine.Revive
 import dev.rpgsolo.engine.SpendResource
+import dev.rpgsolo.rules.NpcProposal
+import dev.rpgsolo.rules.RuleSource
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -34,7 +36,9 @@ data class TurnOutput(
     /** Teste que o mestre pede ao jogador no meio da história. Quando existe, a narração para antes do resultado. */
     val checkRequest: CheckRequest? = null,
     /** Rolagem com tabela (ex.: d6 para onde a flecha acerta). Também para a narração antes do resultado. */
-    val rollRequest: RollRequest? = null
+    val rollRequest: RollRequest? = null,
+    /** NPC proposto pela IA; a ficha só é criada após validação pelo pacote ativo. */
+    val npcProposal: NpcProposal? = null
 )
 
 sealed interface ParseResult {
@@ -46,7 +50,8 @@ sealed interface ParseResult {
 object ProposalSchema {
     val INSTRUCTIONS: String = """
         Responda SOMENTE com um objeto JSON, sem texto fora dele:
-        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"]}
+        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}}}
+        "create_npc" é opcional: quando criar um NPC relevante, proponha nome, conceito, atributos, traços e perícias. O pacote valida tudo; não invente ids nem regras. Não inclua create_npc ao pedir teste/rolagem.
         "suggestions" é opcional: no máximo ${ProposalParser.MAX_SUGGESTIONS} ideias curtas do que o personagem poderia fazer; o jogador pode ignorá-las.
         "proposals" é a lista (pode ser vazia) de mudanças que você PROPÕE. O motor valida cada uma e pode recusar.
         Você nunca rola dados nem decide o resultado de testes: o motor já decidiu; você só descreve.
@@ -145,7 +150,16 @@ object ProposalParser {
             }
         }
         if (checkRequest != null && rollRequest != null) errors += "peça só um por vez: request_check ou request_roll"
-        return if (errors.isEmpty()) ParseResult.Ok(TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest))
+        val npcProposal = when (val rawNpc = obj["create_npc"]) {
+            null, is JsonNull -> null
+            is JsonObject -> try { toNpcProposal(rawNpc) }
+                catch (e: Bad) { errors += "create_npc: ${e.message}"; null }
+            else -> { errors += "'create_npc' deve ser um objeto"; null }
+        }
+        if (npcProposal != null && (checkRequest != null || rollRequest != null)) {
+            errors += "não combine create_npc com request_check/request_roll; crie o NPC em outra jogada"
+        }
+        return if (errors.isEmpty()) ParseResult.Ok(TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal))
         else ParseResult.Invalid(errors)
     }
 
@@ -163,6 +177,41 @@ object ProposalParser {
 
     private fun JsonObject.bool(key: String): Boolean? =
         (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull
+
+    private fun toNpcProposal(o: JsonObject): NpcProposal {
+        fun requiredText(key: String): String =
+            o.str(key)?.trim()?.takeIf { it.isNotEmpty() } ?: throw Bad("campo '$key' ausente ou vazio")
+        fun intMap(key: String, optional: Boolean = false): Map<String, Int> {
+            val raw = o[key]
+            if (raw == null && optional) return emptyMap()
+            val obj = raw as? JsonObject ?: throw Bad("campo '$key' deve ser um objeto id -> número")
+            return obj.mapValues { (id, value) ->
+                val primitive = value as? JsonPrimitive
+                if (primitive == null || primitive.isString) throw Bad("campo '$key.$id' deve ser inteiro")
+                primitive.intOrNull ?: throw Bad("campo '$key.$id' deve ser inteiro")
+            }
+        }
+        val rawTraits = o["traits"]
+        val traits = when (rawTraits) {
+            null, is JsonNull -> emptyList()
+            is JsonArray -> rawTraits.map { value ->
+                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("campo 'traits' deve ser uma lista de ids em texto")
+            }
+            else -> throw Bad("campo 'traits' deve ser uma lista de ids em texto")
+        }
+        val stats = intMap("stats")
+        if (stats.isEmpty()) throw Bad("informe os atributos do NPC em 'stats'")
+        return NpcProposal(
+            id = "pending",
+            name = requiredText("name"),
+            concept = o.str("concept")?.trim().orEmpty(),
+            stats = stats,
+            traits = traits.distinct(),
+            ruleSource = RuleSource.PACOTE,
+            skills = intMap("skills", optional = true)
+        )
+    }
 
     private fun toRollRequest(o: JsonObject): RollRequest {
         val sides = o.int("sides") ?: throw Bad("campo 'sides' ausente ou não numérico")
