@@ -322,10 +322,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     } catch (e: IllegalArgumentException) { e.message }
 
-    /** Avança para o próximo participante vivo; a ordem e a rodada são decididas pelo motor. */
-    fun nextCombatTurn(): String? = when (val result = session.execute(dev.rpgsolo.engine.NextTurn)) {
-        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
-        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+    /** Permite passar o turno apenas ao jogador; turnos de NPC são resolvidos pela ação mecânica correspondente. */
+    fun nextCombatTurn(): String? {
+        if (!isPlayerCombatTurn()) return "só é possível passar o turno durante o turno do jogador"
+        return when (val result = session.execute(dev.rpgsolo.engine.NextTurn)) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
     }
 
     /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
