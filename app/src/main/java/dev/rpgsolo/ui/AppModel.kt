@@ -123,6 +123,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         private set
     var packageVersion by mutableIntStateOf(0)
         private set
+    var chapterNotice by mutableStateOf<String?>(null)
+        private set
     private var roles: AiRoles? = null
     private val database = RpgDatabase.build(application)
     private val store = RoomEventStore(database)
@@ -1146,8 +1148,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         if (!chapters.shouldClose(session)) return null
         val nextNumber = chapters.chapters.size + 1
         val error = closeChapter()
-        if (error != null) return error
-        return openChapter("Capítulo $nextNumber")
+        if (error != null) {
+            chapterNotice = "Não foi possível resumir o capítulo automaticamente: $error"
+            return error
+        }
+        val openError = openChapter("Capítulo $nextNumber")
+        chapterNotice = if (openError == null) "Capítulo resumido; Capítulo $nextNumber iniciado." else openError
+        return openError
     }
 
     /** Encerra o capítulo com resumo da IA. Chamada de rede: rode fora da thread principal. Devolve o erro, ou null. */
