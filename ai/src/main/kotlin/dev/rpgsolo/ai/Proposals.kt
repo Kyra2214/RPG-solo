@@ -75,7 +75,7 @@ object ProposalSchema {
         Campo opcional "request_roll" (regra 9), uma entrada para CADA face: {"sides": 6, "label": "Onde a flecha acerta", "table": {"1": {"text": "raspa no ombro", "damage": 1}, "2": {...}, "4": {"text": "fura a coxa", "damage": 4, "conditions": ["sangramento"]}, "6": {"text": "atinge perto do coração", "damage": 6}}}
         "conditions" (opcional em cada face) é uma lista de ids de condição do sistema que o motor aplica ao personagem junto com o dano.
         Só um pedido por resposta: request_check OU request_roll.
-        Campo opcional "request_check" (veja a regra 8): {"check": "id", "difficulty": "id", "label": "nome curto, ex.: Percepção", "onSuccess": "o que acontece se passar", "onFailure": "o que acontece se falhar", "onPartial": "opcional", "skill": "opcional: tipo da situação, ex.: esquiva ou sorte"}. Para descobrir segredo guardado, acrescente "targetNpc": "id do NPC", "revealSecret": "id do segredo" e "requiredStat": "atributo/perícia exigido"; o texto do segredo só é liberado pelo motor em sucesso parcial ou melhor.
+        Campo opcional "request_check" (veja a regra 8): {"check": "id", "difficulty": "id", "label": "nome curto, ex.: Percepção", "onSuccess": "o que acontece se passar", "onFailure": "o que acontece se falhar", "onPartial": "opcional", "skill": "opcional: tipo da situação, ex.: esquiva ou sorte"}. Para descobrir segredo de NPC, acrescente "targetNpc", "revealSecret" e "requiredStat"; para segredo do local atual, use "targetPlace" e "revealPlaceSecret":true com "requiredStat". O motor só libera o texto em sucesso parcial ou melhor.
     """.trimIndent()
 
     val TYPES = listOf(
@@ -307,12 +307,20 @@ object ProposalParser {
             skill = opt("skill")?.let(::slug),
             targetNpcId = opt("targetNpc"),
             revealSecretId = opt("revealSecret"),
+            targetPlaceId = opt("targetPlace"),
+            revealPlaceSecret = optBool("revealPlaceSecret") ?: false,
             requiredStat = opt("requiredStat")
         ).also {
             if ((it.targetNpcId == null) != (it.revealSecretId == null)) {
                 throw Bad("use targetNpc e revealSecret juntos")
             }
-            if (it.revealSecretId != null && it.requiredStat.isNullOrBlank()) {
+            if (it.revealPlaceSecret && it.targetPlaceId.isNullOrBlank()) {
+                throw Bad("revelar segredo de local exige targetPlace")
+            }
+            if (it.targetNpcId != null && (it.targetPlaceId != null || it.revealPlaceSecret)) {
+                throw Bad("não combine segredo de NPC e de local")
+            }
+            if ((it.revealSecretId != null || it.revealPlaceSecret) && it.requiredStat.isNullOrBlank()) {
                 throw Bad("revelar segredo exige requiredStat")
             }
         }
