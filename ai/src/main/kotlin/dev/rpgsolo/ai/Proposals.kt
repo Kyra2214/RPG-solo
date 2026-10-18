@@ -61,8 +61,9 @@ sealed interface ParseResult {
 object ProposalSchema {
     val INSTRUCTIONS: String = """
         Responda SOMENTE com um objeto JSON, sem texto fora dele:
-        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}, "personality":"...", "goals":[], "motivations":[], "relations":{}, "secrets":[{"id":"...", "text":"...", "falseInfo":false}]}}
+        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}, "personality":"...", "goals":[], "motivations":[], "relations":{}, "secrets":[{"id":"...", "text":"...", "falseInfo":false}]}, "request_combat": false}
         "create_npc" é opcional: quando criar um NPC relevante, proponha nome, conceito, atributos, traços e perícias. O pacote valida tudo; não invente ids nem regras. Não inclua create_npc ao pedir teste/rolagem.
+        "request_combat" é opcional e booleano. Use true somente quando a cena realmente iniciar uma luta; nesse caso, envie também create_npc com um único adversário e deixe proposals, request_check e request_roll vazios/ausentes. O app valida a ficha pelo pacote, cria o NPC e o motor rola a iniciativa. Não use request_combat para ameaças ainda não hostis.
         "suggestions" é opcional: no máximo ${ProposalParser.MAX_SUGGESTIONS} ideias curtas do que o personagem poderia fazer; o jogador pode ignorá-las.
         "proposals" é a lista (pode ser vazia) de mudanças que você PROPÕE. O motor valida cada uma e pode recusar.
         Você nunca rola dados nem decide o resultado de testes: o motor já decidiu; você só descreve.
