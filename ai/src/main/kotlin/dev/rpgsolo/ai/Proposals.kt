@@ -47,7 +47,9 @@ data class TurnOutput(
     /** Rolagem com tabela (ex.: d6 para onde a flecha acerta). Também para a narração antes do resultado. */
     val rollRequest: RollRequest? = null,
     /** NPC proposto pela IA; a ficha só é criada após validação pelo pacote ativo. */
-    val npcProposal: NpcProposal? = null
+    val npcProposal: NpcProposal? = null,
+    /** Quando true, cria o NPC validado e inicia combate com iniciativa rolada pelo motor. */
+    val requestCombat: Boolean = false
 )
 
 sealed interface ParseResult {
@@ -169,11 +171,29 @@ object ProposalParser {
                 catch (e: Bad) { errors += "create_npc: ${e.message}"; null }
             else -> { errors += "'create_npc' deve ser um objeto"; null }
         }
+        val requestCombat = when (val rawCombat = obj["request_combat"]) {
+            null, is JsonNull -> false
+            is JsonPrimitive -> rawCombat.booleanOrNull ?: run {
+                errors += "'request_combat' deve ser booleano"
+                false
+            }
+            else -> {
+                errors += "'request_combat' deve ser booleano"
+                false
+            }
+        }
         if (npcProposal != null && (checkRequest != null || rollRequest != null)) {
             errors += "não combine create_npc com request_check/request_roll; crie o NPC em outra jogada"
         }
-        return if (errors.isEmpty()) ParseResult.Ok(TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal))
-        else ParseResult.Invalid(errors)
+        if (requestCombat && npcProposal == null) {
+            errors += "request_combat exige create_npc com a ficha do adversário"
+        }
+        if (requestCombat && (commands.isNotEmpty() || checkRequest != null || rollRequest != null)) {
+            errors += "request_combat deve vir sozinho, sem proposals nem pedidos de rolagem"
+        }
+        return if (errors.isEmpty()) ParseResult.Ok(
+            TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal, requestCombat)
+        ) else ParseResult.Invalid(errors)
     }
 
     internal fun extractJson(raw: String): String? {
