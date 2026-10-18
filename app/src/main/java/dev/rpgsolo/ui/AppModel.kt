@@ -368,13 +368,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val attacker = combat.current
         val attackerEquipment = session.state.equipped[attacker].orEmpty().values
         val targetEquipment = session.state.equipped[playerId].orEmpty().values
+        val attackConditionShift = conditionDiceShift(attacker, attackStat)
+        val targetConditionShift = conditionDiceShift(playerId, defenseStat)
+        val effectiveAttackDice = if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) {
+            attackDiceCount
+        } else (attackDiceCount + attackConditionShift).coerceIn(1, maxOf(attackDiceCount, 3))
         val result = session.attack(
             dev.rpgsolo.engine.AttackSpec(
                 attackerId = attacker,
                 targetId = playerId,
                 attackStat = attackStat,
                 defenseStat = defenseStat,
-                attackDiceCount = attackDiceCount,
+                attackDiceCount = effectiveAttackDice,
                 attackDiceSides = attackDiceSides,
                 attackComparison = attackComparison,
                 damageResource = resource,
@@ -383,6 +388,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(combatTraitIds(attacker), "ataque") +
                     approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
+                    (if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) attackConditionShift else 0) +
                     ((session.state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
                         .toInt().coerceIn(0, 10) - 5),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
@@ -390,7 +396,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(playerId), "defesa") +
-                    approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat),
+                    approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
@@ -494,6 +500,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
     }
 
+    /** Ganho/Perda das condições para um teste que usa o atributo informado. */
+    private fun conditionDiceShift(entityId: String, stat: String): Int =
+        session.state.conditions[entityId].orEmpty().sumOf { conditionId ->
+            val effect = activePackage?.data?.conditions?.firstOrNull { it.id == conditionId }?.effect
+            if (effect != null && (effect.stats == null || stat in effect.stats)) effect.dice else 0
+        }
+
     /** Traços mecânicos do combatente; a ficha salva cobre campanhas antigas cujo Entity ainda não os continha. */
     private fun combatTraitIds(entityId: String): List<String> =
         (session.state.entities[entityId]?.traits.orEmpty() +
@@ -595,6 +608,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         val attackerEquipment = session.state.equipped[playerId].orEmpty().values
         val targetEquipment = session.state.equipped[targetId].orEmpty().values
+        val attackConditionShift = conditionDiceShift(playerId, attackStat)
+        val targetConditionShift = conditionDiceShift(targetId, defenseStat)
+        val effectiveAttackDice = if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) {
+            attackDiceCount
+        } else (attackDiceCount + attackConditionShift).coerceIn(1, maxOf(attackDiceCount, 3))
         val combatantsBefore = session.state.combat?.order.orEmpty()
         val attackMark = session.mark()
         when (val result = session.attack(
@@ -603,19 +621,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 targetId = targetId,
                 attackStat = attackStat,
                 defenseStat = defenseStat,
-                attackDiceCount = attackDiceCount,
+                attackDiceCount = effectiveAttackDice,
                 attackDiceSides = attackDiceSides,
                 attackComparison = attackComparison,
                 damageResource = resource,
                 damage = baseDamage,
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(playerId), "ataque") +
-                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat),
+                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
+                    (if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) attackConditionShift else 0),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano") +
                     approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(targetId), "defesa") +
-                    approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat),
+                    approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
