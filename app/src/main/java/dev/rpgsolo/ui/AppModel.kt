@@ -667,6 +667,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         session = next
         activeCampaignPrefs.edit().putString("active_campaign", campaignId).apply()
         restoreMetadata()
+        if (chapters.chapters.isEmpty()) openChapter("Capítulo 1")
         controller = roles?.let { buildController(it) }
     }
 
@@ -968,6 +969,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         activeCampaignPrefs.edit().putString("active_campaign", session.campaignId).apply()
         chapters = ChapterBook()
+        chapters.open(session, "Capítulo 1")
         quests = QuestLog()
         saveMetadata()
         controller = roles?.let { buildController(it) }
