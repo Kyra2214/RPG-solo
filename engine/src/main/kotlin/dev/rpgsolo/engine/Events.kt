@@ -55,6 +55,8 @@ data class AdditionalRuleApproved(val id: String) : Event
 @Serializable
 data class AdditionalRuleRejected(val id: String) : Event
 @Serializable
+data class AmbientacaoSet(val ambientacao: Ambientacao) : Event
+@Serializable
 data class ConditionTicked(
     val entityId: String,
     val condition: String,
@@ -135,6 +137,7 @@ fun GameState.apply(e: Event): GameState {
             copy(additionalRules = additionalRules + (e.id to rule.copy(approved = true)))
         }
         is AdditionalRuleRejected -> copy(additionalRules = additionalRules - e.id)
+        is AmbientacaoSet -> copy(ambientacao = e.ambientacao)
         is ConditionRemoved -> {
             val left = (conditions[e.entityId] ?: emptySet()) - e.condition
             val states = (conditionStates[e.entityId] ?: emptyMap()) - e.condition
