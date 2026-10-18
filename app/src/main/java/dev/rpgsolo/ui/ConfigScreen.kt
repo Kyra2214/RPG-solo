@@ -45,6 +45,8 @@ fun ConfigScreen(model: AppModel) {
     var premiumModel by remember { mutableStateOf(stored?.premiumModel.orEmpty()) }
     var narrationLength by remember { mutableStateOf(model.narrationLength) }
     var narrationStyle by remember { mutableStateOf(model.narrationStyle) }
+    var contentLines by remember { mutableStateOf(model.contentLines) }
+    var contentVeils by remember { mutableStateOf(model.contentVeils) }
     var saved by remember { mutableStateOf(false) }
     var testing by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<ConnectionTestResult?>(null) }
@@ -163,7 +165,25 @@ fun ConfigScreen(model: AppModel) {
                     )
                 }
             }
-            Muted("Estas preferências mudam o texto, nunca os resultados do motor nem as regras do sistema.")
+            Text("Linhas vermelhas — não incluir")
+            OutlinedTextField(
+                value = contentLines,
+                onValueChange = { contentLines = it; model.setContentBoundaries(contentLines, contentVeils) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Temas proibidos (um por linha)") },
+                minLines = 2,
+                maxLines = 5
+            )
+            Text("Véus — mencionar sem detalhar")
+            OutlinedTextField(
+                value = contentVeils,
+                onValueChange = { contentVeils = it; model.setContentBoundaries(contentLines, contentVeils) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Temas a resumir ou cortar (um por linha)") },
+                minLines = 2,
+                maxLines = 5
+            )
+            Muted("Limites são enviados ao mestre a cada jogada e não alteram os resultados do motor nem as regras do sistema.")
         }
         AppCard {
             Text("Backup da campanha", style = MaterialTheme.typography.titleSmall)
