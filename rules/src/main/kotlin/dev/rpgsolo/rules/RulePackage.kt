@@ -384,6 +384,25 @@ object PackageValidator {
         val combatAttack = d.creation["combate_atributo_ataque"]
         val combatDefense = d.creation["combate_atributo_defesa"]
         val combatInitiative = d.creation["combate_atributo_iniciativa"]
+        val attackDiceCount = d.creation["combate_dados_ataque"]
+        val attackDiceSides = d.creation["combate_lados_ataque"]
+        val attackComparison = d.creation["combate_comparacao_ataque"]
+        val hasCombatProfile = combatAttack != null || combatDefense != null || combatInitiative != null
+        if (hasCombatProfile) {
+            if (attackDiceCount == null || (attackDiceCount.toIntOrNull() ?: 0) !in 1..100) {
+                p += "criacao.txt: combate_dados_ataque ausente ou inválido"
+            }
+            if (attackDiceSides == null || (attackDiceSides.toIntOrNull() ?: 0) < 2) {
+                p += "criacao.txt: combate_lados_ataque ausente ou inválido"
+            }
+            if (attackComparison == null || attackComparison !in setOf("ROLL_OVER", "ROLL_UNDER", "POINTS")) {
+                p += "criacao.txt: combate_comparacao_ataque ausente ou inválido"
+            } else if (attackComparison == "POINTS") {
+                if (attackDiceCount?.toIntOrNull() != 1 || attackDiceSides?.toIntOrNull() !in REAL_DICE) {
+                    p += "criacao.txt: ataque POINTS exige combate_dados_ataque=1 e um dado real em combate_lados_ataque"
+                }
+            }
+        }
         listOf(
             "combate_atributo_ataque" to combatAttack,
             "combate_atributo_defesa" to combatDefense,
