@@ -53,6 +53,9 @@ data class GameState(
     val conditions: Map<String, Set<String>> = emptyMap(),
     /** entidade -> condição -> duração e efeitos mecânicos. */
     val conditionStates: Map<String, Map<String, ConditionState>> = emptyMap(),
+    /** null = fora de combate. */
+    val combat: CombatState? = null,
+    val eventCount: Int = 0,
     /** Dossiês privados e event-sourced de NPCs; a interface do jogador nunca os exibe diretamente. */
     val npcDossiers: Map<String, NpcDossier> = emptyMap(),
     /** Regras adicionais propostas pela IA; efeitos só entram na mecânica após aprovação explícita. */
@@ -63,24 +66,8 @@ data class GameState(
     val places: Map<String, Place> = emptyMap(),
     val placeLinks: Map<String, Set<String>> = emptyMap(),
     val knownPlaces: Set<String> = emptySet(),
-    val currentPlaceId: String? = null,
-    /** null = fora de combate. */
-    val combat: CombatState? = null,
-    val eventCount: Int = 0
+    val currentPlaceId: String? = null
 )
-
-/**
- * Conhecimento do jogador, com a fonte (pista, teste, conversa).
- * [believed] = true guarda informação falsa/incerta como "acreditada", nunca como verdade.
- */
-data class Knowledge(val key: String, val text: String, val source: String, val believed: Boolean = false)
-
-fun relationKey(fromId: String, toId: String) = "$fromId>$toId"
-
-/** Relógio de agenda: quando [filled] chega a [segments], a ameaça/plano se cumpre. */
-data class Clock(val id: String, val name: String, val segments: Int, val filled: Int = 0) {
-    val full: Boolean get() = filled >= segments
-}
 
 data class Promise(val id: String, val npcId: String, val text: String, val kept: Boolean = false)
 
