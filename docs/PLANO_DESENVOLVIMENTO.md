@@ -273,7 +273,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 6.4.3 Ações simples resolvidas sem IA (ver ficha, inventário, descansar)
 - 6.4.4 Cache do bloco fixo (regras + cenário), quando o provedor suportar
 
-**Status:** núcleo escrito, não compilado (ver README): 6.1.1, 6.1.3 (dois provedores sobre transporte injetável), 6.1.4, 6.1.5 (máscara; armazenamento seguro fica no app), 6.2.1–6.2.5, 6.3.1–6.3.3. 6.4.1 (modelo barato classifica a intenção, `IntentClassifier`) e 6.4.3 (ações locais sem IA, `LocalActions`) escritos, não compilados. 6.4.2 (`AiRoles`, `ProviderFactory.buildRoles`, `Importance`: modelo melhor só em crítico, decidido pelo motor) escrito, não compilado; classificador e resumo de capítulo usam o modelo barato. Pendente: 6.1.2 (escolher provedor gratuito após testar limites), 6.4.4 (cache do bloco fixo).
+**Status do código (18/10/2026):** os provedores compatíveis com OpenAI e Anthropic, configuração de endpoint/modelo, chave protegida pelo Android Keystore, teste de conexão, estimativa de tokens, classificação barata, roteamento de modelo e ações locais estão ligados ao app. A resposta estruturada é validada e propostas recusadas sofrem rollback. **Ainda não há streaming real do texto na tela nem cache de prompt fixo.** A escolha de um provedor gratuito padrão depende de confirmar limites atuais; não foi inventado um preset sem validação.
 
 ---
 
@@ -306,7 +306,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 
 **Pronto quando:** uma sessão de 20 jogadas roda com o pacote de teste, e nenhuma resposta da IA consegue mudar um resultado de dado.
 
-**Status:** núcleo escrito, não compilado: 7.1.3–7.1.6, 7.2, 7.3.1–7.3.3, 7.3.5, 7.4 (ver README). 7.1.2 (`IntentClassifier`: a IA só escolhe um id entre os testes do pacote) e 7.3.4 (campo opcional `suggestions`, até 3, nunca vira estado) escritos, não compilados. As opções de teste vêm do pacote (`RulePackage.checkChoices`) e já estão ligadas no app de demonstração (pacote teste-basico). Pendente: busca de regra no `RuleLookupChain`, escolha de dificuldade pelo classificador, pacote ativo da campanha em vez do fixo.
+**Status do código (18/10/2026):** o loop de jogo monta contexto da campanha, usa opções de teste do pacote ativo, envia resumo de capítulo e regras relevantes, valida propostas e desfaz alterações em caso de falha. O prompt proíbe a IA de decidir dados, dano ou segredos não liberados; há sugestões opcionais e controles de desfazer/refazer. **Pendente no código:** streaming real da resposta; o provedor hoje retorna o JSON completo antes de exibir a narração.
 
 ---
 
@@ -345,7 +345,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 8.5.1 Segredo de NPC só vai para a IA se a cena exigir
 - 8.5.2 Instrução fixa no prompt: não revelar segredo sem o motor liberar
 
-**Status:** núcleo escrito, não compilado: 8.0 (anterior), 8.1, 8.3, 8.4, 8.5 (ver README). 8.2.2 e 8.2.3 escritos e testados no motor (relações e relógios). IA propor e contexto também feitos. Pendente: persistência, tela.
+**Status do código (18/10/2026):** criação de NPC pelo fluxo validado, dossiês privados, promessas, relações, relógios, diário do conhecimento e revelação de segredos por teste estão ligados ao motor e ao log persistido. A tela mostra apenas atitudes direcionadas ao jogador em palavras, sem números de relação. **Pendente:** enriquecer a agenda de NPCs e converter acontecimentos importantes em pistas de interface sem revelar relógios ou segredos privados.
 
 ---
 
@@ -380,7 +380,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 9.5.2 Teste: o capítulo seguinte começa no estado correto
 - 9.5.3 Teste: promessa feita é lembrada, item consumido não volta
 
-**Status:** núcleo escrito, não compilado: 9.2, 9.3.1, 9.3.2, 9.4.4/9.4.5 (teste), 9.5.2/9.5.3 (testes em `ChapterTest`). 9.1.1/9.1.3/9.1.4 (`CampaignInterpreter`: a IA só mapeia a descrição para ids do catálogo; o motor valida com `resolveConfig` e pergunta sistema, dificuldade e edição) escritos, não compilados. `CampaignStarter` (rules) liga configuração resolvida + ficha aprovada + pacote da edição e cria a campanha salva (5.3.1/5.1.4), recusando ficha de outra edição ou inválida pelo pacote; escrito, não compilado. `NewCampaignFlow` (ai) e a seção "Nova campanha" na aba Campanhas (descrição → perguntas → revisão → ficha e nome → começar) escritos, não compilados. 9.1.2 (`CampaignForm`) e 9.3.3 (`PlaceMap`) escritos e testados. Pendente: tela do formulário, 9.4.2/9.4.3, persistência.
+**Status do código (18/10/2026):** a criação incremental por descrição livre, o formulário auxiliar, revisão de compatibilidade, capítulos com resumo, tamanho configurável, missões/objetivos, linha do tempo manual, mapa de locais descobertos e persistência de ambientação/configuração estão conectados ao app. O fechamento automático de capítulo é acionado após jogadas no chat. **Pendente:** registrar automaticamente mais eventos na linha do tempo e concluir a tipagem mecânica de equipamentos ficcionais por pacote/adaptação.
 
 ---
 
@@ -414,7 +414,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 10.6.3 Backup, exportar/importar, privacidade
 - 10.6.4 Uso estimado de tokens
 
-**Status:** partes 1 e 2 escritas, não compiladas: 10.1.1, 10.1.3–10.1.5, 10.2, 10.3, 10.4, 10.5.1, 10.6.1, 10.6.4 (ver README). Sugestões (10.1.2) aparecem como chips que só preenchem o campo de texto, não validados no Android. Pendente: 10.5.2, 10.6.2/10.6.3, persistência.
+**Status do código (18/10/2026):** as seis abas têm telas funcionais; Jogar inclui painel, dados visuais, inventário/equipamento, locais, regras adicionais, combate e atalhos locais. Heróis inclui criação guiada e biblioteca; Campanhas inclui backups por arquivo/texto, capítulos, missões, diário, linha do tempo e evolução; Sistemas importa ZIP; Config inclui teste de conexão, chave segura, preferências de narração e limites de conteúdo. **Pendente:** streaming real, ajuste global de fonte, revisão TalkBack/contraste, primeiro uso guiado completo e custo monetário confiável.
 
 ---
 
@@ -441,7 +441,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 11.3.2 Aviso de privacidade (o texto da jogada vai ao provedor de IA)
 - 11.3.3 APK de uso pessoal; versão pública só com chave do próprio usuário
 
-**Status:** parte 1 escrita, não compilada: 11.1.1–11.1.6, 11.1.8–11.1.10, 11.2.1, 11.3.1 (núcleo) e 11.3.2 (texto na Config). 11.1.7 já tinha teste. Pendente: 11.2.2, backup no Android, 11.3.3.
+**Status do código (18/10/2026):** há cobertura automatizada já existente para o motor e os fluxos puros, mas **nenhum build, teste, lint ou CI foi executado nesta etapa**, conforme pedido. Backup Android, migrações Room instrumentadas, teste em aparelho/emulador, bateria completa de continuidade e entrega/assinatura do APK continuam como validações pendentes. A auditoria de código foi ampliada para conferir estado de backup, relações, relógios, condições, mapa e dossiês.
 
 ---
 
