@@ -248,9 +248,8 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (state.conditions[ent.id]?.contains(cmd.condition) == true) return no("${ent.name} já tem a condição ${cmd.condition}")
             if (cmd.durationRounds != null && cmd.durationRounds <= 0) return no("duração de condição inválida")
             if (cmd.damagePerRound < 0) return no("dano de condição negativo")
-            // O recurso deve existir mesmo sem dano, pois o evento de rodada também reduz a duração.
-            if (ent.resources[cmd.damageResource] == null) {
-                return no("recurso inexistente para acompanhar a condição: ${cmd.damageResource}")
+            if (cmd.damagePerRound > 0 && ent.resources[cmd.damageResource] == null) {
+                return no("recurso inexistente: ${cmd.damageResource}")
             }
             return Decision.Ok(listOf(ConditionAdded(
                 ent.id, cmd.condition, cmd.durationRounds, cmd.damagePerRound, cmd.damageResource
