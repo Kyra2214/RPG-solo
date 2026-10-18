@@ -94,7 +94,7 @@ class RulePackage internal constructor(val data: PackageData) {
         EngineConfig(
             deathResource = manifest.deathResource,
             levelThresholds = data.progression ?: emptyList(),
-            defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 2
+            defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0
         )
 
     /** Recursos derivados dos atributos (vida, mana...), cheios. */
