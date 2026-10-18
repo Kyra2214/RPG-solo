@@ -76,11 +76,12 @@ class GameEngine private constructor(
         }
 
         val attackModifier = (attacker.stats[spec.attackStat] ?: 0) + spec.attackBonus
-        val defense = maxOf(
-            0,
-            spec.defenseDefault + (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus +
-                if (spec.attackComparison == Comparison.ROLL_UNDER) attackModifier else 0
-        )
+        val targetDefenseModifier = (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus
+        val defense = maxOf(0, when (spec.attackComparison) {
+            Comparison.ROLL_OVER -> spec.defenseDefault + targetDefenseModifier
+            Comparison.ROLL_UNDER -> spec.defenseDefault + attackModifier - targetDefenseModifier
+            Comparison.POINTS -> spec.defenseDefault + targetDefenseModifier
+        })
         val mark = mark()
         val roll = when (spec.attackComparison) {
             Comparison.POINTS, Comparison.ROLL_UNDER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides)
@@ -91,7 +92,7 @@ class GameEngine private constructor(
             Comparison.ROLL_OVER -> roll.total >= defense
             Comparison.ROLL_UNDER -> roll.total <= defense
             Comparison.POINTS -> {
-                val faces = pointFaces(attackModifier, spec.attackDiceSides)
+                val faces = pointFaces(attackModifier - targetDefenseModifier, spec.attackDiceSides)
                 val lowestSuccess = spec.attackDiceSides + 1 - faces
                 roll.dice.single() >= lowestSuccess
             }
