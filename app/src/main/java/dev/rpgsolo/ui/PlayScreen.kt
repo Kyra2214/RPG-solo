@@ -153,7 +153,7 @@ private fun InventoryPanel(model: AppModel) {
     val campaignVersion = model.campaignVersion
     @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
-    val inventory = remember(campaignVersion) { model.inventoryView() }
+    val inventory = model.inventoryView()
     if (inventory.isEmpty()) return
     AppCard {
         Text("Inventário", style = MaterialTheme.typography.titleSmall)
@@ -186,7 +186,7 @@ private fun InventoryPanel(model: AppModel) {
 private fun AdditionalRulesPanel(model: AppModel) {
     val campaignVersion = model.campaignVersion
     @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
-    val rules = remember(campaignVersion) { model.additionalRulesView() }
+    val rules = model.additionalRulesView()
     var message by remember { mutableStateOf<String?>(null) }
     if (rules.isEmpty()) return
     AppCard {
