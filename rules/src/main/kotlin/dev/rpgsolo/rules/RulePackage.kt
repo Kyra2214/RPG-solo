@@ -308,7 +308,32 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         val all = mutableListOf<RuleSnippet>()
         data.traits.forEach { all += RuleSnippet("traco", it.id, it.name, it.description, score(it.name, it.description)) }
-        data.conditions.forEach { all += RuleSnippet("condicao", it.id, it.name, it.description, score(it.name, it.description)) }
+        data.conditions.forEach {
+            val mechanics = buildString {
+                append(it.description)
+                it.effect?.let { effect -> append(" Efeito nos testes: ").append(if (effect.dice > 0) "Ganho" else "Perda") }
+                it.durationRounds?.let { rounds -> append(" Duração: ").append(rounds).append(" rodadas.") }
+                if (it.damagePerRound > 0) append(" Dano por rodada: ").append(it.damagePerRound).append(" ").append(it.damageResource).append(".")
+            }
+            all += RuleSnippet("condicao", it.id, it.name, mechanics, score(it.name, mechanics))
+        }
+        data.stats.forEach { all += RuleSnippet("atributo", it.id, it.name, "Limites ${it.min}..${it.max}; padrão ${it.default}.", score(it.name, it.id)) }
+        data.resources.forEach {
+            val text = "Recurso ${it.name}; base ${it.base}; atributo ${it.stat ?: "nenhum"}; multiplicador ${it.mult}."
+            all += RuleSnippet("recurso", it.id, it.name, text, score(it.name, text))
+        }
+        data.items.forEach {
+            val mechanics = it.description + if (it.effects.isEmpty()) "" else
+                " Efeitos: " + it.effects.joinToString(", ") { e -> "${e.scope} ${if (e.bonus >= 0) "+" else ""}${e.bonus}" }
+            all += RuleSnippet("item", it.id, it.name, mechanics, score(it.name, mechanics))
+        }
+        data.damage.forEach {
+            val mechanics = "${it.diceCount}d${it.diceSides}" + (it.bonusStat?.let { stat -> " + $stat" } ?: "")
+            all += RuleSnippet("dano", it.id, it.name, mechanics, score(it.name, mechanics))
+        }
+        data.difficulties.forEach {
+            all += RuleSnippet("dificuldade", it.id, it.name, "Valor ${it.value}.", score(it.name, it.id))
+        }
         data.tutorial.forEach { all += RuleSnippet("tutorial", it.order.toString(), it.title, it.text, score(it.title, it.text)) }
         data.checks.forEach {
             val d = "${it.diceCount}d${it.diceSides}"
