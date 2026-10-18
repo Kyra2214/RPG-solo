@@ -39,6 +39,8 @@ import dev.rpgsolo.rules.TraitDef
  */
 @Composable
 fun CharactersScreen(model: AppModel) {
+    val packageVersion = model.packageVersion
+    @Suppress("UNUSED_VARIABLE") val observePackageVersion = packageVersion
     val reg = model.content.registry
     val ids = reg.installed().map { it.id }
     var selected by remember { mutableStateOf(ids.firstOrNull()) }
