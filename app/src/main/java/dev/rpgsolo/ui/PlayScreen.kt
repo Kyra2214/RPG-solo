@@ -101,9 +101,14 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
         if (busy) return
         busy = true
         scope.launch {
-            withContext(Dispatchers.IO) { block() }
-            busy = false
-            version++
+            try {
+                withContext(Dispatchers.IO) { block() }
+            } catch (e: Exception) {
+                playError = e.message ?: "A ação falhou inesperadamente. Você pode tentar de novo."
+            } finally {
+                busy = false
+                version++
+            }
         }
     }
 
