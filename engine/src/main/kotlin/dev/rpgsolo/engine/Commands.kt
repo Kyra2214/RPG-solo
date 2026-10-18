@@ -62,9 +62,12 @@ data class EngineConfig(
     /** Recurso que, ao chegar a 0, mata (ex.: "pv"). null = o sistema não mata automaticamente. */
     val deathResource: String? = "hp",
     /** XP total necessário para o nível 2, 3, 4... (crescente). Vazio = o sistema não sobe de nível por XP. */
-    val levelThresholds: List<Int> = emptyList()
+    val levelThresholds: List<Int> = emptyList(),
+    /** Bônus de defesa da ação Defend; 0 desativa a ação. */
+    val defendBonus: Int = 2
 ) {
     init {
+        require(defendBonus in 0..10) { "defendBonus deve ficar entre 0 e 10" }
         require(levelThresholds.zipWithNext().all { (a, b) -> a < b } && levelThresholds.all { it > 0 }) {
             "levelThresholds deve ser positivo e estritamente crescente"
         }
