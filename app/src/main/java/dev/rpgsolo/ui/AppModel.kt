@@ -728,9 +728,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         val place = session.state.places[id]
                         if (place != null && id in session.state.knownPlaces) {
                             append("Local atual: ").append(place.name).append(". ").append(place.description)
-                            if (place.secret.isNotBlank()) {
-                                append("\nSegredo privado do local: ").append(place.secret)
-                                append(" — não revele sem sucesso mecânico apropriado.")
+                            append(" (id interno: ").append(id).append(")")
+                            if (place.secret.isNotBlank() && !session.state.knowledge.containsKey("place-secret:$id")) {
+                                append("\nHá um detalhe oculto neste local; não o revele nem invente seu conteúdo.")
                             }
                             val links = session.state.placeLinks[id].orEmpty()
                             val exits = links.filter { it in session.state.knownPlaces }
