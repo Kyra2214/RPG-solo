@@ -75,13 +75,16 @@ class GameEngine private constructor(
             return AttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
         }
 
-        val defense = maxOf(0, spec.defenseDefault + (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus)
-        val mark = mark()
         val attackModifier = (attacker.stats[spec.attackStat] ?: 0) + spec.attackBonus
-        val roll = if (spec.attackComparison == Comparison.POINTS) {
-            dice.roll(1, spec.attackDiceSides)
-        } else {
-            dice.roll(spec.attackDiceCount, spec.attackDiceSides, attackModifier)
+        val defense = maxOf(
+            0,
+            spec.defenseDefault + (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus +
+                if (spec.attackComparison == Comparison.ROLL_UNDER) attackModifier else 0
+        )
+        val mark = mark()
+        val roll = when (spec.attackComparison) {
+            Comparison.POINTS, Comparison.ROLL_UNDER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides)
+            Comparison.ROLL_OVER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides, attackModifier)
         }
         recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
         val hit = when (spec.attackComparison) {
