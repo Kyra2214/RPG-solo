@@ -134,6 +134,45 @@ class GameEngineTest {
         assertEquals(ev.dice.sum() + 1, ev.total)
     }
 
+    @Test fun lutaCompletaAtaqueDanoEMorteEncerramCombate() {
+        val e = engine()
+        assertTrue(e.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
+        val target = e.state.entities.getValue("orc")
+        val result = e.attack(AttackSpec("hero", "orc", defenseDefault = 0, damage = target.resources.getValue("hp").max))
+        val resolved = result as AttackResult.Resolved
+        assertTrue(resolved.hit)
+        assertEquals(target.resources.getValue("hp").max, resolved.damage)
+        assertFalse(e.state.entities.getValue("orc").alive)
+        assertNull(e.state.combat)
+        assertTrue(e.events.any { it is AttackResolved })
+        assertTrue(validateState(e.state).isEmpty())
+    }
+
+    @Test fun ataqueContraDefesaAltaNaoCausaDano() {
+        val e = engine()
+        assertTrue(e.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
+        val before = e.state.entities.getValue("orc").resources.getValue("hp").current
+        val result = e.attack(AttackSpec("hero", "orc", defenseDefault = 21, damage = 3))
+        assertTrue(result is AttackResult.Resolved)
+        assertFalse((result as AttackResult.Resolved).hit)
+        assertEquals(before, e.state.entities.getValue("orc").resources.getValue("hp").current)
+    }
+
+    @Test fun condicaoComDanoExpiraAoAvancarRodadas() {
+        val e = engine()
+        assertTrue(e.execute(AddCondition("hero", "envenenado", durationRounds = 2, damagePerRound = 1)) is ExecResult.Accepted)
+        assertTrue(e.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertEquals(9, e.state.entities.getValue("hero").resources.getValue("hp").current)
+        assertEquals(1, e.state.conditionStates.getValue("hero").getValue("envenenado").remainingRounds)
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertEquals(8, e.state.entities.getValue("hero").resources.getValue("hp").current)
+        assertTrue("envenenado" !in e.state.conditions["hero"].orEmpty())
+        assertTrue(validateState(e.state).isEmpty())
+    }
+
     @Test fun promessaRegistradaPermanece() {
         val e = engine()
         e.execute(RecordFact("npc.ana.promessa", "pagar 10 moedas"))
