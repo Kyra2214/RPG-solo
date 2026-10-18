@@ -39,6 +39,10 @@ data class AddCondition(
 data class RemoveCondition(val entityId: String, val condition: String) : Command
 /** Cria/atualiza o dossiê privado de um NPC; a ficha mecânica é validada pelo pacote antes do comando. */
 data class SetNpcDossier(val dossier: NpcDossier) : Command
+/** Adaptação proposta: efeitos ficam inertes até ApproveRuleAddition. */
+data class ProposeRuleAddition(val rule: RegraAdicional) : Command
+data class ApproveRuleAddition(val id: String) : Command
+data class RejectRuleAddition(val id: String) : Command
 /** [order] = ordem de iniciativa já decidida (ver GameEngine.rollInitiative). */
 data class StartCombat(val order: List<String>) : Command
 object NextTurn : Command
@@ -310,6 +314,28 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.dossier.secrets.any { it.id.isBlank() || it.text.isBlank() }) return no("segredo sem id ou texto")
             if (cmd.dossier.secrets.map { it.id }.distinct().size != cmd.dossier.secrets.size) return no("id de segredo repetido")
             return Decision.Ok(listOf(NpcDossierStored(cmd.dossier)))
+        }
+
+        is ProposeRuleAddition -> {
+            val rule = cmd.rule
+            if (rule.id.isBlank() || rule.name.isBlank() || rule.description.isBlank()) return no("adaptação sem id, nome ou descrição")
+            if (rule.origin != RuleOrigin.ADAPTACAO) return no("regra adicional deve ser marcada como adaptação")
+            if (rule.approved) return no("a IA não pode propor uma adaptação já aprovada")
+            if (state.additionalRules.containsKey(rule.id)) return no("adaptação já existe: ${rule.id}")
+            if (rule.effects.isEmpty()) return no("adaptação sem efeito mecânico explícito")
+            if (rule.effects.values.any { it !in -5..5 }) return no("efeitos da adaptação devem ficar entre -5 e +5")
+            if (rule.limit.isBlank()) return no("adaptação precisa declarar custo ou limite")
+            return Decision.Ok(listOf(AdditionalRuleProposed(rule)))
+        }
+        is ApproveRuleAddition -> {
+            val rule = state.additionalRules[cmd.id] ?: return no("adaptação inexistente: ${cmd.id}")
+            if (rule.approved) return no("adaptação já aprovada: ${cmd.id}")
+            return Decision.Ok(listOf(AdditionalRuleApproved(cmd.id)))
+        }
+        is RejectRuleAddition -> {
+            val rule = state.additionalRules[cmd.id] ?: return no("adaptação inexistente: ${cmd.id}")
+            if (rule.approved) return no("adaptação aprovada não pode ser descartada como pendente")
+            return Decision.Ok(listOf(AdditionalRuleRejected(cmd.id)))
         }
 
         is RecordFact ->
