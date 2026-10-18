@@ -234,7 +234,9 @@ class GameLoop(
         )
         val chosen = if (premiumRunner != null && Importance.of(check) == NarrationTier.PREMIUM) premiumRunner else runner
         // No máximo duas resoluções seguidas pedindo coisa nova: evita o mestre prender o jogador em pedidos.
-        return when (val o = chosen.run(session, request, menu, canRequest = depth < 2)) {
+        return when (val o = chosen.run(
+            session, request, menu, canRequest = depth < 2, playerEntityId = input.playerEntityId
+        )) {
             is TurnOutcome.Applied -> {
                 narrations += o.narrative
                 val stats = session.state.entities[input.playerEntityId]?.stats.orEmpty()
