@@ -297,16 +297,19 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                             for ((condition, effect) in conditions) {
                                 val ent = tickState.entities[entityId] ?: continue
                                 if (!ent.alive) continue
-                                val resource = ent.resources[effect.damageResource] ?: continue
-                                val newValue = maxOf(0, resource.current - effect.damagePerRound)
+                                val resource = ent.resources[effect.damageResource]
+                                if (resource == null && effect.damagePerRound > 0) continue
+                                val newValue = resource?.let { maxOf(0, it.current - effect.damagePerRound) }
                                 val remaining = effect.remainingRounds?.let { maxOf(0, it - 1) }
                                 val tick = ConditionTicked(
-                                    entityId, condition, remaining, effect.damageResource,
-                                    newValue, resource.current - newValue
+                                    entityId, condition, remaining,
+                                    effect.damageResource.takeIf { resource != null },
+                                    newValue,
+                                    if (resource == null || newValue == null) 0 else resource.current - newValue
                                 )
                                 events += tick
                                 tickState = tickState.apply(tick)
-                                if (newValue == 0 && config.deathResource == effect.damageResource) {
+                                if (resource != null && newValue == 0 && config.deathResource == effect.damageResource) {
                                     val death = EntityDied(entityId)
                                     events += death
                                     tickState = tickState.apply(death)
