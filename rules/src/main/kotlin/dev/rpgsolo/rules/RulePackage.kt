@@ -78,6 +78,10 @@ class RulePackage internal constructor(val data: PackageData) {
     fun difficultyValue(id: String): Int? = difficultyById[id]?.value
     fun isUncertain(id: String): Boolean = id in uncertainById
     fun item(id: String): ItemDef? = itemById[id]
+    /** Soma os efeitos dos equipamentos atualmente equipados para um escopo mecânico. */
+    fun equipmentBonus(itemIds: Collection<String>, scope: String): Int =
+        itemIds.sumOf { id -> itemById[id]?.effects.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
+
     fun isEquipableItem(id: String, slot: String): Boolean =
         itemById[id]?.kind == "equipamento" && itemById[id]?.slot == slot
 
