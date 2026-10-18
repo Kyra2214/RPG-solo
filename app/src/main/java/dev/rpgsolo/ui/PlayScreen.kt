@@ -340,6 +340,7 @@ private fun StatusPanel(p: PanelState) {
                 Text(p.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                 if (p.inCombat) Pill("⚔ em combate", MaterialTheme.colorScheme.error)
             }
+            Muted("Nível ${p.level} · ${p.xp} XP")
             p.resources.forEach { (id, v) -> ResourceBar(id, v.first, v.second) }
             if (p.conditions.isNotEmpty()) {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
