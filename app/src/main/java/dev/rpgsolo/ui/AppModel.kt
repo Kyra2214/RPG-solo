@@ -380,7 +380,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(combatTraitIds(attacker), "ataque") +
-                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat),
+                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
+                    ((session.state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
+                        .toInt().coerceIn(0, 10) - 5),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
                     pkg.traitBonus(combatTraitIds(attacker), "dano") +
                     approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
