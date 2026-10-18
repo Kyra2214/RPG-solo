@@ -36,6 +36,7 @@ data class BackupFile(
  */
 object Backup {
     const val VERSION = 1
+    const val MAX_BACKUP_CHARS = 50 * 1024 * 1024
     private val json = Json { encodeDefaults = true; ignoreUnknownKeys = true }
 
     fun export(
@@ -49,10 +50,15 @@ object Backup {
     }
 
     /** Lê os metadados para o app restaurar capítulos, missões e fichas sem incluir segredos do provedor. */
-    fun decode(text: String): BackupFile = try {
-        json.decodeFromString(BackupFile.serializer(), text)
-    } catch (e: Exception) {
-        throw IllegalArgumentException("backup ilegível")
+    fun decode(text: String): BackupFile {
+        require(text.length <= MAX_BACKUP_CHARS) {
+            "backup excede o limite de 50 MiB; arquivo recusado antes de decodificar"
+        }
+        return try {
+            json.decodeFromString(BackupFile.serializer(), text)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("backup ilegível")
+        }
     }
 
     /**
