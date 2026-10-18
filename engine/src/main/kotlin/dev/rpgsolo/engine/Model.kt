@@ -28,7 +28,9 @@ data class Entity(
     val skills: Map<String, Int> = emptyMap(),
     /** Conceito e traços de NPCs são privados para a interface; usados pelo mestre e pelo motor. */
     val concept: String = "",
-    val traits: List<String> = emptyList()
+    val traits: List<String> = emptyList(),
+    /** false = ficha criada sem pacote de regras para validação. */
+    val rulesValidated: Boolean = true
 )
 
 /** Estado canônico da campanha. Só muda aplicando eventos (ver [apply]). */
