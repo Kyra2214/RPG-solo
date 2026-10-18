@@ -991,6 +991,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             e.message
         }
 
+    /**
+     * Fecha automaticamente um capítulo quando o log passa do limite configurado e abre o próximo.
+     * Chamado depois de uma jogada, em thread de trabalho. Se a síntese falhar, preserva o capítulo aberto.
+     */
+    fun autoCloseChapterIfNeeded(): String? {
+        if (!chapters.shouldClose(session)) return null
+        val nextNumber = chapters.chapters.size + 1
+        val error = closeChapter()
+        if (error != null) return error
+        return openChapter("Capítulo $nextNumber")
+    }
+
     /** Encerra o capítulo com resumo da IA. Chamada de rede: rode fora da thread principal. Devolve o erro, ou null. */
     fun closeChapter(): String? {
         val p = roles?.cheap ?: return "configure o provedor de IA na aba Config"
