@@ -6,8 +6,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import dev.rpgsolo.rules.SourceLink
 import dev.rpgsolo.rules.SystemModels
 
@@ -16,8 +23,19 @@ import dev.rpgsolo.rules.SystemModels
 fun SystemsScreen(model: AppModel) {
     val c = model.content
     val uri = LocalUriHandler.current
+    val packageVersion = model.packageVersion
+    @Suppress("UNUSED_VARIABLE") val observePackageVersion = packageVersion
+    var importStatus by remember { mutableStateOf<String?>(null) }
+    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { selected ->
+        if (selected != null) importStatus = model.importPackage(selected)
+    }
     val models = SystemModels.list(c.registry, c.catalog)
     ScreenColumn {
+        SectionTitle("Importar pacote de regras", "Selecione um ZIP contendo manifest.txt e os arquivos .txt do pacote.")
+        TextButton(onClick = { importer.launch(arrayOf("application/zip", "application/octet-stream")) }) {
+            Text("Importar ZIP")
+        }
+        importStatus?.let { Text(it, color = if (it.startsWith("Pacote instalado")) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) }
         SectionTitle("Sistemas instalados")
         c.errors.forEach { ErrorText(it) }
         if (models.isEmpty()) AppCard { Text("Nenhum pacote de regras instalado.") }
