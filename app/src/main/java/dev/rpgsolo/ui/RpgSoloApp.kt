@@ -72,7 +72,7 @@ fun RpgSoloApp() {
             Box(Modifier.fillMaxSize().padding(padding)) {
                 Crossfade(targetState = selected, label = "aba") { tab ->
                     when (tab) {
-                        Tab.JOGAR -> PlayScreen(model)
+                        Tab.JOGAR -> PlayScreen(model) { destination -> selectedName = destination.name }
                         Tab.CONFIG -> ConfigScreen(model)
                         Tab.PERSONAGENS -> CharactersScreen(model)
                         Tab.REGRAS -> RulesScreen(model)
