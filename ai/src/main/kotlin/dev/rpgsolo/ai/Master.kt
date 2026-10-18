@@ -157,14 +157,12 @@ object ContextAssembler {
             },
             s.knowledge.values.takeIf { it.isNotEmpty() }
                 ?.let { k -> "O jogador sabe:\n" + k.joinToString("\n") { "- ${it.text}" + if (it.believed) " (apenas acreditado)" else "" } },
-            input.npcPrivate.takeIf { it.isNotEmpty() }?.let { "Notas privadas do mestre (nunca mostrar ao jogador):\n" + it.joinToString("\n") },
             input.ruleSnippets.takeIf { it.isNotEmpty() }?.let { "Regras relevantes:\n" + it.joinToString("\n") },
             input.chapterSummary?.takeIf { it.isNotBlank() }?.let { "Resumo do capítulo:\n$it" },
-            input.worldContext?.takeIf { it.isNotBlank() },
             input.generationPreferences?.takeIf { it.isNotBlank() },
             input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") }
         )
-        // Sempre entram (não são cortadas pelo orçamento): ficha do jogador e menu de testes.
+        // Sempre entram (não são cortadas pelo orçamento): ficha, menu, cena e contexto privado relevante.
         val always = listOfNotNull(
             input.playerSheet?.takeIf { it.isNotBlank() },
             input.checkMenu?.takeIf { it.isNotBlank() },
