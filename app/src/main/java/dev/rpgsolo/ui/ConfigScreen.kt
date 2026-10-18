@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -51,46 +48,6 @@ fun ConfigScreen(model: AppModel) {
     var testing by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<ConnectionTestResult?>(null) }
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    var backupMessage by remember { mutableStateOf<String?>(null) }
-    val exportBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        if (uri != null) {
-            scope.launch {
-                val raw = withContext(Dispatchers.IO) { runCatching { model.exportBackup() } }
-                backupMessage = raw.fold(
-                    onSuccess = { backup ->
-                        withContext(Dispatchers.IO) {
-                            runCatching {
-                                context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(backup) }
-                                    ?: error("não foi possível abrir o arquivo para escrita")
-                                "Backup exportado. Guarde o arquivo em local seguro."
-                            }.getOrElse { "Falha ao exportar backup: ${it.message ?: "erro desconhecido"}" }
-                        }
-                    },
-                    onFailure = { "Falha ao preparar backup: ${it.message ?: "erro desconhecido"}" }
-                )
-            }
-        }
-    }
-    val importBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
-            scope.launch {
-                val raw = withContext(Dispatchers.IO) {
-                    runCatching {
-                        context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-                            ?: error("não foi possível abrir o arquivo")
-                    }
-                }
-                backupMessage = raw.fold(
-                    onSuccess = { contents ->
-                        model.importBackup(contents) ?: "Backup importado. A campanha importada foi salva."
-                    },
-                    onFailure = { "Falha ao ler backup: ${it.message ?: "erro desconhecido"}" }
-                )
-            }
-        }
-    }
-
     ScreenColumn {
         SectionTitle("Provedor de IA", "Quem faz o papel de mestre. O motor continua sendo quem rola os dados.")
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -184,19 +141,6 @@ fun ConfigScreen(model: AppModel) {
                 maxLines = 5
             )
             Muted("Limites são enviados ao mestre a cada jogada e não alteram os resultados do motor nem as regras do sistema.")
-        }
-        AppCard {
-            Text("Backup da campanha", style = MaterialTheme.typography.titleSmall)
-            Muted("Exporta eventos e metadados da campanha ativa para um arquivo JSON. A chave da API não faz parte do backup.")
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { exportBackupLauncher.launch("rpg-solo-backup.json") }
-            ) { Text("Exportar backup") }
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { importBackupLauncher.launch(arrayOf("application/json", "text/*")) }
-            ) { Text("Importar backup") }
-            backupMessage?.let { Text(it, color = if (it.startsWith("Falha")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary) }
         }
         AppCard {
             Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
