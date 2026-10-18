@@ -54,26 +54,37 @@ fun ConfigScreen(model: AppModel) {
     val exportBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) {
             scope.launch {
-                backupMessage = withContext(Dispatchers.IO) {
-                    runCatching {
-                        context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(model.exportBackup()) }
-                            ?: error("não foi possível abrir o arquivo para escrita")
-                        "Backup exportado. Guarde o arquivo em local seguro."
-                    }.getOrElse { "Falha ao exportar backup: ${it.message ?: "erro desconhecido"}" }
-                }
+                val raw = withContext(Dispatchers.IO) { runCatching { model.exportBackup() } }
+                backupMessage = raw.fold(
+                    onSuccess = { backup ->
+                        withContext(Dispatchers.IO) {
+                            runCatching {
+                                context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(backup) }
+                                    ?: error("não foi possível abrir o arquivo para escrita")
+                                "Backup exportado. Guarde o arquivo em local seguro."
+                            }.getOrElse { "Falha ao exportar backup: ${it.message ?: "erro desconhecido"}" }
+                        }
+                    },
+                    onFailure = { "Falha ao preparar backup: ${it.message ?: "erro desconhecido"}" }
+                )
             }
         }
     }
     val importBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             scope.launch {
-                backupMessage = withContext(Dispatchers.IO) {
+                val raw = withContext(Dispatchers.IO) {
                     runCatching {
-                        val raw = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                        context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
                             ?: error("não foi possível abrir o arquivo")
-                        model.importBackup(raw) ?: "Backup importado. A campanha importada foi salva."
-                    }.getOrElse { "Falha ao importar backup: ${it.message ?: "erro desconhecido"}" }
+                    }
                 }
+                backupMessage = raw.fold(
+                    onSuccess = { contents ->
+                        model.importBackup(contents) ?: "Backup importado. A campanha importada foi salva."
+                    },
+                    onFailure = { "Falha ao ler backup: ${it.message ?: "erro desconhecido"}" }
+                )
             }
         }
     }
