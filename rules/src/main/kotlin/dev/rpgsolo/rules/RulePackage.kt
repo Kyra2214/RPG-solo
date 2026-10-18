@@ -387,6 +387,9 @@ object PackageValidator {
         val attackDiceCount = d.creation["combate_dados_ataque"]
         val attackDiceSides = d.creation["combate_lados_ataque"]
         val attackComparison = d.creation["combate_comparacao_ataque"]
+        val initiativeDiceCount = d.creation["combate_dados_iniciativa"]
+        val initiativeDiceSides = d.creation["combate_lados_iniciativa"]
+        val initiativeOrder = d.creation["combate_ordem_iniciativa"]
         val hasCombatProfile = combatAttack != null || combatDefense != null || combatInitiative != null
         if (hasCombatProfile) {
             if (attackDiceCount == null || (attackDiceCount.toIntOrNull() ?: 0) !in 1..100) {
@@ -401,6 +404,15 @@ object PackageValidator {
                 if (attackDiceCount?.toIntOrNull() != 1 || attackDiceSides?.toIntOrNull() !in REAL_DICE) {
                     p += "criacao.txt: ataque POINTS exige combate_dados_ataque=1 e um dado real em combate_lados_ataque"
                 }
+            }
+            if (initiativeDiceCount == null || (initiativeDiceCount.toIntOrNull() ?: 0) !in 1..100) {
+                p += "criacao.txt: combate_dados_iniciativa ausente ou inválido"
+            }
+            if (initiativeDiceSides == null || (initiativeDiceSides.toIntOrNull() ?: 0) < 2) {
+                p += "criacao.txt: combate_lados_iniciativa ausente ou inválido"
+            }
+            if (initiativeOrder !in setOf("MAIOR", "MENOR")) {
+                p += "criacao.txt: combate_ordem_iniciativa ausente ou inválido (MAIOR ou MENOR)"
             }
         }
         listOf(
