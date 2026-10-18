@@ -136,14 +136,24 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Reinstala no registro em memória os pacotes ZIP guardados no armazenamento privado do app. */
     private fun restoreImportedPackages() {
         val dir = File(getApplication<Application>().filesDir, "packages-import")
-        dir.listFiles { file -> file.isFile && file.extension.equals("zip", ignoreCase = true) }
-            .orEmpty()
-            .sortedBy { it.name }
-            .forEach { archive ->
-                runCatching {
+        val pending = dir.listFiles { file -> file.isFile && file.extension.equals("zip", ignoreCase = true) }
+            .orEmpty().sortedBy { it.name }.toMutableList()
+        // A package may extend another user package. Retry unresolved archives after each successful install.
+        while (pending.isNotEmpty()) {
+            var installedAny = false
+            val iterator = pending.iterator()
+            while (iterator.hasNext()) {
+                val archive = iterator.next()
+                val result = runCatching {
                     archive.inputStream().use { content.registry.installZip(it, replace = false) }
+                }.getOrNull()
+                if (result is dev.rpgsolo.rules.InstallResult.Success) {
+                    iterator.remove()
+                    installedAny = true
                 }
             }
+            if (!installedAny) break // Invalid archives and dependency cycles remain inactive, never partially installed.
+        }
     }
 
     private fun openOrCreateCampaign(): CampaignSession {
