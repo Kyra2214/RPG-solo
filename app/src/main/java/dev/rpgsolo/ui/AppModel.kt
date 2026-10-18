@@ -160,16 +160,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val archive = File(dir, "package-${System.nanoTime()}.zip")
         return try {
             val input = getApplication<Application>().contentResolver.openInputStream(uri)
-                ?: return "não foi possível abrir o arquivo selecionado"
+                ?: run { archive.delete(); return "não foi possível abrir o arquivo selecionado" }
             input.use { source -> FileOutputStream(archive).use { target -> source.copyTo(target) } }
-            when (val result = archive.inputStream().use(content.registry::installZip)) {
+            when (val result = archive.inputStream().use { stream -> content.registry.installZip(stream) }) {
                 is dev.rpgsolo.rules.InstallResult.Success -> {
                     packageVersion++
                     "Pacote ${result.pkg.manifest.id} instalado (edição ${result.pkg.manifest.edition}, v${result.pkg.manifest.version})."
                 }
                 is dev.rpgsolo.rules.InstallResult.Failure -> {
                     archive.delete()
-                    "Pacote recusado:\\n" + result.errors.joinToString("\\n")
+                    "Pacote recusado:\n" + result.errors.joinToString("\n")
                 }
             }
         } catch (e: Exception) {
