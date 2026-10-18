@@ -360,6 +360,22 @@ object PackageValidator {
         val p = mutableListOf<String>()
         val stats = d.stats.map { it.id }.toSet()
         val traits = d.traits.map { it.id }.toSet()
+        val idGroups = listOf(
+            "atributo" to d.stats.map { it.id },
+            "recurso" to d.resources.map { it.id },
+            "traço" to d.traits.map { it.id },
+            "teste" to d.checks.map { it.id },
+            "dificuldade" to d.difficulties.map { it.id },
+            "condição" to d.conditions.map { it.id },
+            "perfil de dano" to d.damage.map { it.id },
+            "item" to d.items.map { it.id }
+        )
+        idGroups.forEach { (kind, ids) ->
+            ids.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.forEach { id ->
+                p += "$kind duplicado: $id"
+            }
+            ids.filter { it.isBlank() }.forEach { p += "$kind com id vazio" }
+        }
         if (d.stats.isEmpty()) p += "pacote sem atributos"
         d.resources.filter { it.stat != null && it.stat !in stats }.forEach { p += "recurso ${it.id}: atributo inexistente ${it.stat}" }
         d.checks.filter { it.stat != null && it.stat !in stats }.forEach { p += "teste ${it.id}: atributo inexistente ${it.stat}" }
@@ -375,6 +391,10 @@ object PackageValidator {
             }
         }
         d.damage.filter { it.bonusStat != null && it.bonusStat !in stats }.forEach { p += "dano ${it.id}: atributo inexistente ${it.bonusStat}" }
+        d.items.filter { it.kind !in setOf("equipamento", "consumivel", "narrativo") }
+            .forEach { p += "item ${it.id}: tipo desconhecido '${it.kind}'" }
+        d.items.filter { it.kind == "equipamento" && it.slot.isNullOrBlank() }
+            .forEach { p += "item ${it.id}: equipamento exige slot" }
         d.items.filter { it.effects.isNotEmpty() && (it.kind != "equipamento" || it.slot.isNullOrBlank()) }
             .forEach { p += "item ${it.id}: efeitos mecânicos exigem equipamento com slot" }
         d.items.forEach { item ->
@@ -440,6 +460,12 @@ object PackageValidator {
             }
             if (initiativeOrder !in setOf("MAIOR", "MENOR")) {
                 p += "criacao.txt: combate_ordem_iniciativa ausente ou inválido (MAIOR ou MENOR)"
+            }
+            if ((d.creation["combate_defesa_base"]?.toIntOrNull() ?: -1) < 0) {
+                p += "criacao.txt: combate_defesa_base ausente ou inválido"
+            }
+            if ((d.creation["combate_dano_base"]?.toIntOrNull() ?: -1) < 0) {
+                p += "criacao.txt: combate_dano_base ausente ou inválido"
             }
         }
         listOf(
