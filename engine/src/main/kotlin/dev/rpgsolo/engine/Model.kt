@@ -59,6 +59,11 @@ data class GameState(
     val additionalRules: Map<String, RegraAdicional> = emptyMap(),
     /** Ambientação é independente da ficha e persistida no log da campanha. */
     val ambientacao: Ambientacao? = null,
+    /** Mapa textual event-sourced: segredos ficam no estado privado, não na visão do jogador. */
+    val places: Map<String, Place> = emptyMap(),
+    val placeLinks: Map<String, Set<String>> = emptyMap(),
+    val knownPlaces: Set<String> = emptySet(),
+    val currentPlaceId: String? = null,
     /** null = fora de combate. */
     val combat: CombatState? = null,
     val eventCount: Int = 0
