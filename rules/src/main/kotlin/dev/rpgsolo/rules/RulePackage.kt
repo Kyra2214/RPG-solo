@@ -82,6 +82,10 @@ class RulePackage internal constructor(val data: PackageData) {
     fun equipmentBonus(itemIds: Collection<String>, scope: String): Int =
         itemIds.sumOf { id -> itemById[id]?.effects.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
 
+    /** Bônus mecânico de traços do personagem para ataque, dano ou defesa. */
+    fun traitBonus(traitIds: Collection<String>, scope: String): Int =
+        traitIds.distinct().sumOf { id -> traitById[id]?.bonuses.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
+
     fun isEquipableItem(id: String, slot: String): Boolean =
         itemById[id]?.kind == "equipamento" && itemById[id]?.slot == slot
 
