@@ -96,17 +96,46 @@ class TurnRunner(
                 } else if (out.proposals.isEmpty()) {
                     Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), out.suggestions))
                 } else {
-                    // Condições são normalizadas a partir do pacote; a IA não escolhe duração nem dano periódico.
+                    // O motor não aceita dano/cura/custo de recurso inventado para o personagem do jogador.
+                    // Itens e condições também precisam existir no pacote ativo; seus efeitos vêm do pacote.
                     val normalized = mutableListOf<dev.rpgsolo.engine.Command>()
                     for (command in out.proposals) {
-                        if (command is dev.rpgsolo.engine.AddCondition) {
-                            val conditionMenu = menu
-                                ?: return Attempt.Retry("não há pacote ativo para validar condições mecânicas", false)
-                            val configured = conditionMenu.conditionCommand(command.entityId, command.condition)
-                                ?: return Attempt.Retry("condição '${command.condition}' não existe no pacote ativo", false)
-                            normalized += configured
-                        } else {
-                            normalized += command
+                        val playerTarget = when (command) {
+                            is dev.rpgsolo.engine.Damage -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.Heal -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.SpendResource -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.GainXp -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.ConsumeItem -> session.state.entities[command.ownerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            else -> false
+                        }
+                        if (playerTarget) {
+                            return Attempt.Retry(
+                                "esta proposta alteraria diretamente recursos, XP ou inventário do jogador; use uma ação local ou uma rolagem mecânica do motor",
+                                false
+                            )
+                        }
+                        when (command) {
+                            is dev.rpgsolo.engine.AddCondition -> {
+                                val conditionMenu = menu
+                                    ?: return Attempt.Retry("não há pacote ativo para validar condições mecânicas", false)
+                                val configured = conditionMenu.conditionCommand(command.entityId, command.condition)
+                                    ?: return Attempt.Retry("condição '${command.condition}' não existe no pacote ativo", false)
+                                normalized += configured
+                            }
+                            is dev.rpgsolo.engine.AddItem, is dev.rpgsolo.engine.ConsumeItem -> {
+                                val itemMenu = menu
+                                    ?: return Attempt.Retry("não há pacote ativo para validar itens", false)
+                                val itemId = when (command) {
+                                    is dev.rpgsolo.engine.AddItem -> command.itemId
+                                    is dev.rpgsolo.engine.ConsumeItem -> command.itemId
+                                    else -> error("comando não é item")
+                                }
+                                if (!itemMenu.hasItem(itemId)) {
+                                    return Attempt.Retry("item '$itemId' não existe no pacote ativo", false)
+                                }
+                                normalized += command
+                            }
+                            else -> normalized += command
                         }
                     }
                     when (val r = session.executeAll(normalized)) {
