@@ -75,6 +75,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         private set
     var narrationStyle by mutableStateOf(narrationPrefs.getString("style", "cinematográfica") ?: "cinematográfica")
         private set
+    var contentLines by mutableStateOf(narrationPrefs.getString("content_lines", "").orEmpty())
+        private set
+    var contentVeils by mutableStateOf(narrationPrefs.getString("content_veils", "").orEmpty())
+        private set
+
+    fun setContentBoundaries(lines: String, veils: String) {
+        contentLines = lines.take(4000)
+        contentVeils = veils.take(4000)
+        narrationPrefs.edit()
+            .putString("content_lines", contentLines)
+            .putString("content_veils", contentVeils)
+            .apply()
+        campaignVersion++
+    }
 
     fun setNarrationPreferences(length: String, style: String) {
         val validLengths = setOf("curta", "equilibrada", "detalhada")
@@ -810,7 +824,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
             generationPreferences = {
-                "Preferências de narração do jogador: extensão ${narrationLength}; estilo ${narrationStyle}. Preserve as regras, fatos e resultados do motor."
+                buildString {
+                    append("Preferências de narração do jogador: extensão ${narrationLength}; estilo ${narrationStyle}. Preserve as regras, fatos e resultados do motor.")
+                    contentLines.trim().takeIf { it.isNotEmpty() }?.let {
+                        append("\\nLINHAS VERMELHAS (proibido narrar ou contornar): ").append(it)
+                    }
+                    contentVeils.trim().takeIf { it.isNotEmpty() }?.let {
+                        append("\\nVÉUS (não descrever em detalhe; cortar ou resumir): ").append(it)
+                    }
+                }
             },
             worldContext = {
                 buildString {
