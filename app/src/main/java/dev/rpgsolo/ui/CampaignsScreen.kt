@@ -34,6 +34,7 @@ fun CampaignsScreen(model: AppModel) {
     var title by remember { mutableStateOf("") }
     var quest by remember { mutableStateOf("") }
     var questObjective by remember { mutableStateOf("") }
+    var timelineNote by remember { mutableStateOf("") }
     var newName by remember { mutableStateOf("") }
     var backup by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
@@ -106,6 +107,7 @@ fun CampaignsScreen(model: AppModel) {
     val chapters = remember(v) { model.chapters.chapters }
     val open = remember(v) { model.chapters.current() }
     val active = remember(v) { model.quests.active() }
+    val timeline = remember(v) { model.quests.timeline() }
     val journal = remember(v, model.controller?.lines?.size) { model.journal() }
 
     ScreenColumn {
@@ -207,6 +209,20 @@ fun CampaignsScreen(model: AppModel) {
             message = model.addQuest(quest, listOf(questObjective))
             if (message == null) { quest = ""; questObjective = "" }
         }) { Text("Adicionar missão") }
+
+        SectionTitle("Linha do tempo")
+        if (timeline.isEmpty()) Muted("Nenhum acontecimento importante registrado.")
+        timeline.forEach { (chapterNumber, text) ->
+            AppCard { Muted("Capítulo $chapterNumber"); Text(text) }
+        }
+        OutlinedTextField(
+            timelineNote, { timelineNote = it }, Modifier.fillMaxWidth(),
+            label = { Text("Acontecimento importante") }, minLines = 2, maxLines = 4
+        )
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+            message = model.addTimelineNote(timelineNote)
+            if (message == null) timelineNote = ""
+        }) { Text("Registrar acontecimento") }
 
         SectionTitle("Diário", "Só o que você já descobriu.")
         if (journal.isEmpty()) Muted("Você ainda não descobriu nada.")
