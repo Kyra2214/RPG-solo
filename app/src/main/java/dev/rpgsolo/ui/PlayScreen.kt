@@ -107,6 +107,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
 
     Column(Modifier.fillMaxSize()) {
         panel?.let { StatusPanel(it) }
+        EquipmentPanel(model)
         QuickActions(
             enabled = !busy && !pendingRoll && pendingCheck == null,
             onSheet = { run { c.submit("ver ficha") } },
@@ -143,6 +144,32 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
             onUndo = { run { c.undo() } },
             onRegenerate = { run { c.regenerate() } }
         )
+    }
+}
+
+@Composable
+private fun EquipmentPanel(model: AppModel) {
+    val campaignVersion = model.campaignVersion
+    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    val equipment = remember(campaignVersion) { model.equipmentView() }
+    if (equipment.isEmpty()) return
+    AppCard {
+        Text("Equipamentos", style = MaterialTheme.typography.titleSmall)
+        equipment.forEach { item ->
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("${item.name} x${item.quantity}")
+                    Muted("slot: ${item.slot}${if (item.equipped) " · equipado" else ""}")
+                }
+                if (item.equipped) {
+                    TextButton(onClick = { message = model.unequipItem(item.slot) }) { Text("Desequipar") }
+                } else {
+                    TextButton(onClick = { message = model.equipItem(item.id) }) { Text("Equipar") }
+                }
+            }
+        }
+        message?.let { ErrorText(it) }
     }
 }
 

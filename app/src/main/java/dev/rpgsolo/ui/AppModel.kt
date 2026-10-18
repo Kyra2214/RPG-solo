@@ -50,6 +50,7 @@ import dev.rpgsolo.rules.CampaignStarter
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
 data class CombatTarget(val id: String, val name: String)
+data class EquipmentView(val id: String, val name: String, val quantity: Int, val slot: String, val equipped: Boolean)
 
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
@@ -220,6 +221,29 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         .mapNotNull { id -> session.state.entities[id]?.takeIf { it.alive }?.let { CombatTarget(it.id, it.name) } }
 
     fun isPlayerCombatTurn(): Boolean = session.state.combat?.current == playerId
+
+    fun equipmentView(): List<EquipmentView> {
+        val equipped = session.state.equipped[playerId].orEmpty()
+        return session.state.inventory[playerId].orEmpty().mapNotNull { (id, quantity) ->
+            val item = activePackage?.item(id) ?: return@mapNotNull null
+            if (item.kind != "equipamento" || item.slot == null || quantity <= 0) return@mapNotNull null
+            EquipmentView(id, item.name, quantity, item.slot, equipped[item.slot] == id)
+        }.sortedBy { it.name }
+    }
+
+    fun equipItem(itemId: String): String? = try {
+        val item = requireNotNull(activePackage?.item(itemId)) { "item não existe no catálogo: $itemId" }
+        require(item.kind == "equipamento" && item.slot != null) { "item não é equipável" }
+        when (val result = session.execute(dev.rpgsolo.engine.EquipItem(playerId, itemId, item.slot))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+    } catch (e: IllegalArgumentException) { e.message }
+
+    fun unequipItem(slot: String): String? = when (val result = session.execute(dev.rpgsolo.engine.UnequipItem(playerId, slot))) {
+        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+    }
 
     /** Ataque local: alvo, rolagem, defesa e dano passam pelo motor; a IA não escolhe números. */
     fun attack(targetId: String): String? = try {
