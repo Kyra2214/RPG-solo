@@ -325,8 +325,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Permite passar o turno apenas ao jogador; turnos de NPC são resolvidos pela ação mecânica correspondente. */
     fun nextCombatTurn(): String? {
         if (!isPlayerCombatTurn()) return "só é possível passar o turno durante o turno do jogador"
+        val combatantsBefore = session.state.combat?.order.orEmpty()
         return when (val result = session.execute(dev.rpgsolo.engine.NextTurn)) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                awardCombatVictoryXp(combatantsBefore)
+                campaignVersion++
+                null
+            }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
     }
@@ -334,6 +339,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
     fun resolveNpcTurn(): String? = try {
         val combat = requireNotNull(session.state.combat) { "não há combate ativo" }
+        val combatantsBefore = combat.order
         require(combat.current != playerId) { "é o turno do jogador" }
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
         val resource = pkg.manifest.deathResource
@@ -400,8 +406,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
             }
         }
+        val victoryXp = awardCombatVictoryXp(combatantsBefore)
         campaignVersion++
-        text
+        if (victoryXp > 0) "$text Você venceu e recebeu $victoryXp XP." else text
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
@@ -432,6 +439,19 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun isPlayerCombatTurn(): Boolean =
         session.state.combat?.current == playerId && session.state.entities[playerId]?.alive == true
+
+    /** Só recompensa quando o combate terminou e todos os NPCs que participaram foram derrotados. */
+    private fun awardCombatVictoryXp(combatantIds: Collection<String>): Int {
+        if (session.state.combat != null || session.state.entities[playerId]?.alive != true) return 0
+        val npcIds = combatantIds.filter { session.state.entities[it]?.kind == EntityKind.NPC }
+        if (npcIds.isEmpty() || npcIds.any { session.state.entities[it]?.alive == true }) return 0
+        val xp = activePackage?.data?.creation?.get("combate_xp_vitoria")?.toIntOrNull() ?: 0
+        if (xp <= 0) return 0
+        return when (session.execute(dev.rpgsolo.engine.GainXp(playerId, xp))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> xp
+            is dev.rpgsolo.engine.ExecResult.Rejected -> 0
+        }
+    }
 
     fun additionalRulesView(): List<dev.rpgsolo.engine.RegraAdicional> =
         session.state.additionalRules.values.sortedWith(compareBy({ it.approved }, { it.name }))
@@ -571,6 +591,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         val attackerEquipment = session.state.equipped[playerId].orEmpty().values
         val targetEquipment = session.state.equipped[targetId].orEmpty().values
+        val combatantsBefore = session.state.combat?.order.orEmpty()
         val attackMark = session.mark()
         when (val result = session.attack(
             dev.rpgsolo.engine.AttackSpec(
@@ -606,14 +627,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
                 }
+                val victoryXp = awardCombatVictoryXp(combatantsBefore)
                 campaignVersion++
                 val attackText = "${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}"
-                if (result.hit) {
+                val outcome = if (result.hit) {
                     val damageText = result.damageRoll?.let {
                         " Dano: ${it.expression} [${it.dice.joinToString(", ")}] = ${it.total}."
                     }.orEmpty()
                     "Ataque: $attackText. Acertou e causou ${result.damage} de dano.$damageText"
                 } else "Ataque: $attackText. Errou."
+                if (victoryXp > 0) "$outcome Vitória! Você recebeu $victoryXp XP." else outcome
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
         }
