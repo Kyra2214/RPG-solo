@@ -71,28 +71,39 @@ class GameEngine private constructor(
         if (!attacker.alive) return AttackResult.Rejected("${attacker.name} está morto")
         if (!target.alive) return AttackResult.Rejected("${target.name} está morto")
         if (spec.targetId !in combat.order) return AttackResult.Rejected("alvo fora do combate")
-        val damageResource = target.resources[spec.damageResource]
-            ?: return AttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
-        val resolvedDamage = maxOf(0, spec.damage + spec.damageBonus)
-        if (resolvedDamage > damageResource.max) return AttackResult.Rejected("dano acima do máximo do recurso")
+        if (target.resources[spec.damageResource] == null) {
+            return AttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
+        }
 
         val defense = maxOf(0, (target.stats[spec.defenseStat] ?: spec.defenseDefault) + spec.defenseBonus)
         val mark = mark()
         val roll = dice.roll(1, 20, (attacker.stats[spec.attackStat] ?: 0) + spec.attackBonus)
         recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
         val hit = roll.total >= defense
+        var damageRoll: RollResult? = null
+        var resolvedDamage = 0
+        if (hit) {
+            damageRoll = if (spec.damageDiceCount > 0) {
+                dice.roll(
+                    spec.damageDiceCount,
+                    spec.damageDiceSides,
+                    (spec.damageStat?.let { attacker.stats[it] } ?: 0) + spec.damageBonus
+                ).also { recordRoll("dano:${spec.attackerId}->${spec.targetId}", it) }
+            } else null
+            resolvedDamage = maxOf(0, (damageRoll?.total ?: spec.damage) + if (damageRoll == null) spec.damageBonus else 0)
+        }
         val actualDamage = if (hit) resolvedDamage else 0
         recordEvent(AttackResolved(spec.attackerId, spec.targetId, defense, hit, actualDamage))
         if (hit) {
             when (val result = execute(Damage(spec.targetId, spec.damageResource, resolvedDamage))) {
-                is ExecResult.Accepted -> return AttackResult.Resolved(roll, true, defense, actualDamage, eventsSince(mark))
+                is ExecResult.Accepted -> return AttackResult.Resolved(roll, true, defense, actualDamage, eventsSince(mark), damageRoll)
                 is ExecResult.Rejected -> {
                     rollbackTo(mark)
                     return AttackResult.Rejected(result.reason)
                 }
             }
         }
-        return AttackResult.Resolved(roll, false, defense, 0, eventsSince(mark))
+        return AttackResult.Resolved(roll, false, defense, 0, eventsSince(mark), null)
     }
 
     private fun recordRoll(label: String, roll: RollResult) {
