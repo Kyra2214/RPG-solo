@@ -88,6 +88,12 @@ data class ConditionState(
 }
 
 /** [order] já vem decidido (iniciativa rolada pelo motor). */
-data class CombatState(val order: List<String>, val round: Int = 1, val turnIndex: Int = 0) {
+data class CombatState(
+    val order: List<String>,
+    val round: Int = 1,
+    val turnIndex: Int = 0,
+    /** Entidades protegidas contra o próximo ataque recebido. */
+    val defending: Set<String> = emptySet()
+) {
     val current: String get() = order[turnIndex]
 }
