@@ -827,10 +827,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 buildString {
                     append("Preferências de narração do jogador: extensão ${narrationLength}; estilo ${narrationStyle}. Preserve as regras, fatos e resultados do motor.")
                     contentLines.trim().takeIf { it.isNotEmpty() }?.let {
-                        append("\\nLINHAS VERMELHAS (proibido narrar ou contornar): ").append(it)
+                        append("\nLINHAS VERMELHAS (proibido narrar ou contornar): ").append(it)
                     }
                     contentVeils.trim().takeIf { it.isNotEmpty() }?.let {
-                        append("\\nVÉUS (não descrever em detalhe; cortar ou resumir): ").append(it)
+                        append("\nVÉUS (não descrever em detalhe; cortar ou resumir): ").append(it)
                     }
                 }
             },
