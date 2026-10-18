@@ -645,7 +645,24 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             ruleLookup = { query ->
                 activePackage?.search(query, 5)?.map { "${it.kind}: ${it.title} — ${it.text}" }.orEmpty()
             },
-            chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } }
+            chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
+            npcContext = {
+                val combatIds = session.state.combat?.order.orEmpty().filter { it != playerId }
+                combatIds.mapNotNull { id ->
+                    val npc = session.state.entities[id] ?: return@mapNotNull null
+                    val traits = npc.traits.mapNotNull { traitId ->
+                        activePackage?.trait(traitId)?.let { "${it.name}: ${it.description}" }
+                    }
+                    buildString {
+                        append("Ficha privada de NPC — ").append(npc.name)
+                        if (npc.concept.isNotBlank()) append("; conceito: ").append(npc.concept)
+                        if (npc.stats.isNotEmpty()) append("; atributos mecânicos: ").append(npc.stats.entries.joinToString(", ") { "${it.key}=${it.value}" })
+                        if (traits.isNotEmpty()) append("; traços: ").append(traits.joinToString(" | "))
+                        if (npc.skills.isNotEmpty()) append("; perícias: ").append(npc.skills.entries.joinToString(", ") { "${it.key}=${it.value}" })
+                        append(". Nunca exponha estes números nem nomes de mecânica ao jogador.")
+                    }
+                }
+            }
         )
 
     /** Fluxo "Nova campanha" (9.1). null até haver provedor de IA configurado. */
