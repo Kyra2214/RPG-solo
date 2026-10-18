@@ -60,14 +60,22 @@ import kotlinx.coroutines.withContext
 
 /** Aba Jogar (10.1): chat com o mestre, rolagem animada de dados e painel rápido do personagem. */
 @Composable
-fun PlayScreen(model: AppModel) {
+fun PlayScreen(model: AppModel, onNavigate: (Tab) -> Unit = {}) {
     val c = model.controller
     if (c == null) {
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
             AppCard {
                 Text("🎲", fontSize = 40.sp)
                 Text("A mesa ainda está vazia", style = MaterialTheme.typography.titleLarge)
-                Muted("Configure o provedor de IA na aba Config e crie uma campanha na aba Campanhas para começar a jogar.")
+                Muted("Vamos preparar sua mesa. Configure o provedor, crie ou escolha um herói e depois descreva a campanha.")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.weight(1f)) {
+                        Text("Configurar IA")
+                    }
+                    Button(onClick = { onNavigate(Tab.CAMPANHAS) }, modifier = Modifier.weight(1f)) {
+                        Text("Criar campanha")
+                    }
+                }
             }
         }
         return
