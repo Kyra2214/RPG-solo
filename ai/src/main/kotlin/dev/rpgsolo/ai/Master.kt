@@ -36,6 +36,8 @@ data class ContextInput(
     val chapterSummary: String? = null,
     /** Texto privado de NPCs da cena (ver DossierBook.contextFor); só o que a cena exige (8.5.1). */
     val npcPrivate: List<String> = emptyList(),
+    /** IDs de NPCs realmente presentes na cena, para não vazar estado de toda a campanha. */
+    val sceneNpcIds: Set<String> = emptySet(),
     /** Ficha do jogador em texto (ver [PlayerSheet]). Sempre entra no pedido, antes do resto, e não é cortada pelo orçamento. */
     val playerSheet: String? = null,
     /** Testes e dificuldades que o mestre pode pedir (ver [CheckMenu.describe]). null = o mestre não pode pedir teste. */
@@ -125,17 +127,21 @@ object ContextAssembler {
                 if (resolving is PendingCheck) append("\n").append(notesFor(resolving.request, rolled.outcome))
             }
         }
-        val present = s.entities.values.joinToString("\n") { e ->
+        val sceneIds = input.sceneNpcIds + input.playerEntityId
+        val present = s.entities.values.filter { it.id in sceneIds }.joinToString("\n") { e ->
             val conds = s.conditions[e.id].orEmpty()
             "- ${e.id} (${e.name}, ${if (e.id == input.playerEntityId) "jogador" else "NPC"}): ${healthWord(e, input.healthResource)}" +
                 if (conds.isEmpty()) "" else ", condições: ${conds.joinToString(", ")}"
         }
         val optional = listOfNotNull(
             "Personagens e estado:\n$present".takeIf { s.entities.isNotEmpty() },
-            s.combat?.let { "Combate: rodada ${it.round}, vez de ${it.current}" },
-            s.openPromises().takeIf { it.isNotEmpty() }
+            s.combat?.let { "Combate: rodada ${it.round}, vez de ${s.entities[it.current]?.name ?: it.current}" },
+            s.openPromises().filter { it.npcId in sceneIds }.takeIf { it.isNotEmpty() }
                 ?.let { ps -> "Promessas em aberto:\n" + ps.joinToString("\n") { "- ${it.npcId}: ${it.text}" } },
-            s.relations.takeIf { it.isNotEmpty() }?.let { r ->
+            s.relations.filterKeys { key ->
+                val pair = key.split(">", limit = 2)
+                pair.size == 2 && (pair[0] in sceneIds || pair[1] in sceneIds)
+            }.takeIf { it.isNotEmpty() }?.let { r ->
                 "Relações (só em palavras, nunca números):\n" + r.entries.joinToString("\n") { (k, v) ->
                     val (a, b) = k.split(">", limit = 2)
                     "- ${s.entities[a]?.name ?: a} em relação a ${s.entities[b]?.name ?: b}: ${relationWord(v)}"
