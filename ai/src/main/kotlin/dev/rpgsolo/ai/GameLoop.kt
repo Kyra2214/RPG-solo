@@ -108,7 +108,12 @@ class GameLoop(
                 val player = session.state.entities[template.playerEntityId] ?: break
                 if (!player.alive) break
                 if (session.state.conditions[player.id]?.contains(condition) == true) continue
-                val r = session.execute(AddCondition(player.id, condition))
+                val configured = menu?.conditionCommand(player.id, condition)
+                    ?: run {
+                        session.rollbackTo(markBefore)
+                        return PlayResult.Failed("condição '$condition' não existe no pacote ativo")
+                    }
+                val r = session.execute(configured)
                 if (r is ExecResult.Rejected) {
                     session.rollbackTo(markBefore)
                     return PlayResult.Failed("o motor recusou a condição da rolagem: ${r.reason}")
