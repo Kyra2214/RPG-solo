@@ -55,6 +55,7 @@ import dev.rpgsolo.rules.CampaignStarter
 data class ConnectionTestResult(val success: Boolean, val message: String)
 data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true, val condition: String = "")
 data class PlaceView(val id: String, val name: String, val description: String, val current: Boolean, val exits: List<Pair<String, String>>)
+data class RelationshipView(val npcName: String, val attitude: String)
 data class EquipmentView(val id: String, val name: String, val quantity: Int, val slot: String, val equipped: Boolean)
 data class InventoryView(
     val id: String, val name: String, val quantity: Int, val kind: String,
@@ -522,6 +523,22 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun additionalRulesView(): List<dev.rpgsolo.engine.RegraAdicional> =
         session.state.additionalRules.values.sortedWith(compareBy({ it.approved }, { it.name }))
+
+    /** Relações direcionadas ao jogador; mostra atitude em palavras, nunca os valores numéricos internos. */
+    fun relationshipsView(): List<RelationshipView> =
+        session.state.relations.mapNotNull { (key, value) ->
+            val ids = key.split('\u0000', limit = 2)
+            if (ids.size != 2 || ids[1] != playerId) return@mapNotNull null
+            val npc = session.state.entities[ids[0]]?.takeIf { it.kind == EntityKind.NPC } ?: return@mapNotNull null
+            val attitude = when {
+                value >= 60 -> "confia em você"
+                value >= 20 -> "amistoso"
+                value <= -60 -> "hostil"
+                value <= -20 -> "desconfiado"
+                else -> "neutro"
+            }
+            RelationshipView(npc.name, attitude)
+        }.sortedBy { it.npcName }
 
     fun placesView(): List<PlaceView> {
         val state = session.state
