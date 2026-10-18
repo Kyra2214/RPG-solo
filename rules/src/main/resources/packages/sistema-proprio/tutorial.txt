@@ -8,3 +8,4 @@
 8|Equipamento e consumíveis|Espada curta dá +1 no ataque e +1 no dano; escudo leve dá +1 na defesa. Poção de cura restaura 5 PV e é consumida na mesma operação: se a cura falhar, a poção não é perdida.
 9|Condições|Sangramento, envenenado e queimando têm duração e dano por rodada definidos pelo pacote. Remover a condição antes do fim da duração interrompe seus efeitos futuros; o motor aplica os efeitos no fechamento da rodada.
 10|Progressão|O XP é acumulado pela campanha. Ao alcançar um limite de progressão do pacote, o motor registra o novo nível; recompensas de atributos e traços precisam estar definidas pelo pacote e aprovadas no fluxo de evolução.
+11|Ações de combate|No seu turno você pode atacar, defender, passar o turno ou tentar fugir. Defender consome a ação e aplica o bônus definido pelo pacote contra o próximo ataque recebido; fugir exige um teste disponível no pacote.
