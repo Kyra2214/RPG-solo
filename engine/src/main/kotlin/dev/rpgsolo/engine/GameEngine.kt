@@ -222,6 +222,9 @@ fun validateState(state: GameState): List<String> {
     state.combat?.let { c ->
         if (c.turnIndex !in c.order.indices) problems += "turno fora da ordem de iniciativa"
         for (id in c.order) if (!state.entities.containsKey(id)) problems += "combate com entidade inexistente: $id"
+        for (id in c.defending) if (id !in c.order || state.entities[id]?.alive != true) {
+            problems += "postura defensiva inválida no combate: $id"
+        }
     }
     return problems
 }
