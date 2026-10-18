@@ -44,6 +44,11 @@ data class ProposeRuleAddition(val rule: RegraAdicional) : Command
 data class ApproveRuleAddition(val id: String) : Command
 data class RejectRuleAddition(val id: String) : Command
 data class SetAmbientacao(val ambientacao: Ambientacao) : Command
+data class AddPlace(val place: Place) : Command
+data class ConnectPlaces(val fromId: String, val toId: String) : Command
+data class DiscoverPlace(val id: String) : Command
+/** Só o jogador pode mover-se; a IA não move a miniatura automaticamente. */
+data class MoveToPlace(val id: String) : Command
 /** [order] = ordem de iniciativa já decidida (ver GameEngine.rollInitiative). */
 data class StartCombat(val order: List<String>) : Command
 object NextTurn : Command
@@ -321,6 +326,31 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val a = cmd.ambientacao
             if (a.id.isBlank() || a.campaignId.isBlank() || a.name.isBlank()) return no("ambientação exige id, campanha e nome")
             return Decision.Ok(listOf(AmbientacaoSet(a)))
+        }
+        is AddPlace -> {
+            val p = cmd.place
+            if (p.id.isBlank() || p.name.isBlank()) return no("local exige id e nome")
+            if (state.places.containsKey(p.id)) return no("local já existe: ${p.id}")
+            if (p.secret.length > 4000) return no("segredo de local excede o limite")
+            return Decision.Ok(listOf(PlaceAdded(p)))
+        }
+        is ConnectPlaces -> {
+            if (cmd.fromId == cmd.toId) return no("um local não pode ligar a si mesmo")
+            if (cmd.fromId !in state.places) return no("local inexistente: ${cmd.fromId}")
+            if (cmd.toId !in state.places) return no("local inexistente: ${cmd.toId}")
+            if (cmd.toId in state.placeLinks[cmd.fromId].orEmpty()) return no("passagem já existe")
+            return Decision.Ok(listOf(PlacesConnected(cmd.fromId, cmd.toId)))
+        }
+        is DiscoverPlace -> {
+            if (cmd.id !in state.places) return no("local inexistente: ${cmd.id}")
+            if (cmd.id in state.knownPlaces) return no("local já descoberto: ${cmd.id}")
+            return Decision.Ok(listOf(PlaceDiscovered(cmd.id)))
+        }
+        is MoveToPlace -> {
+            if (cmd.id !in state.knownPlaces) return no("não é possível viajar para um local desconhecido")
+            val current = state.currentPlaceId ?: return no("a campanha ainda não tem local atual")
+            if (cmd.id !in state.placeLinks[current].orEmpty()) return no("não existe passagem conhecida direta para esse local")
+            return Decision.Ok(listOf(PlayerMovedToPlace(cmd.id)))
         }
         is ProposeRuleAddition -> {
             val rule = cmd.rule
