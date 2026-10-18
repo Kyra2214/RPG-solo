@@ -4,6 +4,20 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
+data class CampaignBackupMetadata(
+    val chaptersJson: String = "[]",
+    val questsJson: String = "[]",
+    val timelineJson: String = "[]",
+    val playerId: String? = null,
+    val fichaId: String? = null,
+    val packageId: String? = null,
+    val systemId: String? = null,
+    val editionId: String? = null,
+    /** Fichas reutilizáveis em JSON. Chaves de API e preferências secretas nunca entram no backup. */
+    val fichas: List<String> = emptyList()
+)
+
+@Serializable
 data class BackupFile(
     val version: Int,
     val campaignId: String,
@@ -11,7 +25,9 @@ data class BackupFile(
     val seed: Long,
     val config: EngineConfig,
     /** Eventos já em JSON (o mesmo formato salvo no banco). */
-    val events: List<String>
+    val events: List<String>,
+    /** Metadados opcionais; backups antigos continuam importáveis. */
+    val metadata: CampaignBackupMetadata? = null
 )
 
 /**
@@ -22,10 +38,21 @@ object Backup {
     const val VERSION = 1
     private val json = Json { encodeDefaults = true; ignoreUnknownKeys = true }
 
-    fun export(store: EventStore, campaignId: String): String {
+    fun export(
+        store: EventStore,
+        campaignId: String,
+        metadata: CampaignBackupMetadata? = null
+    ): String {
         val rec = requireNotNull(store.campaign(campaignId)) { "campanha não encontrada: $campaignId" }
-        val file = BackupFile(VERSION, rec.id, rec.name, rec.seed, rec.config, store.load(campaignId))
+        val file = BackupFile(VERSION, rec.id, rec.name, rec.seed, rec.config, store.load(campaignId), metadata)
         return json.encodeToString(BackupFile.serializer(), file)
+    }
+
+    /** Lê os metadados para o app restaurar capítulos, missões e fichas sem incluir segredos do provedor. */
+    fun decode(text: String): BackupFile = try {
+        json.decodeFromString(BackupFile.serializer(), text)
+    } catch (e: Exception) {
+        throw IllegalArgumentException("backup ilegível")
     }
 
     /**
@@ -33,11 +60,7 @@ object Backup {
      * corrompido ou id já existente falham sem criar nada. Devolve o id da campanha criada.
      */
     fun import(store: EventStore, text: String, newId: String? = null): String {
-        val f = try {
-            json.decodeFromString(BackupFile.serializer(), text)
-        } catch (e: Exception) {
-            throw IllegalArgumentException("backup ilegível")
-        }
+        val f = decode(text)
         require(f.version == VERSION) { "versão de backup não suportada: ${f.version}" }
         val id = newId ?: f.campaignId
         require(store.campaign(id) == null) { "já existe uma campanha com o id $id" }
