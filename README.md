@@ -6,6 +6,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 - Auditoria e melhorias sugeridas: [`PLANO_MELHORIAS_RPG_SOLO.md`](PLANO_MELHORIAS_RPG_SOLO.md)
 - Histórico das entregas recentes: [`CHANGELOG.md`](CHANGELOG.md)
 - Formato dos pacotes de regras: [`docs/pacotes/FORMATO_PACOTE.md`](docs/pacotes/FORMATO_PACOTE.md)
+- Mecânica e equilíbrio dos dados: [`docs/MECANICA_DADOS.md`](docs/MECANICA_DADOS.md)
 
 ## Estado atual
 
@@ -43,6 +44,12 @@ Os testes dos módulos Kotlin puros também podem ser executados separadamente:
 
 ```bash
 ./gradlew :engine:test :rules:test :ai:test
+```
+
+A simulação das chances dos testes por pontos pode ser reproduzida sem Gradle:
+
+```bash
+python3 tools/simulate_checks.py --runs 100000
 ```
 
 Abra a pasta do repositório no Android Studio para executar o app em emulador ou dispositivo.

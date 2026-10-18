@@ -8,6 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import dev.rpgsolo.ai.AiProvider
+import dev.rpgsolo.ai.AiError
+import dev.rpgsolo.ai.AiMessage
+import dev.rpgsolo.ai.AiRequest
 import dev.rpgsolo.ai.AiRoles
 import dev.rpgsolo.ai.CampaignInterpreter
 import dev.rpgsolo.ai.NewCampaignFlow
@@ -25,6 +28,7 @@ import dev.rpgsolo.ai.PlayerSheet
 import dev.rpgsolo.ai.ProviderConfig
 import dev.rpgsolo.ai.ProviderFactory
 import dev.rpgsolo.ai.ProviderKind
+import dev.rpgsolo.ai.Role
 import dev.rpgsolo.ai.UsageTracker
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.ChapterBook
@@ -43,6 +47,8 @@ import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.CampanhaMetaRow
 import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.rules.CampaignStarter
+
+data class ConnectionTestResult(val success: Boolean, val message: String)
 
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
@@ -278,6 +284,38 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
     fun savedSettings(): StoredProviderSettings? = storedSettings
+
+    /** Faz uma chamada mínima ao provedor informado, sem persistir a configuração nem tocar no jogo. */
+    fun testConnection(
+        kind: ProviderKind, endpoint: String, model: String, apiKey: String
+    ): ConnectionTestResult = try {
+        require(endpoint.trim().startsWith("http://") || endpoint.trim().startsWith("https://")) {
+            "o endpoint deve começar com http:// ou https://"
+        }
+        require(model.isNotBlank()) { "informe o modelo" }
+        require(apiKey.isNotBlank()) { "informe a chave de API" }
+        val provider = ProviderFactory.build(
+            kind,
+            ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim()),
+            usage = usage,
+            maxRequestsPerMinute = 20
+        )
+        val reply = provider.complete(
+            AiRequest(
+                messages = listOf(AiMessage(Role.USER, "Responda apenas OK.")),
+                maxTokens = 8,
+                temperature = 0.0
+            )
+        )
+        if (reply.text.isBlank()) ConnectionTestResult(false, "o provedor respondeu sem texto")
+        else ConnectionTestResult(true, "conexão funcionando (${provider.name})")
+    } catch (e: AiError) {
+        ConnectionTestResult(false, e.message ?: "falha na conexão")
+    } catch (e: IllegalArgumentException) {
+        ConnectionTestResult(false, e.message ?: "configuração inválida")
+    } catch (e: Exception) {
+        ConnectionTestResult(false, "não foi possível testar a conexão: ${e.message ?: "erro desconhecido"}")
+    }
 
     /** Remove a chave cifrada e desativa o provedor atual. */
     fun forgetProvider() {
