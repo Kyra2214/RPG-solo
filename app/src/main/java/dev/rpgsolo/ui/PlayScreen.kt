@@ -310,7 +310,7 @@ private fun CombatControls(model: AppModel) {
                         ) {
                             targets.forEach { target ->
                                 Button(onClick = { message = model.attack(target.id) }) {
-                                    Text("Atacar ${target.name}${if (target.rulesValidated) "" else " (não validado)"}")
+                                    Text("Atacar ${target.name}${target.condition.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()}${if (target.rulesValidated) "" else " (não validado)"}")
                                 }
                             }
                         }
