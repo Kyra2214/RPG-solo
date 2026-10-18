@@ -178,16 +178,24 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun resolveNpcTurn(): String? = try {
         val combat = requireNotNull(session.state.combat) { "não há combate ativo" }
         require(combat.current != playerId) { "é o turno do jogador" }
-        val resource = activePackage?.manifest?.deathResource ?: "pv"
+        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
+        val resource = pkg.manifest.deathResource ?: pkg.data.resources.firstOrNull()?.id
+            ?: return "o pacote não define um recurso de vida"
         val attacker = combat.current
+        val attackerEquipment = session.state.equipped[attacker].orEmpty().values
+        val targetEquipment = session.state.equipped[playerId].orEmpty().values
         val result = session.attack(
             dev.rpgsolo.engine.AttackSpec(
                 attackerId = attacker,
                 targetId = playerId,
-                attackStat = "habilidade",
+                attackStat = pkg.data.creation["combate_atributo_ataque"] ?: "poder",
+                defenseStat = pkg.data.creation["combate_atributo_defesa"] ?: "habilidade",
                 damageResource = resource,
-                damage = 1,
-                defenseDefault = 10
+                damage = pkg.data.creation["combate_dano_base"]?.toIntOrNull() ?: 1,
+                defenseDefault = pkg.data.creation["combate_defesa_base"]?.toIntOrNull() ?: 10,
+                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque"),
+                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano"),
+                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa")
             )
         )
         val text = when (result) {
@@ -245,18 +253,26 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
     }
 
-    /** Ataque local: alvo, rolagem, defesa e dano passam pelo motor; a IA não escolhe números. */
+    /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
     fun attack(targetId: String): String? = try {
         require(isPlayerCombatTurn()) { "não é o turno do jogador" }
-        val resource = activePackage?.manifest?.deathResource ?: "pv"
+        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
+        val resource = pkg.manifest.deathResource ?: pkg.data.resources.firstOrNull()?.id
+            ?: return "o pacote não define um recurso de vida"
+        val attackerEquipment = session.state.equipped[playerId].orEmpty().values
+        val targetEquipment = session.state.equipped[targetId].orEmpty().values
         when (val result = session.attack(
             dev.rpgsolo.engine.AttackSpec(
                 attackerId = playerId,
                 targetId = targetId,
-                attackStat = "habilidade",
+                attackStat = pkg.data.creation["combate_atributo_ataque"] ?: "poder",
+                defenseStat = pkg.data.creation["combate_atributo_defesa"] ?: "habilidade",
                 damageResource = resource,
-                damage = 1,
-                defenseDefault = 10
+                damage = pkg.data.creation["combate_dano_base"]?.toIntOrNull() ?: 1,
+                defenseDefault = pkg.data.creation["combate_defesa_base"]?.toIntOrNull() ?: 10,
+                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque"),
+                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano"),
+                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa")
             )
         )) {
             is dev.rpgsolo.engine.AttackResult.Resolved -> {
