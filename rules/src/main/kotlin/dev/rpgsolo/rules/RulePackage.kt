@@ -377,6 +377,19 @@ object PackageValidator {
         d.damage.filter { it.bonusStat != null && it.bonusStat !in stats }.forEach { p += "dano ${it.id}: atributo inexistente ${it.bonusStat}" }
         d.items.filter { it.effects.isNotEmpty() && (it.kind != "equipamento" || it.slot.isNullOrBlank()) }
             .forEach { p += "item ${it.id}: efeitos mecânicos exigem equipamento com slot" }
+        d.items.forEach { item ->
+            item.effects.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
+                .forEach { p += "item ${item.id}: escopo ou bônus de efeito inválido" }
+        }
+        d.traits.forEach { trait ->
+            trait.bonuses.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
+                .forEach { p += "traço ${trait.id}: escopo ou bônus inválido" }
+        }
+        d.conditions.forEach { condition ->
+            condition.effect?.let { effect ->
+                if (effect.dice !in -10..10) p += "condição ${condition.id}: efeito de dados fora do limite -10..10"
+            }
+        }
         for (t in d.traits) for (r in t.requires) when (r) {
             is Requirement.MinStat -> if (r.stat !in stats) p += "traço ${t.id}: requisito de atributo inexistente ${r.stat}"
             is Requirement.HasTrait -> if (r.traitId !in traits) p += "traço ${t.id}: requisito de traço inexistente ${r.traitId}"
