@@ -44,6 +44,7 @@ data class ProposeRuleAddition(val rule: RegraAdicional) : Command
 data class ApproveRuleAddition(val id: String) : Command
 data class RejectRuleAddition(val id: String) : Command
 data class SetAmbientacao(val ambientacao: Ambientacao) : Command
+data class SetCampaignStyle(val style: CampaignStyle) : Command
 data class AddPlace(val place: Place) : Command
 data class ConnectPlaces(val fromId: String, val toId: String) : Command
 data class DiscoverPlace(val id: String) : Command
@@ -329,6 +330,15 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val a = cmd.ambientacao
             if (a.id.isBlank() || a.campaignId.isBlank() || a.name.isBlank()) return no("ambientação exige id, campanha e nome")
             return Decision.Ok(listOf(AmbientacaoSet(a)))
+        }
+        is SetCampaignStyle -> {
+            if (cmd.style.contentLimits.size > 50 || cmd.style.contentLimits.any { it.isBlank() || it.length > 300 }) {
+                return no("limites de conteúdo inválidos")
+            }
+            if (cmd.style.difficultyParams.values.any { !it.isFinite() || it !in 0.0..10.0 }) {
+                return no("parâmetros de dificuldade fora do intervalo 0..10")
+            }
+            return Decision.Ok(listOf(CampaignStyleSet(cmd.style)))
         }
         is AddPlace -> {
             val p = cmd.place
