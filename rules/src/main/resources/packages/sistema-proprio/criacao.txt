@@ -19,3 +19,4 @@ item_pocao-cura_acao|cura
 item_pocao-cura_recurso|pv
 item_pocao-cura_quantidade|5
 combate_xp_vitoria|5
+combate_bonus_defender|2
