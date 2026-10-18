@@ -332,9 +332,12 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
         }
         is AddPlace -> {
             val p = cmd.place
-            if (p.id.isBlank() || p.name.isBlank()) return no("local exige id e nome")
+            if (p.id.isBlank() || p.id.length > 80 || p.name.isBlank()) return no("local exige id válido e nome")
+            if (p.name.length > 120) return no("nome do local excede 120 caracteres")
+            if (p.description.length > 2000) return no("descrição do local excede 2000 caracteres")
+            if (p.secret.length > 2000) return no("segredo do local excede 2000 caracteres")
+            if (state.places.size >= 200) return no("limite de 200 locais por campanha atingido")
             if (state.places.containsKey(p.id)) return no("local já existe: ${p.id}")
-            if (p.secret.length > 4000) return no("segredo de local excede o limite")
             return Decision.Ok(listOf(PlaceAdded(p)))
         }
         is ConnectPlaces -> {
@@ -342,11 +345,20 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.fromId !in state.places) return no("local inexistente: ${cmd.fromId}")
             if (cmd.toId !in state.places) return no("local inexistente: ${cmd.toId}")
             if (cmd.toId in state.placeLinks[cmd.fromId].orEmpty()) return no("passagem já existe")
+            if (state.placeLinks[cmd.fromId].orEmpty().size >= 20 || state.placeLinks[cmd.toId].orEmpty().size >= 20) {
+                return no("cada local pode ter no máximo 20 passagens")
+            }
             return Decision.Ok(listOf(PlacesConnected(cmd.fromId, cmd.toId)))
         }
         is DiscoverPlace -> {
             if (cmd.id !in state.places) return no("local inexistente: ${cmd.id}")
             if (cmd.id in state.knownPlaces) return no("local já descoberto: ${cmd.id}")
+            if (state.currentPlaceId != null) {
+                val reachableFromKnown = state.knownPlaces.any { known ->
+                    cmd.id in state.placeLinks[known].orEmpty()
+                }
+                if (!reachableFromKnown) return no("local não conectado a nenhuma área já descoberta")
+            }
             return Decision.Ok(listOf(PlaceDiscovered(cmd.id)))
         }
         is MoveToPlace -> {
