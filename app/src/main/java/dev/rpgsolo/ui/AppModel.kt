@@ -192,6 +192,28 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         e.message
     }
 
+    /** Cria um NPC inicial usando apenas atributos e recursos definidos pelo pacote ativo. */
+    fun addNpc(name: String): String? = try {
+        require(name.isNotBlank()) { "dê um nome ao adversário" }
+        val pkg = requireNotNull(activePackage) { "instale/ative um pacote de regras antes de criar adversários" }
+        val stats = pkg.data.stats.associate { it.id to it.default }
+        val entity = Entity(
+            id = "npc-${System.nanoTime()}",
+            name = name.trim(),
+            kind = EntityKind.NPC,
+            stats = stats,
+            resources = pkg.resourcesFor(stats)
+        )
+        when (val result = session.execute(CreateEntity(entity))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                campaignVersion++
+                "${entity.name} foi adicionado à campanha."
+            }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+    } catch (e: IllegalArgumentException) { e.message }
+      catch (e: IllegalStateException) { e.message }
+
     /** Inicia a iniciativa dos participantes vivos da campanha; os números vêm exclusivamente do motor. */
     fun startCombat(): String? = try {
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
