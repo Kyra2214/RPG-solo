@@ -496,6 +496,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         require(item.kind == "consumivel") { "este item não é consumível" }
         val action = pkg.data.creation["item_${itemId}_acao"]
             ?: return "o pacote não definiu o efeito mecânico de $itemId"
+        val inCombat = session.state.combat != null
+        if (inCombat && !isPlayerCombatTurn()) return "só é possível usar item no seu turno"
         val commands: List<dev.rpgsolo.engine.Command> = when (action) {
             "cura" -> {
                 val resource = pkg.data.creation["item_${itemId}_recurso"]
@@ -510,7 +512,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             }
             else -> return "ação de consumível não suportada pelo app: $action"
         }
-        when (val result = session.executeAll(commands)) {
+        val actionCommands = if (inCombat) commands + dev.rpgsolo.engine.NextTurn else commands
+        when (val result = session.executeAll(actionCommands)) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> {
                 campaignVersion++
                 "${item.name} usado."
@@ -521,6 +524,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
       catch (e: IllegalStateException) { e.message }
 
     fun equipItem(itemId: String): String? = try {
+        require(session.state.combat == null) { "não é possível trocar equipamento durante o combate" }
         val item = requireNotNull(activePackage?.item(itemId)) { "item não existe no catálogo: $itemId" }
         require(item.kind == "equipamento" && item.slot != null) { "item não é equipável" }
         when (val result = session.execute(dev.rpgsolo.engine.EquipItem(playerId, itemId, item.slot))) {
@@ -529,9 +533,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     } catch (e: IllegalArgumentException) { e.message }
 
-    fun unequipItem(slot: String): String? = when (val result = session.execute(dev.rpgsolo.engine.UnequipItem(playerId, slot))) {
+    fun unequipItem(slot: String): String? {
+        if (session.state.combat != null) return "não é possível trocar equipamento durante o combate"
+        return when (val result = session.execute(dev.rpgsolo.engine.UnequipItem(playerId, slot))) {
         is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
     }
 
     /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
@@ -561,6 +568,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         val attackerEquipment = session.state.equipped[playerId].orEmpty().values
         val targetEquipment = session.state.equipped[targetId].orEmpty().values
+        val attackMark = session.mark()
         when (val result = session.attack(
             dev.rpgsolo.engine.AttackSpec(
                 attackerId = playerId,
@@ -586,6 +594,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             )
         )) {
             is dev.rpgsolo.engine.AttackResult.Resolved -> {
+                if (session.state.combat != null) {
+                    when (val advance = session.execute(dev.rpgsolo.engine.NextTurn)) {
+                        is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+                        is dev.rpgsolo.engine.ExecResult.Rejected -> {
+                            session.rollbackTo(attackMark)
+                            return advance.reason
+                        }
+                    }
+                }
                 campaignVersion++
                 val attackText = "${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}"
                 if (result.hit) {
