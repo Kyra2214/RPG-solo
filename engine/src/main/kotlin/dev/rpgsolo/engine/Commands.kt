@@ -80,6 +80,16 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val newValue = maxOf(0, res.current - cmd.amount)
             val events = mutableListOf<Event>(ResourceChanged(ent.id, cmd.resource, newValue, newValue - res.current))
             if (newValue == 0 && config.deathResource == cmd.resource) events += EntityDied(ent.id)
+            if (events.any { it is EntityDied } && state.combat != null) {
+                val afterDamage = events.fold(state) { current, event -> current.apply(event) }
+                val aliveKinds = afterDamage.combat!!.order
+                    .mapNotNull { afterDamage.entities[it]?.takeIf(Entity::alive)?.kind }
+                    .distinct()
+                val combatKinds = state.combat.order
+                    .mapNotNull { state.entities[it]?.kind }
+                    .distinct()
+                if (combatKinds.size >= 2 && aliveKinds.size < 2) events += CombatEnded
+            }
             return Decision.Ok(events)
         }
 

@@ -205,6 +205,26 @@ class Phase2bTest {
         assertTrue(e.attack(AttackSpec("orc", "hero")) is AttackResult.Rejected)
     }
 
+    @Test fun lutaCompletaEncerraQuandoOUltimoInimigoCai() {
+        val e = GameEngine(12)
+        e.executeAll(listOf(
+            CreateEntity(ent("hero", hp = 10, stats = mapOf("forca" to 100))),
+            CreateEntity(ent("orc", hp = 3)),
+            CreateEntity(ent("goblin", hp = 3))
+        ))
+        ok(e.execute(StartCombat(listOf("hero", "orc", "goblin"))))
+        val first = e.attack(AttackSpec("hero", "orc", attackStat = "forca", damage = 3))
+        assertTrue(first is AttackResult.Resolved)
+        assertTrue(e.state.combat != null)
+        e.execute(NextTurn)
+        assertEquals("goblin", e.state.combat!!.current)
+        e.execute(NextTurn)
+        assertEquals("hero", e.state.combat!!.current)
+        e.attack(AttackSpec("hero", "goblin", attackStat = "forca", damage = 3))
+        assertNull(e.state.combat)
+        assertEquals(1, e.events.count { it is CombatEnded })
+    }
+
     @Test fun desfazerCombateRestauraEstadoEDados() {
         val e = engine("hero", "orc", seed = 5)
         val m = e.mark()
