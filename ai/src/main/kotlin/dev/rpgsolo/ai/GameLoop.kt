@@ -101,8 +101,14 @@ class GameLoop(
         // Teste do mestre leva Ganho/Perda das condições; rolagem com tabela (d6 de dano) nunca.
         val check = session.check(if (pending is PendingCheck) adjusted(pending.spec, session, template.playerEntityId, pending.request.skill) else pending.spec)
         if (pending is PendingCheck && pending.request.revealSecretId != null) {
-            val npcId = pending.request.targetNpcId ?: return PlayResult.Failed("pedido de segredo sem targetNpc")
-            val secretId = pending.request.revealSecretId
+            val npcId = pending.request.targetNpcId ?: run {
+                session.rollbackTo(markBefore)
+                return PlayResult.Failed("pedido de segredo sem targetNpc")
+            }
+            val secretId = pending.request.revealSecretId ?: run {
+                session.rollbackTo(markBefore)
+                return PlayResult.Failed("pedido de segredo sem revealSecret")
+            }
             when (val revealed = Reveal.discoverSecret(session, template.playerEntityId, npcId, secretId, check)) {
                 null, is ExecResult.Accepted -> Unit
                 is ExecResult.Rejected -> {
