@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.roundToInt
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -442,7 +443,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
                     (if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) attackConditionShift else 0) +
                     ((session.state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
-                        .toInt().coerceIn(0, 10) - 5),
+                        .roundToInt().coerceIn(0, 10) - 5),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
                     pkg.traitBonus(combatTraitIds(attacker), "dano") +
                     approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
@@ -758,7 +759,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             checkId
         )
         val adaptation = listOfNotNull(adjusted.checkId, adjusted.stat, checkId).distinct().sumOf(::approvedRuleBonus)
-        val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.toInt()?.coerceIn(0, 10) ?: 5
+        val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
         val shift = danger - 5
         val spec = when (adjusted.comparison) {
             dev.rpgsolo.engine.Comparison.ROLL_OVER -> adjusted.copy(modifier = adjusted.modifier + adaptation - shift)
