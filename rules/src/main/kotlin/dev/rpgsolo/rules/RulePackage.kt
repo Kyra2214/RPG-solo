@@ -395,6 +395,16 @@ object PackageValidator {
         val initiativeDiceSides = d.creation["combate_lados_iniciativa"]
         val initiativeOrder = d.creation["combate_ordem_iniciativa"]
         val hasCombatProfile = combatAttack != null || combatDefense != null || combatInitiative != null
+        if (listOf(combatAttack, combatDefense, combatInitiative).any { it != null } &&
+            listOf(combatAttack, combatDefense, combatInitiative).any { it == null }) {
+            p += "criacao.txt: perfil de combate incompleto; ataque, defesa e iniciativa devem ser definidos juntos"
+        }
+        listOf(
+            "combate_atributo_ataque" to combatAttack,
+            "combate_atributo_defesa" to combatDefense,
+            "combate_atributo_iniciativa" to combatInitiative
+        ).filter { it.second != null && it.second !in stats }
+            .forEach { p += "criacao.txt: ${it.first} referencia atributo inexistente ${it.second}" }
         if (hasCombatProfile) {
             if (attackDiceCount == null || (attackDiceCount.toIntOrNull() ?: 0) !in 1..100) {
                 p += "criacao.txt: combate_dados_ataque ausente ou inválido"
