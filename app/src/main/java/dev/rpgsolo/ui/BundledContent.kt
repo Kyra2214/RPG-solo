@@ -64,7 +64,7 @@ object BundledContent {
         if (importDir != null && importDir.exists()) {
             importDir.listFiles { file -> file.isFile && file.extension.equals("zip", ignoreCase = true) }
                 .orEmpty().sortedBy { it.name }.forEach { archive ->
-                    when (val installed = runCatching { archive.inputStream().use(registry::installZip) }.getOrNull()) {
+                    when (val installed = runCatching { archive.inputStream().use { stream -> registry.installZip(stream) } }.getOrNull()) {
                         is InstallResult.Success -> Unit
                         is InstallResult.Failure -> errors += installed.errors.map { "pacote importado ${archive.name}: $it" }
                         null -> errors += "pacote importado ilegível: ${archive.name}"
