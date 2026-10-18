@@ -75,7 +75,13 @@ data class ConditionDef(val id: String, val name: String, val description: Strin
 data class DamageDef(val id: String, val name: String, val diceCount: Int, val diceSides: Int, val bonusStat: String?)
 
 /** Item do catálogo: equipamento ocupa [slot]; itens narrativos não têm efeito mecânico. */
-data class ItemDef(val id: String, val name: String, val kind: String, val slot: String?, val description: String)
+data class ItemEffect(val scope: String, val bonus: Int)
+
+/** Item do catálogo: efeitos tipados aplicados pelo motor, nunca inferidos da descrição. */
+data class ItemDef(
+    val id: String, val name: String, val kind: String, val slot: String?, val description: String,
+    val effects: List<ItemEffect> = emptyList()
+)
 
 /** Regra ambígua: nunca apresentada como oficial (4.1.6). */
 data class UncertainRule(val id: String, val note: String)
