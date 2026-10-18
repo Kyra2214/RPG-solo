@@ -25,7 +25,10 @@ data class Entity(
     val xp: Int = 0,
     val level: Int = 1,
     /** Pontos por perícia; ids e limites vêm do pacote de regras. */
-    val skills: Map<String, Int> = emptyMap()
+    val skills: Map<String, Int> = emptyMap(),
+    /** Conceito e traços de NPCs são privados para a interface; usados pelo mestre e pelo motor. */
+    val concept: String = "",
+    val traits: List<String> = emptyList()
 )
 
 /** Estado canônico da campanha. Só muda aplicando eventos (ver [apply]). */
