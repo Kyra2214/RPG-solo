@@ -64,7 +64,7 @@ data class EngineConfig(
     /** XP total necessário para o nível 2, 3, 4... (crescente). Vazio = o sistema não sobe de nível por XP. */
     val levelThresholds: List<Int> = emptyList(),
     /** Bônus de defesa da ação Defend; 0 desativa a ação. */
-    val defendBonus: Int = 2
+    val defendBonus: Int = 0
 ) {
     init {
         require(defendBonus in 0..10) { "defendBonus deve ficar entre 0 e 10" }
