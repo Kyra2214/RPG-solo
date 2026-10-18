@@ -36,7 +36,9 @@ data class PanelState(
     val resources: Map<String, Pair<Int, Int>>,
     val conditions: List<String>,
     val quest: String?,
-    val inCombat: Boolean
+    val inCombat: Boolean,
+    val level: Int = 1,
+    val xp: Int = 0
 )
 
 /**
@@ -229,7 +231,9 @@ class PlayController(
             resources = e.resources.mapValues { (_, r) -> r.current to r.max },
             conditions = session.state.conditions[playerId].orEmpty().sorted().map { conditionNames[it] ?: it },
             quest = quests?.active()?.firstOrNull()?.title,
-            inCombat = session.state.combat != null
+            inCombat = session.state.combat != null,
+            level = e.level,
+            xp = e.xp
         )
     }
 
