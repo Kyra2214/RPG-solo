@@ -40,6 +40,7 @@ data class Ficha(
 }
 
 /** Universo ficcional. Referencia a campanha, nunca a ficha. */
+@Serializable
 data class Ambientacao(
     val id: String,
     val campaignId: String,
