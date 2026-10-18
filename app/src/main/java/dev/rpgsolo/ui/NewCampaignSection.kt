@@ -30,7 +30,7 @@ import kotlin.random.Random
  */
 @Composable
 fun NewCampaignSection(model: AppModel) {
-    val flow = remember(model.controller != null) { model.newCampaignFlow() }
+    val flow = remember(model.controller != null, model.packageVersion) { model.newCampaignFlow() }
     Text("Nova campanha", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
     if (flow == null) {
         Muted("Configure o provedor de IA na aba Config para criar uma campanha.")
