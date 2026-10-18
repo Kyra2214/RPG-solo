@@ -11,7 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,7 +34,7 @@ fun SystemsScreen(model: AppModel) {
         TextButton(onClick = { importer.launch(arrayOf("application/zip", "application/octet-stream")) }) {
             Text("Importar ZIP")
         }
-        importStatus?.let { Text(it, color = if (it.startsWith("Pacote instalado")) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) }
+        importStatus?.let { Text(it, color = if (it.startsWith("Pacote ") && !it.startsWith("Pacote recusado")) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) }
         SectionTitle("Sistemas instalados")
         c.errors.forEach { ErrorText(it) }
         if (models.isEmpty()) AppCard { Text("Nenhum pacote de regras instalado.") }
