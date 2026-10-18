@@ -71,9 +71,9 @@ data class ConditionTicked(
     val entityId: String,
     val condition: String,
     val remainingRounds: Int?,
-    val damageResource: String,
-    val newResourceValue: Int,
-    val damage: Int
+    val damageResource: String? = null,
+    val newResourceValue: Int? = null,
+    val damage: Int = 0
 ) : Event
 @Serializable
 data class CombatStarted(val order: List<String>) : Event
@@ -188,8 +188,10 @@ fun GameState.apply(e: Event): GameState {
                 oldStates + (e.condition to old.copy(remainingRounds = e.remainingRounds))
             }
             val ent = entity(e.entityId)
-            val resource = requireNotNull(ent.resources[e.damageResource])
-            val changed = ent.copy(resources = ent.resources + (e.damageResource to resource.copy(current = e.newResourceValue)))
+            val changed = if (e.damageResource != null && e.newResourceValue != null) {
+                val resource = requireNotNull(ent.resources[e.damageResource])
+                ent.copy(resources = ent.resources + (e.damageResource to resource.copy(current = e.newResourceValue)))
+            } else ent
             copy(
                 entities = entities + (e.entityId to changed),
                 conditions = if (left.isEmpty()) conditions - e.entityId else conditions + (e.entityId to left),
