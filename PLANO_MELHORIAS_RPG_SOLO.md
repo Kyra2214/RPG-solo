@@ -4,6 +4,8 @@ Análise completa do projeto `RPG-solo-ficha-para-ia.zip` (módulos `engine`, `r
 
 > Limite da análise: não consegui compilar nem rodar o app (sem Gradle/SDK e sem rede). O que está dito sobre o comportamento das telas vem da leitura do código e precisa ser confirmado rodando no Android Studio. Itens assim estão marcados com **(verificar)**.
 
+> **Atualização de implementação — 18/10/2026:** este arquivo registra o diagnóstico original, não o estado atual completo. A branch `implementation/code-first-combat` já implementa várias melhorias descritas abaixo: Room/autosave e backup Android, chave protegida, importação de pacotes, combate integrado ao app, equipamento, condições com duração, biblioteca de fichas, mapa, capítulos, missões, linha do tempo, preferências de geração e ações de primeiro uso. Consulte `CHANGELOG.md` e `docs/PLANO_DESENVOLVIMENTO.md` para o estado da branch. Builds, testes, lint e CI foram deliberadamente adiados a pedido do usuário; os itens de validação continuam abertos até serem executados.
+
 Legenda de esforço: **P** = até 1 dia · **M** = 2 a 5 dias · **G** = mais de 1 semana.
 Legenda de prioridade: 🔴 bloqueia ou corrompe · 🟠 muda a experiência de jogo · 🟡 melhora · 🟢 polimento.
 
