@@ -602,9 +602,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             healthResource = activePackage?.manifest?.deathResource
                 ?: session.state.entities[playerId]?.resources?.keys?.firstOrNull()
                 ?: "pv",
-            checkFor = checkFor(r.cheap), quests = quests,
+            checkFor = checkFor(r.cheap),
+            quests = quests,
+            restResources = activePackage?.data?.resources?.map { it.id }?.toSet()
+                ?: session.state.entities[playerId]?.resources?.keys.orEmpty(),
             sheet = PlayerSheet(activePackage, activeFicha),
-            conditionNames = activePackage?.data?.conditions?.associate { it.id to it.name }.orEmpty()
+            conditionNames = activePackage?.data?.conditions?.associate { it.id to it.name }.orEmpty(),
+            ruleLookup = { query ->
+                activePackage?.search(query, 5)?.map { "${it.kind}: ${it.title} — ${it.text}" }.orEmpty()
+            },
+            chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } }
         )
 
     /** Fluxo "Nova campanha" (9.1). null até haver provedor de IA configurado. */
