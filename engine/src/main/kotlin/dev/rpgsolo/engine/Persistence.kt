@@ -99,8 +99,13 @@ class CampaignSession private constructor(
 
     fun check(spec: CheckSpec): CheckResult = engine.check(spec).also { save() }
 
-    fun rollInitiative(ids: List<String>, diceCount: Int = 1, diceSides: Int = 20, statKey: String? = null): ExecResult =
-        engine.rollInitiative(ids, diceCount, diceSides, statKey).also { save() }
+    fun rollInitiative(
+        ids: List<String>,
+        diceCount: Int = 1,
+        diceSides: Int = 20,
+        statKey: String? = null,
+        highestFirst: Boolean = true
+    ): ExecResult = engine.rollInitiative(ids, diceCount, diceSides, statKey, highestFirst).also { save() }
 
     /** Resolve um ataque no motor e salva as rolagens, o resultado e o dano confirmados. */
     fun attack(spec: AttackSpec): AttackResult = engine.attack(spec).also { save() }
