@@ -319,7 +319,22 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                             val combatKinds = activeCombat.order
                                 .mapNotNull { state.entities[it]?.kind }
                                 .distinct()
-                            if (combatKinds.size >= 2 && aliveKinds.size < 2) events += CombatEnded
+                            if (combatKinds.size >= 2 && aliveKinds.size < 2) {
+                                events += CombatEnded
+                            } else if (tickState.entities[activeCombat.current]?.alive != true) {
+                                // Uma condição pode derrubar o combatente cujo turno acabou de começar.
+                                // Avança para o próximo vivo sem abrir outra rodada nem deixar o combate preso.
+                                val next = (1..activeCombat.order.size)
+                                    .map { step -> (activeCombat.turnIndex + step) % activeCombat.order.size }
+                                    .firstOrNull { tickState.entities[activeCombat.order[it]]?.alive == true }
+                                if (next != null) {
+                                    val skipDeadTurn = TurnAdvanced(next, activeCombat.round)
+                                    events += skipDeadTurn
+                                    tickState = tickState.apply(skipDeadTurn)
+                                } else {
+                                    events += CombatEnded
+                                }
+                            }
                         }
                     }
                     return Decision.Ok(events)
