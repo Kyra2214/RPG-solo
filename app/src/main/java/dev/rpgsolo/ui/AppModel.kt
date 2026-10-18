@@ -645,6 +645,70 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
+    /** Fuga usa um teste real do pacote; sucesso encerra o combate, falha cede a próxima ação ao adversário. */
+    fun fleeCombat(): String? = try {
+        require(isPlayerCombatTurn()) { "só é possível fugir no seu turno" }
+        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
+        val checkId = listOf("fuga", "esquiva", "furtividade").firstOrNull { id ->
+            pkg.data.checks.any { it.id == id }
+        } ?: return "o pacote não define um teste de fuga, esquiva ou furtividade"
+        val difficulty = pkg.defaultDifficulty()
+            ?: return "o pacote não define dificuldade para o teste de fuga"
+        val player = requireNotNull(session.state.entities[playerId]) { "personagem inexistente" }
+        val combatantsBefore = session.state.combat?.order.orEmpty()
+        val mark = session.mark()
+        val base = pkg.check(checkId, player.stats, difficulty, player.skills)
+        val adjusted = pkg.adjustCheck(
+            base,
+            session.state.conditions[playerId].orEmpty(),
+            combatTraitIds(playerId),
+            checkId
+        )
+        val adaptation = listOfNotNull(adjusted.checkId, adjusted.stat, checkId).distinct().sumOf(::approvedRuleBonus)
+        val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.toInt()?.coerceIn(0, 10) ?: 5
+        val shift = danger - 5
+        val spec = when (adjusted.comparison) {
+            dev.rpgsolo.engine.Comparison.ROLL_OVER -> adjusted.copy(modifier = adjusted.modifier + adaptation - shift)
+            dev.rpgsolo.engine.Comparison.ROLL_UNDER -> adjusted.copy(
+                difficulty = (adjusted.difficulty + adaptation - shift).coerceAtLeast(1)
+            )
+            dev.rpgsolo.engine.Comparison.POINTS -> adjusted.copy(
+                modifier = (adjusted.modifier + adaptation - shift).coerceAtLeast(0)
+            )
+        }
+        val result = session.check(spec)
+        val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}."
+        if (result.outcome in setOf(
+                dev.rpgsolo.engine.Outcome.SUCCESS,
+                dev.rpgsolo.engine.Outcome.CRITICAL_SUCCESS
+            )
+        ) {
+            when (val ended = session.execute(dev.rpgsolo.engine.EndCombat)) {
+                is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                    campaignVersion++
+                    "$roll Você conseguiu fugir e encerrou o combate."
+                }
+                is dev.rpgsolo.engine.ExecResult.Rejected -> {
+                    session.rollbackTo(mark)
+                    ended.reason
+                }
+            }
+        } else {
+            when (val advanced = session.execute(dev.rpgsolo.engine.NextTurn)) {
+                is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                    awardCombatVictoryXp(combatantsBefore)
+                    campaignVersion++
+                    "$roll Você não conseguiu escapar; o adversário age agora."
+                }
+                is dev.rpgsolo.engine.ExecResult.Rejected -> {
+                    session.rollbackTo(mark)
+                    advanced.reason
+                }
+            }
+        }
+    } catch (e: IllegalArgumentException) { e.message }
+      catch (e: IllegalStateException) { e.message }
+
     fun exportBackup(): String = dev.rpgsolo.engine.Backup.export(
         store,
         session.campaignId,
