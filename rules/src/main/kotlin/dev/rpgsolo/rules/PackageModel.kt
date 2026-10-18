@@ -71,7 +71,16 @@ data class DifficultyDef(val id: String, val name: String, val value: Int)
  * [stats] = atributos afetados; null = todos os testes.
  */
 data class ConditionEffect(val dice: Int, val stats: Set<String>?)
-data class ConditionDef(val id: String, val name: String, val description: String, val effect: ConditionEffect? = null)
+data class ConditionDef(
+    val id: String,
+    val name: String,
+    val description: String,
+    val effect: ConditionEffect? = null,
+    /** null = duração narrativa/indefinida; valor positivo = rodadas restantes. */
+    val durationRounds: Int? = null,
+    val damagePerRound: Int = 0,
+    val damageResource: String = "hp"
+)
 data class DamageDef(val id: String, val name: String, val diceCount: Int, val diceSides: Int, val bonusStat: String?)
 
 /** Item do catálogo: equipamento ocupa [slot]; itens narrativos não têm efeito mecânico. */
