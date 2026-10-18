@@ -102,6 +102,9 @@ class CampaignSession private constructor(
     fun rollInitiative(ids: List<String>, diceCount: Int = 1, diceSides: Int = 20, statKey: String? = null): ExecResult =
         engine.rollInitiative(ids, diceCount, diceSides, statKey).also { save() }
 
+    /** Resolve um ataque no motor e salva as rolagens, o resultado e o dano confirmados. */
+    fun attack(spec: AttackSpec): AttackResult = engine.attack(spec).also { save() }
+
     fun mark(): Int = engine.mark()
 
     fun rollbackTo(mark: Int) {

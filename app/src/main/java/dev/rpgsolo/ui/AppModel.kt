@@ -49,6 +49,7 @@ import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.rules.CampaignStarter
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
+data class CombatTarget(val id: String, val name: String)
 
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
@@ -178,6 +179,36 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun combatState(): dev.rpgsolo.engine.CombatState? = session.state.combat
+
+    fun combatTargets(): List<CombatTarget> = session.state.combat?.order.orEmpty()
+        .filter { it != playerId }
+        .mapNotNull { id -> session.state.entities[id]?.takeIf { it.alive }?.let { CombatTarget(it.id, it.name) } }
+
+    fun isPlayerCombatTurn(): Boolean = session.state.combat?.current == playerId
+
+    /** Ataque local: alvo, rolagem, defesa e dano passam pelo motor; a IA não escolhe números. */
+    fun attack(targetId: String): String? = try {
+        require(isPlayerCombatTurn()) { "não é o turno do jogador" }
+        val resource = activePackage?.manifest?.deathResource ?: "pv"
+        when (val result = session.attack(
+            dev.rpgsolo.engine.AttackSpec(
+                attackerId = playerId,
+                targetId = targetId,
+                attackStat = "habilidade",
+                damageResource = resource,
+                damage = 1,
+                defenseDefault = 10
+            )
+        )) {
+            is dev.rpgsolo.engine.AttackResult.Resolved -> {
+                campaignVersion++
+                if (result.hit) "Ataque acertou e causou ${result.damage} de dano."
+                else "Ataque errou (defesa ${result.defense})."
+            }
+            is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
+        }
+    } catch (e: IllegalArgumentException) { e.message }
+      catch (e: IllegalStateException) { e.message }
 
     fun exportBackup(): String = dev.rpgsolo.engine.Backup.export(store, session.campaignId)
 

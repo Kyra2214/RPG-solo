@@ -178,6 +178,25 @@ private fun CombatControls(model: AppModel) {
                 }
             } else {
                 Text("Rodada ${combat.round} · turno ${combat.turnIndex + 1}/${combat.order.size}: ${combat.current}", style = MaterialTheme.typography.labelLarge)
+                if (model.isPlayerCombatTurn()) {
+                    val targets = model.combatTargets()
+                    if (targets.isEmpty()) {
+                        Muted("Não há alvos vivos.")
+                    } else {
+                        Row(
+                            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            targets.forEach { target ->
+                                Button(onClick = { message = model.attack(target.id) }) {
+                                    Text("Atacar ${target.name}")
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Muted("Aguarde o turno de ${combat.current}.")
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Próximo turno") }
                     TextButton(onClick = { message = model.endCombat() }) { Text("Encerrar") }
