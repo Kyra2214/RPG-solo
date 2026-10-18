@@ -47,6 +47,8 @@ data class ClockAdvanced(val id: String, val filled: Int, val delta: Int) : Even
 @Serializable
 data class ConditionRemoved(val entityId: String, val condition: String) : Event
 @Serializable
+data class NpcDossierStored(val dossier: NpcDossier) : Event
+@Serializable
 data class ConditionTicked(
     val entityId: String,
     val condition: String,
@@ -120,6 +122,7 @@ fun GameState.apply(e: Event): GameState {
             conditionStates = conditionStates + (e.entityId to ((conditionStates[e.entityId] ?: emptyMap()) +
                 (e.condition to ConditionState(e.durationRounds, e.damagePerRound, e.damageResource))))
         )
+        is NpcDossierStored -> copy(npcDossiers = npcDossiers + (e.dossier.npcId to e.dossier))
         is ConditionRemoved -> {
             val left = (conditions[e.entityId] ?: emptySet()) - e.condition
             val states = (conditionStates[e.entityId] ?: emptyMap()) - e.condition
