@@ -21,6 +21,8 @@ data class RollView(
     val difficulty: Int,
     val outcome: Outcome,
     val outcomeWord: String,
+    /** Margem positiva = passou; negativa = faltou. O motor continua sendo a fonte deste valor. */
+    val margin: Int = 0,
     /** Rolagem simples (sem dificuldade nem sucesso/falha): a tela mostra só o dado. */
     val plain: Boolean = false
 )
@@ -227,7 +229,7 @@ class PlayController(
         fun rollView(c: CheckResult, plain: Boolean = false) = RollView(
             label = c.spec.label, sides = c.spec.diceSides, dice = c.roll.dice, modifier = c.roll.modifier,
             total = c.roll.total, difficulty = c.spec.difficulty, outcome = c.outcome,
-            outcomeWord = if (plain) "" else word(c.outcome), plain = plain
+            outcomeWord = if (plain) "" else word(c.outcome), margin = c.margin, plain = plain
         )
 
         /** Rolagem do motor, clara (10.1.4): dados, modificador, total e resultado. */

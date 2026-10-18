@@ -183,7 +183,13 @@ fun RollCard(view: RollView, revealed: Boolean, onRevealed: () -> Unit) {
     AppCard(accent = tint) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(view.label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            Muted(if (view.plain) "rolagem" else "dificuldade ${view.difficulty}")
+            Muted(
+                when {
+                    view.plain -> "rolagem"
+                    view.label.contains("acerta com") -> "faces de sucesso"
+                    else -> "d${view.sides}${if (view.modifier == 0) "" else " ${if (view.modifier > 0) "+" else "−"}${kotlin.math.abs(view.modifier)}"} contra ${view.difficulty}"
+                }
+            )
         }
         Row(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 52.dp, bottom = 6.dp),
@@ -210,6 +216,14 @@ fun RollCard(view: RollView, revealed: Boolean, onRevealed: () -> Unit) {
                     style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f)
                 )
                 if (!view.plain) Pill(view.outcomeWord.uppercase(), tint)
+            }
+            if (!view.plain) {
+                val marginText = when {
+                    view.margin > 0 -> "passou por ${view.margin}"
+                    view.margin < 0 -> "faltou ${-view.margin}"
+                    else -> "no limite"
+                }
+                Muted(marginText)
             }
         }
     }

@@ -45,6 +45,7 @@ class PlayControllerTest {
         assertEquals(2, v.modifier)
         assertEquals(v.dice.sum() + 2, v.total)
         assertEquals(10, v.difficulty)
+        assertEquals(v.total - v.difficulty, v.margin)
         assertTrue("[${v.dice.single()}]" in c.lines[1].text)
         assertNull(c.lines[0].roll)
         assertNull(c.lines[2].roll)
