@@ -281,7 +281,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                             clipboard.setText(AnnotatedString(raw))
                             libraryMessage = "JSON da ficha copiado."
                         } else libraryMessage = "Não foi possível exportar a ficha."
-                    }) { Text("Exportar JSON") }
+                    }) { Text("Copiar JSON") }
                 }
             }
         }
