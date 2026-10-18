@@ -2,6 +2,7 @@ package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.engine.NpcDossier
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SystemRef
 
@@ -39,7 +40,8 @@ data class NpcProposal(
     /** Só usado quando não há pacote para validar (sistema só com PDF/rede): máximos dos recursos. */
     val resources: Map<String, Int> = emptyMap(),
     val ruleSource: RuleSource,
-    val skills: Map<String, Int> = emptyMap()
+    val skills: Map<String, Int> = emptyMap(),
+    val dossier: NpcDossier? = null
 )
 
 /**
@@ -50,7 +52,8 @@ data class NpcSheet(
     val ficha: Ficha,
     val validated: Boolean,
     val ruleSource: RuleSource,
-    val warnings: List<String> = emptyList()
+    val warnings: List<String> = emptyList(),
+    val dossier: NpcDossier? = null
 ) {
     val isPrivate: Boolean get() = true
     fun toEntity() = ficha.toEntity(EntityKind.NPC)
@@ -75,7 +78,12 @@ object NpcFactory {
                 proposal.stats, proposal.traits, proposal.skills
             )) {
                 is FichaBuild.Invalid -> NpcResult.Rejected(b.errors)
-                is FichaBuild.Created -> NpcResult.Created(NpcSheet(b.ficha, true, proposal.ruleSource, b.warnings))
+                is FichaBuild.Created -> NpcResult.Created(
+                    NpcSheet(
+                        b.ficha, true, proposal.ruleSource, b.warnings,
+                        proposal.dossier?.copy(npcId = proposal.id)
+                    )
+                )
             }
         }
         val ref = systemRef ?: return NpcResult.Rejected(listOf("sem pacote: informe o sistema/edição do NPC"))
@@ -91,6 +99,12 @@ object NpcFactory {
             traits = proposal.traits,
             skills = proposal.skills
         )
-        return NpcResult.Created(NpcSheet(ficha, false, proposal.ruleSource, listOf("sistema sem pacote instalado: ficha não validada pelo motor")))
+        return NpcResult.Created(
+            NpcSheet(
+                ficha, false, proposal.ruleSource,
+                listOf("sistema sem pacote instalado: ficha não validada pelo motor"),
+                proposal.dossier?.copy(npcId = proposal.id)
+            )
+        )
     }
 }
