@@ -201,6 +201,7 @@ private fun CombatControls(model: AppModel) {
     val campaignVersion = model.campaignVersion
     @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
     var message by remember(campaignVersion) { mutableStateOf<String?>(null) }
+    var npcName by remember { mutableStateOf("") }
     val combat = model.combatState()
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Column(
@@ -208,6 +209,23 @@ private fun CombatControls(model: AppModel) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             if (combat == null) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = npcName,
+                        onValueChange = { npcName = it },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("Nome do adversário") },
+                        singleLine = true
+                    )
+                    Button(onClick = {
+                        message = model.addNpc(npcName)
+                        if (message?.contains("adicionado") == true) npcName = ""
+                    }, enabled = npcName.isNotBlank()) { Text("Adicionar") }
+                }
                 Button(onClick = { message = model.startCombat() }, modifier = Modifier.fillMaxWidth()) {
                     Text("⚔ Iniciar combate")
                 }
