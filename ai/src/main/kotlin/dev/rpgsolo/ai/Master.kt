@@ -28,10 +28,9 @@ data class ContextInput(
     val state: GameState,
     val playerEntityId: String,
     val playerText: String,
-    /** Resultado já rolado pelo motor, se a jogada exigiu teste. */
-    val check: CheckResult? = null,
-    /** Recurso que representa saúde (ex.: "pv"), para descrever estado sem números. */
-    val healthResource: String? = null,
+    val checkMenu: String? = null,
+    val recentNarrative: List<String> = emptyList(),
+    val playerSheet: String? = null,
     val ruleSnippets: List<String> = emptyList(),
     val chapterSummary: String? = null,
     /** Texto privado de NPCs da cena (ver DossierBook.contextFor); só o que a cena exige (8.5.1). */
@@ -39,17 +38,7 @@ data class ContextInput(
     /** IDs de NPCs realmente presentes na cena, para não vazar estado de toda a campanha. */
     val sceneNpcIds: Set<String> = emptySet(),
     val worldContext: String? = null,
-    val generationPreferences: String? = null,
-    /** Ficha do jogador em texto (ver [PlayerSheet]). Sempre entra no pedido, antes do resto, e não é cortada pelo orçamento. */
-    val playerSheet: String? = null,
-    /** Testes e dificuldades que o mestre pode pedir (ver [CheckMenu.describe]). null = o mestre não pode pedir teste. */
-    val checkMenu: String? = null,
-    /** Teste ou rolagem que o mestre pediu e o jogador acabou de rolar: [check] traz o resultado e a nota privada do resultado volta à IA. */
-    val resolving: Pending? = null,
-    /** Últimas narrações, da mais antiga para a mais nova. */
-    val recentNarrative: List<String> = emptyList(),
-    /** Orçamento de tokens do pedido inteiro (7.2.4). */
-    val budgetTokens: Int = 2000
+    val generationPreferences: String? = null
 )
 
 object ContextAssembler {
