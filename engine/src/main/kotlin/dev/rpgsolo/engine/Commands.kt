@@ -37,6 +37,8 @@ data class AddCondition(
     val damageResource: String = "hp"
 ) : Command
 data class RemoveCondition(val entityId: String, val condition: String) : Command
+/** Cria/atualiza o dossiê privado de um NPC; a ficha mecânica é validada pelo pacote antes do comando. */
+data class SetNpcDossier(val dossier: NpcDossier) : Command
 /** [order] = ordem de iniciativa já decidida (ver GameEngine.rollInitiative). */
 data class StartCombat(val order: List<String>) : Command
 object NextTurn : Command
@@ -300,6 +302,15 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
 
         EndCombat ->
             return if (state.combat == null) no("não há combate ativo") else Decision.Ok(listOf(CombatEnded))
+
+        is SetNpcDossier -> {
+            val npc = entity(cmd.dossier.npcId) ?: return no("NPC inexistente: ${cmd.dossier.npcId}")
+            if (npc.kind != EntityKind.NPC) return no("dossiê privado só pode pertencer a NPC")
+            if (cmd.dossier.npcId.isBlank()) return no("dossiê sem id de NPC")
+            if (cmd.dossier.secrets.any { it.id.isBlank() || it.text.isBlank() }) return no("segredo sem id ou texto")
+            if (cmd.dossier.secrets.map { it.id }.distinct().size != cmd.dossier.secrets.size) return no("id de segredo repetido")
+            return Decision.Ok(listOf(NpcDossierStored(cmd.dossier)))
+        }
 
         is RecordFact ->
             return if (cmd.key.isBlank()) no("chave vazia") else Decision.Ok(listOf(FactRecorded(cmd.key, cmd.value)))
