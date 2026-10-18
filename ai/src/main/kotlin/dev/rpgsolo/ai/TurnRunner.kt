@@ -153,7 +153,9 @@ class TurnRunner(
                         }
                         val npcId = "npc-${session.mark()}-${proposal.name.trim().lowercase().hashCode()}"
                         val candidate = proposal.copy(id = npcId)
-                        val result = npcCreator?.invoke(candidate) ?: npcMenu.createNpc(candidate)
+                        val result = npcCreator?.invoke(candidate)
+                            ?: npcMenu?.createNpc(candidate)
+                            ?: return Attempt.Retry("não há pacote ativo para validar a ficha de NPC", false)
                         val sheet = when (result) {
                             is NpcResult.Created -> result.sheet
                             is NpcResult.Rejected ->
