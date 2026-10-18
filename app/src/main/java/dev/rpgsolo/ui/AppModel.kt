@@ -70,6 +70,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     val content: Content = BundledContent.load(application)
     private val secureSettings = SecureSettings(application)
     private var storedSettings: StoredProviderSettings? = secureSettings.load()
+    private val narrationPrefs = application.getSharedPreferences("rpg_narration_prefs", 0)
+    var narrationLength by mutableStateOf(narrationPrefs.getString("length", "equilibrada") ?: "equilibrada")
+        private set
+    var narrationStyle by mutableStateOf(narrationPrefs.getString("style", "cinematográfica") ?: "cinematográfica")
+        private set
+
+    fun setNarrationPreferences(length: String, style: String) {
+        val validLengths = setOf("curta", "equilibrada", "detalhada")
+        val validStyles = setOf("cinematográfica", "literária", "direta")
+        if (length !in validLengths || style !in validStyles) return
+        narrationLength = length
+        narrationStyle = style
+        narrationPrefs.edit().putString("length", length).putString("style", style).apply()
+        campaignVersion++
+    }
 
     /** Biblioteca de fichas reutilizáveis, persistida separadamente das campanhas. */
     val fichas = mutableStateListOf<Ficha>()
@@ -713,6 +728,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
+            generationPreferences = {
+                "Preferências de narração do jogador: extensão ${narrationLength}; estilo ${narrationStyle}. Preserve as regras, fatos e resultados do motor."
+            },
             worldContext = {
                 buildString {
                     session.state.ambientacao?.let { setting ->
