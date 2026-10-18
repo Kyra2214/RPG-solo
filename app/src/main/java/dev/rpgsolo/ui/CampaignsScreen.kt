@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets
+import java.io.ByteArrayOutputStream
 
 /** Aba Campanhas (10.4): capítulos e resumos, missões, diário (só o descoberto). */
 @Composable
@@ -72,7 +73,21 @@ fun CampaignsScreen(model: AppModel) {
                     withContext(Dispatchers.IO) {
                         val input = context.contentResolver.openInputStream(uri)
                             ?: error("não foi possível abrir o arquivo")
-                        input.bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
+                        input.use { stream ->
+                            val output = ByteArrayOutputStream()
+                            val buffer = ByteArray(8192)
+                            var total = 0
+                            while (true) {
+                                val count = stream.read(buffer)
+                                if (count < 0) break
+                                total += count
+                                require(total <= dev.rpgsolo.engine.Backup.MAX_BACKUP_CHARS) {
+                                    "backup excede o limite de 50 MiB; arquivo recusado durante a leitura"
+                                }
+                                output.write(buffer, 0, count)
+                            }
+                            String(output.toByteArray(), StandardCharsets.UTF_8)
+                        }
                     }
                 }
                 backupStatus = importedText.fold(
