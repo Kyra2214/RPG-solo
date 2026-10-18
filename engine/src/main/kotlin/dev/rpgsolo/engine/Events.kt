@@ -17,6 +17,8 @@ data class EntityRevived(val entityId: String, val reason: String) : Event
 @Serializable
 data class ItemChanged(val ownerId: String, val itemId: String, val delta: Int) : Event
 @Serializable
+data class EquipmentChanged(val ownerId: String, val slot: String, val itemId: String?) : Event
+@Serializable
 data class XpGained(val entityId: String, val amount: Int) : Event
 @Serializable
 data class LevelGained(val entityId: String, val level: Int) : Event
@@ -89,6 +91,11 @@ fun GameState.apply(e: Event): GameState {
             val qty = (owner[e.itemId] ?: 0) + e.delta
             val newOwner = if (qty <= 0) owner - e.itemId else owner + (e.itemId to qty)
             copy(inventory = inventory + (e.ownerId to newOwner))
+        }
+        is EquipmentChanged -> {
+            val owner = equipped[e.ownerId] ?: emptyMap()
+            val nextOwner = if (e.itemId == null) owner - e.slot else owner + (e.slot to e.itemId)
+            copy(equipped = if (nextOwner.isEmpty()) equipped - e.ownerId else equipped + (e.ownerId to nextOwner))
         }
         is XpGained -> {
             val ent = entity(e.entityId)

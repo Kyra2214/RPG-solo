@@ -14,6 +14,8 @@ data class Heal(val entityId: String, val resource: String, val amount: Int) : C
 data class SpendResource(val entityId: String, val resource: String, val cost: Int) : Command
 data class AddItem(val ownerId: String, val itemId: String, val qty: Int = 1) : Command
 data class ConsumeItem(val ownerId: String, val itemId: String, val qty: Int = 1) : Command
+data class EquipItem(val ownerId: String, val itemId: String, val slot: String) : Command
+data class UnequipItem(val ownerId: String, val slot: String) : Command
 data class GainXp(val entityId: String, val amount: Int) : Command
 /** Ressurreição exige justificativa explícita. */
 data class Revive(val entityId: String, val reason: String) : Command
@@ -124,6 +126,23 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val have = state.inventory[cmd.ownerId]?.get(cmd.itemId) ?: 0
             if (have < cmd.qty) return no("item ausente ou insuficiente: ${cmd.itemId} ($have/${cmd.qty})")
             return Decision.Ok(listOf(ItemChanged(cmd.ownerId, cmd.itemId, -cmd.qty)))
+        }
+
+        is EquipItem -> {
+            val ent = entity(cmd.ownerId) ?: return no("dono inexistente: ${cmd.ownerId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.itemId.isBlank() || cmd.slot.isBlank()) return no("item e slot são obrigatórios")
+            val have = state.inventory[cmd.ownerId]?.get(cmd.itemId) ?: 0
+            if (have <= 0) return no("item ausente: ${cmd.itemId}")
+            if (state.equipped[cmd.ownerId]?.containsKey(cmd.slot) == true) return no("slot ocupado: ${cmd.slot}")
+            return Decision.Ok(listOf(EquipmentChanged(cmd.ownerId, cmd.slot, cmd.itemId)))
+        }
+
+        is UnequipItem -> {
+            if (entity(cmd.ownerId) == null) return no("dono inexistente: ${cmd.ownerId}")
+            if (cmd.slot.isBlank()) return no("slot vazio")
+            if (state.equipped[cmd.ownerId]?.containsKey(cmd.slot) != true) return no("slot vazio: ${cmd.slot}")
+            return Decision.Ok(listOf(EquipmentChanged(cmd.ownerId, cmd.slot, null)))
         }
 
         is GainXp -> {

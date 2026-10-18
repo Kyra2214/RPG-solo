@@ -165,6 +165,13 @@ fun validateState(state: GameState): List<String> {
         if (!state.entities.containsKey(owner)) problems += "inventário de dono inexistente: $owner"
         for ((item, qty) in items) if (qty <= 0) problems += "$owner/$item com quantidade $qty"
     }
+    for ((owner, slots) in state.equipped) {
+        if (!state.entities.containsKey(owner)) problems += "equipamento de dono inexistente: $owner"
+        for ((slot, item) in slots) {
+            if (slot.isBlank() || item.isBlank()) problems += "$owner com equipamento inválido"
+            if ((state.inventory[owner]?.get(item) ?: 0) <= 0) problems += "$owner/$slot equipado sem item no inventário"
+        }
+    }
     for (p in state.promises.values) {
         if (!state.entities.containsKey(p.npcId)) problems += "promessa ${p.id} de NPC inexistente: ${p.npcId}"
     }

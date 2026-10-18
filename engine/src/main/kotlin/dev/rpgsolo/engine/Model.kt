@@ -33,6 +33,8 @@ data class GameState(
     val entities: Map<String, Entity> = emptyMap(),
     /** dono -> (item -> quantidade) */
     val inventory: Map<String, Map<String, Int>> = emptyMap(),
+    /** dono -> (slot -> item); equipar não remove o item do inventário. */
+    val equipped: Map<String, Map<String, String>> = emptyMap(),
     val facts: Map<String, String> = emptyMap(),
     /** O que o jogador descobriu (2.2.3). Chave -> conhecimento. */
     val knowledge: Map<String, Knowledge> = emptyMap(),

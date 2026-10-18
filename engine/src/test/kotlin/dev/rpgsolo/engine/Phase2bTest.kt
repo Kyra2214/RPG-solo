@@ -100,6 +100,18 @@ class Phase2bTest {
         assertEquals(e.state, GameEngine.restore(7, EngineConfig(), e.events).state)
     }
 
+    @Test fun equipamentoExigeItemSlotLivreEEhReproduzivel() {
+        val e = engine("hero")
+        ok(e.execute(AddItem("hero", "espada")))
+        ok(e.execute(EquipItem("hero", "espada", "mao")))
+        assertEquals("espada", e.state.equipped.getValue("hero").getValue("mao"))
+        bad(e.execute(EquipItem("hero", "espada", "mao")))
+        bad(e.execute(EquipItem("hero", "escudo", "outra-mao")))
+        ok(e.execute(UnequipItem("hero", "mao")))
+        assertTrue(e.state.equipped.isEmpty())
+        assertTrue(validateState(GameEngine.restore(7, EngineConfig(), e.events).state).isEmpty())
+    }
+
     // ---- combate (2.3.2) ----
     @Test fun turnosGiramEContamRodadas() {
         val e = engine("hero", "orc", "elfo")
