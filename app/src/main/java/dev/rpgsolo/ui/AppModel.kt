@@ -1001,14 +1001,35 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addQuest(title: String): String? =
+    fun addQuest(title: String, objectives: List<String> = emptyList()): String? =
         try {
             require(title.isNotBlank()) { "dê um título à missão" }
-            quests.add(Quest("q${quests.active().size + 1}-${title.hashCode()}", title.trim()))
+            val cleanObjectives = objectives.map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+            require(cleanObjectives.size <= 20 && cleanObjectives.all { it.length <= 300 }) {
+                "a missão aceita até 20 objetivos, cada um com no máximo 300 caracteres"
+            }
+            val id = "q${quests.all().size + 1}-${title.hashCode()}"
+            quests.add(Quest(
+                id = id,
+                title = title.trim(),
+                objectives = cleanObjectives.map { dev.rpgsolo.engine.Objective(it) }
+            ))
             saveMetadata()
             campaignVersion++
             null
         } catch (e: IllegalArgumentException) {
+            e.message
+        }
+
+    fun completeQuestObjective(questId: String, index: Int): String? =
+        try {
+            quests.completeObjective(questId, index)
+            saveMetadata()
+            campaignVersion++
+            null
+        } catch (e: IllegalArgumentException) {
+            e.message
+        } catch (e: IllegalStateException) {
             e.message
         }
 }
