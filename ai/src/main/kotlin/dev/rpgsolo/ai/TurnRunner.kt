@@ -149,6 +149,7 @@ class TurnRunner(
                                 return Attempt.Retry("ficha de NPC recusada pelo pacote: ${result.errors.joinToString("; ")}", false)
                         }
                         normalized += dev.rpgsolo.engine.CreateEntity(sheet.toEntity())
+                        sheet.dossier?.let { normalized += dev.rpgsolo.engine.SetNpcDossier(it) }
                     }
                     when (val r = session.executeAll(normalized)) {
                         is ExecResult.Accepted -> Attempt.Done(TurnOutcome.Applied(out.narrative, r.events, out.suggestions))
