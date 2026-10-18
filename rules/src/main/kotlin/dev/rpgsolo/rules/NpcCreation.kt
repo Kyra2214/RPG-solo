@@ -38,7 +38,8 @@ data class NpcProposal(
     val traits: List<String>,
     /** Só usado quando não há pacote para validar (sistema só com PDF/rede): máximos dos recursos. */
     val resources: Map<String, Int> = emptyMap(),
-    val ruleSource: RuleSource
+    val ruleSource: RuleSource,
+    val skills: Map<String, Int> = emptyMap()
 )
 
 /**
@@ -69,7 +70,10 @@ object NpcFactory {
     fun create(proposal: NpcProposal, pkg: RulePackage?, systemRef: SystemRef? = null): NpcResult {
         if (proposal.name.isBlank()) return NpcResult.Rejected(listOf("NPC sem nome"))
         if (pkg != null) {
-            return when (val b = pkg.buildFicha(proposal.id, proposal.name.trim(), proposal.concept.trim(), proposal.stats, proposal.traits)) {
+            return when (val b = pkg.buildFicha(
+                proposal.id, proposal.name.trim(), proposal.concept.trim(),
+                proposal.stats, proposal.traits, proposal.skills
+            )) {
                 is FichaBuild.Invalid -> NpcResult.Rejected(b.errors)
                 is FichaBuild.Created -> NpcResult.Created(NpcSheet(b.ficha, true, proposal.ruleSource, b.warnings))
             }
@@ -84,7 +88,8 @@ object NpcFactory {
             concept = proposal.concept.trim(),
             stats = proposal.stats,
             resources = res,
-            traits = proposal.traits
+            traits = proposal.traits,
+            skills = proposal.skills
         )
         return NpcResult.Created(NpcSheet(ficha, false, proposal.ruleSource, listOf("sistema sem pacote instalado: ficha não validada pelo motor")))
     }
