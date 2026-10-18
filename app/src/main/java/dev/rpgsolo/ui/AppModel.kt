@@ -714,17 +714,33 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
             worldContext = {
-                session.state.ambientacao?.let { setting ->
-                    buildString {
+                buildString {
+                    session.state.ambientacao?.let { setting ->
                         append("Ambientação ficcional da campanha: ").append(setting.name)
                         setting.tone.takeIf { it.isNotBlank() }?.let { append("; tom: ").append(it) }
                         setting.technology.takeIf { it.isNotBlank() }?.let { append("; tecnologia: ").append(it) }
                         setting.organizations.takeIf { it.isNotEmpty() }?.let { append("; organizações: ").append(it.joinToString(", ")) }
                         setting.conflicts.takeIf { it.isNotEmpty() }?.let { append("; conflitos: ").append(it.joinToString(", ")) }
                         setting.fictionalGear.takeIf { it.isNotEmpty() }?.let { append("; equipamentos ficcionais: ").append(it.joinToString(", ")) }
-                        append(". Isto não altera regras mecânicas do sistema/edição.")
+                        append(". Isto não altera regras mecânicas do sistema/edição.\n")
                     }
-                }
+                    session.state.currentPlaceId?.let { id ->
+                        val place = session.state.places[id]
+                        if (place != null && id in session.state.knownPlaces) {
+                            append("Local atual: ").append(place.name).append(". ").append(place.description)
+                            if (place.secret.isNotBlank()) {
+                                append("\nSegredo privado do local: ").append(place.secret)
+                                append(" — não revele sem sucesso mecânico apropriado.")
+                            }
+                            val links = session.state.placeLinks[id].orEmpty()
+                            val exits = links.filter { it in session.state.knownPlaces }
+                                .mapNotNull { session.state.places[it]?.name }
+                            append("\nSaídas conhecidas: ").append(exits.joinToString(", ").ifEmpty { "nenhuma" })
+                            val unknownExits = links.count { it !in session.state.knownPlaces }
+                            if (unknownExits > 0) append("; há ").append(unknownExits).append(" passagem(ns) ainda desconhecida(s), não revele seus nomes.")
+                        }
+                    }
+                }.toString().ifBlank { null }
             }
         )
     }
