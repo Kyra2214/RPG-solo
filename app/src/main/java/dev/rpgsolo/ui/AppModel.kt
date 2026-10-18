@@ -52,7 +52,7 @@ import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.rules.CampaignStarter
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
-data class CombatTarget(val id: String, val name: String)
+data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true)
 data class EquipmentView(val id: String, val name: String, val quantity: Int, val slot: String, val equipped: Boolean)
 data class InventoryView(
     val id: String, val name: String, val quantity: Int, val kind: String,
@@ -622,16 +622,31 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return IntentClassifier(provider).asCheckFor(options) { classifierWarning = it }
     }
 
-    private fun buildController(r: AiRoles): PlayController =
-        PlayController(
+    private fun buildController(r: AiRoles): PlayController {
+        val npcCreator: (dev.rpgsolo.rules.NpcProposal) -> dev.rpgsolo.rules.NpcResult = { proposal ->
+            val pkg = activePackage
+            val systemRef = activeFicha?.system ?: if (activeSystemId != null && activeEditionId != null) {
+                dev.rpgsolo.engine.SystemRef(activeSystemId!!, activeEditionId!!)
+            } else null
+            dev.rpgsolo.rules.NpcFactory.create(
+                proposal.copy(
+                    ruleSource = if (pkg != null) dev.rpgsolo.rules.RuleSource.PACOTE
+                    else dev.rpgsolo.rules.RuleSource.IA_NAO_VERIFICADA
+                ),
+                pkg,
+                systemRef
+            )
+        }
+        val loop = GameLoop(
+            r.narrator,
+            runner = TurnRunner(r.narrator, npcCreator = npcCreator),
+            premiumRunner = if (r.hasPremium) TurnRunner(r.premium, npcCreator = npcCreator) else null,
+            menu = activePackage?.let { CheckMenu(it) },
+            playerTraits = { activeFicha?.traits.orEmpty() }
+        )
+        return PlayController(
             session,
-            GameLoop(
-                r.narrator,
-                premiumRunner = if (r.hasPremium) TurnRunner(r.premium) else null,
-                // O mestre só pode pedir os testes que o pacote da campanha oferece.
-                menu = activePackage?.let { CheckMenu(it) },
-                playerTraits = { activeFicha?.traits.orEmpty() }
-            ),
+            loop,
             playerId,
             healthResource = activePackage?.manifest?.deathResource
                 ?: session.state.entities[playerId]?.resources?.keys?.firstOrNull()
@@ -656,6 +671,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     val dossier = session.state.npcDossiers[id]
                     buildString {
                         append("Ficha privada de NPC — ").append(npc.name)
+                        if (!npc.rulesValidated) append("; ficha NÃO validada por pacote")
                         if (npc.concept.isNotBlank()) append("; conceito: ").append(npc.concept)
                         if (npc.stats.isNotEmpty()) append("; atributos mecânicos: ").append(npc.stats.entries.joinToString(", ") { "${it.key}=${it.value}" })
                         if (traits.isNotEmpty()) append("; traços: ").append(traits.joinToString(" | "))
@@ -678,6 +694,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         )
+    }
 
     /** Fluxo "Nova campanha" (9.1). null até haver provedor de IA configurado. */
     fun newCampaignFlow(): NewCampaignFlow? {
