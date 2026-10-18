@@ -9,6 +9,9 @@ combate_atributo_iniciativa|habilidade
 combate_dados_ataque|1
 combate_lados_ataque|20
 combate_comparacao_ataque|ROLL_OVER
+combate_dados_iniciativa|1
+combate_lados_iniciativa|20
+combate_ordem_iniciativa|MAIOR
 combate_defesa_base|10
 combate_dano_base|0
 combate_dano|golpe
