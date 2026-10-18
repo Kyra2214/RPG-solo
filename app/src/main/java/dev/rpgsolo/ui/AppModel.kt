@@ -137,6 +137,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         restoreFichas()
         refreshCampaigns()
         restoreMetadata()
+        if (chapters.chapters.isEmpty()) openChapter("Capítulo 1")
         storedSettings?.let { saved ->
             runCatching {
                 applySettings(
