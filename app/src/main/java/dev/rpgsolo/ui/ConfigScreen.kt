@@ -40,6 +40,8 @@ fun ConfigScreen(model: AppModel) {
     var key by remember { mutableStateOf(stored?.apiKey.orEmpty()) }
     var cheapModel by remember { mutableStateOf(stored?.cheapModel.orEmpty()) }
     var premiumModel by remember { mutableStateOf(stored?.premiumModel.orEmpty()) }
+    var narrationLength by remember { mutableStateOf(model.narrationLength) }
+    var narrationStyle by remember { mutableStateOf(model.narrationStyle) }
     var saved by remember { mutableStateOf(false) }
     var testing by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<ConnectionTestResult?>(null) }
@@ -91,6 +93,36 @@ fun ConfigScreen(model: AppModel) {
             }
         }
         if (saved && model.configError == null) AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text("Provedor ativo. Chave: ${maskKey(key)}") }
+        AppCard {
+            Text("Preferências de geração", style = MaterialTheme.typography.titleSmall)
+            Text("Extensão da narração")
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("curta", "equilibrada", "detalhada").forEach { option ->
+                    FilterChip(
+                        selected = narrationLength == option,
+                        onClick = {
+                            narrationLength = option
+                            model.setNarrationPreferences(narrationLength, narrationStyle)
+                        },
+                        label = { Text(option.replaceFirstChar { it.uppercase() }) }
+                    )
+                }
+            }
+            Text("Estilo")
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("cinematográfica", "literária", "direta").forEach { option ->
+                    FilterChip(
+                        selected = narrationStyle == option,
+                        onClick = {
+                            narrationStyle = option
+                            model.setNarrationPreferences(narrationLength, narrationStyle)
+                        },
+                        label = { Text(option.replaceFirstChar { it.uppercase() }) }
+                    )
+                }
+            }
+            Muted("Estas preferências mudam o texto, nunca os resultados do motor nem as regras do sistema.")
+        }
         AppCard {
             Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
             Muted("A chave é cifrada pelo Android Keystore e não entra em backups nem logs. A jogada que você escreve é enviada ao provedor escolhido.")
