@@ -60,7 +60,9 @@ class GameLoop(
     /** Testes que o mestre pode pedir (do pacote ativo). null = o mestre não pode pedir teste. */
     private val menu: CheckMenu? = null,
     /** Ids dos traços do personagem do jogador (vantagens e perícias que dão bônus nos testes). */
-    private val playerTraits: () -> List<String> = { emptyList() }
+    private val playerTraits: () -> List<String> = { emptyList() },
+    /** Bônus mecânicos de adaptações aprovadas, consultados por escopo (teste, atributo ou perícia). */
+    private val additionalBonus: (String) -> Int = { 0 }
 ) {
     private val history = mutableListOf<TurnRecord>()
     private val narrations = mutableListOf<String>()
@@ -75,8 +77,15 @@ class GameLoop(
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
-    private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null): CheckSpec =
-        menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), playerTraits(), skill) ?: spec
+    private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null): CheckSpec {
+        val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), playerTraits(), skill) ?: spec
+        val scopes = listOfNotNull(spec.checkId, spec.stat, skill).distinct()
+        val bonus = scopes.sumOf(additionalBonus)
+        return if (bonus == 0) adjusted else adjusted.copy(
+            modifier = adjusted.modifier + bonus,
+            label = adjusted.label + if (bonus > 0) " · adaptação +$bonus" else " · adaptação $bonus"
+        )
+    }
 
     /** Quantas resoluções de pedido do mestre vieram em sequência no fim do histórico (limita o encadeamento). */
     private fun chainDepth(records: List<TurnRecord>): Int = records.takeLastWhile { it.input.resolving != null }.size
