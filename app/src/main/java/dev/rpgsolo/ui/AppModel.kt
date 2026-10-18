@@ -1291,6 +1291,19 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             e.message
         }
 
+    fun finishQuest(questId: String, status: dev.rpgsolo.engine.QuestStatus): String? =
+        try {
+            require(status != dev.rpgsolo.engine.QuestStatus.ACTIVE) { "escolha concluída ou falhou" }
+            quests.finish(questId, status)
+            saveMetadata()
+            campaignVersion++
+            null
+        } catch (e: IllegalArgumentException) {
+            e.message
+        } catch (e: IllegalStateException) {
+            e.message
+        }
+
     fun completeQuestObjective(questId: String, index: Int): String? =
         try {
             quests.completeObjective(questId, index)
