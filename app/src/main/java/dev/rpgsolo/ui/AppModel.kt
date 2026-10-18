@@ -694,7 +694,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             },
             chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
             npcContext = { text -> privateNpcContext(text) },
-            sceneNpcIds = { text -> npcIdsForScene(text) }
+            sceneNpcIds = { text -> npcIdsForScene(text) },
+            worldContext = {
+                session.state.ambientacao?.let { setting ->
+                    buildString {
+                        append("Ambientação ficcional da campanha: ").append(setting.name)
+                        setting.tone.takeIf { it.isNotBlank() }?.let { append("; tom: ").append(it) }
+                        setting.technology.takeIf { it.isNotBlank() }?.let { append("; tecnologia: ").append(it) }
+                        setting.organizations.takeIf { it.isNotEmpty() }?.let { append("; organizações: ").append(it.joinToString(", ")) }
+                        setting.conflicts.takeIf { it.isNotEmpty() }?.let { append("; conflitos: ").append(it.joinToString(", ")) }
+                        setting.fictionalGear.takeIf { it.isNotEmpty() }?.let { append("; equipamentos ficcionais: ").append(it.joinToString(", ")) }
+                        append(". Isto não altera regras mecânicas do sistema/edição.")
+                    }
+                }
+            }
         )
     }
 
@@ -759,6 +772,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         activeFichaId = started.campanha.fichaId
         activeSystemId = started.campanha.system.systemId
         activeEditionId = started.campanha.system.editionId
+        when (val setting = session.execute(dev.rpgsolo.engine.SetAmbientacao(started.campanha.ambientacao))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+            is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "ambientação não salva: ${setting.reason}"
+        }
         activeCampaignPrefs.edit().putString("active_campaign", session.campaignId).apply()
         chapters = ChapterBook()
         quests = QuestLog()
