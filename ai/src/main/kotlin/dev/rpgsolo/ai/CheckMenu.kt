@@ -4,6 +4,9 @@ import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.GameState
 import dev.rpgsolo.rules.RulePackage
+import dev.rpgsolo.rules.NpcProposal
+import dev.rpgsolo.rules.NpcResult
+import dev.rpgsolo.rules.NpcFactory
 
 /**
  * Pedido de teste feito pelo MESTRE no meio da história (ex.: "role Percepção", "role Esquiva contra a flecha").
@@ -66,6 +69,9 @@ class CheckMenu(private val pkg: RulePackage) {
 
     /** Itens válidos no pacote ativo; a IA não pode inventar ids de inventário. */
     fun hasItem(itemId: String): Boolean = pkg.item(itemId) != null
+
+    /** Valida a ficha mecânica proposta para um NPC pelo pacote ativo. */
+    fun createNpc(proposal: NpcProposal): NpcResult = NpcFactory.create(proposal, pkg)
 
     /** Converte um id de condição em comando com duração e dano definidos pelo pacote, nunca pela IA. */
     fun conditionCommand(entityId: String, conditionId: String): dev.rpgsolo.engine.AddCondition? {
