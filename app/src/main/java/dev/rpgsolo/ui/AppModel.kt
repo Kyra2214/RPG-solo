@@ -917,6 +917,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         style.difficultyId?.let { id -> append("Dificuldade escolhida: ").append(content.catalog?.entry(id)?.name ?: id).append(".\n") }
                         style.difficultyParams.takeIf { it.isNotEmpty() }?.let { params ->
                             append("Parâmetros de dificuldade: ").append(params.entries.joinToString(", ") { "${it.key}=${it.value}" }).append(".\n")
+                            params["resource_scarcity"]?.let { value ->
+                                append("Escassez de recursos (0 abundante, 10 escasso): ").append(value)
+                                    .append(". Ajuste a frequência narrativa de recursos e saques a esta escala, sem inventar itens mecânicos fora do pacote.\n")
+                            }
+                            params["defeat_consequence"]?.let { value ->
+                                append("Consequências de derrota (0 leves, 10 severas): ").append(value)
+                                    .append(". Use contratempos ficcionais proporcionais, sem contrariar o estado ou os resultados do motor.\n")
+                            }
                         }
                         style.progressionId?.let { id -> append("Progressão: ").append(content.catalog?.entry(id)?.name ?: id).append(".\n") }
                         style.contentLimits.takeIf { it.isNotEmpty() }?.let { limits ->
