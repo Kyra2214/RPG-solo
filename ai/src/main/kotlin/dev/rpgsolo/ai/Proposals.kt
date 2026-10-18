@@ -308,14 +308,14 @@ object ProposalParser {
             targetNpcId = opt("targetNpc"),
             revealSecretId = opt("revealSecret"),
             targetPlaceId = opt("targetPlace"),
-            revealPlaceSecret = optBool("revealPlaceSecret") ?: false,
+            revealPlaceSecret = o.bool("revealPlaceSecret") ?: false,
             requiredStat = opt("requiredStat")
         ).also {
             if ((it.targetNpcId == null) != (it.revealSecretId == null)) {
                 throw Bad("use targetNpc e revealSecret juntos")
             }
-            if (it.revealPlaceSecret && it.targetPlaceId.isNullOrBlank()) {
-                throw Bad("revelar segredo de local exige targetPlace")
+            if ((it.targetPlaceId == null) == it.revealPlaceSecret) {
+                throw Bad("use targetPlace junto com revealPlaceSecret:true")
             }
             if (it.targetNpcId != null && (it.targetPlaceId != null || it.revealPlaceSecret)) {
                 throw Bad("não combine segredo de NPC e de local")
