@@ -87,6 +87,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var version by remember(key) { mutableIntStateOf(0) }
     var message by remember(key) { mutableStateOf<String?>(null) }
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
+    var expandedFichaId by remember(key) { mutableStateOf<String?>(null) }
     val clipboard = LocalClipboardManager.current
     var archId by remember(key) { mutableStateOf<String?>(null) }
     var archQuery by remember(key) { mutableStateOf("") }
@@ -254,6 +255,23 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             AppCard {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
                 Muted("${f.concept.ifBlank { "sem conceito" }} · ${f.system.editionId}")
+                TextButton(onClick = { expandedFichaId = if (expandedFichaId == f.id) null else f.id }) {
+                    Text(if (expandedFichaId == f.id) "Ocultar ficha" else "Ver ficha")
+                }
+                if (expandedFichaId == f.id) {
+                    val fichaPkg = dev.rpgsolo.rules.CampaignStarter.packageFor(reg, f.system.editionId)
+                    Muted("Atributos: " + f.stats.entries.joinToString(", ") { (id, value) ->
+                        "${fichaPkg?.stat(id)?.name ?: id}: $value"
+                    })
+                    if (f.skills.isNotEmpty()) Muted("Perícias: " + f.skills.entries.joinToString(", ") { (id, value) ->
+                        "${fichaPkg?.trait(id)?.name ?: id}: $value"
+                    })
+                    if (f.traits.isNotEmpty()) Muted("Traços: " + f.traits.joinToString(", ") { id -> fichaPkg?.trait(id)?.name ?: id })
+                    if (f.resources.isNotEmpty()) Muted("Recursos: " + f.resources.entries.joinToString(", ") { (id, resource) ->
+                        "${id}: ${resource.current}/${resource.max}"
+                    })
+                    if (f.adaptations.isNotEmpty()) Muted("Adaptações: " + f.adaptations.joinToString(", "))
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     TextButton(onClick = { libraryMessage = model.duplicateFicha(f.id) ?: "Ficha duplicada." }) { Text("Duplicar") }
                     TextButton(onClick = { libraryMessage = model.archiveFicha(f.id, true) ?: "Ficha arquivada." }) { Text("Arquivar") }
