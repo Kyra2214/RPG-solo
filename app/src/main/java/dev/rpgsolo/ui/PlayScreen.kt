@@ -107,6 +107,12 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
 
     Column(Modifier.fillMaxSize()) {
         panel?.let { StatusPanel(it) }
+        QuickActions(
+            enabled = !busy && !pendingRoll && pendingCheck == null,
+            onSheet = { run { c.submit("ver ficha") } },
+            onInventory = { run { c.submit("inventário") } },
+            onRest = { run { c.submit("descansar") } }
+        )
         CombatControls(model)
 
         LazyColumn(
@@ -137,6 +143,21 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
             onUndo = { run { c.undo() } },
             onRegenerate = { run { c.regenerate() } }
         )
+    }
+}
+
+/** Atalhos de baixo custo: o controlador reconhece estas frases como ações locais, sem chamar a IA. */
+@Composable
+private fun QuickActions(enabled: Boolean, onSheet: () -> Unit, onInventory: () -> Unit, onRest: () -> Unit) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AssistChip(onClick = onSheet, enabled = enabled, label = { Text("Ver ficha") })
+            AssistChip(onClick = onInventory, enabled = enabled, label = { Text("Inventário") })
+            AssistChip(onClick = onRest, enabled = enabled, label = { Text("Descansar") })
+        }
     }
 }
 
