@@ -57,6 +57,8 @@ data class AdditionalRuleRejected(val id: String) : Event
 @Serializable
 data class AmbientacaoSet(val ambientacao: Ambientacao) : Event
 @Serializable
+data class CampaignStyleSet(val style: CampaignStyle) : Event
+@Serializable
 data class PlaceAdded(val place: Place) : Event
 @Serializable
 data class PlacesConnected(val fromId: String, val toId: String) : Event
@@ -146,6 +148,7 @@ fun GameState.apply(e: Event): GameState {
         }
         is AdditionalRuleRejected -> copy(additionalRules = additionalRules - e.id)
         is AmbientacaoSet -> copy(ambientacao = e.ambientacao)
+        is CampaignStyleSet -> copy(campaignStyle = e.style)
         is PlaceAdded -> copy(
             places = places + (e.place.id to e.place),
             placeLinks = placeLinks + (e.place.id to emptySet())
