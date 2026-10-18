@@ -26,6 +26,8 @@
 - A tela inicial vazia oferece atalhos para configurar a IA e iniciar uma campanha.
 - O diário de campanha mostra histórico de XP/nível derivado do log e atitudes registradas dos NPCs em palavras.
 - O avanço de rodada ignora um combatente que morre por efeito de condição no momento em que o turno dele começaria.
+- O prompt do mestre orienta avanço parcimonioso de relógios de agenda sem expor nomes ou contagens.
+- Condições temporizadas exigem recurso de referência válido, para que a duração sempre possa expirar corretamente.
 
 ### Validação desta etapa
 - **Não foram executados builds, testes, lint ou CI**, conforme a orientação de concluir o código antes das validações.
