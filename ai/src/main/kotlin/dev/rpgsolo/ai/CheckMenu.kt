@@ -126,7 +126,7 @@ class CheckMenu(private val pkg: RulePackage) {
     }
 
     /** Valida uma descoberta de segredo de NPC ou local sem entregar o texto antes do resultado. */
-    fun validateSecretRequest(req: CheckRequest, state: GameState): String? {
+    fun validateSecretRequest(req: CheckRequest, state: GameState, allowedNpcIds: Set<String>? = null): String? {
         val requested = req.targetNpcId != null || req.revealSecretId != null ||
             req.targetPlaceId != null || req.revealPlaceSecret || req.requiredStat != null
         if (!requested) return null
@@ -149,6 +149,9 @@ class CheckMenu(private val pkg: RulePackage) {
             val secretId = req.revealSecretId ?: return "revelação de NPC exige revealSecret"
             val npc = state.entities[npcId] ?: return "NPC inexistente: $npcId"
             if (npc.kind != EntityKind.NPC) return "targetNpc não é um NPC"
+            if (allowedNpcIds != null && npcId !in allowedNpcIds) {
+                return "só é possível investigar um NPC presente ou explicitamente mencionado na cena atual"
+            }
             val dossier = state.npcDossiers[npcId] ?: return "NPC não tem dossiê privado"
             if (dossier.secrets.none { it.id == secretId }) return "segredo '$secretId' não existe no dossiê de $npcId"
             if (state.knowledge.containsKey("npc-secret:$npcId:$secretId")) return "esse segredo já foi descoberto"
