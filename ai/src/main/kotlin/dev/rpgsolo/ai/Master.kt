@@ -39,6 +39,7 @@ data class ContextInput(
     /** IDs de NPCs realmente presentes na cena, para não vazar estado de toda a campanha. */
     val sceneNpcIds: Set<String> = emptySet(),
     val worldContext: String? = null,
+    val generationPreferences: String? = null,
     /** Ficha do jogador em texto (ver [PlayerSheet]). Sempre entra no pedido, antes do resto, e não é cortada pelo orçamento. */
     val playerSheet: String? = null,
     /** Testes e dificuldades que o mestre pode pedir (ver [CheckMenu.describe]). null = o mestre não pode pedir teste. */
@@ -167,6 +168,7 @@ object ContextAssembler {
             input.ruleSnippets.takeIf { it.isNotEmpty() }?.let { "Regras relevantes:\n" + it.joinToString("\n") },
             input.chapterSummary?.takeIf { it.isNotBlank() }?.let { "Resumo do capítulo:\n$it" },
             input.worldContext?.takeIf { it.isNotBlank() },
+            input.generationPreferences?.takeIf { it.isNotBlank() },
             input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") }
         )
         // Sempre entram (não são cortadas pelo orçamento): ficha do jogador e menu de testes.
