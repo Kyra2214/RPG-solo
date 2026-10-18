@@ -804,6 +804,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         switchCampaign(id)
         refreshCampaigns(); campaignVersion++; null
     } catch (e: IllegalArgumentException) { e.message }
+      catch (e: IllegalStateException) { e.message }
+      catch (e: Exception) { "falha ao restaurar backup: ${e.message ?: "erro inesperado"}" }
 
     private fun restoreMetadata() {
         chapters = ChapterBook(chapterEventLimit)
