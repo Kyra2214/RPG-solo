@@ -359,15 +359,20 @@ object PackageValidator {
         if (d.stats.isEmpty()) p += "pacote sem atributos"
         d.resources.filter { it.stat != null && it.stat !in stats }.forEach { p += "recurso ${it.id}: atributo inexistente ${it.stat}" }
         d.checks.filter { it.stat != null && it.stat !in stats }.forEach { p += "teste ${it.id}: atributo inexistente ${it.stat}" }
+        d.checks.filter { it.skill != null && d.traits.none { trait -> trait.id == it.skill && trait.type == "pericia" } }
+            .forEach { p += "teste ${it.id}: perícia inexistente ou não classificada como perícia: ${it.skill}" }
         d.conditions.forEach { c -> c.effect?.stats?.filter { it !in stats }?.forEach { p += "condição ${c.id}: atributo inexistente no efeito $it" } }
         d.conditions.forEach { c ->
             if (c.durationRounds != null && c.durationRounds <= 0) p += "condição ${c.id}: duração deve ser positiva"
+            if (c.damageResource.isBlank()) p += "condição ${c.id}: recurso de dano vazio"
             if (c.damagePerRound < 0) p += "condição ${c.id}: dano por rodada negativo"
             if (c.damagePerRound > 0 && d.resources.none { it.id == c.damageResource }) {
                 p += "condição ${c.id}: recurso de dano inexistente ${c.damageResource}"
             }
         }
         d.damage.filter { it.bonusStat != null && it.bonusStat !in stats }.forEach { p += "dano ${it.id}: atributo inexistente ${it.bonusStat}" }
+        d.items.filter { it.effects.isNotEmpty() && (it.kind != "equipamento" || it.slot.isNullOrBlank()) }
+            .forEach { p += "item ${it.id}: efeitos mecânicos exigem equipamento com slot" }
         for (t in d.traits) for (r in t.requires) when (r) {
             is Requirement.MinStat -> if (r.stat !in stats) p += "traço ${t.id}: requisito de atributo inexistente ${r.stat}"
             is Requirement.HasTrait -> if (r.traitId !in traits) p += "traço ${t.id}: requisito de traço inexistente ${r.traitId}"
