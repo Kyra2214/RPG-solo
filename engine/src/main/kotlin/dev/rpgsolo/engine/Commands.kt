@@ -52,6 +52,7 @@ data class DiscoverPlace(val id: String) : Command
 data class MoveToPlace(val id: String) : Command
 /** [order] = ordem de iniciativa já decidida (ver GameEngine.rollInitiative). */
 data class StartCombat(val order: List<String>) : Command
+data class Defend(val entityId: String) : Command
 object NextTurn : Command
 object EndCombat : Command
 
@@ -254,6 +255,16 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (entity(cmd.entityId) == null) return no("entidade inexistente: ${cmd.entityId}")
             if (state.conditions[cmd.entityId]?.contains(cmd.condition) != true) return no("condição ausente: ${cmd.condition}")
             return Decision.Ok(listOf(ConditionRemoved(cmd.entityId, cmd.condition)))
+        }
+
+        is Defend -> {
+            val combat = state.combat ?: return no("não há combate ativo")
+            if (combat.current != cmd.entityId) return no("não é o turno de ${cmd.entityId}")
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.entityId in combat.defending) return no("${ent.name} já está em postura defensiva")
+            if (config.defendBonus <= 0) return no("o pacote não define bônus positivo para defender")
+            return Decision.Ok(listOf(CombatantDefended(cmd.entityId)))
         }
 
         is StartCombat -> {
