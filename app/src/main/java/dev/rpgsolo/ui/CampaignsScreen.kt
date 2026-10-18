@@ -110,6 +110,7 @@ fun CampaignsScreen(model: AppModel) {
     val allQuests = remember(v) { model.quests.all() }
     val timeline = remember(v) { model.quests.timeline() }
     val journal = remember(v, model.controller?.lines?.size) { model.journal() }
+    val progressionHistory = remember(v) { model.progressionHistory() }
 
     ScreenColumn {
         AppCard(accent = MaterialTheme.colorScheme.primary) { NewCampaignSection(model) }
@@ -179,6 +180,10 @@ fun CampaignsScreen(model: AppModel) {
             }) { Text(if (busy) "Gerando resumo…" else "Encerrar capítulo com resumo") }
         }
         message?.let { ErrorText(it) }
+
+        SectionTitle("Evolução do personagem")
+        if (progressionHistory.isEmpty()) Muted("Nenhum ganho de XP ou nível registrado ainda.")
+        progressionHistory.forEach { entry -> AppCard { Text(entry, style = MaterialTheme.typography.bodyMedium) } }
 
         SectionTitle("Missões")
         if (active.isEmpty()) Muted("Nenhuma missão ativa.")
