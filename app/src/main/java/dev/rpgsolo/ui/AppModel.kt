@@ -194,7 +194,22 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return try {
             val input = getApplication<Application>().contentResolver.openInputStream(uri)
                 ?: run { archive.delete(); return "não foi possível abrir o arquivo selecionado" }
-            input.use { source -> FileOutputStream(archive).use { target -> source.copyTo(target) } }
+            input.use { source ->
+                FileOutputStream(archive).use { target ->
+                    val buffer = ByteArray(8192)
+                    var total = 0L
+                    while (true) {
+                        val count = source.read(buffer)
+                        if (count < 0) break
+                        total += count
+                        if (total > 20L * 1024 * 1024) {
+                            archive.delete()
+                            return "arquivo ZIP excede o limite de 20 MiB"
+                        }
+                        target.write(buffer, 0, count)
+                    }
+                }
+            }
             when (val result = archive.inputStream().use { stream -> content.registry.installZip(stream) }) {
                 is dev.rpgsolo.rules.InstallResult.Success -> {
                     packageVersion++
