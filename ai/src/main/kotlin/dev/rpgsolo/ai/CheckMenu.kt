@@ -7,6 +7,7 @@ import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.NpcProposal
 import dev.rpgsolo.rules.NpcResult
 import dev.rpgsolo.rules.NpcFactory
+import dev.rpgsolo.engine.RegraAdicional
 
 /**
  * Pedido de teste feito pelo MESTRE no meio da história (ex.: "role Percepção", "role Esquiva contra a flecha").
@@ -76,6 +77,20 @@ class CheckMenu(private val pkg: RulePackage) {
 
     /** Valida a ficha mecânica proposta para um NPC pelo pacote ativo. */
     fun createNpc(proposal: NpcProposal): NpcResult = NpcFactory.create(proposal, pkg)
+
+    /** Só aceita efeitos explícitos que o motor da campanha sabe aplicar. */
+    fun validateRuleAddition(rule: RegraAdicional): String? {
+        if (rule.name.isBlank() || rule.description.isBlank() || rule.limit.isBlank()) {
+            return "adaptação exige nome, descrição e limite"
+        }
+        if (rule.origin != dev.rpgsolo.engine.RuleOrigin.ADAPTACAO) return "a origem deve ser ADAPTACAO"
+        if (rule.effects.isEmpty()) return "adaptação sem efeitos mecânicos"
+        val allowed = pkg.data.stats.map { it.id }.toSet() + setOf("ataque", "dano", "defesa")
+        val unknown = rule.effects.keys.filter { it !in allowed }
+        if (unknown.isNotEmpty()) return "escopo de efeito não suportado: ${unknown.joinToString(", ")}"
+        if (rule.effects.values.any { it !in -5..5 }) return "efeitos devem ficar entre -5 e +5"
+        return null
+    }
 
     /** Converte um id de condição em comando com duração e dano definidos pelo pacote, nunca pela IA. */
     fun conditionCommand(entityId: String, conditionId: String): dev.rpgsolo.engine.AddCondition? {
