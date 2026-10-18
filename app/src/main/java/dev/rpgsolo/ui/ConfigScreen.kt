@@ -122,6 +122,17 @@ fun ConfigScreen(model: AppModel) {
                     )
                 }
             }
+            Text("Tamanho de capítulo")
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(100, 200, 300, 500, 1000).forEach { limit ->
+                    FilterChip(
+                        selected = model.chapterEventLimit == limit,
+                        onClick = { model.setChapterEventLimit(limit) },
+                        label = { Text("$limit eventos") }
+                    )
+                }
+            }
+            Muted("Ao atingir esse número de eventos confirmados, o app gera um resumo e abre o próximo capítulo automaticamente.")
             Text("Linhas vermelhas — não incluir")
             OutlinedTextField(
                 value = contentLines,
