@@ -88,12 +88,12 @@ class TurnRunner(
                         menu == null -> "este jogo não oferece testes nem rolagens; não use request_check nem request_roll"
                         !canRequest -> "você já pediu testes demais em sequência; narre o desfecho agora, sem request_check nem request_roll"
                         invalid != null -> "pedido inválido: $invalid"
-                        out.proposals.isNotEmpty() -> "com request_check/request_roll não envie proposals; proponha mudanças só depois do resultado"
+                        out.proposals.isNotEmpty() || out.npcProposal != null -> "com request_check/request_roll não envie proposals nem create_npc; proponha mudanças só depois do resultado"
                         else -> null
                     }
                     if (problem != null) Attempt.Retry(problem, false)
                     else Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), emptyList(), req, roll))
-                } else if (out.proposals.isEmpty()) {
+                } else if (out.proposals.isEmpty() && out.npcProposal == null) {
                     Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), out.suggestions))
                 } else {
                     // O motor não aceita dano/cura/custo de recurso inventado para o personagem do jogador.
@@ -137,6 +137,18 @@ class TurnRunner(
                             }
                             else -> normalized += command
                         }
+                    }
+                    out.npcProposal?.let { proposal ->
+                        val npcMenu = menu
+                            ?: return Attempt.Retry("não há pacote ativo para validar a ficha de NPC", false)
+                        val npcId = "npc-${session.mark()}-${proposal.name.trim().lowercase().hashCode()}"
+                        val result = npcMenu.createNpc(proposal.copy(id = npcId))
+                        val sheet = when (result) {
+                            is dev.rpgsolo.rules.NpcResult.Created -> result.sheet
+                            is dev.rpgsolo.rules.NpcResult.Rejected ->
+                                return Attempt.Retry("ficha de NPC recusada pelo pacote: ${result.errors.joinToString("; ")}", false)
+                        }
+                        normalized += dev.rpgsolo.engine.CreateEntity(sheet.toEntity())
                     }
                     when (val r = session.executeAll(normalized)) {
                         is ExecResult.Accepted -> Attempt.Done(TurnOutcome.Applied(out.narrative, r.events, out.suggestions))
