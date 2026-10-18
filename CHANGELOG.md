@@ -23,6 +23,9 @@
 - Combate mostra ações disponíveis de acordo com o pacote.
 - Erros de jogada aparecem na interface; a entrada é preservada quando uma ação é recusada para permitir nova tentativa.
 - Preferências de narração e limites de conteúdo ficam salvos localmente.
+- A tela inicial vazia oferece atalhos para configurar a IA e iniciar uma campanha.
+- O diário de campanha mostra histórico de XP/nível derivado do log e atitudes registradas dos NPCs em palavras.
+- O avanço de rodada ignora um combatente que morre por efeito de condição no momento em que o turno dele começaria.
 
 ### Validação desta etapa
 - **Não foram executados builds, testes, lint ou CI**, conforme a orientação de concluir o código antes das validações.
