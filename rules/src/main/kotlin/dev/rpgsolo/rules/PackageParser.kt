@@ -63,7 +63,9 @@ object PackageParser {
         return t.split(";").map { part ->
             val kv = part.split(":", limit = 2)
             if (kv.size != 2) bad("efeito de item inválido: '$part' (use escopo:+N)")
-            ItemEffect(id(kv[0].trim(), "escopo do efeito de item"), int(kv[1].trim(), "bônus do item"))
+            val scope = id(kv[0].trim(), "escopo do efeito de item")
+            if (scope !in setOf("ataque", "dano", "defesa")) bad("escopo de item não suportado: '$scope' (use ataque, dano ou defesa)")
+            ItemEffect(scope, int(kv[1].trim(), "bônus do item"))
         }
     }
 
