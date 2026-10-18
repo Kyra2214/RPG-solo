@@ -264,9 +264,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 damageResource = resource,
                 damage = baseDamage,
                 defenseDefault = baseDefense,
-                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque"),
-                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano"),
-                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa"),
+                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(attacker), "ataque"),
+                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(attacker), "dano"),
+                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") + pkg.traitBonus(combatTraitIds(playerId), "defesa"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
@@ -305,6 +305,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         .mapNotNull { id -> session.state.entities[id]?.takeIf { it.alive }?.let { CombatTarget(it.id, it.name) } }
 
     fun isPlayerCombatTurn(): Boolean = session.state.combat?.current == playerId
+
+    /** Traços mecânicos do combatente; a ficha salva cobre campanhas antigas cujo Entity ainda não os continha. */
+    private fun combatTraitIds(entityId: String): List<String> =
+        (session.state.entities[entityId]?.traits.orEmpty() +
+            if (entityId == playerId) activeFicha?.traits.orEmpty() else emptyList()).distinct()
 
     fun inventoryView(): List<InventoryView> {
         val pkg = activePackage
@@ -397,9 +402,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 damageResource = resource,
                 damage = baseDamage,
                 defenseDefault = baseDefense,
-                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque"),
-                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano"),
-                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa"),
+                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(playerId), "ataque"),
+                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano"),
+                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") + pkg.traitBonus(combatTraitIds(targetId), "defesa"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
