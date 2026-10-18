@@ -6,6 +6,7 @@ import dev.rpgsolo.engine.CheckResult
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.Damage
 import dev.rpgsolo.engine.ExecResult
+import dev.rpgsolo.engine.Reveal
 
 data class PlayInput(
     val playerEntityId: String,
@@ -16,17 +17,17 @@ data class PlayInput(
     val ruleSnippets: List<String> = emptyList(),
     val chapterSummary: String? = null,
     val npcPrivate: List<String> = emptyList(),
-    /** IDs dos NPCs presentes nesta cena; evita enviar todos os NPCs da campanha. */
-    val sceneNpcIds: Set<String> = emptySet(),
-    val worldContext: String? = null,
-    val generationPreferences: String? = null,
     /** Ficha do jogador em texto, montada a cada jogada com o estado atual (ver [PlayerSheet]). */
     val playerSheet: String? = null,
     /** Quanto da ficha foi enviado nesta jogada. Serve para o controlador saber se o combate já recebeu a ficha completa. */
     val sheetLevel: SheetLevel? = null,
     /** Preenchido só na jogada que resolve um teste ou rolagem pedidos pelo mestre. */
     val resolving: Pending? = null,
-    val budgetTokens: Int = 2000
+    val budgetTokens: Int = 2000,
+    /** IDs dos NPCs presentes nesta cena; evita enviar todos os NPCs da campanha. */
+    val sceneNpcIds: Set<String> = emptySet(),
+    val worldContext: String? = null,
+    val generationPreferences: String? = null
 )
 
 /** Marcas do log permitem desfazer a jogada inteira ou só refazer a narração mantendo os dados (7.4). */
