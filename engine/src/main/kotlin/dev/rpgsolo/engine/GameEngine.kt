@@ -75,7 +75,7 @@ class GameEngine private constructor(
             return AttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
         }
 
-        val defense = maxOf(0, (target.stats[spec.defenseStat] ?: spec.defenseDefault) + spec.defenseBonus)
+        val defense = maxOf(0, spec.defenseDefault + (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus)
         val mark = mark()
         val roll = dice.roll(1, 20, (attacker.stats[spec.attackStat] ?: 0) + spec.attackBonus)
         recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
