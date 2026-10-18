@@ -52,7 +52,7 @@ import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.rules.CampaignStarter
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
-data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true)
+data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true, val condition: String = "")
 data class PlaceView(val id: String, val name: String, val description: String, val current: Boolean, val exits: List<Pair<String, String>>)
 data class EquipmentView(val id: String, val name: String, val quantity: Int, val slot: String, val equipped: Boolean)
 data class InventoryView(
@@ -402,9 +402,22 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun combatTargets(): List<CombatTarget> = session.state.combat?.order.orEmpty()
         .filter { it != playerId }
-        .mapNotNull { id -> session.state.entities[id]?.takeIf { it.alive }?.let { CombatTarget(it.id, it.name, it.rulesValidated) } }
+        .mapNotNull { id ->
+            session.state.entities[id]?.takeIf { it.alive }?.let { entity ->
+                val resourceId = activePackage?.manifest?.deathResource
+                val resource = resourceId?.let { entity.resources[it] }
+                val condition = when {
+                    resource == null || resource.max <= 0 -> ""
+                    resource.current * 4 <= resource.max -> "gravemente ferido"
+                    resource.current * 4 <= resource.max * 3 -> "ferido"
+                    else -> "ileso"
+                }
+                CombatTarget(entity.id, entity.name, entity.rulesValidated, condition)
+            }
+        }
 
-    fun isPlayerCombatTurn(): Boolean = session.state.combat?.current == playerId
+    fun isPlayerCombatTurn(): Boolean =
+        session.state.combat?.current == playerId && session.state.entities[playerId]?.alive == true
 
     fun additionalRulesView(): List<dev.rpgsolo.engine.RegraAdicional> =
         session.state.additionalRules.values.sortedWith(compareBy({ it.approved }, { it.name }))
