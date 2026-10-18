@@ -318,6 +318,12 @@ private fun CombatControls(model: AppModel) {
                 } else {
                     Muted("Aguarde o turno de ${model.combatantName(combat.current)}.")
                 }
+                if (model.isPlayerCombatTurn()) {
+                    OutlinedButton(
+                        onClick = { message = model.defend() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Defender — bônus contra o próximo ataque") }
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (model.isPlayerCombatTurn()) {
                         Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Passar turno") }
