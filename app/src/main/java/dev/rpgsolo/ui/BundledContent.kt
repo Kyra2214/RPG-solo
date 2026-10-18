@@ -1,5 +1,6 @@
 package dev.rpgsolo.ui
 
+import android.content.Context
 import dev.rpgsolo.rules.Catalog
 import dev.rpgsolo.rules.CatalogLoader
 import dev.rpgsolo.rules.InstallResult
@@ -21,7 +22,7 @@ class Content(
 object BundledContent {
     private val FILES = listOf(
         "manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes",
-        "dano", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo"
+        "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo"
     )
 
     // Único sistema embutido: o sistema próprio. Pacotes de teste ficam só nos testes.
@@ -30,7 +31,7 @@ object BundledContent {
     private fun read(path: String): String? =
         BundledContent::class.java.classLoader?.getResourceAsStream(path)?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }
 
-    fun load(): Content {
+    fun load(context: Context? = null): Content {
         val errors = mutableListOf<String>()
         val catalog = try {
             val e = read("catalog/estilos.txt")
@@ -56,6 +57,19 @@ object BundledContent {
                 is InstallResult.Success -> {}
                 is InstallResult.Failure -> errors += r.errors.map { "pacote $name: $it" }
             }
+        }
+
+        // Pacotes importados ficam no armazenamento privado do app e são reinstalados no próximo início.
+        val importDir = context?.filesDir?.resolve("packages-import")
+        if (importDir != null && importDir.exists()) {
+            importDir.listFiles { file -> file.isFile && file.extension.equals("zip", ignoreCase = true) }
+                .orEmpty().sortedBy { it.name }.forEach { archive ->
+                    when (val installed = runCatching { archive.inputStream().use(registry::installZip) }.getOrNull()) {
+                        is InstallResult.Success -> Unit
+                        is InstallResult.Failure -> errors += installed.errors.map { "pacote importado ${archive.name}: $it" }
+                        null -> errors += "pacote importado ilegível: ${archive.name}"
+                    }
+                }
         }
 
         val sources = read("catalog/fontes.txt")?.let {
