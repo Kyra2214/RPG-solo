@@ -225,7 +225,9 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
         }
 
         is CreateClock -> {
-            if (cmd.id.isBlank() || cmd.name.isBlank()) return no("relógio exige id e nome")
+            if (cmd.id.isBlank() || cmd.id.length > 80 || cmd.name.isBlank() || cmd.name.length > 120) {
+                return no("relógio exige id e nome dentro dos limites")
+            }
             if (cmd.segments !in 2..12) return no("relógio precisa de 2 a 12 casas")
             if (state.clocks.containsKey(cmd.id)) return no("relógio já existe: ${cmd.id}")
             return Decision.Ok(listOf(ClockCreated(cmd.id, cmd.name.trim(), cmd.segments)))
