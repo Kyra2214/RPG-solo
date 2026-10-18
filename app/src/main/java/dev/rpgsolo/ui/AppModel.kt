@@ -682,7 +682,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             sheet = PlayerSheet(activePackage, activeFicha),
             conditionNames = activePackage?.data?.conditions?.associate { it.id to it.name }.orEmpty(),
             ruleLookup = { query ->
-                activePackage?.search(query, 5)?.map { "${it.kind}: ${it.title} — ${it.text}" }.orEmpty()
+                val packageRules = activePackage?.search(query, 5)?.map { "${it.kind}: ${it.title} — ${it.text}" }.orEmpty()
+                val adaptationRules = session.state.additionalRules.values.filter {
+                    query.isBlank() || listOf(it.name, it.description, it.effects.toString()).any { value ->
+                        value.contains(query, ignoreCase = true)
+                    }
+                }.map { rule ->
+                    "ADAPTAÇÃO ${if (rule.approved) "APROVADA" else "PENDENTE"}: ${rule.name} — ${rule.description}; efeitos ${rule.effects}; limite ${rule.limit}"
+                }
+                (packageRules + adaptationRules).take(5)
             },
             chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
             npcContext = { text -> privateNpcContext(text) },
