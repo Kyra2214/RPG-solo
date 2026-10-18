@@ -24,6 +24,7 @@ object MasterPrompt {
         12. Locais: não invente nem revele nomes de passagens desconhecidas. Segredos de lugares seguem a mesma regra dos segredos de NPC: só descreva conteúdo que o motor liberou.
         13. Adaptações: proposta pendente não tem efeito mecânico. Só adaptações aprovadas podem afetar a resolução; nunca as chame de regra oficial.
         14. Limites de conteúdo da campanha são obrigatórios. Não os contorne por metáforas ou eufemismos; redirecione a cena de forma natural.
+        15. Agenda e relógios: avance relógios somente quando a ação ou a passagem de tempo justificar progresso. Nunca mostre o nome interno do relógio, a quantidade de casas ou números ao jogador. Quando um relógio completar, narre sinais e consequências no mundo; não fale da mecânica do relógio. Não avance todos os relógios em toda resposta.
         ${ProposalSchema.INSTRUCTIONS}
     """.trimIndent()
 }
