@@ -91,7 +91,7 @@ class GameLoop(
         val pending = pending() ?: return PlayResult.Failed("não há teste pendente")
         val input = template.copy(text = pending.playerText, check = null, resolving = pending)
         val markBefore = session.mark()
-        if (pending is PendingCheck && pending.request.revealSecretId != null) {
+        if (pending is PendingCheck && (pending.request.revealSecretId != null || pending.request.revealPlaceSecret)) {
             val player = session.state.entities[template.playerEntityId]
                 ?: return PlayResult.Failed("personagem inexistente")
             val required = pending.request.requiredStat ?: return PlayResult.Failed("pedido de segredo sem requiredStat")
@@ -111,6 +111,19 @@ class GameLoop(
                 return PlayResult.Failed("pedido de segredo sem revealSecret")
             }
             when (val revealed = Reveal.discoverSecret(session, template.playerEntityId, npcId, secretId, check)) {
+                null, is ExecResult.Accepted -> Unit
+                is ExecResult.Rejected -> {
+                    session.rollbackTo(markBefore)
+                    return PlayResult.Failed("não foi possível registrar a descoberta: ${revealed.reason}")
+                }
+            }
+        }
+        if (pending is PendingCheck && pending.request.revealPlaceSecret) {
+            val placeId = pending.request.targetPlaceId ?: run {
+                session.rollbackTo(markBefore)
+                return PlayResult.Failed("pedido de segredo de local sem targetPlace")
+            }
+            when (val revealed = Reveal.discoverPlaceSecret(session, template.playerEntityId, placeId, check)) {
                 null, is ExecResult.Accepted -> Unit
                 is ExecResult.Rejected -> {
                     session.rollbackTo(markBefore)
