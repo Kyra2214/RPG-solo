@@ -50,6 +50,17 @@ class PlayControllerTest {
         assertNull(c.lines[2].roll)
     }
 
+    @Test fun rolagemReveladaFicaNoControlador() {
+        val c = ctrl(session(), listOf(ok("Você golpeia.")))
+        c.submit("ataco o orc")
+        assertFalse(c.isRollRevealed(1))
+        assertTrue(c.revealRoll(1))
+        assertTrue(c.isRollRevealed(1))
+        assertFalse(c.revealRoll(1))
+        assertTrue(c.undo())
+        assertFalse(c.isRollRevealed(1))
+    }
+
     @Test fun semTesteNaoHaLinhaDeRolagem() {
         val c = ctrl(session(), listOf(ok("Nada acontece.")), check = { null })
         c.submit("olho em volta")

@@ -195,7 +195,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 4A.4.4 Descrição livre vira configuração (`CampaignInterpreter`, escrito, não compilado)
 
 ### Módulo 4A.5 — Licenças e fontes
-- 4A.5.1 Só conteúdo com licença verificada vai embutido (candidato: SRD 5.2, CC-BY-4.0)
+- 4A.5.1 ~~Só conteúdo com licença verificada vai embutido~~ **Cancelado**: nada de terceiros é embutido; só links de consulta (Fase 4B)
 - 4A.5.2 Basic Rules do D&D Beyond **não** são CC: não embutir
 - 4A.5.3 Conteúdo sem licença confirmada só por importação do usuário
 - 4A.5.4 Atribuição exibida na aba Biblioteca de sistemas
@@ -205,28 +205,16 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 
 ---
 
-## FASE 4B — Fontes (links) e PDFs do usuário
+## FASE 4B — Links de consulta (simplificada)
 
-**Direção:** o app **não precisa embutir nem copiar** material de regras. Ele usa PDFs e regras como **guia**, leva o jogador até onde o material oficial está (link) e deixa o jogador **inserir os próprios PDFs** (ex.: o PDF de D&D que ele tem). Licença é informação, não trava.
-**Status:** núcleo (links, índice e busca) escrito, não compilado. Pendente: extrator de PDF no Android, tela, persistência.
+**Decisão (2026-10-17):** o sistema é **próprio**; 3DeT e D&D entram **apenas como link de consulta** na criação de personagem. O app só abre o link no navegador: **não copia, não guarda, não importa nem indexa** nenhum material. Por isso **não há trabalho de licença** (4A.5) nem **importação de PDF** (4B.2, 4B.3 e o extrator).
 
-### Módulo 4B.1 — Biblioteca de links
-- 4B.1.1 `fontes.txt`: id, sistema, título, tipo (regras/ficha/iniciante/conversão), url, idioma, link verificado (SIM/NAO) — feito
-- 4B.1.2 Botão "abrir material oficial" por sistema na aba Biblioteca de sistemas (Custom Tab)
-- 4B.1.3 Marcar links não verificados e permitir o usuário reportar link quebrado
+### Módulo 4B.1 — Biblioteca de links (único escopo restante)
+- 4B.1.1 `fontes.txt`: id, sistema, título, tipo, url, idioma, verificado (SIM/NAO) — feito (só 3DeT e D&D)
+- 4B.1.2 Links aparecem na aba Sistemas e no fim da aba Heróis (criação de personagem) — feito
+- 4B.1.3 Links não verificados ficam marcados na tela
 
-### Módulo 4B.2 — Inserir PDF do usuário
-- 4B.2.1 Seletor de arquivo (SAF) → `PdfTextExtractor` (PdfBox-Android) → `DocumentIndex.importPdf` — contrato e índice feitos
-- 4B.2.2 PDF digitalizado (sem texto): aviso claro; OCR fica para depois
-- 4B.2.3 Ligar o documento a uma edição do catálogo (opcional)
-- 4B.2.4 Persistir texto e trechos no banco local (Room), só no aparelho; remover apaga tudo
-- 4B.2.5 Busca por trecho alimenta o montador de contexto da IA (Fase 7.2.2): só o necessário vai
-- 4B.2.6 Importar ficha em branco (PDF preenchível) para exportar a ficha do app depois
-
-### Módulo 4B.3 — Regra de ouro dos PDFs
-- 4B.3.1 PDF é **sempre opcional e nunca é regra**: o app funciona inteiro sem nenhum PDF; com PDF, só ganha dicas e consulta extra
-- 4B.3.2 Quem manda na mecânica é o pacote do sistema escolhido (e o motor), nunca o texto do PDF
-- 4B.3.3 Consulta em cadeia para a IA (`RuleLookupChain`): pacote → PDFs do usuário (se houver) → pesquisa na rede pela IA — feito (núcleo)
+**Cancelado:** 4B.2 (inserir PDF do usuário), 4B.3 (regras dos PDFs) e a consulta a PDF em `RuleLookupChain`. O código de `DocumentIndex`/`PdfTextExtractor` continua no módulo `rules` sem uso no app e pode ser removido.
 
 ---
 

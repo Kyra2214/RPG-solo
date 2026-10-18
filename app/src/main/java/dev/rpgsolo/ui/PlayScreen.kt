@@ -87,17 +87,12 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     val pendingCheck = remember(version) { c.pending()?.label }
     val listState = rememberLazyListState()
 
-    // Rolagens que o jogador já fez (índice da linha no chat). A narração de uma jogada com teste só
-    // aparece depois da rolagem, para a animação não ser estragada.
-    var revealed by remember { mutableStateOf(setOf<Int>()) }
-    LaunchedEffect(lines.size) { revealed = revealed.filter { it < lines.size }.toSet() }
-
     val visible = lines.withIndex().filter { (i, l) ->
-        !(l.author == Author.MASTER && i > 0 && lines[i - 1].roll != null && (i - 1) !in revealed)
+        !(l.author == Author.MASTER && i > 0 && lines[i - 1].roll != null && !c.isRollRevealed(i - 1))
     }
-    val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && i !in revealed }
+    val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && !c.isRollRevealed(i) }
 
-    LaunchedEffect(visible.size, revealed.size) { if (visible.isNotEmpty()) listState.animateScrollToItem(visible.lastIndex) }
+    LaunchedEffect(visible.size, pendingRoll) { if (visible.isNotEmpty()) listState.animateScrollToItem(visible.lastIndex) }
 
     // A chamada à IA é de rede: sempre fora da thread principal.
     fun run(block: () -> Unit) {
@@ -126,7 +121,11 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                 }
             }
             itemsIndexed(visible, key = { _, iv -> iv.index }) { _, iv ->
-                ChatItem(iv.value, revealed = iv.index in revealed, onRevealed = { revealed = revealed + iv.index })
+                ChatItem(
+                    iv.value,
+                    revealed = c.isRollRevealed(iv.index),
+                    onRevealed = { c.revealRoll(iv.index); version++ }
+                )
             }
         }
 

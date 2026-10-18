@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +47,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.PI
 
 /** Duração da rolagem de cada dado: o primeiro assenta antes, os outros em sequência. */
 private fun spinMs(index: Int) = 950 + index * 230
@@ -124,6 +128,30 @@ private fun Die(sides: Int, final: Int, index: Int, rolling: Boolean, done: Bool
             }
         } else {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Canvas(Modifier.fillMaxSize().padding(5.dp)) {
+                    val polygonSides = when (sides) {
+                        4 -> 3
+                        20 -> 6
+                        else -> sides.coerceIn(4, 12)
+                    }
+                    val radius = size.minDimension * 0.43f
+                    val center = Offset(size.width / 2f, size.height / 2f)
+                    val path = Path()
+                    repeat(polygonSides) { n ->
+                        val angle = -PI / 2.0 + (2.0 * PI * n / polygonSides)
+                        val point = Offset(
+                            center.x + radius * cos(angle).toFloat(),
+                            center.y + radius * sin(angle).toFloat()
+                        )
+                        if (n == 0) path.moveTo(point.x, point.y) else path.lineTo(point.x, point.y)
+                    }
+                    path.close()
+                    drawPath(path, color = face, style = androidx.compose.ui.graphics.drawscope.Fill)
+                    drawPath(
+                        path, color = tint,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.dp.toPx())
+                    )
+                }
                 Text(
                     if (shown == 0) "?" else shown.toString(),
                     fontSize = if (shown >= 100) 18.sp else 24.sp, fontWeight = FontWeight.Bold,

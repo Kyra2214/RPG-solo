@@ -17,6 +17,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.rules.CharacterDraft
 import dev.rpgsolo.rules.FichaBuild
@@ -32,7 +34,7 @@ import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.TraitDef
 
 /**
- * Aba Personagens (10.2 e 5.0): criação guiada pelo pacote, sem PDF, com validação do motor e biblioteca de fichas.
+ * Aba Personagens (10.2 e 5.0): criação guiada pelo pacote, com links só de consulta, com validação do motor e biblioteca de fichas.
  * Fluxo: arquétipo (ou ficha pronta) → atributos → cardápio do arquétipo → ajuste fino → criar.
  */
 @Composable
@@ -54,6 +56,23 @@ fun CharactersScreen(model: AppModel) {
             }
         }
         Creator(model, pkg, selected!!)
+        ConsultLinks(model)
+    }
+}
+
+/** Links de consulta (3DeT, D&D...) para o jogador olhar as regras oficiais ao criar o personagem. Só abre o navegador. */
+@Composable
+private fun ConsultLinks(model: AppModel) {
+    val links = model.content.sources?.links.orEmpty()
+    if (links.isEmpty()) return
+    val uri = LocalUriHandler.current
+    SectionTitle("Consultar regras oficiais", "Só para consulta: abre no navegador. As regras do jogo são as do pacote acima.")
+    AppCard {
+        links.forEach { link ->
+            TextButton(onClick = { uri.openUri(link.url) }) {
+                Text(link.title + if (link.verified) "" else " (link não verificado)")
+            }
+        }
     }
 }
 

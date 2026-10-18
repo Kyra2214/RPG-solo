@@ -61,8 +61,18 @@ class PlayController(
 
     private val chat = mutableListOf<ChatLine>()
     private val entries = ArrayDeque<Entry>()
+    /** Índices das rolagens que o jogador já abriu; pertence à sessão, não à composição da tela. */
+    private val revealedRolls = mutableSetOf<Int>()
 
     val lines: List<ChatLine> get() = chat.toList()
+
+    fun isRollRevealed(index: Int): Boolean = index in revealedRolls
+
+    /** Marca uma rolagem como vista depois que a animação visual terminou. */
+    fun revealRoll(index: Int): Boolean {
+        if (index !in chat.indices || chat[index].roll == null) return false
+        return revealedRolls.add(index)
+    }
 
     /** Sugestões de ação da última narração (7.3.4). Opcionais; vazias após ação local ou desfazer tudo. */
     fun suggestions(): List<String> =
@@ -194,6 +204,7 @@ class PlayController(
     private fun truncateLastTurn() {
         val start = entries.removeLastOrNull()?.start ?: return
         while (chat.size > start) chat.removeAt(chat.size - 1)
+        revealedRolls.removeAll { it >= chat.size }
     }
 
     private fun showTurn(r: PlayResult.Played) {

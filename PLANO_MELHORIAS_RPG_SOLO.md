@@ -48,7 +48,7 @@ Ordem sugerida: **(A) fazer rodar e salvar → (B) combate e equipamento → (C)
 **Achado:** o módulo `data` tem Room (`CampanhaRow`, `EventoRow`, `FichaRow`) e `RoomEventStore`, mas o app só usa `InMemoryEventStore`. Fichas, capítulos, missões, dossiês de NPC, mapa de lugares e resumos não têm tabela.
 **Melhoria:**
 - Ligar `RoomEventStore` ao `CampaignSession` do app; reabrir a campanha ao iniciar.
-- Tabelas novas: `capitulos`, `missoes`, `npc_dossie`, `lugares`, `resumos`, `documentos_usuario` (PDF indexado), `preferencias`.
+- Tabelas novas: `capitulos`, `missoes`, `npc_dossie`, `lugares`, `resumos`, `preferencias`.
 - **Snapshots** do estado a cada N eventos para campanhas longas (hoje reabrir reproduz o log inteiro; o teste de 4.500 eventos passa em menos de 5 s no PC, mas o celular é mais lento). **(verificar no aparelho)**
 - Migrações versionadas e teste instrumentado do Room.
 - Lista de campanhas (várias abertas, continuar, renomear, apagar, duplicar).
@@ -185,7 +185,7 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 **Melhoria:**
 - Ficha de leitura com atributos, perícias (com pontos), vantagens/desvantagens com ícone de "mecânico" ou "narrativo", e recursos.
 - Inventário e equipamento (depende de 4.2).
-- Duplicar, arquivar, exportar ficha (e importar PDF em branco, item 4B.2.6 do plano).
+- Duplicar, arquivar, exportar ficha .
 - Retrato opcional (imagem local) e notas livres.
 
 ### 5.5 Campanhas, diário e mapa (🟡, M)
@@ -198,7 +198,7 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 ### 5.6 Regras e Sistemas (🟡, M)
 - **Cola rápida** da mecânica (tabela de dado × dificuldade, faces de sucesso por pontos) gerada do próprio pacote.
 - **Glossário** (condições, termos de combate).
-- Importar pacote por arquivo (10.5.2) e PDF do usuário (4B.2), com `DocumentIndex` ligado à busca de regras que a IA usa.
+- Importar pacote por arquivo (10.5.2). **PDF do usuário e licenças foram descartados**: só links de consulta (3DeT e D&D).
 - Ocultar da aba Sistemas o que o usuário não precisa ver hoje (edições do catálogo sem pacote) ou separar em "disponíveis" e "em breve".
 
 ### 5.7 Configurações (🟡, M)
@@ -262,7 +262,7 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 **Pronto quando:** um jogador novo configura, cria herói e joga sem ajuda, e entende o que cada rolagem significa.
 
 ### Etapa 4 — Profundidade (contínua)
-4.8 morte e legado · 4.9 magias · 4.10 progressão · 4.11 NPCs e relógios · 5.5 mapa · 5.6 importar pacote e PDF · 5.7 preferências de geração.
+4.8 morte e legado · 4.9 magias · 4.10 progressão · 4.11 NPCs e relógios · 5.5 mapa · 5.6 importar pacote · 5.7 preferências de geração.
 
 ### Etapa 5 — Acabamento
 5.8 acessibilidade e idioma · seção 7 release · seção 6 provedores e qualidade de narração.

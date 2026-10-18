@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import dev.rpgsolo.rules.SourceLink
 import dev.rpgsolo.rules.SystemModels
 
-/** Aba Sistemas (10.5.1 e 4B.1.2): pacotes instalados, edição, versão, origem, licença e links do material oficial. */
+/** Aba Sistemas (10.5.1): pacotes instalados (edição e versão) e links de consulta ao material oficial. Sem licença e sem PDF. */
 @Composable
 fun SystemsScreen(model: AppModel) {
     val c = model.content
@@ -28,18 +28,15 @@ fun SystemsScreen(model: AppModel) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Pill("v${manifest.version}")
                     Pill(manifest.kind.name, MaterialTheme.colorScheme.secondary)
-                    Pill("licença ${manifest.licenseStatus}", MaterialTheme.colorScheme.tertiary)
                 }
-                Muted("Pacote ${manifest.id} · origem: ${manifest.source}")
-                Muted(manifest.license)
+                Muted("Pacote ${manifest.id}")
                 c.sources?.forSystem(manifest.edition).orEmpty().forEach { link -> LinkRow(link) { uri.openUri(link.url) } }
             }
         }
-        c.sources?.general().orEmpty().takeIf { it.isNotEmpty() }?.let { general ->
-            SectionTitle("Material geral")
-            AppCard { general.forEach { link -> LinkRow(link) { uri.openUri(link.url) } } }
+        c.sources?.let { lib ->
+            SectionTitle("Consultar regras oficiais", "Só links: abrem no navegador. O app não copia nem guarda esse material.")
+            AppCard { lib.links.forEach { link -> LinkRow(link) { uri.openUri(link.url) } } }
         }
-        Muted("O app não embute material oficial: abre o link e você pode inserir os seus próprios PDFs depois. PDF é sempre opcional.")
     }
 }
 
