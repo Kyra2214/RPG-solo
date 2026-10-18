@@ -784,7 +784,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         }
                         style.progressionId?.let { id -> append("Progressão: ").append(content.catalog?.entry(id)?.name ?: id).append(".\n") }
                         style.contentLimits.takeIf { it.isNotEmpty() }?.let { limits ->
-                            append("LIMITES DE CONTEÚDO OBRIGATÓRIOS DO JOGADOR: ").append(limits.joinToString("; ")).append(". Nunca ultrapasse nem tente contornar estes limites.\n")
+                            append("LIMITES DE CONTEÚDO OBRIGATÓRIOS DO JOGADOR: ").append(labels(limits)).append(". Nunca ultrapasse nem tente contornar estes limites.\n")
                         }
                     }
                     session.state.ambientacao?.let { setting ->
