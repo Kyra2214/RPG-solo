@@ -243,7 +243,9 @@ class GameLoop(
                 val checkReq = o.checkRequest
                 val rollReq = o.rollRequest
                 if (checkReq != null) {
-                    val validationError = menu?.validateSecretRequest(checkReq, session.state)
+                    val validationError = menu?.validateSecretRequest(
+                        checkReq, session.state, allowedNpcIds = input.sceneNpcIds
+                    )
                     if (validationError != null) {
                         return fail(session, markBefore, "pedido de revelação inválido: $validationError", null)
                     }
