@@ -76,7 +76,9 @@ class GameEngine private constructor(
         }
 
         val attackModifier = (attacker.stats[spec.attackStat] ?: 0) + spec.attackBonus
-        val targetDefenseModifier = (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus
+        val defending = target.id in combat.defending
+        val stanceBonus = if (defending) config.defendBonus else 0
+        val targetDefenseModifier = (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus + stanceBonus
         val defense = maxOf(0, when (spec.attackComparison) {
             Comparison.ROLL_OVER -> spec.defenseDefault + targetDefenseModifier
             Comparison.ROLL_UNDER -> spec.defenseDefault + attackModifier - targetDefenseModifier
@@ -111,6 +113,7 @@ class GameEngine private constructor(
         }
         val actualDamage = if (hit) resolvedDamage else 0
         recordEvent(AttackResolved(spec.attackerId, spec.targetId, defense, hit, actualDamage))
+        if (defending) recordEvent(CombatantDefenseConsumed(target.id))
         if (hit) {
             when (val result = execute(Damage(spec.targetId, spec.damageResource, resolvedDamage))) {
                 is ExecResult.Accepted -> return AttackResult.Resolved(roll, true, defense, actualDamage, eventsSince(mark), damageRoll)
