@@ -17,6 +17,9 @@ import dev.rpgsolo.engine.RecordFact
 import dev.rpgsolo.engine.RemoveCondition
 import dev.rpgsolo.engine.Revive
 import dev.rpgsolo.engine.SpendResource
+import dev.rpgsolo.engine.ProposeRuleAddition
+import dev.rpgsolo.engine.RegraAdicional
+import dev.rpgsolo.engine.RuleOrigin
 import dev.rpgsolo.rules.NpcProposal
 import dev.rpgsolo.rules.RuleSource
 import dev.rpgsolo.engine.NpcDossier
@@ -63,6 +66,7 @@ object ProposalSchema {
         revive(entityId, reason) · record_fact(key, value) · learn(key, text, source, believed)
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
         change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments) · advance_clock(id, by)
+        propose_rule(id, name, description, effects, limit): adaptação explícita, nunca regra oficial; fica pendente até aprovação do jogador.
         Campo opcional "request_roll" (regra 9), uma entrada para CADA face: {"sides": 6, "label": "Onde a flecha acerta", "table": {"1": {"text": "raspa no ombro", "damage": 1}, "2": {...}, "4": {"text": "fura a coxa", "damage": 4, "conditions": ["sangramento"]}, "6": {"text": "atinge perto do coração", "damage": 6}}}
         "conditions" (opcional em cada face) é uma lista de ids de condição do sistema que o motor aplica ao personagem junto com o dano.
         Só um pedido por resposta: request_check OU request_roll.
@@ -72,7 +76,7 @@ object ProposalSchema {
     val TYPES = listOf(
         "damage", "heal", "spend_resource", "add_item", "consume_item", "gain_xp", "revive",
         "record_fact", "learn", "make_promise", "keep_promise", "add_condition", "remove_condition",
-        "change_relation", "create_clock", "advance_clock"
+        "change_relation", "create_clock", "advance_clock", "propose_rule"
     )
 }
 
@@ -330,6 +334,25 @@ object ProposalParser {
             "change_relation" -> ChangeRelation(s("fromId"), s("toId"), n("delta"), s("reason"))
             "create_clock" -> CreateClock(s("id"), s("name"), n("segments"))
             "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
+            "propose_rule" -> {
+                val rawEffects = o["effects"] as? JsonObject ?: throw Bad("propose_rule: campo 'effects' deve ser um objeto escopo -> bônus")
+                val effects = rawEffects.mapValues { (scope, value) ->
+                    val primitive = value as? JsonPrimitive
+                    if (primitive == null || primitive.isString) throw Bad("propose_rule: efeito '$scope' deve ser inteiro")
+                    primitive.intOrNull ?: throw Bad("propose_rule: efeito '$scope' deve ser inteiro")
+                }
+                ProposeRuleAddition(
+                    RegraAdicional(
+                        id = slug(s("id")),
+                        name = s("name"),
+                        description = s("description"),
+                        effects = effects,
+                        limit = s("limit"),
+                        origin = RuleOrigin.ADAPTACAO,
+                        approved = false
+                    )
+                )
+            }
             "roll", "dice", "check", "set_hp", "set_resource", "create_entity", "start_combat", "end_combat", "next_turn" ->
                 throw Bad("'$type' não é permitido à IA: dados, testes e combate são decididos pelo motor")
             else -> throw Bad("tipo desconhecido '$type' (permitidos: ${ProposalSchema.TYPES.joinToString(", ")})")
