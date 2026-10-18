@@ -481,6 +481,9 @@ object PackageValidator {
         d.creation["combate_dano_base"]?.let {
             if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'combate_dano_base' inválido"
         }
+        d.creation["combate_xp_vitoria"]?.let {
+            if ((it.toIntOrNull() ?: -1) !in 0..100000) p += "criacao.txt: 'combate_xp_vitoria' deve ficar entre 0 e 100000"
+        }
         d.creation["combate_dano"]?.let { id ->
             if (d.damage.none { it.id == id }) p += "criacao.txt: perfil de dano inexistente: $id"
         }
