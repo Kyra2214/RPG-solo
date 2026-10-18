@@ -65,6 +65,28 @@ sealed interface RevealResult {
 }
 
 object Reveal {
+    /**
+     * Registra um segredo no diário somente depois de o motor resolver um teste como sucesso parcial ou melhor.
+     * O texto nunca é retornado por esta função; passa ao contexto da IA pelo conhecimento já registrado.
+     */
+    fun discoverSecret(
+        session: CampaignSession,
+        playerId: String,
+        npcId: String,
+        secretId: String,
+        result: CheckResult
+    ): ExecResult? {
+        if (result.outcome !in setOf(Outcome.PARTIAL_SUCCESS, Outcome.SUCCESS, Outcome.CRITICAL_SUCCESS)) return null
+        val player = session.state.entities[playerId] ?: return ExecResult.Rejected("personagem inexistente: $playerId", 0)
+        if (!player.alive) return ExecResult.Rejected("personagem está morto", 0)
+        val dossier = session.state.npcDossiers[npcId] ?: return ExecResult.Rejected("dossiê inexistente: $npcId", 0)
+        val secret = dossier.secrets.firstOrNull { it.id == secretId }
+            ?: return ExecResult.Rejected("segredo inexistente: $secretId", 0)
+        val key = "npc-secret:$npcId:$secretId"
+        if (session.state.knowledge.containsKey(key)) return null
+        return session.execute(LearnKnowledge(key, secret.text, "teste:${result.spec.label}", secret.falseInfo))
+    }
+
     private fun levelsFor(o: Outcome) = when (o) {
         Outcome.CRITICAL_FAILURE, Outcome.FAILURE -> 0
         Outcome.PARTIAL_SUCCESS -> 1
