@@ -108,6 +108,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     Column(Modifier.fillMaxSize()) {
         panel?.let { StatusPanel(it) }
         InventoryPanel(model)
+        AdditionalRulesPanel(model)
         QuickActions(
             enabled = !busy && !pendingRoll && pendingCheck == null,
             onSheet = { run { c.submit("ver ficha") } },
@@ -174,6 +175,40 @@ private fun InventoryPanel(model: AppModel) {
                         TextButton(onClick = { message = model.equipItem(item.id) }) { Text("Equipar") }
                     item.kind == "consumivel" ->
                         TextButton(onClick = { message = model.useItem(item.id) }) { Text("Usar") }
+                }
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun AdditionalRulesPanel(model: AppModel) {
+    val campaignVersion = model.campaignVersion
+    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+    val rules = remember(campaignVersion) { model.additionalRulesView() }
+    var message by remember { mutableStateOf<String?>(null) }
+    if (rules.isEmpty()) return
+    AppCard {
+        Text("Adaptações da campanha", style = MaterialTheme.typography.titleSmall)
+        Muted("Regras propostas pela IA não alteram a mecânica até você aprová-las.")
+        rules.forEach { rule ->
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(rule.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    if (rule.approved) Pill("Aprovada", MaterialTheme.colorScheme.tertiary)
+                    else Pill("Pendente", MaterialTheme.colorScheme.error)
+                }
+                Text(rule.description)
+                Muted("Efeitos: " + rule.effects.entries.joinToString(", ") { (key, value) ->
+                    "${key} ${if (value >= 0) "+" else ""}${value}"
+                })
+                Muted("Limite/custo: ${rule.limit}")
+                if (!rule.approved) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { message = model.approveAdditionalRule(rule.id) }) { Text("Aprovar") }
+                        TextButton(onClick = { message = model.rejectAdditionalRule(rule.id) }) { Text("Descartar") }
+                    }
                 }
             }
         }
