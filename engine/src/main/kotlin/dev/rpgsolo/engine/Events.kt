@@ -108,7 +108,10 @@ fun GameState.apply(e: Event): GameState {
             val res = requireNotNull(ent.resources[e.resource]) { "recurso inexistente: ${e.resource}" }
             copy(entities = entities + (ent.id to ent.copy(resources = ent.resources + (e.resource to res.copy(current = e.newValue)))))
         }
-        is EntityDied -> copy(entities = entities + (e.entityId to entity(e.entityId).copy(alive = false)))
+        is EntityDied -> copy(
+            entities = entities + (e.entityId to entity(e.entityId).copy(alive = false)),
+            combat = combat?.copy(defending = combat.defending - e.entityId)
+        )
         is EntityRevived -> copy(entities = entities + (e.entityId to entity(e.entityId).copy(alive = true)))
         is ItemChanged -> {
             val owner = inventory[e.ownerId] ?: emptyMap()
