@@ -18,6 +18,10 @@ import dev.rpgsolo.engine.RemoveCondition
 import dev.rpgsolo.engine.Revive
 import dev.rpgsolo.engine.SpendResource
 import dev.rpgsolo.engine.ProposeRuleAddition
+import dev.rpgsolo.engine.AddPlace
+import dev.rpgsolo.engine.ConnectPlaces
+import dev.rpgsolo.engine.DiscoverPlace
+import dev.rpgsolo.engine.Place
 import dev.rpgsolo.engine.RegraAdicional
 import dev.rpgsolo.engine.RuleOrigin
 import dev.rpgsolo.rules.NpcProposal
@@ -67,6 +71,7 @@ object ProposalSchema {
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
         change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments) · advance_clock(id, by)
         propose_rule(id, name, description, effects, limit): adaptação explícita, nunca regra oficial; fica pendente até aprovação do jogador.
+        add_place(id, name, description, secret) · connect_places(fromId, toId) · discover_place(id); não use move_to_place, pois só o jogador se desloca.
         Campo opcional "request_roll" (regra 9), uma entrada para CADA face: {"sides": 6, "label": "Onde a flecha acerta", "table": {"1": {"text": "raspa no ombro", "damage": 1}, "2": {...}, "4": {"text": "fura a coxa", "damage": 4, "conditions": ["sangramento"]}, "6": {"text": "atinge perto do coração", "damage": 6}}}
         "conditions" (opcional em cada face) é uma lista de ids de condição do sistema que o motor aplica ao personagem junto com o dano.
         Só um pedido por resposta: request_check OU request_roll.
@@ -76,7 +81,8 @@ object ProposalSchema {
     val TYPES = listOf(
         "damage", "heal", "spend_resource", "add_item", "consume_item", "gain_xp", "revive",
         "record_fact", "learn", "make_promise", "keep_promise", "add_condition", "remove_condition",
-        "change_relation", "create_clock", "advance_clock", "propose_rule"
+        "change_relation", "create_clock", "advance_clock", "propose_rule",
+        "add_place", "connect_places", "discover_place"
     )
 }
 
@@ -334,6 +340,16 @@ object ProposalParser {
             "change_relation" -> ChangeRelation(s("fromId"), s("toId"), n("delta"), s("reason"))
             "create_clock" -> CreateClock(s("id"), s("name"), n("segments"))
             "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
+            "add_place" -> AddPlace(
+                Place(
+                    id = slug(s("id")),
+                    name = s("name"),
+                    description = opt("description").orEmpty(),
+                    secret = opt("secret").orEmpty()
+                )
+            )
+            "connect_places" -> ConnectPlaces(slug(s("fromId")), slug(s("toId")))
+            "discover_place" -> DiscoverPlace(slug(s("id")))
             "propose_rule" -> {
                 val rawEffects = o["effects"] as? JsonObject ?: throw Bad("propose_rule: campo 'effects' deve ser um objeto escopo -> bônus")
                 val effects = rawEffects.mapValues { (scope, value) ->
