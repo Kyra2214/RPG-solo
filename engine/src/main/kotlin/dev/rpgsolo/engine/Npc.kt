@@ -141,7 +141,15 @@ object Reveal {
 }
 
 /** Fase 8.3.2: diário automático, só com o que o jogador descobriu. Informação falsa aparece como crença. */
-fun journal(state: GameState): List<String> =
-    state.knowledge.values.sortedBy { it.key }.map {
+fun journal(state: GameState): List<String> {
+    val discoveries = state.knowledge.values.sortedBy { it.key }.map {
         if (it.believed) "${it.text} (acreditado; fonte: ${it.source})" else "${it.text} (fonte: ${it.source})"
     }
+    val places = state.knownPlaces.mapNotNull { id ->
+        state.places[id]?.let { place ->
+            "Lugar descoberto: ${place.name}" +
+                place.description.takeIf { it.isNotBlank() }?.let { " — $it" }.orEmpty()
+        }
+    }.sorted()
+    return (discoveries + places).distinct()
+}
