@@ -64,7 +64,8 @@ class PlayController(
     /** Fichas privadas dos NPCs que participam do combate atual; nunca renderizadas na interface do jogador. */
     private val npcContext: (String) -> List<String> = { emptyList() },
     /** NPCs presentes: todos os combatentes ou os mencionados explicitamente na ação atual. */
-    private val sceneNpcIds: (String) -> Set<String> = { emptySet() }
+    private val sceneNpcIds: (String) -> Set<String> = { emptySet() },
+    private val worldContext: () -> String? = { null }
 ) {
     /** Uma jogada no chat: onde começa e, se foi ação local que gravou estado, a marca para desfazer. */
     private data class Entry(val start: Int, val localMark: Int? = null, val viaLoop: Boolean = true)
@@ -125,6 +126,7 @@ class PlayController(
                 chapterSummary = chapterSummary(),
                 npcPrivate = npcContext(text),
                 sceneNpcIds = sceneNpcIds(text),
+                worldContext = worldContext(),
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
             )
@@ -152,6 +154,7 @@ class PlayController(
                 chapterSummary = chapterSummary(),
                 npcPrivate = npcContext(pending.playerText),
                 sceneNpcIds = sceneNpcIds(pending.playerText),
+                worldContext = worldContext(),
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
             )
