@@ -56,6 +56,17 @@ object PackageParser {
         }
     }
 
+    /** "ataque:+1;dano:+1;defesa:+1" ou "-" (sem efeito mecânico). */
+    private fun itemEffects(s: String?): List<ItemEffect> {
+        val t = s?.trim().orEmpty()
+        if (t.isEmpty() || t == "-") return emptyList()
+        return t.split(";").map { part ->
+            val kv = part.split(":", limit = 2)
+            if (kv.size != 2) bad("efeito de item inválido: '$part' (use escopo:+N)")
+            ItemEffect(id(kv[0].trim(), "escopo do efeito de item"), int(kv[1].trim(), "bônus do item"))
+        }
+    }
+
     /** "ganho:poder,habilidade", "perda:*" ou "-" (sem efeito). */
     private fun conditionEffect(s: String): ConditionEffect? {
         val t = s.trim()
@@ -200,13 +211,15 @@ object PackageParser {
             if (sides < 2) bad("lados menor que 2")
             DamageDef(id(f[0], "id"), text(f[1], "nome"), count, sides, optId(f[4], "atributo"))
         }
-        val items = table(PackageFiles.ITEMS, 5) { f ->
+        val items = table(PackageFiles.ITEMS, 5, 6) { f ->
             val kind = f[2]
             if (kind !in setOf("equipamento", "consumivel", "narrativo")) bad("tipo de item inválido: '$kind'")
             val slot = optId(f[3], "slot")
             if (kind == "equipamento" && slot == null) bad("equipamento exige slot")
             if (kind != "equipamento" && slot != null) bad("apenas equipamento pode ocupar slot")
-            ItemDef(id(f[0], "id"), text(f[1], "nome"), kind, slot, text(f[4], "descricao"))
+            val effects = itemEffects(f.getOrNull(5))
+            if (kind != "equipamento" && effects.isNotEmpty()) bad("apenas equipamento pode ter efeitos automáticos")
+            ItemDef(id(f[0], "id"), text(f[1], "nome"), kind, slot, text(f[4], "descricao"), effects)
         }
         val creationRows = table(PackageFiles.CREATION, 2) { f -> text(f[0], "chave") to f[1] }
         noDups(PackageFiles.CREATION, creationRows.map { it.first })
