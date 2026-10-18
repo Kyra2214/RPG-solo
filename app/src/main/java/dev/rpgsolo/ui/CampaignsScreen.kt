@@ -32,6 +32,7 @@ fun CampaignsScreen(model: AppModel) {
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
     var quest by remember { mutableStateOf("") }
+    var questObjective by remember { mutableStateOf("") }
     var newName by remember { mutableStateOf("") }
     var backup by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
@@ -163,11 +164,34 @@ fun CampaignsScreen(model: AppModel) {
 
         SectionTitle("Missões")
         if (active.isEmpty()) Muted("Nenhuma missão ativa.")
-        active.forEach { AppCard(accent = MaterialTheme.colorScheme.secondary) { Text(it.title, style = MaterialTheme.typography.bodyLarge) } }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(quest, { quest = it }, Modifier.weight(1f), label = { Text("Nova missão") }, singleLine = true)
-            Button(onClick = { message = model.addQuest(quest); if (message == null) quest = "" }) { Text("Adicionar") }
+        active.forEach { currentQuest ->
+            AppCard(accent = MaterialTheme.colorScheme.secondary) {
+                Text(currentQuest.title, style = MaterialTheme.typography.bodyLarge)
+                currentQuest.objectives.forEachIndexed { index, objective ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            (if (objective.done) "✓ " else "○ ") + objective.text,
+                            modifier = Modifier.weight(1f),
+                            color = if (objective.done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface
+                        )
+                        if (!objective.done) {
+                            TextButton(onClick = { message = model.completeQuestObjective(currentQuest.id, index) }) {
+                                Text("Concluir")
+                            }
+                        }
+                    }
+                }
+            }
         }
+        OutlinedTextField(quest, { quest = it }, Modifier.fillMaxWidth(), label = { Text("Nova missão") }, singleLine = true)
+        OutlinedTextField(
+            questObjective, { questObjective = it }, Modifier.fillMaxWidth(),
+            label = { Text("Objetivo inicial (opcional)") }, singleLine = true
+        )
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+            message = model.addQuest(quest, listOf(questObjective))
+            if (message == null) { quest = ""; questObjective = "" }
+        }) { Text("Adicionar missão") }
 
         SectionTitle("Diário", "Só o que você já descobriu.")
         if (journal.isEmpty()) Muted("Você ainda não descobriu nada.")
