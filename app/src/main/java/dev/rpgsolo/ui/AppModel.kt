@@ -1260,6 +1260,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun addTimelineNote(text: String): String? =
+        try {
+            require(text.isNotBlank()) { "escreva o acontecimento" }
+            require(text.length <= 1000) { "acontecimento deve ter no máximo 1000 caracteres" }
+            quests.note(chapters.chapters.size, text)
+            saveMetadata()
+            campaignVersion++
+            null
+        } catch (e: IllegalArgumentException) { e.message }
+
     fun addQuest(title: String, objectives: List<String> = emptyList()): String? =
         try {
             require(title.isNotBlank()) { "dê um título à missão" }
