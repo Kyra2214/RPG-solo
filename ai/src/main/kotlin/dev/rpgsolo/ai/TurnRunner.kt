@@ -143,6 +143,13 @@ class TurnRunner(
                                 }
                                 normalized += command
                             }
+                            is dev.rpgsolo.engine.ProposeRuleAddition -> {
+                                val ruleMenu = menu
+                                    ?: return Attempt.Retry("adaptação exige um pacote de regras ativo", false)
+                                val invalid = ruleMenu.validateRuleAddition(command.rule)
+                                if (invalid != null) return Attempt.Retry("adaptação recusada: $invalid", false)
+                                normalized += command
+                            }
                             else -> normalized += command
                         }
                     }
