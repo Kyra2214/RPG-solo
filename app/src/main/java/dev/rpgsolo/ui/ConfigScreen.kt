@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -46,6 +49,34 @@ fun ConfigScreen(model: AppModel) {
     var testing by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<ConnectionTestResult?>(null) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var backupMessage by remember { mutableStateOf<String?>(null) }
+    val exportBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) {
+            scope.launch {
+                backupMessage = withContext(Dispatchers.IO) {
+                    runCatching {
+                        context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(model.exportBackup()) }
+                            ?: error("não foi possível abrir o arquivo para escrita")
+                        "Backup exportado. Guarde o arquivo em local seguro."
+                    }.getOrElse { "Falha ao exportar backup: ${it.message ?: "erro desconhecido"}" }
+                }
+            }
+        }
+    }
+    val importBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                backupMessage = withContext(Dispatchers.IO) {
+                    runCatching {
+                        val raw = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                            ?: error("não foi possível abrir o arquivo")
+                        model.importBackup(raw) ?: "Backup importado. A campanha importada foi salva."
+                    }.getOrElse { "Falha ao importar backup: ${it.message ?: "erro desconhecido"}" }
+                }
+            }
+        }
+    }
 
     ScreenColumn {
         SectionTitle("Provedor de IA", "Quem faz o papel de mestre. O motor continua sendo quem rola os dados.")
@@ -122,6 +153,19 @@ fun ConfigScreen(model: AppModel) {
                 }
             }
             Muted("Estas preferências mudam o texto, nunca os resultados do motor nem as regras do sistema.")
+        }
+        AppCard {
+            Text("Backup da campanha", style = MaterialTheme.typography.titleSmall)
+            Muted("Exporta eventos e metadados da campanha ativa para um arquivo JSON. A chave da API não faz parte do backup.")
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { exportBackupLauncher.launch("rpg-solo-backup.json") }
+            ) { Text("Exportar backup") }
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { importBackupLauncher.launch(arrayOf("application/json", "text/*")) }
+            ) { Text("Importar backup") }
+            backupMessage?.let { Text(it, color = if (it.startsWith("Falha")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary) }
         }
         AppCard {
             Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
