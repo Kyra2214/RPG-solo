@@ -10,6 +10,9 @@ data class AttackSpec(
     val damage: Int = 1,
     val defenseDefault: Int = 10,
     val attackBonus: Int = 0,
+    val attackDiceCount: Int = 1,
+    val attackDiceSides: Int = 20,
+    val attackComparison: Comparison = Comparison.ROLL_OVER,
     val damageBonus: Int = 0,
     val defenseBonus: Int = 0,
     /** Se > 0, o dano é rolado pelo motor usando o dado definido no pacote. */
@@ -25,6 +28,10 @@ data class AttackSpec(
         require(damageResource.isNotBlank()) { "recurso de dano vazio" }
         require(damage >= 0) { "dano negativo" }
         require(defenseDefault >= 0) { "defesa padrão negativa" }
+        require(attackDiceCount in 1..100 && attackDiceSides >= 2) { "dados de ataque inválidos" }
+        require(attackComparison != Comparison.POINTS || (attackDiceCount == 1 && attackDiceSides in REAL_DICE)) {
+            "ataque por pontos exige um dado real e um único dado"
+        }
         require(damageDiceCount >= 0 && damageDiceSides >= 0) { "configuração de dados de dano negativa" }
         require((damageDiceCount == 0) == (damageDiceSides == 0)) { "dados de dano exigem quantidade e lados" }
         require(damageDiceCount <= 0 || damageDiceSides >= 2) { "dado de dano precisa ter pelo menos 2 lados" }
