@@ -503,7 +503,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
     fun isPlayerCombatTurn(): Boolean =
-        session.state.combat?.current == playerId && session.state.entities[playerId]?.alive == true
+        session.state.combat?.current == playerId
+
+    fun canDefend(): Boolean = (activePackage?.engineConfig()?.defendBonus ?: 0) > 0 && session.state.entities[playerId]?.alive == true
 
     /** Só recompensa quando o combate terminou e todos os NPCs que participaram foram derrotados. */
     private fun awardCombatVictoryXp(combatantIds: Collection<String>): Int {
