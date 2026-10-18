@@ -107,6 +107,7 @@ fun CampaignsScreen(model: AppModel) {
     val chapters = remember(v) { model.chapters.chapters }
     val open = remember(v) { model.chapters.current() }
     val active = remember(v) { model.quests.active() }
+    val allQuests = remember(v) { model.quests.all() }
     val timeline = remember(v) { model.quests.timeline() }
     val journal = remember(v, model.controller?.lines?.size) { model.journal() }
 
@@ -197,6 +198,28 @@ fun CampaignsScreen(model: AppModel) {
                             }
                         }
                     }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { message = model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.DONE) }) {
+                        Text("Encerrar como concluída")
+                    }
+                    TextButton(onClick = { message = model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.FAILED) }) {
+                        Text("Marcar como falhou")
+                    }
+                }
+            }
+        }
+        val finishedQuests = allQuests.filter { it.status != dev.rpgsolo.engine.QuestStatus.ACTIVE }
+        if (finishedQuests.isNotEmpty()) {
+            SectionTitle("Missões encerradas")
+            finishedQuests.forEach { finished ->
+                AppCard {
+                    Text(finished.title, style = MaterialTheme.typography.bodyLarge)
+                    Pill(
+                        if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) "concluída" else "falhou",
+                        if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+                    )
+                    finished.objectives.forEach { objective -> Muted((if (objective.done) "✓ " else "○ ") + objective.text) }
                 }
             }
         }
