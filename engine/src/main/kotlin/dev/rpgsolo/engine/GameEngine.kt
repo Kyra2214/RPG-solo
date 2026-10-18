@@ -253,6 +253,15 @@ fun validateState(state: GameState): List<String> {
     }
     for ((key, value) in state.relations) {
         if (value !in -100..100) problems += "relação fora do intervalo: $key"
+        val ids = key.split('\u0000', limit = 2)
+        if (ids.size != 2 || ids.any { it.isBlank() } ||
+            ids.size == 2 && (ids[0] !in state.entities || ids[1] !in state.entities)) {
+            problems += "relação aponta para entidade inexistente: $key"
+        }
+    }
+    for ((id, clock) in state.clocks) {
+        if (id != clock.id) problems += "id de relógio inconsistente: $id"
+        if (clock.filled !in 0..clock.segments) problems += "preenchimento de relógio inválido: $id"
     }
     state.combat?.let { c ->
         if (c.turnIndex !in c.order.indices) problems += "turno fora da ordem de iniciativa"
