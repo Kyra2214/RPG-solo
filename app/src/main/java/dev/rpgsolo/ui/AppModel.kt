@@ -112,6 +112,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Biblioteca de fichas reutilizáveis, persistida separadamente das campanhas. */
     val fichas = mutableStateListOf<Ficha>()
+    val archivedFichas = mutableStateListOf<Ficha>()
     val campaigns = mutableStateListOf<CampaignRecord>()
     var chapters = ChapterBook(chapterEventLimit)
         private set
@@ -210,7 +211,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     private fun restoreFichas() {
         fichas.clear()
+        archivedFichas.clear()
         fichas.addAll(store.fichas().mapNotNull { row ->
+            runCatching { dev.rpgsolo.engine.Codec.decodeFicha(row.json) }.getOrNull()
+        })
+        archivedFichas.addAll(store.fichasArquivadas().mapNotNull { row ->
             runCatching { dev.rpgsolo.engine.Codec.decodeFicha(row.json) }.getOrNull()
         })
     }
@@ -221,6 +226,40 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val index = fichas.indexOfFirst { it.id == ficha.id }
         if (index >= 0) fichas[index] = ficha else fichas.add(ficha)
     }
+
+    fun duplicateFicha(id: String): String? = try {
+        val original = requireNotNull(fichas.firstOrNull { it.id == id }) { "ficha não encontrada na biblioteca" }
+        val copy = original.copy(id = "f-${System.nanoTime()}", name = "${original.name} (cópia)")
+        saveFicha(copy)
+        campaignVersion++
+        null
+    } catch (e: IllegalArgumentException) { e.message }
+
+    fun archiveFicha(id: String, archived: Boolean): String? = try {
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == id }
+            ?: return "ficha não encontrada na biblioteca"
+        require(store.definirFichaArquivada(id, archived)) { "não foi possível atualizar a ficha" }
+        if (archived) {
+            fichas.removeAll { it.id == id }
+            if (archivedFichas.none { it.id == id }) archivedFichas.add(ficha)
+        } else {
+            archivedFichas.removeAll { it.id == id }
+            if (fichas.none { it.id == id }) fichas.add(ficha)
+        }
+        campaignVersion++
+        null
+    } catch (e: IllegalArgumentException) { e.message }
+
+    fun deleteFicha(id: String): String? = try {
+        require(store.apagarFicha(id)) { "ficha não encontrada na biblioteca" }
+        fichas.removeAll { it.id == id }
+        archivedFichas.removeAll { it.id == id }
+        campaignVersion++
+        null
+    } catch (e: IllegalArgumentException) { e.message }
+
+    fun exportFicha(id: String): String? =
+        (fichas + archivedFichas).firstOrNull { it.id == id }?.let(dev.rpgsolo.engine.Codec::encode)
 
     fun activeCampaignId(): String = session.campaignId
 
