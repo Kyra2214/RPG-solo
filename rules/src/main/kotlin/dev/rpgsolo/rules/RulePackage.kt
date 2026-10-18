@@ -476,6 +476,19 @@ object PackageValidator {
                 else -> p += "criacao.txt: propriedade de item desconhecida: $key"
             }
         }
+        d.items.filter { it.kind == "consumivel" }.forEach { item ->
+            val prefix = "item_${item.id}_"
+            val action = d.creation[prefix + "acao"]
+            val resource = d.creation[prefix + "recurso"]
+            val amount = d.creation[prefix + "quantidade"]
+            if (listOf(action, resource, amount).any { it != null } && action == null) {
+                p += "criacao.txt: consumível ${item.id} define recurso/quantidade sem ação"
+            }
+            if (action != null) {
+                if (resource == null) p += "criacao.txt: consumível ${item.id} sem recurso"
+                if (amount == null) p += "criacao.txt: consumível ${item.id} sem quantidade"
+            }
+        }
         val pontos = d.creation["pontos"]?.toIntOrNull()
         if (pontos == null || pontos < 0) p += "criacao.txt: 'pontos' ausente ou inválido"
         d.creation["limite_desvantagens"]?.let { if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'limite_desvantagens' inválido" }
