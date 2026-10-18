@@ -45,7 +45,7 @@ class TurnRunner(
     }
 
     /** [menu] = testes que o mestre pode pedir neste jogo (null = o mestre não pode pedir teste). */
-    fun run(session: CampaignSession, request: AiRequest, menu: CheckMenu? = null, canRequest: Boolean = true): TurnOutcome {
+    fun run(session: CampaignSession, request: AiRequest, menu: CheckMenu? = null, canRequest: Boolean = true, playerEntityId: String? = null): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
         var lastProblem = ""
@@ -57,7 +57,7 @@ class TurnRunner(
             } catch (e: AiError) {
                 return TurnOutcome.Failed(e.message ?: "erro de IA", e)
             }
-            when (val a = attempt(session, response.text, menu, canRequest)) {
+            when (val a = attempt(session, response.text, menu, canRequest, playerEntityId)) {
                 is Attempt.Done -> return a.outcome
                 is Attempt.Retry -> {
                     lastProblem = a.problem
@@ -77,7 +77,7 @@ class TurnRunner(
         return if (lastFromEngine) TurnOutcome.Refused(lastProblem) else TurnOutcome.Failed(lastProblem)
     }
 
-    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean): Attempt =
+    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?): Attempt =
         when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
                 Attempt.Retry("formato inválido: " + parsed.errors.joinToString("; "), false)
@@ -106,6 +106,10 @@ class TurnRunner(
                 } else {
                     // O motor não aceita dano/cura/custo de recurso inventado para o personagem do jogador.
                     // Itens e condições também precisam existir no pacote ativo; seus efeitos vêm do pacote.
+                    if (out.requestCombat && (menu == null || playerEntityId == null)) {
+                        return Attempt.Retry("request_combat exige personagem do jogador e pacote ativo", false)
+                    }
+                    val transactionMark = session.mark()
                     val normalized = mutableListOf<dev.rpgsolo.engine.Command>()
                     for (command in out.proposals) {
                         val playerTarget = when (command) {
@@ -153,12 +157,14 @@ class TurnRunner(
                             else -> normalized += command
                         }
                     }
+                    var combatNpcId: String? = null
                     out.npcProposal?.let { proposal ->
                         val npcMenu = menu
                         if (npcMenu == null && npcCreator == null) {
                             return Attempt.Retry("não há pacote nem contexto de sistema para criar a ficha de NPC", false)
                         }
-                        val npcId = "npc-${session.mark()}-${proposal.name.trim().lowercase().hashCode()}"
+                        val npcId = "npc-${transactionMark}-${proposal.name.trim().lowercase().hashCode()}"
+                        combatNpcId = npcId
                         val candidate = proposal.copy(id = npcId)
                         val result = npcCreator?.invoke(candidate)
                             ?: npcMenu?.createNpc(candidate)
@@ -172,7 +178,32 @@ class TurnRunner(
                         sheet.dossier?.let { normalized += dev.rpgsolo.engine.SetNpcDossier(it) }
                     }
                     when (val r = session.executeAll(normalized)) {
-                        is ExecResult.Accepted -> Attempt.Done(TurnOutcome.Applied(out.narrative, r.events, out.suggestions))
+                        is ExecResult.Accepted -> {
+                            if (out.requestCombat) {
+                                val npcId = combatNpcId
+                                    ?: run {
+                                        session.rollbackTo(transactionMark)
+                                        return Attempt.Retry("request_combat não produziu um adversário", false)
+                                    }
+                                val activeMenu = menu
+                                    ?: run {
+                                        session.rollbackTo(transactionMark)
+                                        return Attempt.Retry("request_combat exige pacote de regras ativo", false)
+                                    }
+                                val startError = activeMenu.startCombat(session, playerEntityId!!, npcId)
+                                if (startError != null) {
+                                    session.rollbackTo(transactionMark)
+                                    return Attempt.Retry("não foi possível iniciar o combate: $startError", true)
+                                }
+                                Attempt.Done(TurnOutcome.Applied(
+                                    out.narrative,
+                                    session.engine.events.drop(transactionMark),
+                                    out.suggestions
+                                ))
+                            } else {
+                                Attempt.Done(TurnOutcome.Applied(out.narrative, r.events, out.suggestions))
+                            }
+                        }
                         is ExecResult.Rejected ->
                             Attempt.Retry("o motor recusou a proposta ${r.commandIndex + 1}: ${r.reason}", true)
                     }
