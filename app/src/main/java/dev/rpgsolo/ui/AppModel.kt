@@ -59,6 +59,7 @@ data class InventoryView(
     val slot: String?, val equipped: Boolean, val description: String
 )
 
+
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
  * A configuração do provedor é restaurada e a chave fica cifrada pelo Android Keystore.
@@ -266,7 +267,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(attacker), "ataque"),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(attacker), "dano"),
-                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") + pkg.traitBonus(combatTraitIds(playerId), "defesa"),
+                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") + pkg.traitBonus(combatTraitIds(playerId), "defesa") +
+                    approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
@@ -305,6 +307,26 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         .mapNotNull { id -> session.state.entities[id]?.takeIf { it.alive }?.let { CombatTarget(it.id, it.name, it.rulesValidated) } }
 
     fun isPlayerCombatTurn(): Boolean = session.state.combat?.current == playerId
+
+    fun additionalRulesView(): List<dev.rpgsolo.engine.RegraAdicional> =
+        session.state.additionalRules.values.sortedWith(compareBy({ it.approved }, { it.name }))
+
+    private fun approvedRuleBonus(scope: String): Int =
+        session.state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
+
+    fun approveAdditionalRule(id: String): String? = when (
+        val result = session.execute(dev.rpgsolo.engine.ApproveRuleAddition(id))
+    ) {
+        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+    }
+
+    fun rejectAdditionalRule(id: String): String? = when (
+        val result = session.execute(dev.rpgsolo.engine.RejectRuleAddition(id))
+    ) {
+        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+    }
 
     /** Traços mecânicos do combatente; a ficha salva cobre campanhas antigas cujo Entity ainda não os continha. */
     private fun combatTraitIds(entityId: String): List<String> =
@@ -402,8 +424,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 damageResource = resource,
                 damage = baseDamage,
                 defenseDefault = baseDefense,
-                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(playerId), "ataque"),
-                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano"),
+                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(playerId), "ataque") +
+                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat),
+                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano") +
+                    approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") + pkg.traitBonus(combatTraitIds(targetId), "defesa"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
