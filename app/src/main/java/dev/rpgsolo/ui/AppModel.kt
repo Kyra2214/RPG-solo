@@ -238,9 +238,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
         val initiativeStat = pkg.data.creation["combate_atributo_iniciativa"]
             ?: return "o pacote não define o atributo de iniciativa"
+        val initiativeDiceCount = pkg.data.creation["combate_dados_iniciativa"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dados_iniciativa"
+        val initiativeDiceSides = pkg.data.creation["combate_lados_iniciativa"]?.toIntOrNull()
+            ?: return "o pacote não define combate_lados_iniciativa"
+        val initiativeOrder = pkg.data.creation["combate_ordem_iniciativa"]
+            ?: return "o pacote não define combate_ordem_iniciativa"
         val participants = session.state.entities.values.filter { it.alive }.map { it.id }
         require(participants.size >= 2) { "combate exige pelo menos duas entidades vivas" }
-        when (val result = session.rollInitiative(participants, statKey = initiativeStat)) {
+        when (val result = session.rollInitiative(
+            participants,
+            diceCount = initiativeDiceCount,
+            diceSides = initiativeDiceSides,
+            statKey = initiativeStat,
+            highestFirst = initiativeOrder == "MAIOR"
+        )) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
