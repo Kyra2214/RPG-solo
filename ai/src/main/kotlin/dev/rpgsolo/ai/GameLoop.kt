@@ -81,10 +81,14 @@ class GameLoop(
         val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), playerTraits(), skill) ?: spec
         val scopes = listOfNotNull(spec.checkId, spec.stat, skill).distinct()
         val bonus = scopes.sumOf(additionalBonus)
-        return if (bonus == 0) adjusted else adjusted.copy(
-            modifier = adjusted.modifier + bonus,
-            label = adjusted.label + if (bonus > 0) " · adaptação +$bonus" else " · adaptação $bonus"
-        )
+        return if (bonus == 0) adjusted else {
+            val suffix = if (bonus > 0) " · adaptação +$bonus" else " · adaptação $bonus"
+            if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
+                adjusted.copy(difficulty = adjusted.difficulty + bonus, label = adjusted.label + suffix)
+            } else {
+                adjusted.copy(modifier = adjusted.modifier + bonus, label = adjusted.label + suffix)
+            }
+        }
     }
 
     /** Quantas resoluções de pedido do mestre vieram em sequência no fim do histórico (limita o encadeamento). */
