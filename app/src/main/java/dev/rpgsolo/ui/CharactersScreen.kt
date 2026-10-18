@@ -27,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.rules.CharacterDraft
 import dev.rpgsolo.rules.FichaBuild
@@ -44,6 +46,8 @@ fun CharactersScreen(model: AppModel) {
     val reg = model.content.registry
     val ids = reg.installed().map { it.id }
     var selected by remember { mutableStateOf(ids.firstOrNull()) }
+    var libraryMessage by remember { mutableStateOf<String?>(null) }
+    val clipboard = LocalClipboardManager.current
     val pkg = selected?.let { reg.get(it) }
 
     ScreenColumn {
@@ -250,9 +254,33 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             AppCard {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
                 Muted("${f.concept.ifBlank { "sem conceito" }} · ${f.system.editionId}")
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    TextButton(onClick = { libraryMessage = model.duplicateFicha(f.id) ?: "Ficha duplicada." }) { Text("Duplicar") }
+                    TextButton(onClick = { libraryMessage = model.archiveFicha(f.id, true) ?: "Ficha arquivada." }) { Text("Arquivar") }
+                    TextButton(onClick = {
+                        val raw = model.exportFicha(f.id)
+                        if (raw != null) {
+                            clipboard.setText(AnnotatedString(raw))
+                            libraryMessage = "JSON da ficha copiado."
+                        } else libraryMessage = "Não foi possível exportar a ficha."
+                    }) { Text("Exportar JSON") }
+                }
             }
         }
     }
+    if (model.archivedFichas.isNotEmpty()) {
+        SectionTitle("Fichas arquivadas")
+        model.archivedFichas.forEach { f ->
+            AppCard {
+                Text(f.name, style = MaterialTheme.typography.titleSmall)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    TextButton(onClick = { libraryMessage = model.archiveFicha(f.id, false) ?: "Ficha restaurada." }) { Text("Restaurar") }
+                    TextButton(onClick = { libraryMessage = model.deleteFicha(f.id) ?: "Ficha excluída." }) { Text("Excluir") }
+                }
+            }
+        }
+    }
+    libraryMessage?.let { Muted(it) }
 }
 
 @Composable
