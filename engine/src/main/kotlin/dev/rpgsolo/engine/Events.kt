@@ -49,6 +49,12 @@ data class ConditionRemoved(val entityId: String, val condition: String) : Event
 @Serializable
 data class NpcDossierStored(val dossier: NpcDossier) : Event
 @Serializable
+data class AdditionalRuleProposed(val rule: RegraAdicional) : Event
+@Serializable
+data class AdditionalRuleApproved(val id: String) : Event
+@Serializable
+data class AdditionalRuleRejected(val id: String) : Event
+@Serializable
 data class ConditionTicked(
     val entityId: String,
     val condition: String,
@@ -123,6 +129,12 @@ fun GameState.apply(e: Event): GameState {
                 (e.condition to ConditionState(e.durationRounds, e.damagePerRound, e.damageResource))))
         )
         is NpcDossierStored -> copy(npcDossiers = npcDossiers + (e.dossier.npcId to e.dossier))
+        is AdditionalRuleProposed -> copy(additionalRules = additionalRules + (e.rule.id to e.rule))
+        is AdditionalRuleApproved -> {
+            val rule = requireNotNull(additionalRules[e.id]) { "adaptação inexistente: ${e.id}" }
+            copy(additionalRules = additionalRules + (e.id to rule.copy(approved = true)))
+        }
+        is AdditionalRuleRejected -> copy(additionalRules = additionalRules - e.id)
         is ConditionRemoved -> {
             val left = (conditions[e.entityId] ?: emptySet()) - e.condition
             val states = (conditionStates[e.entityId] ?: emptyMap()) - e.condition
