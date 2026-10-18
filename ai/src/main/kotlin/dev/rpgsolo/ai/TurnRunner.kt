@@ -3,6 +3,8 @@ package dev.rpgsolo.ai
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.Event
 import dev.rpgsolo.engine.ExecResult
+import dev.rpgsolo.rules.NpcProposal
+import dev.rpgsolo.rules.NpcResult
 
 sealed interface TurnOutcome {
     /** Narrativa liberada e propostas aplicadas pelo motor (lista vazia = só narração). */
@@ -29,7 +31,9 @@ sealed interface TurnOutcome {
  */
 class TurnRunner(
     private val provider: AiProvider,
-    private val maxCorrections: Int = 1
+    private val maxCorrections: Int = 1,
+    /** Permite criar NPCs sem pacote, desde que o app forneça uma edição e marque a ficha como não validada. */
+    private val npcCreator: ((NpcProposal) -> NpcResult)? = null
 ) {
     init {
         require(maxCorrections >= 0) { "maxCorrections deve ser >= 0" }
@@ -144,13 +148,16 @@ class TurnRunner(
                     }
                     out.npcProposal?.let { proposal ->
                         val npcMenu = menu
-                            ?: return Attempt.Retry("não há pacote ativo para validar a ficha de NPC", false)
+                        if (npcMenu == null && npcCreator == null) {
+                            return Attempt.Retry("não há pacote nem contexto de sistema para criar a ficha de NPC", false)
+                        }
                         val npcId = "npc-${session.mark()}-${proposal.name.trim().lowercase().hashCode()}"
-                        val result = npcMenu.createNpc(proposal.copy(id = npcId))
+                        val candidate = proposal.copy(id = npcId)
+                        val result = npcCreator?.invoke(candidate) ?: npcMenu.createNpc(candidate)
                         val sheet = when (result) {
-                            is dev.rpgsolo.rules.NpcResult.Created -> result.sheet
-                            is dev.rpgsolo.rules.NpcResult.Rejected ->
-                                return Attempt.Retry("ficha de NPC recusada pelo pacote: ${result.errors.joinToString("; ")}", false)
+                            is NpcResult.Created -> result.sheet
+                            is NpcResult.Rejected ->
+                                return Attempt.Retry("ficha de NPC recusada: ${result.errors.joinToString("; ")}", false)
                         }
                         normalized += dev.rpgsolo.engine.CreateEntity(sheet.toEntity())
                         sheet.dossier?.let { normalized += dev.rpgsolo.engine.SetNpcDossier(it) }
