@@ -12,6 +12,7 @@ object PackageFiles {
     const val DIFFICULTIES = "dificuldades.txt"
     const val CONDITIONS = "condicoes.txt"
     const val DAMAGE = "dano.txt"
+    const val ITEMS = "itens.txt"
     const val CREATION = "criacao.txt"
     const val PROGRESSION = "progressao.txt"
     const val UNCERTAIN = "incerto.txt"
@@ -19,7 +20,7 @@ object PackageFiles {
     const val EXAMPLES = "exemplos.txt"
     const val ARCHETYPES = "arquetipos.txt"
     const val ARCHETYPE_OPTIONS = "opcoes-arquetipo.txt"
-    val ALL = setOf(MANIFEST, STATS, RESOURCES, TRAITS, CHECKS, DIFFICULTIES, CONDITIONS, DAMAGE,
+    val ALL = setOf(MANIFEST, STATS, RESOURCES, TRAITS, CHECKS, DIFFICULTIES, CONDITIONS, DAMAGE, ITEMS,
         CREATION, PROGRESSION, UNCERTAIN, TUTORIAL, EXAMPLES, ARCHETYPES, ARCHETYPE_OPTIONS)
 }
 
@@ -199,6 +200,14 @@ object PackageParser {
             if (sides < 2) bad("lados menor que 2")
             DamageDef(id(f[0], "id"), text(f[1], "nome"), count, sides, optId(f[4], "atributo"))
         }
+        val items = table(PackageFiles.ITEMS, 5) { f ->
+            val kind = f[2]
+            if (kind !in setOf("equipamento", "consumivel", "narrativo")) bad("tipo de item inválido: '$kind'")
+            val slot = optId(f[3], "slot")
+            if (kind == "equipamento" && slot == null) bad("equipamento exige slot")
+            if (kind != "equipamento" && slot != null) bad("apenas equipamento pode ocupar slot")
+            ItemDef(id(f[0], "id"), text(f[1], "nome"), kind, slot, text(f[4], "descricao"))
+        }
         val creationRows = table(PackageFiles.CREATION, 2) { f -> text(f[0], "chave") to f[1] }
         noDups(PackageFiles.CREATION, creationRows.map { it.first })
         val progressionRows = table(PackageFiles.PROGRESSION, 2) { f -> int(f[0], "nivel") to int(f[1], "xp") }
@@ -238,6 +247,7 @@ object PackageParser {
         noDups(PackageFiles.DIFFICULTIES, difficulties.map { it.id })
         noDups(PackageFiles.CONDITIONS, conditions.map { it.id })
         noDups(PackageFiles.DAMAGE, damage.map { it.id })
+        noDups(PackageFiles.ITEMS, items.map { it.id })
         noDups(PackageFiles.UNCERTAIN, uncertain.map { it.id })
         noDups(PackageFiles.TUTORIAL, tutorial.map { it.order.toString() })
         noDups(PackageFiles.EXAMPLES, examples.map { it.id })
@@ -245,7 +255,7 @@ object PackageParser {
         noDups(PackageFiles.ARCHETYPE_OPTIONS, archetypeOptions.map { it.archetype })
 
         if (errors.isNotEmpty()) return ParseResult.Fail(errors)
-        return ParseResult.Ok(PackageData(manifest, stats, resources, traits, checks, difficulties, conditions, damage,
+        return ParseResult.Ok(PackageData(manifest, stats, resources, traits, checks, difficulties, conditions, damage, items,
             creationRows.toMap(), progression, uncertain, tutorial, examples, archetypes, archetypeOptions))
     }
 }

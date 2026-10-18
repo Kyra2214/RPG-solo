@@ -50,6 +50,23 @@ class RulePackageTest {
         assertTrue(p.validateCharacter(mapOf("forca" to 3, "agilidade" to 1, "mente" to 0), listOf("lutador", "espadas")).valid)
     }
 
+    @Test fun catalogoDistingueEquipamentoConsumivelENarrativo() {
+        val f = files("teste-basico").toMutableMap()
+        f["itens.txt"] = "espada|Espada|equipamento|mao|Arma\npocao|Poção|consumivel|-|Cura\n"
+        val p = (PackageRegistry().install(f) as InstallResult.Success).pkg
+        assertTrue(p.isEquipableItem("espada", "mao"))
+        assertFalse(p.isEquipableItem("pocao", "mao"))
+        assertEquals("Cura", p.item("pocao")!!.description)
+    }
+
+    @Test fun equipamentoSemSlotEItemComSlotInvalidoSaoRecusados() {
+        val f = files("teste-basico").toMutableMap()
+        f["itens.txt"] = "espada|Espada|equipamento|-|Arma\n"
+        assertTrue(failure(PackageRegistry().install(f)).any { it.contains("equipamento exige slot") })
+        f["itens.txt"] = "pocao|Poção|consumivel|mao|Cura\n"
+        assertTrue(failure(PackageRegistry().install(f)).any { it.contains("apenas equipamento") })
+    }
+
     @Test fun arquivoComErroDaMensagemComArquivoELinha() {
         val f = files("teste-basico").toMutableMap()
         f["atributos.txt"] = "forca|Força|0|5\n"

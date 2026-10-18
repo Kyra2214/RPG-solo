@@ -1,0 +1,5 @@
+# id|nome|tipo|slot|descricao
+espada-curta|Espada curta|equipamento|mao|Arma simples para combate corpo a corpo.
+escudo-leve|Escudo leve|equipamento|outra-mao|Proteção portátil, sem bônus mecânico nesta etapa.
+pocao-cura|Poção de cura|consumivel|-|Recupera recurso quando uma regra do pacote definir seu uso.
+chave-antiga|Chave antiga|narrativo|-|Item de história sem efeito mecânico automático.

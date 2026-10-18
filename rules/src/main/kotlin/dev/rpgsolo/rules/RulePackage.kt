@@ -47,6 +47,7 @@ class RulePackage internal constructor(val data: PackageData) {
     private val checkById = data.checks.associateBy { it.id }
     private val difficultyById = data.difficulties.associateBy { it.id }
     private val uncertainById = data.uncertain.associateBy { it.id }
+    private val itemById = data.items.associateBy { it.id }
 
     val creationPoints: Int get() = data.creation["pontos"]?.toIntOrNull() ?: 0
     val statCost: Int get() = data.creation["custo_atributo"]?.toIntOrNull() ?: 1
@@ -76,6 +77,9 @@ class RulePackage internal constructor(val data: PackageData) {
     fun trait(id: String): TraitDef? = traitById[id]
     fun difficultyValue(id: String): Int? = difficultyById[id]?.value
     fun isUncertain(id: String): Boolean = id in uncertainById
+    fun item(id: String): ItemDef? = itemById[id]
+    fun isEquipableItem(id: String, slot: String): Boolean =
+        itemById[id]?.kind == "equipamento" && itemById[id]?.slot == slot
 
     /** Configuração para o motor: o que mata e os níveis. Sem isso no pacote, o motor não mata nem sobe de nível. */
     fun engineConfig(): EngineConfig =

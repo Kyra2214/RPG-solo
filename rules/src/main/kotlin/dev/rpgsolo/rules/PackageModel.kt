@@ -74,6 +74,9 @@ data class ConditionEffect(val dice: Int, val stats: Set<String>?)
 data class ConditionDef(val id: String, val name: String, val description: String, val effect: ConditionEffect? = null)
 data class DamageDef(val id: String, val name: String, val diceCount: Int, val diceSides: Int, val bonusStat: String?)
 
+/** Item do catálogo: equipamento ocupa [slot]; itens narrativos não têm efeito mecânico. */
+data class ItemDef(val id: String, val name: String, val kind: String, val slot: String?, val description: String)
+
 /** Regra ambígua: nunca apresentada como oficial (4.1.6). */
 data class UncertainRule(val id: String, val note: String)
 data class TutorialStep(val order: Int, val title: String, val text: String)
@@ -101,6 +104,7 @@ data class PackageData(
     val difficulties: List<DifficultyDef> = emptyList(),
     val conditions: List<ConditionDef> = emptyList(),
     val damage: List<DamageDef> = emptyList(),
+    val items: List<ItemDef> = emptyList(),
     val creation: Map<String, String> = emptyMap(),
     /** XP total para o nível 2, 3, 4... null = o pacote não define progressão. */
     val progression: List<Int>? = null,

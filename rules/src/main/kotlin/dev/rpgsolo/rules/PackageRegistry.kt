@@ -121,6 +121,7 @@ class PackageRegistry(private val catalog: Catalog? = null) {
         difficulties = byId(b.difficulties, c.difficulties) { it.id },
         conditions = byId(b.conditions, c.conditions) { it.id },
         damage = byId(b.damage, c.damage) { it.id },
+        items = byId(b.items, c.items) { it.id },
         creation = b.creation + c.creation,
         progression = c.progression ?: b.progression,
         uncertain = byId(b.uncertain, c.uncertain) { it.id },
