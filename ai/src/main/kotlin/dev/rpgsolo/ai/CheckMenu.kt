@@ -64,6 +64,18 @@ class CheckMenu(private val pkg: RulePackage) {
     /** Recurso de saúde do pacote (o que mata ao chegar a 0). null = o sistema não tem. */
     fun healthResource(): String? = pkg.manifest.deathResource
 
+    /** Converte um id de condição em comando com duração e dano definidos pelo pacote, nunca pela IA. */
+    fun conditionCommand(entityId: String, conditionId: String): dev.rpgsolo.engine.AddCondition? {
+        val definition = pkg.data.conditions.firstOrNull { it.id == conditionId } ?: return null
+        return dev.rpgsolo.engine.AddCondition(
+            entityId = entityId,
+            condition = definition.id,
+            durationRounds = definition.durationRounds,
+            damagePerRound = definition.damagePerRound,
+            damageResource = definition.damageResource
+        )
+    }
+
     /** Mensagem de erro (para a IA corrigir) ou null se o pedido é válido. */
     fun validate(req: CheckRequest): String? {
         if (checks.none { it.id == req.checkId }) {
