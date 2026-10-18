@@ -111,7 +111,8 @@ class CheckMenu(private val pkg: RulePackage) {
         val npcId = req.targetNpcId ?: return "revelação exige targetNpc"
         val secretId = req.revealSecretId ?: return "revelação exige revealSecret"
         val requiredStat = req.requiredStat ?: return "revelação exige requiredStat"
-        if (pkg.stat(requiredStat) == null && pkg.trait(requiredStat)?.type != "pericia") {
+        val skill = pkg.trait(requiredStat)
+        if (pkg.stat(requiredStat) == null && skill?.type != "pericia") {
             return "requiredStat '$requiredStat' não é atributo nem perícia do pacote"
         }
         val npc = state.entities[npcId] ?: return "NPC inexistente: $npcId"
