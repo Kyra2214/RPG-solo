@@ -216,8 +216,43 @@ fun validateState(state: GameState): List<String> {
     for (p in state.promises.values) {
         if (!state.entities.containsKey(p.npcId)) problems += "promessa ${p.id} de NPC inexistente: ${p.npcId}"
     }
-    for (id in state.conditions.keys) {
+    for ((id, activeConditions) in state.conditions) {
         if (!state.entities.containsKey(id)) problems += "condição em entidade inexistente: $id"
+        for (condition in activeConditions) {
+            if (state.conditionStates[id]?.containsKey(condition) != true) {
+                problems += "condição sem estado mecânico: $id/$condition"
+            }
+        }
+    }
+    for ((id, states) in state.conditionStates) {
+        val entity = state.entities[id]
+        if (entity == null) problems += "estado de condição em entidade inexistente: $id"
+        for ((condition, effect) in states) {
+            if (condition !in state.conditions[id].orEmpty()) problems += "estado de condição órfão: $id/$condition"
+            if (effect.remainingRounds != null && effect.remainingRounds <= 0) problems += "duração inválida: $id/$condition"
+            if (effect.damagePerRound < 0) problems += "dano por rodada negativo: $id/$condition"
+            if (effect.damagePerRound > 0 && entity?.resources?.containsKey(effect.damageResource) != true) {
+                problems += "recurso de dano de condição inexistente: $id/$condition/${effect.damageResource}"
+            }
+        }
+    }
+    for ((from, destinations) in state.placeLinks) {
+        if (from !in state.places) problems += "conexões de local inexistente: $from"
+        for (to in destinations) {
+            if (to !in state.places) problems += "destino de local inexistente: $to"
+            if (from !in state.placeLinks[to].orEmpty()) problems += "conexão de local não recíproca: $from/$to"
+        }
+    }
+    if (state.currentPlaceId != null && state.currentPlaceId !in state.knownPlaces) {
+        problems += "local atual não está descoberto: ${state.currentPlaceId}"
+    }
+    if (state.knownPlaces.any { it !in state.places }) problems += "há local descoberto sem definição"
+    for ((npcId, dossier) in state.npcDossiers) {
+        if (state.entities[npcId]?.kind != EntityKind.NPC) problems += "dossiê sem NPC válido: $npcId"
+        if (dossier.npcId != npcId) problems += "id do dossiê não corresponde à chave: $npcId"
+    }
+    for ((key, value) in state.relations) {
+        if (value !in -100..100) problems += "relação fora do intervalo: $key"
     }
     state.combat?.let { c ->
         if (c.turnIndex !in c.order.indices) problems += "turno fora da ordem de iniciativa"
