@@ -8,7 +8,10 @@ data class AttackSpec(
     val defenseStat: String = "defense",
     val damageResource: String = "hp",
     val damage: Int = 1,
-    val defenseDefault: Int = 10
+    val defenseDefault: Int = 10,
+    val attackBonus: Int = 0,
+    val damageBonus: Int = 0,
+    val defenseBonus: Int = 0
 ) {
     init {
         require(attackerId.isNotBlank()) { "atacante vazio" }
