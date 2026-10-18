@@ -64,6 +64,9 @@ class CheckMenu(private val pkg: RulePackage) {
     /** Recurso de saúde do pacote (o que mata ao chegar a 0). null = o sistema não tem. */
     fun healthResource(): String? = pkg.manifest.deathResource
 
+    /** Itens válidos no pacote ativo; a IA não pode inventar ids de inventário. */
+    fun hasItem(itemId: String): Boolean = pkg.item(itemId) != null
+
     /** Converte um id de condição em comando com duração e dano definidos pelo pacote, nunca pela IA. */
     fun conditionCommand(entityId: String, conditionId: String): dev.rpgsolo.engine.AddCondition? {
         val definition = pkg.data.conditions.firstOrNull { it.id == conditionId } ?: return null
