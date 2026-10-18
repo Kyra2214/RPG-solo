@@ -6,6 +6,13 @@ package dev.rpgsolo.rules
  */
 data class DifficultySetting(val levelId: String, val params: Map<String, Double> = emptyMap())
 
+/**
+ * Escala 0..10:
+ * - resource_scarcity: pressão narrativa sobre recursos/saque (0 abundante, 10 escasso).
+ * - danger_level: modificador mecânico dos testes do jogador (5 neutro; cada ponto acima reduz 1).
+ * - enemy_tactics: modificador mecânico do ataque de NPC (5 neutro; cada ponto acima soma 1).
+ * - defeat_consequence: intensidade narrativa de contratempos após derrota (0 leve, 10 severa); não altera resultados mecânicos.
+ */
 val ALLOWED_DIFFICULTY_PARAMS = setOf("resource_scarcity", "danger_level", "enemy_tactics", "defeat_consequence")
 
 /** Configuração escolhida pelo jogador (livre ou por formulário). */
