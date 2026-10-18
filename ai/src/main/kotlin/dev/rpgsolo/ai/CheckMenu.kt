@@ -28,6 +28,8 @@ data class CheckRequest(
     /** Revelação de um segredo específico só após o resultado do teste. */
     val targetNpcId: String? = null,
     val revealSecretId: String? = null,
+    val targetPlaceId: String? = null,
+    val revealPlaceSecret: Boolean = false,
     val requiredStat: String? = null
 )
 
@@ -123,11 +125,12 @@ class CheckMenu(private val pkg: RulePackage) {
         return null
     }
 
-    /** Valida o vínculo de uma rolagem a um segredo privado, sem entregar o texto antes do resultado. */
+    /** Valida uma descoberta de segredo de NPC ou local sem entregar o texto antes do resultado. */
     fun validateSecretRequest(req: CheckRequest, state: GameState): String? {
-        if (req.revealSecretId == null && req.targetNpcId == null && req.requiredStat == null) return null
-        val npcId = req.targetNpcId ?: return "revelação exige targetNpc"
-        val secretId = req.revealSecretId ?: return "revelação exige revealSecret"
+        val requested = req.targetNpcId != null || req.revealSecretId != null ||
+            req.targetPlaceId != null || req.revealPlaceSecret || req.requiredStat != null
+        if (!requested) return null
+        if (req.targetNpcId != null && req.targetPlaceId != null) return "um teste só pode investigar um NPC ou um local"
         val requiredStat = req.requiredStat ?: return "revelação exige requiredStat"
         val skill = pkg.trait(requiredStat)
         if (pkg.stat(requiredStat) == null && skill?.type != "pericia") {
@@ -141,11 +144,24 @@ class CheckMenu(private val pkg: RulePackage) {
         if (skill?.type == "pericia" && check.skill != requiredStat) {
             return "o teste deve usar a perícia '$requiredStat'"
         }
-        val npc = state.entities[npcId] ?: return "NPC inexistente: $npcId"
-        if (npc.kind != EntityKind.NPC) return "targetNpc não é um NPC"
-        val dossier = state.npcDossiers[npcId] ?: return "NPC não tem dossiê privado"
-        if (dossier.secrets.none { it.id == secretId }) return "segredo '$secretId' não existe no dossiê de $npcId"
-        if (state.knowledge.containsKey("npc-secret:$npcId:$secretId")) return "esse segredo já foi descoberto"
+        if (req.targetNpcId != null || req.revealSecretId != null) {
+            val npcId = req.targetNpcId ?: return "revelação de NPC exige targetNpc"
+            val secretId = req.revealSecretId ?: return "revelação de NPC exige revealSecret"
+            val npc = state.entities[npcId] ?: return "NPC inexistente: $npcId"
+            if (npc.kind != EntityKind.NPC) return "targetNpc não é um NPC"
+            val dossier = state.npcDossiers[npcId] ?: return "NPC não tem dossiê privado"
+            if (dossier.secrets.none { it.id == secretId }) return "segredo '$secretId' não existe no dossiê de $npcId"
+            if (state.knowledge.containsKey("npc-secret:$npcId:$secretId")) return "esse segredo já foi descoberto"
+        }
+        if (req.targetPlaceId != null || req.revealPlaceSecret) {
+            val placeId = req.targetPlaceId ?: return "revelação de local exige targetPlace"
+            val place = state.places[placeId] ?: return "local inexistente: $placeId"
+            if (placeId !in state.knownPlaces || state.currentPlaceId != placeId) {
+                return "só é possível investigar o segredo do local atual e descoberto"
+            }
+            if (place.secret.isBlank()) return "este local não tem segredo mecânico registrado"
+            if (state.knowledge.containsKey("place-secret:$placeId")) return "o segredo deste local já foi descoberto"
+        }
         return null
     }
 
