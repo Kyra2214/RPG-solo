@@ -151,6 +151,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         restoreFichas()
         refreshCampaigns()
         restoreMetadata()
+        restorePendingCombatNpcIds()
         if (chapters.chapters.isEmpty()) openChapter("Capítulo 1")
         storedSettings?.let { saved ->
             runCatching {
@@ -294,6 +295,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         when (val result = session.execute(CreateEntity(entity))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> {
                 pendingCombatNpcIds += entity.id
+                savePendingCombatNpcIds()
                 campaignVersion++
                 "${entity.name} foi adicionado ao próximo encontro."
             }
@@ -326,6 +328,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         )) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> {
                 pendingCombatNpcIds.clear()
+                savePendingCombatNpcIds()
                 campaignVersion++
                 null
             }
@@ -827,6 +830,19 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun pendingCombatKey(): String = "pending_combat_${session.campaignId}"
+
+    private fun savePendingCombatNpcIds() {
+        activeCampaignPrefs.edit().putStringSet(pendingCombatKey(), pendingCombatNpcIds.toSet()).apply()
+    }
+
+    private fun restorePendingCombatNpcIds() {
+        pendingCombatNpcIds.clear()
+        pendingCombatNpcIds += activeCampaignPrefs.getStringSet(pendingCombatKey(), emptySet()).orEmpty()
+            .filter { session.state.entities[it]?.let { entity -> entity.kind == EntityKind.NPC && entity.alive } == true }
+        savePendingCombatNpcIds()
+    }
+
     /** Troca primeiro para uma sessão já validada; depois restaura contexto e controlador da campanha selecionada. */
     private fun switchCampaign(campaignId: String) {
         val next = CampaignSession.open(store, campaignId)
@@ -834,6 +850,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         session = next
         activeCampaignPrefs.edit().putString("active_campaign", campaignId).apply()
         restoreMetadata()
+        restorePendingCombatNpcIds()
         if (chapters.chapters.isEmpty()) openChapter("Capítulo 1")
         controller = roles?.let { buildController(it) }
     }
@@ -1129,6 +1146,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun activate(started: StartResult.Started) {
         pendingCombatNpcIds.clear()
         session = started.session
+        savePendingCombatNpcIds()
         playerId = started.playerId
         activePackage = started.pkg
         activeFicha = fichas.firstOrNull { it.id == started.campanha.fichaId }
