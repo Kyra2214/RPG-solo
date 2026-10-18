@@ -1,12 +1,16 @@
 package dev.rpgsolo.engine
 
+import kotlinx.serialization.Serializable
+
 /** Fase 8.1.3: segredo ou informação falsa de um NPC. [falseInfo] = o NPC acredita/diz algo que não é verdade. */
+@Serializable
 data class Secret(val id: String, val text: String, val falseInfo: Boolean = false)
 
 /**
  * Fase 8.1: dossiê PRIVADO de NPC. Não existe tela para ele; o jogador só vê o que descobriu.
  * Fica fora do [GameState]: só vai para a IA quando a cena exige (8.5.1).
  */
+@Serializable
 data class NpcDossier(
     val npcId: String,
     val personality: String = "",
