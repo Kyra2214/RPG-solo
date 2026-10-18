@@ -96,7 +96,20 @@ class TurnRunner(
                 } else if (out.proposals.isEmpty()) {
                     Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), out.suggestions))
                 } else {
-                    when (val r = session.executeAll(out.proposals)) {
+                    // Condições são normalizadas a partir do pacote; a IA não escolhe duração nem dano periódico.
+                    val normalized = mutableListOf<dev.rpgsolo.engine.Command>()
+                    for (command in out.proposals) {
+                        if (command is dev.rpgsolo.engine.AddCondition) {
+                            val conditionMenu = menu
+                                ?: return Attempt.Retry("não há pacote ativo para validar condições mecânicas", false)
+                            val configured = conditionMenu.conditionCommand(command.entityId, command.condition)
+                                ?: return Attempt.Retry("condição '${command.condition}' não existe no pacote ativo", false)
+                            normalized += configured
+                        } else {
+                            normalized += command
+                        }
+                    }
+                    when (val r = session.executeAll(normalized)) {
                         is ExecResult.Accepted -> Attempt.Done(TurnOutcome.Applied(out.narrative, r.events, out.suggestions))
                         is ExecResult.Rejected ->
                             Attempt.Retry("o motor recusou a proposta ${r.commandIndex + 1}: ${r.reason}", true)
