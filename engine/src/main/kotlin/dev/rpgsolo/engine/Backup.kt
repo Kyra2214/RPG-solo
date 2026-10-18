@@ -69,13 +69,24 @@ object Backup {
         val f = decode(text)
         require(f.version == VERSION) { "versão de backup não suportada: ${f.version}" }
         val id = newId ?: f.campaignId
+        require(id.isNotBlank()) { "id de campanha vazio" }
+        require(f.name.isNotBlank()) { "nome de campanha vazio" }
         require(store.campaign(id) == null) { "já existe uma campanha com o id $id" }
-        f.events.forEachIndexed { i, raw ->
+        val decoded = f.events.mapIndexed { i, raw ->
             try {
                 Codec.decodeEvent(raw)
             } catch (e: Exception) {
                 throw IllegalArgumentException("evento $i do backup ilegível")
             }
+        }
+        val restoredState = try {
+            replay(decoded)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("sequência de eventos do backup é inconsistente")
+        }
+        val stateProblems = validateState(restoredState)
+        require(stateProblems.isEmpty()) {
+            "estado do backup inconsistente: ${stateProblems.take(5).joinToString("; ")}"
         }
         store.createCampaign(CampaignRecord(id, f.name, f.seed, f.config))
         if (f.events.isNotEmpty()) store.append(id, 0, f.events)
