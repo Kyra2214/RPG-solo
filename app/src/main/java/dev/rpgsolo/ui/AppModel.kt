@@ -170,6 +170,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun activeCampaignId(): String = session.campaignId
 
+    fun activePackageId(): String? = activePackage?.manifest?.id
+
     /** Importa um ZIP de pacote de regras, valida-o antes de mantê-lo e persiste-o no armazenamento privado. */
     fun importPackage(uri: Uri): String {
         val dir = File(getApplication<Application>().filesDir, "packages-import")
