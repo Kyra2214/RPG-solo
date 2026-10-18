@@ -677,7 +677,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> {
                 awardCombatVictoryXp(combatantsBefore)
                 campaignVersion++
-                null
+                "Postura defensiva ativa até o próximo ataque recebido ou o retorno do seu turno."
             }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
