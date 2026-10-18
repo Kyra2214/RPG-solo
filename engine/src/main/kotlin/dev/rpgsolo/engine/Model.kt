@@ -51,6 +51,8 @@ data class GameState(
     val conditions: Map<String, Set<String>> = emptyMap(),
     /** entidade -> condição -> duração e efeitos mecânicos. */
     val conditionStates: Map<String, Map<String, ConditionState>> = emptyMap(),
+    /** Dossiês privados e event-sourced de NPCs; a interface do jogador nunca os exibe diretamente. */
+    val npcDossiers: Map<String, NpcDossier> = emptyMap(),
     /** null = fora de combate. */
     val combat: CombatState? = null,
     val eventCount: Int = 0
