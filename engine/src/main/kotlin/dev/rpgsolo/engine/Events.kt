@@ -57,6 +57,14 @@ data class AdditionalRuleRejected(val id: String) : Event
 @Serializable
 data class AmbientacaoSet(val ambientacao: Ambientacao) : Event
 @Serializable
+data class PlaceAdded(val place: Place) : Event
+@Serializable
+data class PlacesConnected(val fromId: String, val toId: String) : Event
+@Serializable
+data class PlaceDiscovered(val id: String) : Event
+@Serializable
+data class PlayerMovedToPlace(val id: String) : Event
+@Serializable
 data class ConditionTicked(
     val entityId: String,
     val condition: String,
@@ -138,6 +146,20 @@ fun GameState.apply(e: Event): GameState {
         }
         is AdditionalRuleRejected -> copy(additionalRules = additionalRules - e.id)
         is AmbientacaoSet -> copy(ambientacao = e.ambientacao)
+        is PlaceAdded -> copy(
+            places = places + (e.place.id to e.place),
+            placeLinks = placeLinks + (e.place.id to emptySet())
+        )
+        is PlacesConnected -> copy(
+            placeLinks = placeLinks +
+                (e.fromId to (placeLinks[e.fromId].orEmpty() + e.toId)) +
+                (e.toId to (placeLinks[e.toId].orEmpty() + e.fromId))
+        )
+        is PlaceDiscovered -> copy(
+            knownPlaces = knownPlaces + e.id,
+            currentPlaceId = currentPlaceId ?: e.id
+        )
+        is PlayerMovedToPlace -> copy(currentPlaceId = e.id)
         is ConditionRemoved -> {
             val left = (conditions[e.entityId] ?: emptySet()) - e.condition
             val states = (conditionStates[e.entityId] ?: emptyMap()) - e.condition
