@@ -331,6 +331,21 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
         EndCombat ->
             return if (state.combat == null) no("não há combate ativo") else Decision.Ok(listOf(CombatEnded))
 
+        is ProposeRuleAddition -> {
+            val rule = cmd.rule
+            if (rule.id.isBlank() || rule.id.length > 80 || rule.name.isBlank() || rule.name.length > 120 ||
+                rule.description.isBlank() || rule.description.length > 2000) {
+                return no("adaptação exige id, nome e descrição dentro dos limites")
+            }
+            if (state.additionalRules.containsKey(rule.id)) return no("adaptação já existe: ${rule.id}")
+            if (rule.effects.size > 30 || rule.effects.keys.any { it.isBlank() || it.length > 80 } ||
+                rule.effects.values.any { it !in -100..100 }) {
+                return no("efeitos da adaptação inválidos; máximo 30 escopos, nome até 80 caracteres e bônus de -100 a 100")
+            }
+            if (rule.limit.length > 500) return no("limite da adaptação excede 500 caracteres")
+            return Decision.Ok(listOf(AdditionalRuleProposed(rule.copy(approved = false, origin = RuleOrigin.ADAPTAÇÃO))))
+        }
+
         is SetNpcDossier -> {
             val npc = entity(cmd.dossier.npcId) ?: return no("NPC inexistente: ${cmd.dossier.npcId}")
             if (npc.kind != EntityKind.NPC) return no("dossiê privado só pode pertencer a NPC")
