@@ -154,6 +154,12 @@ object ContextAssembler {
             },
             s.facts.takeIf { it.isNotEmpty() }
                 ?.let { f -> "Fatos registrados:\n" + f.entries.joinToString("\n") { "- ${it.key}: ${it.value}" } },
+            s.additionalRules.values.takeIf { it.isNotEmpty() }?.let { rules ->
+                "Adaptações da campanha (nunca trate como regra oficial):\n" + rules.joinToString("\n") { rule ->
+                    val status = if (rule.approved) "APROVADA — efeito ativo" else "PENDENTE — não aplique ainda"
+                    "- ${rule.name} [$status]: ${rule.description}; efeitos ${rule.effects}; limite ${rule.limit}"
+                }
+            },
             s.knowledge.values.takeIf { it.isNotEmpty() }
                 ?.let { k -> "O jogador sabe:\n" + k.joinToString("\n") { "- ${it.text}" + if (it.believed) " (apenas acreditado)" else "" } },
             input.npcPrivate.takeIf { it.isNotEmpty() }?.let { "Notas privadas do mestre (nunca mostrar ao jogador):\n" + it.joinToString("\n") },
