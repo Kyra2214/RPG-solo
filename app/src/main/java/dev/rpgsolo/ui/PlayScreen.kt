@@ -107,6 +107,9 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     }
 
     Column(Modifier.fillMaxSize()) {
+        model.chapterNotice?.let { notice ->
+            Muted(notice)
+        }
         panel?.let { StatusPanel(it) }
         InventoryPanel(model)
         AdditionalRulesPanel(model)
