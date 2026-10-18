@@ -48,6 +48,15 @@ interface FichaDao {
 
     @Query("SELECT * FROM fichas WHERE arquivada = 0 ORDER BY nome")
     fun listar(): List<FichaRow>
+
+    @Query("SELECT * FROM fichas WHERE arquivada = 1 ORDER BY nome")
+    fun listarArquivadas(): List<FichaRow>
+
+    @Query("UPDATE fichas SET arquivada = :arquivada WHERE id = :id")
+    fun definirArquivada(id: String, arquivada: Boolean): Int
+
+    @Query("DELETE FROM fichas WHERE id = :id")
+    fun apagar(id: String): Int
 }
 
 @Dao
