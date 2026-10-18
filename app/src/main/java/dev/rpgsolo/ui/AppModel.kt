@@ -1266,14 +1266,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val events = session.engine.events
         return events.mapNotNull { event ->
             when (event) {
-                is dev.rpgsolo.engine.XpGained -> {
+                is dev.rpgsolo.engine.XpGained -> if (event.entityId == playerId) {
                     val name = session.state.entities[event.entityId]?.name ?: event.entityId
                     "$name recebeu +${event.amount} XP"
-                }
-                is dev.rpgsolo.engine.LevelGained -> {
+                } else null
+                is dev.rpgsolo.engine.LevelGained -> if (event.entityId == playerId) {
                     val name = session.state.entities[event.entityId]?.name ?: event.entityId
                     "$name alcançou o nível ${event.level}"
-                }
+                } else null
                 else -> null
             }
         }.takeLast(50)
