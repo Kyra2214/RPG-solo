@@ -1,6 +1,9 @@
 package dev.rpgsolo.ui
 
 import android.app.Application
+import android.net.Uri
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -62,7 +65,7 @@ data class InventoryView(
  */
 class AppModel(application: Application) : AndroidViewModel(application) {
     val usage = UsageTracker()
-    val content: Content = BundledContent.load()
+    val content: Content = BundledContent.load(application)
     private val secureSettings = SecureSettings(application)
     private var storedSettings: StoredProviderSettings? = secureSettings.load()
 
@@ -76,6 +79,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Sobe a cada mudança de capítulo/missão para a tela de campanhas redesenhar. */
     var campaignVersion by mutableIntStateOf(0)
+        private set
+    var packageVersion by mutableIntStateOf(0)
         private set
     private var roles: AiRoles? = null
     private val database = RpgDatabase.build(application)
@@ -147,6 +152,31 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun activeCampaignId(): String = session.campaignId
+
+    /** Importa um ZIP de pacote de regras, valida-o antes de mantê-lo e persiste-o no armazenamento privado. */
+    fun importPackage(uri: Uri): String {
+        val dir = File(getApplication<Application>().filesDir, "packages-import")
+        if (!dir.exists() && !dir.mkdirs()) return "não foi possível criar a pasta de pacotes"
+        val archive = File(dir, "package-${System.nanoTime()}.zip")
+        return try {
+            val input = getApplication<Application>().contentResolver.openInputStream(uri)
+                ?: return "não foi possível abrir o arquivo selecionado"
+            input.use { source -> FileOutputStream(archive).use { target -> source.copyTo(target) } }
+            when (val result = archive.inputStream().use(content.registry::installZip)) {
+                is dev.rpgsolo.rules.InstallResult.Success -> {
+                    packageVersion++
+                    "Pacote ${result.pkg.manifest.id} instalado (edição ${result.pkg.manifest.edition}, v${result.pkg.manifest.version})."
+                }
+                is dev.rpgsolo.rules.InstallResult.Failure -> {
+                    archive.delete()
+                    "Pacote recusado:\\n" + result.errors.joinToString("\\n")
+                }
+            }
+        } catch (e: Exception) {
+            archive.delete()
+            "falha ao importar pacote: ${e.message ?: "erro de leitura"}"
+        }
+    }
 
     /** Reabre uma campanha salva e restaura o pacote/ficha associados sem reutilizar o contexto da campanha anterior. */
     fun activateCampaign(campaignId: String): String? = try {
