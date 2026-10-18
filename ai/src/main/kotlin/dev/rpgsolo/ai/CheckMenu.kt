@@ -23,7 +23,11 @@ data class CheckRequest(
     val onFailure: String,
     val onPartial: String? = null,
     /** Situação do teste (ex.: "esquiva", "sorte"): ativa bônus de traços do personagem com esse escopo. */
-    val skill: String? = null
+    val skill: String? = null,
+    /** Revelação de um segredo específico só após o resultado do teste. */
+    val targetNpcId: String? = null,
+    val revealSecretId: String? = null,
+    val requiredStat: String? = null
 )
 
 /**
@@ -98,6 +102,23 @@ class CheckMenu(private val pkg: RulePackage) {
         if (req.difficultyId == null && pkg.defaultDifficulty() == null) {
             return "este sistema não define dificuldades, então não há como pedir teste"
         }
+        return null
+    }
+
+    /** Valida o vínculo de uma rolagem a um segredo privado, sem entregar o texto antes do resultado. */
+    fun validateSecretRequest(req: CheckRequest, state: GameState): String? {
+        if (req.revealSecretId == null && req.targetNpcId == null && req.requiredStat == null) return null
+        val npcId = req.targetNpcId ?: return "revelação exige targetNpc"
+        val secretId = req.revealSecretId ?: return "revelação exige revealSecret"
+        val requiredStat = req.requiredStat ?: return "revelação exige requiredStat"
+        if (pkg.stat(requiredStat) == null && pkg.trait(requiredStat)?.type != "pericia") {
+            return "requiredStat '$requiredStat' não é atributo nem perícia do pacote"
+        }
+        val npc = state.entities[npcId] ?: return "NPC inexistente: $npcId"
+        if (npc.kind != EntityKind.NPC) return "targetNpc não é um NPC"
+        val dossier = state.npcDossiers[npcId] ?: return "NPC não tem dossiê privado"
+        if (dossier.secrets.none { it.id == secretId }) return "segredo '$secretId' não existe no dossiê de $npcId"
+        if (state.knowledge.containsKey("npc-secret:$npcId:$secretId")) return "esse segredo já foi descoberto"
         return null
     }
 
