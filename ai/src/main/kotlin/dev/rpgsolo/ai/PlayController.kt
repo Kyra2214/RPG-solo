@@ -56,7 +56,11 @@ class PlayController(
     /** Ficha do jogador para o mestre ver (vantagens, desvantagens, atributos...). null = o mestre só vê a saúde em palavras. */
     private val sheet: PlayerSheet? = null,
     /** id da condição -> nome para mostrar no painel (ex.: "visao-turva" -> "Visão turva"). Sem entrada, mostra o id. */
-    private val conditionNames: Map<String, String> = emptyMap()
+    private val conditionNames: Map<String, String> = emptyMap(),
+    /** Busca só regras relevantes no pacote ativo (4.2.3/7.2.2). */
+    private val ruleLookup: (String) -> List<String> = { emptyList() },
+    /** Resumo do capítulo já encerrado, sem mandar todo o histórico à IA. */
+    private val chapterSummary: () -> String? = { null }
 ) {
     /** Uma jogada no chat: onde começa e, se foi ação local que gravou estado, a marca para desfazer. */
     private data class Entry(val start: Int, val localMark: Int? = null, val viaLoop: Boolean = true)
@@ -111,7 +115,13 @@ class PlayController(
         val sheetNow = sheetNow()
         val result = loop.play(
             session,
-            PlayInput(playerId, text, checkFor(text), healthResource, playerSheet = sheetNow?.second, sheetLevel = sheetNow?.first)
+            PlayInput(
+                playerId, text, checkFor(text), healthResource,
+                ruleSnippets = ruleLookup(text).take(5),
+                chapterSummary = chapterSummary(),
+                playerSheet = sheetNow?.second,
+                sheetLevel = sheetNow?.first
+            )
         )
         when (result) {
             is PlayResult.Played -> {
@@ -130,7 +140,13 @@ class PlayController(
         val sheetNow = sheetNow()
         val result = loop.resolvePending(
             session,
-            PlayInput(playerId, pending.playerText, null, healthResource, playerSheet = sheetNow?.second, sheetLevel = sheetNow?.first)
+            PlayInput(
+                playerId, pending.playerText, null, healthResource,
+                ruleSnippets = ruleLookup(pending.playerText).take(5),
+                chapterSummary = chapterSummary(),
+                playerSheet = sheetNow?.second,
+                sheetLevel = sheetNow?.first
+            )
         )
         when (result) {
             is PlayResult.Played -> {
