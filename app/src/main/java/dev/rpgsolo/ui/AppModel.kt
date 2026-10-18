@@ -665,9 +665,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val targetEquipment = session.state.equipped[targetId].orEmpty().values
         val attackConditionShift = conditionDiceShift(playerId, attackStat)
         val targetConditionShift = conditionDiceShift(targetId, defenseStat)
-        val effectiveAttackDice = if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) {
-            attackDiceCount
-        } else (attackDiceCount + attackConditionShift).coerceIn(1, maxOf(attackDiceCount, 3))
+        // Condições modificam bônus/limiar; a quantidade de dados vem exclusivamente do pacote.
+        val effectiveAttackDice = attackDiceCount
         val combatantsBefore = session.state.combat?.order.orEmpty()
         val attackMark = session.mark()
         when (val result = session.attack(
