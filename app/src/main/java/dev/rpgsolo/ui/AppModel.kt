@@ -1261,6 +1261,24 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Histórico de evolução derivado do log canônico; não duplica dados nem perde eventos ao reabrir campanha. */
+    fun progressionHistory(): List<String> {
+        val events = session.engine.events
+        return events.mapNotNull { event ->
+            when (event) {
+                is dev.rpgsolo.engine.XpGained -> {
+                    val name = session.state.entities[event.entityId]?.name ?: event.entityId
+                    "$name recebeu +${event.amount} XP"
+                }
+                is dev.rpgsolo.engine.LevelGained -> {
+                    val name = session.state.entities[event.entityId]?.name ?: event.entityId
+                    "$name alcançou o nível ${event.level}"
+                }
+                else -> null
+            }
+        }.takeLast(50)
+    }
+
     fun addTimelineNote(text: String): String? =
         try {
             require(text.isNotBlank()) { "escreva o acontecimento" }
