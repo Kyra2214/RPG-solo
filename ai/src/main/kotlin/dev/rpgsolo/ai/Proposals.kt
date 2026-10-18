@@ -246,7 +246,8 @@ object ProposalParser {
             traits = traits.distinct(),
             ruleSource = RuleSource.PACOTE,
             skills = intMap("skills", optional = true),
-            dossier = dossier
+            dossier = dossier,
+            resources = intMap("resources", optional = true)
         )
     }
 
