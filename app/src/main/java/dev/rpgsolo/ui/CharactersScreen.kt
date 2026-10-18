@@ -46,8 +46,6 @@ fun CharactersScreen(model: AppModel) {
     val reg = model.content.registry
     val ids = reg.installed().map { it.id }
     var selected by remember { mutableStateOf(ids.firstOrNull()) }
-    var libraryMessage by remember { mutableStateOf<String?>(null) }
-    val clipboard = LocalClipboardManager.current
     val pkg = selected?.let { reg.get(it) }
 
     ScreenColumn {
@@ -88,6 +86,8 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     val draft = remember(key) { CharacterDraft(pkg, "f-${model.fichas.size + 1}") }
     var version by remember(key) { mutableIntStateOf(0) }
     var message by remember(key) { mutableStateOf<String?>(null) }
+    var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
+    val clipboard = LocalClipboardManager.current
     var archId by remember(key) { mutableStateOf<String?>(null) }
     var archQuery by remember(key) { mutableStateOf("") }
     var traitQuery by remember(key) { mutableStateOf("") }
