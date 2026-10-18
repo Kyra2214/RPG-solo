@@ -137,6 +137,9 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.qty <= 0) return no("quantidade inválida")
             val have = state.inventory[cmd.ownerId]?.get(cmd.itemId) ?: 0
             if (have < cmd.qty) return no("item ausente ou insuficiente: ${cmd.itemId} ($have/${cmd.qty})")
+            if (state.equipped[cmd.ownerId].orEmpty().values.contains(cmd.itemId)) {
+                return no("não é possível consumir/vender o item equipado; desequipe-o primeiro")
+            }
             return Decision.Ok(listOf(ItemChanged(cmd.ownerId, cmd.itemId, -cmd.qty)))
         }
 
