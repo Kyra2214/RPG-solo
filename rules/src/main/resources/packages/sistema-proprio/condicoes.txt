@@ -1,7 +1,8 @@
-caido|Caído|O personagem está no chão; levantar custa uma ação.
-atordoado|Atordoado|Perde a próxima ação; termina ao fim da rodada seguinte.
-exausto|Exausto|Fadiga acumulada; o mestre pede descanso antes de novos esforços grandes.
-sangramento|Sangramento|Ferida aberta que enfraquece aos poucos até ser estancada.
-visao-turva|Visão turva|A vista falha: ações que dependem de enxergar ficam mais difíceis até passar.
-amaldicoado|Amaldiçoado|Maldição sobre o personagem; o mestre a faz pesar nas cenas até ser desfeita.
-abencoado|Abençoado|Bênção sobre o personagem; o mestre a faz ajudar nas cenas até acabar.
+# id|nome|descrição|efeito de teste opcional|duração em rodadas opcional|dano por rodada opcional|recurso de dano opcional
+caido|Caído|No chão; testes físicos ficam prejudicados até se levantar.|perda:*||0|pv
+atordoado|Atordoado|Fica debilitado e perde eficiência até o fim da próxima rodada.|perda:*|1|0|pv
+exausto|Exausto|Fadiga acumulada; testes de esforço ficam prejudicados até descansar.|perda:*||0|pv
+sangramento|Sangramento|Ferida aberta que causa 1 PV de dano ao fim de cada rodada por 3 rodadas, salvo se removida antes.|-|3|1|pv
+visao-turva|Visão turva|A vista falha: ações que dependem de enxergar ficam mais difíceis até passar.|perda:habilidade||0|pv
+amaldicoado|Amaldiçoado|Maldição que prejudica testes até ser desfeita.|perda:*||0|pv
+abencoado|Abençoado|Bênção que melhora testes até acabar.|ganho:*||0|pv
