@@ -661,40 +661,55 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 activePackage?.search(query, 5)?.map { "${it.kind}: ${it.title} — ${it.text}" }.orEmpty()
             },
             chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
-            npcContext = {
-                val combatIds = session.state.combat?.order.orEmpty().filter { it != playerId }
-                combatIds.mapNotNull { id ->
-                    val npc = session.state.entities[id] ?: return@mapNotNull null
-                    val traits = npc.traits.mapNotNull { traitId ->
-                        activePackage?.trait(traitId)?.let { "${it.name}: ${it.description}" }
-                    }
-                    val dossier = session.state.npcDossiers[id]
-                    buildString {
-                        append("Ficha privada de NPC — ").append(npc.name)
-                        if (!npc.rulesValidated) append("; ficha NÃO validada por pacote")
-                        if (npc.concept.isNotBlank()) append("; conceito: ").append(npc.concept)
-                        if (npc.stats.isNotEmpty()) append("; atributos mecânicos: ").append(npc.stats.entries.joinToString(", ") { "${it.key}=${it.value}" })
-                        if (traits.isNotEmpty()) append("; traços: ").append(traits.joinToString(" | "))
-                        if (npc.skills.isNotEmpty()) append("; perícias: ").append(npc.skills.entries.joinToString(", ") { "${it.key}=${it.value}" })
-                        dossier?.personality?.takeIf { it.isNotBlank() }?.let { append("; personalidade: ").append(it) }
-                        dossier?.goals?.takeIf { it.isNotEmpty() }?.let { append("; objetivos: ").append(it.joinToString(", ")) }
-                        dossier?.motivations?.takeIf { it.isNotEmpty() }?.let { append("; motivações: ").append(it.joinToString(", ")) }
-                        dossier?.relations?.takeIf { it.isNotEmpty() }?.let { append("; relações privadas: ").append(it.entries.joinToString(", ") { pair -> "${pair.key}: ${pair.value}" }) }
-                        if (dossier?.secrets?.isNotEmpty() == true) {
-                            val undiscovered = dossier.secrets.filterNot { secret ->
-                                session.state.knowledge.containsKey("npc-secret:$id:${secret.id}")
-                            }
-                            if (undiscovered.isNotEmpty()) {
-                                append("; ids de segredos ainda ocultos: ").append(undiscovered.joinToString(", ") { it.id })
-                                append("; seus textos não foram enviados; só podem ser revelados após teste autorizado")
-                            }
-                        }
-                        append(". Nunca exponha estes números nem nomes de mecânica ao jogador.")
-                    }
-                }
-            }
+            npcContext = { text -> privateNpcContext(text) },
+            sceneNpcIds = { text -> npcIdsForScene(text) }
         )
     }
+
+    /** A cena inclui NPCs do combate e os nomes/ids mencionados explicitamente pelo jogador. */
+    private fun npcIdsForScene(text: String): Set<String> {
+        val query = text.trim().lowercase()
+        val inCombat = session.state.combat?.order.orEmpty().filter { it != playerId }
+        val mentioned = session.state.entities.values.filter { npc ->
+            npc.kind == EntityKind.NPC && (
+                npc.name.isNotBlank() && query.contains(npc.name.lowercase()) ||
+                    query.contains(npc.id.lowercase())
+            )
+        }.map { it.id }
+        return (inCombat + mentioned).toSet()
+    }
+
+    /** Ficha mecânica privada enviada apenas para NPCs desta cena; textos de segredos ocultos nunca são enviados. */
+    private fun privateNpcContext(text: String): List<String> =
+        npcIdsForScene(text).mapNotNull { id ->
+            val npc = session.state.entities[id] ?: return@mapNotNull null
+            val traits = npc.traits.mapNotNull { traitId ->
+                activePackage?.trait(traitId)?.let { "${it.name}: ${it.description}" }
+            }
+            val dossier = session.state.npcDossiers[id]
+            buildString {
+                append("Ficha privada de NPC — ").append(npc.name)
+                if (!npc.rulesValidated) append("; ficha NÃO validada por pacote")
+                if (npc.concept.isNotBlank()) append("; conceito: ").append(npc.concept)
+                if (npc.stats.isNotEmpty()) append("; atributos mecânicos: ").append(npc.stats.entries.joinToString(", ") { "${it.key}=${it.value}" })
+                if (traits.isNotEmpty()) append("; traços: ").append(traits.joinToString(" | "))
+                if (npc.skills.isNotEmpty()) append("; perícias: ").append(npc.skills.entries.joinToString(", ") { "${it.key}=${it.value}" })
+                dossier?.personality?.takeIf { it.isNotBlank() }?.let { append("; personalidade: ").append(it) }
+                dossier?.goals?.takeIf { it.isNotEmpty() }?.let { append("; objetivos: ").append(it.joinToString(", ")) }
+                dossier?.motivations?.takeIf { it.isNotEmpty() }?.let { append("; motivações: ").append(it.joinToString(", ")) }
+                dossier?.relations?.takeIf { it.isNotEmpty() }?.let { append("; relações privadas: ").append(it.entries.joinToString(", ") { pair -> "${pair.key}: ${pair.value}" }) }
+                if (dossier?.secrets?.isNotEmpty() == true) {
+                    val undiscovered = dossier.secrets.filterNot { secret ->
+                        session.state.knowledge.containsKey("npc-secret:$id:${secret.id}")
+                    }
+                    if (undiscovered.isNotEmpty()) {
+                        append("; ids de segredos ainda ocultos: ").append(undiscovered.joinToString(", ") { it.id })
+                        append("; seus textos não foram enviados; só podem ser revelados após teste autorizado")
+                    }
+                }
+                append(". Nunca exponha estes números nem nomes de mecânica ao jogador.")
+            }
+        }
 
     /** Fluxo "Nova campanha" (9.1). null até haver provedor de IA configurado. */
     fun newCampaignFlow(): NewCampaignFlow? {
