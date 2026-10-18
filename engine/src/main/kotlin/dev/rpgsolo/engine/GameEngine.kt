@@ -136,7 +136,13 @@ class GameEngine private constructor(
      * Maior total age primeiro; empate resolve por id (determinístico). [statKey] = atributo somado, se houver.
      * Se o combate for recusado, as rolagens são desfeitas.
      */
-    fun rollInitiative(ids: List<String>, diceCount: Int = 1, diceSides: Int = 20, statKey: String? = null): ExecResult {
+    fun rollInitiative(
+        ids: List<String>,
+        diceCount: Int = 1,
+        diceSides: Int = 20,
+        statKey: String? = null,
+        highestFirst: Boolean = true
+    ): ExecResult {
         ids.firstOrNull { !state.entities.containsKey(it) }
             ?.let { return ExecResult.Rejected("entidade inexistente: $it") }
         val m = mark()
@@ -147,7 +153,10 @@ class GameEngine private constructor(
             id to roll.total
         }
         val order = totals
-            .sortedWith(compareByDescending<Pair<String, Int>> { it.second }.thenBy { it.first })
+            .sortedWith(
+                (if (highestFirst) compareByDescending<Pair<String, Int>> { it.second }
+                else compareBy<Pair<String, Int>> { it.second }).thenBy { it.first }
+            )
             .map { it.first }
         val result = execute(StartCombat(order))
         if (result is ExecResult.Rejected) rollbackTo(m)
