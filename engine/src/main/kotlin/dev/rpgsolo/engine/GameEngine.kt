@@ -73,17 +73,18 @@ class GameEngine private constructor(
         if (spec.targetId !in combat.order) return AttackResult.Rejected("alvo fora do combate")
         val damageResource = target.resources[spec.damageResource]
             ?: return AttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
-        if (spec.damage > damageResource.max) return AttackResult.Rejected("dano acima do máximo do recurso")
+        val resolvedDamage = maxOf(0, spec.damage + spec.damageBonus)
+        if (resolvedDamage > damageResource.max) return AttackResult.Rejected("dano acima do máximo do recurso")
 
-        val defense = target.stats[spec.defenseStat] ?: spec.defenseDefault
+        val defense = maxOf(0, (target.stats[spec.defenseStat] ?: spec.defenseDefault) + spec.defenseBonus)
         val mark = mark()
-        val roll = dice.roll(1, 20, attacker.stats[spec.attackStat] ?: 0)
+        val roll = dice.roll(1, 20, (attacker.stats[spec.attackStat] ?: 0) + spec.attackBonus)
         recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
         val hit = roll.total >= defense
-        val actualDamage = if (hit) spec.damage else 0
+        val actualDamage = if (hit) resolvedDamage else 0
         recordEvent(AttackResolved(spec.attackerId, spec.targetId, defense, hit, actualDamage))
         if (hit) {
-            when (val result = execute(Damage(spec.targetId, spec.damageResource, spec.damage))) {
+            when (val result = execute(Damage(spec.targetId, spec.damageResource, resolvedDamage))) {
                 is ExecResult.Accepted -> return AttackResult.Resolved(roll, true, defense, actualDamage, eventsSince(mark))
                 is ExecResult.Rejected -> {
                     rollbackTo(mark)
