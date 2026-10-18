@@ -88,8 +88,27 @@ class GameLoop(
         val pending = pending() ?: return PlayResult.Failed("não há teste pendente")
         val input = template.copy(text = pending.playerText, check = null, resolving = pending)
         val markBefore = session.mark()
+        if (pending is PendingCheck && pending.request.revealSecretId != null) {
+            val player = session.state.entities[template.playerEntityId]
+                ?: return PlayResult.Failed("personagem inexistente")
+            val required = pending.request.requiredStat ?: return PlayResult.Failed("pedido de segredo sem requiredStat")
+            if (required !in player.stats && required !in player.skills) {
+                return PlayResult.Failed("o personagem não tem o atributo/perícia exigido para revelar esse segredo")
+            }
+        }
         // Teste do mestre leva Ganho/Perda das condições; rolagem com tabela (d6 de dano) nunca.
         val check = session.check(if (pending is PendingCheck) adjusted(pending.spec, session, template.playerEntityId, pending.request.skill) else pending.spec)
+        if (pending is PendingCheck && pending.request.revealSecretId != null) {
+            val npcId = pending.request.targetNpcId ?: return PlayResult.Failed("pedido de segredo sem targetNpc")
+            val secretId = pending.request.revealSecretId
+            when (val revealed = Reveal.discoverSecret(session, template.playerEntityId, npcId, secretId, check)) {
+                null, is ExecResult.Accepted -> Unit
+                is ExecResult.Rejected -> {
+                    session.rollbackTo(markBefore)
+                    return PlayResult.Failed("não foi possível registrar a descoberta: ${revealed.reason}")
+                }
+            }
+        }
         if (pending is PendingRoll) {
             val face = check.roll.dice.single()
             val entry = pending.request.table[face]
