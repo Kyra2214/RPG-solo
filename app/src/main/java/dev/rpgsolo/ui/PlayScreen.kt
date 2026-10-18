@@ -242,13 +242,13 @@ private fun CombatControls(model: AppModel) {
                         ) {
                             targets.forEach { target ->
                                 Button(onClick = { message = model.attack(target.id) }) {
-                                    Text("Atacar ${target.name}")
+                                    Text("Atacar ${target.name}${if (target.rulesValidated) "" else " (não validado)"}")
                                 }
                             }
                         }
                     }
                 } else {
-                    Muted("Aguarde o turno de ${combat.current}.")
+                    Muted("Aguarde o turno de ${model.combatantName(combat.current)}.")
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (model.isPlayerCombatTurn()) {
