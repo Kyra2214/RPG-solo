@@ -109,6 +109,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
         panel?.let { StatusPanel(it) }
         InventoryPanel(model)
         AdditionalRulesPanel(model)
+        PlacesPanel(model)
         QuickActions(
             enabled = !busy && !pendingRoll && pendingCheck == null,
             onSheet = { run { c.submit("ver ficha") } },
@@ -175,6 +176,37 @@ private fun InventoryPanel(model: AppModel) {
                         TextButton(onClick = { message = model.equipItem(item.id) }) { Text("Equipar") }
                     item.kind == "consumivel" ->
                         TextButton(onClick = { message = model.useItem(item.id) }) { Text("Usar") }
+                }
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun PlacesPanel(model: AppModel) {
+    val places = model.placesView()
+    var message by remember { mutableStateOf<String?>(null) }
+    if (places.isEmpty()) return
+    AppCard {
+        Text("Mapa textual", style = MaterialTheme.typography.titleSmall)
+        places.forEach { place ->
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(place.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    if (place.current) Pill("Você está aqui", MaterialTheme.colorScheme.tertiary)
+                }
+                if (place.description.isNotBlank()) Text(place.description)
+                if (place.current && place.exits.isNotEmpty()) {
+                    Muted("Saídas conhecidas:")
+                    Row(
+                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        place.exits.forEach { (id, name) ->
+                            OutlinedButton(onClick = { message = model.moveToPlace(id) }) { Text("Ir para $name") }
+                        }
+                    }
                 }
             }
         }
