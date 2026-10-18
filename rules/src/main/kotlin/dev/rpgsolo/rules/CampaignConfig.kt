@@ -45,6 +45,14 @@ fun resolveConfig(catalog: Catalog, c: CampaignConfig): ConfigResult {
     c.progressionId?.let { check(listOf(it), "progression") }
     c.difficulty.params.keys.filter { it !in ALLOWED_DIFFICULTY_PARAMS }
         .forEach { errors += "parâmetro de dificuldade não permitido: $it" }
+    c.difficulty.params.forEach { (key, value) ->
+        if (!value.isFinite() || value !in 0.0..10.0) {
+            errors += "parâmetro de dificuldade '$key' deve ser um número finito entre 0 e 10"
+        }
+    }
+    if (c.contentLimits.size > 30 || c.contentLimits.any { it.isBlank() || it.length > 200 }) {
+        errors += "limites de conteúdo: máximo 30 itens, cada um com 1 a 200 caracteres"
+    }
 
     val editions = catalog.editionsOf(c.systemFamily)
     if (editions.isEmpty()) errors += "sistema desconhecido: ${c.systemFamily}"
