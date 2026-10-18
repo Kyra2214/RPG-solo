@@ -229,6 +229,12 @@ class GameLoop(
                 val baseText = input.resolving?.playerText ?: input.text
                 val checkReq = o.checkRequest
                 val rollReq = o.rollRequest
+                if (checkReq != null) {
+                    val validationError = menu?.validateSecretRequest(checkReq, session.state)
+                    if (validationError != null) {
+                        return fail(session, markBefore, "pedido de revelação inválido: $validationError", null)
+                    }
+                }
                 val pending: Pending? = when {
                     checkReq != null -> menu?.build(checkReq, stats, skills)?.let { PendingCheck(checkReq, it, baseText) }
                     rollReq != null -> menu?.let { PendingRoll(rollReq, it.buildRoll(rollReq), baseText) }
