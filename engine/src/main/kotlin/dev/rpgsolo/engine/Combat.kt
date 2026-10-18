@@ -11,7 +11,11 @@ data class AttackSpec(
     val defenseDefault: Int = 10,
     val attackBonus: Int = 0,
     val damageBonus: Int = 0,
-    val defenseBonus: Int = 0
+    val defenseBonus: Int = 0,
+    /** Se > 0, o dano é rolado pelo motor usando o dado definido no pacote. */
+    val damageDiceCount: Int = 0,
+    val damageDiceSides: Int = 0,
+    val damageStat: String? = null
 ) {
     init {
         require(attackerId.isNotBlank()) { "atacante vazio" }
@@ -21,6 +25,9 @@ data class AttackSpec(
         require(damageResource.isNotBlank()) { "recurso de dano vazio" }
         require(damage >= 0) { "dano negativo" }
         require(defenseDefault >= 0) { "defesa padrão negativa" }
+        require(damageDiceCount >= 0 && damageDiceSides >= 0) { "configuração de dados de dano negativa" }
+        require((damageDiceCount == 0) == (damageDiceSides == 0)) { "dados de dano exigem quantidade e lados" }
+        require(damageDiceCount <= 0 || damageDiceSides >= 2) { "dado de dano precisa ter pelo menos 2 lados" }
     }
 }
 
@@ -30,7 +37,8 @@ sealed interface AttackResult {
         val hit: Boolean,
         val defense: Int,
         val damage: Int,
-        val events: List<Event>
+        val events: List<Event>,
+        val damageRoll: RollResult? = null
     ) : AttackResult
 
     data class Rejected(val reason: String) : AttackResult
