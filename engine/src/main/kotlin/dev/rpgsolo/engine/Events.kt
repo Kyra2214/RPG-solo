@@ -80,6 +80,10 @@ data class CombatStarted(val order: List<String>) : Event
 @Serializable
 data class TurnAdvanced(val turnIndex: Int, val round: Int) : Event
 @Serializable
+data class CombatantDefended(val entityId: String) : Event
+@Serializable
+data class CombatantDefenseConsumed(val entityId: String) : Event
+@Serializable
 object CombatEnded : Event
 @Serializable
 data class RollRecorded(val label: String, val expression: String, val dice: List<Int>, val modifier: Int, val total: Int) : Event
@@ -192,7 +196,20 @@ fun GameState.apply(e: Event): GameState {
         is CombatStarted -> copy(combat = CombatState(e.order))
         is TurnAdvanced -> {
             val c = requireNotNull(combat) { "sem combate ativo" }
-            copy(combat = c.copy(turnIndex = e.turnIndex, round = e.round))
+            val nextId = c.order[e.turnIndex]
+            copy(combat = c.copy(
+                turnIndex = e.turnIndex,
+                round = e.round,
+                defending = if (nextId in c.defending) c.defending - nextId else c.defending
+            ))
+        }
+        is CombatantDefended -> {
+            val c = requireNotNull(combat) { "sem combate ativo" }
+            copy(combat = c.copy(defending = c.defending + e.entityId))
+        }
+        is CombatantDefenseConsumed -> {
+            val c = requireNotNull(combat) { "sem combate ativo" }
+            copy(combat = c.copy(defending = c.defending - e.entityId))
         }
         CombatEnded -> copy(combat = null)
         is RollRecorded -> this
