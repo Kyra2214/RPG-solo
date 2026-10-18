@@ -263,6 +263,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             ?: return "o pacote não define o atributo de ataque"
         val defenseStat = pkg.data.creation["combate_atributo_defesa"]
             ?: return "o pacote não define o atributo de defesa"
+        val attackDiceCount = pkg.data.creation["combate_dados_ataque"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dados_ataque"
+        val attackDiceSides = pkg.data.creation["combate_lados_ataque"]?.toIntOrNull()
+            ?: return "o pacote não define combate_lados_ataque"
+        val attackComparison = pkg.data.creation["combate_comparacao_ataque"]?.let {
+            runCatching { dev.rpgsolo.engine.Comparison.valueOf(it) }.getOrNull()
+        } ?: return "o pacote não define uma comparação de ataque válida"
         val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
             ?: return "o pacote não define combate_dano_base"
         val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
@@ -280,6 +287,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 targetId = playerId,
                 attackStat = attackStat,
                 defenseStat = defenseStat,
+                attackDiceCount = attackDiceCount,
+                attackDiceSides = attackDiceSides,
+                attackComparison = attackComparison,
                 damageResource = resource,
                 damage = baseDamage,
                 defenseDefault = baseDefense,
@@ -445,6 +455,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             ?: return "o pacote não define o atributo de ataque"
         val defenseStat = pkg.data.creation["combate_atributo_defesa"]
             ?: return "o pacote não define o atributo de defesa"
+        val attackDiceCount = pkg.data.creation["combate_dados_ataque"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dados_ataque"
+        val attackDiceSides = pkg.data.creation["combate_lados_ataque"]?.toIntOrNull()
+            ?: return "o pacote não define combate_lados_ataque"
+        val attackComparison = pkg.data.creation["combate_comparacao_ataque"]?.let {
+            runCatching { dev.rpgsolo.engine.Comparison.valueOf(it) }.getOrNull()
+        } ?: return "o pacote não define uma comparação de ataque válida"
         val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
             ?: return "o pacote não define combate_dano_base"
         val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
