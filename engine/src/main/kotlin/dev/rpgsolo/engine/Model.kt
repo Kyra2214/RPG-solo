@@ -57,6 +57,8 @@ data class GameState(
     val npcDossiers: Map<String, NpcDossier> = emptyMap(),
     /** Regras adicionais propostas pela IA; efeitos só entram na mecânica após aprovação explícita. */
     val additionalRules: Map<String, RegraAdicional> = emptyMap(),
+    /** Ambientação é independente da ficha e persistida no log da campanha. */
+    val ambientacao: Ambientacao? = null,
     /** null = fora de combate. */
     val combat: CombatState? = null,
     val eventCount: Int = 0
