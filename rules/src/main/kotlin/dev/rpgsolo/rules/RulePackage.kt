@@ -340,6 +340,43 @@ object PackageValidator {
         d.manifest.deathResource?.let { dr ->
             if (d.resources.none { it.id == dr }) p += "morte aponta para recurso inexistente: $dr"
         }
+        val combatAttack = d.creation["combate_atributo_ataque"]
+        val combatDefense = d.creation["combate_atributo_defesa"]
+        val combatInitiative = d.creation["combate_atributo_iniciativa"]
+        listOf(
+            "combate_atributo_ataque" to combatAttack,
+            "combate_atributo_defesa" to combatDefense,
+            "combate_atributo_iniciativa" to combatInitiative
+        ).forEach { (key, value) ->
+            if (value != null && value !in stats) p += "criacao.txt: '$key' referencia atributo inexistente: $value"
+        }
+        d.creation["combate_defesa_base"]?.let {
+            if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'combate_defesa_base' inválido"
+        }
+        d.creation["combate_dano_base"]?.let {
+            if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'combate_dano_base' inválido"
+        }
+        d.creation["combate_dano"]?.let { id ->
+            if (d.damage.none { it.id == id }) p += "criacao.txt: perfil de dano inexistente: $id"
+        }
+        for ((key, value) in d.creation) {
+            if (!key.startsWith("item_")) continue
+            val suffix = key.removePrefix("item_")
+            val itemId = suffix.substringBeforeLast('_', "")
+            val property = suffix.substringAfterLast('_', "")
+            val item = d.items.firstOrNull { it.id == itemId }
+            if (item == null) {
+                p += "criacao.txt: configuração referencia item inexistente: $itemId"
+                continue
+            }
+            if (item.kind != "consumivel") p += "criacao.txt: só consumíveis podem ter configuração de uso: $itemId"
+            when (property) {
+                "acao" -> if (value !in setOf("cura")) p += "criacao.txt: ação de item não suportada: $value"
+                "recurso" -> if (d.resources.none { it.id == value }) p += "criacao.txt: recurso de item inexistente: $value"
+                "quantidade" -> if ((value.toIntOrNull() ?: 0) <= 0) p += "criacao.txt: quantidade de item inválida: $value"
+                else -> p += "criacao.txt: propriedade de item desconhecida: $key"
+            }
+        }
         val pontos = d.creation["pontos"]?.toIntOrNull()
         if (pontos == null || pontos < 0) p += "criacao.txt: 'pontos' ausente ou inválido"
         d.creation["limite_desvantagens"]?.let { if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'limite_desvantagens' inválido" }
