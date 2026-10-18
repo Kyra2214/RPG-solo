@@ -173,6 +173,41 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
     }
 
+    /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
+    fun resolveNpcTurn(): String? = try {
+        val combat = requireNotNull(session.state.combat) { "não há combate ativo" }
+        require(combat.current != playerId) { "é o turno do jogador" }
+        val resource = activePackage?.manifest?.deathResource ?: "pv"
+        val attacker = combat.current
+        val result = session.attack(
+            dev.rpgsolo.engine.AttackSpec(
+                attackerId = attacker,
+                targetId = playerId,
+                attackStat = "habilidade",
+                damageResource = resource,
+                damage = 1,
+                defenseDefault = 10
+            )
+        )
+        val text = when (result) {
+            is dev.rpgsolo.engine.AttackResult.Resolved -> if (result.hit) {
+                "${session.state.entities.getValue(attacker).name} acertou você e causou ${result.damage} de dano."
+            } else {
+                "${session.state.entities.getValue(attacker).name} errou o ataque."
+            }
+            is dev.rpgsolo.engine.AttackResult.Rejected -> return result.reason
+        }
+        if (session.state.combat != null) {
+            when (val advance = session.execute(dev.rpgsolo.engine.NextTurn)) {
+                is dev.rpgsolo.engine.ExecResult.Rejected -> return advance.reason
+                is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+            }
+        }
+        campaignVersion++
+        text
+    } catch (e: IllegalArgumentException) { e.message }
+      catch (e: IllegalStateException) { e.message }
+
     fun endCombat(): String? = when (val result = session.execute(dev.rpgsolo.engine.EndCombat)) {
         is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason

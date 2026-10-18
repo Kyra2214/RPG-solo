@@ -198,7 +198,11 @@ private fun CombatControls(model: AppModel) {
                     Muted("Aguarde o turno de ${combat.current}.")
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Próximo turno") }
+                    if (model.isPlayerCombatTurn()) {
+                        Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Próximo turno") }
+                    } else {
+                        Button(onClick = { message = model.resolveNpcTurn() }, modifier = Modifier.weight(1f)) { Text("Resolver turno inimigo") }
+                    }
                     TextButton(onClick = { message = model.endCombat() }) { Text("Encerrar") }
                 }
             }
