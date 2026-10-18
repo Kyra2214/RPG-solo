@@ -53,6 +53,7 @@ import dev.rpgsolo.rules.CampaignStarter
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
 data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true)
+data class PlaceView(val id: String, val name: String, val description: String, val current: Boolean, val exits: List<Pair<String, String>>)
 data class EquipmentView(val id: String, val name: String, val quantity: Int, val slot: String, val equipped: Boolean)
 data class InventoryView(
     val id: String, val name: String, val quantity: Int, val kind: String,
@@ -310,6 +311,23 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun additionalRulesView(): List<dev.rpgsolo.engine.RegraAdicional> =
         session.state.additionalRules.values.sortedWith(compareBy({ it.approved }, { it.name }))
+
+    fun placesView(): List<PlaceView> {
+        val state = session.state
+        return state.knownPlaces.mapNotNull { id ->
+            val place = state.places[id] ?: return@mapNotNull null
+            val exits = state.placeLinks[id].orEmpty().filter { it in state.knownPlaces }
+                .mapNotNull { nextId -> state.places[nextId]?.let { nextId to it.name } }
+            PlaceView(id, place.name, place.description, state.currentPlaceId == id, exits)
+        }.sortedWith(compareByDescending<PlaceView> { it.current }.thenBy { it.name })
+    }
+
+    fun moveToPlace(id: String): String? = when (
+        val result = session.execute(dev.rpgsolo.engine.MoveToPlace(id))
+    ) {
+        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+    }
 
     private fun approvedRuleBonus(scope: String): Int =
         session.state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
