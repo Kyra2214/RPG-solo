@@ -1,5 +1,7 @@
 package dev.rpgsolo.ai
 
+import kotlin.math.roundToInt
+
 import dev.rpgsolo.engine.AddCondition
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CheckResult
@@ -81,13 +83,25 @@ class GameLoop(
         val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), playerTraits(), skill) ?: spec
         val scopes = listOfNotNull(spec.checkId, spec.stat, skill).distinct()
         val bonus = scopes.sumOf(additionalBonus)
-        return if (bonus == 0) adjusted else {
+        val withAdaptations = if (bonus == 0) adjusted else {
             val suffix = if (bonus > 0) " · adaptação +$bonus" else " · adaptação $bonus"
             if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
                 adjusted.copy(difficulty = adjusted.difficulty + bonus, label = adjusted.label + suffix)
             } else {
                 adjusted.copy(modifier = adjusted.modifier + bonus, label = adjusted.label + suffix)
             }
+        }
+        val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
+        val shift = danger - 5
+        if (shift == 0) return withAdaptations
+        val suffix = " · perigo ${if (shift > 0) "+" else ""}$shift"
+        return when (withAdaptations.comparison) {
+            dev.rpgsolo.engine.Comparison.ROLL_OVER ->
+                withAdaptations.copy(modifier = withAdaptations.modifier - shift, label = withAdaptations.label + suffix)
+            dev.rpgsolo.engine.Comparison.ROLL_UNDER ->
+                withAdaptations.copy(difficulty = (withAdaptations.difficulty - shift).coerceAtLeast(1), label = withAdaptations.label + suffix)
+            dev.rpgsolo.engine.Comparison.POINTS ->
+                withAdaptations.copy(modifier = (withAdaptations.modifier - shift).coerceAtLeast(0), label = withAdaptations.label + suffix)
         }
     }
 
