@@ -28,13 +28,17 @@ data class ContextInput(
     val state: GameState,
     val playerEntityId: String,
     val playerText: String,
-    val checkMenu: String? = null,
+    val check: CheckResult? = null,
+    val healthResource: String? = null,
     val recentNarrative: List<String> = emptyList(),
     val playerSheet: String? = null,
     val ruleSnippets: List<String> = emptyList(),
     val chapterSummary: String? = null,
     /** Texto privado de NPCs da cena (ver DossierBook.contextFor); só o que a cena exige (8.5.1). */
     val npcPrivate: List<String> = emptyList(),
+    val checkMenu: String? = null,
+    val resolving: Pending? = null,
+    val budgetTokens: Int = 2000,
     /** IDs de NPCs realmente presentes na cena, para não vazar estado de toda a campanha. */
     val sceneNpcIds: Set<String> = emptySet(),
     val worldContext: String? = null,
