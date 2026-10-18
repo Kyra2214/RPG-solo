@@ -87,7 +87,7 @@ object CampaignStarter {
 
         val record = CampaignRecord(campaignId, name.trim(), seed, pkg?.engineConfig() ?: EngineConfig())
         val session = CampaignSession.create(store, record)
-        when (val r = session.execute(CreateEntity(ficha.toEntity()))) {
+        when (val r = session.execute(CreateEntity(ficha.toEntity().copy(rulesValidated = pkg != null))) {
             is ExecResult.Accepted -> {}
             is ExecResult.Rejected -> {
                 // Defesa: em campanha recém-criada isso não deveria ocorrer; zera o log para não ficar estado pela metade.
