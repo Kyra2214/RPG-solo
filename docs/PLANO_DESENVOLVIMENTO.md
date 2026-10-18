@@ -106,7 +106,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 2.3.4 Experiência e progressão
 - 2.3.5 Resultados: falha, sucesso parcial, sucesso, crítico (só quando o sistema permite)
 
-**Status em 17/10/2026:** `:engine:test :rules:test :ai:test :app:assembleDebug` passaram. O motor já oferece iniciativa/turnos, dano/cura, condições sem duração e XP/níveis; a validação de criação agora confere ids, pré-requisitos, limite 0–5 e custo de perícias também ao iniciar campanha. Ainda faltam uma resolução completa de ataque, equipamento, duração/efeitos mecânicos de condições e uma luta completa sem a IA decidir números. A escolha sobre a diferença entre 0 e 1 ponto de perícia continua pendente.
+**Status do código na branch `implementation/code-first-combat` (18/10/2026):** o motor e o app já ligam iniciativa, ataques, dano, equipamento, bônus de traços/adaptações, condições com duração e dano por rodada, fuga, defesa, XP e encerramento de combate. A quantidade de dados de ataque continua definida pelo pacote; condições alteram o bônus/limiar de acordo com a comparação. A restauração de backup valida o estado reconstruído. **Não executei builds/testes nesta etapa**, conforme pedido. Ainda há mecânicas opcionais fora do fluxo principal (rolagens opostas/em grupo, vantagem/desvantagem, pontos de sorte, progressão com escolhas de recompensa e magia tipada).
 
 **Pronto quando:** uma luta completa e uma sequência de testes rodam só com código, sem IA, e os testes provam as contradições bloqueadas.
 
@@ -114,7 +114,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 
 ## FASE 3 — Persistência local
 
-**Status em 17/10/2026:** campanhas, eventos, fichas e metadados usam Room com esquemas/migrações v1–v3; o autosave e a recuperação estão ligados ao app. Testes Gradle e `:app:assembleDebug` passam. Pendente: teste instrumentado de migração Room e validação em aparelho/emulador. Capítulos, missões e linha do tempo ficam hoje como metadados da campanha, não em tabelas dedicadas; os resumos automáticos previstos nas Fases 8/9 ainda faltam.
+**Status do código (18/10/2026):** campanhas, eventos, fichas e metadados usam Room com migrações v1–v3; autosave e recuperação estão ligados ao app. Backup/restauração já têm fluxo Android por seletor de arquivo e validação do estado reconstituído. Capítulos, missões e linha do tempo persistem em metadados da campanha, não em tabelas dedicadas. Pendente: teste instrumentado de migração Room e validação em aparelho/emulador; não executei essas verificações nesta etapa.
 
 ### Módulo 3.1 — Banco
 - 3.1.1 Tabelas: fichas, NPCs (com campo `privado`), eventos, capítulos, resumos, descobertas do jogador
@@ -159,7 +159,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 4.4.4 Regras adicionais ficam guardadas por campanha e marcadas na ficha com um selo
 - 4.4.5 Nunca importar mecânica de outro sistema sem declarar a adaptação
 
-**Status:** 4.1, 4.2 (menos integração com o app/Android), 4.3.1, 4.3.3 e 4.4 escritos, não compilados. Pendente: 4.3.2 (3D&T escolhido; bloqueado por licença, ver acima), leitura por `assets`/seletor de arquivo no Android, 4.4.2 na interface.
+**Status do código (18/10/2026):** o formato/validador de pacotes, herança, pacote próprio, importação ZIP pela interface Android e restauração dos pacotes importados estão ligados ao app. A importação limita arquivos a 20 MiB e tenta resolver dependências em ordem. Adaptações podem ser propostas, recusadas ou aprovadas; os efeitos aprovados entram nos testes/combate. 3D&T continua apenas como link de consulta por decisão de licença; PDF foi descartado. Pendente: revisar catálogo/conteúdo de cada sistema e validar importação real em aparelho.
 
 **Atenção legal:** a maioria dos sistemas comerciais (3D&T, D&D, Vampire etc.) tem direitos autorais. O pacote deve conter mecânicas escritas por nós e/ou conteúdo que o usuário importe do próprio material. Não embutir texto oficial no app sem licença.
 
