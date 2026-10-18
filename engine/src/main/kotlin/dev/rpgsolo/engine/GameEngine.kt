@@ -231,8 +231,8 @@ fun validateState(state: GameState): List<String> {
             if (condition !in state.conditions[id].orEmpty()) problems += "estado de condição órfão: $id/$condition"
             if (effect.remainingRounds != null && effect.remainingRounds <= 0) problems += "duração inválida: $id/$condition"
             if (effect.damagePerRound < 0) problems += "dano por rodada negativo: $id/$condition"
-            if (effect.damagePerRound > 0 && entity?.resources?.containsKey(effect.damageResource) != true) {
-                problems += "recurso de dano de condição inexistente: $id/$condition/${effect.damageResource}"
+            if (entity?.resources?.containsKey(effect.damageResource) != true) {
+                problems += "recurso de referência de condição inexistente: $id/$condition/${effect.damageResource}"
             }
         }
     }
