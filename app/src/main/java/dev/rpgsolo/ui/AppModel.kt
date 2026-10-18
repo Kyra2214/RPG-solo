@@ -343,7 +343,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
-    /** Inicia a iniciativa dos participantes vivos da campanha; os números vêm exclusivamente do motor. */
+    /** Inicia a iniciativa do jogador e dos NPCs preparados para este encontro; os números vêm do motor. */
     fun startCombat(): String? = try {
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
         val initiativeStat = pkg.data.creation["combate_atributo_iniciativa"]
@@ -424,6 +424,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val effectiveAttackDice = if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) {
             attackDiceCount
         } else (attackDiceCount + attackConditionShift).coerceIn(1, maxOf(attackDiceCount, 3))
+        val npcAttackMark = session.mark()
         val result = session.attack(
             dev.rpgsolo.engine.AttackSpec(
                 attackerId = attacker,
@@ -463,7 +464,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         if (session.state.combat != null) {
             when (val advance = session.execute(dev.rpgsolo.engine.NextTurn)) {
-                is dev.rpgsolo.engine.ExecResult.Rejected -> return advance.reason
+                is dev.rpgsolo.engine.ExecResult.Rejected -> {
+                    session.rollbackTo(npcAttackMark)
+                    return advance.reason
+                }
                 is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
             }
         }
