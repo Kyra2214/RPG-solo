@@ -7,7 +7,7 @@ import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SystemRef
 
 /** De onde veio o conhecimento de regra usado para criar um NPC. */
-enum class RuleSource { PACOTE, PDF_DO_USUARIO, PESQUISA_NA_REDE }
+enum class RuleSource { PACOTE, PDF_DO_USUARIO, PESQUISA_NA_REDE, IA_NAO_VERIFICADA }
 
 data class RuleLookup(val source: RuleSource, val snippets: List<RuleHint>) {
     /** Verdadeiro quando nem o pacote nem os PDFs responderam: a camada de IA deve pesquisar na rede. */
@@ -56,7 +56,7 @@ data class NpcSheet(
     val dossier: NpcDossier? = null
 ) {
     val isPrivate: Boolean get() = true
-    fun toEntity() = ficha.toEntity(EntityKind.NPC)
+    fun toEntity() = ficha.toEntity(EntityKind.NPC).copy(rulesValidated = validated)
 
     /** O que a interface pode mostrar ao jogador por padrão: só a identidade, nunca a mecânica. */
     fun playerView(): Pair<String, String> = ficha.name to ficha.concept
@@ -87,6 +87,9 @@ object NpcFactory {
             }
         }
         val ref = systemRef ?: return NpcResult.Rejected(listOf("sem pacote: informe o sistema/edição do NPC"))
+        if (proposal.stats.values.any { it < 0 }) return NpcResult.Rejected(listOf("atributo negativo"))
+        if (proposal.skills.values.any { it !in 0..5 }) return NpcResult.Rejected(listOf("perícia fora de 0..5"))
+        if (proposal.traits.any { it.isBlank() }) return NpcResult.Rejected(listOf("traço vazio"))
         val res = proposal.resources.mapValues { (_, max) -> Resource(max, max) }
         if (proposal.resources.values.any { it < 0 }) return NpcResult.Rejected(listOf("recurso negativo"))
         val ficha = Ficha(
