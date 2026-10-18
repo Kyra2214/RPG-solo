@@ -62,7 +62,9 @@ class PlayController(
     /** Resumo do capítulo já encerrado, sem mandar todo o histórico à IA. */
     private val chapterSummary: () -> String? = { null },
     /** Fichas privadas dos NPCs que participam do combate atual; nunca renderizadas na interface do jogador. */
-    private val npcContext: () -> List<String> = { emptyList() }
+    private val npcContext: (String) -> List<String> = { emptyList() },
+    /** NPCs presentes: todos os combatentes ou os mencionados explicitamente na ação atual. */
+    private val sceneNpcIds: (String) -> Set<String> = { emptySet() }
 ) {
     /** Uma jogada no chat: onde começa e, se foi ação local que gravou estado, a marca para desfazer. */
     private data class Entry(val start: Int, val localMark: Int? = null, val viaLoop: Boolean = true)
@@ -121,7 +123,8 @@ class PlayController(
                 playerId, text, checkFor(text), healthResource,
                 ruleSnippets = ruleLookup(text).take(5),
                 chapterSummary = chapterSummary(),
-                npcPrivate = npcContext(),
+                npcPrivate = npcContext(text),
+                sceneNpcIds = sceneNpcIds(text),
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
             )
@@ -147,7 +150,8 @@ class PlayController(
                 playerId, pending.playerText, null, healthResource,
                 ruleSnippets = ruleLookup(pending.playerText).take(5),
                 chapterSummary = chapterSummary(),
-                npcPrivate = npcContext(),
+                npcPrivate = npcContext(pending.playerText),
+                sceneNpcIds = sceneNpcIds(pending.playerText),
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
             )
