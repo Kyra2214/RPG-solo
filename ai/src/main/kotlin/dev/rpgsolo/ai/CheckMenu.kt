@@ -133,6 +133,14 @@ class CheckMenu(private val pkg: RulePackage) {
         if (pkg.stat(requiredStat) == null && skill?.type != "pericia") {
             return "requiredStat '$requiredStat' não é atributo nem perícia do pacote"
         }
+        val check = pkg.data.checks.firstOrNull { it.id == req.checkId }
+            ?: return "teste de revelação não existe no pacote"
+        if (pkg.stat(requiredStat) != null && check.stat != requiredStat) {
+            return "o teste deve usar o atributo '$requiredStat'"
+        }
+        if (skill?.type == "pericia" && check.skill != requiredStat) {
+            return "o teste deve usar a perícia '$requiredStat'"
+        }
         val npc = state.entities[npcId] ?: return "NPC inexistente: $npcId"
         if (npc.kind != EntityKind.NPC) return "targetNpc não é um NPC"
         val dossier = state.npcDossiers[npcId] ?: return "NPC não tem dossiê privado"
