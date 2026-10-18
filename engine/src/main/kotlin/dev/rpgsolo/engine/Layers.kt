@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 data class SystemRef(val systemId: String, val editionId: String)
 
 /** Regras adicionais nunca são "oficiais": só existe a origem ADAPTACAO (plano 4.4.1 / 11.1.9). */
+@Serializable
 enum class RuleOrigin { ADAPTACAO }
 
 /** Identidade mecânica do personagem. Reutilizável entre campanhas e sem referência a cenário. */
@@ -51,6 +52,7 @@ data class Ambientacao(
 )
 
 /** Adaptação explícita para algo que o sistema não cobre. */
+@Serializable
 data class RegraAdicional(
     val id: String,
     val name: String,
