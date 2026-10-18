@@ -201,8 +201,16 @@ object PackageParser {
         val difficulties = table(PackageFiles.DIFFICULTIES, 3) { f ->
             DifficultyDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "valor"))
         }
-        val conditions = table(PackageFiles.CONDITIONS, 3, 4) { f ->
-            ConditionDef(id(f[0], "id"), text(f[1], "nome"), f[2], f.getOrNull(3)?.let { conditionEffect(it) })
+        val conditions = table(PackageFiles.CONDITIONS, 3, 7) { f ->
+            val duration = f.getOrNull(4)?.takeIf { !blank(it) }?.let { int(it, "duração em rodadas") }
+            if (duration != null && duration <= 0) bad("duração de condição deve ser positiva")
+            val damagePerRound = f.getOrNull(5)?.takeIf { !blank(it) }?.let { int(it, "dano por rodada") } ?: 0
+            if (damagePerRound < 0) bad("dano por rodada negativo")
+            val resource = f.getOrNull(6)?.takeIf { !blank(it) }?.let { id(it, "recurso de condição") } ?: "hp"
+            ConditionDef(
+                id(f[0], "id"), text(f[1], "nome"), f[2],
+                f.getOrNull(3)?.let { conditionEffect(it) }, duration, damagePerRound, resource
+            )
         }
         val damage = table(PackageFiles.DAMAGE, 5) { f ->
             val count = int(f[2], "dados")
