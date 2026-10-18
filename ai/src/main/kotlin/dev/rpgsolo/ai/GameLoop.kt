@@ -18,6 +18,7 @@ data class PlayInput(
     val npcPrivate: List<String> = emptyList(),
     /** IDs dos NPCs presentes nesta cena; evita enviar todos os NPCs da campanha. */
     val sceneNpcIds: Set<String> = emptySet(),
+    val worldContext: String? = null,
     /** Ficha do jogador em texto, montada a cada jogada com o estado atual (ver [PlayerSheet]). */
     val playerSheet: String? = null,
     /** Quanto da ficha foi enviado nesta jogada. Serve para o controlador saber se o combate já recebeu a ficha completa. */
@@ -194,6 +195,7 @@ class GameLoop(
                 chapterSummary = input.chapterSummary,
                 npcPrivate = input.npcPrivate,
                 sceneNpcIds = input.sceneNpcIds,
+                worldContext = input.worldContext,
                 playerSheet = input.playerSheet,
                 checkMenu = menu?.describe(),
                 resolving = input.resolving,
