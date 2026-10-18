@@ -281,6 +281,16 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                                 }
                             }
                         }
+                        val activeCombat = tickState.combat
+                        if (activeCombat != null) {
+                            val aliveKinds = activeCombat.order
+                                .mapNotNull { tickState.entities[it]?.takeIf(Entity::alive)?.kind }
+                                .distinct()
+                            val combatKinds = activeCombat.order
+                                .mapNotNull { state.entities[it]?.kind }
+                                .distinct()
+                            if (combatKinds.size >= 2 && aliveKinds.size < 2) events += CombatEnded
+                        }
                     }
                     return Decision.Ok(events)
                 }
