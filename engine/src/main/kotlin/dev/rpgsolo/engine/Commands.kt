@@ -27,7 +27,13 @@ data class ChangeRelation(val fromId: String, val toId: String, val delta: Int, 
 /** 8.2.3: relógio de agenda (ameaça ou plano de NPC) com [segments] casas. */
 data class CreateClock(val id: String, val name: String, val segments: Int) : Command
 data class AdvanceClock(val id: String, val by: Int = 1) : Command
-data class AddCondition(val entityId: String, val condition: String) : Command
+data class AddCondition(
+    val entityId: String,
+    val condition: String,
+    val durationRounds: Int? = null,
+    val damagePerRound: Int = 0,
+    val damageResource: String = "hp"
+) : Command
 data class RemoveCondition(val entityId: String, val condition: String) : Command
 /** [order] = ordem de iniciativa já decidida (ver GameEngine.rollInitiative). */
 data class StartCombat(val order: List<String>) : Command
@@ -189,7 +195,14 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (!ent.alive) return no("${ent.name} está morto")
             if (cmd.condition.isBlank()) return no("condição vazia")
             if (state.conditions[ent.id]?.contains(cmd.condition) == true) return no("${ent.name} já tem a condição ${cmd.condition}")
-            return Decision.Ok(listOf(ConditionAdded(ent.id, cmd.condition)))
+            if (cmd.durationRounds != null && cmd.durationRounds <= 0) return no("duração de condição inválida")
+            if (cmd.damagePerRound < 0) return no("dano de condição negativo")
+            if (cmd.damagePerRound > 0 && ent.resources[cmd.damageResource] == null) {
+                return no("recurso inexistente: ${cmd.damageResource}")
+            }
+            return Decision.Ok(listOf(ConditionAdded(
+                ent.id, cmd.condition, cmd.durationRounds, cmd.damagePerRound, cmd.damageResource
+            )))
         }
 
         is RemoveCondition -> {
@@ -216,7 +229,31 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 val idx = (c.turnIndex + step) % n
                 if (entity(c.order[idx])?.alive == true) {
                     val wrapped = c.turnIndex + step >= n
-                    return Decision.Ok(listOf(TurnAdvanced(idx, if (wrapped) c.round + 1 else c.round)))
+                    val events = mutableListOf<Event>(TurnAdvanced(idx, if (wrapped) c.round + 1 else c.round))
+                    if (wrapped) {
+                        var tickState = state
+                        for ((entityId, conditions) in state.conditionStates) {
+                            for ((condition, effect) in conditions) {
+                                val ent = tickState.entities[entityId] ?: continue
+                                if (!ent.alive) continue
+                                val resource = ent.resources[effect.damageResource] ?: continue
+                                val newValue = maxOf(0, resource.current - effect.damagePerRound)
+                                val remaining = effect.remainingRounds?.let { maxOf(0, it - 1) }
+                                val tick = ConditionTicked(
+                                    entityId, condition, remaining, effect.damageResource,
+                                    newValue, resource.current - newValue
+                                )
+                                events += tick
+                                tickState = tickState.apply(tick)
+                                if (newValue == 0 && config.deathResource == effect.damageResource) {
+                                    val death = EntityDied(entityId)
+                                    events += death
+                                    tickState = tickState.apply(death)
+                                }
+                            }
+                        }
+                    }
+                    return Decision.Ok(events)
                 }
             }
             return no("ninguém vivo no combate")

@@ -72,6 +72,34 @@ class Phase2bTest {
         assertNull(e.state.conditions["hero"])
     }
 
+    @Test fun condicaoCausaDanoNoFechamentoDaRodadaEExpira() {
+        val e = engine("hero", "orc")
+        ok(e.execute(StartCombat(listOf("hero", "orc"))))
+        ok(e.execute(AddCondition("orc", "envenenado", durationRounds = 2, damagePerRound = 2)))
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertEquals(8, e.state.entities.getValue("orc").resources.getValue("hp").current)
+        assertEquals(1, e.state.conditionStates.getValue("orc").getValue("envenenado").remainingRounds)
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertEquals(6, e.state.entities.getValue("orc").resources.getValue("hp").current)
+        assertNull(e.state.conditions["orc"])
+        assertNull(e.state.conditionStates["orc"])
+    }
+
+    @Test fun condicaoComDanoPodeMatarEReplayMantemDuracao() {
+        val e = engine("hero", "orc")
+        ok(e.execute(StartCombat(listOf("hero", "orc"))))
+        e.execute(Damage("orc", "hp", 9))
+        ok(e.execute(AddCondition("orc", "sangramento", durationRounds = 1, damagePerRound = 2)))
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertEquals(0, e.state.entities.getValue("orc").resources.getValue("hp").current)
+        assertFalse(e.state.entities.getValue("orc").alive)
+        assertNull(e.state.conditions["orc"])
+        assertEquals(e.state, GameEngine.restore(7, EngineConfig(), e.events).state)
+    }
+
     // ---- combate (2.3.2) ----
     @Test fun turnosGiramEContamRodadas() {
         val e = engine("hero", "orc", "elfo")

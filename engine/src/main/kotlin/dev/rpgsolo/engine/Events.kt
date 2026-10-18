@@ -29,7 +29,13 @@ data class PromiseMade(val id: String, val npcId: String, val text: String) : Ev
 @Serializable
 data class PromiseKept(val id: String) : Event
 @Serializable
-data class ConditionAdded(val entityId: String, val condition: String) : Event
+data class ConditionAdded(
+    val entityId: String,
+    val condition: String,
+    val durationRounds: Int? = null,
+    val damagePerRound: Int = 0,
+    val damageResource: String = "hp"
+) : Event
 @Serializable
 data class RelationChanged(val fromId: String, val toId: String, val delta: Int, val value: Int, val reason: String) : Event
 @Serializable
@@ -38,6 +44,15 @@ data class ClockCreated(val id: String, val name: String, val segments: Int) : E
 data class ClockAdvanced(val id: String, val filled: Int, val delta: Int) : Event
 @Serializable
 data class ConditionRemoved(val entityId: String, val condition: String) : Event
+@Serializable
+data class ConditionTicked(
+    val entityId: String,
+    val condition: String,
+    val remainingRounds: Int?,
+    val damageResource: String,
+    val newResourceValue: Int,
+    val damage: Int
+) : Event
 @Serializable
 data class CombatStarted(val order: List<String>) : Event
 @Serializable
@@ -93,10 +108,36 @@ fun GameState.apply(e: Event): GameState {
             val c = requireNotNull(clocks[e.id]) { "relógio inexistente: ${e.id}" }
             copy(clocks = clocks + (e.id to c.copy(filled = e.filled)))
         }
-        is ConditionAdded -> copy(conditions = conditions + (e.entityId to ((conditions[e.entityId] ?: emptySet()) + e.condition)))
+        is ConditionAdded -> copy(
+            conditions = conditions + (e.entityId to ((conditions[e.entityId] ?: emptySet()) + e.condition)),
+            conditionStates = conditionStates + (e.entityId to ((conditionStates[e.entityId] ?: emptyMap()) +
+                (e.condition to ConditionState(e.durationRounds, e.damagePerRound, e.damageResource))))
+        )
         is ConditionRemoved -> {
             val left = (conditions[e.entityId] ?: emptySet()) - e.condition
-            copy(conditions = if (left.isEmpty()) conditions - e.entityId else conditions + (e.entityId to left))
+            val states = (conditionStates[e.entityId] ?: emptyMap()) - e.condition
+            copy(
+                conditions = if (left.isEmpty()) conditions - e.entityId else conditions + (e.entityId to left),
+                conditionStates = if (states.isEmpty()) conditionStates - e.entityId else conditionStates + (e.entityId to states)
+            )
+        }
+        is ConditionTicked -> {
+            val left = if (e.remainingRounds == 0) {
+                (conditions[e.entityId] ?: emptySet()) - e.condition
+            } else conditions[e.entityId] ?: emptySet()
+            val oldStates = conditionStates[e.entityId] ?: emptyMap()
+            val nextStates = if (e.remainingRounds == 0) oldStates - e.condition else {
+                val old = requireNotNull(oldStates[e.condition])
+                oldStates + (e.condition to old.copy(remainingRounds = e.remainingRounds))
+            }
+            val ent = entity(e.entityId)
+            val resource = requireNotNull(ent.resources[e.damageResource])
+            val changed = ent.copy(resources = ent.resources + (e.damageResource to resource.copy(current = e.newResourceValue)))
+            copy(
+                entities = entities + (e.entityId to changed),
+                conditions = if (left.isEmpty()) conditions - e.entityId else conditions + (e.entityId to left),
+                conditionStates = if (nextStates.isEmpty()) conditionStates - e.entityId else conditionStates + (e.entityId to nextStates)
+            )
         }
         is CombatStarted -> copy(combat = CombatState(e.order))
         is TurnAdvanced -> {

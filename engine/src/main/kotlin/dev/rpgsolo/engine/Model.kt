@@ -44,6 +44,8 @@ data class GameState(
     val clocks: Map<String, Clock> = emptyMap(),
     /** entidade -> condições ativas (ex.: "envenenado"). */
     val conditions: Map<String, Set<String>> = emptyMap(),
+    /** entidade -> condição -> duração e efeitos mecânicos. */
+    val conditionStates: Map<String, Map<String, ConditionState>> = emptyMap(),
     /** null = fora de combate. */
     val combat: CombatState? = null,
     val eventCount: Int = 0
@@ -63,6 +65,20 @@ data class Clock(val id: String, val name: String, val segments: Int, val filled
 }
 
 data class Promise(val id: String, val npcId: String, val text: String, val kept: Boolean = false)
+
+/** Efeito mecânico de uma condição ativa; null em [remainingRounds] significa duração indefinida. */
+@Serializable
+data class ConditionState(
+    val remainingRounds: Int?,
+    val damagePerRound: Int = 0,
+    val damageResource: String = "hp"
+) {
+    init {
+        require(remainingRounds == null || remainingRounds > 0) { "duração de condição inválida" }
+        require(damagePerRound >= 0) { "dano de condição negativo" }
+        require(damageResource.isNotBlank()) { "recurso de condição vazio" }
+    }
+}
 
 /** [order] já vem decidido (iniciativa rolada pelo motor). */
 data class CombatState(val order: List<String>, val round: Int = 1, val turnIndex: Int = 0) {
