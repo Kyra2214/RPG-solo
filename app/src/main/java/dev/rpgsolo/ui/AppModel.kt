@@ -665,7 +665,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         dossier?.motivations?.takeIf { it.isNotEmpty() }?.let { append("; motivações: ").append(it.joinToString(", ")) }
                         dossier?.relations?.takeIf { it.isNotEmpty() }?.let { append("; relações privadas: ").append(it.entries.joinToString(", ") { pair -> "${pair.key}: ${pair.value}" }) }
                         if (dossier?.secrets?.isNotEmpty() == true) {
-                            append("; há segredos privados armazenados, mas seus textos não foram enviados neste contexto; não os invente nem revele")
+                            val undiscovered = dossier.secrets.filterNot { secret ->
+                                session.state.knowledge.containsKey("npc-secret:$id:${secret.id}")
+                            }
+                            if (undiscovered.isNotEmpty()) {
+                                append("; ids de segredos ainda ocultos: ").append(undiscovered.joinToString(", ") { it.id })
+                                append("; seus textos não foram enviados; só podem ser revelados após teste autorizado")
+                            }
                         }
                         append(". Nunca exponha estes números nem nomes de mecânica ao jogador.")
                     }
