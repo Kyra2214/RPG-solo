@@ -32,7 +32,10 @@ data class Ficha(
     val skills: Map<String, Int> = emptyMap()
 ) {
     fun toEntity(kind: EntityKind = EntityKind.PLAYER): Entity =
-        Entity(id = id, name = name, kind = kind, stats = stats, resources = resources, skills = skills)
+        Entity(
+            id = id, name = name, kind = kind, stats = stats, resources = resources,
+            skills = skills, concept = concept, traits = traits
+        )
 }
 
 /** Universo ficcional. Referencia a campanha, nunca a ficha. */
