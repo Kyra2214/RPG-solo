@@ -279,7 +279,11 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
         if (bonus != 0) label += if (bonus > 0) " · +$bonus" else " · $bonus"
-        return spec.copy(diceCount = count, modifier = spec.modifier + bonus + pointShift, label = label)
+        return if (spec.comparison == Comparison.ROLL_UNDER) {
+            spec.copy(diceCount = count, difficulty = spec.difficulty + bonus, modifier = spec.modifier + pointShift, label = label)
+        } else {
+            spec.copy(diceCount = count, modifier = spec.modifier + bonus + pointShift, label = label)
+        }
     }
 
     /**
