@@ -487,6 +487,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun combatantName(id: String): String = session.state.entities[id]?.name ?: id
 
+    /** Ordem de iniciativa em palavras; nunca expõe atributos ou recursos dos NPCs. */
+    fun combatOrderDescription(): String? {
+        val combat = session.state.combat ?: return null
+        return combat.order.mapNotNull { id ->
+            val entity = session.state.entities[id]?.takeIf { it.alive } ?: return@mapNotNull null
+            if (id == playerId) "Você" else entity.name
+        }.joinToString(" → ").ifBlank { null }
+    }
+
     fun combatTargets(): List<CombatTarget> = session.state.combat?.order.orEmpty()
         .filter { it != playerId }
         .mapNotNull { id ->
