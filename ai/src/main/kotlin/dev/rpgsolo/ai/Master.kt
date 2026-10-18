@@ -170,7 +170,11 @@ object ContextAssembler {
             input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") }
         )
         // Sempre entram (não são cortadas pelo orçamento): ficha do jogador e menu de testes.
-        val always = listOfNotNull(input.playerSheet?.takeIf { it.isNotBlank() }, input.checkMenu?.takeIf { it.isNotBlank() })
+        val always = listOfNotNull(
+            input.playerSheet?.takeIf { it.isNotBlank() },
+            input.checkMenu?.takeIf { it.isNotBlank() },
+            input.worldContext?.takeIf { it.isNotBlank() }
+        ) + input.npcPrivate
         var used = TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required) +
             always.sumOf { TokenEstimator.estimate(it) }
         val kept = mutableListOf<String>()
