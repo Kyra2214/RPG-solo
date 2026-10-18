@@ -422,9 +422,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val targetEquipment = session.state.equipped[playerId].orEmpty().values
         val attackConditionShift = conditionDiceShift(attacker, attackStat)
         val targetConditionShift = conditionDiceShift(playerId, defenseStat)
-        val effectiveAttackDice = if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) {
-            attackDiceCount
-        } else (attackDiceCount + attackConditionShift).coerceIn(1, maxOf(attackDiceCount, 3))
+        // Ganho/Perda altera o bônus/limiar conforme a comparação, nunca a quantidade de dados.
+        val effectiveAttackDice = attackDiceCount
         val npcAttackMark = session.mark()
         val result = session.attack(
             dev.rpgsolo.engine.AttackSpec(
@@ -441,7 +440,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(combatTraitIds(attacker), "ataque") +
                     approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
-                    (if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) attackConditionShift else 0) +
+                    attackConditionShift +
                     ((session.state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
                         .roundToInt().coerceIn(0, 10) - 5),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
@@ -685,7 +684,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(playerId), "ataque") +
                     approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
-                    (if (attackComparison == dev.rpgsolo.engine.Comparison.POINTS) attackConditionShift else 0),
+                    attackConditionShift,
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano") +
                     approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
