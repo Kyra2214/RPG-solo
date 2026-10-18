@@ -6,3 +6,5 @@ sangramento|Sangramento|Ferida aberta que causa 1 PV de dano ao fim de cada roda
 visao-turva|Visão turva|A vista falha: ações que dependem de enxergar ficam mais difíceis até passar.|perda:habilidade||0|pv
 amaldicoado|Amaldiçoado|Maldição que prejudica testes até ser desfeita.|perda:*||0|pv
 abencoado|Abençoado|Bênção que melhora testes até acabar.|ganho:*||0|pv
+envenenado|Envenenado|Toxina no organismo; causa 1 PV de dano ao fim de cada rodada por 3 rodadas, salvo tratamento.|perda:*|3|1|pv
+queimando|Queimando|Chamas ou calor intenso causam 2 PV de dano ao fim de cada rodada por 2 rodadas, salvo se apagadas.|perda:*|2|2|pv
