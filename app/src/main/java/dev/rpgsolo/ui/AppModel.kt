@@ -391,10 +391,48 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
-    fun exportBackup(): String = dev.rpgsolo.engine.Backup.export(store, session.campaignId)
+    fun exportBackup(): String = dev.rpgsolo.engine.Backup.export(
+        store,
+        session.campaignId,
+        dev.rpgsolo.engine.CampaignBackupMetadata(
+            chaptersJson = dev.rpgsolo.engine.Codec.encodeChapters(chapters.chapters),
+            questsJson = dev.rpgsolo.engine.Codec.encodeQuests(quests.all()),
+            timelineJson = dev.rpgsolo.engine.Codec.encodeTimeline(quests.timeline()),
+            playerId = playerId,
+            fichaId = activeFichaId ?: activeFicha?.id,
+            packageId = activePackage?.manifest?.id,
+            systemId = activeSystemId ?: activeFicha?.system?.systemId,
+            editionId = activeEditionId ?: activeFicha?.system?.editionId,
+            fichas = fichas.map { dev.rpgsolo.engine.Codec.encode(it) }
+        )
+    )
 
     fun importBackup(text: String): String? = try {
-        val id = dev.rpgsolo.engine.Backup.import(store, text.trim(), "import-${System.nanoTime()}")
+        val raw = text.trim()
+        val file = dev.rpgsolo.engine.Backup.decode(raw)
+        val id = dev.rpgsolo.engine.Backup.import(store, raw, "import-${System.nanoTime()}")
+        file.metadata?.let { meta ->
+            store.saveMetadata(
+                CampanhaMetaRow(
+                    campanhaId = id,
+                    chaptersJson = meta.chaptersJson,
+                    questsJson = meta.questsJson,
+                    timelineJson = meta.timelineJson,
+                    playerId = meta.playerId,
+                    fichaId = meta.fichaId,
+                    packageId = meta.packageId,
+                    systemId = meta.systemId,
+                    editionId = meta.editionId
+                )
+            )
+            meta.fichas.forEach { rawFicha ->
+                runCatching {
+                    val ficha = dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
+                    store.saveFicha(FichaRow(ficha.id, ficha.name, rawFicha))
+                }
+            }
+        }
+        restoreFichas()
         switchCampaign(id)
         refreshCampaigns(); campaignVersion++; null
     } catch (e: IllegalArgumentException) { e.message }
