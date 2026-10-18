@@ -331,21 +331,6 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
         EndCombat ->
             return if (state.combat == null) no("não há combate ativo") else Decision.Ok(listOf(CombatEnded))
 
-        is ProposeRuleAddition -> {
-            val rule = cmd.rule
-            if (rule.id.isBlank() || rule.id.length > 80 || rule.name.isBlank() || rule.name.length > 120 ||
-                rule.description.isBlank() || rule.description.length > 2000) {
-                return no("adaptação exige id, nome e descrição dentro dos limites")
-            }
-            if (state.additionalRules.containsKey(rule.id)) return no("adaptação já existe: ${rule.id}")
-            if (rule.effects.size > 30 || rule.effects.keys.any { it.isBlank() || it.length > 80 } ||
-                rule.effects.values.any { it !in -100..100 }) {
-                return no("efeitos da adaptação inválidos; máximo 30 escopos, nome até 80 caracteres e bônus de -100 a 100")
-            }
-            if (rule.limit.length > 500) return no("limite da adaptação excede 500 caracteres")
-            return Decision.Ok(listOf(AdditionalRuleProposed(rule.copy(approved = false, origin = RuleOrigin.ADAPTAÇÃO))))
-        }
-
         is SetNpcDossier -> {
             val npc = entity(cmd.dossier.npcId) ?: return no("NPC inexistente: ${cmd.dossier.npcId}")
             if (npc.kind != EntityKind.NPC) return no("dossiê privado só pode pertencer a NPC")
@@ -408,13 +393,19 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
         }
         is ProposeRuleAddition -> {
             val rule = cmd.rule
-            if (rule.id.isBlank() || rule.name.isBlank() || rule.description.isBlank()) return no("adaptação sem id, nome ou descrição")
+            if (rule.id.isBlank() || rule.id.length > 80 || rule.name.isBlank() || rule.name.length > 120 ||
+                rule.description.isBlank() || rule.description.length > 2000) {
+                return no("adaptação exige id, nome e descrição dentro dos limites")
+            }
             if (rule.origin != RuleOrigin.ADAPTACAO) return no("regra adicional deve ser marcada como adaptação")
             if (rule.approved) return no("a IA não pode propor uma adaptação já aprovada")
             if (state.additionalRules.containsKey(rule.id)) return no("adaptação já existe: ${rule.id}")
             if (rule.effects.isEmpty()) return no("adaptação sem efeito mecânico explícito")
-            if (rule.effects.values.any { it !in -5..5 }) return no("efeitos da adaptação devem ficar entre -5 e +5")
-            if (rule.limit.isBlank()) return no("adaptação precisa declarar custo ou limite")
+            if (rule.effects.size > 30 || rule.effects.keys.any { it.isBlank() || it.length > 80 } ||
+                rule.effects.values.any { it !in -5..5 }) {
+                return no("efeitos da adaptação inválidos; máximo 30 escopos e bônus de -5 a +5")
+            }
+            if (rule.limit.isBlank() || rule.limit.length > 500) return no("adaptação precisa declarar custo ou limite de até 500 caracteres")
             return Decision.Ok(listOf(AdditionalRuleProposed(rule)))
         }
         is ApproveRuleAddition -> {
