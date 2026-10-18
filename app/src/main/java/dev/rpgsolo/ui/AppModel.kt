@@ -645,6 +645,23 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
+    /** A postura defensiva concede o bônus do pacote contra o próximo ataque recebido e consome o turno. */
+    fun defend(): String? {
+        if (!isPlayerCombatTurn()) return "só é possível defender no seu turno"
+        val combatantsBefore = session.state.combat?.order.orEmpty()
+        return when (val result = session.executeAll(listOf(
+            dev.rpgsolo.engine.Defend(playerId),
+            dev.rpgsolo.engine.NextTurn
+        ))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                awardCombatVictoryXp(combatantsBefore)
+                campaignVersion++
+                null
+            }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+    }
+
     /** Fuga usa um teste real do pacote; sucesso encerra o combate, falha cede a próxima ação ao adversário. */
     fun fleeCombat(): String? = try {
         require(isPlayerCombatTurn()) { "só é possível fugir no seu turno" }
