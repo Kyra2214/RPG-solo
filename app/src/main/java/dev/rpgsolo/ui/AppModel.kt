@@ -259,7 +259,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     } catch (e: IllegalArgumentException) { e.message }
 
     fun exportFicha(id: String): String? =
-        (fichas + archivedFichas).firstOrNull { it.id == id }?.let(dev.rpgsolo.engine.Codec::encode)
+        (fichas + archivedFichas).firstOrNull { it.id == id }?.let { dev.rpgsolo.engine.Codec.encode(it) }
 
     fun activeCampaignId(): String = session.campaignId
 
