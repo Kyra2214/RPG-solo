@@ -274,7 +274,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         )
         val text = when (result) {
             is dev.rpgsolo.engine.AttackResult.Resolved -> if (result.hit) {
-                "${session.state.entities.getValue(attacker).name} acertou você e causou ${result.damage} de dano."
+                "${session.state.entities.getValue(attacker).name} acertou você."
             } else {
                 "${session.state.entities.getValue(attacker).name} errou o ataque."
             }
@@ -297,6 +297,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun combatState(): dev.rpgsolo.engine.CombatState? = session.state.combat
+
+    fun combatantName(id: String): String = session.state.entities[id]?.name ?: id
 
     fun combatTargets(): List<CombatTarget> = session.state.combat?.order.orEmpty()
         .filter { it != playerId }
@@ -405,8 +407,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         )) {
             is dev.rpgsolo.engine.AttackResult.Resolved -> {
                 campaignVersion++
-                if (result.hit) "Ataque acertou e causou ${result.damage} de dano."
-                else "Ataque errou (defesa ${result.defense})."
+                val attackText = "${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}"
+                if (result.hit) {
+                    val damageText = result.damageRoll?.let {
+                        " Dano: ${it.expression} [${it.dice.joinToString(", ")}] = ${it.total}."
+                    }.orEmpty()
+                    "Ataque: $attackText. Acertou e causou ${result.damage} de dano.$damageText"
+                } else "Ataque: $attackText. Errou."
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
         }
