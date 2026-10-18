@@ -3,6 +3,8 @@ package dev.rpgsolo.ai
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.GameState
+import dev.rpgsolo.engine.CampaignSession
+import dev.rpgsolo.engine.ExecResult
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.NpcProposal
 import dev.rpgsolo.rules.NpcResult
@@ -76,6 +78,37 @@ class CheckMenu(private val pkg: RulePackage) {
 
     /** Itens válidos no pacote ativo; a IA não pode inventar ids de inventário. */
     fun hasItem(itemId: String): Boolean = pkg.item(itemId) != null
+
+    /** Valida e inicia combate entre o herói e um NPC recém-criado usando só o perfil do pacote. */
+    fun startCombat(session: CampaignSession, playerId: String, npcId: String): String? {
+        if (session.state.combat != null) return "já existe um combate ativo"
+        val player = session.state.entities[playerId] ?: return "personagem inexistente: $playerId"
+        if (player.kind != EntityKind.PLAYER || !player.alive) return "o combatente do jogador não está disponível"
+        val npc = session.state.entities[npcId] ?: return "NPC inexistente: $npcId"
+        if (npc.kind != EntityKind.NPC || !npc.alive) return "o adversário não é um NPC vivo"
+        val creation = pkg.data.creation
+        val stat = creation["combate_atributo_iniciativa"]
+            ?: return "o pacote não define o atributo de iniciativa"
+        val count = creation["combate_dados_iniciativa"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dados_iniciativa"
+        val sides = creation["combate_lados_iniciativa"]?.toIntOrNull()
+            ?: return "o pacote não define combate_lados_iniciativa"
+        val highestFirst = when (creation["combate_ordem_iniciativa"]) {
+            "MAIOR" -> true
+            "MENOR" -> false
+            else -> return "o pacote não define combate_ordem_iniciativa válida"
+        }
+        return when (val result = session.rollInitiative(
+            ids = listOf(playerId, npcId),
+            diceCount = count,
+            diceSides = sides,
+            statKey = stat,
+            highestFirst = highestFirst
+        )) {
+            is ExecResult.Accepted -> null
+            is ExecResult.Rejected -> result.reason
+        }
+    }
 
     /** Valida a ficha mecânica proposta para um NPC pelo pacote ativo. */
     fun createNpc(proposal: NpcProposal): NpcResult = NpcFactory.create(proposal, pkg)
