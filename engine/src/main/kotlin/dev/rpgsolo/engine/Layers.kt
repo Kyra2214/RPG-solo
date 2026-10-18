@@ -39,6 +39,19 @@ data class Ficha(
         )
 }
 
+/** Preferências de jogo da campanha; não alteram a mecânica do sistema sem regra explícita. */
+@Serializable
+data class CampaignStyle(
+    val settingIds: List<String> = emptyList(),
+    val structureIds: List<String> = emptyList(),
+    val philosophyIds: List<String> = emptyList(),
+    val toneIds: List<String> = emptyList(),
+    val difficultyId: String? = null,
+    val difficultyParams: Map<String, Double> = emptyMap(),
+    val progressionId: String? = null,
+    val contentLimits: List<String> = emptyList()
+)
+
 /** Universo ficcional. Referencia a campanha, nunca a ficha. */
 @Serializable
 data class Ambientacao(
@@ -71,7 +84,8 @@ data class Campanha(
     val fichaId: String,
     val system: SystemRef,
     val ambientacao: Ambientacao,
-    val additionalRules: List<RegraAdicional> = emptyList()
+    val additionalRules: List<RegraAdicional> = emptyList(),
+    val style: CampaignStyle = CampaignStyle()
 ) {
     /** Troca o cenário sem tocar na ficha (9.4.4). */
     fun withAmbientacao(a: Ambientacao): Campanha = copy(ambientacao = a.copy(campaignId = id))
