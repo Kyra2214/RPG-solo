@@ -321,7 +321,7 @@ private fun CombatControls(model: AppModel) {
                 } else {
                     Muted("Aguarde o turno de ${model.combatantName(combat.current)}.")
                 }
-                if (model.isPlayerCombatTurn()) {
+                if (model.isPlayerCombatTurn() && model.canDefend()) {
                     OutlinedButton(
                         onClick = { message = model.defend() },
                         modifier = Modifier.fillMaxWidth()
