@@ -19,6 +19,8 @@ import dev.rpgsolo.engine.Revive
 import dev.rpgsolo.engine.SpendResource
 import dev.rpgsolo.rules.NpcProposal
 import dev.rpgsolo.rules.RuleSource
+import dev.rpgsolo.engine.NpcDossier
+import dev.rpgsolo.engine.Secret
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -50,7 +52,7 @@ sealed interface ParseResult {
 object ProposalSchema {
     val INSTRUCTIONS: String = """
         Responda SOMENTE com um objeto JSON, sem texto fora dele:
-        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}}}
+        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}, "personality":"...", "goals":[], "motivations":[], "relations":{}, "secrets":[{"id":"...", "text":"...", "falseInfo":false}]}}
         "create_npc" é opcional: quando criar um NPC relevante, proponha nome, conceito, atributos, traços e perícias. O pacote valida tudo; não invente ids nem regras. Não inclua create_npc ao pedir teste/rolagem.
         "suggestions" é opcional: no máximo ${ProposalParser.MAX_SUGGESTIONS} ideias curtas do que o personagem poderia fazer; o jogador pode ignorá-las.
         "proposals" é a lista (pode ser vazia) de mudanças que você PROPÕE. O motor valida cada uma e pode recusar.
@@ -202,6 +204,40 @@ object ProposalParser {
         }
         val stats = intMap("stats")
         if (stats.isEmpty()) throw Bad("informe os atributos do NPC em 'stats'")
+        fun textList(key: String): List<String> = when (val raw = o[key]) {
+            null, is JsonNull -> emptyList()
+            is JsonArray -> raw.map { value ->
+                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("campo '$key' deve ser uma lista de textos")
+            }
+            else -> throw Bad("campo '$key' deve ser uma lista de textos")
+        }
+        val relations = when (val raw = o["relations"]) {
+            null, is JsonNull -> emptyMap()
+            is JsonObject -> raw.mapValues { (key, value) ->
+                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("campo 'relations.$key' deve ser texto")
+            }
+            else -> throw Bad("campo 'relations' deve ser um objeto")
+        }
+        val secrets = when (val raw = o["secrets"]) {
+            null, is JsonNull -> emptyList()
+            is JsonArray -> raw.mapIndexed { index, value ->
+                val secret = value as? JsonObject ?: throw Bad("secrets[$index] deve ser um objeto")
+                val id = secret.str("id")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("secrets[$index].id ausente")
+                val text = secret.str("text")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("secrets[$index].text ausente")
+                Secret(id, text, secret.bool("falseInfo") ?: false)
+            }
+            else -> throw Bad("campo 'secrets' deve ser uma lista de objetos")
+        }
+        val personality = o.str("personality")?.trim().orEmpty()
+        val goals = textList("goals")
+        val motivations = textList("motivations")
+        val dossier = if (personality.isBlank() && goals.isEmpty() && motivations.isEmpty() && relations.isEmpty() && secrets.isEmpty()) {
+            null
+        } else NpcDossier("pending", personality, goals, motivations, relations, secrets)
         return NpcProposal(
             id = "pending",
             name = requiredText("name"),
@@ -209,7 +245,8 @@ object ProposalParser {
             stats = stats,
             traits = traits.distinct(),
             ruleSource = RuleSource.PACOTE,
-            skills = intMap("skills", optional = true)
+            skills = intMap("skills", optional = true),
+            dossier = dossier
         )
     }
 
