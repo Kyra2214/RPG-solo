@@ -43,6 +43,7 @@ data class SetNpcDossier(val dossier: NpcDossier) : Command
 data class ProposeRuleAddition(val rule: RegraAdicional) : Command
 data class ApproveRuleAddition(val id: String) : Command
 data class RejectRuleAddition(val id: String) : Command
+data class SetAmbientacao(val ambientacao: Ambientacao) : Command
 /** [order] = ordem de iniciativa já decidida (ver GameEngine.rollInitiative). */
 data class StartCombat(val order: List<String>) : Command
 object NextTurn : Command
@@ -316,6 +317,11 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             return Decision.Ok(listOf(NpcDossierStored(cmd.dossier)))
         }
 
+        is SetAmbientacao -> {
+            val a = cmd.ambientacao
+            if (a.id.isBlank() || a.campaignId.isBlank() || a.name.isBlank()) return no("ambientação exige id, campanha e nome")
+            return Decision.Ok(listOf(AmbientacaoSet(a)))
+        }
         is ProposeRuleAddition -> {
             val rule = cmd.rule
             if (rule.id.isBlank() || rule.name.isBlank() || rule.description.isBlank()) return no("adaptação sem id, nome ou descrição")
