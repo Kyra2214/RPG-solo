@@ -131,6 +131,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private val activeCampaignPrefs = application.getSharedPreferences("rpgsolo_session", Application.MODE_PRIVATE)
     private var playerId = "hero"
     private var activePackage: RulePackage? = content.registry.get("sistema-proprio")
+    /** NPCs adicionados manualmente para o próximo encontro; NPCs de outras cenas não entram automaticamente. */
+    private val pendingCombatNpcIds = linkedSetOf<String>()
     private var activeFicha: Ficha? = null
     private var activeFichaId: String? = null
     private var activeSystemId: String? = null
@@ -291,8 +293,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         )
         when (val result = session.execute(CreateEntity(entity))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                pendingCombatNpcIds += entity.id
                 campaignVersion++
-                "${entity.name} foi adicionado à campanha."
+                "${entity.name} foi adicionado ao próximo encontro."
             }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
@@ -310,8 +313,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             ?: return "o pacote não define combate_lados_iniciativa"
         val initiativeOrder = pkg.data.creation["combate_ordem_iniciativa"]
             ?: return "o pacote não define combate_ordem_iniciativa"
-        val participants = session.state.entities.values.filter { it.alive }.map { it.id }
-        require(participants.size >= 2) { "combate exige pelo menos duas entidades vivas" }
+        val participants = (listOf(playerId) + pendingCombatNpcIds).distinct().filter { id ->
+            session.state.entities[id]?.alive == true
+        }
+        require(participants.size >= 2) { "adicione pelo menos um adversário para este encontro" }
         when (val result = session.rollInitiative(
             participants,
             diceCount = initiativeDiceCount,
@@ -319,7 +324,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             statKey = initiativeStat,
             highestFirst = initiativeOrder == "MAIOR"
         )) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                pendingCombatNpcIds.clear()
+                campaignVersion++
+                null
+            }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
     } catch (e: IllegalArgumentException) { e.message }
