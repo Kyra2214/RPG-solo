@@ -79,6 +79,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         private set
     var contentVeils by mutableStateOf(narrationPrefs.getString("content_veils", "").orEmpty())
         private set
+    var chapterEventLimit by mutableStateOf(narrationPrefs.getInt("chapter_events", 200))
+        private set
+
+    fun setChapterEventLimit(value: Int) {
+        if (value !in 50..2000) return
+        chapterEventLimit = value
+        narrationPrefs.edit().putInt("chapter_events", value).apply()
+        chapters.configureMaxEvents(value)
+        campaignVersion++
+    }
 
     fun setContentBoundaries(lines: String, veils: String) {
         contentLines = lines.take(4000)
@@ -103,7 +113,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Biblioteca de fichas reutilizáveis, persistida separadamente das campanhas. */
     val fichas = mutableStateListOf<Ficha>()
     val campaigns = mutableStateListOf<CampaignRecord>()
-    var chapters = ChapterBook()
+    var chapters = ChapterBook(chapterEventLimit)
         private set
     var quests = QuestLog()
         private set
@@ -637,7 +647,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     } catch (e: IllegalArgumentException) { e.message }
 
     private fun restoreMetadata() {
-        chapters = ChapterBook()
+        chapters = ChapterBook(chapterEventLimit)
         quests = QuestLog()
         val row = store.metadata(session.campaignId)
         if (row != null) {
