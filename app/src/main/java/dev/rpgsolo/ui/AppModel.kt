@@ -770,6 +770,23 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             },
             worldContext = {
                 buildString {
+                    session.state.campaignStyle?.let { style ->
+                        fun labels(ids: List<String>): String = ids.mapNotNull { id ->
+                            content.catalog?.entry(id)?.name ?: id
+                        }.joinToString(", ")
+                        style.settingIds.takeIf { it.isNotEmpty() }?.let { append("Estilos de ambientação: ").append(labels(it)).append(".\n") }
+                        style.structureIds.takeIf { it.isNotEmpty() }?.let { append("Estrutura da campanha: ").append(labels(it)).append(".\n") }
+                        style.philosophyIds.takeIf { it.isNotEmpty() }?.let { append("Filosofia de jogo: ").append(labels(it)).append(".\n") }
+                        style.toneIds.takeIf { it.isNotEmpty() }?.let { append("Tom: ").append(labels(it)).append(".\n") }
+                        style.difficultyId?.let { id -> append("Dificuldade escolhida: ").append(content.catalog?.entry(id)?.name ?: id).append(".\n") }
+                        style.difficultyParams.takeIf { it.isNotEmpty() }?.let { params ->
+                            append("Parâmetros de dificuldade: ").append(params.entries.joinToString(", ") { "${it.key}=${it.value}" }).append(".\n")
+                        }
+                        style.progressionId?.let { id -> append("Progressão: ").append(content.catalog?.entry(id)?.name ?: id).append(".\n") }
+                        style.contentLimits.takeIf { it.isNotEmpty() }?.let { limits ->
+                            append("LIMITES DE CONTEÚDO OBRIGATÓRIOS DO JOGADOR: ").append(limits.joinToString("; ")).append(". Nunca ultrapasse nem tente contornar estes limites.\n")
+                        }
+                    }
                     session.state.ambientacao?.let { setting ->
                         append("Ambientação ficcional da campanha: ").append(setting.name)
                         setting.tone.takeIf { it.isNotBlank() }?.let { append("; tom: ").append(it) }
@@ -864,6 +881,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         when (val setting = session.execute(dev.rpgsolo.engine.SetAmbientacao(started.campanha.ambientacao))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
             is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "ambientação não salva: ${setting.reason}"
+        }
+        when (val style = session.execute(dev.rpgsolo.engine.SetCampaignStyle(started.campanha.style))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+            is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "configuração da campanha não salva: ${style.reason}"
         }
         activeCampaignPrefs.edit().putString("active_campaign", session.campaignId).apply()
         chapters = ChapterBook()
