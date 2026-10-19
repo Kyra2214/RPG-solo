@@ -112,6 +112,7 @@ fun CampaignsScreen(model: AppModel) {
     val automaticTimeline = remember(v, model.controller?.lines?.size) { model.controller?.automaticTimeline().orEmpty() }
     val journal = remember(v, model.controller?.lines?.size) { model.journal() }
     val progressionHistory = remember(v) { model.progressionHistory() }
+    val advancement = remember(v) { model.advancementState() }
     val relationships = remember(v) { model.relationshipsView() }
 
     ScreenColumn {
@@ -197,6 +198,29 @@ fun CampaignsScreen(model: AppModel) {
         SectionTitle("Evolução do personagem")
         if (progressionHistory.isEmpty()) Muted("Nenhum ganho de XP ou nível registrado ainda.")
         progressionHistory.forEach { entry -> AppCard { Text(entry, style = MaterialTheme.typography.bodyMedium) } }
+
+        SectionTitle("Pontos de evolução")
+        Muted("Disponíveis: ${advancement.pointsAvailable}. Cada aumento custa 1 ponto e respeita os limites do pacote ativo.")
+        if (advancement.pointsAvailable <= 0) {
+            Muted("Você não tem pontos de evolução para gastar.")
+        } else if (advancement.choices.isEmpty()) {
+            Muted("O pacote ativo não define opções de evolução para esta ficha.")
+        } else {
+            advancement.choices.forEach { choice ->
+                AppCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(choice.name, style = MaterialTheme.typography.bodyMedium)
+                            Muted("${choice.current}/${choice.max}" + if (choice.skill) " · perícia" else " · atributo")
+                        }
+                        Button(
+                            enabled = advancement.pointsAvailable > 0 && choice.current < choice.max,
+                            onClick = { message = model.increaseAdvancement(choice.id, choice.skill) }
+                        ) { Text("+1") }
+                    }
+                }
+            }
+        }
 
         SectionTitle("Missões")
         if (active.isEmpty()) Muted("Nenhuma missão ativa.")
