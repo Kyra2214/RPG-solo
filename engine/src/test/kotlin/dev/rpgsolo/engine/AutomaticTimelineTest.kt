@@ -66,6 +66,8 @@ class AutomaticTimelineTest {
             EntityCreated(Entity("hero", "Hero", EntityKind.PLAYER)),
             ClockCreated("hidden-clock", "Plano secreto", 2, publicClue = "As portas da cidade se fecharam."),
             ClockAdvanced("hidden-clock", 1, 1),
+            ClockAdvanced("hidden-clock", 2, 1),
+            // Repetir o estado completo não pode publicar a pista de novo.
             ClockAdvanced("hidden-clock", 2, 1)
         )
         val state = replay(events)
