@@ -193,7 +193,6 @@ class AnthropicProvider(
                             inputTokens = usage?.intAt("input_tokens") ?: inputTokens
                             cacheReadTokens = usage?.intAt("cache_read_input_tokens") ?: cacheReadTokens
                             cacheCreationTokens = usage?.intAt("cache_creation_input_tokens") ?: cacheCreationTokens
-                            outputTokens = usage?.intAt("output_tokens") ?: outputTokens
                         }
                         "message_delta" -> {
                             val usage = root["usage"] as? JsonObject
