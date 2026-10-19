@@ -30,7 +30,15 @@ data class GroupCheckResult(
 
 private fun compareQuality(a: CheckResult, b: CheckResult): Int {
     val outcomeComparison = a.outcome.ordinal.compareTo(b.outcome.ordinal)
-    return if (outcomeComparison != 0) outcomeComparison else a.margin.compareTo(b.margin)
+    if (outcomeComparison != 0) return outcomeComparison
+
+    // Margens só podem desempatar quando ambos os resultados usam a mesma escala mecânica.
+    // Comparar margem de d20 contra CD com margem de 3d6 abaixo do atributo produz um vencedor artificial.
+    val sameScale = a.spec.comparison == b.spec.comparison &&
+        a.spec.diceCount == b.spec.diceCount &&
+        a.spec.diceSides == b.spec.diceSides &&
+        a.spec.difficulty == b.spec.difficulty
+    return if (sameScale) a.margin.compareTo(b.margin) else 0
 }
 
 /**
