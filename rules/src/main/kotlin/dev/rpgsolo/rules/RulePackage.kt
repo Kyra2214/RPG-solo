@@ -111,6 +111,7 @@ class RulePackage internal constructor(val data: PackageData) {
             levelThresholds = data.progression ?: emptyList(),
             defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
             advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
+            levelResourceRewards = parseResourceRewards(data.creation["recompensa_recurso"]),
             statCaps = data.stats.associate { it.id to it.max },
             statDefaults = data.stats.associate { it.id to it.default },
             skillCaps = data.traits.filter { it.type == "pericia" }.associate { it.id to MAX_SKILL_POINTS },
@@ -409,6 +410,14 @@ object PackageValidator {
         }
         if (d.stats.isEmpty()) p += "pacote sem atributos"
         d.resources.filter { it.stat != null && it.stat !in stats }.forEach { p += "recurso ${it.id}: atributo inexistente ${it.stat}" }
+        val levelRewards = try {
+            parseResourceRewards(d.creation["recompensa_recurso"])
+        } catch (e: IllegalArgumentException) {
+            p += "criacao.txt: ${e.message}"
+            emptyMap()
+        }
+        levelRewards.keys.filter { reward -> d.resources.none { it.id == reward } }
+            .forEach { p += "criacao.txt: recompensa por nível referencia recurso inexistente $it" }
         d.checks.filter { it.stat != null && it.stat !in stats }.forEach { p += "teste ${it.id}: atributo inexistente ${it.stat}" }
         d.checks.filter { it.skill != null && d.traits.none { trait -> trait.id == it.skill && trait.type == "pericia" } }
             .forEach { p += "teste ${it.id}: perícia inexistente ou não classificada como perícia: ${it.skill}" }
