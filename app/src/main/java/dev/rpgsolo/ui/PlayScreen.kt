@@ -88,6 +88,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var playError by remember { mutableStateOf<String?>(null) }
+    var streamingText by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var version by remember { mutableIntStateOf(0) }
     val lines = remember(version) { c.lines }
@@ -154,6 +155,17 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                     onRevealed = { c.revealRoll(iv.index); version++ }
                 )
             }
+            if (busy && streamingText.isNotBlank()) {
+                item(key = "streaming-narration") {
+                    AppCard {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            LinearProgressIndicator(modifier = Modifier.width(28.dp))
+                            Text("Mestre narrando…", style = MaterialTheme.typography.labelMedium)
+                        }
+                        Text(streamingText)
+                    }
+                }
+            }
         }
 
         playError?.let { ErrorText(it) }
@@ -164,8 +176,11 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
             onSend = {
                 val submitted = text
                 run {
-                    val result = c.submit(submitted)
+                    val result = c.submit(submitted) { partial ->
+                        scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+                    }
                     withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        streamingText = ""
                         if (result is dev.rpgsolo.ai.PlayResult.Failed) playError = result.reason
                         else {
                             text = ""
@@ -176,8 +191,11 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                 }
             },
             onRollCheck = { run {
-                val result = c.rollPending()
+                val result = c.rollPending { partial ->
+                    scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+                }
                 withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    streamingText = ""
                     playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
                 }
                 model.autoCloseChapterIfNeeded()
