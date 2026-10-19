@@ -12,6 +12,7 @@
 
 ### Mecânica e acessibilidade
 - Alguns bônus e penalidades numéricos já explícitos em traços do pacote próprio agora são aplicados pelo motor (reflexos, frágil, mão pesada, graça feérica e desconfiança/emoção confusa).
+- Combate aplica resistência/vulnerabilidade numérica a dano antes de registrar o dano resolvido; Pele dura, Frágil, Tenacidade anã e Corpo de pedra usam o escopo explícito `resistencia_dano` do pacote.
 - Dados animados têm descrições semânticas para TalkBack, sem revelar o resultado antes de o jogador revelar a rolagem.
 - Consumível de cura não é gasto se o recurso-alvo já estiver cheio; a validação acontece antes do lote atômico de cura/consumo/avanço de turno.
 - Se um endpoint rejeitar explicitamente o modo SSE (HTTP 400/422), o provedor tenta a resposta completa padrão para preservar compatibilidade.
