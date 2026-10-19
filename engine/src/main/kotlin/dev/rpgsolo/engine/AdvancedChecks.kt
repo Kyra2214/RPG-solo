@@ -94,8 +94,11 @@ fun GameEngine.checkOpposed(
     challenger: CheckSpec,
     defender: CheckSpec
 ): OpposedCheckResult = atomicAdvancedCheck {
-    val left = check(challenger.copy(label = "${challenger.label} [oposto]"))
-    val right = check(defender.copy(label = "${defender.label} [oposto]"))
+    val leftSpec = challenger.copy(label = "${challenger.label} [oposto]")
+    val rightSpec = defender.copy(label = "${defender.label} [oposto]")
+    // Cada lado aplica sua própria política de fortuna, sem misturar a rolagem descartada na disputa.
+    val left = checkWithFortune(leftSpec, leftSpec.fortuneMode).chosen
+    val right = checkWithFortune(rightSpec, rightSpec.fortuneMode).chosen
     // Margens de testes diferentes não são diretamente comparáveis: primeiro vence quem obteve o melhor resultado; em igualdade, compara-se a margem. Empate absoluto favorece o defensor.
     OpposedCheckResult(left, right, compareQuality(left, right) > 0)
 }
@@ -113,7 +116,8 @@ fun GameEngine.checkGroup(
         "sucessos necessários devem ficar entre 1 e o número de participantes"
     }
     val results = checks.mapIndexed { index, spec ->
-        check(spec.copy(label = "${spec.label} [grupo ${index + 1}]"))
+        val participantSpec = spec.copy(label = "${spec.label} [grupo ${index + 1}]")
+        checkWithFortune(participantSpec, participantSpec.fortuneMode).chosen
     }
     val successes = results.count { it.outcome == Outcome.SUCCESS || it.outcome == Outcome.CRITICAL_SUCCESS }
     val failures = results.size - successes
