@@ -103,12 +103,7 @@ class OpenAiCompatibleProvider(
         val usage = root["usage"]?.let { u ->
             val o = (u as? JsonObject) ?: return@let null
             val i = o.intAt("prompt_tokens"); val out = o.intAt("completion_tokens")
-            if (i != null && out != null) AiUsage(
-                i,
-                out,
-                o.intAt("cache_read_input_tokens") ?: 0,
-                o.intAt("cache_creation_input_tokens") ?: 0
-            ) else null
+            if (i != null && out != null) AiUsage(i, out) else null
         }
         return AiResponse(text, usage)
     }
@@ -238,7 +233,12 @@ class AnthropicProvider(
         if (text.isNullOrEmpty()) throw AiError.BadResponse("sem blocos de texto em content")
         val usage = (root["usage"] as? JsonObject)?.let { o ->
             val i = o.intAt("input_tokens"); val out = o.intAt("output_tokens")
-            if (i != null && out != null) AiUsage(i, out) else null
+            if (i != null && out != null) AiUsage(
+                i,
+                out,
+                o.intAt("cache_read_input_tokens") ?: 0,
+                o.intAt("cache_creation_input_tokens") ?: 0
+            ) else null
         }
         return AiResponse(text, usage)
     }
