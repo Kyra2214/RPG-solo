@@ -251,6 +251,11 @@ class PlayController(
     private fun showTurn(r: PlayResult.Played) {
         // Rolagem com tabela (ex.: d6 do dano) não tem dificuldade nem sucesso/falha: o cartão mostra só o dado.
         val plain = r.record.input.resolving is PendingRoll
+        // Mostra a rolagem descartada para transparência, mas deixa o resultado escolhido
+        // como a única rolagem efetiva usada pela narração e pelas consequências.
+        r.record.fortuneAlternatives.forEach { alternative ->
+            chat += ChatLine(Author.ROLL, "Não escolhido · " + rollText(alternative, plain), rollView(alternative, plain))
+        }
         r.record.check?.let { chat += ChatLine(Author.ROLL, rollText(it, plain), rollView(it, plain)) }
         chat += ChatLine(Author.MASTER, r.record.narrative)
     }
