@@ -205,6 +205,7 @@ fun GameState.openPromises(npcId: String? = null): List<Promise> =
 fun validateState(state: GameState): List<String> {
     val problems = mutableListOf<String>()
     for (e in state.entities.values) {
+        if (e.advancementPoints < 0) problems += "${e.id} com pontos de evolução negativos"
         for ((name, r) in e.resources) {
             if (r.current !in 0..r.max) problems += "${e.id}.$name fora do limite"
         }
