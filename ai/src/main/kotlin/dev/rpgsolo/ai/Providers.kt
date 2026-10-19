@@ -64,7 +64,6 @@ class OpenAiCompatibleProvider(
             request.temperature?.let { put("temperature", it) }
             if (request.jsonMode) put("response_format", buildJsonObject { put("type", "json_object") })
             put("stream", true)
-            put("stream_options", buildJsonObject { put("include_usage", true) })
         }.toString()
         val headers = mapOf("Content-Type" to "application/json", "Authorization" to "Bearer ${config.apiKey}") + config.extraHeaders
         val streamed = StringBuilder()
@@ -142,7 +141,7 @@ class AnthropicProvider(
     }
 
     override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse {
-        val system = request.messages.filter { it.role == Role.SYSTEM }.joinToString("\\n\\n") { it.content }
+        val system = request.messages.filter { it.role == Role.SYSTEM }.joinToString("\n\n") { it.content }
         val body = buildJsonObject {
             put("model", config.model); put("max_tokens", request.maxTokens); put("stream", true)
             if (system.isNotBlank()) put("system", system)
