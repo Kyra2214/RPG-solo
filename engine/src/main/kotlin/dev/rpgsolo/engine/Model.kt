@@ -24,6 +24,8 @@ data class Entity(
     val alive: Boolean = true,
     val xp: Int = 0,
     val level: Int = 1,
+    /** Pontos de evolução não gastos, concedidos pelo pacote ao subir de nível. */
+    val advancementPoints: Int = 0,
     /** Pontos por perícia; ids e limites vêm do pacote de regras. */
     val skills: Map<String, Int> = emptyMap(),
     /** Conceito e traços de NPCs são privados para a interface; usados pelo mestre e pelo motor. */
