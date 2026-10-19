@@ -63,6 +63,9 @@ data class InventoryView(
 )
 data class AdvancementChoice(val id: String, val name: String, val current: Int, val max: Int, val skill: Boolean)
 data class AdvancementState(val pointsAvailable: Int, val choices: List<AdvancementChoice>)
+data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val campaignReady: Boolean) {
+    val complete: Boolean get() = providerReady && heroReady && campaignReady
+}
 
 
 /**
@@ -1021,6 +1024,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
     fun savedSettings(): StoredProviderSettings? = storedSettings
+
+    /** Progresso real do primeiro uso, derivado do provedor, ficha ativa e campanha ativa. */
+    fun setupStatus(): SetupStatus = SetupStatus(
+        providerReady = controller != null && roles != null,
+        heroReady = activeFicha != null,
+        campaignReady = session.campaignId != "demo" && activeFicha != null
+    )
 
     /** Faz uma chamada mínima ao provedor informado, sem persistir a configuração nem tocar no jogo. */
     fun testConnection(
