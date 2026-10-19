@@ -41,6 +41,7 @@ fun ConfigScreen(model: AppModel) {
     var key by remember { mutableStateOf(stored?.apiKey.orEmpty()) }
     var cheapModel by remember { mutableStateOf(stored?.cheapModel.orEmpty()) }
     var premiumModel by remember { mutableStateOf(stored?.premiumModel.orEmpty()) }
+    var cacheSystemPrompt by remember { mutableStateOf(stored?.cacheSystemPrompt ?: (stored?.endpoint ?: endpoint).startsWith("https://api.anthropic.com/")) }
     var narrationLength by remember { mutableStateOf(model.narrationLength) }
     var narrationStyle by remember { mutableStateOf(model.narrationStyle) }
     var contentLines by remember { mutableStateOf(model.contentLines) }
@@ -65,6 +66,14 @@ fun ConfigScreen(model: AppModel) {
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
+        if (kind == ProviderKind.ANTHROPIC) {
+            FilterChip(
+                selected = cacheSystemPrompt,
+                onClick = { cacheSystemPrompt = !cacheSystemPrompt },
+                label = { Text(if (cacheSystemPrompt) "Cache de prompt ativado" else "Cache de prompt desativado") }
+            )
+            Muted("No endpoint oficial Anthropic, o cache reduz a repetição do prefixo system. Proxies compatíveis podem não suportar o recurso; desative se a conexão falhar.")
+        }
         Button(
             modifier = Modifier.fillMaxWidth(),
             enabled = !testing,
@@ -73,14 +82,14 @@ fun ConfigScreen(model: AppModel) {
                 testResult = null
                 scope.launch {
                     val result = withContext(Dispatchers.IO) {
-                        model.testConnection(kind, endpoint, modelName, key)
+                        model.testConnection(kind, endpoint, modelName, key, cacheSystemPrompt)
                     }
                     testResult = result
                     testing = false
                 }
             }
         ) { Text(if (testing) "Testando conexão…" else "Testar conexão") }
-        Button(modifier = Modifier.fillMaxWidth(), onClick = { saved = model.applySettings(kind, endpoint, modelName, key, cheapModel, premiumModel) }) { Text("Salvar e usar") }
+        Button(modifier = Modifier.fillMaxWidth(), onClick = { saved = model.applySettings(kind, endpoint, modelName, key, cheapModel, premiumModel, cacheSystemPrompt) }) { Text("Salvar e usar") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             model.forgetProvider()
             key = ""
