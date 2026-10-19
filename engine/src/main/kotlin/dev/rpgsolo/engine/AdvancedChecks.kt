@@ -53,7 +53,9 @@ fun GameEngine.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneChec
         FortuneMode.ADVANTAGE -> quality >= 0
         FortuneMode.DISADVANTAGE -> quality <= 0
     }
-    return FortuneCheckResult(mode, first, second, if (chooseFirst) first else second)
+    val selected = if (chooseFirst) first else second
+    val chosen = selected.copy(spec = selected.spec.copy(label = spec.label, fortuneMode = mode))
+    return FortuneCheckResult(mode, first, second, chosen)
 }
 
 /**
