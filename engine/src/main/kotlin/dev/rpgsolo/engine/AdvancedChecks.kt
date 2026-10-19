@@ -72,7 +72,8 @@ fun GameEngine.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneChec
             FortuneMode.DISADVANTAGE -> quality <= 0
         }
         val selected = if (chooseFirst) first else second
-        val chosen = selected.copy(spec = selected.spec.copy(label = spec.label, fortuneMode = mode))
+        val cleanLabel = selected.spec.label.replace(Regex(" \\[([12])\\](?= · d|$)"), "")
+        val chosen = selected.copy(spec = selected.spec.copy(label = cleanLabel, fortuneMode = mode))
         FortuneCheckResult(mode, first, second, chosen)
     }
 
