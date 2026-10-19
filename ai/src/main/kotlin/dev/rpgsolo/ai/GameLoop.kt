@@ -176,7 +176,7 @@ class GameLoop(
                 val option = pendingCheck.fortuneSpendOption
                     ?: return PlayResult.Failed("este teste não oferece gasto de recurso para fortuna")
                 when (val spent = session.checkWithFortuneSpendingResource(
-                    template.playerEntityId, option.resource, option.cost, pendingSpec, pendingSpec.fortuneMode
+                    template.playerEntityId, option.resource, option.cost, pendingSpec, option.mode
                 )) {
                     is dev.rpgsolo.engine.FortuneSpendResult.Rejected -> {
                         runCatching { session.rollbackTo(markBefore) }
