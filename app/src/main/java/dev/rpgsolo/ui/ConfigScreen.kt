@@ -12,6 +12,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,6 +95,17 @@ fun ConfigScreen(model: AppModel) {
             }
         }
         if (saved && model.configError == null) AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text("Provedor ativo. Chave: ${maskKey(key)}") }
+        AppCard {
+            Text("Acessibilidade", style = MaterialTheme.typography.titleSmall)
+            Text("Tamanho global da fonte: ${(model.fontScale * 100).toInt()}%")
+            Slider(
+                value = model.fontScale,
+                onValueChange = model::setFontScale,
+                valueRange = 0.85f..1.4f,
+                steps = 10
+            )
+            Muted("Ajuste o texto de toda a interface; a preferência fica salva no aparelho.")
+        }
         AppCard {
             Text("Preferências de geração", style = MaterialTheme.typography.titleSmall)
             Text("Extensão da narração")
