@@ -60,4 +60,13 @@ class AdvancedChecksTest {
         assertEquals(2, engine.events.count { it is RollRecorded })
     }
 
+    @Test fun invalidMemberRollsBackWholeGroupCheck() {
+        val engine = GameEngine(seed = 777L)
+        val invalid = spec("invalid").copy(diceSides = 1)
+        runCatching {
+            engine.checkGroup(listOf(spec("valid"), invalid), requiredSuccesses = 1)
+        }
+        assertEquals(0, engine.events.count { it is RollRecorded })
+    }
+
 }
