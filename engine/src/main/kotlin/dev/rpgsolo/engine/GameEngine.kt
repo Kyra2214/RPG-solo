@@ -47,6 +47,12 @@ class GameEngine private constructor(
 
     /** Rola o teste, registra no log e devolve o resultado definitivo. */
     fun check(original: CheckSpec): CheckResult {
+        if (original.fortuneMode != FortuneMode.NORMAL) {
+            return checkWithFortune(
+                original.copy(fortuneMode = FortuneMode.NORMAL),
+                original.fortuneMode
+            ).chosen
+        }
         val spec = original.resolvedPool()
         val roll = dice.roll(spec.diceCount, spec.diceSides, spec.modifier)
         val result = resolveCheck(spec, roll)
