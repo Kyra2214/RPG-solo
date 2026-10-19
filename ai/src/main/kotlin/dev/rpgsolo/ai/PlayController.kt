@@ -98,6 +98,10 @@ class PlayController(
     /** Teste ou rolagem que o mestre pediu e o jogador ainda não rolou. A tela mostra o botão de rolar enquanto houver um. */
     fun pending(): Pending? = loop.pending()
 
+    /** Opção paga, definida pelo pacote, para ativar vantagem/desvantagem no teste pendente. */
+    fun pendingFortuneSpendOption(): FortuneSpendOption? =
+        (loop.pending() as? PendingCheck)?.fortuneSpendOption
+
     /**
      * Quanto da ficha enviar agora (cada pedido à IA é independente):
      *  - fora de combate: resumo curto;
@@ -150,7 +154,7 @@ class PlayController(
     }
 
     /** O jogador rola o teste pedido pelo mestre: o motor rola e o mestre narra o desfecho. Chamada de rede. */
-    fun rollPending(onNarrativeChunk: (String) -> Unit = {}): PlayResult {
+    fun rollPending(useFortuneResource: Boolean = false, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         val pending = loop.pending() ?: return PlayResult.Failed("não há teste pendente")
         val start = chat.size
         val sheetNow = sheetNow()
@@ -167,6 +171,7 @@ class PlayController(
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
             ),
+            useFortuneResource = useFortuneResource,
             onNarrativeChunk = onNarrativeChunk
         )
         when (result) {
