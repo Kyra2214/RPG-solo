@@ -8,8 +8,15 @@ class AdvancedChecksTest {
     private fun spec(label: String, difficulty: Int = 10) =
         CheckSpec(label, diceCount = 1, diceSides = 20, difficulty = difficulty)
 
-    private fun compareQuality(a: CheckResult, b: CheckResult): Int =
-        a.outcome.ordinal.compareTo(b.outcome.ordinal).takeIf { it != 0 } ?: a.margin.compareTo(b.margin)
+    private fun compareQuality(a: CheckResult, b: CheckResult): Int {
+        val outcome = a.outcome.ordinal.compareTo(b.outcome.ordinal)
+        if (outcome != 0) return outcome
+        val sameScale = a.spec.comparison == b.spec.comparison &&
+            a.spec.diceCount == b.spec.diceCount &&
+            a.spec.diceSides == b.spec.diceSides &&
+            a.spec.difficulty == b.spec.difficulty
+        return if (sameScale) a.margin.compareTo(b.margin) else 0
+    }
 
     @Test fun advantageSelectsBestAndRecordsBothRolls() {
         val engine = GameEngine(seed = 123L)
@@ -41,6 +48,17 @@ class AdvancedChecksTest {
         )
         val expected = compareQuality(result.challenger, result.defender) > 0
         assertEquals(expected, result.challengerWins)
+    }
+
+    @Test fun opposedDifferentDifficultiesDoNotCompareIncompatibleMargins() {
+        val engine = GameEngine(seed = 19L)
+        val result = engine.checkOpposed(
+            spec("ladrao", difficulty = 1).copy(modifier = 20),
+            spec("guarda", difficulty = 2).copy(modifier = 20)
+        )
+        assertEquals(Outcome.SUCCESS, result.challenger.outcome)
+        assertEquals(Outcome.SUCCESS, result.defender.outcome)
+        assertEquals(false, result.challengerWins)
     }
 
     @Test fun groupUsesExplicitSuccessThreshold() {
