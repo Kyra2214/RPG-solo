@@ -73,6 +73,7 @@ object ProposalSchema {
         revive(entityId, reason) · record_fact(key, value) · learn(key, text, source, believed)
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
         change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments, publicClue opcional) · advance_clock(id, by)
+        Em create_clock, publicClue é opcional e só aparece ao jogador quando o relógio completa. Use apenas consequência/pista pública; nunca coloque nela o nome interno do relógio, a contagem ou segredo privado.
         propose_rule(id, name, description, effects, limit): adaptação explícita, nunca regra oficial; fica pendente até aprovação do jogador.
         add_place(id, name, description, secret) · connect_places(fromId, toId) · discover_place(id); não use move_to_place, pois só o jogador se desloca.
         Se ainda não houver local conhecido, crie o ponto inicial e descubra-o; segredos de local só são revelados pelo motor após teste apropriado.
