@@ -216,8 +216,8 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 
 ### 5.8 Acessibilidade e idioma (🟢, M)
 - Strings fixas em português dentro do código: mover para `strings.xml` (facilita revisão e eventual tradução).
-- TalkBack: descrever cada dado ("d8, resultado 7, acerta") e cada botão; áreas de toque mínimas; contraste do tema taverna conferido nos dois modos.
-- Tamanho de fonte ajustável e suporte a tablet/paisagem (hoje coluna única).
+- **Parcial no código:** dados têm descrição semântica para TalkBack, sem revelar o resultado antes da hora; a escala global da fonte (85%–140%) já é configurável e persistida. Ainda falta revisar cada botão, áreas de toque, contraste nos dois temas e a experiência completa com TalkBack.
+- Suporte a tablet/paisagem continua pendente (hoje a interface é majoritariamente coluna única).
 
 ---
 
