@@ -27,7 +27,7 @@ data class KeepPromise(val id: String) : Command
 /** 8.2.2: muda a relação de [fromId] com [toId] (quanto o primeiro gosta/confia no segundo), de -100 a 100. */
 data class ChangeRelation(val fromId: String, val toId: String, val delta: Int, val reason: String) : Command
 /** 8.2.3: relógio de agenda (ameaça ou plano de NPC) com [segments] casas. */
-data class CreateClock(val id: String, val name: String, val segments: Int) : Command
+data class CreateClock(val id: String, val name: String, val segments: Int, val publicClue: String = "") : Command
 data class AdvanceClock(val id: String, val by: Int = 1) : Command
 data class AddCondition(
     val entityId: String,
@@ -229,8 +229,9 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 return no("relógio exige id e nome dentro dos limites")
             }
             if (cmd.segments !in 2..12) return no("relógio precisa de 2 a 12 casas")
+            if (cmd.publicClue.length > 500) return no("pista pública excede 500 caracteres")
             if (state.clocks.containsKey(cmd.id)) return no("relógio já existe: ${cmd.id}")
-            return Decision.Ok(listOf(ClockCreated(cmd.id, cmd.name.trim(), cmd.segments)))
+            return Decision.Ok(listOf(ClockCreated(cmd.id, cmd.name.trim(), cmd.segments, cmd.publicClue.trim())))
         }
 
         is AdvanceClock -> {
