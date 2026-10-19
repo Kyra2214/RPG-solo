@@ -110,4 +110,24 @@ class AdvancedChecksTest {
         assertEquals(0, session.state.entities.getValue("hero").resources.getValue("pa").current)
     }
 
+    @Test fun fortuneResourceCannotBeSpentForNormalRoll() {
+        val session = CampaignSession.create(
+            InMemoryEventStore(),
+            CampaignRecord("normal-fortune", "Teste normal", 654L, EngineConfig())
+        )
+        session.execute(CreateEntity(Entity(
+            id = "hero",
+            name = "Herói",
+            kind = EntityKind.PLAYER,
+            resources = mapOf("pa" to Resource(2, 2))
+        )))
+        val before = session.engine.eventCount
+        val result = session.checkWithFortuneSpendingResource(
+            "hero", "pa", 1, spec("escalar"), FortuneMode.NORMAL
+        )
+        assertTrue(result is FortuneSpendResult.Rejected)
+        assertEquals(before, session.engine.eventCount)
+        assertEquals(2, session.state.entities.getValue("hero").resources.getValue("pa").current)
+    }
+
 }
