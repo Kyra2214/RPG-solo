@@ -17,6 +17,12 @@ data class ConsumeItem(val ownerId: String, val itemId: String, val qty: Int = 1
 data class EquipItem(val ownerId: String, val itemId: String, val slot: String) : Command
 data class UnequipItem(val ownerId: String, val slot: String) : Command
 data class GainXp(val entityId: String, val amount: Int) : Command
+/** Gasta pontos de evolução em aumentos de atributo/perícia autorizados pelo pacote. */
+data class AllocateAdvancement(
+    val entityId: String,
+    val statIncreases: Map<String, Int> = emptyMap(),
+    val skillIncreases: Map<String, Int> = emptyMap()
+) : Command
 /** Ressurreição exige justificativa explícita. */
 data class Revive(val entityId: String, val reason: String) : Command
 data class RecordFact(val key: String, val value: String) : Command
@@ -64,10 +70,19 @@ data class EngineConfig(
     /** XP total necessário para o nível 2, 3, 4... (crescente). Vazio = o sistema não sobe de nível por XP. */
     val levelThresholds: List<Int> = emptyList(),
     /** Bônus de defesa da ação Defend; 0 desativa a ação. */
-    val defendBonus: Int = 0
+    val defendBonus: Int = 0,
+    /** Pontos concedidos por cada nível novo, conforme declarado pelo pacote. */
+    val advancementPointsPerLevel: Int = 0,
+    /** Tetos de atributos e perícias do pacote, usados ao gastar pontos de evolução. */
+    val statCaps: Map<String, Int> = emptyMap(),
+    val skillCaps: Map<String, Int> = emptyMap()
 ) {
     init {
         require(defendBonus in 0..10) { "defendBonus deve ficar entre 0 e 10" }
+        require(advancementPointsPerLevel in 0..100) { "advancementPointsPerLevel deve ficar entre 0 e 100" }
+        require(statCaps.values.all { it >= 0 } && skillCaps.values.all { it in 0..100 }) {
+            "limites de evolução inválidos"
+        }
         require(levelThresholds.zipWithNext().all { (a, b) -> a < b } && levelThresholds.all { it > 0 }) {
             "levelThresholds deve ser positivo e estritamente crescente"
         }
@@ -171,8 +186,33 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.amount <= 0) return no("XP inválido")
             val events = mutableListOf<Event>(XpGained(ent.id, cmd.amount))
             val newLevel = config.levelFor(ent.xp + cmd.amount)
-            if (newLevel > ent.level) events += LevelGained(ent.id, newLevel)
+            if (newLevel > ent.level) {
+                val gainedLevels = newLevel - ent.level
+                events += LevelGained(ent.id, newLevel, gainedLevels * config.advancementPointsPerLevel)
+            }
             return Decision.Ok(events)
+        }
+
+        is AllocateAdvancement -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.statIncreases.isEmpty() && cmd.skillIncreases.isEmpty()) return no("escolha ao menos um aumento")
+            if (cmd.statIncreases.values.any { it <= 0 } || cmd.skillIncreases.values.any { it <= 0 }) {
+                return no("aumentos devem ser inteiros positivos")
+            }
+            for ((stat, increase) in cmd.statIncreases) {
+                val current = ent.stats[stat] ?: return no("atributo inexistente na ficha: $stat")
+                val cap = config.statCaps[stat] ?: return no("o pacote não define limite de evolução para o atributo: $stat")
+                if (current + increase > cap) return no("aumento ultrapassa o limite de $stat ($current/$cap)")
+            }
+            for ((skill, increase) in cmd.skillIncreases) {
+                val cap = config.skillCaps[skill] ?: return no("perícia não permitida pelo pacote: $skill")
+                val current = ent.skills[skill] ?: 0
+                if (current + increase > cap) return no("aumento ultrapassa o limite de $skill ($current/$cap)")
+            }
+            val cost = cmd.statIncreases.values.sum() + cmd.skillIncreases.values.sum()
+            if (cost > ent.advancementPoints) return no("pontos de evolução insuficientes: ${ent.advancementPoints}/$cost")
+            return Decision.Ok(listOf(AdvancementAllocated(ent.id, cmd.statIncreases, cmd.skillIncreases, cost)))
         }
 
         is Revive -> {
