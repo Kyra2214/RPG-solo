@@ -14,7 +14,7 @@ data class AiRequest(
 )
 
 data class AiUsage(
-    /** Tokens de entrada não servidos pelo cache, conforme o contador do provedor. */
+    /** Tokens de entrada fora dos campos separados de cache; provedores sem cache reportam tudo aqui. */
     val inputTokens: Int,
     val outputTokens: Int,
     val cacheReadInputTokens: Int = 0,
