@@ -1342,7 +1342,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 } else null
                 is dev.rpgsolo.engine.LevelGained -> if (event.entityId == playerId) {
                     val name = session.state.entities[event.entityId]?.name ?: event.entityId
-                    "$name alcançou o nível ${event.level}"
+                    "$name alcançou o nível ${event.level}" +
+                        if (event.pointsGranted > 0) " e recebeu ${event.pointsGranted} ponto(s) de evolução" else ""
                 } else null
                 else -> null
             }
