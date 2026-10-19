@@ -25,6 +25,12 @@ class DiceTest {
         assertTrue(a.dice.size <= 100 * 101)
     }
 
+    @Test fun explosoesAumentamTotalMasNaoAlteramSomaNaturalDosDadosIniciais() {
+        val result = RollResult("1d6!", listOf(6, 3), 0, initialDiceCount = 1)
+        assertEquals(9, result.total)
+        assertEquals(6, result.natural)
+    }
+
     @Test fun dadosNormaisNaoMudamAExpressao() {
         val result = Dice(42).roll(2, 6, 1)
         assertEquals("2d6+1", result.expression)
