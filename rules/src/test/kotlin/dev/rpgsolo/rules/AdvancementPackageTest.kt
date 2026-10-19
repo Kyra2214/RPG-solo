@@ -18,5 +18,6 @@ class AdvancementPackageTest {
         val config = pkg.engineConfig()
         assertEquals(2, config.advancementPointsPerLevel)
         assertTrue(config.statCaps.isNotEmpty())
+        assertEquals(config.statCaps.keys, config.statDefaults.keys)
     }
 }
