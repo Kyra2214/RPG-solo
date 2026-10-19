@@ -24,7 +24,7 @@ chance = faces_de_sucesso / lados
 
 ### Tabela de equilíbrio
 
-A tabela abaixo mostra a probabilidade exata. Os valores entre parênteses são a taxa observada pelo simulador com 100.000 rolagens por célula.
+A tabela abaixo mostra as probabilidades exatas. As taxas empíricas podem ser recalculadas pelo simulador com 100.000 rolagens por célula.
 
 | Pontos | Fácil (d4) | Média (d6) | Difícil (d8) | Heroica (d10) |
 |---:|---:|---:|---:|---:|
