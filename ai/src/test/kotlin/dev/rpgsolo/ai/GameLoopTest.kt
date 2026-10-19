@@ -65,6 +65,8 @@ class GameLoopTest {
         val result = loop.play(s, input.copy(check = spec)) as PlayResult.Played
 
         assertEquals(dev.rpgsolo.engine.FortuneMode.ADVANTAGE, result.record.check!!.spec.fortuneMode)
+        assertEquals(1, result.record.fortuneAlternatives.size)
+        assertTrue(result.record.fortuneAlternatives.single().spec.label.contains("["))
         assertEquals(2, result.record.markAfterRoll - result.record.markBefore)
         assertTrue(s.mark() >= result.record.markAfterRoll) // ambas as rolagens persistidas antes da narração
     }
