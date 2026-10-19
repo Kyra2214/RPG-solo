@@ -8,6 +8,8 @@ Análise completa do projeto `RPG-solo-ficha-para-ia.zip` (módulos `engine`, `r
 
 > **Atualização code-first — 19/10/2026:** streaming SSE foi conectado ao transporte, aos provedores OpenAI-compatible/Anthropic, ao loop de jogo e à prévia progressiva da narração na tela. A tela também ganhou descrições semânticas dos dados para TalkBack. Alguns bônus/penalidades numéricos explícitos em `tracos.txt` agora entram na mecânica. Isso não equivale a implementar todos os 513 traços: usos por cena, gatilhos ficcionais, imunidades e efeitos que dependem do contexto ainda precisam de modelo mecânico próprio. O streaming e as alterações Compose **não foram compilados nem executados**.
 
+> **Atualização code-first — continuação de 19/10/2026:** a branch agora inclui APIs do motor para vantagem/desvantagem, testes opostos e testes em grupo; vantagem/desvantagem pode ser declarada por pacote. Foi adicionada a linha do tempo derivada do log, com pistas públicas opcionais reveladas quando um relógio de agenda completa. A API Anthropic oficial usa `cache_control: ephemeral` para o prefixo de sistema. A progressão básica concede pontos por nível configurados em `pontos_por_nivel`, com alocação validada de atributo/perícia pela aba Campanhas. Foram escritos testes para esses fluxos, mas nenhum build, teste, lint, CI ou validação em rede foi executado nesta continuação.
+
 Legenda de esforço: **P** = até 1 dia · **M** = 2 a 5 dias · **G** = mais de 1 semana.
 Legenda de prioridade: 🔴 bloqueia ou corrompe · 🟠 muda a experiência de jogo · 🟡 melhora · 🟢 polimento.
 
