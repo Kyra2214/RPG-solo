@@ -17,6 +17,9 @@ import dev.rpgsolo.engine.RegraAdicional
  * [onSuccess] e [onFailure] são notas PRIVADAS do mestre: o que acontece em cada caso. Só a nota que
  * corresponde ao resultado volta para a IA, para o que estava escondido não vazar numa falha.
  */
+/** Opção de vantagem/desvantagem paga, definida pelo pacote e nunca escolhida pela IA. */
+data class FortuneSpendOption(val resource: String, val cost: Int)
+
 data class CheckRequest(
     val checkId: String,
     val difficultyId: String? = null,
@@ -57,7 +60,12 @@ sealed interface Pending {
     val spec: CheckSpec
 }
 
-data class PendingCheck(val request: CheckRequest, override val spec: CheckSpec, override val playerText: String) : Pending {
+data class PendingCheck(
+    val request: CheckRequest,
+    override val spec: CheckSpec,
+    override val playerText: String,
+    val fortuneSpendOption: FortuneSpendOption? = null
+) : Pending {
     override val label: String get() = spec.label
 }
 
@@ -75,6 +83,14 @@ class CheckMenu(private val pkg: RulePackage) {
 
     /** Recurso de saúde do pacote (o que mata ao chegar a 0). null = o sistema não tem. */
     fun healthResource(): String? = pkg.manifest.deathResource
+
+    /** Custo opcional por teste para o jogador escolher gastar recurso ao rolar com fortuna. */
+    fun fortuneSpendOption(checkId: String): FortuneSpendOption? {
+        val check = checks.firstOrNull { it.id == checkId } ?: return null
+        val resource = check.fortuneResource ?: return null
+        if (check.fortuneCost <= 0 || check.fortuneMode == dev.rpgsolo.engine.FortuneMode.NORMAL) return null
+        return FortuneSpendOption(resource, check.fortuneCost)
+    }
 
     /** Itens válidos no pacote ativo; a IA não pode inventar ids de inventário. */
     fun hasItem(itemId: String): Boolean = pkg.item(itemId) != null
