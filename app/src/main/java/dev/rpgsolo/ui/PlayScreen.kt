@@ -61,32 +61,56 @@ import kotlinx.coroutines.withContext
 /** Aba Jogar (10.1): chat com o mestre, rolagem animada de dados e painel rápido do personagem. */
 @Composable
 fun PlayScreen(model: AppModel, onNavigate: (Tab) -> Unit = {}) {
-    val c = model.controller
-    if (c == null) {
+    val setup = model.setupStatus()
+    if (!setup.complete) {
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
             AppCard {
                 Text("🎲", fontSize = 40.sp)
-                Text("A mesa ainda está vazia", style = MaterialTheme.typography.titleLarge)
-                Muted("Vamos preparar sua mesa. Configure o provedor, crie ou escolha um herói e depois descreva a campanha.")
+                Text("Preparar sua mesa", style = MaterialTheme.typography.titleLarge)
+                Muted("Complete as três etapas para começar uma campanha. O progresso acompanha sua configuração real.")
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Muted("1. Configure e teste o provedor de IA.")
-                    OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.fillMaxWidth()) {
-                        Text("1 · Configurar IA")
+                    if (setup.providerReady) {
+                        Muted("✓ 1. Provedor de IA configurado.")
+                    } else {
+                        Muted("1. Configure e teste o provedor de IA.")
+                        OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.fillMaxWidth()) {
+                            Text("1 · Configurar IA")
+                        }
                     }
-                    Muted("2. Crie ou escolha uma ficha de herói.")
-                    OutlinedButton(onClick = { onNavigate(Tab.PERSONAGENS) }, modifier = Modifier.fillMaxWidth()) {
-                        Text("2 · Criar ou escolher herói")
+                    if (setup.heroReady) {
+                        Muted("✓ 2. Herói selecionado.")
+                    } else {
+                        Muted("2. Crie ou escolha uma ficha de herói.")
+                        OutlinedButton(onClick = { onNavigate(Tab.PERSONAGENS) }, modifier = Modifier.fillMaxWidth()) {
+                            Text("2 · Criar ou escolher herói")
+                        }
                     }
-                    Muted("3. Descreva a aventura e comece a jogar.")
-                    Button(onClick = { onNavigate(Tab.CAMPANHAS) }, modifier = Modifier.fillMaxWidth()) {
-                        Text("3 · Criar campanha")
+                    if (setup.campaignReady) {
+                        Muted("✓ 3. Campanha criada.")
+                    } else {
+                        Muted("3. Descreva a aventura e inicie a campanha com o herói escolhido.")
+                        Button(onClick = { onNavigate(Tab.CAMPANHAS) }, modifier = Modifier.fillMaxWidth()) {
+                            Text("3 · Criar campanha")
+                        }
                     }
                 }
             }
         }
         return
     }
-    PlayContent(c, model, model.classifierWarning)
+    val c = model.controller
+    if (c == null) {
+        Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+            AppCard {
+                Text("Não foi possível iniciar o mestre", style = MaterialTheme.typography.titleLarge)
+                Muted(model.configError ?: "Confira o provedor e tente novamente na aba Config.")
+                OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Abrir Config")
+                }
+            }
+        }
+        return
+    }
 }
 
 @Composable
