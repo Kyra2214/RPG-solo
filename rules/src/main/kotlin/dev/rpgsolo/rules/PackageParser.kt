@@ -1,6 +1,7 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.Comparison
+import dev.rpgsolo.engine.FortuneMode
 import dev.rpgsolo.engine.REAL_DICE
 
 object PackageFiles {
@@ -188,7 +189,7 @@ object PackageParser {
             if (type !in TRAIT_TYPES) bad("tipo inválido: '$type' (${TRAIT_TYPES.joinToString()})")
             TraitDef(id(f[0], "id"), type, text(f[2], "nome"), int(f[3], "custo"), requirements(f[4]), f[5], traitBonuses(f.getOrNull(6)))
         }
-        val checks = table(PackageFiles.CHECKS, 10, 11) { f ->
+        val checks = table(PackageFiles.CHECKS, 10, 12) { f ->
             val cmp = Comparison.values().firstOrNull { it.name == f[6] }
                 ?: bad("comparacao inválida: '${f[6]}' (ROLL_OVER, ROLL_UNDER ou POINTS)")
             val count = int(f[2], "dados")
@@ -196,9 +197,13 @@ object PackageParser {
             if (count !in 1..100) bad("dados fora de 1..100")
             if (sides < 2) bad("lados menor que 2")
             if (cmp == Comparison.POINTS && (count != 1 || sides !in REAL_DICE)) bad("POINTS exige 1 dado real (dados=1, lados ${REAL_DICE.joinToString(", ")})")
+            val skill = f.getOrNull(10)?.takeIf { it.isNotBlank() && !blank(it) }?.let { id(it, "perícia") }
+            val fortune = f.getOrNull(11)?.takeIf { it.isNotBlank() && !blank(it) }?.let { value ->
+                FortuneMode.values().firstOrNull { it.name == value.uppercase() }
+                    ?: bad("política de rolagem inválida: '$value' (NORMAL, ADVANTAGE ou DISADVANTAGE)")
+            } ?: FortuneMode.NORMAL
             CheckDef(id(f[0], "id"), text(f[1], "nome"), count, sides, optId(f[4], "atributo"), int(f[5], "mult"),
-                cmp, optInt(f[7], "parcial"), range(f[8], "crit_sucesso"), range(f[9], "crit_falha"),
-                f.getOrNull(10)?.takeIf { it.isNotBlank() }?.let { id(it, "perícia") })
+                cmp, optInt(f[7], "parcial"), range(f[8], "crit_sucesso"), range(f[9], "crit_falha"), skill, fortune)
         }
         val difficulties = table(PackageFiles.DIFFICULTIES, 3) { f ->
             DifficultyDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "valor"))
