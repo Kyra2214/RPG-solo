@@ -15,11 +15,11 @@ A última validação documentada antes da branch atual foi em 17/10/2026, com J
 ## Funcionalidades implementadas no código
 
 - Seis áreas Compose: Jogar, Heróis, Regras, Campanhas, Sistemas e Configuração, com orientação de primeiro uso em três etapas.
-- Motor determinístico em Kotlin puro, com comandos/eventos, rolagens reproduzíveis, rollback, estado de conhecimento, mapa, relações, relógios e validação de backups.
+- Motor determinístico em Kotlin puro, com comandos/eventos, rolagens reproduzíveis, rollback, estado de conhecimento, mapa, relações, relógios com pista pública opcional ao completar e validação de backups.
 - Pacote de regras com criação de fichas, perícias de 0–5 pontos, perfis de dano, itens/equipamento, bônus mecânicos e condições com duração/efeitos por rodada.
 - Combate integrado à interface: iniciativa configurada pelo pacote, ataque, dano, defesa, fuga, turnos de NPC e XP; a IA não escolhe os números mecânicos.
 - Camada de IA com provedores configuráveis, teste de conexão, classificação de intenção, contexto, propostas validadas, sugestões e ações locais sem chamada de IA.
-- Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; ainda sem validação de uso em rede real. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas.
+- Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; ainda sem validação de uso em rede real. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas, incluindo acontecimentos de combate com participação do jogador.
 - Persistência via Room para campanhas, eventos, fichas e metadados; sessão principal mantida em `ViewModel`.
 - Chave do provedor protegida pelo Android Keystore e excluída do backup.
 - Backup JSON local com eventos/configuração do motor e metadados de capítulos, missões e linha do tempo, por seletor de arquivos Android (SAF) ou copiar/colar texto.
