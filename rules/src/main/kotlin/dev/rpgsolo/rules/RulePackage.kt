@@ -268,7 +268,7 @@ class RulePackage internal constructor(val data: PackageData) {
             label = c.name, diceCount = c.diceCount, diceSides = sides, modifier = base, difficulty = difficulty,
             comparison = c.comparison, partialMargin = c.partialMargin,
             criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure,
-            stat = c.stat, checkId = c.id, fortuneMode = c.fortuneMode
+            stat = c.stat, checkId = c.id, fortuneMode = c.fortuneMode, explodeOnMax = c.explodeOnMax
         )
     }
 
