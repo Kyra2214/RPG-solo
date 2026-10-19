@@ -20,6 +20,17 @@ class AdvancementPackageTest {
         assertTrue("recompensas devem apontar a recursos existentes: $installed", installed is InstallResult.Success)
     }
 
+    @Test fun packageRejectsLevelRewardForMissingResource() {
+        val root = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
+            .map(::File).first { it.exists() }
+        val files = root.listFiles()!!.filter { it.name.endsWith(".txt") }
+            .associate { it.name to it.readText() }.toMutableMap()
+        files["criacao.txt"] = files.getValue("criacao.txt").trimEnd() + "\nrecompensa_recurso|mana-inexistente=2\n"
+        val installed = PackageRegistry().install(files)
+        assertTrue("pacote deve ser rejeitado: $installed", installed is InstallResult.Failure)
+        assertTrue((installed as InstallResult.Failure).errors.any { "recurso inexistente" in it })
+    }
+
     @Test fun packageControlsPointBudgetAndCaps() {
         val root = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
             .map(::File).first { it.exists() }
