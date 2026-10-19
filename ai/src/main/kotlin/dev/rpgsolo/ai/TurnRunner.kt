@@ -66,7 +66,7 @@ class TurnRunner(
                     val narrative = decoder.accept(chunk)
                     if (narrative.length > emitted.length) {
                         emitted = narrative
-                        onNarrativeChunk(narrative)
+                        runCatching { onNarrativeChunk(narrative) }
                     }
                 }
             } catch (e: AiError) {
