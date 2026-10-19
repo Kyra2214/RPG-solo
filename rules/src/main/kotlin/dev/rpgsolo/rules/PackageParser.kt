@@ -238,6 +238,13 @@ object PackageParser {
         }
         val creationRows = table(PackageFiles.CREATION, 2) { f -> text(f[0], "chave") to f[1] }
         noDups(PackageFiles.CREATION, creationRows.map { it.first })
+        val creationMap = creationRows.toMap()
+        creationMap["pontos_por_nivel"]?.let { raw ->
+            val points = raw.toIntOrNull()
+            if (points == null || points !in 0..100) {
+                errors += "${PackageFiles.CREATION}: pontos_por_nivel deve ser inteiro de 0 a 100"
+            }
+        }
         val progressionRows = table(PackageFiles.PROGRESSION, 2) { f -> int(f[0], "nivel") to int(f[1], "xp") }
         var progression: List<Int>? = null
         if (files.containsKey(PackageFiles.PROGRESSION)) {
@@ -284,6 +291,6 @@ object PackageParser {
 
         if (errors.isNotEmpty()) return ParseResult.Fail(errors)
         return ParseResult.Ok(PackageData(manifest, stats, resources, traits, checks, difficulties, conditions, damage, items,
-            creationRows.toMap(), progression, uncertain, tutorial, examples, archetypes, archetypeOptions))
+            creationMap, progression, uncertain, tutorial, examples, archetypes, archetypeOptions))
     }
 }
