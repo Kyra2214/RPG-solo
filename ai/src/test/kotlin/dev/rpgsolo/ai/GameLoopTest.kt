@@ -71,6 +71,17 @@ class GameLoopTest {
         assertTrue(s.mark() >= result.record.markAfterRoll) // ambas as rolagens persistidas antes da narração
     }
 
+    @Test fun testeInvalidoFalhaSemDeixarRolagemNoLog() {
+        val s = session()
+        val before = s.mark()
+        val loop = GameLoop(ScriptedProvider(emptyList()))
+
+        val result = loop.play(s, input.copy(check = teste.copy(diceSides = 1)))
+
+        assertTrue(result is PlayResult.Failed)
+        assertEquals(before, s.mark())
+    }
+
     @Test fun falhaDesfazAteARolagem() {
         val s = session()
         val before = s.mark()
