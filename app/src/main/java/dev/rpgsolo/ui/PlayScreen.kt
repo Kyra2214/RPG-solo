@@ -111,6 +111,7 @@ fun PlayScreen(model: AppModel, onNavigate: (Tab) -> Unit = {}) {
         }
         return
     }
+    PlayContent(c, model, model.classifierWarning)
 }
 
 @Composable
