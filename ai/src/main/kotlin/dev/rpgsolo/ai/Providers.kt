@@ -103,7 +103,12 @@ class OpenAiCompatibleProvider(
         val usage = root["usage"]?.let { u ->
             val o = (u as? JsonObject) ?: return@let null
             val i = o.intAt("prompt_tokens"); val out = o.intAt("completion_tokens")
-            if (i != null && out != null) AiUsage(i, out) else null
+            if (i != null && out != null) AiUsage(
+                i,
+                out,
+                o.intAt("cache_read_input_tokens") ?: 0,
+                o.intAt("cache_creation_input_tokens") ?: 0
+            ) else null
         }
         return AiResponse(text, usage)
     }
@@ -178,22 +183,47 @@ class AnthropicProvider(
         val headers = mapOf("Content-Type" to "application/json", "Accept" to "text/event-stream", "x-api-key" to config.apiKey,
             "anthropic-version" to apiVersion) + config.extraHeaders
         val streamed = StringBuilder()
+        var inputTokens: Int? = null
+        var outputTokens: Int? = null
+        var cacheReadTokens = 0
+        var cacheCreationTokens = 0
         val reply = transport.postStream(config.endpoint, headers, body) { line ->
             val data = line.removePrefix("data:").trim()
             if (data.isNotEmpty() && data != "[DONE]") {
-                val delta = runCatching {
-                    val root = parseRoot(data)
-                    if (root["type"]?.jsonPrimitive?.contentOrNull == "content_block_delta")
-                        root["delta"]?.jsonObject?.get("text")?.jsonPrimitive?.contentOrNull else null
-                }.getOrNull()
-                if (!delta.isNullOrEmpty()) { streamed.append(delta); onChunk(delta) }
+                val root = runCatching { parseRoot(data) }.getOrNull()
+                if (root != null) {
+                    when (root["type"]?.jsonPrimitive?.contentOrNull) {
+                        "message_start" -> {
+                            val usage = (root["message"] as? JsonObject)?.get("usage") as? JsonObject
+                            inputTokens = usage?.intAt("input_tokens") ?: inputTokens
+                            cacheReadTokens = usage?.intAt("cache_read_input_tokens") ?: cacheReadTokens
+                            cacheCreationTokens = usage?.intAt("cache_creation_input_tokens") ?: cacheCreationTokens
+                            outputTokens = usage?.intAt("output_tokens") ?: outputTokens
+                        }
+                        "message_delta" -> {
+                            val usage = root["usage"] as? JsonObject
+                            outputTokens = usage?.intAt("output_tokens") ?: outputTokens
+                        }
+                        "content_block_delta" -> {
+                            val delta = runCatching {
+                                root["delta"]?.jsonObject?.get("text")?.jsonPrimitive?.contentOrNull
+                            }.getOrNull()
+                            if (!delta.isNullOrEmpty()) { streamed.append(delta); onChunk(delta) }
+                        }
+                    }
+                }
             }
         }
         if (reply.status == 400 || reply.status == 422) {
             return complete(request).also { onChunk(it.text) }
         }
         checkHttp(reply)
-        if (streamed.isNotEmpty()) return AiResponse(streamed.toString())
+        if (streamed.isNotEmpty()) {
+            val usage = if (inputTokens != null && outputTokens != null) {
+                AiUsage(inputTokens!!, outputTokens!!, cacheReadTokens, cacheCreationTokens)
+            } else null
+            return AiResponse(streamed.toString(), usage)
+        }
         return parseAnthropicResponse(reply).also { onChunk(it.text) }
     }
 
