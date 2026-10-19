@@ -159,7 +159,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 4.4.4 Regras adicionais ficam guardadas por campanha e marcadas na ficha com um selo
 - 4.4.5 Nunca importar mecânica de outro sistema sem declarar a adaptação
 
-**Status do código (18/10/2026):** o formato/validador de pacotes, herança, pacote próprio, importação ZIP pela interface Android e restauração dos pacotes importados estão ligados ao app. A importação limita arquivos a 20 MiB e tenta resolver dependências em ordem. Adaptações podem ser propostas, recusadas ou aprovadas; os efeitos aprovados entram nos testes/combate. 3D&T continua apenas como link de consulta por decisão de licença; PDF foi descartado. Pendente: revisar catálogo/conteúdo de cada sistema e validar importação real em aparelho.
+**Status do código (19/10/2026):** o formato/validador de pacotes, herança, pacote próprio, importação ZIP pela interface Android e restauração dos pacotes importados estão ligados ao app. A importação limita arquivos a 20 MiB e tenta resolver dependências em ordem. Adaptações podem ser propostas, recusadas ou aprovadas; os efeitos aprovados entram nos testes/combate. Alguns bônus e penalidades explícitos dos traços do pacote próprio também foram conectados aos testes ou ao combate. Isso **não** significa que todas as descrições dos traços (especialmente efeitos condicionais, usos por cena ou imunidades) sejam mecânicas. 3D&T continua apenas como link de consulta por decisão de licença; PDF foi descartado. Pendente: revisar catálogo/conteúdo de cada sistema e validar importação real em aparelho.
 
 **Atenção legal:** a maioria dos sistemas comerciais (3D&T, D&D, Vampire etc.) tem direitos autorais. O pacote deve conter mecânicas escritas por nós e/ou conteúdo que o usuário importe do próprio material. Não embutir texto oficial no app sem licença.
 
@@ -273,7 +273,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 6.4.3 Ações simples resolvidas sem IA (ver ficha, inventário, descansar)
 - 6.4.4 Cache do bloco fixo (regras + cenário), quando o provedor suportar
 
-**Status do código (18/10/2026):** os provedores compatíveis com OpenAI e Anthropic, configuração de endpoint/modelo, chave protegida pelo Android Keystore, teste de conexão, estimativa de tokens, classificação barata, roteamento de modelo e ações locais estão ligados ao app. A resposta estruturada é validada e propostas recusadas sofrem rollback. **Ainda não há streaming real do texto na tela nem cache de prompt fixo.** A escolha de um provedor gratuito padrão depende de confirmar limites atuais; não foi inventado um preset sem validação.
+**Status do código (19/10/2026):** os provedores compatíveis com OpenAI e Anthropic, configuração de endpoint/modelo, chave protegida pelo Android Keystore, teste de conexão, estimativa de tokens, classificação barata, roteamento de modelo e ações locais estão ligados ao app. O streaming SSE foi ligado no transporte, nos provedores, no loop de jogada e na tela, extraindo progressivamente apenas o campo `narrative` do JSON. A resposta estruturada continua validada e propostas recusadas sofrem rollback. **Cache de prompt fixo permanece pendente**, pois precisa de implementação específica por provedor e não deve ser simulado como cache real. A escolha de um provedor gratuito padrão depende de confirmar limites atuais; não foi inventado um preset sem validação. O streaming ainda não foi compilado nem validado em rede real.
 
 ---
 
@@ -306,7 +306,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 
 **Pronto quando:** uma sessão de 20 jogadas roda com o pacote de teste, e nenhuma resposta da IA consegue mudar um resultado de dado.
 
-**Status do código (18/10/2026):** o loop de jogo monta contexto da campanha, usa opções de teste do pacote ativo, envia resumo de capítulo e regras relevantes, valida propostas e desfaz alterações em caso de falha. O prompt proíbe a IA de decidir dados, dano ou segredos não liberados; há sugestões opcionais e controles de desfazer/refazer. **Pendente no código:** streaming real da resposta; o provedor hoje retorna o JSON completo antes de exibir a narração.
+**Status do código (19/10/2026):** o loop de jogo monta contexto da campanha, usa opções de teste do pacote ativo, envia resumo de capítulo e regras relevantes, valida propostas e desfaz alterações em caso de falha. O prompt proíbe a IA de decidir dados, dano ou segredos não liberados; há sugestões opcionais e controles de desfazer/refazer. O streaming progressivo do campo de narração está conectado ao fluxo da interface, mas continua pendente de validação em execução. Cache de prompt fixo não está implementado.
 
 ---
 
@@ -414,7 +414,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 10.6.3 Backup, exportar/importar, privacidade
 - 10.6.4 Uso estimado de tokens
 
-**Status do código (18/10/2026):** as seis abas têm telas funcionais; Jogar inclui painel, dados visuais, inventário/equipamento, locais, regras adicionais, combate e atalhos locais. Heróis inclui criação guiada e biblioteca; Campanhas inclui backups por arquivo/texto, capítulos, missões, diário, linha do tempo e evolução; Sistemas importa ZIP; Config inclui teste de conexão, chave segura, preferências de narração e limites de conteúdo. **Pendente:** streaming real, ajuste global de fonte, revisão TalkBack/contraste, primeiro uso guiado completo e custo monetário confiável.
+**Status do código (19/10/2026):** as seis abas têm telas funcionais; Jogar inclui painel, dados visuais, inventário/equipamento, locais, regras adicionais, combate, atalhos locais e prévia de narração progressiva. Os dados incluem descrições semânticas para TalkBack, sem revelar faces antes da revelação. Heróis inclui criação guiada e biblioteca; Campanhas inclui backups por arquivo/texto, capítulos, missões, diário, linha do tempo e evolução; Sistemas importa ZIP; Config inclui teste de conexão, chave segura, preferências de narração e limites de conteúdo. **Pendente:** validação do streaming em execução, ajuste global de fonte, revisão completa TalkBack/contraste, primeiro uso guiado completo e custo monetário confiável.
 
 ---
 
@@ -441,7 +441,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 11.3.2 Aviso de privacidade (o texto da jogada vai ao provedor de IA)
 - 11.3.3 APK de uso pessoal; versão pública só com chave do próprio usuário
 
-**Status do código (18/10/2026):** há cobertura automatizada já existente para o motor e os fluxos puros, mas **nenhum build, teste, lint ou CI foi executado nesta etapa**, conforme pedido. Backup Android, migrações Room instrumentadas, teste em aparelho/emulador, bateria completa de continuidade e entrega/assinatura do APK continuam como validações pendentes. A auditoria de código foi ampliada para conferir estado de backup, relações, relógios, condições, mapa e dossiês.
+**Status do código (19/10/2026):** há cobertura automatizada já existente para o motor e os fluxos puros, mas **nenhum build, teste, lint ou CI foi executado nesta etapa**, conforme pedido. Backup Android, migrações Room instrumentadas, teste em aparelho/emulador, bateria completa de continuidade e entrega/assinatura do APK continuam como validações pendentes. A revisão estática e as correções code-first foram ampliadas para streaming SSE, integração do fluxo de narração, bônus de traços explícitos e descrições acessíveis dos dados.
 
 ---
 
