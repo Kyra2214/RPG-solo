@@ -67,7 +67,11 @@ data class CheckDef(
     /** Política opcional de rolagem; pacote antigo mantém NORMAL. */
     val fortuneMode: FortuneMode = FortuneMode.NORMAL,
     /** Explosão opcional: cada face máxima gera outro dado. */
-    val explodeOnMax: Boolean = false
+    val explodeOnMax: Boolean = false,
+    /** Recurso opcional que o jogador pode gastar para usar a política de fortuna. */
+    val fortuneResource: String? = null,
+    /** Custo positivo do recurso para ativar vantagem/desvantagem. */
+    val fortuneCost: Int = 0
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)
