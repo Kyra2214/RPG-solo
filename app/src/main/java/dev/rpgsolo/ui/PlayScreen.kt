@@ -68,12 +68,18 @@ fun PlayScreen(model: AppModel, onNavigate: (Tab) -> Unit = {}) {
                 Text("🎲", fontSize = 40.sp)
                 Text("A mesa ainda está vazia", style = MaterialTheme.typography.titleLarge)
                 Muted("Vamos preparar sua mesa. Configure o provedor, crie ou escolha um herói e depois descreva a campanha.")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.weight(1f)) {
-                        Text("Configurar IA")
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Muted("1. Configure e teste o provedor de IA.")
+                    OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.fillMaxWidth()) {
+                        Text("1 · Configurar IA")
                     }
-                    Button(onClick = { onNavigate(Tab.CAMPANHAS) }, modifier = Modifier.weight(1f)) {
-                        Text("Criar campanha")
+                    Muted("2. Crie ou escolha uma ficha de herói.")
+                    OutlinedButton(onClick = { onNavigate(Tab.PERSONAGENS) }, modifier = Modifier.fillMaxWidth()) {
+                        Text("2 · Criar ou escolher herói")
+                    }
+                    Muted("3. Descreva a aventura e comece a jogar.")
+                    Button(onClick = { onNavigate(Tab.CAMPANHAS) }, modifier = Modifier.fillMaxWidth()) {
+                        Text("3 · Criar campanha")
                     }
                 }
             }
