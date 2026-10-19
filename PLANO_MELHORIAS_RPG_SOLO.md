@@ -181,9 +181,9 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 - Teclado: ajustar `imePadding` e rolagem para a última mensagem ao abrir o teclado.
 
 ### 5.3 Primeiro uso e navegação (🟠, M)
-**Achado:** a primeira tela é "A mesa ainda está vazia"; o jogador precisa descobrir sozinho que deve ir à aba Config (provedor, endpoint, modelo, chave), depois à aba Campanhas (nova campanha), depois à aba Heróis. São 6 abas com emoji no lugar de ícones.
-**Melhoria:**
-- **Assistente de primeiro uso:** 1) escolher provedor (com presets de endpoint e modelo sugerido) e **testar a conexão**; 2) criar ou escolher herói; 3) descrever a campanha; 4) jogar.
+**Estado atualizado:** a tela "A mesa ainda está vazia" agora apresenta explicitamente os três primeiros passos — configurar/testar provedor, criar ou escolher herói e criar campanha — com botões diretos. Isso melhora a descoberta, mas ainda não é um assistente transacional que guarde o progresso de cada etapa.
+**Melhoria restante:**
+- Assistente completo com presets de endpoint/modelo, estado de conclusão por etapa e transição automática até Jogar.
 - Reduzir a barra para 4 destinos (Jogar, Herói, Diário/Campanhas, Mais) e mover Regras, Sistemas e Config para "Mais".
 - Ícones vetoriais no lugar de emoji; transições entre telas.
 
