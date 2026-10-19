@@ -77,6 +77,9 @@ class OpenAiCompatibleProvider(
                 if (!delta.isNullOrEmpty()) { streamed.append(delta); onChunk(delta) }
             }
         }
+        if (reply.status == 400 || reply.status == 422) {
+            return complete(request).also { onChunk(it.text) }
+        }
         checkHttp(reply)
         if (streamed.isNotEmpty()) {
             val usage = runCatching { parseRoot(reply.body.substringAfterLast("data:").trim()) }.getOrNull()
@@ -165,6 +168,9 @@ class AnthropicProvider(
                 }.getOrNull()
                 if (!delta.isNullOrEmpty()) { streamed.append(delta); onChunk(delta) }
             }
+        }
+        if (reply.status == 400 || reply.status == 422) {
+            return complete(request).also { onChunk(it.text) }
         }
         checkHttp(reply)
         if (streamed.isNotEmpty()) return AiResponse(streamed.toString())
