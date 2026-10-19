@@ -257,6 +257,11 @@ object PackageParser {
         val creationRows = table(PackageFiles.CREATION, 2) { f -> text(f[0], "chave") to f[1] }
         noDups(PackageFiles.CREATION, creationRows.map { it.first })
         val creationMap = creationRows.toMap()
+        try {
+            parseResourceRewards(creationMap["recompensa_recurso"])
+        } catch (e: IllegalArgumentException) {
+            errors += "${PackageFiles.CREATION}: ${e.message}"
+        }
         creationMap["pontos_por_nivel"]?.let { raw ->
             val points = raw.toIntOrNull()
             if (points == null || points !in 0..100) {
