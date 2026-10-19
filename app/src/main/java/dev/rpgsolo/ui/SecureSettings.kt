@@ -19,7 +19,11 @@ data class StoredProviderSettings(
     val cheapModel: String,
     val premiumModel: String,
     val apiKey: String,
-    val cacheSystemPrompt: Boolean = false
+    val cacheSystemPrompt: Boolean = false,
+    val inputPricePerMillion: Double = 0.0,
+    val outputPricePerMillion: Double = 0.0,
+    val cacheReadPricePerMillion: Double = 0.0,
+    val cacheCreationPricePerMillion: Double = 0.0
 )
 
 class SecureSettings(context: Context) {
@@ -41,7 +45,11 @@ class SecureSettings(context: Context) {
             cacheSystemPrompt = preferences.getBoolean(
                 "cache_system_prompt",
                 endpoint.startsWith("https://api.anthropic.com/")
-            )
+            ),
+            inputPricePerMillion = preferences.getString("price_input_per_million", "0")?.toDoubleOrNull() ?: 0.0,
+            outputPricePerMillion = preferences.getString("price_output_per_million", "0")?.toDoubleOrNull() ?: 0.0,
+            cacheReadPricePerMillion = preferences.getString("price_cache_read_per_million", "0")?.toDoubleOrNull() ?: 0.0,
+            cacheCreationPricePerMillion = preferences.getString("price_cache_creation_per_million", "0")?.toDoubleOrNull() ?: 0.0
         )
     }
 
@@ -53,6 +61,10 @@ class SecureSettings(context: Context) {
             .putString("cheap_model", settings.cheapModel)
             .putString("premium_model", settings.premiumModel)
             .putBoolean("cache_system_prompt", settings.cacheSystemPrompt)
+            .putString("price_input_per_million", settings.inputPricePerMillion.toString())
+            .putString("price_output_per_million", settings.outputPricePerMillion.toString())
+            .putString("price_cache_read_per_million", settings.cacheReadPricePerMillion.toString())
+            .putString("price_cache_creation_per_million", settings.cacheCreationPricePerMillion.toString())
             .putString("api_key", encrypt(settings.apiKey))
             .apply()
     }
