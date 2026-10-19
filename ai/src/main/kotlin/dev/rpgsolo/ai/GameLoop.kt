@@ -145,7 +145,12 @@ class GameLoop(
      * face sorteada (a IA não decide o número). Depois o mestre narra o desfecho com a nota privada do resultado.
      * [template] traz jogador, ficha e recurso de saúde. Falha desfaz tudo, inclusive a rolagem.
      */
-    fun resolvePending(session: CampaignSession, template: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
+    fun resolvePending(
+        session: CampaignSession,
+        template: PlayInput,
+        useFortuneResource: Boolean = false,
+        onNarrativeChunk: (String) -> Unit = {}
+    ): PlayResult {
         val pending = pending() ?: return PlayResult.Failed("não há teste pendente")
         val input = template.copy(text = pending.playerText, check = null, resolving = pending)
         val markBefore = session.mark()
@@ -162,7 +167,29 @@ class GameLoop(
             adjusted(pending.spec, session, template.playerEntityId, pending.request.skill)
         } else pending.spec
         val resolution = try {
-            resolveCheck(session, pendingSpec)
+            if (!useFortuneResource) {
+                resolveCheck(session, pendingSpec)
+            } else {
+                val pendingCheck = pending as? PendingCheck
+                    ?: return PlayResult.Failed("gasto de fortuna só pode ser usado em um teste")
+                val option = pendingCheck.fortuneSpendOption
+                    ?: return PlayResult.Failed("este teste não oferece gasto de recurso para fortuna")
+                when (val spent = session.checkWithFortuneSpendingResource(
+                    template.playerEntityId, option.resource, option.cost, pendingSpec, pendingSpec.fortuneMode
+                )) {
+                    is dev.rpgsolo.engine.FortuneSpendResult.Rejected -> {
+                        runCatching { session.rollbackTo(markBefore) }
+                        return PlayResult.Failed(spent.reason)
+                    }
+                    is dev.rpgsolo.engine.FortuneSpendResult.Resolved -> {
+                        val result = spent.result
+                        val unchosen = result.second?.let { second ->
+                            if (result.chosen.roll === result.first.roll) second else result.first
+                        }
+                        CheckResolution(result.chosen, listOfNotNull(unchosen))
+                    }
+                }
+            }
         } catch (e: Exception) {
             runCatching { session.rollbackTo(markBefore) }
             return PlayResult.Failed(e.message ?: "falha ao resolver o teste pendente")
@@ -310,7 +337,9 @@ class GameLoop(
                     }
                 }
                 val pending: Pending? = when {
-                    checkReq != null -> menu?.build(checkReq, stats, skills)?.let { PendingCheck(checkReq, it, baseText) }
+                    checkReq != null -> menu?.build(checkReq, stats, skills)?.let {
+                        PendingCheck(checkReq, it, baseText, menu.fortuneSpendOption(checkReq.checkId))
+                    }
                     rollReq != null -> menu?.let { PendingRoll(rollReq, it.buildRoll(rollReq), baseText) }
                     else -> null
                 }
