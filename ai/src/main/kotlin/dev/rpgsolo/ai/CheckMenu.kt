@@ -93,9 +93,10 @@ class CheckMenu(private val pkg: RulePackage) {
     fun fortuneSpendOption(checkId: String): FortuneSpendOption? {
         val check = checks.firstOrNull { it.id == checkId } ?: return null
         val resource = check.fortuneResource ?: return null
-        if (check.fortuneCost <= 0 || check.fortuneMode == dev.rpgsolo.engine.FortuneMode.NORMAL) return null
+        val paidMode = check.fortuneSpendMode ?: return null
+        if (check.fortuneCost <= 0 || paidMode == dev.rpgsolo.engine.FortuneMode.NORMAL) return null
         val resourceName = pkg.data.resources.firstOrNull { it.id == resource }?.name ?: resource
-        return FortuneSpendOption(resource, resourceName, check.fortuneCost, check.fortuneMode)
+        return FortuneSpendOption(resource, resourceName, check.fortuneCost, paidMode)
     }
 
     /** Itens válidos no pacote ativo; a IA não pode inventar ids de inventário. */
@@ -280,9 +281,10 @@ class CheckMenu(private val pkg: RulePackage) {
                         dev.rpgsolo.engine.FortuneMode.DISADVANTAGE -> " · desvantagem automática"
                     }
                     val exploding = if (c.explodeOnMax) " · dados explosivos" else ""
-                    val paid = if (c.fortuneResource != null && c.fortuneCost > 0) {
+                    val paid = if (c.fortuneResource != null && c.fortuneCost > 0 && c.fortuneSpendMode != null) {
                         val resourceName = pkg.data.resources.firstOrNull { it.id == c.fortuneResource }?.name ?: c.fortuneResource
-                        " · jogador pode gastar ${c.fortuneCost} ${resourceName} para ativar a política de fortuna"
+                        val modeName = if (c.fortuneSpendMode == dev.rpgsolo.engine.FortuneMode.ADVANTAGE) "vantagem" else "desvantagem"
+                        " · jogador pode gastar ${c.fortuneCost} ${resourceName} para ${modeName}"
                     } else ""
                     append("\n- ").append(c.id).append(": ").append(c.name).append(using)
                         .append(fortune).append(exploding).append(paid)
