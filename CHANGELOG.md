@@ -13,6 +13,7 @@
 ### Mecânica e acessibilidade
 - Alguns bônus e penalidades numéricos já explícitos em traços do pacote próprio agora são aplicados pelo motor (reflexos, frágil, mão pesada, graça feérica e desconfiança/emoção confusa).
 - Dados animados têm descrições semânticas para TalkBack, sem revelar o resultado antes de o jogador revelar a rolagem.
+- Preferência de escala global da fonte (85%–140%) adicionada à Configuração, persistida no aparelho e aplicada à interface via densidade Compose.
 
 ### Estado da validação
 - Essas alterações são somente de código e leitura estática. **Não foram executados builds, testes, lint ou CI**. Compatibilidade SSE por provedor, Compose e comportamento em aparelho continuam pendentes de validação do usuário.
