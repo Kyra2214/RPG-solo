@@ -62,6 +62,14 @@ data class Defend(val entityId: String) : Command
 object NextTurn : Command
 object EndCombat : Command
 
+/** Pré-requisitos tipados para evolução de uma perícia; independem do formato textual do pacote. */
+@Serializable
+data class AdvancementRequirement(
+    val minStats: Map<String, Int> = emptyMap(),
+    val requiredTraits: Set<String> = emptySet(),
+    val excludedTraits: Set<String> = emptySet()
+)
+
 /** Configurações vindas do pacote de regras. */
 @Serializable
 data class EngineConfig(
@@ -75,13 +83,18 @@ data class EngineConfig(
     val advancementPointsPerLevel: Int = 0,
     /** Tetos de atributos e perícias do pacote, usados ao gastar pontos de evolução. */
     val statCaps: Map<String, Int> = emptyMap(),
-    val skillCaps: Map<String, Int> = emptyMap()
+    val skillCaps: Map<String, Int> = emptyMap(),
+    val skillRequirements: Map<String, AdvancementRequirement> = emptyMap()
 ) {
     init {
         require(defendBonus in 0..10) { "defendBonus deve ficar entre 0 e 10" }
         require(advancementPointsPerLevel in 0..100) { "advancementPointsPerLevel deve ficar entre 0 e 100" }
         require(statCaps.values.all { it >= 0 } && skillCaps.values.all { it in 0..100 }) {
             "limites de evolução inválidos"
+        }
+        require(skillRequirements.keys.all { it in skillCaps } &&
+            skillRequirements.values.all { req -> req.minStats.values.all { it >= 0 } }) {
+            "pré-requisitos de evolução inválidos"
         }
         require(levelThresholds.zipWithNext().all { (a, b) -> a < b } && levelThresholds.all { it > 0 }) {
             "levelThresholds deve ser positivo e estritamente crescente"
@@ -213,6 +226,16 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 val cap = config.skillCaps[skill] ?: return no("perícia não permitida pelo pacote: $skill")
                 val current = ent.skills[skill] ?: 0
                 if (current > cap || increase > cap - current) return no("aumento ultrapassa o limite de $skill ($current/$cap)")
+                val requirements = config.skillRequirements[skill]
+                if (requirements != null) {
+                    for ((stat, minimum) in requirements.minStats) {
+                        if ((ent.stats[stat] ?: 0) < minimum) return no("perícia $skill exige $stat >= $minimum")
+                    }
+                    val missingTraits = requirements.requiredTraits - ent.traits.toSet()
+                    if (missingTraits.isNotEmpty()) return no("perícia $skill exige os traços: ${missingTraits.joinToString()}")
+                    val excluded = requirements.excludedTraits.intersect(ent.traits.toSet())
+                    if (excluded.isNotEmpty()) return no("perícia $skill não combina com: ${excluded.joinToString()}")
+                }
             }
             val costLong = cmd.statIncreases.values.sumOf { it.toLong() } +
                 cmd.skillIncreases.values.sumOf { it.toLong() }
