@@ -50,7 +50,7 @@ class AgendaProposalTest {
         assertTrue(automaticTimeline(s.engine.events, "hero", s.state).none {
             it.text.contains("luzes da cidade")
         })
-        s.execute(AdvanceClock("ameaça", 1))
+        s.execute(AdvanceClock("ameaca", 1))
         val timeline = automaticTimeline(s.engine.events, "hero", s.state)
         assertTrue(timeline.any { it.text == "As luzes da cidade se apagam." })
         assertFalse(timeline.any { it.text.contains("Plano oculto") || it.text.contains("ameaca") })
