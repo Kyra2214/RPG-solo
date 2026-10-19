@@ -127,6 +127,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     val suggestions = remember(version) { c.suggestions() }
     // Teste pedido pelo mestre no meio da história: o jogo espera o jogador rolar.
     val pendingCheck = remember(version) { c.pending()?.label }
+    val fortuneSpendOption = remember(version) { c.pendingFortuneSpendOption() }
     val listState = rememberLazyListState()
 
     val visible = lines.withIndex().filter { (i, l) ->
@@ -205,7 +206,8 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
 
         playError?.let { ErrorText(it) }
         BottomBar(
-            busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck, text = text,
+            busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck,
+            fortuneSpendLabel = fortuneSpendOption?.let { "${it.cost} ${it.resource}" }, text = text,
             onText = { text = it; playError = null },
             suggestions = suggestions, warning = classifierWarning,
             onSend = {
@@ -227,6 +229,16 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
             },
             onRollCheck = { run {
                 val result = c.rollPending { partial ->
+                    scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+                }
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    streamingText = ""
+                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                }
+                model.autoCloseChapterIfNeeded()
+            } },
+            onRollFortune = { run {
+                val result = c.rollPending(useFortuneResource = true) { partial ->
                     scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
                 }
                 withContext(kotlinx.coroutines.Dispatchers.Main) {
@@ -520,9 +532,9 @@ private fun Thinking() {
 
 @Composable
 private fun BottomBar(
-    busy: Boolean, pendingRoll: Boolean, pendingCheck: String?, text: String, onText: (String) -> Unit,
+    busy: Boolean, pendingRoll: Boolean, pendingCheck: String?, fortuneSpendLabel: String?, text: String, onText: (String) -> Unit,
     suggestions: List<String>, warning: String?,
-    onSend: () -> Unit, onRollCheck: () -> Unit, onUndo: () -> Unit, onRegenerate: () -> Unit
+    onSend: () -> Unit, onRollCheck: () -> Unit, onRollFortune: () -> Unit, onUndo: () -> Unit, onRegenerate: () -> Unit
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -532,6 +544,11 @@ private fun BottomBar(
             // O mestre pediu um teste: só resta rolar (ou desfazer). O motor rola e o mestre narra o desfecho.
             if (pendingCheck != null && !busy && !pendingRoll) {
                 Button(onClick = onRollCheck, modifier = Modifier.fillMaxWidth()) { Text("🎲 Rolar $pendingCheck") }
+                if (fortuneSpendLabel != null) {
+                    OutlinedButton(onClick = onRollFortune, modifier = Modifier.fillMaxWidth()) {
+                        Text("🎲 Usar $fortuneSpendLabel para fortuna")
+                    }
+                }
             }
             // 10.1.2: sugestões opcionais. Tocar só preenche o campo; o jogador pode editar ou ignorar.
             if (suggestions.isNotEmpty() && !busy && !pendingRoll) {
