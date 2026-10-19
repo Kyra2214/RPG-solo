@@ -19,6 +19,7 @@ A última validação documentada antes da branch atual foi em 17/10/2026, com J
 - Pacote de regras com criação de fichas, perícias de 0–5 pontos, perfis de dano, itens/equipamento, bônus mecânicos e condições com duração/efeitos por rodada.
 - Combate integrado à interface: iniciativa configurada pelo pacote, ataque, dano, defesa, fuga, turnos de NPC e XP; a IA não escolhe os números mecânicos.
 - Camada de IA com provedores configuráveis, teste de conexão, classificação de intenção, contexto, propostas validadas, sugestões e ações locais sem chamada de IA.
+- Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; ainda sem validação de uso em rede real. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas.
 - Persistência via Room para campanhas, eventos, fichas e metadados; sessão principal mantida em `ViewModel`.
 - Chave do provedor protegida pelo Android Keystore e excluída do backup.
 - Backup JSON local com eventos/configuração do motor e metadados de capítulos, missões e linha do tempo, por seletor de arquivos Android (SAF) ou copiar/colar texto.
@@ -60,7 +61,7 @@ Abra a pasta do repositório no Android Studio para executar o app em emulador o
 
 - Esta branch ainda precisa de compilação, testes unitários, validação visual em aparelho/emulador e teste instrumentado das migrações Room.
 - O streaming progressivo agora está ligado do transporte SSE até a interface; permanece sem validação de execução nesta etapa. Provedores compatíveis podem variar no suporte a SSE e JSON mode.
-- Permanecem melhorias de mecânica fora do fluxo principal: rolagens opostas/em grupo, vantagem/desvantagem, pontos de sorte, recompensas de evolução escolhidas pelo jogador e poderes/magias com efeitos tipados. Bônus numéricos de traços, incluindo resistência/vulnerabilidade a dano, só são aplicados quando o pacote declara um efeito explícito; descrições condicionais ainda não são gatilhos automáticos.
+- Permanecem melhorias de mecânica fora do fluxo principal: a API do motor para rolagens opostas/em grupo e vantagem/desvantagem foi adicionada, mas ainda não está configurada por pacote nem integrada às ações da interface. Pontos de sorte, recompensas de evolução escolhidas pelo jogador e poderes/magias com efeitos tipados seguem pendentes. Bônus numéricos de traços, incluindo resistência/vulnerabilidade a dano, só são aplicados quando o pacote declara um efeito explícito; descrições condicionais ainda não são gatilhos automáticos.
 - A escala global da fonte e descrições TalkBack dos dados foram implementadas no código; revisão completa de TalkBack, contraste e layout em aparelho ainda falta. Também faltam relatório de diagnóstico exportável e configuração comprovada de um provedor gratuito padrão.
 - O pacote próprio contém fórmulas e regras marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
 
