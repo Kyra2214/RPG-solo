@@ -9,7 +9,8 @@ class AdvancementTest {
         levelThresholds = listOf(10, 20),
         advancementPointsPerLevel = 2,
         statCaps = mapOf("forca" to 5),
-        skillCaps = mapOf("esquiva" to 5)
+        skillCaps = mapOf("esquiva" to 5),
+        skillRequirements = mapOf("esquiva" to AdvancementRequirement(minStats = mapOf("forca" to 2)))
     )
 
     @Test fun levelGrantsPointsAndPlayerAllocationIsPersisted() {
@@ -51,4 +52,21 @@ class AdvancementTest {
         assertEquals(5, engine.state.entities.getValue("hero").stats["forca"])
         assertEquals(3, engine.state.entities.getValue("hero").advancementPoints)
     }
+    @Test fun allocationRejectsSkillWhosePrerequisiteIsMissing() {
+        val engine = GameEngine(5L, config())
+        engine.execute(CreateEntity(Entity(
+            id = "hero",
+            name = "Herói",
+            kind = EntityKind.PLAYER,
+            stats = mapOf("forca" to 1),
+            skills = emptyMap(),
+            advancementPoints = 2
+        )))
+        val before = engine.events.size
+        val result = engine.execute(AllocateAdvancement("hero", skillIncreases = mapOf("esquiva" to 1)))
+        assertTrue(result is ExecResult.Rejected)
+        assertEquals(before, engine.events.size)
+        assertEquals(2, engine.state.entities.getValue("hero").advancementPoints)
+    }
+
 }
