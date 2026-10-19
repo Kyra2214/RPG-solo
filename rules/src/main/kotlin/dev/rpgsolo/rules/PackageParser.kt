@@ -189,7 +189,7 @@ object PackageParser {
             if (type !in TRAIT_TYPES) bad("tipo inválido: '$type' (${TRAIT_TYPES.joinToString()})")
             TraitDef(id(f[0], "id"), type, text(f[2], "nome"), int(f[3], "custo"), requirements(f[4]), f[5], traitBonuses(f.getOrNull(6)))
         }
-        val checks = table(PackageFiles.CHECKS, 10, 12) { f ->
+        val checks = table(PackageFiles.CHECKS, 10, 13) { f ->
             val cmp = Comparison.values().firstOrNull { it.name == f[6] }
                 ?: bad("comparacao inválida: '${f[6]}' (ROLL_OVER, ROLL_UNDER ou POINTS)")
             val count = int(f[2], "dados")
@@ -202,8 +202,15 @@ object PackageParser {
                 FortuneMode.values().firstOrNull { it.name == value.uppercase() }
                     ?: bad("política de rolagem inválida: '$value' (NORMAL, ADVANTAGE ou DISADVANTAGE)")
             } ?: FortuneMode.NORMAL
+            val explode = f.getOrNull(12)?.takeIf { it.isNotBlank() && !blank(it) }?.let { value ->
+                when (value.lowercase()) {
+                    "true", "sim", "1" -> true
+                    "false", "nao", "não", "0" -> false
+                    else -> bad("explosão inválida: '$value' (true/false, sim/não ou 1/0)")
+                }
+            } ?: false
             CheckDef(id(f[0], "id"), text(f[1], "nome"), count, sides, optId(f[4], "atributo"), int(f[5], "mult"),
-                cmp, optInt(f[7], "parcial"), range(f[8], "crit_sucesso"), range(f[9], "crit_falha"), skill, fortune)
+                cmp, optInt(f[7], "parcial"), range(f[8], "crit_sucesso"), range(f[9], "crit_falha"), skill, fortune, explode)
         }
         val difficulties = table(PackageFiles.DIFFICULTIES, 3) { f ->
             DifficultyDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "valor"))
