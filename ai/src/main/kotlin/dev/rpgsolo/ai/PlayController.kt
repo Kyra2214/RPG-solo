@@ -114,7 +114,7 @@ class PlayController(
         return level to s.render(session.state, playerId, level)
     }
 
-    fun submit(text: String): PlayResult {
+    fun submit(text: String, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         if (text.isBlank()) return PlayResult.Failed("texto vazio")
         if (loop.pending() != null) return PlayResult.Failed("o mestre pediu uma rolagem: role-a antes de continuar")
         val start = chat.size
@@ -133,7 +133,8 @@ class PlayController(
                 generationPreferences = generationPreferences(),
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
-            )
+            ),
+            onNarrativeChunk = onNarrativeChunk
         )
         when (result) {
             is PlayResult.Played -> {
@@ -146,7 +147,7 @@ class PlayController(
     }
 
     /** O jogador rola o teste pedido pelo mestre: o motor rola e o mestre narra o desfecho. Chamada de rede. */
-    fun rollPending(): PlayResult {
+    fun rollPending(onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         val pending = loop.pending() ?: return PlayResult.Failed("não há teste pendente")
         val start = chat.size
         val sheetNow = sheetNow()
@@ -162,7 +163,8 @@ class PlayController(
                 generationPreferences = generationPreferences(),
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
-            )
+            ),
+            onNarrativeChunk = onNarrativeChunk
         )
         when (result) {
             is PlayResult.Played -> {
