@@ -65,7 +65,7 @@ class OpenAiCompatibleProvider(
             if (request.jsonMode) put("response_format", buildJsonObject { put("type", "json_object") })
             put("stream", true)
         }.toString()
-        val headers = mapOf("Content-Type" to "application/json", "Authorization" to "Bearer ${config.apiKey}") + config.extraHeaders
+        val headers = mapOf("Content-Type" to "application/json", "Accept" to "text/event-stream", "Authorization" to "Bearer ${config.apiKey}") + config.extraHeaders
         val streamed = StringBuilder()
         val reply = transport.postStream(config.endpoint, headers, body) { line ->
             val data = line.removePrefix("data:").trim()
@@ -152,7 +152,7 @@ class AnthropicProvider(
                 }) }
             })
         }.toString()
-        val headers = mapOf("Content-Type" to "application/json", "x-api-key" to config.apiKey,
+        val headers = mapOf("Content-Type" to "application/json", "Accept" to "text/event-stream", "x-api-key" to config.apiKey,
             "anthropic-version" to apiVersion) + config.extraHeaders
         val streamed = StringBuilder()
         val reply = transport.postStream(config.endpoint, headers, body) { line ->
