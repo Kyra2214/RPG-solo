@@ -88,3 +88,11 @@
 - Fase 2 — perícias: validar ids, níveis de 0 a 5, pré-requisitos e orçamento total do pacote; impedir que uma campanha inicie com uma ficha inválida. A decisão sobre a diferença mecânica entre 0 e 1 ponto continua pendente.
 - Documentação: substituir estados históricos obsoletos do README e manter este changelog para registrar as entregas.
 - Verificação: `./gradlew test :app:assembleDebug` e os testes do módulo de regras passaram com JDK 17 e Android SDK 35. A execução em aparelho/emulador e os testes instrumentados de migração Room continuam necessários.
+
+## 2026-10-19 — fechamento code-first: motor, continuidade e cache
+
+- Motor: adicionada API para rolagens com vantagem/desvantagem, testes opostos e testes em grupo; as versões de `CampaignSession` salvam as rolagens no log persistente.
+- Continuidade: criada linha do tempo derivada dos eventos persistidos para descobertas, locais conhecidos, deslocamentos, XP/nível e condições do jogador. Segredos de NPC, relógios e alterações ocultas não são exibidos por essa projeção.
+- Interface: a aba Campanhas passou a mostrar a linha do tempo automática, separada das anotações manuais.
+- IA: a API oficial Anthropic recebe `cache_control: ephemeral` no prefixo de sistema por padrão; endpoints compatíveis não presumem suporte. O cache ainda precisa ser validado em rede real e pode ser desativado pela configuração.
+- Testes: adicionados casos unitários para essas APIs e para evitar exposição de dados privados na linha do tempo. **Não foram executados**, conforme a etapa code-first.
