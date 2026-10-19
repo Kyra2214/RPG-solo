@@ -170,7 +170,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             runCatching {
                 applySettings(
                     ProviderKind.valueOf(saved.kind), saved.endpoint, saved.model, saved.apiKey,
-                    saved.cheapModel, saved.premiumModel, saved.cacheSystemPrompt
+                    saved.cheapModel, saved.premiumModel, saved.cacheSystemPrompt,
+                    saved.inputPricePerMillion, saved.outputPricePerMillion,
+                    saved.cacheReadPricePerMillion, saved.cacheCreationPricePerMillion
                 )
             }
         }
@@ -983,10 +985,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun applySettings(
         kind: ProviderKind, endpoint: String, model: String, apiKey: String,
         cheapModel: String = "", premiumModel: String = "",
-        cacheSystemPrompt: Boolean = endpoint.trim().startsWith("https://api.anthropic.com/")
+        cacheSystemPrompt: Boolean = endpoint.trim().startsWith("https://api.anthropic.com/"),
+        inputPricePerMillion: Double = 0.0,
+        outputPricePerMillion: Double = 0.0,
+        cacheReadPricePerMillion: Double = inputPricePerMillion,
+        cacheCreationPricePerMillion: Double = inputPricePerMillion
     ): Boolean =
         try {
             require(apiKey.isNotBlank()) { "informe a chave de API" }
+            require(listOf(inputPricePerMillion, outputPricePerMillion, cacheReadPricePerMillion, cacheCreationPricePerMillion)
+                .all { it.isFinite() && it >= 0.0 }) { "preços por milhão devem ser números finitos e não negativos" }
             val r = ProviderFactory.buildRoles(
                 kind, ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim(), cacheSystemPrompt = cacheSystemPrompt), cheapModel, premiumModel, usage
             )
@@ -999,7 +1007,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 cheapModel = cheapModel.trim(),
                 premiumModel = premiumModel.trim(),
                 apiKey = apiKey.trim(),
-                cacheSystemPrompt = cacheSystemPrompt
+                cacheSystemPrompt = cacheSystemPrompt,
+                inputPricePerMillion = inputPricePerMillion,
+                outputPricePerMillion = outputPricePerMillion,
+                cacheReadPricePerMillion = cacheReadPricePerMillion,
+                cacheCreationPricePerMillion = cacheCreationPricePerMillion
             ).also(secureSettings::save)
             configError = null
             true
