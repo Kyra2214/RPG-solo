@@ -61,6 +61,8 @@ data class InventoryView(
     val id: String, val name: String, val quantity: Int, val kind: String,
     val slot: String?, val equipped: Boolean, val description: String
 )
+data class AdvancementChoice(val id: String, val name: String, val current: Int, val max: Int, val skill: Boolean)
+data class AdvancementState(val pointsAvailable: Int, val choices: List<AdvancementChoice>)
 
 
 /**
@@ -1299,6 +1301,33 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return when (val r = ChapterSummarizer(p).closeWithSummary(session, chapters, narrations)) {
             is ChapterSummarizer.Result.Closed -> { saveMetadata(); campaignVersion++; null }
             is ChapterSummarizer.Result.Failed -> r.reason
+        }
+    }
+
+    /** Estado de evolução com limites vindos do pacote ativo; nunca inventa opções para sistema sem pacote. */
+    fun advancementState(): AdvancementState {
+        val player = session.state.entities[playerId]
+            ?: return AdvancementState(0, emptyList())
+        val pkg = activePackage ?: return AdvancementState(player.advancementPoints, emptyList())
+        val stats = pkg.data.stats.map { stat ->
+            AdvancementChoice(stat.id, stat.name, player.stats[stat.id] ?: stat.default, stat.max, skill = false)
+        }
+        val skills = pkg.data.traits.filter { it.type == "pericia" }.map { skill ->
+            AdvancementChoice(skill.id, skill.name, player.skills[skill.id] ?: 0, 5, skill = true)
+        }
+        return AdvancementState(player.advancementPoints, stats + skills)
+    }
+
+    /** Gasta exatamente um ponto; motor valida saldo e teto antes de registrar qualquer alteração. */
+    fun increaseAdvancement(choiceId: String, skill: Boolean): String? {
+        val command = if (skill) {
+            dev.rpgsolo.engine.AllocateAdvancement(playerId, skillIncreases = mapOf(choiceId to 1))
+        } else {
+            dev.rpgsolo.engine.AllocateAdvancement(playerId, statIncreases = mapOf(choiceId to 1))
+        }
+        return when (val result = session.execute(command)) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
     }
 
