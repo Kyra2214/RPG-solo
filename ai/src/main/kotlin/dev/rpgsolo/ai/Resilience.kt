@@ -40,8 +40,24 @@ class RetryingProvider(
 
     override fun complete(request: AiRequest): AiResponse = retry { inner.complete(request) }
 
-    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse =
-        retry { inner.stream(request, onChunk) }
+    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse {
+        var attempt = 1
+        var emitted = false
+        while (true) {
+            try {
+                return inner.stream(request) { chunk ->
+                    emitted = true
+                    onChunk(chunk)
+                }
+            } catch (e: AiError) {
+                if (!e.retryable || emitted || attempt >= policy.maxAttempts) throw e
+                val serverWait = (e as? AiError.RateLimited)?.retryAfterMs
+                if (serverWait != null && serverWait > policy.maxDelayMs) throw e
+                sleeper.sleep(serverWait ?: policy.delayBefore(attempt))
+                attempt++
+            }
+        }
+    }
 
     private fun retry(operation: () -> AiResponse): AiResponse {
         var attempt = 1
