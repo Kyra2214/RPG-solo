@@ -412,6 +412,20 @@ object PackageValidator {
         d.checks.filter { it.stat != null && it.stat !in stats }.forEach { p += "teste ${it.id}: atributo inexistente ${it.stat}" }
         d.checks.filter { it.skill != null && d.traits.none { trait -> trait.id == it.skill && trait.type == "pericia" } }
             .forEach { p += "teste ${it.id}: perícia inexistente ou não classificada como perícia: ${it.skill}" }
+        d.checks.forEach { check ->
+            if (check.fortuneResource != null && d.resources.none { it.id == check.fortuneResource }) {
+                p += "teste ${check.id}: recurso de fortuna inexistente ${check.fortuneResource}"
+            }
+            if ((check.fortuneResource == null) != (check.fortuneCost == 0) || check.fortuneCost < 0) {
+                p += "teste ${check.id}: recurso e custo de fortuna inválidos"
+            }
+            if (check.fortuneResource != null && check.fortuneCost <= 0) {
+                p += "teste ${check.id}: custo de fortuna deve ser positivo"
+            }
+            if (check.fortuneResource != null && check.fortuneMode == dev.rpgsolo.engine.FortuneMode.NORMAL) {
+                p += "teste ${check.id}: custo de fortuna exige vantagem ou desvantagem"
+            }
+        }
         d.conditions.forEach { c -> c.effect?.stats?.filter { it !in stats }?.forEach { p += "condição ${c.id}: atributo inexistente no efeito $it" } }
         d.conditions.forEach { c ->
             if (c.durationRounds != null && c.durationRounds <= 0) p += "condição ${c.id}: duração deve ser positiva"
