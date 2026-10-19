@@ -91,8 +91,8 @@
 
 ## 2026-10-19 — fechamento code-first: motor, continuidade e cache
 
-- Motor/regras: adicionada API para rolagens com vantagem/desvantagem, testes opostos e testes em grupo; `testes.txt` agora aceita a coluna final opcional `NORMAL`, `ADVANTAGE` ou `DISADVANTAGE`, propagada por `RulePackage` até o motor. As versões de `CampaignSession` salvam as rolagens no log persistente.
-- Progressão: o pacote pode declarar `pontos_por_nivel`; o motor concede saldo ao subir de nível e valida aumentos de atributo/perícia contra os limites gravados na campanha. A aba Campanhas permite gastar um ponto por clique. O sistema próprio agora concede 1 ponto por nível.
+- Motor/regras: adicionada API para rolagens com vantagem/desvantagem, testes opostos e testes em grupo; `testes.txt` agora aceita a coluna final opcional `NORMAL`, `ADVANTAGE` ou `DISADVANTAGE`, propagada por `RulePackage` até o motor. As versões de `CampaignSession` salvam as rolagens no log persistente; rolagens compostas fazem rollback se uma especificação falhar no meio.
+- Progressão: o pacote pode declarar `pontos_por_nivel`; o motor concede saldo ao subir de nível e valida aumentos de atributo/perícia contra os limites gravados na campanha. A aba Campanhas permite gastar um ponto por clique. O motor valida pré-requisitos de perícia, teto e saldo sem aplicar alterações parciais. O sistema próprio agora concede 1 ponto por nível.
 - Continuidade: criada linha do tempo derivada dos eventos persistidos para descobertas, locais conhecidos, deslocamentos, XP/nível, condições do jogador e eventos de combate com participação do jogador. Segredos de NPC e alterações ocultas não são exibidos. Relógios aceitam `publicClue` opcional, revelada apenas quando o relógio completa, sem nome interno ou contagem.
 - Interface: a aba Campanhas passou a mostrar a linha do tempo automática, separada das anotações manuais.
 - IA: a API oficial Anthropic recebe `cache_control: ephemeral` no prefixo de sistema por padrão; endpoints compatíveis não presumem suporte. O cache ainda precisa ser validado em rede real e pode ser desativado pela configuração.
