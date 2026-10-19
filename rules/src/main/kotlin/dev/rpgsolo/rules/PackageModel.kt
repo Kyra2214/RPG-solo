@@ -88,7 +88,9 @@ data class CheckDef(
     /** Recurso opcional que o jogador pode gastar para usar a política de fortuna. */
     val fortuneResource: String? = null,
     /** Custo positivo do recurso para ativar vantagem/desvantagem. */
-    val fortuneCost: Int = 0
+    val fortuneCost: Int = 0,
+    /** Política ativada pelo gasto opcional; independente da política automática do teste. */
+    val fortuneSpendMode: FortuneMode? = null
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)
