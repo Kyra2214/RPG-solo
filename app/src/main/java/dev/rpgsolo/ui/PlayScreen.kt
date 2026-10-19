@@ -207,7 +207,13 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
         playError?.let { ErrorText(it) }
         BottomBar(
             busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck,
-            fortuneSpendLabel = fortuneSpendOption?.let { "${it.cost} ${it.resource}" }, text = text,
+            fortuneSpendLabel = fortuneSpendOption?.let {
+                "${it.cost} ${it.resourceName} para " + when (it.mode) {
+                    dev.rpgsolo.engine.FortuneMode.ADVANTAGE -> "vantagem"
+                    dev.rpgsolo.engine.FortuneMode.DISADVANTAGE -> "desvantagem"
+                    dev.rpgsolo.engine.FortuneMode.NORMAL -> "fortuna"
+                }
+            }, text = text,
             onText = { text = it; playError = null },
             suggestions = suggestions, warning = classifierWarning,
             onSend = {
@@ -546,7 +552,7 @@ private fun BottomBar(
                 Button(onClick = onRollCheck, modifier = Modifier.fillMaxWidth()) { Text("🎲 Rolar $pendingCheck") }
                 if (fortuneSpendLabel != null) {
                     OutlinedButton(onClick = onRollFortune, modifier = Modifier.fillMaxWidth()) {
-                        Text("🎲 Usar $fortuneSpendLabel para fortuna")
+                        Text("🎲 Gastar $fortuneSpendLabel")
                     }
                 }
             }
