@@ -69,6 +69,32 @@ class AdvancedChecksTest {
         assertEquals(0, engine.events.count { it is RollRecorded })
     }
 
+    @Test fun opposedChecksHonorEachParticipantsFortunePolicy() {
+        val engine = GameEngine(seed = 987L)
+        val result = engine.checkOpposed(
+            spec("ladrao").copy(fortuneMode = FortuneMode.ADVANTAGE),
+            spec("guarda").copy(fortuneMode = FortuneMode.DISADVANTAGE)
+        )
+        assertEquals(FortuneMode.ADVANTAGE, result.challenger.spec.fortuneMode)
+        assertEquals(FortuneMode.DISADVANTAGE, result.defender.spec.fortuneMode)
+        assertEquals(4, engine.events.count { it is RollRecorded })
+    }
+
+    @Test fun groupChecksHonorFortunePolicyPerParticipant() {
+        val engine = GameEngine(seed = 654L)
+        val result = engine.checkGroup(
+            listOf(
+                spec("vigia-1").copy(fortuneMode = FortuneMode.ADVANTAGE),
+                spec("vigia-2").copy(fortuneMode = FortuneMode.DISADVANTAGE)
+            ),
+            requiredSuccesses = 1
+        )
+        assertEquals(2, result.individual.size)
+        assertEquals(FortuneMode.ADVANTAGE, result.individual[0].spec.fortuneMode)
+        assertEquals(FortuneMode.DISADVANTAGE, result.individual[1].spec.fortuneMode)
+        assertEquals(4, engine.events.count { it is RollRecorded })
+    }
+
     @Test fun fortuneCheckSpendsResourceAndPersistsRolls() {
         val store = InMemoryEventStore()
         val session = CampaignSession.create(
