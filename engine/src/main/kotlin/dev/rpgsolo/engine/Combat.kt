@@ -15,6 +15,8 @@ data class AttackSpec(
     val attackComparison: Comparison = Comparison.ROLL_OVER,
     val damageBonus: Int = 0,
     val defenseBonus: Int = 0,
+    /** Redução do dano recebido; valor negativo representa vulnerabilidade. */
+    val damageReduction: Int = 0,
     /** Se > 0, o dano é rolado pelo motor usando o dado definido no pacote. */
     val damageDiceCount: Int = 0,
     val damageDiceSides: Int = 0,
@@ -27,6 +29,7 @@ data class AttackSpec(
         require(defenseStat.isNotBlank()) { "atributo de defesa vazio" }
         require(damageResource.isNotBlank()) { "recurso de dano vazio" }
         require(damage >= 0) { "dano negativo" }
+        require(damageReduction in -100..100) { "resistência a dano fora de -100..100" }
         require(defenseDefault >= 0) { "defesa padrão negativa" }
         require(attackDiceCount in 1..100 && attackDiceSides >= 2) { "dados de ataque inválidos" }
         require(attackComparison != Comparison.POINTS || (attackDiceCount == 1 && attackDiceSides in REAL_DICE)) {
