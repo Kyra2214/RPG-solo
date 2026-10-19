@@ -76,6 +76,9 @@ fun automaticTimeline(
             is LevelGained -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você avançou para o nível ${event.level}.")
             } else null
+            is AdvancementAllocated -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você investiu pontos de evolução na ficha.")
+            } else null
             is ConditionAdded -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "condição", "Você sofreu a condição: ${event.condition}.")
             } else null
