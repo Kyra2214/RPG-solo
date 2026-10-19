@@ -83,6 +83,7 @@ data class EngineConfig(
     val advancementPointsPerLevel: Int = 0,
     /** Tetos de atributos e perícias do pacote, usados ao gastar pontos de evolução. */
     val statCaps: Map<String, Int> = emptyMap(),
+    val statDefaults: Map<String, Int> = emptyMap(),
     val skillCaps: Map<String, Int> = emptyMap(),
     val skillRequirements: Map<String, AdvancementRequirement> = emptyMap()
 ) {
@@ -91,6 +92,10 @@ data class EngineConfig(
         require(advancementPointsPerLevel in 0..100) { "advancementPointsPerLevel deve ficar entre 0 e 100" }
         require(statCaps.values.all { it >= 0 } && skillCaps.values.all { it in 0..100 }) {
             "limites de evolução inválidos"
+        }
+        require(statDefaults.keys.all { it in statCaps } &&
+            statDefaults.all { (id, value) -> value <= (statCaps[id] ?: Int.MIN_VALUE) }) {
+            "valores padrão de atributos inválidos para evolução"
         }
         require(skillRequirements.keys.all { it in skillCaps }) {
             "pré-requisitos de evolução inválidos"
@@ -217,11 +222,11 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 return no("aumentos devem ser inteiros positivos")
             }
             for ((stat, increase) in cmd.statIncreases) {
-                val current = ent.stats[stat] ?: return no("atributo inexistente na ficha: $stat")
+                val current = ent.stats[stat] ?: config.statDefaults[stat] ?: return no("atributo inexistente na ficha: $stat")
                 val cap = config.statCaps[stat] ?: return no("o pacote não define limite de evolução para o atributo: $stat")
                 if (current > cap || increase > cap - current) return no("aumento ultrapassa o limite de $stat ($current/$cap)")
             }
-            val projectedStats = ent.stats + cmd.statIncreases.mapValues { (key, increase) -> (ent.stats[key] ?: 0) + increase }
+            val projectedStats = ent.stats + cmd.statIncreases.mapValues { (key, increase) -> (ent.stats[key] ?: config.statDefaults[key] ?: 0) + increase }
             val projectedTraits = (ent.traits + cmd.skillIncreases.keys).distinct()
             for ((skill, increase) in cmd.skillIncreases) {
                 val cap = config.skillCaps[skill] ?: return no("perícia não permitida pelo pacote: $skill")
