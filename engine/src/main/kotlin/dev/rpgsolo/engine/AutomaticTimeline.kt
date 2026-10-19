@@ -23,6 +23,9 @@ fun automaticTimeline(
     var combatants = emptySet<String>()
     events.forEachIndexed { index, event ->
         val entry = when (event) {
+            is ClockAdvanced -> finalState.clocks[event.id]
+                ?.takeIf { event.filled >= it.segments && it.publicClue.isNotBlank() }
+                ?.let { AutomaticTimelineEntry(index, "pista", it.publicClue) }
             is CombatStarted -> {
                 combatants = event.order.toSet()
                 combatIncludesPlayer = playerId in combatants
