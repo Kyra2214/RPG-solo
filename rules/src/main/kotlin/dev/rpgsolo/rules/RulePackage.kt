@@ -94,7 +94,10 @@ class RulePackage internal constructor(val data: PackageData) {
         EngineConfig(
             deathResource = manifest.deathResource,
             levelThresholds = data.progression ?: emptyList(),
-            defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0
+            defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
+            advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
+            statCaps = data.stats.associate { it.id to it.max },
+            skillCaps = data.traits.filter { it.type == "pericia" }.associate { it.id to MAX_SKILL_POINTS }
         )
 
     /** Recursos derivados dos atributos (vida, mana...), cheios. */
