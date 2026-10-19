@@ -41,7 +41,14 @@ data class TurnRecord(
     val narrative: String,
     val suggestions: List<String> = emptyList(),
     /** Teste ou rolagem que o mestre pediu nesta jogada e que o jogador ainda não rolou. */
-    val pending: Pending? = null
+    val pending: Pending? = null,
+    /** Rolagens de vantagem/desvantagem não escolhidas; o resultado efetivo continua em [check]. */
+    val fortuneAlternatives: List<CheckResult> = emptyList()
+)
+
+private data class CheckResolution(
+    val chosen: CheckResult,
+    val alternatives: List<CheckResult> = emptyList()
 )
 
 sealed interface PlayResult {
@@ -73,9 +80,11 @@ class GameLoop(
 
     fun play(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         val markBefore = session.mark()
-        val check = input.check?.let { resolveCheck(session, adjusted(it, session, input.playerEntityId)) }
+        val resolution = input.check?.let { resolveCheck(session, adjusted(it, session, input.playerEntityId)) }
+        val check = resolution?.chosen
         val markAfterRoll = session.mark()
-        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk)
+        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
+            fortuneAlternatives = resolution?.alternatives.orEmpty())
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
@@ -83,11 +92,14 @@ class GameLoop(
      * Respeita a política de fortuna declarada pelo pacote no próprio CheckSpec.
      * O motor grava ambas as rolagens, mas apenas o resultado escolhido afeta o fluxo do jogo.
      */
-    private fun resolveCheck(session: CampaignSession, spec: CheckSpec): CheckResult =
+    private fun resolveCheck(session: CampaignSession, spec: CheckSpec): CheckResolution =
         if (spec.fortuneMode == dev.rpgsolo.engine.FortuneMode.NORMAL) {
-            session.check(spec)
+            CheckResolution(session.check(spec))
         } else {
-            session.checkWithFortune(spec, spec.fortuneMode).chosen
+            val result = session.checkWithFortune(spec, spec.fortuneMode)
+            // A alternativa fica disponível à interface, mas não é enviada como resultado efetivo à IA.
+            val unchosen = if (result.chosen.roll === result.first.roll) result.second else result.first
+            CheckResolution(result.chosen, listOfNotNull(unchosen))
         }
 
     private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null): CheckSpec {
@@ -143,7 +155,8 @@ class GameLoop(
         val pendingSpec = if (pending is PendingCheck) {
             adjusted(pending.spec, session, template.playerEntityId, pending.request.skill)
         } else pending.spec
-        val check = resolveCheck(session, pendingSpec)
+        val resolution = resolveCheck(session, pendingSpec)
+        val check = resolution.chosen
         if (pending is PendingCheck && pending.request.revealSecretId != null) {
             val npcId = pending.request.targetNpcId ?: run {
                 session.rollbackTo(markBefore)
@@ -205,7 +218,8 @@ class GameLoop(
             }
         }
         val markAfterRoll = session.mark()
-        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk)
+        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
+            fortuneAlternatives = resolution.alternatives)
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
@@ -222,7 +236,8 @@ class GameLoop(
         val last = history.lastOrNull() ?: return PlayResult.Failed("não há jogada para refazer")
         session.rollbackTo(last.markAfterRoll)
         narrations.removeLastOrNull()
-        return when (val r = narrate(session, last.input, last.check, last.markBefore, last.markAfterRoll, chainDepth(history.dropLast(1)))) {
+        return when (val r = narrate(session, last.input, last.check, last.markBefore, last.markAfterRoll, chainDepth(history.dropLast(1)),
+            fortuneAlternatives = last.fortuneAlternatives)) {
             is PlayResult.Played -> {
                 history[history.lastIndex] = r.record
                 r
@@ -239,7 +254,8 @@ class GameLoop(
 
     private fun narrate(
         session: CampaignSession, input: PlayInput, check: CheckResult?, markBefore: Int, markAfterRoll: Int, depth: Int,
-        onNarrativeChunk: (String) -> Unit = {}
+        onNarrativeChunk: (String) -> Unit = {},
+        fortuneAlternatives: List<CheckResult> = emptyList()
     ): PlayResult {
         val request = ContextAssembler.build(
             ContextInput(
@@ -287,7 +303,7 @@ class GameLoop(
                     rollReq != null -> menu?.let { PendingRoll(rollReq, it.buildRoll(rollReq), baseText) }
                     else -> null
                 }
-                PlayResult.Played(TurnRecord(input, markBefore, markAfterRoll, check, o.narrative, o.suggestions, pending))
+                PlayResult.Played(TurnRecord(input, markBefore, markAfterRoll, check, o.narrative, o.suggestions, pending, fortuneAlternatives))
             }
             is TurnOutcome.Refused -> fail(session, markBefore, o.reason, null)
             is TurnOutcome.Failed -> fail(session, markBefore, o.reason, o.error)
