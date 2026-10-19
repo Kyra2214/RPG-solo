@@ -147,6 +147,7 @@ fun GameState.apply(e: Event): GameState {
             copy(entities = entities + (e.entityId to current.copy(
                 stats = current.stats + e.statIncreases.mapValues { (key, increase) -> (current.stats[key] ?: 0) + increase },
                 skills = current.skills + e.skillIncreases.mapValues { (key, increase) -> (current.skills[key] ?: 0) + increase },
+                traits = (current.traits + e.skillIncreases.keys).distinct(),
                 advancementPoints = current.advancementPoints - e.pointsSpent
             )))
         }
