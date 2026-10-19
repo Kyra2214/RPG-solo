@@ -14,7 +14,7 @@ A última validação documentada antes da branch atual foi em 17/10/2026, com J
 
 ## Funcionalidades implementadas no código
 
-- Seis áreas Compose: Jogar, Heróis, Regras, Campanhas, Sistemas e Configuração, com atalhos de primeiro uso.
+- Seis áreas Compose: Jogar, Heróis, Regras, Campanhas, Sistemas e Configuração, com orientação de primeiro uso em três etapas.
 - Motor determinístico em Kotlin puro, com comandos/eventos, rolagens reproduzíveis, rollback, estado de conhecimento, mapa, relações, relógios e validação de backups.
 - Pacote de regras com criação de fichas, perícias de 0–5 pontos, perfis de dano, itens/equipamento, bônus mecânicos e condições com duração/efeitos por rodada.
 - Combate integrado à interface: iniciativa configurada pelo pacote, ataque, dano, defesa, fuga, turnos de NPC e XP; a IA não escolhe os números mecânicos.
