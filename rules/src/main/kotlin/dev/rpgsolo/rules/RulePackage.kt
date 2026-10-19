@@ -241,7 +241,8 @@ class RulePackage internal constructor(val data: PackageData) {
         return CheckSpec(
             label = c.name, diceCount = c.diceCount, diceSides = sides, modifier = base, difficulty = difficulty,
             comparison = c.comparison, partialMargin = c.partialMargin,
-            criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure, stat = c.stat, checkId = c.id
+            criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure,
+            stat = c.stat, checkId = c.id, fortuneMode = c.fortuneMode
         )
     }
 
