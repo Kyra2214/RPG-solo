@@ -18,7 +18,7 @@ A última validação documentada antes da branch atual foi em 17/10/2026, com J
 - Motor determinístico em Kotlin puro, com comandos/eventos, rolagens reproduzíveis, rollback, estado de conhecimento, mapa, relações, relógios com pista pública opcional ao completar e validação de backups.
 - Pacote de regras com criação de fichas, perícias de 0–5 pontos, perfis de dano, itens/equipamento, bônus mecânicos e condições com duração/efeitos por rodada.
 - Combate integrado à interface: iniciativa configurada pelo pacote, ataque, dano, defesa, fuga, turnos de NPC e XP; a IA não escolhe os números mecânicos.
-- Progressão básica por pacote: pontos por nível, alocação validada de atributos/perícias e histórico de XP/nível; o sistema próprio concede 1 ponto por nível.
+- Progressão básica por pacote: pontos por nível, alocação validada de atributos/perícias (incluindo pré-requisitos) e histórico de XP/nível; o sistema próprio concede 1 ponto por nível.
 - Camada de IA com provedores configuráveis, teste de conexão, classificação de intenção, contexto, propostas validadas, sugestões e ações locais sem chamada de IA.
 - Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; Config permite ativar/desativar o cache e mostra contagens de tokens lidos/criados; a estimativa aceita tarifas separadas. O uso real ainda não foi validado em rede. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas, incluindo acontecimentos de combate com participação do jogador.
 - Persistência via Room para campanhas, eventos, fichas e metadados; sessão principal mantida em `ViewModel`.
