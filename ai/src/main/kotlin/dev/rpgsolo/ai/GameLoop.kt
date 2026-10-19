@@ -73,11 +73,22 @@ class GameLoop(
 
     fun play(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         val markBefore = session.mark()
-        val check = input.check?.let { session.check(adjusted(it, session, input.playerEntityId)) }
+        val check = input.check?.let { resolveCheck(session, adjusted(it, session, input.playerEntityId)) }
         val markAfterRoll = session.mark()
         return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk)
             .also { if (it is PlayResult.Played) history += it.record }
     }
+
+    /**
+     * Respeita a política de fortuna declarada pelo pacote no próprio CheckSpec.
+     * O motor grava ambas as rolagens, mas apenas o resultado escolhido afeta o fluxo do jogo.
+     */
+    private fun resolveCheck(session: CampaignSession, spec: CheckSpec): CheckResult =
+        if (spec.fortuneMode == dev.rpgsolo.engine.FortuneMode.NORMAL) {
+            session.check(spec)
+        } else {
+            session.checkWithFortune(spec, spec.fortuneMode).chosen
+        }
 
     private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null): CheckSpec {
         val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), playerTraits(), skill) ?: spec
@@ -129,7 +140,10 @@ class GameLoop(
             }
         }
         // Teste do mestre leva Ganho/Perda das condições; rolagem com tabela (d6 de dano) nunca.
-        val check = session.check(if (pending is PendingCheck) adjusted(pending.spec, session, template.playerEntityId, pending.request.skill) else pending.spec)
+        val pendingSpec = if (pending is PendingCheck) {
+            adjusted(pending.spec, session, template.playerEntityId, pending.request.skill)
+        } else pending.spec
+        val check = resolveCheck(session, pendingSpec)
         if (pending is PendingCheck && pending.request.revealSecretId != null) {
             val npcId = pending.request.targetNpcId ?: run {
                 session.rollbackTo(markBefore)
