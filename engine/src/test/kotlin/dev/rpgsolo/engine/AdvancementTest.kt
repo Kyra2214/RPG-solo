@@ -29,6 +29,7 @@ class AdvancementTest {
         val evolved = session.state.entities.getValue("hero")
         assertEquals(3, evolved.stats["forca"])
         assertEquals(2, evolved.skills["esquiva"])
+        assertTrue("esquiva" in evolved.traits)
         assertEquals(0, evolved.advancementPoints)
 
         val reopened = CampaignSession.open(store, "adv")
