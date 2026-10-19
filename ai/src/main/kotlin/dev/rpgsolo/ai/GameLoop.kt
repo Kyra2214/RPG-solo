@@ -71,11 +71,11 @@ class GameLoop(
 
     val turns: List<TurnRecord> get() = history.toList()
 
-    fun play(session: CampaignSession, input: PlayInput): PlayResult {
+    fun play(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         val markBefore = session.mark()
         val check = input.check?.let { session.check(adjusted(it, session, input.playerEntityId)) }
         val markAfterRoll = session.mark()
-        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history))
+        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk)
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
@@ -116,7 +116,7 @@ class GameLoop(
      * face sorteada (a IA não decide o número). Depois o mestre narra o desfecho com a nota privada do resultado.
      * [template] traz jogador, ficha e recurso de saúde. Falha desfaz tudo, inclusive a rolagem.
      */
-    fun resolvePending(session: CampaignSession, template: PlayInput): PlayResult {
+    fun resolvePending(session: CampaignSession, template: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         val pending = pending() ?: return PlayResult.Failed("não há teste pendente")
         val input = template.copy(text = pending.playerText, check = null, resolving = pending)
         val markBefore = session.mark()
@@ -191,7 +191,7 @@ class GameLoop(
             }
         }
         val markAfterRoll = session.mark()
-        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history))
+        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk)
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
@@ -224,7 +224,8 @@ class GameLoop(
     }
 
     private fun narrate(
-        session: CampaignSession, input: PlayInput, check: CheckResult?, markBefore: Int, markAfterRoll: Int, depth: Int
+        session: CampaignSession, input: PlayInput, check: CheckResult?, markBefore: Int, markAfterRoll: Int, depth: Int,
+        onNarrativeChunk: (String) -> Unit = {}
     ): PlayResult {
         val request = ContextAssembler.build(
             ContextInput(
@@ -249,7 +250,8 @@ class GameLoop(
         val chosen = if (premiumRunner != null && Importance.of(check) == NarrationTier.PREMIUM) premiumRunner else runner
         // No máximo duas resoluções seguidas pedindo coisa nova: evita o mestre prender o jogador em pedidos.
         return when (val o = chosen.run(
-            session, request, menu, canRequest = depth < 2, playerEntityId = input.playerEntityId
+            session, request, menu, canRequest = depth < 2, playerEntityId = input.playerEntityId,
+            onNarrativeChunk = onNarrativeChunk
         )) {
             is TurnOutcome.Applied -> {
                 narrations += o.narrative
