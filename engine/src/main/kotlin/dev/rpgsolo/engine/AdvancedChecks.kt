@@ -41,12 +41,12 @@ private fun compareQuality(a: CheckResult, b: CheckResult): Int {
  * uma regra de situação validada pelo motor.
  */
 fun GameEngine.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneCheckResult {
-    val first = check(spec.copy(label = "${spec.label} [1]"))
+    val first = check(spec.copy(label = "${spec.label} [1]", fortuneMode = FortuneMode.NORMAL))
     if (mode == FortuneMode.NORMAL) {
         return FortuneCheckResult(mode, first, null, first)
     }
 
-    val second = check(spec.copy(label = "${spec.label} [2]"))
+    val second = check(spec.copy(label = "${spec.label} [2]", fortuneMode = FortuneMode.NORMAL))
     val quality = compareQuality(first, second)
     val chooseFirst = when (mode) {
         FortuneMode.NORMAL -> true
