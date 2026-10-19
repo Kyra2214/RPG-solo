@@ -1310,10 +1310,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             ?: return AdvancementState(0, emptyList())
         val pkg = activePackage ?: return AdvancementState(player.advancementPoints, emptyList())
         val stats = pkg.data.stats.map { stat ->
-            AdvancementChoice(stat.id, stat.name, player.stats[stat.id] ?: stat.default, stat.max, skill = false)
+            AdvancementChoice(stat.id, stat.name, player.stats[stat.id] ?: stat.default, session.engine.config.statCaps[stat.id] ?: stat.max, skill = false)
         }
         val skills = pkg.data.traits.filter { it.type == "pericia" }.map { skill ->
-            AdvancementChoice(skill.id, skill.name, player.skills[skill.id] ?: 0, 5, skill = true)
+            AdvancementChoice(skill.id, skill.name, player.skills[skill.id] ?: 0, session.engine.config.skillCaps[skill.id] ?: 0, skill = true)
         }
         return AdvancementState(player.advancementPoints, stats + skills)
     }
