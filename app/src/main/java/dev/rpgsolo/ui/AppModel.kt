@@ -1012,7 +1012,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Faz uma chamada mínima ao provedor informado, sem persistir a configuração nem tocar no jogo. */
     fun testConnection(
-        kind: ProviderKind, endpoint: String, model: String, apiKey: String
+        kind: ProviderKind, endpoint: String, model: String, apiKey: String,
+        cacheSystemPrompt: Boolean = endpoint.trim().startsWith("https://api.anthropic.com/")
     ): ConnectionTestResult = try {
         require(endpoint.trim().startsWith("http://") || endpoint.trim().startsWith("https://")) {
             "o endpoint deve começar com http:// ou https://"
@@ -1021,7 +1022,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         require(apiKey.isNotBlank()) { "informe a chave de API" }
         val provider = ProviderFactory.build(
             kind,
-            ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim()),
+            ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim(), cacheSystemPrompt = cacheSystemPrompt),
             usage = usage,
             maxRequestsPerMinute = 20
         )
