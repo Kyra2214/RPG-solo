@@ -70,8 +70,9 @@ class AdvancedChecksTest {
     }
 
     @Test fun fortuneCheckSpendsResourceAndPersistsRolls() {
+        val store = InMemoryEventStore()
         val session = CampaignSession.create(
-            InMemoryEventStore(),
+            store,
             CampaignRecord("fortune", "Sorte", 123L, EngineConfig())
         )
         session.execute(CreateEntity(Entity(
@@ -86,6 +87,9 @@ class AdvancedChecksTest {
         assertTrue(result is FortuneSpendResult.Resolved)
         assertEquals(1, session.state.entities.getValue("hero").resources.getValue("pa").current)
         assertEquals(2, session.engine.events.count { it is RollRecorded })
+        val reopened = CampaignSession.open(store, "fortune")
+        assertEquals(1, reopened.state.entities.getValue("hero").resources.getValue("pa").current)
+        assertEquals(2, reopened.engine.events.count { it is RollRecorded })
     }
 
     @Test fun fortuneCheckRejectsInsufficientResourceWithoutRolling() {
