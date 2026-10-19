@@ -458,6 +458,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(playerId), "defesa") +
                     approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
+                damageReduction = pkg.traitBonus(combatTraitIds(playerId), "resistencia_dano") +
+                    approvedRuleBonus("resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
@@ -728,6 +730,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(targetId), "defesa") +
                     approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
+                damageReduction = pkg.traitBonus(combatTraitIds(targetId), "resistencia_dano") +
+                    approvedRuleBonus("resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
