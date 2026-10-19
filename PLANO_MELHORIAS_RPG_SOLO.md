@@ -124,7 +124,7 @@ Fazer primeiro as ~40 vantagens e desvantagens dos arquétipos mais usados e dei
 
 ### 4.6 Regra de dados: ajustes finos (🟡, P a M)
 Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade):
-- **0 e 1 ponto dão a mesma chance** (só a face mais alta). Decidir se o primeiro ponto deve valer (por exemplo, 0 pontos = 0 faces, mas com a face máxima ainda acertando como "chance mínima").
+- **Resolvido no código (19/10):** zero pontos mantém a chance mínima de uma face; cada ponto positivo acrescenta uma face até o teto do dado. A fórmula e o simulador foram alinhados; a tabela empírica será recalculada durante a validação.
 - **Teto no d4:** 3 faces. Um talento +2 em teste fácil pode não mudar nada; mostrar isso na tela ("já no máximo neste dado").
 - **Sem parcial nem crítico no d6 por pontos.** Opções: face máxima natural = sucesso crítico; face 1 natural = falha com complicação.
 - **Vantagem/desvantagem de rolagem** (rolar 2 dados e ficar com o melhor/pior) como alternativa ao Ganho/Perda por pontos, para o mestre usar em situações.
@@ -293,7 +293,7 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 
 ## 10. Decisões que preciso de você
 
-1. **Primeiro ponto de perícia:** deve valer? (hoje 0 e 1 ponto dão a mesma chance.)
+1. **Primeiro ponto de perícia:** decisão aplicada no código: vale uma face adicional em relação a zero pontos. A validação deve confirmar se o equilíbrio em jogo fica bom.
 2. **Combate:** quer por turnos com botões (Atacar, Defender, Usar item…) ou mais narrativo, com a IA conduzindo e o motor só validando?
 3. **Morte:** permadeath, "caído com testes de sobrevivência" ou configurável por campanha?
 4. **Perícias:** manter os traços atuais (sim/não com +2) ou migrar para pontos por perícia (0 a 5), como você descreveu?
