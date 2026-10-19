@@ -78,7 +78,7 @@ fun PlayScreen(model: AppModel, onNavigate: (Tab) -> Unit = {}) {
                         }
                     }
                     if (setup.heroReady) {
-                        Muted("✓ 2. Herói selecionado.")
+                        Muted("✓ 2. Herói disponível na biblioteca.")
                     } else {
                         Muted("2. Crie ou escolha uma ficha de herói.")
                         OutlinedButton(onClick = { onNavigate(Tab.PERSONAGENS) }, modifier = Modifier.fillMaxWidth()) {
