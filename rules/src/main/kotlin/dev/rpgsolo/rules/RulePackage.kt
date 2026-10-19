@@ -111,6 +111,7 @@ class RulePackage internal constructor(val data: PackageData) {
             defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
             advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
             statCaps = data.stats.associate { it.id to it.max },
+            statDefaults = data.stats.associate { it.id to it.default },
             skillCaps = data.traits.filter { it.type == "pericia" }.associate { it.id to MAX_SKILL_POINTS },
             skillRequirements = data.traits.filter { it.type == "pericia" }.associate { skill ->
                 skill.id to AdvancementRequirement(
