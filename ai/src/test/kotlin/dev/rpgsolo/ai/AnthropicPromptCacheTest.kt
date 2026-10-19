@@ -14,7 +14,7 @@ class AnthropicPromptCacheTest {
         var body: String = ""
         override fun post(url: String, headers: Map<String, String>, body: String): HttpReply {
             this.body = body
-            return HttpReply(200, """{"content":[{"type":"text","text":"ok"}],"usage":{"input_tokens":10,"output_tokens":1}}""")
+            return HttpReply(200, """{"content":[{"type":"text","text":"ok"}],"usage":{"input_tokens":10,"output_tokens":1,"cache_read_input_tokens":5,"cache_creation_input_tokens":2}}""")
         }
     }
 
@@ -29,7 +29,9 @@ class AnthropicPromptCacheTest {
         val transport = CapturingTransport()
         val config = ProviderConfig("https://api.anthropic.com/v1/messages", "modelo", "secret")
         assertTrue(config.cacheSystemPrompt)
-        AnthropicProvider(config, transport).complete(request)
+        val response = AnthropicProvider(config, transport).complete(request)
+        assertEquals(5, response.usage?.cacheReadInputTokens)
+        assertEquals(2, response.usage?.cacheCreationInputTokens)
         val root = Json.parseToJsonElement(transport.body).jsonObject
         val system = root["system"]!!.jsonArray.single().jsonObject
         assertEquals("Prompt fixo do mestre", system["text"]!!.jsonPrimitive.content)
