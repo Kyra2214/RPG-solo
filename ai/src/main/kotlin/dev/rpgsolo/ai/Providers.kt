@@ -122,7 +122,17 @@ class AnthropicProvider(
         val body = buildJsonObject {
             put("model", config.model)
             put("max_tokens", request.maxTokens)
-            if (system.isNotBlank()) put("system", system)
+            if (system.isNotBlank()) {
+                if (config.cacheSystemPrompt) {
+                    put("system", buildJsonArray {
+                        add(buildJsonObject {
+                            put("type", "text")
+                            put("text", system)
+                            put("cache_control", buildJsonObject { put("type", "ephemeral") })
+                        })
+                    })
+                } else put("system", system)
+            }
             request.temperature?.let { put("temperature", it) }
             put("messages", buildJsonArray {
                 request.messages.filter { it.role != Role.SYSTEM }.forEach { m ->
@@ -147,7 +157,17 @@ class AnthropicProvider(
         val system = request.messages.filter { it.role == Role.SYSTEM }.joinToString("\n\n") { it.content }
         val body = buildJsonObject {
             put("model", config.model); put("max_tokens", request.maxTokens); put("stream", true)
-            if (system.isNotBlank()) put("system", system)
+            if (system.isNotBlank()) {
+                if (config.cacheSystemPrompt) {
+                    put("system", buildJsonArray {
+                        add(buildJsonObject {
+                            put("type", "text")
+                            put("text", system)
+                            put("cache_control", buildJsonObject { put("type", "ephemeral") })
+                        })
+                    })
+                } else put("system", system)
+            }
             request.temperature?.let { put("temperature", it) }
             put("messages", buildJsonArray {
                 request.messages.filter { it.role != Role.SYSTEM }.forEach { m -> add(buildJsonObject {
