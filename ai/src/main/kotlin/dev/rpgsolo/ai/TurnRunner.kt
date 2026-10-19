@@ -98,28 +98,29 @@ class TurnRunner(
         fun accept(chunk: String): String {
             raw.append(chunk)
             val source = raw.toString()
-            val key = source.indexOf("\\\"narrative\\\"")
+            val keyText = "\"narrative\""
+            val key = source.indexOf(keyText)
             if (key < 0) return ""
-            var i = key + "\\\"narrative\\\"".length
+            var i = key + keyText.length
             while (i < source.length && source[i].isWhitespace()) i++
             if (i >= source.length || source[i++] != ':') return ""
             while (i < source.length && source[i].isWhitespace()) i++
-            if (i >= source.length || source[i++] != '\\\"') return ""
+            if (i >= source.length || source[i++] != '"') return ""
             val out = StringBuilder()
             while (i < source.length) {
                 val ch = source[i++]
-                if (ch == '\\\"') break
-                if (ch != '\\\\') { out.append(ch); continue }
+                if (ch == '"') break
+                if (ch != '\\') { out.append(ch); continue }
                 if (i >= source.length) break
                 when (val esc = source[i++]) {
-                    '\\\"' -> out.append('\\\"')
-                    '\\\\' -> out.append('\\\\')
+                    '"' -> out.append('"')
+                    '\\' -> out.append('\\')
                     '/' -> out.append('/')
-                    'b' -> out.append('\\b')
-                    'f' -> out.append('\\u000c')
-                    'n' -> out.append('\\n')
-                    'r' -> out.append('\\r')
-                    't' -> out.append('\\t')
+                    'b' -> out.append('\b')
+                    'f' -> out.append('\u000c')
+                    'n' -> out.append('\n')
+                    'r' -> out.append('\r')
+                    't' -> out.append('\t')
                     'u' -> {
                         if (i + 4 > source.length) break
                         val code = source.substring(i, i + 4).toIntOrNull(16) ?: break
