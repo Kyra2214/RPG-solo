@@ -8,20 +8,21 @@ class AdvancedChecksTest {
     private fun spec(label: String, difficulty: Int = 10) =
         CheckSpec(label, diceCount = 1, diceSides = 20, difficulty = difficulty)
 
-    private fun score(result: CheckResult) = result.outcome.ordinal to result.margin
+    private fun compareQuality(a: CheckResult, b: CheckResult): Int =
+        a.outcome.ordinal.compareTo(b.outcome.ordinal).takeIf { it != 0 } ?: a.margin.compareTo(b.margin)
 
     @Test fun advantageSelectsBestAndRecordsBothRolls() {
         val engine = GameEngine(seed = 123L)
         val result = engine.checkWithFortune(spec("escalar"), FortuneMode.ADVANTAGE)
         assertEquals(2, listOf(result.first, result.second).filterNotNull().size)
-        assertTrue(score(result.chosen) >= score(requireNotNull(result.second)))
+        assertTrue(compareQuality(result.chosen, requireNotNull(result.second)) >= 0)
         assertEquals(2, engine.events.count { it is RollRecorded })
     }
 
     @Test fun disadvantageSelectsWorst() {
         val engine = GameEngine(seed = 456L)
         val result = engine.checkWithFortune(spec("furtividade"), FortuneMode.DISADVANTAGE)
-        assertTrue(score(result.chosen) <= score(requireNotNull(result.second)))
+        assertTrue(compareQuality(result.chosen, requireNotNull(result.second)) <= 0)
     }
 
     @Test fun normalRollsOnlyOnce() {
@@ -38,7 +39,7 @@ class AdvancedChecksTest {
             spec("arrombamento", difficulty = 10),
             spec("resistencia-da-fechadura", difficulty = 10)
         )
-        val expected = score(result.challenger) > score(result.defender)
+        val expected = compareQuality(result.challenger, result.defender) > 0
         assertEquals(expected, result.challengerWins)
     }
 
