@@ -80,6 +80,9 @@ class PlayController(
 
     val lines: List<ChatLine> get() = chat.toList()
 
+    /** Linha do tempo derivada do log persistido; segredos e estado privado de NPC não são incluídos. */
+    fun automaticTimeline() = dev.rpgsolo.engine.automaticTimeline(session.engine.events, playerId, session.state)
+
     fun isRollRevealed(index: Int): Boolean = index in revealedRolls
 
     /** Marca uma rolagem como vista depois que a animação visual terminou. */
