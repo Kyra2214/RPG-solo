@@ -124,21 +124,49 @@ class RateLimitedProvider(private val inner: AiProvider, private val limiter: Ra
 class UsageTracker {
     var calls = 0
         private set
+    /** Total de entrada, incluindo tokens lidos/criados no cache. */
     var inputTokens = 0L
         private set
     var outputTokens = 0L
         private set
+    var cacheReadInputTokens = 0L
+        private set
+    var cacheCreationInputTokens = 0L
+        private set
+    private var uncachedInputTokens = 0L
 
     @Synchronized
     fun record(usage: AiUsage?, request: AiRequest, response: AiResponse) {
         calls++
-        inputTokens += usage?.inputTokens ?: TokenEstimator.estimate(request)
+        if (usage == null) {
+            val estimated = TokenEstimator.estimate(request).toLong()
+            uncachedInputTokens += estimated
+            inputTokens += estimated
+        } else {
+            uncachedInputTokens += usage.inputTokens
+            cacheReadInputTokens += usage.cacheReadInputTokens
+            cacheCreationInputTokens += usage.cacheCreationInputTokens
+            inputTokens += usage.inputTokens.toLong() +
+                usage.cacheReadInputTokens.toLong() + usage.cacheCreationInputTokens.toLong()
+        }
         outputTokens += usage?.outputTokens ?: TokenEstimator.estimate(response.text)
     }
 
-    /** Custo estimado com preços por milhão de tokens informados pelo usuário (o app não embute preços). */
+    /** Estimativa conservadora: sem preços específicos, tokens em cache usam o preço normal de entrada. */
     fun estimateCost(inputPerMillion: Double, outputPerMillion: Double): Double =
-        inputTokens / 1_000_000.0 * inputPerMillion + outputTokens / 1_000_000.0 * outputPerMillion
+        estimateCost(inputPerMillion, outputPerMillion, inputPerMillion, inputPerMillion)
+
+    /** Preços por milhão informados pelo usuário; cache read e cache creation podem ter tarifas diferentes. */
+    fun estimateCost(
+        inputPerMillion: Double,
+        outputPerMillion: Double,
+        cacheReadPerMillion: Double,
+        cacheCreationPerMillion: Double
+    ): Double =
+        uncachedInputTokens / 1_000_000.0 * inputPerMillion +
+            cacheReadInputTokens / 1_000_000.0 * cacheReadPerMillion +
+            cacheCreationInputTokens / 1_000_000.0 * cacheCreationPerMillion +
+            outputTokens / 1_000_000.0 * outputPerMillion
 }
 
 class UsageTrackingProvider(private val inner: AiProvider, private val tracker: UsageTracker) : AiProvider {
