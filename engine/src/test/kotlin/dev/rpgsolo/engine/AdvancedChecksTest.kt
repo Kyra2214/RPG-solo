@@ -39,7 +39,7 @@ class AdvancedChecksTest {
             spec("arrombamento", difficulty = 10),
             spec("resistencia-da-fechadura", difficulty = 10)
         )
-        val expected = result.challenger.margin > result.defender.margin
+        val expected = compareQuality(result.challenger, result.defender) > 0
         assertEquals(expected, result.challengerWins)
     }
 
