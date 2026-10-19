@@ -434,8 +434,17 @@ object PackageValidator {
             if (check.fortuneResource != null && check.fortuneCost <= 0) {
                 p += "teste ${check.id}: custo de fortuna deve ser positivo"
             }
-            if (check.fortuneResource != null && check.fortuneMode == dev.rpgsolo.engine.FortuneMode.NORMAL) {
-                p += "teste ${check.id}: custo de fortuna exige vantagem ou desvantagem"
+            if (check.fortuneResource != null && check.fortuneSpendMode == null) {
+                p += "teste ${check.id}: custo de fortuna exige modo pago"
+            }
+            if (check.fortuneResource == null && check.fortuneSpendMode != null) {
+                p += "teste ${check.id}: modo pago exige recurso e custo de fortuna"
+            }
+            if (check.fortuneResource != null && check.fortuneMode != dev.rpgsolo.engine.FortuneMode.NORMAL) {
+                p += "teste ${check.id}: política automática conflita com fortuna paga"
+            }
+            if (check.fortuneSpendMode == dev.rpgsolo.engine.FortuneMode.NORMAL) {
+                p += "teste ${check.id}: modo de fortuna paga não pode ser NORMAL"
             }
         }
         d.conditions.forEach { c -> c.effect?.stats?.filter { it !in stats }?.forEach { p += "condição ${c.id}: atributo inexistente no efeito $it" } }
