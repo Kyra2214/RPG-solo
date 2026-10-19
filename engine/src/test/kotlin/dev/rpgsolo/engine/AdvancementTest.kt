@@ -30,6 +30,7 @@ class AdvancementTest {
         assertEquals(3, evolved.stats["forca"])
         assertEquals(2, evolved.skills["esquiva"])
         assertTrue("esquiva" in evolved.traits)
+        assertTrue(automaticTimeline(session.engine.events, "hero", session.state).any { it.text.contains("investiu pontos de evolução") })
         assertEquals(0, evolved.advancementPoints)
 
         val reopened = CampaignSession.open(store, "adv")
