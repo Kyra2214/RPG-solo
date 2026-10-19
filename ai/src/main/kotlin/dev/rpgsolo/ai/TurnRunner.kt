@@ -45,7 +45,14 @@ class TurnRunner(
     }
 
     /** [menu] = testes que o mestre pode pedir neste jogo (null = o mestre não pode pedir teste). */
-    fun run(session: CampaignSession, request: AiRequest, menu: CheckMenu? = null, canRequest: Boolean = true, playerEntityId: String? = null): TurnOutcome {
+    fun run(
+        session: CampaignSession,
+        request: AiRequest,
+        menu: CheckMenu? = null,
+        canRequest: Boolean = true,
+        playerEntityId: String? = null,
+        onNarrativeChunk: (String) -> Unit = {}
+    ): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
         var lastProblem = ""
@@ -53,7 +60,15 @@ class TurnRunner(
 
         for (i in 0..maxCorrections) {
             val response = try {
-                provider.complete(request.copy(messages = messages, jsonMode = true))
+                val decoder = NarrativeJsonStream()
+                var emitted = ""
+                provider.stream(request.copy(messages = messages, jsonMode = true)) { chunk ->
+                    val narrative = decoder.accept(chunk)
+                    if (narrative.length > emitted.length) {
+                        emitted = narrative
+                        onNarrativeChunk(narrative)
+                    }
+                }
             } catch (e: AiError) {
                 return TurnOutcome.Failed(e.message ?: "erro de IA", e)
             }
@@ -75,6 +90,46 @@ class TurnRunner(
         // Defesa extra: lote recusado não grava nada, mas garantimos o ponto de partida.
         if (session.engine.eventCount != mark) session.rollbackTo(mark)
         return if (lastFromEngine) TurnOutcome.Refused(lastProblem) else TurnOutcome.Failed(lastProblem)
+    }
+
+    /** Extrai incrementalmente apenas o campo narrative do JSON; nunca mostra o restante do payload. */
+    private class NarrativeJsonStream {
+        private val raw = StringBuilder()
+        fun accept(chunk: String): String {
+            raw.append(chunk)
+            val source = raw.toString()
+            val key = source.indexOf("\\\"narrative\\\"")
+            if (key < 0) return ""
+            var i = key + "\\\"narrative\\\"".length
+            while (i < source.length && source[i].isWhitespace()) i++
+            if (i >= source.length || source[i++] != ':') return ""
+            while (i < source.length && source[i].isWhitespace()) i++
+            if (i >= source.length || source[i++] != '\\\"') return ""
+            val out = StringBuilder()
+            while (i < source.length) {
+                val ch = source[i++]
+                if (ch == '\\\"') break
+                if (ch != '\\\\') { out.append(ch); continue }
+                if (i >= source.length) break
+                when (val esc = source[i++]) {
+                    '\\\"' -> out.append('\\\"')
+                    '\\\\' -> out.append('\\\\')
+                    '/' -> out.append('/')
+                    'b' -> out.append('\\b')
+                    'f' -> out.append('\\u000c')
+                    'n' -> out.append('\\n')
+                    'r' -> out.append('\\r')
+                    't' -> out.append('\\t')
+                    'u' -> {
+                        if (i + 4 > source.length) break
+                        val code = source.substring(i, i + 4).toIntOrNull(16) ?: break
+                        out.append(code.toChar()); i += 4
+                    }
+                    else -> out.append(esc)
+                }
+            }
+            return out.toString()
+        }
     }
 
     private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?): Attempt =
