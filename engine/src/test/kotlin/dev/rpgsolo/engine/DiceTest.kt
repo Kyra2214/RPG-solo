@@ -15,6 +15,22 @@ class DiceTest {
         repeat(500) { assertTrue(d.roll(2, 6).dice.all { it in 1..6 }) }
     }
 
+    @Test fun dadosExplosivosSaoDeterministicosERespeitamOLimite() {
+        val a = Dice(1).roll(100, 2, explodeOnMax = true)
+        val b = Dice(1).roll(100, 2, explodeOnMax = true)
+        assertEquals(a, b)
+        assertTrue(a.expression.contains("!"))
+        assertTrue(a.dice.size >= 100)
+        assertTrue(a.dice.all { it in 1..2 })
+        assertTrue(a.dice.size <= 100 * 101)
+    }
+
+    @Test fun dadosNormaisNaoMudamAExpressao() {
+        val result = Dice(42).roll(2, 6, 1)
+        assertEquals("2d6+1", result.expression)
+        assertEquals(2, result.dice.size)
+    }
+
     @Test fun totalSomaModificador() {
         assertEquals(12, RollResult("2d6+3", listOf(4, 5), 3).total)
     }
