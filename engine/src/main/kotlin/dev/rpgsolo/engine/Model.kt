@@ -105,13 +105,16 @@ data class Clock(
     val id: String,
     val name: String,
     val segments: Int,
-    val filled: Int = 0
+    val filled: Int = 0,
+    /** Pista pública opcional, revelada somente quando o relógio termina; nome e contagem seguem privados. */
+    val publicClue: String = ""
 ) {
     init {
         require(id.isNotBlank() && id.length <= 80) { "id de relógio inválido" }
         require(name.isNotBlank() && name.length <= 120) { "nome de relógio inválido" }
         require(segments in 2..12) { "relógio precisa de 2 a 12 casas" }
         require(filled in 0..segments) { "preenchimento de relógio fora dos limites" }
+        require(publicClue.length <= 500) { "pista pública excede 500 caracteres" }
     }
 
     val full: Boolean get() = filled >= segments
