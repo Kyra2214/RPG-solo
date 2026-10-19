@@ -42,6 +42,11 @@ fun ConfigScreen(model: AppModel) {
     var cheapModel by remember { mutableStateOf(stored?.cheapModel.orEmpty()) }
     var premiumModel by remember { mutableStateOf(stored?.premiumModel.orEmpty()) }
     var cacheSystemPrompt by remember { mutableStateOf(stored?.cacheSystemPrompt ?: (stored?.endpoint ?: endpoint).startsWith("https://api.anthropic.com/")) }
+    var inputPrice by remember { mutableStateOf(stored?.inputPricePerMillion?.takeIf { it > 0.0 }?.toString().orEmpty()) }
+    var outputPrice by remember { mutableStateOf(stored?.outputPricePerMillion?.takeIf { it > 0.0 }?.toString().orEmpty()) }
+    var cacheReadPrice by remember { mutableStateOf(stored?.cacheReadPricePerMillion?.takeIf { it > 0.0 }?.toString().orEmpty()) }
+    var cacheCreationPrice by remember { mutableStateOf(stored?.cacheCreationPricePerMillion?.takeIf { it > 0.0 }?.toString().orEmpty()) }
+    var priceError by remember { mutableStateOf<String?>(null) }
     var narrationLength by remember { mutableStateOf(model.narrationLength) }
     var narrationStyle by remember { mutableStateOf(model.narrationStyle) }
     var contentLines by remember { mutableStateOf(model.contentLines) }
@@ -89,7 +94,26 @@ fun ConfigScreen(model: AppModel) {
                 }
             }
         ) { Text(if (testing) "Testando conexão…" else "Testar conexão") }
-        Button(modifier = Modifier.fillMaxWidth(), onClick = { saved = model.applySettings(kind, endpoint, modelName, key, cheapModel, premiumModel, cacheSystemPrompt) }) { Text("Salvar e usar") }
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+            fun parsePrice(value: String): Double? =
+                if (value.isBlank()) null else value.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
+            val input = parsePrice(inputPrice)
+            val output = parsePrice(outputPrice)
+            val cacheRead = parsePrice(cacheReadPrice)
+            val cacheCreation = parsePrice(cacheCreationPrice)
+            if ((!inputPrice.isBlank() && input == null) || (!outputPrice.isBlank() && output == null) ||
+                (!cacheReadPrice.isBlank() && cacheRead == null) || (!cacheCreationPrice.isBlank() && cacheCreation == null)) {
+                priceError = "Use preços numéricos não negativos por milhão de tokens."
+                saved = false
+            } else {
+                priceError = null
+                val baseInput = input ?: 0.0
+                saved = model.applySettings(
+                    kind, endpoint, modelName, key, cheapModel, premiumModel, cacheSystemPrompt,
+                    baseInput, output ?: 0.0, cacheRead ?: baseInput, cacheCreation ?: baseInput
+                )
+            }
+        }) { Text("Salvar e usar") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             model.forgetProvider()
             key = ""
@@ -173,6 +197,20 @@ fun ConfigScreen(model: AppModel) {
                 maxLines = 5
             )
             Muted("Limites são enviados ao mestre a cada jogada e não alteram os resultados do motor nem as regras do sistema.")
+        }
+        AppCard {
+            Text("Preços do modelo", style = MaterialTheme.typography.titleSmall)
+            Muted("Informe o preço por 1 milhão de tokens conforme a tabela atual do provedor. Campos de cache vazios usam o preço normal de entrada para evitar estimativa zero.")
+            OutlinedTextField(inputPrice, { inputPrice = it }, Modifier.fillMaxWidth(), label = { Text("Entrada normal / 1M") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(outputPrice, { outputPrice = it }, Modifier.fillMaxWidth(), label = { Text("Saída / 1M") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(cacheReadPrice, { cacheReadPrice = it }, Modifier.fillMaxWidth(), label = { Text("Leitura de cache / 1M (opcional)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(cacheCreationPrice, { cacheCreationPrice = it }, Modifier.fillMaxWidth(), label = { Text("Criação de cache / 1M (opcional)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            priceError?.let { ErrorText(it) }
+            val input = inputPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: 0.0
+            val output = outputPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: 0.0
+            val cacheRead = cacheReadPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: input
+            val cacheCreation = cacheCreationPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: input
+            Text("Custo estimado nesta sessão: " + "%.6f".format(model.usage.estimateCost(input, output, cacheRead, cacheCreation)), style = MaterialTheme.typography.bodyMedium)
         }
         AppCard {
             Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
