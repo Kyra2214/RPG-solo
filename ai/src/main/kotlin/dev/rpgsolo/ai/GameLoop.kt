@@ -10,6 +10,7 @@ import dev.rpgsolo.engine.Damage
 import dev.rpgsolo.engine.ExecResult
 import dev.rpgsolo.engine.Reveal
 import dev.rpgsolo.engine.checkWithFortune
+import dev.rpgsolo.engine.checkWithFortuneSpendingResource
 
 data class PlayInput(
     val playerEntityId: String,
