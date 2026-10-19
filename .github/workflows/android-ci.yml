@@ -7,6 +7,10 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+concurrency:
+  group: android-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -30,14 +34,37 @@ jobs:
         run: ./gradlew test --stacktrace
 
       - name: Run Android E2E on emulator
+        id: e2e
+        continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
           target: google_apis
           arch: x86_64
           profile: pixel_2
+          emulator-boot-timeout: 900
           disable-animations: true
-          script: ./gradlew :app:connectedDebugAndroidTest --stacktrace
+          script: |
+            set +e
+            ./gradlew :app:connectedDebugAndroidTest --stacktrace
+            result=$?
+            adb logcat -d -v threadtime > e2e-logcat.txt || true
+            exit $result
+
+      - name: Upload E2E diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpgsolo-e2e-diagnostics
+          path: |
+            e2e-logcat.txt
+            app/build/reports/androidTests/connected
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Fail when E2E failed
+        if: steps.e2e.outcome == 'failure'
+        run: exit 1
 
       - name: Build debug APK
         run: ./gradlew :app:assembleDebug --stacktrace
