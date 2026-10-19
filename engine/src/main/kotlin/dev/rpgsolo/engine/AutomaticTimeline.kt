@@ -19,8 +19,39 @@ fun automaticTimeline(
 ): List<AutomaticTimelineEntry> {
     require(playerId.isNotBlank()) { "playerId vazio" }
     val result = mutableListOf<AutomaticTimelineEntry>()
+    var combatIncludesPlayer = false
+    var combatants = emptySet<String>()
     events.forEachIndexed { index, event ->
         val entry = when (event) {
+            is CombatStarted -> {
+                combatants = event.order.toSet()
+                combatIncludesPlayer = playerId in combatants
+                if (combatIncludesPlayer) AutomaticTimelineEntry(index, "combate", "Um confronto começou.")
+                else null
+            }
+            CombatEnded -> {
+                val visible = combatIncludesPlayer
+                combatIncludesPlayer = false
+                combatants = emptySet()
+                if (visible) AutomaticTimelineEntry(index, "combate", "O confronto terminou.") else null
+            }
+            is AttackResolved -> if (combatIncludesPlayer && (event.attackerId == playerId || event.targetId == playerId)) {
+                when {
+                    event.attackerId == playerId -> finalState.entities[event.targetId]?.let {
+                        AutomaticTimelineEntry(index, "combate", "Você atingiu ${it.name}.")
+                    }
+                    else -> finalState.entities[event.attackerId]?.let {
+                        AutomaticTimelineEntry(index, "combate", "${it.name} atingiu você.")
+                    }
+                }
+            } else null
+            is EntityDied -> if (combatIncludesPlayer && event.entityId in combatants && event.entityId != playerId) {
+                finalState.entities[event.entityId]?.let {
+                    AutomaticTimelineEntry(index, "combate", "${it.name} foi derrotado.")
+                }
+            } else if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "consequência", "Seu personagem morreu.")
+            } else null
             is KnowledgeGained ->
                 AutomaticTimelineEntry(index, "descoberta",
                     if (event.believed) "Você passou a acreditar: ${event.text}" else "Você descobriu: ${event.text}")
@@ -41,9 +72,6 @@ fun automaticTimeline(
             } else null
             is ConditionRemoved -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "condição", "A condição ${event.condition} deixou de afetar você.")
-            } else null
-            is EntityDied -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "consequência", "Seu personagem morreu.")
             } else null
             is EntityRevived -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "consequência", "Seu personagem voltou à vida.")
