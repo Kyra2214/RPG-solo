@@ -3,10 +3,16 @@ package dev.rpgsolo.engine
 import kotlin.random.Random
 
 /** Resultado de uma rolagem, com cada dado para o log de eventos. */
-data class RollResult(val expression: String, val dice: List<Int>, val modifier: Int) {
+data class RollResult(
+    val expression: String,
+    val dice: List<Int>,
+    val modifier: Int,
+    /** Quantidade de dados iniciais; explosões aumentam [dice], mas não alteram o valor natural para críticos. */
+    val initialDiceCount: Int = dice.size
+) {
     val total: Int get() = dice.sum() + modifier
-    /** Soma dos dados sem modificador (usada para críticos). */
-    val natural: Int get() = dice.sum()
+    /** Soma dos dados iniciais sem modificador (usada para críticos); dados extras explosivos só afetam o total. */
+    val natural: Int get() = dice.take(initialDiceCount.coerceIn(0, dice.size)).sum()
 }
 
 /**
@@ -42,6 +48,6 @@ class Dice(val seed: Long, startAt: Long = 0) {
         }
         val mod = if (modifier == 0) "" else if (modifier > 0) "+$modifier" else "$modifier"
         val expression = "${count}d$sides${if (explodeOnMax) "!" else ""}$mod"
-        return RollResult(expression, rolled, modifier)
+        return RollResult(expression, rolled, modifier, initialDiceCount = count)
     }
 }
