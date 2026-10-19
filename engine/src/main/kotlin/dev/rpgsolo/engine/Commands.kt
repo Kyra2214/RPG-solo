@@ -222,6 +222,8 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 val cap = config.statCaps[stat] ?: return no("o pacote não define limite de evolução para o atributo: $stat")
                 if (current > cap || increase > cap - current) return no("aumento ultrapassa o limite de $stat ($current/$cap)")
             }
+            val projectedStats = ent.stats + cmd.statIncreases.mapValues { (key, increase) -> (ent.stats[key] ?: 0) + increase }
+            val projectedTraits = (ent.traits + cmd.skillIncreases.keys).distinct()
             for ((skill, increase) in cmd.skillIncreases) {
                 val cap = config.skillCaps[skill] ?: return no("perícia não permitida pelo pacote: $skill")
                 val current = ent.skills[skill] ?: 0
@@ -229,11 +231,11 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 val requirements = config.skillRequirements[skill]
                 if (requirements != null) {
                     for ((stat, minimum) in requirements.minStats) {
-                        if ((ent.stats[stat] ?: 0) < minimum) return no("perícia $skill exige $stat >= $minimum")
+                        if ((projectedStats[stat] ?: 0) < minimum) return no("perícia $skill exige $stat >= $minimum")
                     }
-                    val missingTraits = requirements.requiredTraits - ent.traits.toSet()
+                    val missingTraits = requirements.requiredTraits - projectedTraits.toSet()
                     if (missingTraits.isNotEmpty()) return no("perícia $skill exige os traços: ${missingTraits.joinToString()}")
-                    val excluded = requirements.excludedTraits.intersect(ent.traits.toSet())
+                    val excluded = requirements.excludedTraits.intersect(projectedTraits.toSet())
                     if (excluded.isNotEmpty()) return no("perícia $skill não combina com: ${excluded.joinToString()}")
                 }
             }
