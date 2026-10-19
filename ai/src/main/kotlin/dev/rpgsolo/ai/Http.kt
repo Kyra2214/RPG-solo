@@ -37,7 +37,7 @@ class JavaNetTransport(
                 val stream = if (status in 200..299) conn.inputStream else conn.errorStream
                 val captured = StringBuilder()
                 stream?.bufferedReader(Charsets.UTF_8)?.useLines { lines ->
-                    lines.forEach { line -> captured.append(line).append('\\n'); onLine(line) }
+                    lines.forEach { line -> captured.append(line).append('\n'); onLine(line) }
                 }
                 val hdrs = conn.headerFields.filterKeys { it != null }
                     .mapKeys { it.key.lowercase() }.mapValues { it.value.firstOrNull().orEmpty() }
