@@ -54,7 +54,7 @@ class GameEngine private constructor(
             ).chosen
         }
         val spec = original.resolvedPool()
-        val roll = dice.roll(spec.diceCount, spec.diceSides, spec.modifier)
+        val roll = dice.roll(spec.diceCount, spec.diceSides, spec.modifier, spec.explodeOnMax)
         val result = resolveCheck(spec, roll)
         recordRoll(spec.label, roll)
         return result
