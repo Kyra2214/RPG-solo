@@ -13,7 +13,13 @@ data class AiRequest(
     val jsonMode: Boolean = false
 )
 
-data class AiUsage(val inputTokens: Int, val outputTokens: Int)
+data class AiUsage(
+    /** Tokens de entrada não servidos pelo cache, conforme o contador do provedor. */
+    val inputTokens: Int,
+    val outputTokens: Int,
+    val cacheReadInputTokens: Int = 0,
+    val cacheCreationInputTokens: Int = 0
+)
 
 data class AiResponse(val text: String, val usage: AiUsage? = null)
 
