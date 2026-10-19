@@ -30,8 +30,11 @@ class PlayControllerTest {
     private fun ok(n: String) = """{"narrative":"$n"}"""
 
     private fun fortuneMenu(): CheckMenu {
-        val root = listOf("rules/src/test/resources/packages/teste-basico", "src/test/resources/packages/teste-basico")
-            .map(::File).first { it.exists() }
+        val root = listOf(
+            "rules/src/test/resources/packages/teste-basico",
+            "../rules/src/test/resources/packages/teste-basico",
+            "src/test/resources/packages/teste-basico"
+        ).map(::File).first { it.exists() }
         val files = root.listFiles()!!.filter { it.name.endsWith(".txt") }
             .associate { it.name to it.readText() }.toMutableMap()
         files["testes.txt"] = files.getValue("testes.txt").lines().joinToString("\n") { line ->
