@@ -109,7 +109,8 @@ class GameEngine private constructor(
                     (spec.damageStat?.let { attacker.stats[it] } ?: 0) + spec.damageBonus
                 ).also { recordRoll("dano:${spec.attackerId}->${spec.targetId}", it) }
             } else null
-            resolvedDamage = maxOf(0, (damageRoll?.total ?: spec.damage) + if (damageRoll == null) spec.damageBonus else 0)
+            val rolledDamage = (damageRoll?.total ?: spec.damage) + if (damageRoll == null) spec.damageBonus else 0
+            resolvedDamage = maxOf(0, rolledDamage - spec.damageReduction)
         }
         val actualDamage = if (hit) resolvedDamage else 0
         recordEvent(AttackResolved(spec.attackerId, spec.targetId, defense, hit, actualDamage))
