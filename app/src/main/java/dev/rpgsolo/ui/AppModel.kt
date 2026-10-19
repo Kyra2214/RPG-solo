@@ -1363,6 +1363,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     "$name alcançou o nível ${event.level}" +
                         if (event.pointsGranted > 0) " e recebeu ${event.pointsGranted} ponto(s) de evolução" else ""
                 } else null
+                is dev.rpgsolo.engine.AdvancementAllocated -> if (event.entityId == playerId) {
+                    val statNames = event.statIncreases.keys.map { id ->
+                        activePackage?.data?.stats?.firstOrNull { it.id == id }?.name ?: id
+                    }
+                    val skillNames = event.skillIncreases.keys.map { id ->
+                        activePackage?.data?.traits?.firstOrNull { it.id == id }?.name ?: id
+                    }
+                    val choices = statNames + skillNames
+                    "Você investiu pontos de evolução em ${choices.joinToString(", ")}"
+                } else null
                 else -> null
             }
         }.takeLast(50)
