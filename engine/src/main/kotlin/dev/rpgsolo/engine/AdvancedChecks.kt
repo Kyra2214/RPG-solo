@@ -141,6 +141,9 @@ fun CampaignSession.checkWithFortuneSpendingResource(
     mode: FortuneMode
 ): FortuneSpendResult {
     if (cost <= 0) return FortuneSpendResult.Rejected("o custo do recurso deve ser positivo")
+    if (mode == FortuneMode.NORMAL) {
+        return FortuneSpendResult.Rejected("gastar recurso exige vantagem ou desvantagem")
+    }
     val start = mark()
     return when (val spent = execute(SpendResource(entityId, resource, cost))) {
         is ExecResult.Rejected -> FortuneSpendResult.Rejected(spent.reason)
