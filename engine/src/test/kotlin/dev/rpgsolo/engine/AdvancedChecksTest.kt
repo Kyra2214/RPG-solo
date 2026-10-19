@@ -53,4 +53,11 @@ class AdvancedChecksTest {
         assertEquals(3, result.successes + result.failures)
         assertEquals(result.successes >= 2, result.passed)
     }
+    @Test fun checkSpecCanDeclareAdvantageWithoutCallingSpecialApi() {
+        val engine = GameEngine(seed = 321L)
+        val result = engine.check(spec("atletismo").copy(fortuneMode = FortuneMode.ADVANTAGE))
+        assertTrue(result.spec.label.contains("atletismo"))
+        assertEquals(2, engine.events.count { it is RollRecorded })
+    }
+
 }
