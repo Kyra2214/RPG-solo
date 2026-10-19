@@ -143,13 +143,15 @@ class UsageTracker {
             uncachedInputTokens += estimated
             inputTokens += estimated
         } else {
-            uncachedInputTokens += usage.inputTokens
-            cacheReadInputTokens += usage.cacheReadInputTokens
-            cacheCreationInputTokens += usage.cacheCreationInputTokens
-            inputTokens += usage.inputTokens.toLong() +
-                usage.cacheReadInputTokens.toLong() + usage.cacheCreationInputTokens.toLong()
+            val uncached = usage.inputTokens.coerceAtLeast(0)
+            val cachedRead = usage.cacheReadInputTokens.coerceAtLeast(0)
+            val cachedCreation = usage.cacheCreationInputTokens.coerceAtLeast(0)
+            uncachedInputTokens += uncached
+            cacheReadInputTokens += cachedRead
+            cacheCreationInputTokens += cachedCreation
+            inputTokens += uncached.toLong() + cachedRead.toLong() + cachedCreation.toLong()
         }
-        outputTokens += usage?.outputTokens ?: TokenEstimator.estimate(response.text)
+        outputTokens += (usage?.outputTokens ?: TokenEstimator.estimate(response.text)).coerceAtLeast(0)
     }
 
     /** Estimativa conservadora: sem preços específicos, tokens em cache usam o preço normal de entrada. */
