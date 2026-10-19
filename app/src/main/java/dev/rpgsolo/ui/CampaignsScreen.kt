@@ -109,6 +109,7 @@ fun CampaignsScreen(model: AppModel) {
     val active = remember(v) { model.quests.active() }
     val allQuests = remember(v) { model.quests.all() }
     val timeline = remember(v) { model.quests.timeline() }
+    val automaticTimeline = remember(v, model.controller?.lines?.size) { model.controller?.automaticTimeline().orEmpty() }
     val journal = remember(v, model.controller?.lines?.size) { model.journal() }
     val progressionHistory = remember(v) { model.progressionHistory() }
     val relationships = remember(v) { model.relationshipsView() }
@@ -263,6 +264,17 @@ fun CampaignsScreen(model: AppModel) {
             message = model.addTimelineNote(timelineNote)
             if (message == null) timelineNote = ""
         }) { Text("Registrar acontecimento") }
+
+        SectionTitle("Acontecimentos automáticos")
+        if (automaticTimeline.isEmpty()) {
+            Muted("Os acontecimentos compatíveis aparecerão aqui conforme forem registrados no log.")
+        }
+        automaticTimeline.forEach { entry ->
+            AppCard {
+                Muted("Registro ${entry.eventIndex + 1} · ${entry.category}")
+                Text(entry.text, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
 
         SectionTitle("Diário", "Só o que você já descobriu.")
         if (journal.isEmpty()) Muted("Você ainda não descobriu nada.")
