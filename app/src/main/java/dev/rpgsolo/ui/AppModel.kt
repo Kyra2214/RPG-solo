@@ -1312,7 +1312,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val stats = pkg.data.stats.map { stat ->
             AdvancementChoice(stat.id, stat.name, player.stats[stat.id] ?: stat.default, session.engine.config.statCaps[stat.id] ?: stat.max, skill = false)
         }
-        val skills = pkg.data.traits.filter { it.type == "pericia" }.map { skill ->
+        val skills = pkg.data.traits.filter { skill ->
+            skill.type == "pericia" &&
+                ((player.skills[skill.id] ?: 0) > 0 || pkg.canImproveSkill(skill.id, player.stats, player.traits))
+        }.map { skill ->
             AdvancementChoice(skill.id, skill.name, player.skills[skill.id] ?: 0, session.engine.config.skillCaps[skill.id] ?: 0, skill = true)
         }
         return AdvancementState(player.advancementPoints, stats + skills)
