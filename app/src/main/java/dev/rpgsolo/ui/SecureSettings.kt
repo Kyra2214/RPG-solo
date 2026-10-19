@@ -18,7 +18,8 @@ data class StoredProviderSettings(
     val model: String,
     val cheapModel: String,
     val premiumModel: String,
-    val apiKey: String
+    val apiKey: String,
+    val cacheSystemPrompt: Boolean = false
 )
 
 class SecureSettings(context: Context) {
@@ -36,7 +37,11 @@ class SecureSettings(context: Context) {
             model = model,
             cheapModel = preferences.getString("cheap_model", "").orEmpty(),
             premiumModel = preferences.getString("premium_model", "").orEmpty(),
-            apiKey = apiKey
+            apiKey = apiKey,
+            cacheSystemPrompt = preferences.getBoolean(
+                "cache_system_prompt",
+                endpoint.startsWith("https://api.anthropic.com/")
+            )
         )
     }
 
@@ -47,6 +52,7 @@ class SecureSettings(context: Context) {
             .putString("model", settings.model)
             .putString("cheap_model", settings.cheapModel)
             .putString("premium_model", settings.premiumModel)
+            .putBoolean("cache_system_prompt", settings.cacheSystemPrompt)
             .putString("api_key", encrypt(settings.apiKey))
             .apply()
     }
