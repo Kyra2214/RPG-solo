@@ -5,7 +5,7 @@
 ### Motor de regras e continuidade
 - Testes opostos comparam primeiro o nível do resultado (falha/sucesso/crítico) e depois a margem; empate absoluto favorece o defensor. Margens de testes com dificuldades ou escalas diferentes deixam de ser comparadas isoladamente.
 - Adicionada a API `CampaignSession.checkWithFortuneSpendingResource`: paga um recurso validado da ficha antes de aplicar vantagem/desvantagem e restaura o log se a rolagem falhar. A integração com a interface e a declaração do custo por pacote permanecem pendentes.
-- `EngineConfig` recusa pré-requisitos de perícia que referenciem atributos inexistentes ou valores negativos, em vez de aceitar configuração mecanicamente inconsistente.
+- `EngineConfig` recusa pré-requisitos de perícia que referenciem atributos inexistentes, em vez de aceitar configuração mecanicamente inconsistente.
 - A linha do tempo só revela uma pista pública no evento que completa o relógio; nomes internos e contagem continuam privados.
 
 ### Estado da validação
