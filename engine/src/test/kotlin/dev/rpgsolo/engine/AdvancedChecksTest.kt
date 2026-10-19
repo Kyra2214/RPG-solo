@@ -5,6 +5,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AdvancedChecksTest {
+    private class ToggleFailStore : EventStore {
+        private val delegate = InMemoryEventStore()
+        var failAppend = false
+        override fun createCampaign(record: CampaignRecord) = delegate.createCampaign(record)
+        override fun campaign(id: String) = delegate.campaign(id)
+        override fun size(campaignId: String) = delegate.size(campaignId)
+        override fun load(campaignId: String) = delegate.load(campaignId)
+        override fun truncate(campaignId: String, newSize: Int) = delegate.truncate(campaignId, newSize)
+        override fun append(campaignId: String, expectedSize: Int, payloads: List<String>) {
+            if (failAppend) error("append falhou")
+            delegate.append(campaignId, expectedSize, payloads)
+        }
+    }
     private fun spec(label: String, difficulty: Int = 10) =
         CheckSpec(label, diceCount = 1, diceSides = 20, difficulty = difficulty)
 
@@ -152,6 +165,44 @@ class AdvancedChecksTest {
         assertTrue(result is FortuneSpendResult.Rejected)
         assertEquals(before, session.engine.eventCount)
         assertEquals(0, session.state.entities.getValue("hero").resources.getValue("pa").current)
+    }
+
+    @Test fun failedAppendRollsBackAdvancedCheckInMemory() {
+        val store = ToggleFailStore()
+        val session = CampaignSession.create(store, CampaignRecord("append-fail", "Teste", 321L, EngineConfig()))
+        session.execute(CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER)))
+        val before = session.mark()
+        val savedBefore = store.size("append-fail")
+        store.failAppend = true
+
+        val result = runCatching {
+            session.checkWithFortune(spec("escalar"), FortuneMode.ADVANTAGE)
+        }
+
+        assertTrue(result.isFailure)
+        assertEquals(before, session.mark())
+        assertEquals(savedBefore, store.size("append-fail"))
+    }
+
+    @Test fun failedAppendRejectsFortuneSpendAndRestoresResourceAndRolls() {
+        val store = ToggleFailStore()
+        val session = CampaignSession.create(store, CampaignRecord("spend-append-fail", "Teste", 654L, EngineConfig()))
+        session.execute(CreateEntity(Entity(
+            id = "hero", name = "Herói", kind = EntityKind.PLAYER,
+            resources = mapOf("pa" to Resource(2, 2))
+        )))
+        val before = session.mark()
+        val savedBefore = store.size("spend-append-fail")
+        store.failAppend = true
+
+        val result = session.checkWithFortuneSpendingResource(
+            "hero", "pa", 1, spec("escalar"), FortuneMode.ADVANTAGE
+        )
+
+        assertTrue(result is FortuneSpendResult.Rejected)
+        assertEquals(before, session.mark())
+        assertEquals(2, session.state.entities.getValue("hero").resources.getValue("pa").current)
+        assertEquals(savedBefore, store.size("spend-append-fail"))
     }
 
     @Test fun fortuneResourceCannotBeSpentForNormalRoll() {
