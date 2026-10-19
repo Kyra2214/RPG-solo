@@ -100,6 +100,12 @@ data class EngineConfig(
         require(skillRequirements.keys.all { it in skillCaps }) {
             "pré-requisitos de evolução inválidos"
         }
+        require(skillRequirements.values.all { requirement ->
+            requirement.minStats.keys.all { it in statCaps } &&
+                requirement.minStats.values.all { it >= 0 }
+        }) {
+            "pré-requisitos de evolução referenciam atributo inexistente ou valor negativo"
+        }
         require(levelThresholds.zipWithNext().all { (a, b) -> a < b } && levelThresholds.all { it > 0 }) {
             "levelThresholds deve ser positivo e estritamente crescente"
         }
