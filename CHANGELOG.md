@@ -4,7 +4,7 @@
 
 ### Motor de regras e continuidade
 - Testes opostos comparam primeiro o nível do resultado (falha/sucesso/crítico) e depois a margem; empate absoluto favorece o defensor. Margens de testes com dificuldades ou escalas diferentes deixam de ser comparadas isoladamente.
-- Adicionada a API `CampaignSession.checkWithFortuneSpendingResource`: paga um recurso validado da ficha antes de aplicar vantagem/desvantagem e restaura o log se a rolagem falhar. A integração com a interface e a declaração do custo por pacote permanecem pendentes.
+- Adicionada a API `CampaignSession.checkWithFortuneSpendingResource`: paga um recurso validado da ficha antes de aplicar vantagem/desvantagem e restaura o log se a rolagem falhar. A integração posterior adicionou configuração do recurso/custo/modo pago por pacote e opção explícita na interface.
 - O fluxo principal de jogada agora respeita `fortuneMode` declarado no teste do pacote, persistindo as duas rolagens e usando apenas o resultado selecionado. Foi adicionado teste de regressão para essa integração; ainda não executado.
 - A rolagem descartada de vantagem/desvantagem agora também é preservada no registro da jogada e exibida no chat como 'Não escolhido'; apenas o resultado escolhido é enviado ao contexto de narração. A resolução avançada e a persistência de gasto de recurso foram tornadas transacionais no nível da sessão. Foram adicionados testes para vantagem/desvantagem em testes opostos e de grupo; testes não executados.
 - Testes opostos deixam de comparar margens de escalas incompatíveis: a margem só desempata quando comparação, quantidade/lados de dados e dificuldade coincidem; caso contrário, empate na qualidade favorece o defensor. Foi adicionada regressão para dificuldades diferentes; não executada.
