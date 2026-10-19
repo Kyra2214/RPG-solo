@@ -8,8 +8,8 @@ enum class Comparison {
     ROLL_UNDER,
     /**
      * Teste de pontos: um dado só (dos dados reais, [REAL_DICE]); o modificador do teste são os pontos da habilidade
-     * (já somados talentos e condições) e cada ponto vale uma face de sucesso, contando do topo (d6, 2 pontos: 5 e 6).
-     * Sempre entre [MIN_POINT_FACES] e (lados − 1) faces: sem pontos só a face mais alta acerta; o 1 sempre falha.
+     * (já somados talentos e condições). Zero pontos mantém só a chance mínima (face mais alta); cada ponto positivo acrescenta uma face.
+     * Sempre entre [MIN_POINT_FACES] e (lados − 1) faces; o 1 sempre falha.
      */
     POINTS
 }
@@ -18,8 +18,9 @@ enum class Comparison {
 val REAL_DICE = listOf(4, 6, 8, 10, 12, 20)
 const val MIN_POINT_FACES = 1
 
-/** Quantas faces de um dado de [sides] lados dão sucesso com [points] pontos: de 1 até lados − 1 (sempre há chance de acertar e de falhar). */
-fun pointFaces(points: Int, sides: Int): Int = points.coerceIn(MIN_POINT_FACES, maxOf(MIN_POINT_FACES, sides - 1))
+/** Zero pontos = uma face mínima; cada ponto positivo acrescenta uma face, até lados − 1. */
+fun pointFaces(points: Int, sides: Int): Int =
+    (points.coerceAtLeast(0) + 1).coerceIn(MIN_POINT_FACES, maxOf(MIN_POINT_FACES, sides - 1))
 
 enum class Outcome {
     CRITICAL_FAILURE, FAILURE, PARTIAL_SUCCESS, SUCCESS, CRITICAL_SUCCESS;
