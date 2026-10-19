@@ -38,11 +38,16 @@ class RetryingProvider(
 ) : AiProvider {
     override val name: String get() = inner.name
 
-    override fun complete(request: AiRequest): AiResponse {
+    override fun complete(request: AiRequest): AiResponse = retry { inner.complete(request) }
+
+    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse =
+        retry { inner.stream(request, onChunk) }
+
+    private fun retry(operation: () -> AiResponse): AiResponse {
         var attempt = 1
         while (true) {
             try {
-                return inner.complete(request)
+                return operation()
             } catch (e: AiError) {
                 if (!e.retryable || attempt >= policy.maxAttempts) throw e
                 val serverWait = (e as? AiError.RateLimited)?.retryAfterMs
@@ -92,6 +97,11 @@ class RateLimitedProvider(private val inner: AiProvider, private val limiter: Ra
         limiter.acquire()
         return inner.complete(request)
     }
+
+    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse {
+        limiter.acquire()
+        return inner.stream(request, onChunk)
+    }
 }
 
 /** Soma de uso (6.2.4). Usa os números do provedor; se faltarem, estima pelo tamanho do texto. */
@@ -120,4 +130,7 @@ class UsageTrackingProvider(private val inner: AiProvider, private val tracker: 
 
     override fun complete(request: AiRequest): AiResponse =
         inner.complete(request).also { tracker.record(it.usage, request, it) }
+
+    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse =
+        inner.stream(request, onChunk).also { tracker.record(it.usage, request, it) }
 }
