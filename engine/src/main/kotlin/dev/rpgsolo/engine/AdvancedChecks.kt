@@ -121,3 +121,36 @@ fun CampaignSession.checkOpposed(challenger: CheckSpec, defender: CheckSpec): Op
 
 fun CampaignSession.checkGroup(checks: List<CheckSpec>, requiredSuccesses: Int): GroupCheckResult =
     engine.checkGroup(checks, requiredSuccesses).also { save() }
+
+/** Resultado de um teste de sorte que consome um recurso persistido da campanha. */
+sealed interface FortuneSpendResult {
+    data class Resolved(val result: FortuneCheckResult) : FortuneSpendResult
+    data class Rejected(val reason: String) : FortuneSpendResult
+}
+
+/**
+ * Usa um recurso da ficha (por exemplo, PA/sorte) para habilitar vantagem ou desvantagem.
+ * O gasto e as rolagens formam uma única operação lógica: se a resolução falhar, o log volta
+ * ao ponto inicial. O nome do recurso e o custo vêm das regras/situação, nunca da IA.
+ */
+fun CampaignSession.checkWithFortuneSpendingResource(
+    entityId: String,
+    resource: String,
+    cost: Int,
+    spec: CheckSpec,
+    mode: FortuneMode
+): FortuneSpendResult {
+    if (cost <= 0) return FortuneSpendResult.Rejected("o custo do recurso deve ser positivo")
+    val start = mark()
+    return when (val spent = execute(SpendResource(entityId, resource, cost))) {
+        is ExecResult.Rejected -> FortuneSpendResult.Rejected(spent.reason)
+        is ExecResult.Accepted -> try {
+            val result = engine.checkWithFortune(spec, mode)
+            save()
+            FortuneSpendResult.Resolved(result)
+        } catch (e: Exception) {
+            rollbackTo(start)
+            FortuneSpendResult.Rejected(e.message ?: "falha ao resolver teste com recurso")
+        }
+    }
+}
