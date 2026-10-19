@@ -21,7 +21,14 @@ data class EquipmentChanged(val ownerId: String, val slot: String, val itemId: S
 @Serializable
 data class XpGained(val entityId: String, val amount: Int) : Event
 @Serializable
-data class LevelGained(val entityId: String, val level: Int) : Event
+data class LevelGained(val entityId: String, val level: Int, val pointsGranted: Int = 0) : Event
+@Serializable
+data class AdvancementAllocated(
+    val entityId: String,
+    val statIncreases: Map<String, Int>,
+    val skillIncreases: Map<String, Int>,
+    val pointsSpent: Int
+) : Event
 @Serializable
 data class FactRecorded(val key: String, val value: String) : Event
 @Serializable
@@ -128,7 +135,21 @@ fun GameState.apply(e: Event): GameState {
             val ent = entity(e.entityId)
             copy(entities = entities + (ent.id to ent.copy(xp = ent.xp + e.amount)))
         }
-        is LevelGained -> copy(entities = entities + (e.entityId to entity(e.entityId).copy(level = e.level)))
+        is LevelGained -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (e.entityId to current.copy(
+                level = e.level,
+                advancementPoints = current.advancementPoints + e.pointsGranted
+            )))
+        }
+        is AdvancementAllocated -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (e.entityId to current.copy(
+                stats = current.stats + e.statIncreases.mapValues { (key, increase) -> (current.stats[key] ?: 0) + increase },
+                skills = current.skills + e.skillIncreases.mapValues { (key, increase) -> (current.skills[key] ?: 0) + increase },
+                advancementPoints = current.advancementPoints - e.pointsSpent
+            )))
+        }
         is FactRecorded -> copy(facts = facts + (e.key to e.value))
         is KnowledgeGained -> copy(knowledge = knowledge + (e.key to Knowledge(e.key, e.text, e.source, e.believed)))
         is PromiseMade -> copy(promises = promises + (e.id to Promise(e.id, e.npcId, e.text)))
