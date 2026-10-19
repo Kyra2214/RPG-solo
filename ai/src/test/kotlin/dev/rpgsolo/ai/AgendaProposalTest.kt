@@ -40,20 +40,20 @@ class AgendaProposalTest {
     }
     @Test fun pistaPublicaDoRelogioSoEExpostaQuandoCompleta() {
         val o = ok("""{"narrative":"x","proposals":[
-            {"type":"create_clock","id":"ameaça","name":"Plano oculto","segments":2,
+            {"type":"create_clock","id":"ameaca","name":"Plano oculto","segments":2,
              "publicClue":"As luzes da cidade se apagam."}]}""")
         val create = o.proposals.single() as CreateClock
         assertEquals("As luzes da cidade se apagam.", create.publicClue)
         val s = session()
         s.execute(create)
-        s.execute(AdvanceClock("ameaça", 1))
+        s.execute(AdvanceClock("ameaca", 1))
         assertTrue(automaticTimeline(s.engine.events, "hero", s.state).none {
             it.text.contains("luzes da cidade")
         })
         s.execute(AdvanceClock("ameaça", 1))
         val timeline = automaticTimeline(s.engine.events, "hero", s.state)
         assertTrue(timeline.any { it.text == "As luzes da cidade se apagam." })
-        assertFalse(timeline.any { it.text.contains("Plano oculto") || it.text.contains("ameaça") })
+        assertFalse(timeline.any { it.text.contains("Plano oculto") || it.text.contains("ameaca") })
     }
 
 }
