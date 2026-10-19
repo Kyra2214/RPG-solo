@@ -1028,7 +1028,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Progresso real do primeiro uso, derivado do provedor, ficha ativa e campanha ativa. */
     fun setupStatus(): SetupStatus = SetupStatus(
         providerReady = controller != null && roles != null,
-        heroReady = activeFicha != null,
+        heroReady = activeFicha != null || fichas.isNotEmpty(),
         campaignReady = session.campaignId != "demo" && activeFicha != null
     )
 
