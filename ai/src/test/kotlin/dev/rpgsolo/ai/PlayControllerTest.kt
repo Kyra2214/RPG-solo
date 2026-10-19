@@ -34,6 +34,22 @@ class PlayControllerTest {
         assertTrue(" +2 = " in c.lines[1].text)
     }
 
+    @Test fun vantagemMostraAlternativaDescartadaEResultadoEscolhido() {
+        val c = ctrl(
+            session(),
+            listOf(ok("Você consegue passar.")),
+            check = {
+                CheckSpec("furtividade", 1, 20, 2, 10, fortuneMode = dev.rpgsolo.engine.FortuneMode.ADVANTAGE)
+            }
+        )
+
+        assertTrue(c.submit("passo escondido") is PlayResult.Played)
+        assertEquals(listOf(Author.PLAYER, Author.ROLL, Author.ROLL, Author.MASTER), c.lines.map { it.author })
+        assertTrue(c.lines[1].text.startsWith("Não escolhido · "))
+        assertTrue(c.lines[2].text.startsWith("furtividade:"))
+        assertEquals(2, c.lines.count { it.roll != null })
+    }
+
     @Test fun linhaDeRolagemTrazOsDadosReaisDoMotorParaAnimar() {
         val c = ctrl(session(), listOf(ok("Você golpeia.")))
         c.submit("ataco o orc")
