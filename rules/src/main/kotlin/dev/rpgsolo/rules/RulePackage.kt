@@ -418,6 +418,9 @@ object PackageValidator {
         }
         levelRewards.keys.filter { reward -> d.resources.none { it.id == reward } }
             .forEach { p += "criacao.txt: recompensa por nível referencia recurso inexistente $it" }
+        if (levelRewards.isNotEmpty() && d.progression.isNullOrEmpty()) {
+            p += "criacao.txt: recompensa_recurso exige progressao.txt com limiares de XP"
+        }
         d.checks.filter { it.stat != null && it.stat !in stats }.forEach { p += "teste ${it.id}: atributo inexistente ${it.stat}" }
         d.checks.filter { it.skill != null && d.traits.none { trait -> trait.id == it.skill && trait.type == "pericia" } }
             .forEach { p += "teste ${it.id}: perícia inexistente ou não classificada como perícia: ${it.skill}" }
