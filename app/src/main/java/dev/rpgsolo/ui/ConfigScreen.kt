@@ -169,6 +169,7 @@ fun ConfigScreen(model: AppModel) {
             Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
             Muted("A chave é cifrada pelo Android Keystore e não entra em backups nem logs. A jogada que você escreve é enviada ao provedor escolhido.")
             Muted("Uso estimado nesta sessão: ${model.usage.calls} chamadas, ${model.usage.inputTokens} tokens de entrada, ${model.usage.outputTokens} de saída.")
+            Muted("Cache do provedor: ${model.usage.cacheReadInputTokens} tokens reutilizados e ${model.usage.cacheCreationInputTokens} tokens gravados.")
         }
     }
 }
