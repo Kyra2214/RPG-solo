@@ -94,11 +94,12 @@ class RulePackage internal constructor(val data: PackageData) {
     fun canImproveSkill(skillId: String, stats: Map<String, Int>, traitIds: Collection<String>): Boolean {
         val skill = traitById[skillId]?.takeIf { it.type == "pericia" } ?: return false
         val fullStats = data.stats.associate { it.id to (stats[it.id] ?: it.default) }
+        val projectedTraits = (traitIds + skillId).toSet()
         return skill.requires.all { requirement ->
             when (requirement) {
                 is Requirement.MinStat -> (fullStats[requirement.stat] ?: Int.MIN_VALUE) >= requirement.min
-                is Requirement.HasTrait -> requirement.traitId in traitIds
-                is Requirement.Excludes -> requirement.traitId !in traitIds
+                is Requirement.HasTrait -> requirement.traitId in projectedTraits
+                is Requirement.Excludes -> requirement.traitId !in projectedTraits
             }
         }
     }
