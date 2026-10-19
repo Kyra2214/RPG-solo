@@ -58,8 +58,8 @@ Abra a pasta do repositório no Android Studio para executar o app em emulador o
 ## Lacunas conhecidas
 
 - Esta branch ainda precisa de compilação, testes unitários, validação visual em aparelho/emulador e teste instrumentado das migrações Room.
-- O streaming real da narração ainda não está ligado à interface; a resposta estruturada chega completa antes de ser mostrada.
-- Permanecem melhorias de mecânica fora do fluxo principal: rolagens opostas/em grupo, vantagem/desvantagem, pontos de sorte, recompensas de evolução escolhidas pelo jogador e poderes/magias com efeitos tipados.
+- O streaming progressivo agora está ligado do transporte SSE até a interface; permanece sem validação de execução nesta etapa. Provedores compatíveis podem variar no suporte a SSE e JSON mode.
+- Permanecem melhorias de mecânica fora do fluxo principal: rolagens opostas/em grupo, vantagem/desvantagem, pontos de sorte, recompensas de evolução escolhidas pelo jogador e poderes/magias com efeitos tipados. Os bônus numéricos de traços só estão implementados para os efeitos explícitos já registrados no pacote; descrições condicionais ainda não são gatilhos automáticos.
 - Também faltam acabamento de acessibilidade (TalkBack, ajuste global de fonte/contraste), relatório de diagnóstico exportável e configuração comprovada de um provedor gratuito padrão.
 - O pacote próprio contém fórmulas e regras marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
 
