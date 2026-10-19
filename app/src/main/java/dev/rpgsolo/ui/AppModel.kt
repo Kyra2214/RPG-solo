@@ -636,6 +636,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 val amount = pkg.data.creation["item_${itemId}_quantidade"]?.toIntOrNull()
                     ?: return "o pacote não definiu a quantidade restaurada por $itemId"
                 require(amount > 0) { "quantidade de cura deve ser positiva" }
+                val current = session.state.entities[playerId]?.resources?.get(resource)
+                    ?: return "o personagem não possui o recurso '$resource'"
+                require(current.current < current.max) { "o recurso já está cheio; o consumível não foi gasto" }
                 listOf(
                     dev.rpgsolo.engine.Heal(playerId, resource, amount),
                     dev.rpgsolo.engine.ConsumeItem(playerId, itemId, 1)
