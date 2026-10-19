@@ -175,7 +175,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
-    fun resolveNpcTurn(): String? = try {
+    fun resolveNpcTurn(): String? {
+        return try {
         val combat = requireNotNull(session.state.combat) { "não há combate ativo" }
         require(combat.current != playerId) { "é o turno do jogador" }
         val resource = activePackage?.manifest?.deathResource ?: "pv"
@@ -206,8 +207,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         campaignVersion++
         text
-    } catch (e: IllegalArgumentException) { e.message }
-      catch (e: IllegalStateException) { e.message }
+        } catch (e: IllegalArgumentException) { e.message }
+          catch (e: IllegalStateException) { e.message }
+    }
 
     fun endCombat(): String? = when (val result = session.execute(dev.rpgsolo.engine.EndCombat)) {
         is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
@@ -226,15 +228,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val equipped = session.state.equipped[playerId].orEmpty()
         return session.state.inventory[playerId].orEmpty().mapNotNull { (id, quantity) ->
             val item = activePackage?.item(id) ?: return@mapNotNull null
-            if (item.kind != "equipamento" || item.slot == null || quantity <= 0) return@mapNotNull null
-            EquipmentView(id, item.name, quantity, item.slot, equipped[item.slot] == id)
+            val slot = item.slot ?: return@mapNotNull null
+            if (item.kind != "equipamento" || quantity <= 0) return@mapNotNull null
+            EquipmentView(id, item.name, quantity, slot, equipped[slot] == id)
         }.sortedBy { it.name }
     }
 
     fun equipItem(itemId: String): String? = try {
         val item = requireNotNull(activePackage?.item(itemId)) { "item não existe no catálogo: $itemId" }
-        require(item.kind == "equipamento" && item.slot != null) { "item não é equipável" }
-        when (val result = session.execute(dev.rpgsolo.engine.EquipItem(playerId, itemId, item.slot))) {
+        val slot = item.slot
+        require(item.kind == "equipamento" && slot != null) { "item não é equipável" }
+        when (val result = session.execute(dev.rpgsolo.engine.EquipItem(playerId, itemId, slot))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
