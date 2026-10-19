@@ -462,3 +462,29 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 3. **A IA pode narrar um segredo cedo demais.** Mitigação: só enviar o segredo quando a cena precisa e instruir no prompt (8.5).
 4. **Resposta inválida da IA.** Mitigação: validação de esquema, rollback, nova tentativa (6.2, 6.3).
 5. **Perda do aparelho = perda dos dados.** Mitigação: backup local exportável (10.6.3).
+
+---
+
+## Atualização code-first — 19/10/2026 (fechamento dos cinco blocos)
+
+Esta atualização registra somente alterações efetivamente gravadas nesta branch. Não substitui a validação posterior e não declara como concluídas integrações que ainda não existem.
+
+### Implementado nesta continuação
+
+- **Motor — testes avançados:** criada a API `AdvancedChecks.kt` para rolagem normal, vantagem/desvantagem, testes opostos e testes em grupo. Os resultados são calculados pelo motor; os dois resultados de vantagem/desvantagem ficam no log e só o resultado escolhido deve determinar a consequência. Há wrappers em `CampaignSession` para salvar os eventos no armazenamento persistente.
+- **Continuidade — linha do tempo automática:** criada a projeção `automaticTimeline(events, playerId, state)`, derivada do log canônico, para descobertas do jogador, locais conhecidos, deslocamentos, XP/nível e condições do próprio personagem. Dossiês, segredos privados, relógios e mudanças ocultas de NPC ficam fora dessa projeção. A camada `PlayController` a expõe e a aba Campanhas mostra os registros.
+- **IA — cache de prompt Anthropic:** `ProviderConfig.cacheSystemPrompt` habilita o bloco `cache_control: ephemeral` para o endpoint oficial `api.anthropic.com`; endpoints compatíveis de terceiros não presumem suporte. O cache é aplicado ao prefixo system, não a mensagens dinâmicas do jogador. A configuração pode ser desativada explicitamente. Isso pede suporte real do modelo/endpoint e ainda precisa de validação em rede.
+- **Cobertura preparada:** adicionados testes unitários para rolagens avançadas, linha do tempo sem vazamento de dados privados e construção do pedido Anthropic com/sem cache. Eles foram escritos, mas não executados nesta etapa.
+- **Documentação:** este plano e o changelog registram o estado atual e as limitações sem tratar código não compilado como validado.
+
+### Ainda não fechado em código
+
+1. **Mecânicas:** os testes avançados existem como API do motor, mas ainda não estão configuráveis por pacote nem integrados às decisões da interface. Continuam pendentes o gasto persistido de sorte/destino, recompensas de nível escolhidas pelo jogador e o modelo tipado completo para gatilhos/limites/imunidades dos traços e poderes.
+2. **Continuidade:** a linha do tempo automática cobre apenas eventos seguramente atribuíveis ao jogador; não é ainda um sistema de pistas automáticas para agendas e consequências de NPC. A agenda continua exigindo integração explícita com o ciclo de jogada.
+3. **IA:** o cache está implementado para a API oficial Anthropic, mas falta controle visual da opção e confirmação de hit/uso em rede real. A escolha de provedor gratuito padrão continua dependente de verificar limites atuais. Não declarar cache real para OpenAI-compatible: o comportamento varia por serviço.
+4. **Interface:** a linha do tempo derivada foi adicionada à aba Campanhas; continuam pendentes revisão completa de TalkBack/contraste, relatório de diagnóstico e fluxo transacional de primeiro uso. O custo monetário só pode ser estimado quando houver preço configurado para modelo/provedor.
+5. **Documentação e fechamento:** o estado do código está atualizado; o plano geral só poderá ser marcado como fechado depois de implementar as lacunas acima. Builds, testes, lint, CI, migrações instrumentadas e validação em aparelho permanecem deliberadamente adiados.
+
+### Regra de trabalho mantida
+
+Continuar corrigindo e integrando o código antes de iniciar a etapa de validação. Não marcar build, teste, rede real ou experiência em aparelho como aprovados sem executá-los.
