@@ -20,11 +20,12 @@ class FortuneModePackageTest {
             else {
                 val fields = line.split("|").toMutableList()
                 if (fields.firstOrNull() == "ataque") {
-                    while (fields.size < 15) fields += "-"
-                    fields[11] = "ADVANTAGE"
+                    while (fields.size < 16) fields += "-"
+                    fields[11] = "NORMAL"
                     fields[12] = "false"
                     fields[13] = "mana"
                     fields[14] = "1"
+                    fields[15] = "ADVANTAGE"
                     fields.joinToString("|")
                 } else line
             }
@@ -38,6 +39,7 @@ class FortuneModePackageTest {
         val attack = RulePackage(data).data.checks.single { it.id == "ataque" }
         assertEquals("mana", attack.fortuneResource)
         assertEquals(1, attack.fortuneCost)
+        assertEquals(FortuneMode.ADVANTAGE, attack.fortuneSpendMode)
     }
 
     @Test fun packageCanDeclareExplodingDiceAfterFortuneMode() {
