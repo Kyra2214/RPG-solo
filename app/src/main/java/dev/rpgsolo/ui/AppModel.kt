@@ -170,7 +170,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             runCatching {
                 applySettings(
                     ProviderKind.valueOf(saved.kind), saved.endpoint, saved.model, saved.apiKey,
-                    saved.cheapModel, saved.premiumModel
+                    saved.cheapModel, saved.premiumModel, saved.cacheSystemPrompt
                 )
             }
         }
@@ -982,12 +982,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Valida e aplica a configuração. Erro claro na tela se o endpoint ou o modelo forem inválidos. */
     fun applySettings(
         kind: ProviderKind, endpoint: String, model: String, apiKey: String,
-        cheapModel: String = "", premiumModel: String = ""
+        cheapModel: String = "", premiumModel: String = "",
+        cacheSystemPrompt: Boolean = endpoint.trim().startsWith("https://api.anthropic.com/")
     ): Boolean =
         try {
             require(apiKey.isNotBlank()) { "informe a chave de API" }
             val r = ProviderFactory.buildRoles(
-                kind, ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim()), cheapModel, premiumModel, usage
+                kind, ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim(), cacheSystemPrompt = cacheSystemPrompt), cheapModel, premiumModel, usage
             )
             roles = r
             controller = buildController(r)
@@ -997,7 +998,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 model = model.trim(),
                 cheapModel = cheapModel.trim(),
                 premiumModel = premiumModel.trim(),
-                apiKey = apiKey.trim()
+                apiKey = apiKey.trim(),
+                cacheSystemPrompt = cacheSystemPrompt
             ).also(secureSettings::save)
             configError = null
             true
