@@ -203,14 +203,17 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             for ((stat, increase) in cmd.statIncreases) {
                 val current = ent.stats[stat] ?: return no("atributo inexistente na ficha: $stat")
                 val cap = config.statCaps[stat] ?: return no("o pacote não define limite de evolução para o atributo: $stat")
-                if (current + increase > cap) return no("aumento ultrapassa o limite de $stat ($current/$cap)")
+                if (current > cap || increase > cap - current) return no("aumento ultrapassa o limite de $stat ($current/$cap)")
             }
             for ((skill, increase) in cmd.skillIncreases) {
                 val cap = config.skillCaps[skill] ?: return no("perícia não permitida pelo pacote: $skill")
                 val current = ent.skills[skill] ?: 0
-                if (current + increase > cap) return no("aumento ultrapassa o limite de $skill ($current/$cap)")
+                if (current > cap || increase > cap - current) return no("aumento ultrapassa o limite de $skill ($current/$cap)")
             }
-            val cost = cmd.statIncreases.values.sum() + cmd.skillIncreases.values.sum()
+            val costLong = cmd.statIncreases.values.sumOf { it.toLong() } +
+                cmd.skillIncreases.values.sumOf { it.toLong() }
+            if (costLong > Int.MAX_VALUE) return no("custo de evolução excede o limite suportado")
+            val cost = costLong.toInt()
             if (cost > ent.advancementPoints) return no("pontos de evolução insuficientes: ${ent.advancementPoints}/$cost")
             return Decision.Ok(listOf(AdvancementAllocated(ent.id, cmd.statIncreases, cmd.skillIncreases, cost)))
         }
