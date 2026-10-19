@@ -71,4 +71,17 @@ class AdvancementTest {
         assertEquals(2, engine.state.entities.getValue("hero").advancementPoints)
     }
 
+    @Test fun configRejectsPrerequisiteForUnknownStat() {
+        val error = runCatching {
+            EngineConfig(
+                statCaps = mapOf("forca" to 5),
+                skillCaps = mapOf("esquiva" to 5),
+                skillRequirements = mapOf(
+                    "esquiva" to AdvancementRequirement(minStats = mapOf("atributo-inexistente" to 1))
+                )
+            )
+        }.exceptionOrNull()
+        assertTrue(error is IllegalArgumentException)
+    }
+
 }
