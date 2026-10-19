@@ -1,6 +1,7 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.CheckSpec
+import dev.rpgsolo.engine.AdvancementRequirement
 import dev.rpgsolo.engine.Comparison
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Ficha
@@ -110,7 +111,14 @@ class RulePackage internal constructor(val data: PackageData) {
             defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
             advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
             statCaps = data.stats.associate { it.id to it.max },
-            skillCaps = data.traits.filter { it.type == "pericia" }.associate { it.id to MAX_SKILL_POINTS }
+            skillCaps = data.traits.filter { it.type == "pericia" }.associate { it.id to MAX_SKILL_POINTS },
+            skillRequirements = data.traits.filter { it.type == "pericia" }.associate { skill ->
+                skill.id to AdvancementRequirement(
+                    minStats = skill.requires.filterIsInstance<Requirement.MinStat>().associate { it.stat to it.min },
+                    requiredTraits = skill.requires.filterIsInstance<Requirement.HasTrait>().map { it.traitId }.toSet(),
+                    excludedTraits = skill.requires.filterIsInstance<Requirement.Excludes>().map { it.traitId }.toSet()
+                )
+            }
         )
 
     /** Recursos derivados dos atributos (vida, mana...), cheios. */
