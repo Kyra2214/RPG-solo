@@ -13,6 +13,27 @@ class FortuneModePackageTest {
         return root.listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }.toMutableMap()
     }
 
+    @Test fun packageCanDeclareExplodingDiceAfterFortuneMode() {
+        val files = files()
+        val rows = files.getValue("testes.txt").lines().map { line ->
+            if (line.isBlank() || line.startsWith("#")) line
+            else {
+                val fields = line.split("|").toMutableList()
+                if (fields.firstOrNull() == "ataque") {
+                    while (fields.size < 12) fields += "-"
+                    if (fields.size == 12) fields += "true" else fields[12] = "true"
+                    fields.joinToString("|")
+                } else line
+            }
+        }
+        files["testes.txt"] = rows.joinToString("\n")
+        val parsed = PackageParser.parse(files)
+        assertTrue("pacote deveria ser aceito: $parsed", parsed is ParseResult.Ok)
+        val data = (parsed as ParseResult.Ok).data
+        val attack = RulePackage(data).check("ataque", emptyMap(), 12)
+        assertTrue(attack.explodeOnMax)
+    }
+
     @Test fun packageCanDeclareAdvantageWithoutBreakingOldRows() {
         val files = files()
         val rows = files.getValue("testes.txt").lines().map { line ->
