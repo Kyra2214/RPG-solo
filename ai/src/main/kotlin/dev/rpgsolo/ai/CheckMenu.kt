@@ -274,7 +274,18 @@ class CheckMenu(private val pkg: RulePackage) {
                 append("Testes que você pode pedir (campo check = id; o jogador rola, o motor decide):")
                 checks.forEach { c ->
                     val using = c.stat?.let { " (usa ${pkg.stat(it)?.name ?: it})" } ?: ""
+                    val fortune = when (c.fortuneMode) {
+                        dev.rpgsolo.engine.FortuneMode.NORMAL -> ""
+                        dev.rpgsolo.engine.FortuneMode.ADVANTAGE -> " · vantagem automática"
+                        dev.rpgsolo.engine.FortuneMode.DISADVANTAGE -> " · desvantagem automática"
+                    }
+                    val exploding = if (c.explodeOnMax) " · dados explosivos" else ""
+                    val paid = if (c.fortuneResource != null && c.fortuneCost > 0) {
+                        val resourceName = pkg.data.resources.firstOrNull { it.id == c.fortuneResource }?.name ?: c.fortuneResource
+                        " · jogador pode gastar ${c.fortuneCost} ${resourceName} para ativar a política de fortuna"
+                    } else ""
                     append("\n- ").append(c.id).append(": ").append(c.name).append(using)
+                        .append(fortune).append(exploding).append(paid)
                 }
                 append("\nDificuldades (campo difficulty = id, opcional): ")
                 append(difficulties.joinToString(", ") { "${it.id} (${it.name})" })
