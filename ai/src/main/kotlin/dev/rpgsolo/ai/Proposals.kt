@@ -72,7 +72,7 @@ object ProposalSchema {
         add_item(ownerId, itemId, qty) · consume_item(ownerId, itemId, qty) · gain_xp(entityId, amount)
         revive(entityId, reason) · record_fact(key, value) · learn(key, text, source, believed)
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
-        change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments) · advance_clock(id, by)
+        change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments, publicClue opcional) · advance_clock(id, by)
         propose_rule(id, name, description, effects, limit): adaptação explícita, nunca regra oficial; fica pendente até aprovação do jogador.
         add_place(id, name, description, secret) · connect_places(fromId, toId) · discover_place(id); não use move_to_place, pois só o jogador se desloca.
         Se ainda não houver local conhecido, crie o ponto inicial e descubra-o; segredos de local só são revelados pelo motor após teste apropriado.
@@ -368,7 +368,7 @@ object ProposalParser {
             "add_condition" -> AddCondition(s("entityId"), s("condition"))
             "remove_condition" -> RemoveCondition(s("entityId"), s("condition"))
             "change_relation" -> ChangeRelation(s("fromId"), s("toId"), n("delta"), s("reason"))
-            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"))
+            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"), opt("publicClue").orEmpty())
             "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
             "add_place" -> AddPlace(
                 Place(
