@@ -28,6 +28,11 @@ data class GroupCheckResult(
     val passed: Boolean
 )
 
+private fun compareQuality(a: CheckResult, b: CheckResult): Int {
+    val outcomeComparison = a.outcome.ordinal.compareTo(b.outcome.ordinal)
+    return if (outcomeComparison != 0) outcomeComparison else a.margin.compareTo(b.margin)
+}
+
 /**
  * Executa uma rolagem com política explícita. Os dois resultados são registrados no log;
  * só [FortuneCheckResult.chosen] deve ser usado para decidir o efeito da ação.
@@ -42,12 +47,11 @@ fun GameEngine.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneChec
     }
 
     val second = check(spec.copy(label = "${spec.label} [2]"))
-    val firstScore = first.outcome.ordinal to first.margin
-    val secondScore = second.outcome.ordinal to second.margin
+    val quality = compareQuality(first, second)
     val chooseFirst = when (mode) {
         FortuneMode.NORMAL -> true
-        FortuneMode.ADVANTAGE -> firstScore >= secondScore
-        FortuneMode.DISADVANTAGE -> firstScore <= secondScore
+        FortuneMode.ADVANTAGE -> quality >= 0
+        FortuneMode.DISADVANTAGE -> quality <= 0
     }
     return FortuneCheckResult(mode, first, second, if (chooseFirst) first else second)
 }
@@ -62,9 +66,7 @@ fun GameEngine.checkOpposed(
 ): OpposedCheckResult {
     val left = check(challenger.copy(label = "${challenger.label} [oposto]"))
     val right = check(defender.copy(label = "${defender.label} [oposto]"))
-    val leftScore = left.outcome.ordinal to left.margin
-    val rightScore = right.outcome.ordinal to right.margin
-    return OpposedCheckResult(left, right, leftScore > rightScore)
+    return OpposedCheckResult(left, right, compareQuality(left, right) > 0)
 }
 
 /**
