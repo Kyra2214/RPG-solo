@@ -9,7 +9,7 @@ data class AutomaticTimelineEntry(
 
 /**
  * Cria uma linha do tempo só com acontecimentos que o personagem poderia conhecer.
- * Não inclui relógios, dossiês privados, mudanças ocultas de NPC nem texto de segredos não descobertos.
+ * Não inclui relógios em si, dossiês privados, mudanças ocultas de NPC nem texto de segredos não descobertos; só pode incluir a pista pública definida para um relógio concluído.
  * O índice é a posição do evento no log, não uma data civil.
  */
 fun automaticTimeline(
