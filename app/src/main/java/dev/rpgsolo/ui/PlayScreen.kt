@@ -103,7 +103,10 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     }
     val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && !c.isRollRevealed(i) }
 
-    LaunchedEffect(visible.size, pendingRoll) { if (visible.isNotEmpty()) listState.animateScrollToItem(visible.lastIndex) }
+    LaunchedEffect(visible.size, pendingRoll, streamingText.length, busy) {
+        val lastIndex = visible.lastIndex + if (busy && streamingText.isNotBlank()) 1 else 0
+        if (lastIndex >= 0) listState.animateScrollToItem(lastIndex)
+    }
 
     // A chamada à IA é de rede: sempre fora da thread principal.
     fun run(block: () -> Unit) {
@@ -114,6 +117,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                 withContext(Dispatchers.IO) { block() }
             } catch (e: Exception) {
                 playError = e.message ?: "A ação falhou inesperadamente. Você pode tentar de novo."
+                streamingText = ""
             } finally {
                 busy = false
                 version++
