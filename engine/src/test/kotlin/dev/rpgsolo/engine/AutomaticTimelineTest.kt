@@ -61,4 +61,18 @@ class AutomaticTimelineTest {
         assertEquals(3, timeline.count { it.category == "combate" })
     }
 
+    @Test fun agendaClueAppearsOnlyWhenClockCompletesWithoutExposingClockName() {
+        val events = listOf(
+            EntityCreated(Entity("hero", "Hero", EntityKind.PLAYER)),
+            ClockCreated("hidden-clock", "Plano secreto", 2, publicClue = "As portas da cidade se fecharam."),
+            ClockAdvanced("hidden-clock", 1, 1),
+            ClockAdvanced("hidden-clock", 2, 1)
+        )
+        val state = replay(events)
+        val timeline = automaticTimeline(events, "hero", state)
+        assertEquals(1, timeline.count { it.text == "As portas da cidade se fecharam." })
+        assertFalse(timeline.any { it.text.contains("Plano secreto") })
+        assertFalse(timeline.any { it.text.contains("hidden-clock") })
+    }
+
 }
