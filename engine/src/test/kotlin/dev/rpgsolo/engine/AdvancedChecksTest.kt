@@ -69,4 +69,41 @@ class AdvancedChecksTest {
         assertEquals(0, engine.events.count { it is RollRecorded })
     }
 
+    @Test fun fortuneCheckSpendsResourceAndPersistsRolls() {
+        val session = CampaignSession.create(
+            InMemoryEventStore(),
+            CampaignRecord("fortune", "Sorte", 123L, EngineConfig())
+        )
+        session.execute(CreateEntity(Entity(
+            id = "hero",
+            name = "Herói",
+            kind = EntityKind.PLAYER,
+            resources = mapOf("pa" to Resource(2, 2))
+        )))
+        val result = session.checkWithFortuneSpendingResource(
+            "hero", "pa", 1, spec("escalar"), FortuneMode.ADVANTAGE
+        )
+        assertTrue(result is FortuneSpendResult.Resolved)
+        assertEquals(1, session.state.entities.getValue("hero").resources.getValue("pa").current)
+        assertEquals(2, session.engine.events.count { it is RollRecorded })
+    }
+
+    @Test fun fortuneCheckRejectsInsufficientResourceWithoutRolling() {
+        val store = InMemoryEventStore()
+        val session = CampaignSession.create(store, CampaignRecord("no-fortune", "Sem sorte", 321L, EngineConfig()))
+        session.execute(CreateEntity(Entity(
+            id = "hero",
+            name = "Herói",
+            kind = EntityKind.PLAYER,
+            resources = mapOf("pa" to Resource(0, 2))
+        )))
+        val before = session.engine.eventCount
+        val result = session.checkWithFortuneSpendingResource(
+            "hero", "pa", 1, spec("escalar"), FortuneMode.ADVANTAGE
+        )
+        assertTrue(result is FortuneSpendResult.Rejected)
+        assertEquals(before, session.engine.eventCount)
+        assertEquals(0, session.state.entities.getValue("hero").resources.getValue("pa").current)
+    }
+
 }
