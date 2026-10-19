@@ -21,11 +21,28 @@ fun automaticTimeline(
     val result = mutableListOf<AutomaticTimelineEntry>()
     var combatIncludesPlayer = false
     var combatants = emptySet<String>()
+    // A pista só é publicada na transição de incompleto para completo.
+    // Guardar o preenchimento visto no replay evita duplicação se um evento
+    // posterior reportar novamente um relógio já cheio.
+    val clockFills = mutableMapOf<String, Int>()
     events.forEachIndexed { index, event ->
         val entry = when (event) {
-            is ClockAdvanced -> finalState.clocks[event.id]
-                ?.takeIf { event.filled == it.segments && it.publicClue.isNotBlank() }
-                ?.let { AutomaticTimelineEntry(index, "pista", it.publicClue) }
+            is ClockCreated -> {
+                clockFills[event.id] = 0
+                null
+            }
+            is ClockAdvanced -> {
+                val previousFill = clockFills[event.id] ?: 0
+                clockFills[event.id] = event.filled
+                val clock = finalState.clocks[event.id]
+                if (clock != null &&
+                    previousFill < clock.segments &&
+                    event.filled == clock.segments &&
+                    clock.publicClue.isNotBlank()
+                ) {
+                    AutomaticTimelineEntry(index, "pista", clock.publicClue)
+                } else null
+            }
             is CombatStarted -> {
                 combatants = event.order.toSet()
                 combatIncludesPlayer = playerId in combatants
