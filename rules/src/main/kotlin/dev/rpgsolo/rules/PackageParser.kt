@@ -189,7 +189,7 @@ object PackageParser {
             if (type !in TRAIT_TYPES) bad("tipo inválido: '$type' (${TRAIT_TYPES.joinToString()})")
             TraitDef(id(f[0], "id"), type, text(f[2], "nome"), int(f[3], "custo"), requirements(f[4]), f[5], traitBonuses(f.getOrNull(6)))
         }
-        val checks = table(PackageFiles.CHECKS, 10, 15) { f ->
+        val checks = table(PackageFiles.CHECKS, 10, 16) { f ->
             val cmp = Comparison.values().firstOrNull { it.name == f[6] }
                 ?: bad("comparacao inválida: '${f[6]}' (ROLL_OVER, ROLL_UNDER ou POINTS)")
             val count = int(f[2], "dados")
@@ -216,12 +216,22 @@ object PackageParser {
             }
             if (fortuneCost < 0) bad("custo de fortuna negativo")
             if (fortuneResource != null && fortuneCost <= 0) bad("custo de fortuna deve ser positivo")
-            if (fortuneResource != null && fortune == FortuneMode.NORMAL) {
-                bad("custo de fortuna exige ADVANTAGE ou DISADVANTAGE")
+            val fortuneSpendMode = f.getOrNull(15)?.takeIf { it.isNotBlank() && !blank(it) }?.let { value ->
+                FortuneMode.values().firstOrNull { it.name == value.uppercase() && it != FortuneMode.NORMAL }
+                    ?: bad("política paga inválida: '$value' (ADVANTAGE ou DISADVANTAGE)")
+            }
+            if (fortuneResource != null && fortuneSpendMode == null) {
+                bad("recurso e custo de fortuna exigem modo_fortuna_pago (ADVANTAGE ou DISADVANTAGE)")
+            }
+            if (fortuneResource == null && fortuneSpendMode != null) {
+                bad("modo_fortuna_pago exige recurso_fortuna e custo_fortuna")
+            }
+            if (fortuneResource != null && fortune != FortuneMode.NORMAL) {
+                bad("um teste com fortuna paga não pode aplicar outra política de fortuna automaticamente")
             }
             CheckDef(id(f[0], "id"), text(f[1], "nome"), count, sides, optId(f[4], "atributo"), int(f[5], "mult"),
                 cmp, optInt(f[7], "parcial"), range(f[8], "crit_sucesso"), range(f[9], "crit_falha"),
-                skill, fortune, explode, fortuneResource, fortuneCost)
+                skill, fortune, explode, fortuneResource, fortuneCost, fortuneSpendMode)
         }
         val difficulties = table(PackageFiles.DIFFICULTIES, 3) { f ->
             DifficultyDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "valor"))
