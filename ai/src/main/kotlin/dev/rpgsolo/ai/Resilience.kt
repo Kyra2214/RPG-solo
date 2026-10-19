@@ -155,10 +155,12 @@ class UsageTracker {
     }
 
     /** Estimativa conservadora: sem preços específicos, tokens em cache usam o preço normal de entrada. */
+    @Synchronized
     fun estimateCost(inputPerMillion: Double, outputPerMillion: Double): Double =
         estimateCost(inputPerMillion, outputPerMillion, inputPerMillion, inputPerMillion)
 
     /** Preços por milhão informados pelo usuário; cache read e cache creation podem ter tarifas diferentes. */
+    @Synchronized
     fun estimateCost(
         inputPerMillion: Double,
         outputPerMillion: Double,
