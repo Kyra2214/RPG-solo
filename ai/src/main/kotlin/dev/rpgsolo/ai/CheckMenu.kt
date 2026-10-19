@@ -18,7 +18,12 @@ import dev.rpgsolo.engine.RegraAdicional
  * corresponde ao resultado volta para a IA, para o que estava escondido não vazar numa falha.
  */
 /** Opção de vantagem/desvantagem paga, definida pelo pacote e nunca escolhida pela IA. */
-data class FortuneSpendOption(val resource: String, val cost: Int)
+data class FortuneSpendOption(
+    val resource: String,
+    val resourceName: String,
+    val cost: Int,
+    val mode: dev.rpgsolo.engine.FortuneMode
+)
 
 data class CheckRequest(
     val checkId: String,
@@ -89,7 +94,8 @@ class CheckMenu(private val pkg: RulePackage) {
         val check = checks.firstOrNull { it.id == checkId } ?: return null
         val resource = check.fortuneResource ?: return null
         if (check.fortuneCost <= 0 || check.fortuneMode == dev.rpgsolo.engine.FortuneMode.NORMAL) return null
-        return FortuneSpendOption(resource, check.fortuneCost)
+        val resourceName = pkg.data.resources.firstOrNull { it.id == resource }?.name ?: resource
+        return FortuneSpendOption(resource, resourceName, check.fortuneCost, check.fortuneMode)
     }
 
     /** Itens válidos no pacote ativo; a IA não pode inventar ids de inventário. */
