@@ -24,15 +24,15 @@ data class Entity(
     val alive: Boolean = true,
     val xp: Int = 0,
     val level: Int = 1,
-    /** Pontos de evolução não gastos, concedidos pelo pacote ao subir de nível. */
-    val advancementPoints: Int = 0,
     /** Pontos por perícia; ids e limites vêm do pacote de regras. */
     val skills: Map<String, Int> = emptyMap(),
     /** Conceito e traços de NPCs são privados para a interface; usados pelo mestre e pelo motor. */
     val concept: String = "",
     val traits: List<String> = emptyList(),
     /** false = ficha criada sem pacote de regras para validação. */
-    val rulesValidated: Boolean = true
+    val rulesValidated: Boolean = true,
+    /** Pontos de evolução não gastos, concedidos pelo pacote ao subir de nível. */
+    val advancementPoints: Int = 0
 )
 
 /** Estado canônico da campanha. Só muda aplicando eventos (ver [apply]). */
