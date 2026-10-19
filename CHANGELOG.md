@@ -15,6 +15,7 @@
 - Combate aplica resistência/vulnerabilidade numérica a dano antes de registrar o dano resolvido; Pele dura, Frágil, Tenacidade anã e Corpo de pedra usam o escopo explícito `resistencia_dano` do pacote.
 - Dados animados têm descrições semânticas para TalkBack, sem revelar o resultado antes de o jogador revelar a rolagem.
 - Consumível de cura não é gasto se o recurso-alvo já estiver cheio; a validação acontece antes do lote atômico de cura/consumo/avanço de turno.
+- Testes por pontos agora diferenciam 0 e 1 ponto: zero conserva a face mínima de sucesso; cada ponto positivo acrescenta uma face até o teto do dado. Tutorial, fórmula e simulador foram alinhados; a tabela empírica deve ser recalculada na validação posterior.
 - Se um endpoint rejeitar explicitamente o modo SSE (HTTP 400/422), o provedor tenta a resposta completa padrão para preservar compatibilidade.
 - Preferência de escala global da fonte (85%–140%) adicionada à Configuração, persistida no aparelho e aplicada à interface via densidade Compose.
 
