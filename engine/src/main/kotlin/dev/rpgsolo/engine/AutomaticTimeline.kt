@@ -41,10 +41,16 @@ fun automaticTimeline(
             is AttackResolved -> if (combatIncludesPlayer && (event.attackerId == playerId || event.targetId == playerId)) {
                 when {
                     event.attackerId == playerId -> finalState.entities[event.targetId]?.let {
-                        AutomaticTimelineEntry(index, "combate", "Você atingiu ${it.name}.")
+                        AutomaticTimelineEntry(
+                            index, "combate",
+                            if (event.hit) "Você atingiu ${it.name}." else "Você errou o ataque contra ${it.name}."
+                        )
                     }
                     else -> finalState.entities[event.attackerId]?.let {
-                        AutomaticTimelineEntry(index, "combate", "${it.name} atingiu você.")
+                        AutomaticTimelineEntry(
+                            index, "combate",
+                            if (event.hit) "${it.name} atingiu você." else "${it.name} errou o ataque contra você."
+                        )
                     }
                 }
             } else null
