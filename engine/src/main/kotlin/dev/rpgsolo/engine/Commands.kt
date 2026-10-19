@@ -184,11 +184,15 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
             if (!ent.alive) return no("${ent.name} está morto")
             if (cmd.amount <= 0) return no("XP inválido")
+            val totalXp = ent.xp.toLong() + cmd.amount.toLong()
+            if (totalXp > Int.MAX_VALUE) return no("XP excede o limite suportado")
             val events = mutableListOf<Event>(XpGained(ent.id, cmd.amount))
-            val newLevel = config.levelFor(ent.xp + cmd.amount)
+            val newLevel = config.levelFor(totalXp.toInt())
             if (newLevel > ent.level) {
                 val gainedLevels = newLevel - ent.level
-                events += LevelGained(ent.id, newLevel, gainedLevels * config.advancementPointsPerLevel)
+                val pointsGranted = gainedLevels.toLong() * config.advancementPointsPerLevel.toLong()
+                if (pointsGranted > Int.MAX_VALUE) return no("pontos de evolução excedem o limite suportado")
+                events += LevelGained(ent.id, newLevel, pointsGranted.toInt())
             }
             return Decision.Ok(events)
         }
