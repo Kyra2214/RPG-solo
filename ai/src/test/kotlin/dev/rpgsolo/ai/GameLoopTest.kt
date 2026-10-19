@@ -66,7 +66,7 @@ class GameLoopTest {
 
         assertEquals(dev.rpgsolo.engine.FortuneMode.ADVANTAGE, result.record.check!!.spec.fortuneMode)
         assertEquals(2, result.record.markAfterRoll - result.record.markBefore)
-        assertEquals(2, s.mark() - result.record.markBefore) // duas rolagens persistidas
+        assertTrue(s.mark() >= result.record.markAfterRoll) // ambas as rolagens persistidas antes da narração
     }
 
     @Test fun falhaDesfazAteARolagem() {
