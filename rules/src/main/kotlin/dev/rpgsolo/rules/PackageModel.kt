@@ -1,6 +1,7 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.Comparison
+import dev.rpgsolo.engine.FortuneMode
 
 /** TESTE = mecânica própria para validar o formato. REAL = sistema de verdade (exige licença verificada ou importação do usuário). */
 enum class PackageKind { TESTE, REAL }
@@ -62,7 +63,9 @@ data class CheckDef(
     val critSuccess: IntRange?,
     val critFailure: IntRange?,
     /** Id opcional de perícia; quando presente, seus pontos são a base do teste. */
-    val skill: String? = null
+    val skill: String? = null,
+    /** Política opcional de rolagem; pacote antigo mantém NORMAL. */
+    val fortuneMode: FortuneMode = FortuneMode.NORMAL
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)
