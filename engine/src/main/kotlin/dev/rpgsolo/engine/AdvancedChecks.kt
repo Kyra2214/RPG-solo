@@ -112,15 +112,31 @@ fun GameEngine.checkGroup(
     GroupCheckResult(results, successes, failures, requiredSuccesses, successes >= requiredSuccesses)
 }
 
-/** Wrappers para campanhas persistidas: as rolagens dos testes avançados também são salvas no EventStore. */
+/**
+ * Persiste uma resolução avançada como uma única unidade lógica. Se a resolução ou o append falhar,
+ * restaura o estado em memória; EventStore exige que append seja atômico (tudo ou nada).
+ */
+private inline fun <T> CampaignSession.persistAdvancedCheck(block: GameEngine.() -> T): T {
+    val start = mark()
+    return try {
+        val result = engine.block()
+        save()
+        result
+    } catch (e: Exception) {
+        engine.rollbackTo(start)
+        throw e
+    }
+}
+
+/** Wrappers para campanhas persistidas: a resolução e a gravação formam uma operação lógica. */
 fun CampaignSession.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneCheckResult =
-    engine.checkWithFortune(spec, mode).also { save() }
+    persistAdvancedCheck { checkWithFortune(spec, mode) }
 
 fun CampaignSession.checkOpposed(challenger: CheckSpec, defender: CheckSpec): OpposedCheckResult =
-    engine.checkOpposed(challenger, defender).also { save() }
+    persistAdvancedCheck { checkOpposed(challenger, defender) }
 
 fun CampaignSession.checkGroup(checks: List<CheckSpec>, requiredSuccesses: Int): GroupCheckResult =
-    engine.checkGroup(checks, requiredSuccesses).also { save() }
+    persistAdvancedCheck { checkGroup(checks, requiredSuccesses) }
 
 /** Resultado de um teste de sorte que consome um recurso persistido da campanha. */
 sealed interface FortuneSpendResult {
@@ -145,15 +161,21 @@ fun CampaignSession.checkWithFortuneSpendingResource(
         return FortuneSpendResult.Rejected("gastar recurso exige vantagem ou desvantagem")
     }
     val start = mark()
-    return when (val spent = execute(SpendResource(entityId, resource, cost))) {
-        is ExecResult.Rejected -> FortuneSpendResult.Rejected(spent.reason)
-        is ExecResult.Accepted -> try {
-            val result = engine.checkWithFortune(spec, mode)
-            save()
-            FortuneSpendResult.Resolved(result)
-        } catch (e: Exception) {
-            rollbackTo(start)
-            FortuneSpendResult.Rejected(e.message ?: "falha ao resolver teste com recurso")
+    return try {
+        when (val spent = engine.execute(SpendResource(entityId, resource, cost))) {
+            is ExecResult.Rejected -> {
+                engine.rollbackTo(start)
+                FortuneSpendResult.Rejected(spent.reason)
+            }
+            is ExecResult.Accepted -> {
+                val result = engine.checkWithFortune(spec, mode)
+                save() // grava gasto + rolagens em um único append
+                FortuneSpendResult.Resolved(result)
+            }
         }
+    } catch (e: Exception) {
+        // Nenhum save ocorreu antes da resolução; append do EventStore é atômico.
+        engine.rollbackTo(start)
+        FortuneSpendResult.Rejected(e.message ?: "falha ao resolver teste com recurso")
     }
 }
