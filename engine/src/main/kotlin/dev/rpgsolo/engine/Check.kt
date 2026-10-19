@@ -49,7 +49,9 @@ data class CheckSpec(
     /** Atributo que o teste usa (id do pacote), se houver. Serve para condições que dão Ganho/Perda por atributo. */
     val stat: String? = null,
     /** Id do teste no pacote, se veio de um. Serve para bônus de traços ligados a um teste. */
-    val checkId: String? = null
+    val checkId: String? = null,
+    /** Política de rolagem opcional declarada pela regra; padrão preserva o comportamento atual. */
+    val fortuneMode: FortuneMode = FortuneMode.NORMAL
 )
 
 data class CheckResult(
