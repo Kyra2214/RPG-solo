@@ -42,4 +42,23 @@ class AutomaticTimelineTest {
         val timeline = automaticTimeline(events, "hero", replay(events))
         assertEquals(1, timeline.count { it.category == "condição" && it.text.contains("deixou de afetar") })
     }
+    @Test fun combatTimelineOnlyIncludesCombatsInvolvingPlayer() {
+        val player = Entity("hero", "Hero", EntityKind.PLAYER)
+        val enemy = Entity("enemy", "Bandido", EntityKind.NPC)
+        val events = listOf(
+            EntityCreated(player),
+            EntityCreated(enemy),
+            CombatStarted(listOf("hero", "enemy")),
+            AttackResolved("hero", "enemy", defense = 10, hit = true, damage = 2),
+            CombatEnded,
+            CombatStarted(listOf("enemy")),
+            CombatEnded
+        )
+        val timeline = automaticTimeline(events, "hero", replay(events))
+        assertTrue(timeline.any { it.text == "Um confronto começou." })
+        assertTrue(timeline.any { it.text == "Você atingiu Bandido." })
+        assertTrue(timeline.any { it.text == "O confronto terminou." })
+        assertEquals(3, timeline.count { it.category == "combate" })
+    }
+
 }
