@@ -89,6 +89,19 @@ class RulePackage internal constructor(val data: PackageData) {
     fun isEquipableItem(id: String, slot: String): Boolean =
         itemById[id]?.kind == "equipamento" && itemById[id]?.slot == slot
 
+    /** Regras de elegibilidade para comprar novos pontos de uma perícia fora da criação inicial. */
+    fun canImproveSkill(skillId: String, stats: Map<String, Int>, traitIds: Collection<String>): Boolean {
+        val skill = traitById[skillId]?.takeIf { it.type == "pericia" } ?: return false
+        val fullStats = data.stats.associate { it.id to (stats[it.id] ?: it.default) }
+        return skill.requires.all { requirement ->
+            when (requirement) {
+                is Requirement.MinStat -> (fullStats[requirement.stat] ?: Int.MIN_VALUE) >= requirement.min
+                is Requirement.HasTrait -> requirement.traitId in traitIds
+                is Requirement.Excludes -> requirement.traitId !in traitIds
+            }
+        }
+    }
+
     /** Configuração para o motor: o que mata e os níveis. Sem isso no pacote, o motor não mata nem sobe de nível. */
     fun engineConfig(): EngineConfig =
         EngineConfig(
