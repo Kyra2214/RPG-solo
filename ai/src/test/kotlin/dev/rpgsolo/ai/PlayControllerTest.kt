@@ -109,6 +109,32 @@ class PlayControllerTest {
         assertTrue(c.lines.any { it.text.startsWith("Não escolhido · ") })
     }
 
+    @Test fun rolagemNormalNaoGastaRecursoMesmoQuandoExisteOpcaoPaga() {
+        val s = CampaignSession.create(
+            InMemoryEventStore(),
+            CampaignRecord("normal-fortune", "Teste", 43L, EngineConfig(deathResource = "hp"))
+        )
+        s.execute(CreateEntity(Entity(
+            id = "hero", name = "Herói", kind = EntityKind.PLAYER,
+            stats = mapOf("forca" to 2, "agilidade" to 1, "mente" to 1),
+            resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(2, 2))
+        )))
+        val provider = ScriptedProvider(listOf(
+            """{"narrative":"A fechadura resiste.","request_check":{"check":"ataque","difficulty":"media","onSuccess":"abre","onFailure":"falha"}}""",
+            ok("A fechadura resiste.")
+        ))
+        val c = PlayController(
+            s, GameLoop(provider, menu = fortuneMenu()), "hero", "hp",
+            checkFor = { null }
+        )
+
+        assertTrue(c.submit("forço a fechadura") is PlayResult.Played)
+        assertTrue(c.pendingFortuneSpendOption() != null)
+        assertTrue(c.rollPending() is PlayResult.Played)
+        assertEquals(2, s.state.entities.getValue("hero").resources.getValue("mana").current)
+        assertEquals(1, c.lines.count { it.author == Author.ROLL })
+    }
+
     @Test fun linhaDeRolagemTrazOsDadosReaisDoMotorParaAnimar() {
         val c = ctrl(session(), listOf(ok("Você golpeia.")))
         c.submit("ataco o orc")
