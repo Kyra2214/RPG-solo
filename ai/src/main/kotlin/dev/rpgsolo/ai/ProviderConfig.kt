@@ -2,7 +2,7 @@ package dev.rpgsolo.ai
 
 /**
  * Endpoint e modelo configuráveis (6.1.4). A chave fica só no aparelho (guardada pelo app em
- * EncryptedSharedPreferences, nunca no APK) e nunca aparece em logs nem na tela (6.1.5).
+ * cifrada com Android Keystore, nunca no APK) e nunca aparece em logs nem na tela (6.1.5).
  */
 data class ProviderConfig(
     val endpoint: String,
