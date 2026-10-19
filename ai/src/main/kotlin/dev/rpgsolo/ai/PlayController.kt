@@ -99,8 +99,11 @@ class PlayController(
     fun pending(): Pending? = loop.pending()
 
     /** Opção paga, definida pelo pacote, para ativar vantagem/desvantagem no teste pendente. */
-    fun pendingFortuneSpendOption(): FortuneSpendOption? =
-        (loop.pending() as? PendingCheck)?.fortuneSpendOption
+    fun pendingFortuneSpendOption(): FortuneSpendOption? {
+        val option = (loop.pending() as? PendingCheck)?.fortuneSpendOption ?: return null
+        val current = session.state.entities[playerId]?.resources?.get(option.resource)?.current ?: return null
+        return option.takeIf { current >= it.cost }
+    }
 
     /**
      * Quanto da ficha enviar agora (cada pedido à IA é independente):
