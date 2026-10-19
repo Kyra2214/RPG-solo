@@ -36,7 +36,7 @@ sealed interface Requirement {
 }
 
 /** Vantagem, desvantagem, perícia ou poder. Custo negativo devolve pontos. */
-/** Bônus fixo no total de um teste. [scope] = id de teste, id de atributo ou tipo de situação (ex.: "esquiva", "sorte"). */
+/** Bônus mecânico tipado. Escopos de teste: id do teste, atributo ou perícia; combate: ataque, dano, defesa, resistencia_dano. */
 data class TraitBonus(val scope: String, val bonus: Int)
 
 data class TraitDef(
