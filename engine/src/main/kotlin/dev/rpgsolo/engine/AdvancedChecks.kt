@@ -87,7 +87,7 @@ fun GameEngine.checkOpposed(
 ): OpposedCheckResult = atomicAdvancedCheck {
     val left = check(challenger.copy(label = "${challenger.label} [oposto]"))
     val right = check(defender.copy(label = "${defender.label} [oposto]"))
-    OpposedCheckResult(left, right, compareQuality(left, right) > 0)
+    OpposedCheckResult(left, right, left.margin > right.margin)
 }
 
 /**
