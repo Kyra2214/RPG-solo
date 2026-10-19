@@ -88,3 +88,14 @@ fun GameEngine.checkGroup(
     val failures = results.size - successes
     return GroupCheckResult(results, successes, failures, requiredSuccesses, successes >= requiredSuccesses)
 }
+
+
+/** Wrappers para campanhas persistidas: as rolagens dos testes avançados também são salvas no EventStore. */
+fun CampaignSession.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneCheckResult =
+    engine.checkWithFortune(spec, mode).also { save() }
+
+fun CampaignSession.checkOpposed(challenger: CheckSpec, defender: CheckSpec): OpposedCheckResult =
+    engine.checkOpposed(challenger, defender).also { save() }
+
+fun CampaignSession.checkGroup(checks: List<CheckSpec>, requiredSuccesses: Int): GroupCheckResult =
+    engine.checkGroup(checks, requiredSuccesses).also { save() }
