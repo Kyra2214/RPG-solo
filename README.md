@@ -20,7 +20,7 @@ A última validação documentada antes da branch atual foi em 17/10/2026, com J
 - Combate integrado à interface: iniciativa configurada pelo pacote, ataque, dano, defesa, fuga, turnos de NPC e XP; a IA não escolhe os números mecânicos.
 - Progressão básica por pacote: pontos por nível, alocação validada de atributos/perícias e histórico de XP/nível; o sistema próprio concede 1 ponto por nível.
 - Camada de IA com provedores configuráveis, teste de conexão, classificação de intenção, contexto, propostas validadas, sugestões e ações locais sem chamada de IA.
-- Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; ainda sem validação de uso em rede real. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas, incluindo acontecimentos de combate com participação do jogador.
+- Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; contagens de tokens lidos/criados no cache aparecem em Config e a estimativa aceita tarifas separadas. O uso real ainda não foi validado em rede. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas, incluindo acontecimentos de combate com participação do jogador.
 - Persistência via Room para campanhas, eventos, fichas e metadados; sessão principal mantida em `ViewModel`.
 - Chave do provedor protegida pelo Android Keystore e excluída do backup.
 - Backup JSON local com eventos/configuração do motor e metadados de capítulos, missões e linha do tempo, por seletor de arquivos Android (SAF) ou copiar/colar texto.
