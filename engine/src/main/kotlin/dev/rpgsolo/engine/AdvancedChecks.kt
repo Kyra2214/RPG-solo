@@ -88,7 +88,8 @@ fun GameEngine.checkOpposed(
 ): OpposedCheckResult = atomicAdvancedCheck {
     val left = check(challenger.copy(label = "${challenger.label} [oposto]"))
     val right = check(defender.copy(label = "${defender.label} [oposto]"))
-    OpposedCheckResult(left, right, left.margin > right.margin)
+    // Margens de testes diferentes não são diretamente comparáveis: primeiro vence quem obteve o melhor resultado; em igualdade, compara-se a margem. Empate absoluto favorece o defensor.
+    OpposedCheckResult(left, right, compareQuality(left, right) > 0)
 }
 
 /**
