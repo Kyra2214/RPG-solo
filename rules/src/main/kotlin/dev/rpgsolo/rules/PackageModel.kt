@@ -8,6 +8,23 @@ enum class PackageKind { TESTE, REAL }
 
 const val USER_IMPORT_SOURCE = "importacao-usuario"
 
+/** Formato de criacao.txt: recompensa_recurso|mana=2,pv=1 (quantidade por nível). */
+internal fun parseResourceRewards(raw: String?): Map<String, Int> {
+    if (raw.isNullOrBlank() || raw.trim() == "-") return emptyMap()
+    val result = linkedMapOf<String, Int>()
+    for (entry in raw.split(",")) {
+        val pair = entry.split("=", limit = 2)
+        require(pair.size == 2) { "recompensa_recurso inválida: '${entry}' (use recurso=quantidade)" }
+        val id = pair[0].trim()
+        require(Regex("[a-z0-9][a-z0-9_-]*").matches(id)) { "recurso de recompensa inválido: '${id}'" }
+        val amount = pair[1].trim().toIntOrNull()
+            ?: throw IllegalArgumentException("quantidade de recompensa inválida: '${pair[1]}'")
+        require(amount > 0) { "recompensa de recurso deve ser positiva: '${id}'" }
+        require(result.put(id, amount) == null) { "recurso de recompensa repetido: '${id}'" }
+    }
+    return result
+}
+
 data class Manifest(
     val id: String,
     /** Família do sistema (ex.: "dnd"). Herança só vale dentro da mesma família. */
