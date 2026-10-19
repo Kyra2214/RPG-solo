@@ -81,6 +81,8 @@ data class EngineConfig(
     val defendBonus: Int = 0,
     /** Pontos concedidos por cada nível novo, conforme declarado pelo pacote. */
     val advancementPointsPerLevel: Int = 0,
+    /** Quantidade de cada recurso restaurada por nível novo, limitada ao máximo atual. */
+    val levelResourceRewards: Map<String, Int> = emptyMap(),
     /** Tetos de atributos e perícias do pacote, usados ao gastar pontos de evolução. */
     val statCaps: Map<String, Int> = emptyMap(),
     val statDefaults: Map<String, Int> = emptyMap(),
@@ -90,6 +92,9 @@ data class EngineConfig(
     init {
         require(defendBonus in 0..10) { "defendBonus deve ficar entre 0 e 10" }
         require(advancementPointsPerLevel in 0..100) { "advancementPointsPerLevel deve ficar entre 0 e 100" }
+        require(levelResourceRewards.values.all { it > 0 } && levelResourceRewards.keys.all { it.isNotBlank() }) {
+            "recompensas de recurso por nível devem usar ids não vazios e quantidades positivas"
+        }
         require(statCaps.values.all { it >= 0 } && skillCaps.values.all { it in 0..100 }) {
             "limites de evolução inválidos"
         }
@@ -215,6 +220,14 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 val pointsGranted = gainedLevels.toLong() * config.advancementPointsPerLevel.toLong()
                 if (pointsGranted > Int.MAX_VALUE) return no("pontos de evolução excedem o limite suportado")
                 events += LevelGained(ent.id, newLevel, pointsGranted.toInt())
+                for ((resource, perLevel) in config.levelResourceRewards) {
+                    val current = ent.resources[resource] ?: return no("recompensa por nível referencia recurso ausente na ficha: $resource")
+                    val reward = perLevel.toLong() * gainedLevels.toLong()
+                    val newValue = minOf(current.max.toLong(), current.current.toLong() + reward).toInt()
+                    if (newValue != current.current) {
+                        events += ResourceChanged(ent.id, resource, newValue, newValue - current.current)
+                    }
+                }
             }
             return Decision.Ok(events)
         }
