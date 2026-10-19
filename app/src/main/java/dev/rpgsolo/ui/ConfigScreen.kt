@@ -210,7 +210,11 @@ fun ConfigScreen(model: AppModel) {
             val output = outputPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: 0.0
             val cacheRead = cacheReadPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: input
             val cacheCreation = cacheCreationPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: input
-            Text("Custo estimado nesta sessão: " + "%.6f".format(model.usage.estimateCost(input, output, cacheRead, cacheCreation)), style = MaterialTheme.typography.bodyMedium)
+            if (inputPrice.isBlank() || outputPrice.isBlank()) {
+                Muted("Informe os preços de entrada e saída para calcular o custo. A moeda usada será a mesma da tabela que você informar.")
+            } else {
+                Text("Custo estimado nesta sessão (moeda informada): " + "%.6f".format(model.usage.estimateCost(input, output, cacheRead, cacheCreation)), style = MaterialTheme.typography.bodyMedium)
+            }
         }
         AppCard {
             Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
