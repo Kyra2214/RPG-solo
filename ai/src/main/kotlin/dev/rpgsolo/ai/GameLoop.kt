@@ -81,7 +81,12 @@ class GameLoop(
 
     fun play(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         val markBefore = session.mark()
-        val resolution = input.check?.let { resolveCheck(session, adjusted(it, session, input.playerEntityId)) }
+        val resolution = try {
+            input.check?.let { resolveCheck(session, adjusted(it, session, input.playerEntityId)) }
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(markBefore) }
+            return PlayResult.Failed(e.message ?: "falha ao resolver o teste")
+        }
         val check = resolution?.chosen
         val markAfterRoll = session.mark()
         return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
@@ -156,7 +161,12 @@ class GameLoop(
         val pendingSpec = if (pending is PendingCheck) {
             adjusted(pending.spec, session, template.playerEntityId, pending.request.skill)
         } else pending.spec
-        val resolution = resolveCheck(session, pendingSpec)
+        val resolution = try {
+            resolveCheck(session, pendingSpec)
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(markBefore) }
+            return PlayResult.Failed(e.message ?: "falha ao resolver o teste pendente")
+        }
         val check = resolution.chosen
         if (pending is PendingCheck && pending.request.revealSecretId != null) {
             val npcId = pending.request.targetNpcId ?: run {
