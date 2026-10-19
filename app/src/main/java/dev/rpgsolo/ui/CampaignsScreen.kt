@@ -18,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -214,6 +216,9 @@ fun CampaignsScreen(model: AppModel) {
                             Muted("${choice.current}/${choice.max}" + if (choice.skill) " · perícia" else " · atributo")
                         }
                         Button(
+                            modifier = Modifier.semantics {
+                                contentDescription = "Aumentar ${choice.name} em 1 ponto"
+                            },
                             enabled = advancement.pointsAvailable > 0 && choice.current < choice.max,
                             onClick = { message = model.increaseAdvancement(choice.id, choice.skill) }
                         ) { Text("+1") }
