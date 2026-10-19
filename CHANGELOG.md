@@ -1,5 +1,23 @@
 # Changelog — implementação code-first
 
+## 2026-10-19 — integração de narração progressiva
+
+### IA e fluxo de jogada
+- Transporte HTTP ganhou leitura linha a linha para respostas SSE, com implementação real no transporte de produção e fallback compatível com transportes simples.
+- Provedores OpenAI-compatible e Anthropic implementam leitura incremental de conteúdo.
+- O streaming foi propagado pelos decorators de retry, limite de requisições e contagem de uso.
+- O loop extrai somente o campo `narrative` do JSON transmitido, sem exibir propostas ou outros campos estruturados durante a geração.
+- A tela Jogar mostra a narração parcial enquanto o pedido está em andamento e limpa o rascunho ao terminar ou falhar.
+- Retentativas de streaming não são repetidas depois do primeiro fragmento, evitando concatenar duas respostas parciais.
+
+### Mecânica e acessibilidade
+- Alguns bônus e penalidades numéricos já explícitos em traços do pacote próprio agora são aplicados pelo motor (reflexos, frágil, mão pesada, graça feérica e desconfiança/emoção confusa).
+- Dados animados têm descrições semânticas para TalkBack, sem revelar o resultado antes de o jogador revelar a rolagem.
+
+### Estado da validação
+- Essas alterações são somente de código e leitura estática. **Não foram executados builds, testes, lint ou CI**. Compatibilidade SSE por provedor, Compose e comportamento em aparelho continuam pendentes de validação do usuário.
+
+
 ## 2026-10-18 — consolidação da branch `implementation/code-first-combat`
 
 ### Motor e combate
