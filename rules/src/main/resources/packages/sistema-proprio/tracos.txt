@@ -10,10 +10,10 @@ cuidados|pericia|Cuidados|1||Primeiros socorros e tratamento de ferimentos.|cuid
 olhar-atento|pericia|Olhar atento|2|trait:percepcao|Evolução da Percepção: quase nada passa despercebido.|percepcao:+1
 golpe-forte|vantagem|Golpe forte|0|poder>=2|Ataques corpo a corpo castigam mais.
 reflexos|vantagem|Reflexos|0|habilidade>=2|Reação rápida diante de surpresas.|esquiva:+2;defesa:+1
-pele-dura|vantagem|Pele dura|0|resistencia>=2|Aguenta pancadas que derrubariam outros.
+pele-dura|vantagem|Pele dura|0|resistencia>=2|Aguenta pancadas que derrubariam outros.|resistencia_dano:+1
 aliado|vantagem|Aliado|0||Alguém de confiança ajuda o herói quando pode.
 talento-arcano|poder|Talento arcano|0|habilidade>=2|Permite gastar PM em efeitos fora do comum.
-fragil|desvantagem|Frágil|0|not:pele-dura|Corpo delicado, se machuca com facilidade.|defesa:-1
+fragil|desvantagem|Frágil|0|not:pele-dura|Corpo delicado, se machuca com facilidade.|resistencia_dano:-1
 devedor|desvantagem|Devedor|0||Deve um favor ou dinheiro a alguém perigoso.
 inimigo|desvantagem|Inimigo|0||Alguém poderoso quer ver o herói em apuros.
 medroso|desvantagem|Medroso|0||Perde a coragem diante de ameaças grandes.
@@ -103,7 +103,7 @@ fascinar|vantagem|Fascinar|0|habilidade>=1;trait:convite-necessario|Vampiro: Olh
 convite-necessario|desvantagem|Convite necessário|0||Vampiro: Não entra em lugares onde não foi convidado.
 sobrecarga|vantagem|Sobrecarga|0|resistencia>=1;trait:vulneravel-a-pulso|Ciborgue: Gasta energia para +1d6 em força ou velocidade por um turno.
 vulneravel-a-pulso|desvantagem|Vulnerável a pulso|0||Ciborgue: Ataques elétricos ou de pulso desligam implantes (-2).
-tenacidade-anao|vantagem|Tenacidade anã|0|resistencia>=2;trait:rancor-ancestral|Anão: Reduz em 1 o dano de golpes comuns.
+tenacidade-anao|vantagem|Tenacidade anã|0|resistencia>=2;trait:rancor-ancestral|Anão: Reduz em 1 o dano de golpes comuns.|resistencia_dano:+1
 rancor-ancestral|desvantagem|Rancor ancestral|0||Anão: Guarda mágoas por gerações; custa a perdoar ou fazer as pazes.
 graca-feerica|vantagem|Graça feérica|0|habilidade>=2;trait:melancolia-longa|Elfo: +1 em testes de movimento e de percepção natural.|atletismo:+1;percepcao:+1
 melancolia-longa|desvantagem|Melancolia longa|0||Elfo: A vida longa pesa; perde o ânimo diante de perdas.
@@ -111,7 +111,7 @@ veu-de-sombras|vantagem|Véu de sombras|0|habilidade>=2;trait:desconfianca-geral
 desconfianca-geral|desvantagem|Desconfiança geral|0||Elfo negro: Quase todos o evitam ou o vigiam (-1 em testes sociais).|persuasao:-1;intimidacao:-1
 sangue-de-guerra|vantagem|Sangue de guerra|0|poder>=2;trait:temperamento-explosivo|Orc: Ao ferir um inimigo, ganha +1 no próximo ataque.
 temperamento-explosivo|desvantagem|Temperamento explosivo|0||Orc: Provocações o tiram do sério.
-corpo-de-pedra|vantagem|Corpo de pedra|0|resistencia>=3;trait:ordens-literais|Golem: Imune a veneno e doença; reduz em 1 o dano comum.
+corpo-de-pedra|vantagem|Corpo de pedra|0|resistencia>=3;trait:ordens-literais|Golem: Imune a veneno e doença; reduz em 1 o dano comum.|resistencia_dano:+1
 ordens-literais|desvantagem|Ordens literais|0||Golem: Cumpre ordens ao pé da letra; a ambiguidade o trava.
 po-de-fada|vantagem|Pó de fada|0|habilidade>=3;trait:pequena-demais|Fada: Faz um alvo flutuar ou brilhar por uma cena.
 pequena-demais|desvantagem|Pequena demais|0||Fada: Tamanho minúsculo: força física quase nula e fácil de capturar.
