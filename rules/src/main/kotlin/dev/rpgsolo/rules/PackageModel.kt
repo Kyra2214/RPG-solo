@@ -65,7 +65,9 @@ data class CheckDef(
     /** Id opcional de perícia; quando presente, seus pontos são a base do teste. */
     val skill: String? = null,
     /** Política opcional de rolagem; pacote antigo mantém NORMAL. */
-    val fortuneMode: FortuneMode = FortuneMode.NORMAL
+    val fortuneMode: FortuneMode = FortuneMode.NORMAL,
+    /** Explosão opcional: cada face máxima gera outro dado. */
+    val explodeOnMax: Boolean = false
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)
