@@ -37,6 +37,23 @@ class AdvancementTest {
         assertEquals(evolved, reopened.state.entities.getValue("hero"))
     }
 
+    @Test fun levelRewardsRestoreConfiguredResourcesWithoutExceedingMaximum() {
+        val store = InMemoryEventStore()
+        val cfg = config().copy(levelResourceRewards = mapOf("mana" to 3))
+        val session = CampaignSession.create(store, CampaignRecord("level-reward", "Recompensa", 17L, cfg))
+        session.execute(CreateEntity(Entity(
+            id = "hero", name = "Herói", kind = EntityKind.PLAYER,
+            resources = mapOf("mana" to Resource(2, 5))
+        )))
+
+        session.execute(GainXp("hero", 10))
+        assertEquals(5, session.state.entities.getValue("hero").resources.getValue("mana").current)
+        session.execute(GainXp("hero", 10))
+        assertEquals(5, session.state.entities.getValue("hero").resources.getValue("mana").current)
+        val reopened = CampaignSession.open(store, "level-reward")
+        assertEquals(5, reopened.state.entities.getValue("hero").resources.getValue("mana").current)
+    }
+
     @Test fun allocationRejectsCapsAndDoesNotPartiallyApply() {
         val engine = GameEngine(3L, config())
         engine.execute(CreateEntity(Entity(
