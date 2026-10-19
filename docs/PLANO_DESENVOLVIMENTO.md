@@ -489,3 +489,11 @@ Esta atualização registra somente alterações efetivamente gravadas nesta bra
 ### Regra de trabalho mantida
 
 Continuar corrigindo e integrando o código antes de iniciar a etapa de validação. Não marcar build, teste, rede real ou experiência em aparelho como aprovados sem executá-los.
+
+### CI — primeira execução na branch code-first (19/10/2026)
+
+- Workflow: [Android CI](https://github.com/Kyra2214/RPG-solo/actions/runs/39256577704), execução #26, commit `09cd4a7420341d093fb918745fb205eb4644de94`.
+- Ajuste realizado: o gatilho `push` agora inclui `implementation/code-first-combat`; antes, o workflow só disparava em `main`.
+- Resultado observado: falha antes de qualquer etapa do job; a API do GitHub reportou `steps: []` e nenhum runner atribuído. A repetição da execução também terminou sem iniciar etapas.
+- Interpretação: **testes e compilação não foram executados**. Não classificar como falha de teste do código nem como aprovação. É necessário resolver a inicialização do job/runner e obter uma execução com as etapas `Run JVM and Android tests` e `Build debug APK`.
+- Artefato APK: não gerado nesta execução.
