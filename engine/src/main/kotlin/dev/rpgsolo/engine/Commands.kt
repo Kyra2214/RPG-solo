@@ -92,8 +92,7 @@ data class EngineConfig(
         require(statCaps.values.all { it >= 0 } && skillCaps.values.all { it in 0..100 }) {
             "limites de evolução inválidos"
         }
-        require(skillRequirements.keys.all { it in skillCaps } &&
-            skillRequirements.values.all { req -> req.minStats.keys.all { it in statCaps } }) {
+        require(skillRequirements.keys.all { it in skillCaps }) {
             "pré-requisitos de evolução inválidos"
         }
         require(levelThresholds.zipWithNext().all { (a, b) -> a < b } && levelThresholds.all { it > 0 }) {
