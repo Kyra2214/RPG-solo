@@ -6,6 +6,8 @@ Análise completa do projeto `RPG-solo-ficha-para-ia.zip` (módulos `engine`, `r
 
 > **Atualização de implementação — 18/10/2026:** este arquivo registra o diagnóstico original, não o estado atual completo. A branch `implementation/code-first-combat` já implementa várias melhorias descritas abaixo: Room/autosave e backup Android, chave protegida, importação de pacotes, combate integrado ao app, equipamento, condições com duração, biblioteca de fichas, mapa, capítulos, missões, linha do tempo, preferências de geração e ações de primeiro uso. Consulte `CHANGELOG.md` e `docs/PLANO_DESENVOLVIMENTO.md` para o estado da branch. Builds, testes, lint e CI foram deliberadamente adiados a pedido do usuário; os itens de validação continuam abertos até serem executados.
 
+> **Atualização code-first — 19/10/2026:** streaming SSE foi conectado ao transporte, aos provedores OpenAI-compatible/Anthropic, ao loop de jogo e à prévia progressiva da narração na tela. A tela também ganhou descrições semânticas dos dados para TalkBack. Alguns bônus/penalidades numéricos explícitos em `tracos.txt` agora entram na mecânica. Isso não equivale a implementar todos os 513 traços: usos por cena, gatilhos ficcionais, imunidades e efeitos que dependem do contexto ainda precisam de modelo mecânico próprio. O streaming e as alterações Compose **não foram compilados nem executados**.
+
 Legenda de esforço: **P** = até 1 dia · **M** = 2 a 5 dias · **G** = mais de 1 semana.
 Legenda de prioridade: 🔴 bloqueia ou corrompe · 🟠 muda a experiência de jogo · 🟡 melhora · 🟢 polimento.
 
@@ -65,9 +67,8 @@ Ordem sugerida: **(A) fazer rodar e salvar → (B) combate e equipamento → (C)
 - Rodar o que mudou na última etapa: `./gradlew :engine:test :rules:test` com os testes novos de dados (`PointCheckTest`, `PointCheckPackageTest`, `SistemaProprioDadosTest`).
 - Primeira execução em aparelho real: medir tempo de abertura, consumo de bateria e dados (item 11.2.2 do plano, ainda aberto).
 
-### 3.5 Correção pendente da última entrega (🟠, P)
-**Achado:** ao mudar as perícias para o d6 por pontos e os dados reais, **não atualizei** `tutorial.txt` do sistema próprio. A linha 7 ainda diz: "O motor rola 2d6, soma o atributo e compara com a dificuldade." Isso agora é falso para esquiva e perícia, e é o texto que aparece na aba Regras.
-**Melhoria:** reescrever o passo "Testes" do tutorial com a regra nova (pontos = faces, dificuldade troca o dado, d20 para ataque/resistir/sorte) e conferir `criacao.txt`, `incerto.txt` e a documentação do README.
+### 3.5 Tutorial da mecânica de dados (🟢, concluído no código; validar)
+**Estado atual:** `tutorial.txt` do sistema próprio já descreve perícias por pontos, dados por dificuldade, ataque d20, dano, iniciativa, equipamento, condições e progressão. O achado acima é histórico e não deve ser tratado como pendência de implementação. Ainda é necessário conferir a apresentação no app depois da compilação.
 
 ---
 
@@ -105,7 +106,9 @@ Ordem sugerida: **(A) fazer rodar e salvar → (B) combate e equipamento → (C)
 
 ### 4.4 Efeitos mecânicos reais dos traços (🟠, G)
 **Achado:** dos 513 registros de `tracos.txt`, **18 têm bônus aplicado pelo motor**. As 219 vantagens, 197 desvantagens e 6 poderes são, na prática, texto que a IA interpreta. `criacao.txt` (regra 6) afirma "o motor aplica as penalidades" das desvantagens, o que hoje **não acontece**; o próprio arquivo de plano admite que "o motor valida custo e requisitos, mas ainda não aplica bônus".
-**Melhoria:** coluna de **efeitos tipados** em `tracos.txt`, começando pelos mais comuns:
+**Estado atualizado:** o formato de bônus numérico por escopo já existe e alguns traços explícitos foram ligados (por exemplo, penalidades de furtividade/ofícios e bônus de percepção/atletismo). Isso é parcial; não representa gatilhos condicionais, contadores de uso, imunidades ou efeitos de recursos. **Próxima implementação:** ampliar o modelo de efeitos tipados sem inferir mecânica a partir de texto livre.
+
+**Melhoria original:** coluna de **efeitos tipados** em `tracos.txt`, começando pelos mais comuns:
 - bônus ou penalidade em pontos num teste (já existe);
 - bônus de recurso máximo (+PV, +PM);
 - uso limitado ("1 vez por cena", "1 vez por descanso") com contador no estado;
@@ -157,7 +160,9 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 
 ### 5.1 Dados e cartão de rolagem (🟠, M)
 **Achado (`DiceUi.kt`):** só o d6 tem desenho (pontos); qualquer outro dado é o número num quadrado arredondado. O cartão mostra sempre "dificuldade N", o que está errado para o teste de pontos (agora o motor converte para "d8 · acerta com 6–8").
-**Melhoria:**
+**Estado atualizado:** os seis tipos de dados têm formas geométricas e o cartão identifica faces de sucesso/margem; rolagens reveladas ficam no controlador. Descrições semânticas dos dados foram adicionadas para TalkBack, preservando resultado oculto até a revelação. O restante da seção continua como acabamento pendente.
+
+**Melhoria original:**
 - Formas por dado: d4 triângulo, d8 losango, d10 e d12 polígonos, d20 hexágono com facetas, d6 como já está.
 - Para testes de pontos: **faixa de faces** com as que acertam destacadas ("acerta com 6, 7 ou 8") e a face sorteada marcada.
 - Para d20: "d20 + 3 contra 12", com a **margem** do resultado ("passou por 2", "faltou 1") e o limiar de sucesso parcial e crítico visíveis.
