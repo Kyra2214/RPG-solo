@@ -51,7 +51,9 @@ data class CheckSpec(
     /** Id do teste no pacote, se veio de um. Serve para bônus de traços ligados a um teste. */
     val checkId: String? = null,
     /** Política de rolagem opcional declarada pela regra; padrão preserva o comportamento atual. */
-    val fortuneMode: FortuneMode = FortuneMode.NORMAL
+    val fortuneMode: FortuneMode = FortuneMode.NORMAL,
+    /** Quando true, cada dado que mostra o máximo gera dados adicionais, com limite defensivo no motor. */
+    val explodeOnMax: Boolean = false
 )
 
 data class CheckResult(
