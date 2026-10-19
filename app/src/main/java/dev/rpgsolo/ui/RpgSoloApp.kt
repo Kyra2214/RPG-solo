@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -44,7 +45,7 @@ fun RpgSoloApp() {
         var selectedName by rememberSaveable { mutableStateOf(Tab.JOGAR.name) }
         val selected = Tab.valueOf(selectedName)
         val density = LocalDensity.current
-        CompositionLocalProvider(LocalDensity provides density.copy(fontScale = model.fontScale)) {
+        CompositionLocalProvider(LocalDensity provides Density(density = density.density, fontScale = model.fontScale)) {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
