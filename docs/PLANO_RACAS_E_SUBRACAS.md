@@ -393,3 +393,9 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Preservar as escolhas antigas mesmo quando uma referência não existe mais, para evitar perda silenciosa de dados.
 - [x] Mostrar aviso com os problemas encontrados e direcionar para “Editar escolhas” na biblioteca.
 - [ ] Criar um assistente de migração com sugestões de substituição quando IDs do catálogo forem removidos ou renomeados.
+
+
+### Exibição de lore e custos no seletor (20/10/2026)
+
+- [x] Ao selecionar uma opção do catálogo, exibir resumo, lore e todas as descrições de benefícios/custos disponíveis.
+- [x] Rotular explicitamente benefícios e custos como descrições editoriais, sem aplicação mecânica automática.
