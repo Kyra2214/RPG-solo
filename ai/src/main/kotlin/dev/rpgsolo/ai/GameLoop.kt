@@ -197,6 +197,12 @@ class GameLoop(
                     val opposed = req.opposed
                     val target = session.state.entities[opposed.entityId]
                         ?: return PlayResult.Failed("participante oposto inexistente: ${opposed.entityId}")
+                    if (target.kind != dev.rpgsolo.engine.EntityKind.NPC || !target.alive) {
+                        return PlayResult.Failed("o participante oposto deve ser um NPC vivo")
+                    }
+                    if (template.sceneNpcIds.isNotEmpty() && opposed.entityId !in template.sceneNpcIds) {
+                        return PlayResult.Failed("o participante oposto não está presente na cena")
+                    }
                     val targetRequest = req.copy(
                         checkId = opposed.checkId,
                         difficultyId = opposed.difficultyId ?: req.difficultyId,
@@ -235,6 +241,19 @@ class GameLoop(
                     if (template.playerEntityId !in ids) return PlayResult.Failed("teste de grupo precisa incluir o personagem do jogador")
                     if (group.requiredSuccesses !in 1..ids.size) {
                         return PlayResult.Failed("limiar de sucessos inválido para o tamanho do grupo")
+                    }
+                    for (id in ids) {
+                        val participant = session.state.entities[id]
+                            ?: return PlayResult.Failed("participante de grupo inexistente: $id")
+                        if (!participant.alive) return PlayResult.Failed("participante de grupo fora de combate: $id")
+                        if (id != template.playerEntityId) {
+                            if (participant.kind != dev.rpgsolo.engine.EntityKind.NPC) {
+                                return PlayResult.Failed("participante de grupo deve ser um NPC: $id")
+                            }
+                            if (template.sceneNpcIds.isNotEmpty() && id !in template.sceneNpcIds) {
+                                return PlayResult.Failed("participante de grupo fora da cena: $id")
+                            }
+                        }
                     }
                     val names = mutableListOf<String>()
                     val specs = ids.mapIndexed { index, id ->
