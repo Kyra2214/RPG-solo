@@ -172,7 +172,8 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Aplicar efeitos de combate declarados nos escopos `ataque`, `dano`, `defesa` e `resistencia_dano` aos cálculos correspondentes do personagem jogador, sem transferi-los aos NPCs.
 - [x] Preservar a origem nos objetos `ExternalBonus` durante a resolução de testes; efeitos externos são somados separadamente dos `TraitBonus` canônicos.
 - [ ] Exibir a origem de cada efeito aplicado no registro/descrição da rolagem e no combate.
-- [ ] Integrar todos os caminhos de testes e ações, não apenas o teste de fuga atualmente ajustado pelo `AppModel`.
+- [x] Integrar também o fluxo normal do `GameLoop` e os testes avançados preparados por ele, preservando a origem no rótulo do teste; o teste de fuga continua usando o mesmo resolvedor tipado.
+- [ ] Revisar outros caminhos de ação direta que não passem pelo `GameLoop` e exibir a origem no resumo/registro de combate.
 - [ ] Garantir que efeitos de raça, sub-raça, híbrido, classe, profissão e maldição não sejam aplicados em duplicidade quando compartilham escopo.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
 - [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
