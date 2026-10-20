@@ -91,6 +91,20 @@ class MasterCheckRequestTest {
         assertTrue(provider.requests.last().messages.last().content.contains("Resultado mecânico"))
     }
 
+    @Test fun testeAvancadoRecusaNpcForaDaCenaQuandoAListaEstaDisponivel() {
+        val p = pkg()
+        val f = ficha(p)
+        val s = session(f)
+        val menu = CheckMenu(p)
+        val raw = """{"narrative":"O guarda bloqueia a passagem.",
+            "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"passa","onFailure":"não passa",
+            "opposed":{"entityId":"orc","check":"esquiva","difficulty":"facil"}}}"""
+        val req = (ProposalParser.parse(raw) as ParseResult.Ok).output.checkRequest!!
+
+        assertTrue(menu.validateAdvancedRequest(req, s.state, "hero", setOf("outro-npc"))!!.contains("não está presente na cena"))
+        assertNull(menu.validateAdvancedRequest(req, s.state, "hero", setOf("orc")))
+    }
+
     @Test fun pedidoSemAsDuasNotasEInvalido() {
         val raw = """{"narrative":"x","request_check":{"check":"esquiva","onSuccess":"a"}}"""
         val r = ProposalParser.parse(raw) as ParseResult.Invalid
