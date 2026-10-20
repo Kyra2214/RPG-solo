@@ -40,4 +40,21 @@ class CheckChoicesTest {
         assertNull(p.defaultDifficulty())
         assertTrue(p.checkChoices(emptyMap()).isEmpty())
     }
+
+    @Test fun pacoteRecusaEscopoDeBonusSemDefinicaoMecanica() {
+        val files = files("teste-basico").toMutableMap()
+        files["tracos.txt"] = files.getValue("tracos.txt").replace("esquiva:+2", "bonus-fantasma:+2")
+        val result = PackageParser.parse(files)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "escopo de bônus desconhecido" in it })
+    }
+
+    @Test fun pacoteRecusaReferenciaDeRequisitoInexistente() {
+        val files = files("teste-basico").toMutableMap()
+        files["tracos.txt"] = files.getValue("tracos.txt").replace("forca>=2", "forca-inexistente>=2")
+        val result = PackageParser.parse(files)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "atributo inexistente" in it })
+    }
+
 }
