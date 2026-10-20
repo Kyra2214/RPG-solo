@@ -1,9 +1,9 @@
 ## 2026-10-20 — testes avançados e validação de pacotes
 
-- `PlayController` agora expõe fluxos para resolver testes opostos e em grupo usando as APIs persistidas do motor. O chat registra as rolagens individuais e o desfecho mecânico; cada resolução pode ser desfeita.
+- `PlayController` expõe fluxos para resolver testes opostos e em grupo com persistência, rolagens por participante, desfecho calculado pelo motor e suporte a desfazer. As rolagens descartadas por vantagem/desvantagem também são preservadas e exibidas.
 - Adicionados testes de regressão para disputa/grupo no controlador e referências inválidas nos pacotes. **Os testes não foram executados**; o código ainda não está validado.
-- `PackageParser` valida referências de atributos em recursos, requisitos de traços, escopos de bônus, atributos/perícias/recursos usados por testes, efeitos de condições e referências em exemplos e arquétipos.
-- Pendências mantidas: controles próprios na interface e pedidos narrativos para testes opostos/em grupo; poderes ativáveis e subsistema geral de sorte/destino.
+- `PackageParser` valida referências de atributos em recursos, requisitos de traços, escopos de bônus, atributos/perícias/recursos usados por testes, efeitos de condições e referências em exemplos e arquétipos. `PackageValidator` repete a validação de escopos após resolver herança.
+- A aba Jogar agora permite resolver uma disputa entre o herói e um NPC vivo com escolha explícita do teste. Pendências: controle próprio de grupo, sintaxe de pacote e pedidos narrativos para ambas as modalidades; poderes ativáveis e subsistema geral de sorte/destino.
 
 # Changelog — implementação code-first
 
