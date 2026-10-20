@@ -58,11 +58,23 @@ class CheckChoicesTest {
     }
 
 
+    @Test fun parserRejeitaEscopoDeBonusSemRegraMecanica() {
+        val files = files("teste-basico").toMutableMap()
+        val traits = files.getValue("tracos.txt")
+        val line = traits.lineSequence().first { it.isNotBlank() && !it.trimStart().startsWith("#") && "esquiva:+2" in it }
+        files["tracos.txt"] = traits.replace(line, line.replace("esquiva:+2", "bonus-fantasma:+2"))
+        val result = PackageParser.parse(files)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "escopo de bônus desconhecido" in it })
+    }
+
     @Test fun validadorConfereEscopoDepoisDaHeranca() {
         val registry = PackageRegistry(null)
         assertTrue(registry.install(files("teste-basico")) is InstallResult.Success)
         val child = files("teste-avancado").toMutableMap()
-        child["tracos.txt"] = child.getValue("tracos.txt").trimEnd() + "|bonus-fantasma:+2\n"
+        val traits = child.getValue("tracos.txt")
+        val line = traits.lineSequence().first { it.isNotBlank() && !it.trimStart().startsWith("#") && it.split("|").size >= 6 }
+        child["tracos.txt"] = traits.replace(line, line + "|bonus-fantasma:+2")
         val result = registry.install(child)
         assertTrue(result is InstallResult.Failure)
         assertTrue((result as InstallResult.Failure).errors.any { "escopo de bônus sem regra mecânica" in it })
