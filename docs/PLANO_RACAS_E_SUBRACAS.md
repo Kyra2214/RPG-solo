@@ -320,7 +320,9 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - [x] Validar IDs duplicados, referências de sub-raças e referências de ambos os pais dos híbridos.
 - [x] Exibir lore e descrições de benefício/custo no resumo quando existirem.
 - [x] Incluir escolhas editoriais nos backups de campanha e restaurá-las quando o backup é importado.
-- [ ] Integrar metadados ao formato de exportação/importação individual da ficha.
+- [x] Criar exportação individual versionada com ficha e escolhas editoriais e importar esse formato.
+- [x] Aceitar também JSONs antigos que contêm apenas a ficha.
+- [ ] Implementar edição das escolhas de uma ficha já criada sem recriar a ficha.
 - [ ] Implementar fluxo de edição da ficha já criada para reabrir e alterar as escolhas.
 - [ ] Implementar efeitos mecânicos tipados; as combinações adicionadas permanecem narrativas e não concedem bônus automaticamente.
 
@@ -332,6 +334,17 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - [x] Adicionar campo opcional `characterChoices` aos metadados do backup, mantendo compatibilidade com backups antigos por valor padrão vazio.
 - [x] Exportar as escolhas das fichas associadas aos IDs estáveis, incluindo fichas arquivadas no mapa de metadados.
 - [x] Restaurar as escolhas ao importar um backup, sem converter lore ou descrições em efeitos mecânicos.
-- [ ] Definir um formato versionado de exportação/importação individual que inclua a ficha e suas escolhas sem quebrar JSONs antigos.
+- [x] Definir formato versionado de exportação/importação individual, mantendo compatibilidade de leitura com JSONs antigos.
+
+Build, testes e CI não foram executados.
+
+
+### Exportação/importação individual da ficha (20/10/2026)
+
+- [x] Exportar um envelope versionado com a ficha mecânica e os metadados de criação associados.
+- [x] Importar envelopes versionados e restaurar escolhas de raça/sub-raça/híbrido, classe, profissão e maldições.
+- [x] Manter importação compatível com JSONs antigos que contêm somente o objeto da ficha.
+- [x] Evitar sobrescrever silenciosamente uma ficha existente: IDs em conflito recebem novo ID e indicação de cópia importada.
+- [ ] Implementar edição das escolhas de uma ficha já criada sem recriar a ficha.
 
 Build, testes e CI não foram executados.
