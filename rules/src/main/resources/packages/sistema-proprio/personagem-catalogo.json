@@ -2,19 +2,21 @@
   "schemaVersion": 1,
   "catalogId": "rpg-solo-personagem",
   "packageId": "sistema-proprio",
-  "status": "catalogo-editorial-inicial-nao-integrado-ao-runtime",
+  "status": "catalogo-editorial-integrado-parcialmente-na-ui-sem-efeitos-mecanicos",
   "policy": {
     "independentChoices": [
       "raceOrSubrace",
       "class",
-      "profession"
+      "profession",
+      "hybridAncestry"
     ],
     "baseSheetFields": [
       "raceOrSubraceId",
       "classId",
       "professionId",
       "advantageIds",
-      "disadvantageIds"
+      "disadvantageIds",
+      "hybridId"
     ],
     "effectsPolicy": "mechanicalEffects permanecem vazios até serem definidos e suportados pelo motor; lore e resumo nunca concedem bônus.",
     "subracePolicy": "sub-raça referencia uma raça-base por parentRaceId; herança e substituições devem ser validadas pelo carregador.",
