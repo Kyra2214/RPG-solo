@@ -384,6 +384,7 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - [x] Exportar as escolhas das fichas associadas aos IDs estáveis, para as fichas incluídas no backup.
 - [x] Restaurar as escolhas ao importar um backup, sem converter lore ou descrições em efeitos mecânicos.
 - [x] Incluir fichas ativas e arquivadas nos backups e preservar o estado de arquivamento por metadado opcional, retrocompatível com backups antigos.
+- [x] Rejeitar a exportação de backup acima do mesmo limite de tamanho aceito na importação, evitando produzir arquivos que o app recusaria reabrir.
 - [x] Cobrir por teste de regressão a leitura do metadado de arquivamento novo e de backups sem esse campo (teste escrito, não executado).
 - [x] Definir formato versionado de exportação/importação individual, mantendo compatibilidade de leitura com JSONs antigos.
 
