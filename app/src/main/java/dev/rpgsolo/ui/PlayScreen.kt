@@ -171,6 +171,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
             onInventory = { run { c.submit("inventário") } },
             onRest = { run { c.submit("descansar") } }
         )
+        AdvancedCheckControls(model, enabled = !busy && !pendingRoll && pendingCheck == null)
         CombatControls(model)
 
         LazyColumn(
@@ -379,6 +380,61 @@ private fun QuickActions(enabled: Boolean, onSheet: () -> Unit, onInventory: () 
             AssistChip(onClick = onSheet, enabled = enabled, label = { Text("Ver ficha") })
             AssistChip(onClick = onInventory, enabled = enabled, label = { Text("Inventário") })
             AssistChip(onClick = onRest, enabled = enabled, label = { Text("Descansar") })
+        }
+    }
+}
+
+@Composable
+private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
+    val version = model.campaignVersion
+    val options = remember(version) { model.advancedCheckOptions() }
+    val targets = remember(version) { model.advancedCheckTargets() }
+    var selectedCheck by remember(version) { mutableStateOf(options.firstOrNull()?.id.orEmpty()) }
+    var selectedTarget by remember(version) { mutableStateOf(targets.firstOrNull()?.id.orEmpty()) }
+    var message by remember(version) { mutableStateOf<String?>(null) }
+
+    if (options.isEmpty() || targets.isEmpty()) return
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text("Disputa de testes", style = MaterialTheme.typography.labelLarge)
+            Muted("Escolha o mesmo teste para seu personagem e o NPC. Os resultados são decididos pelo motor.")
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                options.forEach { option ->
+                    AssistChip(
+                        onClick = { selectedCheck = option.id },
+                        enabled = enabled,
+                        label = { Text(option.id) },
+                        leadingIcon = if (selectedCheck == option.id) ({ Text("✓") }) else null
+                    )
+                }
+            }
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                targets.forEach { target ->
+                    AssistChip(
+                        onClick = { selectedTarget = target.id },
+                        enabled = enabled,
+                        label = { Text(target.name + if (target.rulesValidated) "" else " · não validado") },
+                        leadingIcon = if (selectedTarget == target.id) ({ Text("✓") }) else null
+                    )
+                }
+            }
+            Button(
+                onClick = { message = model.resolveOpposedCheck(selectedTarget, selectedCheck) },
+                enabled = enabled && selectedCheck in options.map { it.id } && selectedTarget in targets.map { it.id },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Resolver disputa")
+            }
+            message?.let { Muted(it) }
         }
     }
 }
