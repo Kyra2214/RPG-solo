@@ -160,10 +160,15 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - Reutilizar o fluxo existente; não criar um segundo sistema de personagens.
 
 ### R2 — Esquema de dados e catálogo
-- Definir formatos versionados para raça, sub-raça, classe, profissão e especialização profissional.
-- Criar carregador e validador de IDs e referências.
-- Manter catálogo separado dos pacotes de regras e da ambientação.
-- Cadastrar primeiro um conjunto pequeno de exemplos originais, incluindo Elfo e Arqueiro, para validar o modelo.
+- [x] Criar primeiro catálogo editorial versionado em `rules/src/main/resources/packages/sistema-proprio/personagem-catalogo.json`.
+- [x] Cadastrar 50 raças, 50 sub-raças/variantes, 50 classes e 103 profissões com IDs estáveis, resumo e lore/descrição originais.
+- [x] Referenciar cada sub-raça à sua raça-base por `parentRaceId`.
+- [x] Deixar `mechanicalEffects` vazio em todas as opções; nenhum bônus foi inventado ou concedido por lore.
+- [ ] Definir e implementar carregador/validador de IDs, referências e esquema.
+- [ ] Integrar o catálogo ao carregamento real do pacote e à ficha.
+- [ ] Completar campos editoriais de competências e traços depois da auditoria das mecânicas existentes.
+
+Este primeiro lote é conteúdo versionado, ainda não conectado ao runtime. As entradas não concedem efeitos mecânicos até que regras válidas sejam explicitamente definidas e suportadas pelo motor.
 
 ### R3 — Efeitos combinados
 - Formalizar os efeitos tipados que o motor realmente consegue executar.
@@ -231,11 +236,14 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [ ] Auditar modelos e telas atuais.
 - [ ] Confirmar esquema compatível com o motor.
 - [ ] Separar formalmente os modelos de classe e profissão.
-- [ ] Planejar e catalogar pelo menos 50 raças, 50 sub-raças/variantes, 50 classes e 50 profissões.
-- [ ] Implementar catálogo, lore e validação.
+- [x] Criar o primeiro lote editorial: 50 raças, 50 sub-raças/variantes, 50 classes e 103 profissões.
+- [x] Registrar lore/descrições originais e IDs estáveis para o primeiro lote.
+- [ ] Implementar carregador, validação do catálogo e integração ao runtime.
 - [ ] Integrar efeitos tipados à ficha e às ações.
 - [ ] Implementar interface de criação e persistência.
 - [ ] Implementar geração opcional de lore e retrato com IA, com limites rígidos contra alterações mecânicas.
 - [ ] Expandir e balancear o catálogo.
 
-**Próxima ação:** auditar o código existente antes de implementar os modelos e os bônus, para encaixar raça e profissão na ficha atual e garantir que o motor aplique cada efeito no lugar correto.
+**Estado atual:** catálogo editorial inicial criado em `rules/src/main/resources/packages/sistema-proprio/personagem-catalogo.json` (50 raças, 50 sub-raças/variantes, 50 classes e 103 profissões). O catálogo ainda não é carregado pelo runtime; efeitos mecânicos estão vazios e nenhuma integração, build ou teste foi declarado.
+
+**Próxima ação:** auditar `CharacterDraft`, `PackageData`/`RulePackage`, persistência e telas de criação; depois implementar carregamento/validação do catálogo e integrar os IDs à ficha sem criar um segundo sistema de personagens.
