@@ -89,10 +89,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun saveCharacterChoices(fichaId: String, choices: CharacterChoices) {
         if (fichaId.isBlank()) return
         val json = choices.toJson()
-        characterChoicesPrefs.edit().putString(fichaId, json).apply()
-        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId } ?: return
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId }
+        if (ficha == null) {
+            // Compatibilidade para chamadas antigas que possam anteceder a gravação da ficha.
+            characterChoicesPrefs.edit().putString(fichaId, json).apply()
+            return
+        }
         if (ficha.editorialChoicesJson != json) {
             val updated = ficha.copy(editorialChoicesJson = json)
+            // Persistir primeiro no modelo canônico; se o banco falhar, não avançar o espelho.
             store.saveFicha(FichaRow(updated.id, updated.name, dev.rpgsolo.engine.Codec.encode(updated)))
             val activeIndex = fichas.indexOfFirst { it.id == fichaId }
             if (activeIndex >= 0) fichas[activeIndex] = updated
@@ -100,6 +105,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             if (archivedIndex >= 0) archivedFichas[archivedIndex] = updated
             if (activeFichaId == fichaId) activeFicha = updated
         }
+        characterChoicesPrefs.edit().putString(fichaId, json).apply()
         campaignVersion++
     }
 
