@@ -152,7 +152,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     val catalogSubraces = CharacterCreationCatalog.subraces.filter { it.parentRaceId == raceId }
     CatalogPicker("Raça", catalogRaces, raceId, { selected ->
         raceId = selected
-        if (subraceId.isNotBlank() && catalogSubraces.none { it.id == subraceId }) subraceId = ""
+        if (subraceId.isNotBlank() && CharacterCreationCatalog.subraces.none { it.id == subraceId && it.parentRaceId == selected }) subraceId = ""
         version++
     })
     if (raceId.isNotBlank()) {
