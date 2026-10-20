@@ -14,7 +14,9 @@ data class CampaignBackupMetadata(
     val systemId: String? = null,
     val editionId: String? = null,
     /** Fichas reutilizáveis em JSON. Chaves de API e preferências secretas nunca entram no backup. */
-    val fichas: List<String> = emptyList()
+    val fichas: List<String> = emptyList(),
+    /** Escolhas editoriais associadas às fichas; ausente em backups antigos. */
+    val characterChoices: Map<String, String> = emptyMap()
 )
 
 @Serializable
