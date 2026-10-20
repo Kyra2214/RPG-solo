@@ -105,7 +105,12 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
     fun fichasArquivadas(): List<FichaRow> = db.fichas().listarArquivadas()
     fun definirFichaArquivada(id: String, arquivada: Boolean): Boolean = db.fichas().definirArquivada(id, arquivada) > 0
     fun apagarFicha(id: String): Boolean = db.fichas().apagar(id) > 0
-    fun saveFicha(row: FichaRow) = db.fichas().salvar(row)
+
+    /** Atualiza fichas existentes preservando o campo `arquivada`; só insere quando não existem. */
+    fun saveFicha(row: FichaRow) {
+        val updated = db.fichas().atualizarConteudo(row.id, row.nome, row.json)
+        if (updated == 0) db.fichas().salvar(row)
+    }
 
     fun duplicate(sourceId: String, newId: String, newName: String): CampaignRecord {
         val source = requireNotNull(campaign(sourceId)) { "campanha não encontrada: $sourceId" }
