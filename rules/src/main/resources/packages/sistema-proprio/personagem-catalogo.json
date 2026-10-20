@@ -19,7 +19,8 @@
     "effectsPolicy": "mechanicalEffects permanecem vazios até serem definidos e suportados pelo motor; lore e resumo nunca concedem bônus.",
     "subracePolicy": "sub-raça referencia uma raça-base por parentRaceId; herança e substituições devem ser validadas pelo carregador.",
     "aiPolicy": "IA pode usar lore e escolhas confirmadas para narrativa e retrato, mas não pode criar ou alterar regras, vantagens, desvantagens, atributos ou equipamentos.",
-    "equipmentAndBuffs": "equipamentos, buffs, debuffs e outros modificadores pertencem a camadas separadas e são calculados pelo motor."
+    "equipmentAndBuffs": "equipamentos, buffs, debuffs e outros modificadores pertencem a camadas separadas e são calculados pelo motor.",
+    "cursePolicy": "Maldições são escolhas independentes e podem combinar benefícios e desvantagens mecânicos ou narrativos. Benefícios/desvantagens em texto são conteúdo editorial; mechanicalEffects permanece vazio até o motor definir e suportar um esquema tipado. Não aplicar efeitos automaticamente nem permitir que a IA invente ou altere regras. Maldições podem coexistir com raça/sub-raça, classe, profissão, vantagens e desvantagens; equipamentos e buffs continuam em camada separada."
   },
   "races": [
     {
@@ -3665,6 +3666,2908 @@
         "profissao",
         "original"
       ],
+      "contentVersion": 1
+    }
+  ],
+  "curses": [
+    {
+      "id": "maldicao-001",
+      "name": "Maldição Clã Negro",
+      "summary": "+2 em Destreza Má reputação entre os membros da própria raça.",
+      "lore": "Maldição Clã Negro nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +2 em Destreza Má reputação entre os membros da própria raça.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+2 em Destreza",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Má reputação entre os membros da própria raça.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Má reputação entre os membros da própria raça."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-002",
+      "name": "Maldição Espada Insaciável",
+      "summary": "+1 de dano com todas as armas Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+      "lore": "Maldição Espada Insaciável nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 de dano com todas as armas Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 de dano com todas as armas",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Ao ver uma arma rara, sente compulsão de tentar obtê-la."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-003",
+      "name": "Maldição Sangue de Cinzas",
+      "summary": "+1 para resistir a calor extremo Frio intenso dificulta o descanso.",
+      "lore": "Maldição Sangue de Cinzas nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a calor extremo Frio intenso dificulta o descanso.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a calor extremo",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Frio intenso dificulta o descanso.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Frio intenso dificulta o descanso."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-004",
+      "name": "Maldição Olhos da Meia-Noite",
+      "summary": "+2 em Percepção no escuro Luz solar forte causa dor e desorientação.",
+      "lore": "Maldição Olhos da Meia-Noite nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +2 em Percepção no escuro Luz solar forte causa dor e desorientação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+2 em Percepção no escuro",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Luz solar forte causa dor e desorientação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Luz solar forte causa dor e desorientação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-005",
+      "name": "Maldição Pacto de Ferro",
+      "summary": "+1 para resistir a ser desarmado Não consegue abandonar a arma juramentada sem angústia.",
+      "lore": "Maldição Pacto de Ferro nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a ser desarmado Não consegue abandonar a arma juramentada sem angústia.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a ser desarmado",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Não consegue abandonar a arma juramentada sem angústia.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Não consegue abandonar a arma juramentada sem angústia."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-006",
+      "name": "Maldição Marca do Corvo",
+      "summary": "+1 para encontrar objetos perdidos Corvos e supersticiosos reagem com inquietação.",
+      "lore": "Maldição Marca do Corvo nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para encontrar objetos perdidos Corvos e supersticiosos reagem com inquietação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para encontrar objetos perdidos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Corvos e supersticiosos reagem com inquietação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Corvos e supersticiosos reagem com inquietação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-007",
+      "name": "Maldição Fome Arcana",
+      "summary": "+1 em conhecimento mágico Magia poderosa desperta urgência de investigar sua origem.",
+      "lore": "Maldição Fome Arcana nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em conhecimento mágico Magia poderosa desperta urgência de investigar sua origem.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em conhecimento mágico",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Magia poderosa desperta urgência de investigar sua origem.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Magia poderosa desperta urgência de investigar sua origem."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-008",
+      "name": "Maldição Sombra Fiel",
+      "summary": "+1 em Furtividade sob pouca luz A sombra se move de forma estranha e pode denunciá-lo.",
+      "lore": "Maldição Sombra Fiel nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Furtividade sob pouca luz A sombra se move de forma estranha e pode denunciá-lo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Furtividade sob pouca luz",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "A sombra se move de forma estranha e pode denunciá-lo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "A sombra se move de forma estranha e pode denunciá-lo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-009",
+      "name": "Maldição Juramento de Sangue",
+      "summary": "+1 para proteger alguém a quem jurou lealdade Quebrar a promessa exige reparação narrativa.",
+      "lore": "Maldição Juramento de Sangue nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para proteger alguém a quem jurou lealdade Quebrar a promessa exige reparação narrativa.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para proteger alguém a quem jurou lealdade",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Quebrar a promessa exige reparação narrativa.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Quebrar a promessa exige reparação narrativa."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-010",
+      "name": "Maldição Voz do Abismo",
+      "summary": "+1 em Intimidação Sussurros inquietantes escapam em momentos de tensão.",
+      "lore": "Maldição Voz do Abismo nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação Sussurros inquietantes escapam em momentos de tensão.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sussurros inquietantes escapam em momentos de tensão.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sussurros inquietantes escapam em momentos de tensão."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-011",
+      "name": "Maldição Pele de Pedra",
+      "summary": "+1 para resistir a impactos físicos Movimentos delicados e silenciosos ficam mais difíceis.",
+      "lore": "Maldição Pele de Pedra nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a impactos físicos Movimentos delicados e silenciosos ficam mais difíceis.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a impactos físicos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Movimentos delicados e silenciosos ficam mais difíceis.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Movimentos delicados e silenciosos ficam mais difíceis."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-012",
+      "name": "Maldição Passos sem Eco",
+      "summary": "+1 em Furtividade ao caminhar Aliados podem não perceber quando chega.",
+      "lore": "Maldição Passos sem Eco nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Furtividade ao caminhar Aliados podem não perceber quando chega.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Furtividade ao caminhar",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Aliados podem não perceber quando chega.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Aliados podem não perceber quando chega."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-013",
+      "name": "Maldição Sorte Roubada",
+      "summary": "+1 em testes de Sorte, se existirem Um sucesso excepcional pode atrair um contratempo narrativo.",
+      "lore": "Maldição Sorte Roubada nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em testes de Sorte, se existirem Um sucesso excepcional pode atrair um contratempo narrativo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em testes de Sorte, se existirem",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Um sucesso excepcional pode atrair um contratempo narrativo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Um sucesso excepcional pode atrair um contratempo narrativo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-014",
+      "name": "Maldição Dente da Serpente",
+      "summary": "+1 para detectar venenos Animais domésticos ficam inquietos perto de você.",
+      "lore": "Maldição Dente da Serpente nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para detectar venenos Animais domésticos ficam inquietos perto de você.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para detectar venenos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Animais domésticos ficam inquietos perto de você.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Animais domésticos ficam inquietos perto de você."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-015",
+      "name": "Maldição Coroa dos Exilados",
+      "summary": "+1 em Persuasão entre exilados Nobres e autoridades suspeitam de sua origem.",
+      "lore": "Maldição Coroa dos Exilados nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Persuasão entre exilados Nobres e autoridades suspeitam de sua origem.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Persuasão entre exilados",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Nobres e autoridades suspeitam de sua origem.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Nobres e autoridades suspeitam de sua origem."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-016",
+      "name": "Maldição Mão do Ladrão",
+      "summary": "+1 em Prestidigitação É frequentemente acusado de furtos.",
+      "lore": "Maldição Mão do Ladrão nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Prestidigitação É frequentemente acusado de furtos.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Prestidigitação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "É frequentemente acusado de furtos.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "É frequentemente acusado de furtos."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-017",
+      "name": "Maldição Chama Votiva",
+      "summary": "+1 em concentração durante rituais Não pode apagar a chama ritual antes de cumprir o voto.",
+      "lore": "Maldição Chama Votiva nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em concentração durante rituais Não pode apagar a chama ritual antes de cumprir o voto.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em concentração durante rituais",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Não pode apagar a chama ritual antes de cumprir o voto.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Não pode apagar a chama ritual antes de cumprir o voto."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-018",
+      "name": "Maldição Memória Emprestada",
+      "summary": "+1 para recordar mapas e caminhos vistos Sonhos misturam lembranças próprias e alheias.",
+      "lore": "Maldição Memória Emprestada nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para recordar mapas e caminhos vistos Sonhos misturam lembranças próprias e alheias.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para recordar mapas e caminhos vistos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sonhos misturam lembranças próprias e alheias.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sonhos misturam lembranças próprias e alheias."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-019",
+      "name": "Maldição Sussurro dos Mortos",
+      "summary": "+1 para perceber mortos-vivos Locais de morte intensa dificultam o repouso.",
+      "lore": "Maldição Sussurro dos Mortos nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para perceber mortos-vivos Locais de morte intensa dificultam o repouso.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para perceber mortos-vivos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Locais de morte intensa dificultam o repouso.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Locais de morte intensa dificultam o repouso."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-020",
+      "name": "Maldição Coração de Gelo",
+      "summary": "+1 para manter a calma sob ameaça Pode parecer emocionalmente distante.",
+      "lore": "Maldição Coração de Gelo nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para manter a calma sob ameaça Pode parecer emocionalmente distante.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para manter a calma sob ameaça",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Pode parecer emocionalmente distante.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Pode parecer emocionalmente distante."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-021",
+      "name": "Maldição Marca do Caçador",
+      "summary": "+1 para rastrear uma presa escolhida Abandonar a perseguição provoca inquietação.",
+      "lore": "Maldição Marca do Caçador nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para rastrear uma presa escolhida Abandonar a perseguição provoca inquietação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para rastrear uma presa escolhida",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Abandonar a perseguição provoca inquietação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Abandonar a perseguição provoca inquietação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-022",
+      "name": "Maldição Fardo do Titã",
+      "summary": "+1 em testes de Força para erguer ou empurrar Objetos frágeis quebram com facilidade sob seu manuseio.",
+      "lore": "Maldição Fardo do Titã nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em testes de Força para erguer ou empurrar Objetos frágeis quebram com facilidade sob seu manuseio.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em testes de Força para erguer ou empurrar",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Objetos frágeis quebram com facilidade sob seu manuseio.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Objetos frágeis quebram com facilidade sob seu manuseio."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-023",
+      "name": "Maldição Véu das Mentiras",
+      "summary": "+1 em Enganação Confessar uma verdade pessoal dolorosa causa reação física.",
+      "lore": "Maldição Véu das Mentiras nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Enganação Confessar uma verdade pessoal dolorosa causa reação física.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Enganação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Confessar uma verdade pessoal dolorosa causa reação física.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Confessar uma verdade pessoal dolorosa causa reação física."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-024",
+      "name": "Maldição Língua Queimada",
+      "summary": "+1 em Persuasão durante negociações Promessas vagas são cobradas por forças sobrenaturais.",
+      "lore": "Maldição Língua Queimada nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Persuasão durante negociações Promessas vagas são cobradas por forças sobrenaturais.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Persuasão durante negociações",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Promessas vagas são cobradas por forças sobrenaturais.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Promessas vagas são cobradas por forças sobrenaturais."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-025",
+      "name": "Maldição Selo do Coveiro",
+      "summary": "+1 para reconhecer sinais de morte Sacerdotes funerários podem considerá-lo agourento.",
+      "lore": "Maldição Selo do Coveiro nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para reconhecer sinais de morte Sacerdotes funerários podem considerá-lo agourento.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para reconhecer sinais de morte",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sacerdotes funerários podem considerá-lo agourento.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sacerdotes funerários podem considerá-lo agourento."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-026",
+      "name": "Maldição Olhar Petrificante",
+      "summary": "+1 em Intimidação ao encarar alguém Evita contato visual prolongado com aliados.",
+      "lore": "Maldição Olhar Petrificante nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação ao encarar alguém Evita contato visual prolongado com aliados.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação ao encarar alguém",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Evita contato visual prolongado com aliados.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Evita contato visual prolongado com aliados."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-027",
+      "name": "Maldição Eco do Trovão",
+      "summary": "+1 para resistir a ruídos ensurdecedores Sua voz ressoa involuntariamente em locais silenciosos.",
+      "lore": "Maldição Eco do Trovão nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a ruídos ensurdecedores Sua voz ressoa involuntariamente em locais silenciosos.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a ruídos ensurdecedores",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sua voz ressoa involuntariamente em locais silenciosos.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sua voz ressoa involuntariamente em locais silenciosos."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-028",
+      "name": "Maldição Sangue Dracônico Roubado",
+      "summary": "+1 em Intimidação contra criaturas menores que dragões Dragões e cultos dracônicos podem persegui-lo.",
+      "lore": "Maldição Sangue Dracônico Roubado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação contra criaturas menores que dragões Dragões e cultos dracônicos podem persegui-lo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação contra criaturas menores que dragões",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Dragões e cultos dracônicos podem persegui-lo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Dragões e cultos dracônicos podem persegui-lo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-029",
+      "name": "Maldição Correntes Invisíveis",
+      "summary": "+1 para resistir a coerção mental Antigas prisões provocam pânico.",
+      "lore": "Maldição Correntes Invisíveis nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a coerção mental Antigas prisões provocam pânico.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a coerção mental",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Antigas prisões provocam pânico.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Antigas prisões provocam pânico."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-030",
+      "name": "Maldição Maldição do Espelho",
+      "summary": "+1 para reconhecer disfarces Espelhos mostram por instantes uma versão hostil sua.",
+      "lore": "Maldição Maldição do Espelho nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para reconhecer disfarces Espelhos mostram por instantes uma versão hostil sua.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para reconhecer disfarces",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Espelhos mostram por instantes uma versão hostil sua.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Espelhos mostram por instantes uma versão hostil sua."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-031",
+      "name": "Maldição Clã Negro do Rei Caído",
+      "summary": "+2 em Destreza Má reputação entre os membros da própria raça.",
+      "lore": "Maldição Clã Negro do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +2 em Destreza Má reputação entre os membros da própria raça.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+2 em Destreza",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Má reputação entre os membros da própria raça.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Má reputação entre os membros da própria raça."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-032",
+      "name": "Maldição Espada Insaciável do Rei Caído",
+      "summary": "+1 de dano com todas as armas Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+      "lore": "Maldição Espada Insaciável do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 de dano com todas as armas Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 de dano com todas as armas",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Ao ver uma arma rara, sente compulsão de tentar obtê-la."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-033",
+      "name": "Maldição Sangue de Cinzas do Rei Caído",
+      "summary": "+1 para resistir a calor extremo Frio intenso dificulta o descanso.",
+      "lore": "Maldição Sangue de Cinzas do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a calor extremo Frio intenso dificulta o descanso.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a calor extremo",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Frio intenso dificulta o descanso.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Frio intenso dificulta o descanso."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-034",
+      "name": "Maldição Olhos da Meia-Noite do Rei Caído",
+      "summary": "+2 em Percepção no escuro Luz solar forte causa dor e desorientação.",
+      "lore": "Maldição Olhos da Meia-Noite do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +2 em Percepção no escuro Luz solar forte causa dor e desorientação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+2 em Percepção no escuro",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Luz solar forte causa dor e desorientação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Luz solar forte causa dor e desorientação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-035",
+      "name": "Maldição Pacto de Ferro do Rei Caído",
+      "summary": "+1 para resistir a ser desarmado Não consegue abandonar a arma juramentada sem angústia.",
+      "lore": "Maldição Pacto de Ferro do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a ser desarmado Não consegue abandonar a arma juramentada sem angústia.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a ser desarmado",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Não consegue abandonar a arma juramentada sem angústia.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Não consegue abandonar a arma juramentada sem angústia."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-036",
+      "name": "Maldição Marca do Corvo do Rei Caído",
+      "summary": "+1 para encontrar objetos perdidos Corvos e supersticiosos reagem com inquietação.",
+      "lore": "Maldição Marca do Corvo do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para encontrar objetos perdidos Corvos e supersticiosos reagem com inquietação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para encontrar objetos perdidos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Corvos e supersticiosos reagem com inquietação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Corvos e supersticiosos reagem com inquietação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-037",
+      "name": "Maldição Fome Arcana do Rei Caído",
+      "summary": "+1 em conhecimento mágico Magia poderosa desperta urgência de investigar sua origem.",
+      "lore": "Maldição Fome Arcana do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em conhecimento mágico Magia poderosa desperta urgência de investigar sua origem.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em conhecimento mágico",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Magia poderosa desperta urgência de investigar sua origem.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Magia poderosa desperta urgência de investigar sua origem."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-038",
+      "name": "Maldição Sombra Fiel do Rei Caído",
+      "summary": "+1 em Furtividade sob pouca luz A sombra se move de forma estranha e pode denunciá-lo.",
+      "lore": "Maldição Sombra Fiel do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Furtividade sob pouca luz A sombra se move de forma estranha e pode denunciá-lo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Furtividade sob pouca luz",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "A sombra se move de forma estranha e pode denunciá-lo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "A sombra se move de forma estranha e pode denunciá-lo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-039",
+      "name": "Maldição Juramento de Sangue do Rei Caído",
+      "summary": "+1 para proteger alguém a quem jurou lealdade Quebrar a promessa exige reparação narrativa.",
+      "lore": "Maldição Juramento de Sangue do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para proteger alguém a quem jurou lealdade Quebrar a promessa exige reparação narrativa.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para proteger alguém a quem jurou lealdade",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Quebrar a promessa exige reparação narrativa.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Quebrar a promessa exige reparação narrativa."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-040",
+      "name": "Maldição Voz do Abismo do Rei Caído",
+      "summary": "+1 em Intimidação Sussurros inquietantes escapam em momentos de tensão.",
+      "lore": "Maldição Voz do Abismo do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação Sussurros inquietantes escapam em momentos de tensão.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sussurros inquietantes escapam em momentos de tensão.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sussurros inquietantes escapam em momentos de tensão."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-041",
+      "name": "Maldição Pele de Pedra do Rei Caído",
+      "summary": "+1 para resistir a impactos físicos Movimentos delicados e silenciosos ficam mais difíceis.",
+      "lore": "Maldição Pele de Pedra do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a impactos físicos Movimentos delicados e silenciosos ficam mais difíceis.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a impactos físicos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Movimentos delicados e silenciosos ficam mais difíceis.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Movimentos delicados e silenciosos ficam mais difíceis."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-042",
+      "name": "Maldição Passos sem Eco do Rei Caído",
+      "summary": "+1 em Furtividade ao caminhar Aliados podem não perceber quando chega.",
+      "lore": "Maldição Passos sem Eco do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Furtividade ao caminhar Aliados podem não perceber quando chega.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Furtividade ao caminhar",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Aliados podem não perceber quando chega.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Aliados podem não perceber quando chega."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-043",
+      "name": "Maldição Sorte Roubada do Rei Caído",
+      "summary": "+1 em testes de Sorte, se existirem Um sucesso excepcional pode atrair um contratempo narrativo.",
+      "lore": "Maldição Sorte Roubada do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em testes de Sorte, se existirem Um sucesso excepcional pode atrair um contratempo narrativo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em testes de Sorte, se existirem",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Um sucesso excepcional pode atrair um contratempo narrativo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Um sucesso excepcional pode atrair um contratempo narrativo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-044",
+      "name": "Maldição Dente da Serpente do Rei Caído",
+      "summary": "+1 para detectar venenos Animais domésticos ficam inquietos perto de você.",
+      "lore": "Maldição Dente da Serpente do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para detectar venenos Animais domésticos ficam inquietos perto de você.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para detectar venenos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Animais domésticos ficam inquietos perto de você.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Animais domésticos ficam inquietos perto de você."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-045",
+      "name": "Maldição Coroa dos Exilados do Rei Caído",
+      "summary": "+1 em Persuasão entre exilados Nobres e autoridades suspeitam de sua origem.",
+      "lore": "Maldição Coroa dos Exilados do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Persuasão entre exilados Nobres e autoridades suspeitam de sua origem.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Persuasão entre exilados",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Nobres e autoridades suspeitam de sua origem.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Nobres e autoridades suspeitam de sua origem."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-046",
+      "name": "Maldição Mão do Ladrão do Rei Caído",
+      "summary": "+1 em Prestidigitação É frequentemente acusado de furtos.",
+      "lore": "Maldição Mão do Ladrão do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Prestidigitação É frequentemente acusado de furtos.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Prestidigitação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "É frequentemente acusado de furtos.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "É frequentemente acusado de furtos."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-047",
+      "name": "Maldição Chama Votiva do Rei Caído",
+      "summary": "+1 em concentração durante rituais Não pode apagar a chama ritual antes de cumprir o voto.",
+      "lore": "Maldição Chama Votiva do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em concentração durante rituais Não pode apagar a chama ritual antes de cumprir o voto.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em concentração durante rituais",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Não pode apagar a chama ritual antes de cumprir o voto.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Não pode apagar a chama ritual antes de cumprir o voto."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-048",
+      "name": "Maldição Memória Emprestada do Rei Caído",
+      "summary": "+1 para recordar mapas e caminhos vistos Sonhos misturam lembranças próprias e alheias.",
+      "lore": "Maldição Memória Emprestada do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para recordar mapas e caminhos vistos Sonhos misturam lembranças próprias e alheias.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para recordar mapas e caminhos vistos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sonhos misturam lembranças próprias e alheias.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sonhos misturam lembranças próprias e alheias."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-049",
+      "name": "Maldição Sussurro dos Mortos do Rei Caído",
+      "summary": "+1 para perceber mortos-vivos Locais de morte intensa dificultam o repouso.",
+      "lore": "Maldição Sussurro dos Mortos do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para perceber mortos-vivos Locais de morte intensa dificultam o repouso.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para perceber mortos-vivos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Locais de morte intensa dificultam o repouso.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Locais de morte intensa dificultam o repouso."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-050",
+      "name": "Maldição Coração de Gelo do Rei Caído",
+      "summary": "+1 para manter a calma sob ameaça Pode parecer emocionalmente distante.",
+      "lore": "Maldição Coração de Gelo do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para manter a calma sob ameaça Pode parecer emocionalmente distante.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para manter a calma sob ameaça",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Pode parecer emocionalmente distante.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Pode parecer emocionalmente distante."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-051",
+      "name": "Maldição Marca do Caçador do Rei Caído",
+      "summary": "+1 para rastrear uma presa escolhida Abandonar a perseguição provoca inquietação.",
+      "lore": "Maldição Marca do Caçador do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para rastrear uma presa escolhida Abandonar a perseguição provoca inquietação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para rastrear uma presa escolhida",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Abandonar a perseguição provoca inquietação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Abandonar a perseguição provoca inquietação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-052",
+      "name": "Maldição Fardo do Titã do Rei Caído",
+      "summary": "+1 em testes de Força para erguer ou empurrar Objetos frágeis quebram com facilidade sob seu manuseio.",
+      "lore": "Maldição Fardo do Titã do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em testes de Força para erguer ou empurrar Objetos frágeis quebram com facilidade sob seu manuseio.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em testes de Força para erguer ou empurrar",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Objetos frágeis quebram com facilidade sob seu manuseio.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Objetos frágeis quebram com facilidade sob seu manuseio."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-053",
+      "name": "Maldição Véu das Mentiras do Rei Caído",
+      "summary": "+1 em Enganação Confessar uma verdade pessoal dolorosa causa reação física.",
+      "lore": "Maldição Véu das Mentiras do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Enganação Confessar uma verdade pessoal dolorosa causa reação física.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Enganação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Confessar uma verdade pessoal dolorosa causa reação física.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Confessar uma verdade pessoal dolorosa causa reação física."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-054",
+      "name": "Maldição Língua Queimada do Rei Caído",
+      "summary": "+1 em Persuasão durante negociações Promessas vagas são cobradas por forças sobrenaturais.",
+      "lore": "Maldição Língua Queimada do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Persuasão durante negociações Promessas vagas são cobradas por forças sobrenaturais.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Persuasão durante negociações",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Promessas vagas são cobradas por forças sobrenaturais.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Promessas vagas são cobradas por forças sobrenaturais."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-055",
+      "name": "Maldição Selo do Coveiro do Rei Caído",
+      "summary": "+1 para reconhecer sinais de morte Sacerdotes funerários podem considerá-lo agourento.",
+      "lore": "Maldição Selo do Coveiro do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para reconhecer sinais de morte Sacerdotes funerários podem considerá-lo agourento.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para reconhecer sinais de morte",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sacerdotes funerários podem considerá-lo agourento.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sacerdotes funerários podem considerá-lo agourento."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-056",
+      "name": "Maldição Olhar Petrificante do Rei Caído",
+      "summary": "+1 em Intimidação ao encarar alguém Evita contato visual prolongado com aliados.",
+      "lore": "Maldição Olhar Petrificante do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação ao encarar alguém Evita contato visual prolongado com aliados.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação ao encarar alguém",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Evita contato visual prolongado com aliados.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Evita contato visual prolongado com aliados."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-057",
+      "name": "Maldição Eco do Trovão do Rei Caído",
+      "summary": "+1 para resistir a ruídos ensurdecedores Sua voz ressoa involuntariamente em locais silenciosos.",
+      "lore": "Maldição Eco do Trovão do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a ruídos ensurdecedores Sua voz ressoa involuntariamente em locais silenciosos.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a ruídos ensurdecedores",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sua voz ressoa involuntariamente em locais silenciosos.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sua voz ressoa involuntariamente em locais silenciosos."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-058",
+      "name": "Maldição Sangue Dracônico Roubado do Rei Caído",
+      "summary": "+1 em Intimidação contra criaturas menores que dragões Dragões e cultos dracônicos podem persegui-lo.",
+      "lore": "Maldição Sangue Dracônico Roubado do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação contra criaturas menores que dragões Dragões e cultos dracônicos podem persegui-lo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação contra criaturas menores que dragões",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Dragões e cultos dracônicos podem persegui-lo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Dragões e cultos dracônicos podem persegui-lo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-059",
+      "name": "Maldição Correntes Invisíveis do Rei Caído",
+      "summary": "+1 para resistir a coerção mental Antigas prisões provocam pânico.",
+      "lore": "Maldição Correntes Invisíveis do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a coerção mental Antigas prisões provocam pânico.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a coerção mental",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Antigas prisões provocam pânico.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Antigas prisões provocam pânico."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-060",
+      "name": "Maldição Maldição do Espelho do Rei Caído",
+      "summary": "+1 para reconhecer disfarces Espelhos mostram por instantes uma versão hostil sua.",
+      "lore": "Maldição Maldição do Espelho do Rei Caído nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para reconhecer disfarces Espelhos mostram por instantes uma versão hostil sua.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para reconhecer disfarces",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Espelhos mostram por instantes uma versão hostil sua.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Espelhos mostram por instantes uma versão hostil sua."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-061",
+      "name": "Maldição Clã Negro da Bruxa Antiga",
+      "summary": "+2 em Destreza Má reputação entre os membros da própria raça.",
+      "lore": "Maldição Clã Negro da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +2 em Destreza Má reputação entre os membros da própria raça.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+2 em Destreza",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Má reputação entre os membros da própria raça.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Má reputação entre os membros da própria raça."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-062",
+      "name": "Maldição Espada Insaciável da Bruxa Antiga",
+      "summary": "+1 de dano com todas as armas Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+      "lore": "Maldição Espada Insaciável da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 de dano com todas as armas Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 de dano com todas as armas",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Ao ver uma arma rara, sente compulsão de tentar obtê-la."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-063",
+      "name": "Maldição Sangue de Cinzas da Bruxa Antiga",
+      "summary": "+1 para resistir a calor extremo Frio intenso dificulta o descanso.",
+      "lore": "Maldição Sangue de Cinzas da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a calor extremo Frio intenso dificulta o descanso.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a calor extremo",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Frio intenso dificulta o descanso.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Frio intenso dificulta o descanso."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-064",
+      "name": "Maldição Olhos da Meia-Noite da Bruxa Antiga",
+      "summary": "+2 em Percepção no escuro Luz solar forte causa dor e desorientação.",
+      "lore": "Maldição Olhos da Meia-Noite da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +2 em Percepção no escuro Luz solar forte causa dor e desorientação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+2 em Percepção no escuro",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Luz solar forte causa dor e desorientação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Luz solar forte causa dor e desorientação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-065",
+      "name": "Maldição Pacto de Ferro da Bruxa Antiga",
+      "summary": "+1 para resistir a ser desarmado Não consegue abandonar a arma juramentada sem angústia.",
+      "lore": "Maldição Pacto de Ferro da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a ser desarmado Não consegue abandonar a arma juramentada sem angústia.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a ser desarmado",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Não consegue abandonar a arma juramentada sem angústia.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Não consegue abandonar a arma juramentada sem angústia."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-066",
+      "name": "Maldição Marca do Corvo da Bruxa Antiga",
+      "summary": "+1 para encontrar objetos perdidos Corvos e supersticiosos reagem com inquietação.",
+      "lore": "Maldição Marca do Corvo da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para encontrar objetos perdidos Corvos e supersticiosos reagem com inquietação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para encontrar objetos perdidos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Corvos e supersticiosos reagem com inquietação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Corvos e supersticiosos reagem com inquietação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-067",
+      "name": "Maldição Fome Arcana da Bruxa Antiga",
+      "summary": "+1 em conhecimento mágico Magia poderosa desperta urgência de investigar sua origem.",
+      "lore": "Maldição Fome Arcana da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em conhecimento mágico Magia poderosa desperta urgência de investigar sua origem.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em conhecimento mágico",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Magia poderosa desperta urgência de investigar sua origem.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Magia poderosa desperta urgência de investigar sua origem."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-068",
+      "name": "Maldição Sombra Fiel da Bruxa Antiga",
+      "summary": "+1 em Furtividade sob pouca luz A sombra se move de forma estranha e pode denunciá-lo.",
+      "lore": "Maldição Sombra Fiel da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Furtividade sob pouca luz A sombra se move de forma estranha e pode denunciá-lo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Furtividade sob pouca luz",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "A sombra se move de forma estranha e pode denunciá-lo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "A sombra se move de forma estranha e pode denunciá-lo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-069",
+      "name": "Maldição Juramento de Sangue da Bruxa Antiga",
+      "summary": "+1 para proteger alguém a quem jurou lealdade Quebrar a promessa exige reparação narrativa.",
+      "lore": "Maldição Juramento de Sangue da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para proteger alguém a quem jurou lealdade Quebrar a promessa exige reparação narrativa.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para proteger alguém a quem jurou lealdade",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Quebrar a promessa exige reparação narrativa.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Quebrar a promessa exige reparação narrativa."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-070",
+      "name": "Maldição Voz do Abismo da Bruxa Antiga",
+      "summary": "+1 em Intimidação Sussurros inquietantes escapam em momentos de tensão.",
+      "lore": "Maldição Voz do Abismo da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação Sussurros inquietantes escapam em momentos de tensão.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sussurros inquietantes escapam em momentos de tensão.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sussurros inquietantes escapam em momentos de tensão."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-071",
+      "name": "Maldição Pele de Pedra da Bruxa Antiga",
+      "summary": "+1 para resistir a impactos físicos Movimentos delicados e silenciosos ficam mais difíceis.",
+      "lore": "Maldição Pele de Pedra da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a impactos físicos Movimentos delicados e silenciosos ficam mais difíceis.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a impactos físicos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Movimentos delicados e silenciosos ficam mais difíceis.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Movimentos delicados e silenciosos ficam mais difíceis."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-072",
+      "name": "Maldição Passos sem Eco da Bruxa Antiga",
+      "summary": "+1 em Furtividade ao caminhar Aliados podem não perceber quando chega.",
+      "lore": "Maldição Passos sem Eco da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Furtividade ao caminhar Aliados podem não perceber quando chega.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Furtividade ao caminhar",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Aliados podem não perceber quando chega.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Aliados podem não perceber quando chega."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-073",
+      "name": "Maldição Sorte Roubada da Bruxa Antiga",
+      "summary": "+1 em testes de Sorte, se existirem Um sucesso excepcional pode atrair um contratempo narrativo.",
+      "lore": "Maldição Sorte Roubada da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em testes de Sorte, se existirem Um sucesso excepcional pode atrair um contratempo narrativo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em testes de Sorte, se existirem",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Um sucesso excepcional pode atrair um contratempo narrativo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Um sucesso excepcional pode atrair um contratempo narrativo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-074",
+      "name": "Maldição Dente da Serpente da Bruxa Antiga",
+      "summary": "+1 para detectar venenos Animais domésticos ficam inquietos perto de você.",
+      "lore": "Maldição Dente da Serpente da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para detectar venenos Animais domésticos ficam inquietos perto de você.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para detectar venenos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Animais domésticos ficam inquietos perto de você.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Animais domésticos ficam inquietos perto de você."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-075",
+      "name": "Maldição Coroa dos Exilados da Bruxa Antiga",
+      "summary": "+1 em Persuasão entre exilados Nobres e autoridades suspeitam de sua origem.",
+      "lore": "Maldição Coroa dos Exilados da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Persuasão entre exilados Nobres e autoridades suspeitam de sua origem.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Persuasão entre exilados",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Nobres e autoridades suspeitam de sua origem.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Nobres e autoridades suspeitam de sua origem."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-076",
+      "name": "Maldição Mão do Ladrão da Bruxa Antiga",
+      "summary": "+1 em Prestidigitação É frequentemente acusado de furtos.",
+      "lore": "Maldição Mão do Ladrão da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Prestidigitação É frequentemente acusado de furtos.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Prestidigitação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "É frequentemente acusado de furtos.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "É frequentemente acusado de furtos."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-077",
+      "name": "Maldição Chama Votiva da Bruxa Antiga",
+      "summary": "+1 em concentração durante rituais Não pode apagar a chama ritual antes de cumprir o voto.",
+      "lore": "Maldição Chama Votiva da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em concentração durante rituais Não pode apagar a chama ritual antes de cumprir o voto.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em concentração durante rituais",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Não pode apagar a chama ritual antes de cumprir o voto.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Não pode apagar a chama ritual antes de cumprir o voto."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-078",
+      "name": "Maldição Memória Emprestada da Bruxa Antiga",
+      "summary": "+1 para recordar mapas e caminhos vistos Sonhos misturam lembranças próprias e alheias.",
+      "lore": "Maldição Memória Emprestada da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para recordar mapas e caminhos vistos Sonhos misturam lembranças próprias e alheias.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para recordar mapas e caminhos vistos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sonhos misturam lembranças próprias e alheias.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sonhos misturam lembranças próprias e alheias."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-079",
+      "name": "Maldição Sussurro dos Mortos da Bruxa Antiga",
+      "summary": "+1 para perceber mortos-vivos Locais de morte intensa dificultam o repouso.",
+      "lore": "Maldição Sussurro dos Mortos da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para perceber mortos-vivos Locais de morte intensa dificultam o repouso.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para perceber mortos-vivos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Locais de morte intensa dificultam o repouso.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Locais de morte intensa dificultam o repouso."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-080",
+      "name": "Maldição Coração de Gelo da Bruxa Antiga",
+      "summary": "+1 para manter a calma sob ameaça Pode parecer emocionalmente distante.",
+      "lore": "Maldição Coração de Gelo da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para manter a calma sob ameaça Pode parecer emocionalmente distante.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para manter a calma sob ameaça",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Pode parecer emocionalmente distante.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Pode parecer emocionalmente distante."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-081",
+      "name": "Maldição Marca do Caçador da Bruxa Antiga",
+      "summary": "+1 para rastrear uma presa escolhida Abandonar a perseguição provoca inquietação.",
+      "lore": "Maldição Marca do Caçador da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para rastrear uma presa escolhida Abandonar a perseguição provoca inquietação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para rastrear uma presa escolhida",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Abandonar a perseguição provoca inquietação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Abandonar a perseguição provoca inquietação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-082",
+      "name": "Maldição Fardo do Titã da Bruxa Antiga",
+      "summary": "+1 em testes de Força para erguer ou empurrar Objetos frágeis quebram com facilidade sob seu manuseio.",
+      "lore": "Maldição Fardo do Titã da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em testes de Força para erguer ou empurrar Objetos frágeis quebram com facilidade sob seu manuseio.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em testes de Força para erguer ou empurrar",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Objetos frágeis quebram com facilidade sob seu manuseio.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Objetos frágeis quebram com facilidade sob seu manuseio."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-083",
+      "name": "Maldição Véu das Mentiras da Bruxa Antiga",
+      "summary": "+1 em Enganação Confessar uma verdade pessoal dolorosa causa reação física.",
+      "lore": "Maldição Véu das Mentiras da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Enganação Confessar uma verdade pessoal dolorosa causa reação física.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Enganação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Confessar uma verdade pessoal dolorosa causa reação física.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Confessar uma verdade pessoal dolorosa causa reação física."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-084",
+      "name": "Maldição Língua Queimada da Bruxa Antiga",
+      "summary": "+1 em Persuasão durante negociações Promessas vagas são cobradas por forças sobrenaturais.",
+      "lore": "Maldição Língua Queimada da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Persuasão durante negociações Promessas vagas são cobradas por forças sobrenaturais.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Persuasão durante negociações",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Promessas vagas são cobradas por forças sobrenaturais.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Promessas vagas são cobradas por forças sobrenaturais."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-085",
+      "name": "Maldição Selo do Coveiro da Bruxa Antiga",
+      "summary": "+1 para reconhecer sinais de morte Sacerdotes funerários podem considerá-lo agourento.",
+      "lore": "Maldição Selo do Coveiro da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para reconhecer sinais de morte Sacerdotes funerários podem considerá-lo agourento.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para reconhecer sinais de morte",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sacerdotes funerários podem considerá-lo agourento.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sacerdotes funerários podem considerá-lo agourento."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-086",
+      "name": "Maldição Olhar Petrificante da Bruxa Antiga",
+      "summary": "+1 em Intimidação ao encarar alguém Evita contato visual prolongado com aliados.",
+      "lore": "Maldição Olhar Petrificante da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação ao encarar alguém Evita contato visual prolongado com aliados.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação ao encarar alguém",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Evita contato visual prolongado com aliados.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Evita contato visual prolongado com aliados."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-087",
+      "name": "Maldição Eco do Trovão da Bruxa Antiga",
+      "summary": "+1 para resistir a ruídos ensurdecedores Sua voz ressoa involuntariamente em locais silenciosos.",
+      "lore": "Maldição Eco do Trovão da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a ruídos ensurdecedores Sua voz ressoa involuntariamente em locais silenciosos.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a ruídos ensurdecedores",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sua voz ressoa involuntariamente em locais silenciosos.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sua voz ressoa involuntariamente em locais silenciosos."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-088",
+      "name": "Maldição Sangue Dracônico Roubado da Bruxa Antiga",
+      "summary": "+1 em Intimidação contra criaturas menores que dragões Dragões e cultos dracônicos podem persegui-lo.",
+      "lore": "Maldição Sangue Dracônico Roubado da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação contra criaturas menores que dragões Dragões e cultos dracônicos podem persegui-lo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação contra criaturas menores que dragões",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Dragões e cultos dracônicos podem persegui-lo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Dragões e cultos dracônicos podem persegui-lo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-089",
+      "name": "Maldição Correntes Invisíveis da Bruxa Antiga",
+      "summary": "+1 para resistir a coerção mental Antigas prisões provocam pânico.",
+      "lore": "Maldição Correntes Invisíveis da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a coerção mental Antigas prisões provocam pânico.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a coerção mental",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Antigas prisões provocam pânico.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Antigas prisões provocam pânico."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-090",
+      "name": "Maldição Maldição do Espelho da Bruxa Antiga",
+      "summary": "+1 para reconhecer disfarces Espelhos mostram por instantes uma versão hostil sua.",
+      "lore": "Maldição Maldição do Espelho da Bruxa Antiga nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para reconhecer disfarces Espelhos mostram por instantes uma versão hostil sua.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para reconhecer disfarces",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Espelhos mostram por instantes uma versão hostil sua.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Espelhos mostram por instantes uma versão hostil sua."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-091",
+      "name": "Maldição Clã Negro do Templo Afogado",
+      "summary": "+2 em Destreza Má reputação entre os membros da própria raça.",
+      "lore": "Maldição Clã Negro do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +2 em Destreza Má reputação entre os membros da própria raça.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+2 em Destreza",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Má reputação entre os membros da própria raça.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Má reputação entre os membros da própria raça."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-092",
+      "name": "Maldição Espada Insaciável do Templo Afogado",
+      "summary": "+1 de dano com todas as armas Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+      "lore": "Maldição Espada Insaciável do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 de dano com todas as armas Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 de dano com todas as armas",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Ao ver uma arma rara, sente compulsão de tentar obtê-la.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Ao ver uma arma rara, sente compulsão de tentar obtê-la."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-093",
+      "name": "Maldição Sangue de Cinzas do Templo Afogado",
+      "summary": "+1 para resistir a calor extremo Frio intenso dificulta o descanso.",
+      "lore": "Maldição Sangue de Cinzas do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a calor extremo Frio intenso dificulta o descanso.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a calor extremo",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Frio intenso dificulta o descanso.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Frio intenso dificulta o descanso."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-094",
+      "name": "Maldição Olhos da Meia-Noite do Templo Afogado",
+      "summary": "+2 em Percepção no escuro Luz solar forte causa dor e desorientação.",
+      "lore": "Maldição Olhos da Meia-Noite do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +2 em Percepção no escuro Luz solar forte causa dor e desorientação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+2 em Percepção no escuro",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Luz solar forte causa dor e desorientação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Luz solar forte causa dor e desorientação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-095",
+      "name": "Maldição Pacto de Ferro do Templo Afogado",
+      "summary": "+1 para resistir a ser desarmado Não consegue abandonar a arma juramentada sem angústia.",
+      "lore": "Maldição Pacto de Ferro do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para resistir a ser desarmado Não consegue abandonar a arma juramentada sem angústia.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para resistir a ser desarmado",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Não consegue abandonar a arma juramentada sem angústia.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Não consegue abandonar a arma juramentada sem angústia."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-096",
+      "name": "Maldição Marca do Corvo do Templo Afogado",
+      "summary": "+1 para encontrar objetos perdidos Corvos e supersticiosos reagem com inquietação.",
+      "lore": "Maldição Marca do Corvo do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para encontrar objetos perdidos Corvos e supersticiosos reagem com inquietação.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para encontrar objetos perdidos",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Corvos e supersticiosos reagem com inquietação.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Corvos e supersticiosos reagem com inquietação."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-097",
+      "name": "Maldição Fome Arcana do Templo Afogado",
+      "summary": "+1 em conhecimento mágico Magia poderosa desperta urgência de investigar sua origem.",
+      "lore": "Maldição Fome Arcana do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em conhecimento mágico Magia poderosa desperta urgência de investigar sua origem.",
+      "tags": [
+        "maldicao",
+        "original",
+        "social"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em conhecimento mágico",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Magia poderosa desperta urgência de investigar sua origem.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Magia poderosa desperta urgência de investigar sua origem."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-098",
+      "name": "Maldição Sombra Fiel do Templo Afogado",
+      "summary": "+1 em Furtividade sob pouca luz A sombra se move de forma estranha e pode denunciá-lo.",
+      "lore": "Maldição Sombra Fiel do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Furtividade sob pouca luz A sombra se move de forma estranha e pode denunciá-lo.",
+      "tags": [
+        "maldicao",
+        "original",
+        "sobrenatural"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Furtividade sob pouca luz",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "A sombra se move de forma estranha e pode denunciá-lo.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "A sombra se move de forma estranha e pode denunciá-lo."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-099",
+      "name": "Maldição Juramento de Sangue do Templo Afogado",
+      "summary": "+1 para proteger alguém a quem jurou lealdade Quebrar a promessa exige reparação narrativa.",
+      "lore": "Maldição Juramento de Sangue do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 para proteger alguém a quem jurou lealdade Quebrar a promessa exige reparação narrativa.",
+      "tags": [
+        "maldicao",
+        "original",
+        "comportamental"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 para proteger alguém a quem jurou lealdade",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Quebrar a promessa exige reparação narrativa.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Quebrar a promessa exige reparação narrativa."
+      ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "maldicao-100",
+      "name": "Maldição Voz do Abismo do Templo Afogado",
+      "summary": "+1 em Intimidação Sussurros inquietantes escapam em momentos de tensão.",
+      "lore": "Maldição Voz do Abismo do Templo Afogado nasce de um pacto, artefato, entidade ou acontecimento sobrenatural. +1 em Intimidação Sussurros inquietantes escapam em momentos de tensão.",
+      "tags": [
+        "maldicao",
+        "original",
+        "aventura"
+      ],
+      "sourceType": "variable",
+      "benefits": [
+        {
+          "description": "+1 em Intimidação",
+          "mechanicalEffects": []
+        }
+      ],
+      "drawbacks": [
+        {
+          "description": "Sussurros inquietantes escapam em momentos de tensão.",
+          "mechanicalEffects": []
+        }
+      ],
+      "narrativeConsequences": [
+        "Sussurros inquietantes escapam em momentos de tensão."
+      ],
+      "mechanicalEffects": [],
       "contentVersion": 1
     }
   ]
