@@ -116,6 +116,31 @@ class MasterCheckRequestTest {
         assertTrue(provider.requests.last().messages.last().content.contains("Resultado mecânico"))
     }
 
+    @Test fun refazerNarracaoDoGrupoPreservaResultadosDeTodosOsParticipantes() {
+        val p = pkg()
+        val f = ficha(p)
+        val session = session(f)
+        val group = """{"narrative":"Vamos juntos.",
+            "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"passa","onFailure":"falha",
+            "group":{"participantIds":["player","orc"],"requiredSuccesses":1,"onSuccess":"grupo passa","onFailure":"grupo falha"}}}"""
+        val provider = ScriptedProvider(listOf(group, fim("O grupo passou."), fim("O grupo passa após nova narração.")))
+        val loop = GameLoop(provider, menu = CheckMenu(p))
+        val input = PlayInput("hero", "ajudo", sceneNpcIds = setOf("orc"))
+        assertTrue(loop.play(session, input) is PlayResult.Played)
+        val resolved = loop.resolvePending(session, input)
+        assertTrue(resolved is PlayResult.Played)
+        assertEquals(2, (resolved as PlayResult.Played).record.advancedChecks.size)
+
+        val regenerated = loop.regenerate(session)
+
+        assertTrue(regenerated is PlayResult.Played)
+        assertEquals(2, (regenerated as PlayResult.Played).record.advancedChecks.size)
+        assertEquals(
+            resolved.record.advancedChecks.map { it.first },
+            regenerated.record.advancedChecks.map { it.first }
+        )
+    }
+
     @Test fun resolucaoRevalidaPresencaDoNpcNaCenaAntesDeRolarDisputa() {
         val p = pkg()
         val f = ficha(p)
