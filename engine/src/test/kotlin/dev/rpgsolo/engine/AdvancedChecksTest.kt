@@ -108,6 +108,8 @@ class AdvancedChecksTest {
         )
         assertEquals(FortuneMode.ADVANTAGE, result.challenger.spec.fortuneMode)
         assertEquals(FortuneMode.DISADVANTAGE, result.defender.spec.fortuneMode)
+        assertEquals(1, result.challengerAlternatives.size)
+        assertEquals(1, result.defenderAlternatives.size)
         assertEquals(4, engine.events.count { it is RollRecorded })
     }
 
@@ -123,6 +125,7 @@ class AdvancedChecksTest {
         assertEquals(2, result.individual.size)
         assertEquals(FortuneMode.ADVANTAGE, result.individual[0].spec.fortuneMode)
         assertEquals(FortuneMode.DISADVANTAGE, result.individual[1].spec.fortuneMode)
+        assertEquals(listOf(1, 1), result.alternatives.map { it.size })
         assertEquals(4, engine.events.count { it is RollRecorded })
     }
 
