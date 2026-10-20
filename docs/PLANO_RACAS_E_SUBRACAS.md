@@ -366,3 +366,12 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Mostrar atributos e traços mecânicos do pacote em bloco separado das escolhas editoriais.
 - [x] Informar explicitamente que as escolhas editoriais não concedem bônus automaticamente.
 - [ ] Ampliar a revisão para apresentar origem e escopo de cada efeito mecânico tipado quando esses efeitos forem implementados.
+
+
+### Validação de escolhas antes de salvar (20/10/2026)
+
+- [x] Validar IDs de raça, sub-raça, híbrido, classe, profissão e maldições contra as categorias corretas.
+- [x] Validar que a sub-raça pertença à raça escolhida e impedir combinação simultânea de raça/sub-raça com híbrido.
+- [x] Detectar IDs repetidos de maldições e impedir salvar escolhas inválidas pela interface.
+- [x] Exibir os problemas de validação ao jogador sem inferir ou aplicar efeitos mecânicos.
+- [ ] Validar/migrar escolhas antigas durante importação e apresentar um fluxo explícito de reparo quando o catálogo mudou.
