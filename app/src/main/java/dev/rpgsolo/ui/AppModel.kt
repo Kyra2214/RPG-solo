@@ -104,7 +104,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     append(" [não aplicar efeitos mecânicos: exigem regras tipadas no motor]")
                 }
             }
-        }.joinToString("\\n")
+        }.joinToString("\n")
     }
 
     var narrationLength by mutableStateOf(narrationPrefs.getString("length", "equilibrada") ?: "equilibrada")
