@@ -292,3 +292,20 @@ A entrega não se limita à aba de maldições: o objetivo é refazer o fluxo de
 ### Estado
 Este escopo foi registrado como plano. A interface e o runtime ainda precisam ser auditados para localizar a aba atual e determinar os arquivos concretos a modificar.
 
+### Implementação inicial da refatoração (20/10/2026)
+
+Foi implementada uma primeira fatia vertical do fluxo de criação:
+- Novo leitor do catálogo editorial em `app/src/main/java/dev/rpgsolo/ui/CharacterCreationCatalog.kt`, com entradas de raça, sub-raça, classe, profissão e maldição.
+- Aba Heróis agora mostra seletores pesquisáveis para raça, sub-raça/variante, classe, profissão e seleção múltipla de maldições.
+- A ficha salva os IDs escolhidos em metadados locais associados ao ID da ficha; a biblioteca mostra os nomes selecionados.
+- Duplicar ficha copia esses metadados e excluir ficha remove os metadados correspondentes.
+- A montagem do contexto da ficha para a IA inclui nomes, lore e descrições de benefício/custo do catálogo, com instrução explícita de não tratar esses textos como efeitos mecânicos executáveis.
+- Nenhum bônus ou penalidade do catálogo é aplicado automaticamente pelo motor.
+
+**Limitações ainda abertas (não declarar refatoração completa):**
+- Os metadados da criação ainda são guardados em SharedPreferences separado do JSON canônico da ficha; exportação/importação de ficha e migração dos metadados ainda precisam ser unificadas.
+- Híbridos/ascendências mistas ainda não têm seletor ou validação de combinações.
+- Vantagens e desvantagens continuam usando o sistema de traços do pacote atual; a integração com o novo catálogo precisa ser definida sem duplicar regras.
+- Efeitos mecânicos tipados das maldições, revisão de compatibilidade, história gerada e retrato por IA ainda não foram implementados.
+- Não foi executado build, teste ou CI nesta etapa; a validação de compilação permanece pendente.
+
