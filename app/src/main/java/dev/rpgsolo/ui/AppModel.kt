@@ -107,19 +107,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun selectedCatalogBonus(pkg: RulePackage, scope: String): Int =
         selectedCatalogBonuses(pkg).filter { it.scope == scope }.sumOf { it.bonus }
 
-    /** Explica efeitos de catálogo não nulos correspondentes aos escopos resolvidos. */
+    /** Explica os efeitos por escopo, sem somar bônus que modificam cálculos diferentes. */
     private fun selectedCatalogBonusSummary(pkg: RulePackage, scopes: Collection<String>): String {
         val applied = selectedCatalogBonuses(pkg).filter { it.scope in scopes && it.bonus != 0 }
         if (applied.isEmpty()) return ""
-        val total = applied.sumOf { it.bonus }
-        val origins = applied.map { it.source }.distinct().joinToString(", ")
-        val details = applied.joinToString { effect ->
-            effect.scope + " " + (if (effect.bonus > 0) "+" else "") + effect.bonus
+        val details = applied.groupBy { it.scope }.entries.joinToString("; ") { (scope, effects) ->
+            val total = effects.sumOf { it.bonus }
+            val sources = effects.map { it.source }.distinct().joinToString(", ")
+            scope + " " + (if (total > 0) "+" else "") + total + " [" + sources + "]"
         }
-        return " Efeitos de personagem: $origins ($details; total " +
-            (if (total > 0) "+" else "") + "$total)."
+        return " Efeitos de personagem: $details."
     }
-
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
         val choices = characterChoices(fichaId)
@@ -597,7 +595,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     "${session.state.entities.getValue(attacker).name} errou o ataque."
                 }
-                outcome + selectedCatalogBonusSummary(pkg, listOf("defesa", "resistencia_dano"))
+                outcome + selectedCatalogBonusSummary(pkg, if (result.hit) listOf("defesa", "resistencia_dano") else listOf("defesa"))
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> return result.reason
         }
@@ -886,7 +884,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     }.orEmpty()
                     "Ataque: $attackText. Acertou e causou ${result.damage} de dano.$damageText"
                 } else "Ataque: $attackText. Errou."
-                val withSources = outcome + selectedCatalogBonusSummary(pkg, listOf("ataque", "dano"))
+                val withSources = outcome + selectedCatalogBonusSummary(pkg, if (result.hit) listOf("ataque", "dano") else listOf("ataque"))
                 if (victoryXp > 0) "$withSources Vitória! Você recebeu $victoryXp XP." else withSources
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
