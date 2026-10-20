@@ -606,7 +606,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun conditionDiceShift(entityId: String, stat: String): Int =
         session.state.conditions[entityId].orEmpty().sumOf { conditionId ->
             val effect = activePackage?.data?.conditions?.firstOrNull { it.id == conditionId }?.effect
-            if (effect != null && (effect.stats == null || stat in effect.stats)) effect.dice else 0
+            val stats = effect?.stats
+            if (effect != null && (stats == null || stat in stats)) effect.dice else 0
         }
 
     /** Traços mecânicos do combatente; a ficha salva cobre campanhas antigas cujo Entity ainda não os continha. */
@@ -632,7 +633,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** Usa consumíveis apenas quando o pacote declara uma ação mecânica explícita. */
-    fun useItem(itemId: String): String? = try {
+    fun useItem(itemId: String): String? {
+        return try {
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
         val item = requireNotNull(pkg.item(itemId)) { "item não existe no pacote ativo: $itemId" }
         require(item.kind == "consumivel") { "este item não é consumível" }
@@ -666,7 +668,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
     } catch (e: IllegalArgumentException) { e.message }
-      catch (e: IllegalStateException) { e.message }
+        catch (e: IllegalStateException) { e.message }
+    }
 
     fun equipItem(itemId: String): String? = try {
         require(session.state.combat == null) { "não é possível trocar equipamento durante o combate" }
@@ -688,7 +691,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
-    fun attack(targetId: String): String? = try {
+    fun attack(targetId: String): String? {
+        return try {
         require(isPlayerCombatTurn()) { "não é o turno do jogador" }
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
         val resource = pkg.manifest.deathResource
@@ -771,7 +775,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
         }
     } catch (e: IllegalArgumentException) { e.message }
-      catch (e: IllegalStateException) { e.message }
+        catch (e: IllegalStateException) { e.message }
+    }
 
     /** A postura defensiva concede o bônus do pacote contra o próximo ataque recebido e consome o turno. */
     fun defend(): String? {
