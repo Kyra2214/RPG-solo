@@ -259,6 +259,16 @@ class PlayController(
         if (defenderEntityId != null && challengerEntityId == defenderEntityId) {
             return PlayResult.Failed("uma disputa exige dois participantes diferentes")
         }
+        val challengerEntity = session.state.entities[challengerEntityId]
+            ?: return PlayResult.Failed("participante desafiante inexistente: $challengerEntityId")
+        if (!challengerEntity.alive) return PlayResult.Failed("o participante desafiante está fora de combate")
+        if (defenderEntityId != null) {
+            val defenderEntity = session.state.entities[defenderEntityId]
+                ?: return PlayResult.Failed("participante defensor inexistente: $defenderEntityId")
+            if (defenderEntity.kind != dev.rpgsolo.engine.EntityKind.NPC || !defenderEntity.alive) {
+                return PlayResult.Failed("o defensor deve ser um NPC vivo")
+            }
+        }
         val start = chat.size
         val mark = session.mark()
         return try {
@@ -322,6 +332,14 @@ class PlayController(
         }
         if (playerId !in referencedIds) {
             return PlayResult.Failed("o teste de grupo precisa incluir o personagem do jogador")
+        }
+        for (entityId in referencedIds) {
+            val entity = session.state.entities[entityId]
+                ?: return PlayResult.Failed("participante inexistente: $entityId")
+            if (!entity.alive) return PlayResult.Failed("participante fora de combate: $entityId")
+            if (entityId != playerId && entity.kind != dev.rpgsolo.engine.EntityKind.NPC) {
+                return PlayResult.Failed("participante de grupo deve ser o jogador ou um NPC: $entityId")
+            }
         }
         val start = chat.size
         val mark = session.mark()
