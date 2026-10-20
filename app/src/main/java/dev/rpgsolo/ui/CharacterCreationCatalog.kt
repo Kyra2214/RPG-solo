@@ -1,6 +1,7 @@
 package dev.rpgsolo.ui
 
 import org.json.JSONObject
+import dev.rpgsolo.rules.RulePackage
 
 /** Efeito tipado declarado no catálogo. Declarar não significa aplicar ao motor. */
 data class CharacterCatalogEffect(val scope: String, val bonus: Int, val source: String = "entry")
@@ -157,6 +158,25 @@ object CharacterCreationCatalog {
             val bonus = if (rawBonus is Number && rawBonus.toDouble().isFinite() && rawBonus.toDouble() % 1.0 == 0.0) rawBonus.toInt() else null
             if (bonus == null || bonus !in -100..100) errors += "$location[$index] deve declarar bonus inteiro entre -100 e 100"
         }
+    }
+
+    /**
+     * Confere escopos tipados declarados contra o pacote realmente selecionado.
+     * Isto só valida compatibilidade; não aplica os efeitos ao motor.
+     */
+    fun validateEffectScopes(pkg: RulePackage, choices: CharacterChoices): List<String> {
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
+        val validScopes = pkg.data.stats.map { it.id }.toSet() +
+            pkg.data.checks.map { it.id } +
+            pkg.data.traits.map { it.id } +
+            setOf("ataque", "dano", "defesa", "resistencia_dano")
+        return selectedIds.filter { it.isNotBlank() }.distinct()
+            .mapNotNull(::find)
+            .flatMap { entry ->
+                entry.mechanicalEffects.filter { it.scope !in validScopes }.map {
+                    "Efeito declarado em ${entry.name} usa escopo '${it.scope}', inexistente no pacote ${pkg.manifest.id}"
+                }
+            }.distinct()
     }
 
     /**
