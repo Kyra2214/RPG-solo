@@ -268,9 +268,9 @@ class PlayController(
             result.defenderAlternatives.forEach { alternative -> chat += ChatLine(Author.ROLL, "Não escolhido · $defenderName · " + rollText(alternative), rollView(alternative)) }
             chat += ChatLine(Author.ROLL, "$defenderName · " + rollText(result.defender), rollView(result.defender))
             chat += ChatLine(
-                Author.SYSTEM,
+                Author.MASTER,
                 if (result.challengerWins) "$challengerName vence a disputa."
-                else "$defenderName mantém a vantagem; empate favorece o defensor."
+                else "$defenderName vence ou mantém a disputa; empate favorece o defensor."
             )
             PlayResult.Played(
                 TurnRecord(
@@ -309,7 +309,7 @@ class PlayController(
             }
             val result = session.checkGroup(preparedChecks, requiredSuccesses)
             entries.addLast(Entry(start, localMark = mark, viaLoop = false))
-            chat += ChatLine(Author.SYSTEM, "Teste de grupo: ${result.successes} sucessos e ${result.failures} falhas; necessários ${result.requiredSuccesses}.")
+            chat += ChatLine(Author.SYSTEM, "Teste de grupo: ${checks.size} participantes; necessários ${result.requiredSuccesses} sucessos.")
             result.individual.forEachIndexed { index, check ->
                 result.alternatives.getOrNull(index).orEmpty().forEach { alternative ->
                     chat += ChatLine(Author.ROLL, "Não escolhido · " + participantNames[index] + " · " + rollText(alternative), rollView(alternative))
@@ -317,7 +317,7 @@ class PlayController(
                 chat += ChatLine(Author.ROLL, participantNames[index] + " · " + rollText(check), rollView(check))
             }
             chat += ChatLine(
-                Author.SYSTEM,
+                Author.MASTER,
                 if (result.passed) "O grupo alcançou o limiar de sucesso."
                 else "O grupo não alcançou o limiar de sucesso."
             )
