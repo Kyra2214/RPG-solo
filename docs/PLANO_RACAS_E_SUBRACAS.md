@@ -1,6 +1,6 @@
 # Plano de implementação — Raças, sub-raças, classes e profissões do RPG Solo
 
-**Estado atual (20/10/2026):** catálogo editorial, seleção de raça/sub-raça/híbrido/classe/profissão/maldições, validação de escolhas, persistência editorial, importação/exportação e edição das escolhas parcialmente implementados. Efeitos mecânicos do catálogo, história e retrato por IA ainda pendentes. Build/testes/CI não executados.  
+**Estado atual (20/10/2026):** catálogo editorial, seletores e validação estão implementados parcialmente; as escolhas agora também têm campo canônico `Ficha.editorialChoicesJson`, com leitura retrocompatível de SharedPreferences e migração sob demanda ao salvar. Duplicação, exportação/importação individual e backup/restauração foram ajustados para transportar as escolhas canônicas, mantendo o espelho legado por compatibilidade. A migração automática de todas as fichas antigas no carregamento e a validação do ciclo completo ainda precisam de revisão. Efeitos mecânicos completos do catálogo, história e retrato por IA continuam pendentes. Build/testes/CI não executados.  
 **Branch:** `feature/racas-subracas`  
 **Inspiração:** D&D como referência criativa de fantasia, sem copiar lore, ilustrações ou blocos de regras protegidos. O RPG Solo terá conteúdo original e motor próprio.
 
@@ -235,10 +235,13 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 - Exibir resumo de bônus e sua origem antes da confirmação.
 
 ### R5 — Persistência
-- [x] Guardar IDs escolhidos por ficha e incluir escolhas editoriais em backups e exportação/importação individual versionada; auditoria confirmou que a fonte atual é SharedPreferences (`rpg_character_choices`) indexada por ID da ficha, e não um campo de `Ficha`.
-- [ ] Unificar escolhas no JSON canônico da ficha com migração compatível: preservar leitura de SharedPreferences, fichas antigas, duplicação, arquivamento, importação/exportação e backups; não remover a fonte legada até validar migração e restauração.
+- [x] Adicionar `Ficha.editorialChoicesJson` como campo canônico versionável por padrão vazio, sem misturar escolhas editoriais a `traits` ou bônus mecânicos; fichas antigas sem o campo continuam decodificáveis.
+- [x] Priorizar o campo canônico na leitura e manter SharedPreferences (`rpg_character_choices`) como fallback/espelho de compatibilidade.
+- [x] Persistir escolhas na ficha ao salvar a criação/edição; a gravação de uma ficha antiga incorpora escolhas legadas quando existirem.
+- [x] Fazer duplicação, exportação/importação individual e backup/restauração transportarem as escolhas canônicas; importar formatos antigos continua permitido.
+- [ ] Auditar fichas arquivadas, importação com IDs repetidos, restauração repetida e rollback de falhas parciais antes de remover o espelho legado.
 - [x] Preservar compatibilidade com fichas/backups antigos sem essas escolhas.
-- [x] Backups/restaurações preservam as escolhas editoriais; efeitos derivados ainda não existem para essas opções e não são duplicados.
+- [x] Backups/restaurações preservam as escolhas editoriais; efeitos derivados não são copiados para `Ficha.traits`.
 
 ### R6 — Expansão editorial
 - Atingir pelo menos 50 raças, 50 sub-raças/variantes, 50 classes e 50 profissões, ampliando depois conforme necessário.
@@ -283,9 +286,9 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 
 **Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador; as entradas atuais ainda têm efeitos vazios. Build, testes e CI não foram executados.
 
-**Auditoria desta rodada:** `RegraAdicional` é persistida como evento no log da campanha, mas não identifica se o efeito é individual ou global; a semântica de campanhas antigas permanece deliberadamente sem alteração. As escolhas editoriais de personagem, por sua vez, ficam em SharedPreferences separadas do JSON serializado de `Ficha`, embora exportação/importação e backup já as transportem em metadados próprios.
+**Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` passou a armazenar as escolhas editoriais no JSON canônico da ficha. `AppModel` lê primeiro o campo canônico e recorre ao SharedPreferences antigo quando ele está vazio; salvar a ficha incorpora o valor legado, e duplicação, importação/exportação individual e backup/restauração transportam o JSON de escolhas. O espelho legado permanece de propósito. A migração em massa no carregamento e a revisão específica do arquivamento/rollback ainda não estão concluídas. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
 
-**Próxima ação:** implementar a migração das escolhas editoriais para o modelo canônico de ficha, mantendo leitura retrocompatível dos metadados antigos; depois auditar o ciclo completo de criar, duplicar, importar, exportar, restaurar e reabrir ficha antes de ativar efeitos de catálogo.
+**Próxima ação:** auditar os caminhos de ficha arquivada, importação com IDs repetidos, restauração repetida e falhas parciais; corrigir o ciclo sem perder dados e só então considerar remover o espelho legado. Não ativar efeitos novos do catálogo antes de definir a política de equivalência com bônus canônicos.
 
 ## 10. Maldições, benefícios e custos narrativos
 
@@ -342,7 +345,7 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - Nenhum bônus ou penalidade do catálogo é aplicado automaticamente pelo motor.
 
 **Limitações ainda abertas (não declarar refatoração completa):**
-- Os metadados da criação ainda são guardados em SharedPreferences separado do JSON canônico da ficha; exportação/importação individual da ficha e migração dos metadados ainda precisam ser unificadas. Backups de campanha já carregam/restauram essas escolhas.
+- As escolhas têm agora campo canônico em `Ficha.editorialChoicesJson`; SharedPreferences segue como espelho/fallback legado até concluir a auditoria de compatibilidade. A remoção da fonte legada ainda não está autorizada.
 - Híbridos/ascendências mistas agora têm seletor, 20 combinações catalogadas e validação de referências; efeitos mecânicos continuam desativados.
 - Vantagens e desvantagens continuam usando o sistema de traços do pacote atual; a integração com o novo catálogo precisa ser definida sem duplicar regras.
 - Efeitos mecânicos tipados das maldições, revisão de compatibilidade, história gerada e retrato por IA ainda não foram implementados.
