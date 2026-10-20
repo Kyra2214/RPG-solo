@@ -284,7 +284,8 @@ class RulePackage internal constructor(val data: PackageData) {
      */
     fun adjustCheck(
         spec: CheckSpec, conditions: Collection<String>,
-        traits: Collection<String> = emptyList(), skill: String? = null
+        traits: Collection<String> = emptyList(), skill: String? = null,
+        additionalBonuses: Collection<TraitBonus> = emptyList()
     ): CheckSpec {
         val stat: String? = spec.stat
         val shift = conditions.sumOf { id ->
@@ -301,8 +302,15 @@ class RulePackage internal constructor(val data: PackageData) {
                 .filter { b -> b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill) }
                 .map { it.scope }.distinct().sumOf { sc -> traitById[tid]!!.bonuses.filter { it.scope == sc }.sumOf { it.bonus } }
         }
+        // Efeitos tipados externos (ex.: raça/classe/maldição) usam o mesmo cálculo por escopo,
+        // mas permanecem separados dos traços canônicos para evitar inserir cópias em Ficha.traits.
+        val externalBonus = additionalBonuses
+            .filter { b -> b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill) }
+            .map { it.scope }.distinct()
+            .sumOf { scope -> additionalBonuses.filter { it.scope == scope }.sumOf { it.bonus } }
+        val totalBonus = bonus + externalBonus
         val pointShift = if (pool) shift else 0
-        if (count == spec.diceCount && bonus == 0 && pointShift == 0) return spec
+        if (count == spec.diceCount && totalBonus == 0 && pointShift == 0) return spec
         // O cartão do dado mostra por que mudou: "(2d6)" vira "(1d6) · Perda"; o bônus aparece como "· +2".
         var label = spec.label
         if (count != spec.diceCount) {
@@ -310,11 +318,11 @@ class RulePackage internal constructor(val data: PackageData) {
                 if (count > spec.diceCount) " · Ganho" else " · Perda"
         }
         if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
-        if (bonus != 0) label += if (bonus > 0) " · +$bonus" else " · $bonus"
+        if (totalBonus != 0) label += if (totalBonus > 0) " · +$totalBonus" else " · $totalBonus"
         return if (spec.comparison == Comparison.ROLL_UNDER) {
-            spec.copy(diceCount = count, difficulty = spec.difficulty + bonus, modifier = spec.modifier + pointShift, label = label)
+            spec.copy(diceCount = count, difficulty = spec.difficulty + totalBonus, modifier = spec.modifier + pointShift, label = label)
         } else {
-            spec.copy(diceCount = count, modifier = spec.modifier + bonus + pointShift, label = label)
+            spec.copy(diceCount = count, modifier = spec.modifier + totalBonus + pointShift, label = label)
         }
     }
 
