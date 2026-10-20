@@ -93,6 +93,12 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var archQuery by remember(key) { mutableStateOf("") }
     var traitQuery by remember(key) { mutableStateOf("") }
     var typeFilter by remember(key) { mutableStateOf("todos") }
+    var raceId by remember(key) { mutableStateOf("") }
+    var subraceId by remember(key) { mutableStateOf("") }
+    var classId by remember(key) { mutableStateOf("") }
+    var professionId by remember(key) { mutableStateOf("") }
+    var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
+    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList())
     @Suppress("UNUSED_EXPRESSION") version
 
     fun toggle(id: String) {
@@ -136,6 +142,38 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             pkg.data.examples.forEach { ex ->
                 OutlinedButton(onClick = { draft.loadExample(ex.id); archId = null; version++ }) { Text(ex.title) }
+            }
+        }
+    }
+
+    // ---------- 2. Origem e identidade de aventura ----------
+    SectionTitle("Raça, classe e profissão", "Escolhas editoriais do catálogo. Elas não aplicam bônus mecânicos automaticamente.")
+    val catalogRaces = CharacterCreationCatalog.races
+    val catalogSubraces = CharacterCreationCatalog.subraces.filter { it.parentRaceId == raceId }
+    CatalogPicker("Raça", catalogRaces, raceId, { selected ->
+        raceId = selected
+        if (subraceId.isNotBlank() && catalogSubraces.none { it.id == subraceId }) subraceId = ""
+        version++
+    })
+    if (raceId.isNotBlank()) {
+        CatalogPicker("Sub-raça / variante (opcional)", catalogSubraces, subraceId, { subraceId = it; version++ }, allowNone = true)
+    }
+    CatalogPicker("Classe", CharacterCreationCatalog.classes, classId, { classId = it; version++ }, allowNone = true)
+    CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, { professionId = it; version++ }, allowNone = true)
+
+    SectionTitle("Maldições", "Podem trazer benefícios e custos narrativos. Os efeitos ainda não são aplicados pelo motor.")
+    CatalogMultiPicker("Escolha as maldições", CharacterCreationCatalog.curses, curseIds, { id ->
+        curseIds = if (id in curseIds) curseIds - id else curseIds + id
+        version++
+    })
+    val chosenCatalogEntries = (listOf(raceId, subraceId, classId, professionId) + curseIds.toList())
+        .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
+    if (chosenCatalogEntries.isNotEmpty()) {
+        AppCard {
+            Text("Resumo das escolhas", style = MaterialTheme.typography.titleSmall)
+            chosenCatalogEntries.forEach { entry ->
+                Text(entry.name, style = MaterialTheme.typography.bodyMedium)
+                if (entry.summary.isNotBlank()) Muted(entry.summary)
             }
         }
     }
@@ -242,7 +280,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     // ---------- 8. Criar ----------
     Button(modifier = Modifier.fillMaxWidth(), onClick = {
         message = when (val b = draft.build()) {
-            is FichaBuild.Created -> { model.saveFicha(b.ficha); "Ficha de ${b.ficha.name} criada e salva." }
+            is FichaBuild.Created -> { model.saveFicha(b.ficha); model.saveCharacterChoices(b.ficha.id, choices); "Ficha de ${b.ficha.name} criada e salva." }
             is FichaBuild.Invalid -> b.errors.joinToString("; ")
         }
         version++
@@ -255,6 +293,10 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             AppCard {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
                 Muted("${f.concept.ifBlank { "sem conceito" }} · ${f.system.editionId}")
+                val savedChoices = model.characterChoices(f.id)
+                val savedNames = (listOf(savedChoices.raceId, savedChoices.subraceId, savedChoices.classId, savedChoices.professionId) + savedChoices.curseIds)
+                    .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it)?.name }
+                if (savedNames.isNotEmpty()) Muted("Origem: " + savedNames.joinToString(" · "))
                 TextButton(onClick = { expandedFichaId = if (expandedFichaId == f.id) null else f.id }) {
                     Text(if (expandedFichaId == f.id) "Ocultar ficha" else "Ver ficha")
                 }
@@ -325,5 +367,73 @@ private fun TraitRow(t: TraitDef, chosen: Boolean, onToggle: () -> Unit) {
             }
             OutlinedButton(onClick = onToggle) { Text(if (chosen) "Tirar" else "Pegar") }
         }
+    }
+}
+
+@Composable
+private fun CatalogPicker(
+    title: String,
+    entries: List<CharacterCatalogEntry>,
+    selectedId: String,
+    onSelected: (String) -> Unit,
+    allowNone: Boolean = false
+) {
+    var query by remember(title) { mutableStateOf("") }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(title, style = MaterialTheme.typography.titleSmall)
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Buscar $title") },
+            singleLine = true
+        )
+        if (allowNone && selectedId.isNotBlank()) {
+            TextButton(onClick = { onSelected("") }) { Text("Limpar seleção") }
+        }
+        val q = query.trim().lowercase()
+        val visible = entries.filter { q.isEmpty() || it.name.lowercase().contains(q) || it.summary.lowercase().contains(q) }.take(30)
+        if (visible.isEmpty()) Muted("Nenhuma opção encontrada.")
+        visible.forEach { entry ->
+            FilterChip(
+                selected = selectedId == entry.id,
+                onClick = { onSelected(if (selectedId == entry.id && allowNone) "" else entry.id) },
+                label = { Text(entry.name) }
+            )
+            if (selectedId == entry.id && entry.summary.isNotBlank()) Muted(entry.summary)
+        }
+        if (entries.size > visible.size) Muted("Mostrando até 30 opções; use a busca para localizar as demais.")
+    }
+}
+
+@Composable
+private fun CatalogMultiPicker(
+    title: String,
+    entries: List<CharacterCatalogEntry>,
+    selectedIds: Set<String>,
+    onToggle: (String) -> Unit
+) {
+    var query by remember(title) { mutableStateOf("") }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Buscar maldição") },
+            singleLine = true
+        )
+        Text("${selectedIds.size} selecionada(s)", style = MaterialTheme.typography.labelMedium)
+        val q = query.trim().lowercase()
+        val visible = entries.filter { q.isEmpty() || it.name.lowercase().contains(q) || it.summary.lowercase().contains(q) }.take(30)
+        if (visible.isEmpty()) Muted("Nenhuma maldição encontrada.")
+        visible.forEach { entry ->
+            FilterChip(
+                selected = entry.id in selectedIds,
+                onClick = { onToggle(entry.id) },
+                label = { Text(entry.name) }
+            )
+            if (entry.id in selectedIds && entry.summary.isNotBlank()) Muted(entry.summary)
+        }
+        if (entries.size > visible.size) Muted("Catálogo com ${entries.size} opções; busque pelo nome para encontrar outras.")
     }
 }
