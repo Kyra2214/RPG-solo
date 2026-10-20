@@ -436,6 +436,48 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
             ) {
                 Text("Resolver disputa")
             }
+            Text("Teste de grupo", style = MaterialTheme.typography.labelLarge)
+            Muted("O herói participa automaticamente. Marque os NPCs aliados que também farão o teste.")
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                targets.forEach { target ->
+                    val chosen = target.id in selectedGroupTargets
+                    AssistChip(
+                        onClick = {
+                            selectedGroupTargets = if (chosen) selectedGroupTargets - target.id
+                            else selectedGroupTargets + target.id
+                            val count = selectedGroupTargets.size + 1
+                            if (requiredGroupSuccesses > count) requiredGroupSuccesses = count
+                        },
+                        enabled = enabled,
+                        label = { Text(target.name) },
+                        leadingIcon = if (chosen) ({ Text("✓") }) else null
+                    )
+                }
+            }
+            val participantCount = selectedGroupTargets.size + 1
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                (1..participantCount).forEach { threshold ->
+                    AssistChip(
+                        onClick = { requiredGroupSuccesses = threshold },
+                        enabled = enabled,
+                        label = { Text("$threshold sucesso(s)") },
+                        leadingIcon = if (requiredGroupSuccesses == threshold) ({ Text("✓") }) else null
+                    )
+                }
+            }
+            Button(
+                onClick = { message = model.resolveGroupCheck(selectedGroupTargets.toList(), selectedCheck, requiredGroupSuccesses) },
+                enabled = enabled && selectedCheck in options.map { it.id } && requiredGroupSuccesses in 1..participantCount,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Resolver teste de grupo")
+            }
             message?.let { Muted(it) }
         }
     }
