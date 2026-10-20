@@ -1090,7 +1090,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 CombatTarget(
                     id = npc.id,
                     name = npc.name,
-                    rulesValidated = npc.ruleSource != dev.rpgsolo.engine.RuleSource.IA_NAO_VERIFICADA
+                    rulesValidated = npc.rulesValidated
                 )
             }
             .sortedBy { it.name }
