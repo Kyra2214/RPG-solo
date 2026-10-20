@@ -58,7 +58,25 @@ sealed interface Requirement {
 data class TraitBonus(val scope: String, val bonus: Int)
 
 /** Bônus tipado externo ao pacote, com origem rastreável (ex.: raça, classe ou maldição). */
-data class ExternalBonus(val scope: String, val bonus: Int, val source: String)
+data class ExternalBonus(
+    val scope: String,
+    val bonus: Int,
+    val source: String,
+    /** Identidade estável da declaração; vazio significa que não há deduplicação segura por identidade. */
+    val effectId: String = ""
+)
+
+/**
+ * Remove somente repetições da mesma declaração explicitamente identificada.
+ * Bônus diferentes que coincidem em escopo/valor continuam acumulando; não inferimos equivalência.
+ */
+fun distinctExternalBonuses(bonuses: Collection<ExternalBonus>): List<ExternalBonus> {
+    val seen = mutableSetOf<String>()
+    return bonuses.mapIndexedNotNull { index, bonus ->
+        val identity = bonus.effectId.takeIf { it.isNotBlank() } ?: "#sem-id:$index"
+        if (seen.add(identity)) bonus else null
+    }
+}
 
 data class TraitDef(
     val id: String,
