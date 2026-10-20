@@ -178,12 +178,14 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Exibir a origem dos efeitos de catálogo efetivamente aplicados nos resultados de ataque do jogador e nos resultados de defesa/resistência contra ataques de NPC, sem alterar a resolução mecânica.
 - [x] Exibir totais por escopo no resumo de combate, sem somar num único total bônus de ataque e dano que afetam cálculos diferentes; em ataques que erram, omitir efeitos de dano/resistência não usados.
 - [x] Auditar os caminhos de resolução identificados: testes comuns/avançados pelo `GameLoop`, fuga por `RulePackage.adjustCheck` e combate direto pelo `AppModel`; efeitos externos são encaminhados apenas aos cálculos do jogador.
-- [ ] Definir explicitamente a política de acumulação entre efeitos externos de fontes diferentes e bônus canônicos antes de tratá-la como regra definitiva.
+- [x] Documentar o comportamento atual: `RulePackage.adjustCheck` soma efeitos externos aos bônus de `TraitBonus`, e efeitos externos de escopos correspondentes são aditivos; não há deduplicação automática. Isso registra a implementação existente, não uma decisão de design definitiva sobre equivalências.
+- [ ] Definir se efeitos externos equivalentes a um `TraitBonus` canônico devem ser bloqueados, substituídos ou acumulados, sem alterar silenciosamente o comportamento atual.
 - [x] Confirmar no catálogo versionado que `mechanicalEffects` está vazio nas entradas atuais: não há bônus de raça/classe/profissão/maldição efetivamente declarados para duplicar neste momento.
 - [x] Auditar o alcance das adaptações aprovadas: `Adaptation.kt` aplica os efeitos à ficha (`Ficha`) e o estado as descreve como adaptações aprovadas; `GameLoop` agora limita esses bônus aos testes da entidade `PLAYER`.
 - [x] Remover a aplicação de adaptações aprovadas aos bônus de ataque/dano de NPCs e à defesa/resistência de NPCs em combate direto; manter os efeitos nos cálculos do jogador.
 - [ ] Revisar a semântica histórica das adaptações em campanhas antigas e validar se alguma adaptação aprovada deve ser explicitamente global, em vez de alteração da ficha do jogador.
-- [ ] Decidir e documentar quando efeitos distintos com o mesmo escopo devem acumular e quando um efeito externo equivalente a `TraitBonus` canônico deve ser considerado duplicado; até lá, não deduplicar silenciosamente nem inventar regra.
+- [x] Confirmar que efeitos distintos com o mesmo escopo são somados pela implementação atual e não são deduplicados silenciosamente.
+- [ ] Definir a política de equivalência entre um efeito externo e um `TraitBonus` canônico antes de adicionar bloqueios ou deduplicação.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
 - [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
 
@@ -438,11 +440,12 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Validar os escopos dos efeitos selecionados contra os atributos, testes, traços e escopos de combate suportados pelo pacote ativo; isso bloqueia escolhas incompatíveis sem executar os efeitos.
 - [x] Validar a estrutura de efeitos tanto na entrada principal quanto em descrições de benefícios/custos quando a propriedade existe.
 - [x] Preservar a origem do efeito tipado (entrada principal, benefício ou custo) e mostrá-la na interface, identificando explicitamente que ainda não é aplicado pelo motor.
-- [ ] Integrar efeitos à ficha canônica e ao motor com origem/escopo rastreável, regras de acumulação definidas e prevenção de duplicação com `TraitBonus` já existente.
+- [x] Integrar efeitos explícitos ao motor sem copiá-los para `Ficha.traits`, preservando origem e escopo rastreáveis nos testes e combates cobertos.
+- [ ] Decidir a política de equivalência/duplicação com `TraitBonus` canônico antes de habilitar entradas com efeitos mecânicos não vazios.
 - [ ] Definir catálogo de escopos por pacote/sistema e validação semântica contra atributos, perícias e testes realmente existentes.
 - [ ] Só habilitar execução de efeitos após migração e testes de compatibilidade; o catálogo atual continua com listas de efeitos vazias e nenhum bônus novo é concedido.
 
-A integração inicial já consulta efeitos explícitos no teste de fuga e nos cálculos de combate do jogador. O catálogo atual ainda declara listas de efeitos vazias; portanto, esta integração não concede bônus novos por si só. A origem ainda não é exibida no log de rolagem/combate. Build, testes e CI não foram executados.
+A integração consulta efeitos explícitos no teste de fuga, nos testes normais/avançados e nos cálculos de combate do jogador. O catálogo atual ainda declara listas de efeitos vazias; portanto, esta integração não concede bônus novos por si só. As origens são exibidas nos rótulos dos testes e nos resumos de combate, inclusive quando efeitos externos se anulam no total. Build, testes e CI não foram executados.
 
 ### Validação estrutural do catálogo (20/10/2026)
 
