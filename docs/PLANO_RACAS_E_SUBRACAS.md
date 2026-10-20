@@ -383,6 +383,8 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - [x] Adicionar campo opcional `characterChoices` aos metadados do backup, mantendo compatibilidade com backups antigos por valor padrão vazio.
 - [x] Exportar as escolhas das fichas associadas aos IDs estáveis, para as fichas incluídas no backup.
 - [x] Restaurar as escolhas ao importar um backup, sem converter lore ou descrições em efeitos mecânicos.
+- [x] Incluir fichas ativas e arquivadas nos backups e preservar o estado de arquivamento por metadado opcional, retrocompatível com backups antigos.
+- [x] Cobrir por teste de regressão a leitura do metadado de arquivamento novo e de backups sem esse campo (teste escrito, não executado).
 - [x] Definir formato versionado de exportação/importação individual, mantendo compatibilidade de leitura com JSONs antigos.
 
 Build, testes e CI não foram executados.
