@@ -1115,6 +1115,35 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Resolve teste de grupo com participantes selecionados e limiar explícito na interface. */
+    fun resolveGroupCheck(targetIds: List<String>, checkId: String, requiredSuccesses: Int): String {
+        val pkg = activePackage ?: return "Não há pacote de regras ativo."
+        val player = session.state.entities[playerId] ?: return "Personagem do jogador inexistente."
+        val uniqueTargets = targetIds.distinct()
+        if (uniqueTargets.size != targetIds.size) return "A lista de participantes contém duplicatas."
+        val targets = uniqueTargets.map { id ->
+            session.state.entities[id]?.takeIf { it.kind == EntityKind.NPC && it.alive }
+                ?: return "Participante indisponível: " + id
+        }
+        val participants = listOf(player) + targets
+        if (requiredSuccesses !in 1..participants.size) return "O limiar de sucessos deve ficar entre 1 e o total de participantes."
+        val checks = participants.map { participant ->
+            pkg.checkChoices(participant.stats, skills = participant.skills).firstOrNull { it.id == checkId }?.spec
+                ?: return "O teste '" + checkId + "' não pode ser usado por " + participant.name + "."
+        }
+        val result = controller?.resolveGroup(
+            checks = checks,
+            requiredSuccesses = requiredSuccesses,
+            participantNames = participants.map { it.name },
+            participantEntityIds = participants.map { it.id }
+        ) ?: return "O controlador da campanha não está disponível."
+        campaignVersion++
+        return when (result) {
+            is dev.rpgsolo.ai.PlayResult.Played -> "Teste de grupo resolvido. Revele as rolagens no chat para ver o resultado."
+            is dev.rpgsolo.ai.PlayResult.Failed -> result.reason
+        }
+    }
+
     /**
      * 7.1.2: testes do pacote ativo (demo: sistema-proprio) com os atributos do herói. Sem pacote, sem testes:
      * toda ação segue sem teste e o mestre só narra. Falha do classificador vira aviso no chat, não erro.
