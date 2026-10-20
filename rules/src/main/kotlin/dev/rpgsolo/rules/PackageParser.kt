@@ -369,9 +369,25 @@ object PackageParser {
                 errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia recurso de fortuna inexistente '${check.fortuneResource}'"
             }
         }
+        manifest.deathResource?.let { deathResource ->
+            if (deathResource !in resourceIds) {
+                errors += "${PackageFiles.MANIFEST}: deathResource referencia recurso inexistente '${deathResource}'"
+            }
+        }
         conditions.forEach { condition ->
             condition.effect?.stats?.filter { it !in statIds }?.forEach { unknown ->
                 errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' referencia atributo inexistente '${unknown}'"
+            }
+            if (condition.damagePerRound > 0 && condition.damageResource !in resourceIds) {
+                errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' causa dano em recurso inexistente '${condition.damageResource}'"
+            }
+        }
+        val validItemScopes = statIds + checkIds + traitIds + setOf("ataque", "dano", "defesa", "resistencia_dano")
+        items.forEach { item ->
+            item.effects.forEach { effect ->
+                if (effect.scope !in validItemScopes) {
+                    errors += "${PackageFiles.ITEMS}: item '${item.id}' usa escopo de efeito desconhecido '${effect.scope}'"
+                }
             }
         }
         examples.forEach { example ->
