@@ -97,8 +97,9 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var subraceId by remember(key) { mutableStateOf("") }
     var classId by remember(key) { mutableStateOf("") }
     var professionId by remember(key) { mutableStateOf("") }
+    var hybridId by remember(key) { mutableStateOf("") }
     var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
-    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList())
+    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId)
     @Suppress("UNUSED_EXPRESSION") version
 
     fun toggle(id: String) {
@@ -147,16 +148,33 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     }
 
     // ---------- 2. Origem e identidade de aventura ----------
-    SectionTitle("Raça, classe e profissão", "Escolhas editoriais do catálogo. Elas não aplicam bônus mecânicos automaticamente.")
+    SectionTitle("Raça, linhagem, classe e profissão", "Escolhas editoriais do catálogo. Híbridos são combinações catalogadas, não sub-raças. Nenhuma opção aplica bônus automaticamente.")
+    val catalogErrors = CharacterCreationCatalog.validationErrors()
+    if (catalogErrors.isNotEmpty()) AppCard { Text("Catálogo com referências inválidas", color = MaterialTheme.colorScheme.error); catalogErrors.take(5).forEach { Muted(it) } }
     val catalogRaces = CharacterCreationCatalog.races
     val catalogSubraces = CharacterCreationCatalog.subraces.filter { it.parentRaceId == raceId }
     CatalogPicker("Raça", catalogRaces, raceId, { selected ->
         raceId = selected
+        if (selected.isNotBlank()) hybridId = ""
         if (subraceId.isNotBlank() && CharacterCreationCatalog.subraces.none { it.id == subraceId && it.parentRaceId == selected }) subraceId = ""
         version++
     })
     if (raceId.isNotBlank()) {
         CatalogPicker("Sub-raça / variante (opcional)", catalogSubraces, subraceId, { subraceId = it; version++ }, allowNone = true)
+    }
+    CatalogPicker("Híbrido / ascendência mista (opcional)", CharacterCreationCatalog.hybrids, hybridId, { selected ->
+        hybridId = selected
+        if (selected.isNotBlank()) { raceId = ""; subraceId = "" }
+        version++
+    }, allowNone = true)
+    hybridId.takeIf { it.isNotBlank() }?.let { selectedId ->
+        CharacterCreationCatalog.find(selectedId)?.let { entry ->
+            AppCard {
+                Text(entry.name, style = MaterialTheme.typography.titleSmall)
+                Muted("Ascendência: " + entry.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "))
+                if (entry.lore.isNotBlank()) Muted(entry.lore)
+            }
+        }
     }
     CatalogPicker("Classe", CharacterCreationCatalog.classes, classId, { classId = it; version++ }, allowNone = true)
     CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, { professionId = it; version++ }, allowNone = true)
@@ -166,7 +184,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         curseIds = if (id in curseIds) curseIds - id else curseIds + id
         version++
     })
-    val chosenCatalogEntries = (listOf(raceId, subraceId, classId, professionId) + curseIds.toList())
+    val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, classId, professionId) + curseIds.toList())
         .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
     if (chosenCatalogEntries.isNotEmpty()) {
         AppCard {
@@ -174,6 +192,9 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             chosenCatalogEntries.forEach { entry ->
                 Text(entry.name, style = MaterialTheme.typography.bodyMedium)
                 if (entry.summary.isNotBlank()) Muted(entry.summary)
+                if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted("Lore: " + entry.lore)
+                if (entry.benefit.isNotBlank()) Muted("Benefício descrito (não aplicado): " + entry.benefit)
+                if (entry.drawback.isNotBlank()) Muted("Custo descrito (não aplicado): " + entry.drawback)
             }
         }
     }
@@ -294,7 +315,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
                 Muted("${f.concept.ifBlank { "sem conceito" }} · ${f.system.editionId}")
                 val savedChoices = model.characterChoices(f.id)
-                val savedNames = (listOf(savedChoices.raceId, savedChoices.subraceId, savedChoices.classId, savedChoices.professionId) + savedChoices.curseIds)
+                val savedNames = (listOf(savedChoices.raceId, savedChoices.subraceId, savedChoices.hybridId, savedChoices.classId, savedChoices.professionId) + savedChoices.curseIds)
                     .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it)?.name }
                 if (savedNames.isNotEmpty()) Muted("Origem: " + savedNames.joinToString(" · "))
                 TextButton(onClick = { expandedFichaId = if (expandedFichaId == f.id) null else f.id }) {
