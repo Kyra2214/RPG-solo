@@ -428,6 +428,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             choices = CharacterChoices()
         }
         val decoded = dev.rpgsolo.engine.Codec.decodeFicha(fichaJson)
+        require(decoded.id.isNotBlank()) { "a ficha importada precisa ter um ID" }
         val exists = (fichas + archivedFichas).any { it.id == decoded.id }
         val importedId = if (exists) newFichaId() else decoded.id
         val importedChoices = when {
@@ -1095,6 +1096,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         // nem deixar um backup parcialmente restaurado por causa de uma ficha corrompida.
         val decodedFichas = meta?.fichas.orEmpty().map { rawFicha ->
             dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
+        }
+        require(decodedFichas.all { it.id.isNotBlank() }) {
+            "backup contém ficha sem ID"
         }
         require(decodedFichas.map { it.id }.distinct().size == decodedFichas.size) {
             "backup contém IDs de ficha duplicados"
