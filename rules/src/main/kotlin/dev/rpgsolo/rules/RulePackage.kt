@@ -319,6 +319,13 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
         if (totalBonus != 0) label += if (totalBonus > 0) " · +$totalBonus" else " · $totalBonus"
+        val matchingExternal = additionalBonuses.filter { b ->
+            b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill)
+        }
+        val externalSources = matchingExternal.filter { it.bonus != 0 }.map { it.source }.distinct()
+        if (externalBonus != 0 && externalSources.isNotEmpty()) {
+            label += " · efeitos: " + externalSources.joinToString(", ")
+        }
         return if (spec.comparison == Comparison.ROLL_UNDER) {
             spec.copy(diceCount = count, difficulty = spec.difficulty + totalBonus, modifier = spec.modifier + pointShift, label = label)
         } else {
