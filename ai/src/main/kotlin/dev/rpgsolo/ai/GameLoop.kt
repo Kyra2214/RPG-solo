@@ -73,7 +73,9 @@ class GameLoop(
     /** Ids dos traços do personagem do jogador (vantagens e perícias que dão bônus nos testes). */
     private val playerTraits: () -> List<String> = { emptyList() },
     /** Bônus mecânicos de adaptações aprovadas, consultados por escopo (teste, atributo ou perícia). */
-    private val additionalBonus: (String) -> Int = { 0 }
+    private val additionalBonus: (String) -> Int = { 0 },
+    /** Efeitos tipados de outras fontes, preservando a origem no registro do teste. */
+    private val externalBonuses: (String) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() }
 ) {
     private val history = mutableListOf<TurnRecord>()
     private val narrations = mutableListOf<String>()
@@ -121,17 +123,30 @@ class GameLoop(
                 adjusted.copy(modifier = adjusted.modifier + bonus, label = adjusted.label + suffix)
             }
         }
+        val selectedExternal = externalBonuses(scopes.firstOrNull().orEmpty())
+            .filter { it.scope in scopes }
+        val externalTotal = selectedExternal.sumOf { it.bonus }
+        val withExternal = if (externalTotal == 0) withAdaptations else {
+            val sources = selectedExternal.map { it.source.substringBefore(":").substringBefore("/") }.distinct()
+            val sourceLabel = sources.joinToString(", ").ifBlank { "catálogo" }
+            val suffix = " · $sourceLabel " + if (externalTotal > 0) "+$externalTotal" else externalTotal.toString()
+            if (withAdaptations.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
+                withAdaptations.copy(difficulty = withAdaptations.difficulty + externalTotal, label = withAdaptations.label + suffix)
+            } else {
+                withAdaptations.copy(modifier = withAdaptations.modifier + externalTotal, label = withAdaptations.label + suffix)
+            }
+        }
         val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
         val shift = danger - 5
-        if (shift == 0) return withAdaptations
+        if (shift == 0) return withExternal
         val suffix = " · perigo ${if (shift > 0) "+" else ""}$shift"
-        return when (withAdaptations.comparison) {
+        return when (withExternal.comparison) {
             dev.rpgsolo.engine.Comparison.ROLL_OVER ->
-                withAdaptations.copy(modifier = withAdaptations.modifier - shift, label = withAdaptations.label + suffix)
+                withExternal.copy(modifier = withExternal.modifier - shift, label = withExternal.label + suffix)
             dev.rpgsolo.engine.Comparison.ROLL_UNDER ->
-                withAdaptations.copy(difficulty = (withAdaptations.difficulty - shift).coerceAtLeast(1), label = withAdaptations.label + suffix)
+                withExternal.copy(difficulty = (withExternal.difficulty - shift).coerceAtLeast(1), label = withExternal.label + suffix)
             dev.rpgsolo.engine.Comparison.POINTS ->
-                withAdaptations.copy(modifier = (withAdaptations.modifier - shift).coerceAtLeast(0), label = withAdaptations.label + suffix)
+                withExternal.copy(modifier = (withExternal.modifier - shift).coerceAtLeast(0), label = withExternal.label + suffix)
         }
     }
 
