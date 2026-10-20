@@ -93,18 +93,28 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
         val choices = characterChoices(fichaId)
-        val ids = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
-        return ids.filter { it.isNotBlank() }.mapNotNull { id ->
-            CharacterCreationCatalog.find(id)?.let { entry ->
-                buildString {
-                    append("- ").append(entry.name)
-                    if (entry.lore.isNotBlank()) append(": ").append(entry.lore)
-                    if (entry.benefit.isNotBlank()) append(" | Benefício descrito no catálogo: ").append(entry.benefit)
-                    if (entry.drawback.isNotBlank()) append(" | Custo descrito no catálogo: ").append(entry.drawback)
-                    append(" [não aplicar efeitos mecânicos: exigem regras tipadas no motor]")
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
+        val selected = selectedIds.filter { it.isNotBlank() }.distinct().mapNotNull(CharacterCreationCatalog::find)
+        val ancestryIds = selected.filter { it.id == choices.hybridId }.flatMap { it.hybridRaceIds }
+        val ancestry = ancestryIds.mapNotNull(CharacterCreationCatalog::find)
+        val entries = (selected + ancestry).distinctBy { it.id }
+        return buildString {
+            append("INSTRUÇÕES DE INTEGRIDADE: este bloco contém escolhas e descrições editoriais, não regras mecânicas. ")
+            append("Não conceda bônus, penalidades, poderes, resistências ou alterações de atributos a partir dele. ")
+            append("Use apenas como contexto narrativo; os efeitos mecânicos válidos vêm da ficha e do pacote de regras.\n")
+            entries.forEach { entry ->
+                append("- ").append(entry.name)
+                if (entry.id == choices.hybridId && ancestry.isNotEmpty()) {
+                    append(" (híbrido de ").append(ancestry.filter { it.id in entry.hybridRaceIds }.joinToString(" + ") { it.name }).append(")")
                 }
+                if (entry.lore.isNotBlank()) append("\n  Lore: ").append(entry.lore)
+                if (entry.summary.isNotBlank()) append("\n  Resumo: ").append(entry.summary)
+                if (entry.benefits.isNotEmpty()) append("\n  Benefícios descritos (narrativos, não aplicar mecanicamente): ").append(entry.benefits.joinToString("; "))
+                if (entry.drawbacks.isNotEmpty()) append("\n  Custos descritos (narrativos, não aplicar mecanicamente): ").append(entry.drawbacks.joinToString("; "))
+                if (entry.benefits.isEmpty() && entry.benefit.isNotBlank()) append("\n  Benefício descrito no catálogo (não aplicar mecanicamente): ").append(entry.benefit)
+                if (entry.drawbacks.isEmpty() && entry.drawback.isNotBlank()) append("\n  Custo descrito no catálogo (não aplicar mecanicamente): ").append(entry.drawback)
             }
-        }.joinToString("\n")
+        }
     }
 
     var narrationLength by mutableStateOf(narrationPrefs.getString("length", "equilibrada") ?: "equilibrada")
