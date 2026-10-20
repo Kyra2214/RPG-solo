@@ -363,7 +363,13 @@ class PlayController(
         r.record.fortuneAlternatives.forEach { alternative ->
             chat += ChatLine(Author.ROLL, "Não escolhido · " + rollText(alternative, plain), rollView(alternative, plain))
         }
-        r.record.check?.let { chat += ChatLine(Author.ROLL, rollText(it, plain), rollView(it, plain)) }
+        if (r.record.advancedChecks.isNotEmpty()) {
+            r.record.advancedChecks.forEach { (participant, result) ->
+                chat += ChatLine(Author.ROLL, participant + " · " + rollText(result), rollView(result))
+            }
+        } else {
+            r.record.check?.let { chat += ChatLine(Author.ROLL, rollText(it, plain), rollView(it, plain)) }
+        }
         chat += ChatLine(Author.MASTER, r.record.narrative)
     }
 
