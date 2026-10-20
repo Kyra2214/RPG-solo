@@ -206,6 +206,21 @@ class PlayControllerTest {
         assertEquals(1, c.lines.count { it.author == Author.MASTER })
     }
 
+    @Test fun disputaRecusaMesmoParticipanteNosDoisLados() {
+        val s = session()
+        val c = ctrl(s, emptyList())
+        val before = s.mark()
+        val check = CheckSpec("ataque", 1, 20, 0, 10)
+
+        assertTrue(c.resolveOpposed(
+            check, check,
+            challengerEntityId = "hero",
+            defenderEntityId = "hero"
+        ) is PlayResult.Failed)
+        assertEquals(before, s.mark())
+        assertTrue(c.lines.isEmpty())
+    }
+
     @Test fun testeDeGrupoInvalidoERecusadoSemAlterarEstado() {
         val s = session()
         val c = ctrl(s, emptyList())
