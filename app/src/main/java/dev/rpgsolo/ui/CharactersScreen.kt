@@ -316,7 +316,25 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     Muted("${shown.size} traços disponíveis" + if (shown.size > 40) " (mostrando 40; use a busca)" else "")
     shown.take(40).forEach { TraitRow(it, false) { toggle(it.id) } }
 
-    // ---------- 8. Criar ----------
+    // ---------- 8. Revisão final ----------
+    SectionTitle("Revisão final", "Confira as escolhas antes de salvar. Os traços mecânicos vêm do pacote; o catálogo editorial não concede bônus automaticamente.")
+    AppCard {
+        Text(draft.name.ifBlank { "Personagem sem nome" }, style = MaterialTheme.typography.titleMedium)
+        Muted("Raça: " + (CharacterCreationCatalog.find(raceId)?.name ?: "não selecionada"))
+        if (subraceId.isNotBlank()) Muted("Sub-raça: " + (CharacterCreationCatalog.find(subraceId)?.name ?: "ID não encontrado"))
+        if (hybridId.isNotBlank()) {
+            val hybrid = CharacterCreationCatalog.find(hybridId)
+            Muted("Híbrido: " + (hybrid?.name ?: "ID não encontrado"))
+            if (hybrid != null) Muted("Ascendências: " + hybrid.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "))
+        }
+        Muted("Classe: " + (CharacterCreationCatalog.find(classId)?.name ?: "não selecionada"))
+        Muted("Profissão: " + (CharacterCreationCatalog.find(professionId)?.name ?: "não selecionada"))
+        Muted("Maldições: " + curseIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(", "))
+        Muted("Traços mecânicos do pacote: " + draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf("nenhum") }.joinToString(", "))
+        Muted("Atributos: " + draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" })
+    }
+
+    // ---------- 9. Criar ----------
     Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null, onClick = {
         message = when (val b = draft.build()) {
             is FichaBuild.Created -> { model.saveFicha(b.ficha); model.saveCharacterChoices(b.ficha.id, choices); "Ficha de ${b.ficha.name} criada e salva." }
