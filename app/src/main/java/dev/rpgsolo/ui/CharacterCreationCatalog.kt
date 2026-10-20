@@ -90,6 +90,7 @@ object CharacterCreationCatalog {
 
     /** Valida IDs únicos e referências de linhagem antes de expor o catálogo à criação. */
     fun validationErrors(): List<String> {
+        if (catalog == null) return listOf("O catálogo de criação não foi carregado do pacote de regras")
         val all = races + subraces + hybrids + classes + professions + curses
         val errors = mutableListOf<String>()
         all.groupBy { it.id }.filterValues { it.size > 1 }.keys.forEach { errors += "ID duplicado no catálogo: $it" }
