@@ -843,10 +843,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     selectedCatalogBonus(pkg, "dano") + approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(targetId), "defesa") +
-                    selectedCatalogBonus(pkg, "defesa") +
                     approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
                 damageReduction = pkg.traitBonus(combatTraitIds(targetId), "resistencia_dano") +
-                    selectedCatalogBonus(pkg, "resistencia_dano") +
                     approvedRuleBonus("resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
