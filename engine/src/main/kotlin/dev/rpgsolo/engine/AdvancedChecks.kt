@@ -120,7 +120,7 @@ fun GameEngine.checkGroup(
     checks: List<CheckSpec>,
     requiredSuccesses: Int
 ): GroupCheckResult = atomicAdvancedCheck {
-    require(checks.isNotEmpty()) { "teste de grupo exige ao menos um participante" }
+    require(checks.size >= 2) { "teste de grupo exige ao menos dois participantes" }
     require(requiredSuccesses in 1..checks.size) {
         "sucessos necessários devem ficar entre 1 e o número de participantes"
     }
