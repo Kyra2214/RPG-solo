@@ -419,10 +419,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         )
         saveFicha(imported)
         if (importedChoices != CharacterChoices()) saveCharacterChoices(imported.id, importedChoices)
-        val choiceWarnings = if (choices != CharacterChoices()) CharacterCreationCatalog.validateChoices(choices) else emptyList()
+        val choiceWarnings = if (importedChoices != CharacterChoices()) CharacterCreationCatalog.validateChoices(importedChoices) else emptyList()
         buildString {
             append("Ficha ").append(imported.name).append(" importada")
-            if (choices != CharacterChoices()) append(" com escolhas de raça/linhagem, classe, profissão e maldições")
+            if (importedChoices != CharacterChoices()) append(" com escolhas de raça/linhagem, classe, profissão e maldições")
             append(".")
             if (choiceWarnings.isNotEmpty()) {
                 append("\nAtenção: as escolhas foram preservadas, mas precisam ser revisadas porque algumas referências não são válidas neste catálogo:")
