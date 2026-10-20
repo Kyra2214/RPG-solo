@@ -88,6 +88,22 @@ object CharacterCreationCatalog {
     fun find(id: String): CharacterCatalogEntry? =
         (races + subraces + hybrids + classes + professions + curses).firstOrNull { it.id == id }
 
+    /** Valida escolhas do jogador contra categorias e referências do catálogo, sem inferir regras mecânicas. */
+    fun validateChoices(choices: CharacterChoices): List<String> {
+        val errors = validationErrors().toMutableList()
+        if (choices.raceId.isNotBlank() && races.none { it.id == choices.raceId }) errors += "Raça selecionada não existe no catálogo"
+        val subrace = choices.subraceId.takeIf { it.isNotBlank() }?.let { id -> subraces.firstOrNull { it.id == id } }
+        if (choices.subraceId.isNotBlank() && subrace == null) errors += "Sub-raça selecionada não existe no catálogo"
+        else if (subrace != null && subrace.parentRaceId != choices.raceId) errors += "A sub-raça não pertence à raça selecionada"
+        if (choices.hybridId.isNotBlank() && hybrids.none { it.id == choices.hybridId }) errors += "Híbrido selecionado não existe no catálogo"
+        if (choices.hybridId.isNotBlank() && (choices.raceId.isNotBlank() || choices.subraceId.isNotBlank())) errors += "Escolha raça/sub-raça ou híbrido, não ambos"
+        if (choices.classId.isNotBlank() && classes.none { it.id == choices.classId }) errors += "Classe selecionada não existe no catálogo"
+        if (choices.professionId.isNotBlank() && professions.none { it.id == choices.professionId }) errors += "Profissão selecionada não existe no catálogo"
+        choices.curseIds.distinct().filter { id -> curses.none { it.id == id } }.forEach { errors += "Maldição selecionada não existe no catálogo: $it" }
+        if (choices.curseIds.size != choices.curseIds.distinct().size) errors += "Há maldições duplicadas na seleção"
+        return errors.distinct()
+    }
+
     /** Valida IDs únicos e referências de linhagem antes de expor o catálogo à criação. */
     fun validationErrors(): List<String> {
         if (catalog == null) return listOf("O catálogo de criação não foi carregado do pacote de regras")
