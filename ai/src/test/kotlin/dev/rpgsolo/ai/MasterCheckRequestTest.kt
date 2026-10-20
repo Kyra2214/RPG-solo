@@ -354,4 +354,21 @@ class MasterCheckRequestTest {
         assertTrue(c.lines.isEmpty())
     }
 
+
+    @Test fun controllerExibeTesteDeGrupoEPermiteDesfazer() {
+        val p = pkg()
+        val f = ficha(p)
+        val c = PlayController(session(f), GameLoop(ScriptedProvider(emptyList()), menu = CheckMenu(p)), "hero", "hp")
+        val spec = p.check("esquiva", mapOf("agilidade" to 1), 0)
+        assertTrue(c.resolveGroup(
+            listOf(spec.copy(label = "Batedor"), spec.copy(label = "Arqueiro")),
+            requiredSuccesses = 1,
+            participantNames = listOf("Batedor", "Arqueiro")
+        ) is PlayResult.Played)
+        assertEquals(2, c.lines.count { it.author == Author.ROLL })
+        assertTrue(c.lines.first().text.contains("Teste de grupo"))
+        assertTrue(c.undo())
+        assertTrue(c.lines.isEmpty())
+    }
+
 }
