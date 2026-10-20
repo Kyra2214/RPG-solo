@@ -593,7 +593,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     "${session.state.entities.getValue(attacker).name} errou o ataque."
                 }
-                outcome + selectedCatalogBonusSummary(pkg, if (result.hit) listOf("defesa", "resistencia_dano") else listOf("defesa"))
+                outcome +
+                    selectedCatalogBonusSummary(pkg, if (result.hit) listOf("defesa", "resistencia_dano") else listOf("defesa")) +
+                    approvedRuleBonusSummary(if (result.hit) listOf("defesa", defenseStat, "resistencia_dano") else listOf("defesa", defenseStat))
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> return result.reason
         }
@@ -703,6 +705,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     private fun approvedRuleBonus(scope: String): Int =
         session.state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
+
+    /** Explica quais adaptações aprovadas contribuíram para os escopos usados neste cálculo. */
+    private fun approvedRuleBonusSummary(scopes: Collection<String>): String {
+        val details = session.state.additionalRules.values
+            .filter { it.approved }
+            .flatMap { rule ->
+                scopes.distinct().mapNotNull { scope ->
+                    rule.effects[scope]?.takeIf { it != 0 }?.let { bonus ->
+                        "${rule.id} ($scope ${if (bonus > 0) "+" else ""}$bonus)"
+                    }
+                }
+            }
+        return if (details.isEmpty()) "" else " · adaptações: ${details.joinToString(", ")}"
+    }
 
     fun approveAdditionalRule(id: String): String? = when (
         val result = session.execute(dev.rpgsolo.engine.ApproveRuleAddition(id))
@@ -880,7 +896,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     }.orEmpty()
                     "Ataque: $attackText. Acertou e causou ${result.damage} de dano.$damageText"
                 } else "Ataque: $attackText. Errou."
-                val withSources = outcome + selectedCatalogBonusSummary(pkg, if (result.hit) listOf("ataque", "dano") else listOf("ataque"))
+                val withSources = outcome +
+                    selectedCatalogBonusSummary(pkg, if (result.hit) listOf("ataque", "dano") else listOf("ataque")) +
+                    approvedRuleBonusSummary(
+                        if (result.hit) listOf("ataque", attackStat, "dano", damageDef?.bonusStat ?: "") else listOf("ataque", attackStat)
+                    )
                 if (victoryXp > 0) "$withSources Vitória! Você recebeu $victoryXp XP." else withSources
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
@@ -938,7 +958,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             )
         }
         val result = session.check(spec)
-        val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}."
+        val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}." +
+            approvedRuleBonusSummary(listOfNotNull(adjusted.checkId, adjusted.stat, checkId))
         if (result.outcome in setOf(
                 dev.rpgsolo.engine.Outcome.SUCCESS,
                 dev.rpgsolo.engine.Outcome.CRITICAL_SUCCESS
