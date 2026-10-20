@@ -288,6 +288,7 @@ class RulePackage internal constructor(val data: PackageData) {
         additionalBonuses: Collection<ExternalBonus> = emptyList()
     ): CheckSpec {
         val stat: String? = spec.stat
+        val uniqueExternalBonuses = distinctExternalBonuses(additionalBonuses)
         val shift = conditions.sumOf { id ->
             val e = data.conditions.firstOrNull { it.id == id }?.effect
             val scope: Set<String>? = e?.stats
@@ -304,10 +305,10 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         // Efeitos tipados externos (ex.: raça/classe/maldição) usam o mesmo cálculo por escopo,
         // mas permanecem separados dos traços canônicos para evitar inserir cópias em Ficha.traits.
-        val externalBonus = additionalBonuses
+        val externalBonus = uniqueExternalBonuses
             .filter { b -> b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill) }
             .map { it.scope }.distinct()
-            .sumOf { scope -> additionalBonuses.filter { it.scope == scope }.sumOf { it.bonus } }
+            .sumOf { scope -> uniqueExternalBonuses.filter { it.scope == scope }.sumOf { it.bonus } }
         val totalBonus = bonus + externalBonus
         val pointShift = if (pool) shift else 0
         // O cartão do dado mostra por que mudou: "(2d6)" vira "(1d6) · Perda"; o bônus combinado aparece como "· +2".
@@ -318,7 +319,7 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
         if (totalBonus != 0) label += if (totalBonus > 0) " · +$totalBonus" else " · $totalBonus"
-        val matchingExternal = additionalBonuses.filter { b ->
+        val matchingExternal = uniqueExternalBonuses.filter { b ->
             b.bonus != 0 && (b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill))
         }
         if (matchingExternal.isNotEmpty()) {
