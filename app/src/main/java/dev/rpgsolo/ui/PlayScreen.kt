@@ -130,8 +130,17 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     val fortuneSpendOption = remember(version) { c.pendingFortuneSpendOption() }
     val listState = rememberLazyListState()
 
-    val visible = lines.withIndex().filter { (i, l) ->
-        !(l.author == Author.MASTER && i > 0 && lines[i - 1].roll != null && !c.isRollRevealed(i - 1))
+    val visible = lines.withIndex().filter { (i, line) ->
+        val hasHiddenRollBeforeNarrative = if (line.author == Author.MASTER) {
+            var cursor = i - 1
+            var hidden = false
+            while (cursor >= 0 && lines[cursor].roll != null) {
+                if (!c.isRollRevealed(cursor)) hidden = true
+                cursor--
+            }
+            hidden
+        } else false
+        !hasHiddenRollBeforeNarrative
     }
     val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && !c.isRollRevealed(i) }
 
