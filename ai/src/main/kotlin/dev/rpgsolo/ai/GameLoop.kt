@@ -126,16 +126,22 @@ class GameLoop(
             }
         }
         // Efeitos da ficha escolhida pertencem somente ao jogador; nunca a NPCs ou adversários.
-        val selectedExternal = if (isPlayerEntity) externalBonuses(scopes).filter { it.scope in scopes } else emptyList()
+        val selectedExternal = if (isPlayerEntity) externalBonuses(scopes).filter { it.scope in scopes && it.bonus != 0 } else emptyList()
         val externalTotal = selectedExternal.sumOf { it.bonus }
-        val withExternal = if (externalTotal == 0) withAdaptations else {
-            val sources = selectedExternal.map { it.source.substringBeforeLast(":") }.distinct()
-            val sourceLabel = sources.joinToString(", ").ifBlank { "catálogo" }
-            val suffix = " · $sourceLabel " + if (externalTotal > 0) "+$externalTotal" else externalTotal.toString()
-            if (withAdaptations.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
-                withAdaptations.copy(difficulty = withAdaptations.difficulty + externalTotal, label = withAdaptations.label + suffix)
+        val withExternal = if (selectedExternal.isEmpty()) withAdaptations else {
+            // Mostra cada origem/escopo mesmo quando bônus diferentes se anulam no total.
+            val details = selectedExternal.joinToString(", ") { effect ->
+                "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+            }
+            val totalSuffix = if (externalTotal == 0) "" else
+                " · efeito externo " + if (externalTotal > 0) "+$externalTotal" else externalTotal.toString()
+            val label = withAdaptations.label + " · efeitos: $details" + totalSuffix
+            if (externalTotal == 0) {
+                withAdaptations.copy(label = label)
+            } else if (withAdaptations.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
+                withAdaptations.copy(difficulty = withAdaptations.difficulty + externalTotal, label = label)
             } else {
-                withAdaptations.copy(modifier = withAdaptations.modifier + externalTotal, label = withAdaptations.label + suffix)
+                withAdaptations.copy(modifier = withAdaptations.modifier + externalTotal, label = label)
             }
         }
         val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
