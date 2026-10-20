@@ -90,6 +90,23 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun characterChoices(fichaId: String): CharacterChoices =
         CharacterChoices.fromJson(characterChoicesPrefs.getString(fichaId, null))
 
+    /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
+    fun characterChoicesForAi(fichaId: String): String {
+        val choices = characterChoices(fichaId)
+        val ids = listOf(choices.raceId, choices.subraceId, choices.classId, choices.professionId) + choices.curseIds
+        return ids.filter { it.isNotBlank() }.mapNotNull { id ->
+            CharacterCreationCatalog.find(id)?.let { entry ->
+                buildString {
+                    append("- ").append(entry.name)
+                    if (entry.lore.isNotBlank()) append(": ").append(entry.lore)
+                    if (entry.benefit.isNotBlank()) append(" | Benefício descrito no catálogo: ").append(entry.benefit)
+                    if (entry.drawback.isNotBlank()) append(" | Custo descrito no catálogo: ").append(entry.drawback)
+                    append(" [não aplicar efeitos mecânicos: exigem regras tipadas no motor]")
+                }
+            }
+        }.joinToString("\\n")
+    }
+
     var narrationLength by mutableStateOf(narrationPrefs.getString("length", "equilibrada") ?: "equilibrada")
         private set
     var narrationStyle by mutableStateOf(narrationPrefs.getString("style", "cinematográfica") ?: "cinematográfica")
@@ -1205,7 +1222,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             quests = quests,
             restResources = activePackage?.data?.resources?.map { it.id }?.toSet()
                 ?: session.state.entities[playerId]?.resources?.keys.orEmpty(),
-            sheet = PlayerSheet(activePackage, activeFicha),
+            sheet = PlayerSheet(activePackage, activeFicha, characterChoicesForAi(activeFicha?.id.orEmpty())),
             conditionNames = activePackage?.data?.conditions?.associate { it.id to it.name }.orEmpty(),
             ruleLookup = { query ->
                 val packageRules = activePackage?.search(query, 5)?.map { "${it.kind}: ${it.title} — ${it.text}" }.orEmpty()
