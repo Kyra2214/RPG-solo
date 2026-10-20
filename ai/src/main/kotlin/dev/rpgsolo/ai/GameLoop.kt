@@ -230,6 +230,12 @@ class GameLoop(
                     val req = pending.request
                     val group = req.group
                     val ids = group.participantIds.map { if (it == "player") template.playerEntityId else it }
+                    if (ids.size < 2) return PlayResult.Failed("teste de grupo exige pelo menos dois participantes")
+                    if (ids.distinct().size != ids.size) return PlayResult.Failed("teste de grupo não pode repetir participantes")
+                    if (template.playerEntityId !in ids) return PlayResult.Failed("teste de grupo precisa incluir o personagem do jogador")
+                    if (group.requiredSuccesses !in 1..ids.size) {
+                        return PlayResult.Failed("limiar de sucessos inválido para o tamanho do grupo")
+                    }
                     val names = mutableListOf<String>()
                     val specs = ids.mapIndexed { index, id ->
                         val entity = session.state.entities[id]
