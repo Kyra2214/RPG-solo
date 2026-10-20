@@ -406,7 +406,7 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Criar modelo de dado `CharacterCatalogEffect(scope, bonus)` e ler declarações `mechanicalEffects` do catálogo sem inferir valores a partir de texto.
 - [x] Validar efeitos declarados como objetos com escopo válido e bônus inteiro entre -100 e 100; detectar escopos repetidos na mesma lista.
 - [x] Validar a estrutura de efeitos tanto na entrada principal quanto em descrições de benefícios/custos quando a propriedade existe.
-- [x] Mostrar na interface os efeitos tipados declarados, identificando explicitamente que ainda não são aplicados pelo motor.
+- [x] Preservar a origem do efeito tipado (entrada principal, benefício ou custo) e mostrá-la na interface, identificando explicitamente que ainda não é aplicado pelo motor.
 - [ ] Integrar efeitos à ficha canônica e ao motor com origem/escopo rastreável, regras de acumulação definidas e prevenção de duplicação com `TraitBonus` já existente.
 - [ ] Definir catálogo de escopos por pacote/sistema e validação semântica contra atributos, perícias e testes realmente existentes.
 - [ ] Só habilitar execução de efeitos após migração e testes de compatibilidade; o catálogo atual continua com listas de efeitos vazias e nenhum bônus novo é concedido.
