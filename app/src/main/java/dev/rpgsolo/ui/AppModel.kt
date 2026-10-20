@@ -569,13 +569,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(combatTraitIds(attacker), "ataque") +
-                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
                     attackConditionShift +
                     ((session.state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
                         .roundToInt().coerceIn(0, 10) - 5),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
-                    pkg.traitBonus(combatTraitIds(attacker), "dano") +
-                    approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
+                    pkg.traitBonus(combatTraitIds(attacker), "dano"),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(playerId), "defesa") +
                     selectedCatalogBonus(pkg, "defesa") +
@@ -856,10 +854,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano") +
                     selectedCatalogBonus(pkg, "dano") + approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
-                    pkg.traitBonus(combatTraitIds(targetId), "defesa") +
-                    approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
-                damageReduction = pkg.traitBonus(combatTraitIds(targetId), "resistencia_dano") +
-                    approvedRuleBonus("resistencia_dano"),
+                    pkg.traitBonus(combatTraitIds(targetId), "defesa") + targetConditionShift,
+                damageReduction = pkg.traitBonus(combatTraitIds(targetId), "resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
