@@ -98,14 +98,14 @@ object CharacterCreationCatalog {
                 drawbacks = item.optJSONArray("drawbacks")?.let { arr ->
                     (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.optString("description")?.takeIf { text -> text.isNotBlank() } }
                 }.orEmpty(),
-                mechanicalEffects = parseEffects(item.optJSONArray("mechanicalEffects"), "entrada").toMutableList().apply {
+                mechanicalEffects = parseEffects(item.optJSONArray("mechanicalEffects"), "entrada:" + id).toMutableList().apply {
                     listOf("benefits", "drawbacks").forEach { field ->
                         val details = item.optJSONArray(field)
                         if (details != null) {
                             for (detailIndex in 0 until details.length()) {
                                 val detail = details.optJSONObject(detailIndex) ?: continue
                                 val description = detail.optString("description", field).takeIf { it.isNotBlank() } ?: field
-                                addAll(parseEffects(detail.optJSONArray("mechanicalEffects"), "$field: $description"))
+                                addAll(parseEffects(detail.optJSONArray("mechanicalEffects"), "$field:" + id + ": $description"))
                             }
                         }
                     }
@@ -123,6 +123,30 @@ object CharacterCreationCatalog {
 
     fun find(id: String): CharacterCatalogEntry? =
         (races + subraces + hybrids + classes + professions + curses).firstOrNull { it.id == id }
+
+    /**
+     * Retorna somente efeitos explicitamente declarados nas escolhas atuais.
+     * Não infere herança, não converte lore em regra e não deduplica efeitos de fontes distintas:
+     * a política de acúmulo deve ser aplicada pelo resolvedor mecânico, não pelo catálogo.
+     */
+    fun selectedEffects(choices: CharacterChoices): List<CharacterCatalogEffect> {
+        val selectedIds = listOf(
+            choices.raceId,
+            choices.subraceId,
+            choices.hybridId,
+            choices.classId,
+            choices.professionId
+        ) + choices.curseIds
+        return selectedIds
+            .filter { it.isNotBlank() }
+            .distinct()
+            .mapNotNull(::find)
+            .flatMap { entry ->
+                entry.mechanicalEffects.map { effect ->
+                    effect.copy(source = entry.id + "/" + effect.source)
+                }
+            }
+    }
 
     /** Valida escolhas do jogador contra categorias e referências do catálogo, sem inferir regras mecânicas. */
     fun validateChoices(choices: CharacterChoices): List<String> {
