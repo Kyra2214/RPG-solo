@@ -322,6 +322,79 @@ object PackageParser {
         noDups(PackageFiles.ARCHETYPES, archetypes.map { it.id })
         noDups(PackageFiles.ARCHETYPE_OPTIONS, archetypeOptions.map { it.archetype })
 
+        // Referências mecânicas precisam apontar para definições existentes no próprio pacote.
+        // Isso evita traços/poderes que parecem válidos na ficha, mas nunca podem produzir efeito.
+        val statIds = stats.map { it.id }.toSet()
+        val resourceIds = resources.map { it.id }.toSet()
+        val traitById = traits.associateBy { it.id }
+        val traitIds = traitById.keys
+        val checkIds = checks.map { it.id }.toSet()
+        val supportedTraitScopes = statIds + checkIds + traitIds +
+            setOf("ataque", "dano", "defesa", "resistencia_dano")
+
+        resources.forEach { resource ->
+            if (resource.stat != null && resource.stat !in statIds) {
+                errors += "${PackageFiles.RESOURCES}: recurso '${resource.id}' referencia atributo inexistente '${resource.stat}'"
+            }
+        }
+        traits.forEach { trait ->
+            trait.requires.forEach { requirement ->
+                when (requirement) {
+                    is Requirement.MinStat -> if (requirement.stat !in statIds) {
+                        errors += "${PackageFiles.TRAITS}: traço '${trait.id}' referencia atributo inexistente '${requirement.stat}'"
+                    }
+                    is Requirement.HasTrait -> if (requirement.traitId !in traitIds) {
+                        errors += "${PackageFiles.TRAITS}: traço '${trait.id}' exige traço inexistente '${requirement.traitId}'"
+                    }
+                    is Requirement.Excludes -> if (requirement.traitId !in traitIds) {
+                        errors += "${PackageFiles.TRAITS}: traço '${trait.id}' exclui traço inexistente '${requirement.traitId}'"
+                    }
+                }
+            }
+            trait.bonuses.forEach { bonus ->
+                if (bonus.scope !in supportedTraitScopes) {
+                    errors += "${PackageFiles.TRAITS}: traço '${trait.id}' usa escopo de bônus desconhecido '${bonus.scope}'"
+                }
+            }
+        }
+        checks.forEach { check ->
+            if (check.stat != null && check.stat !in statIds) {
+                errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia atributo inexistente '${check.stat}'"
+            }
+            if (check.skill != null && traitById[check.skill]?.type != "pericia") {
+                errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia perícia inexistente '${check.skill}'"
+            }
+            if (check.fortuneResource != null && check.fortuneResource !in resourceIds) {
+                errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia recurso de fortuna inexistente '${check.fortuneResource}'"
+            }
+        }
+        conditions.forEach { condition ->
+            condition.effect?.stats?.filter { it !in statIds }?.forEach { unknown ->
+                errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' referencia atributo inexistente '${unknown}'"
+            }
+        }
+        examples.forEach { example ->
+            (example.stats.keys - statIds).forEach { unknown ->
+                errors += "${PackageFiles.EXAMPLES}: exemplo '${example.id}' referencia atributo inexistente '${unknown}'"
+            }
+            (example.traits - traitIds).forEach { unknown ->
+                errors += "${PackageFiles.EXAMPLES}: exemplo '${example.id}' referencia traço inexistente '${unknown}'"
+            }
+        }
+        archetypes.forEach { archetype ->
+            (archetype.stats.keys - statIds).forEach { unknown ->
+                errors += "${PackageFiles.ARCHETYPES}: arquétipo '${archetype.id}' referencia atributo inexistente '${unknown}'"
+            }
+            (archetype.traits - traitIds).forEach { unknown ->
+                errors += "${PackageFiles.ARCHETYPES}: arquétipo '${archetype.id}' referencia traço inexistente '${unknown}'"
+            }
+        }
+        archetypeOptions.forEach { options ->
+            (options.advantages + options.disadvantages).distinct().filter { it !in traitIds }.forEach { unknown ->
+                errors += "${PackageFiles.ARCHETYPE_OPTIONS}: arquétipo '${options.archetype}' referencia traço inexistente '${unknown}'"
+            }
+        }
+
         if (errors.isNotEmpty()) return ParseResult.Fail(errors)
         return ParseResult.Ok(PackageData(manifest, stats, resources, traits, checks, difficulties, conditions, damage, items,
             creationMap, progression, uncertain, tutorial, examples, archetypes, archetypeOptions))
