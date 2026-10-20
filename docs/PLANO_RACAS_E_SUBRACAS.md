@@ -1,4 +1,4 @@
-# Plano de implementação — Raças, sub-raças e profissões do RPG Solo
+# Plano de implementação — Raças, sub-raças, classes e profissões do RPG Solo
 
 **Estado:** planejamento iniciado; não declara catálogo, interface ou mecânicas implementados.  
 **Branch:** `feature/racas-subracas`  
@@ -6,26 +6,32 @@
 
 ## 1. Objetivo
 
-A criação de personagem combina escolhas independentes: **raça**, **sub-raça** (quando existir), **classe/profissão** e **especialidade** (quando o desenho final a incluir). Cada escolha tem identidade, lore/descrição e traços próprios. Os efeitos mecânicos válidos são acumulados pela ficha e resolvidos pelo motor.
+A criação de personagem combina escolhas independentes: **raça**, **sub-raça** (quando existir), **classe**, **profissão** e, quando fizer sentido, **especialização profissional**. São três pilares distintos — raça, classe e profissão — e o jogador pode escolher cada um separadamente. Não deve ser obrigado a selecionar uma profissão relacionada à classe, nem uma classe relacionada à raça. Cada escolha tem identidade, lore/descrição e traços próprios. Os efeitos mecânicos válidos são acumulados pela ficha e resolvidos pelo motor.
 
-Exemplo de design:
-- Raça **Elfo** concede Precisão +1.
-- Profissão **Arqueiro** concede Dano +1 ao usar arcos e bestas.
-- Resultado: o personagem recebe o benefício racial de precisão e o bônus profissional de dano com armas de projéteis. Os bônus permanecem identificados pela origem, em vez de serem fundidos num modificador sem explicação.
+Exemplo de design com três escolhas:
+- Raça **Elfo**: concede Precisão +1.
+- Classe **Arqueiro**: define habilidades e técnicas de combate à distância.
+- Profissão **Perito em Arcos**: representa conhecimento técnico de arcos e bestas e pode conceder bônus específicos de fabricação, manutenção ou uso, conforme as regras definidas.
 
-Os valores acima são exemplos propostos, ainda não regras implementadas ou balanceadas. A semântica de “Precisão” e “Dano” deverá corresponder a atributos/efeitos que o motor realmente suporte.
+Outro exemplo, combinando opções sem vínculo obrigatório entre elas:
+- Raça **Anão**.
+- Classe **Arqueiro**.
+- Profissão **Especialista em Joias**: lore explicando o trabalho com gemas e metais preciosos, técnicas de lapidação e montagem; essa profissão pode permitir criar ou aprimorar armas e equipamentos com joias, com bônus definidos e limitados pelo sistema.
+
+Os nomes e bônus são exemplos de design, ainda não regras implementadas ou balanceadas. O motor deverá aplicar apenas os efeitos definidos para cada opção e mostrar de qual escolha cada bônus veio.
 
 ## 2. Conceitos separados
 
 - **Raça:** identidade de povo/linhagem, lore, traços raciais comuns.
 - **Sub-raça:** variante ligada a uma raça-base, com lore própria e traços adicionais ou substituições declaradas.
-- **Classe/profissão:** treinamento, ocupação ou papel de aventura que concede competências e efeitos independentes da raça.
-- **Especialidade:** foco mais estreito dentro da profissão, se a ficha e o pacote de regras ativo suportarem essa camada. Não presumir que seja obrigatória em todos os sistemas.
+- **Classe:** papel ou treinamento de aventura — por exemplo, Arqueiro, Guerreiro, Mago ou Explorador — com habilidades e regras próprias.
+- **Profissão:** ofício, ocupação ou conhecimento especializado — por exemplo, Especialista em Joias, Ferreiro, Alquimista ou Perito em Arcos — com lore, competências e efeitos próprios, especialmente em fabricação, manutenção, comércio ou conhecimento técnico.
+- **Especialização profissional:** aprofundamento opcional de uma profissão, caso seja necessário; não é um quarto pilar obrigatório e não deve ser confundida com a classe.
 - **Traço:** característica descritiva que pode ter efeito mecânico tipado ou ser apenas narrativa.
 - **Efeito mecânico:** modificação estruturada, validada pelo motor e com escopo explícito (por exemplo, bônus de dano apenas com arcos e bestas).
 - **Lore:** conteúdo narrativo original. A lore não é executável e não deve ser confundida com regra.
 
-Raça e profissão não devem se excluir mutuamente nem ter listas rigidamente acopladas: um elfo pode ser arqueiro, guerreiro, curandeiro ou escolher outra profissão compatível com as regras do pacote ativo.
+Raça, classe e profissão são seleções independentes. Um anão pode ser Arqueiro e Especialista em Joias; um elfo pode ser Guerreiro e Ferreiro. Só haverá restrições quando forem explicitamente definidas pelo pacote de regras ativo — nunca por uma associação presumida no código.
 
 ## 3. Metas do catálogo
 
@@ -36,7 +42,8 @@ Metas editoriais, não contagens já implementadas:
 | Raças principais de fantasia | 10–15 |
 | Raças adicionais de fantasia | 30–50 |
 | Sub-raças e variantes | Expansível |
-| Profissões/classes iniciais | Definir após mapear as regras comuns do motor |
+| Classes iniciais | Definir após mapear as regras comuns do motor |
+| Profissões iniciais | Definir após mapear as regras comuns do motor |
 | Especialidades | Expansível, opcional por pacote |
 | Catálogo potencial | 50+ raças, mais variantes, profissões e especialidades |
 
@@ -46,7 +53,7 @@ O catálogo não terá limite fixo. Adicionar entradas deve ser uma operação d
 
 Cada raça deve ter `id` estável, `name`, `summary`, `lore`, traços, tags, proveniência e versão. Uma sub-raça também exige `parentRaceId`, lore própria e definição explícita de traços herdados, adicionais ou substituídos.
 
-Cada profissão/classe deve ter:
+Cada classe deve ter:
 - `id` estável e nome de exibição;
 - resumo e descrição/lore própria;
 - requisitos e compatibilidades opcionais, definidos por dados;
@@ -54,7 +61,7 @@ Cada profissão/classe deve ter:
 - efeitos mecânicos tipados, com escopo de aplicação;
 - proveniência e versão.
 
-Cada especialidade, se usada, deve referenciar uma profissão/classe válida e definir o que acrescenta ou substitui.
+Cada profissão deve ter seu próprio ID e catálogo, sem depender da classe escolhida. Uma especialização profissional, se usada, deve referenciar uma profissão válida e definir o que acrescenta ou substitui.
 
 Os traços devem separar `description` de `mechanicalEffects`. Efeitos estruturados devem expressar tipo, valor, escopo, requisitos, gatilhos, limites e duração quando aplicável. Exemplo conceitual: `damage_bonus +1` com escopo `weapon_group: bows_and_crossbows`; não um bônus universal de dano. O esquema concreto será alinhado às capacidades reais do motor após a auditoria.
 
@@ -63,9 +70,10 @@ Os traços devem separar `description` de `mechanicalEffects`. Efeitos estrutura
 A ficha deve guardar separadamente as escolhas e suas fontes:
 1. traços da raça;
 2. traços da sub-raça;
-3. traços da profissão/classe;
-4. traços da especialidade, se houver;
-5. vantagens, perícias, poderes e regras adicionais do pacote ativo.
+3. traços da classe;
+4. traços da profissão;
+5. traços da especialização profissional, se houver;
+6. vantagens, perícias, poderes e regras adicionais do pacote ativo.
 
 O motor calcula os efeitos aplicáveis a cada teste ou ação a partir dessas fontes. Não se deve somar cegamente efeitos que não se aplicam à ação atual. Bônus limitados a armas, situações, usos ou gatilhos só funcionam dentro do escopo declarado.
 
@@ -82,12 +90,13 @@ Regras de segurança:
 
 1. Selecionar raça; exibir imediatamente resumo e lore completa.
 2. Se houver sub-raças, listar apenas as ligadas à raça selecionada. Ao selecionar uma, exibir sua lore específica e manter a lore-base acessível.
-3. Selecionar profissão/classe; exibir descrição, lore e competências/efeitos.
-4. Selecionar especialidade apenas quando disponível e compatível.
-5. Mostrar uma revisão final: escolhas, lore consultável, traços herdados e próprios, efeitos reconhecidos, escopos e avisos de compatibilidade.
-6. Confirmar e gravar IDs estáveis na ficha.
-7. Na ficha salva, permitir consultar as lores e a origem dos bônus.
-8. Se uma escolha for alterada, recalcular os efeitos derivados e pedir confirmação quando outra escolha se tornar incompatível.
+3. Selecionar classe; exibir descrição, lore e habilidades/efeitos.
+4. Selecionar profissão de forma independente da raça e da classe; exibir lore, competências e efeitos profissionais.
+5. Selecionar especialização profissional apenas quando disponível e compatível.
+6. Mostrar uma revisão final: escolhas, lore consultável, traços herdados e próprios, efeitos reconhecidos, escopos e avisos de compatibilidade.
+7. Confirmar e gravar IDs estáveis na ficha.
+8. Na ficha salva, permitir consultar as lores e a origem dos bônus.
+9. Se uma escolha for alterada, recalcular os efeitos derivados e pedir confirmação quando outra escolha se tornar incompatível.
 
 A lore canônica vem do catálogo de dados e funciona offline; a IA pode usá-la na narração, mas não a substitui nem altera a mecânica.
 
@@ -96,11 +105,14 @@ A lore canônica vem do catálogo de dados e funciona offline; a IA pode usá-la
 ### Raças
 Começar por um núcleo de 10–15 povos reconhecíveis de fantasia, com lore original; depois ampliar para 30–50 raças adicionais. Sub-raças serão criadas quando diferenças culturais, geográficas, mágicas ou biológicas forem significativas, não só para inflar números.
 
-### Profissões/classes
-Depois da auditoria do motor, elaborar catálogo inicial que cubra funções distintas — combate corpo a corpo, armas à distância, defesa, furtividade, exploração, conhecimento, suporte e magia quando suportada. Os nomes finais, requisitos e efeitos serão definidos como conteúdo original e balanceados no sistema próprio.
+### Classes
+Depois da auditoria do motor, elaborar catálogo inicial que cubra funções distintas — combate corpo a corpo, armas à distância, defesa, furtividade, exploração, conhecimento, suporte e magia quando suportada. Classes como Arqueiro definem o papel e as habilidades de aventura.
 
-### Especialidades
-Tratar como camada opcional de refinamento, não duplicar automaticamente a profissão. Exemplo ilustrativo: Arqueiro pode ter especialidades futuras, mas isso não deve ser implementado antes de definir o esquema e o equilíbrio.
+### Profissões
+Criar catálogo separado de ofícios e conhecimentos técnicos, sem acoplamento obrigatório às classes: Ferreiro, Especialista em Joias, Alquimista, Perito em Arcos e outras. Cada profissão terá lore própria e efeitos contextualizados. Por exemplo, Especialista em Joias pode criar ou aprimorar equipamentos com gemas, se essas mecânicas existirem no motor.
+
+### Especializações profissionais
+Tratar como camada opcional de refinamento de uma profissão. Não transformar a profissão em classe nem limitar a profissão pelo papel de combate.
 
 ## 8. Licença e originalidade
 
@@ -115,7 +127,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - Reutilizar o fluxo existente; não criar um segundo sistema de personagens.
 
 ### R2 — Esquema de dados e catálogo
-- Definir formatos versionados para raça, sub-raça, profissão/classe e especialidade.
+- Definir formatos versionados para raça, sub-raça, classe, profissão e especialização profissional.
 - Criar carregador e validador de IDs e referências.
 - Manter catálogo separado dos pacotes de regras e da ambientação.
 - Cadastrar primeiro um conjunto pequeno de exemplos originais, incluindo Elfo e Arqueiro, para validar o modelo.
@@ -128,8 +140,9 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 
 ### R4 — Interface
 - Implementar seleção de raça/sub-raça com lore visível.
-- Implementar seleção de profissão/classe com descrição e efeitos visíveis.
-- Adicionar especialidade apenas quando o esquema estiver definido.
+- Implementar seleção de classe com descrição e habilidades visíveis.
+- Implementar seleção de profissão independente, com lore, competências e efeitos visíveis.
+- Adicionar especialização profissional apenas quando o esquema estiver definido.
 - Exibir resumo de bônus e sua origem antes da confirmação.
 
 ### R5 — Persistência
@@ -138,19 +151,19 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - Garantir que backups e restaurações preservem as escolhas e os efeitos derivados sem duplicá-los.
 
 ### R6 — Expansão editorial
-- Aumentar gradualmente raças, sub-raças e profissões.
+- Aumentar gradualmente raças, sub-raças, classes e profissões.
 - Criar lore original para cada opção.
 - Revisar coerência, balanceamento, sobreposições e compatibilidade.
 - Versionar conteúdo e documentar efeitos pendentes.
 
 ## 10. Critérios de conclusão
 
-- Raças, sub-raças, profissões e especialidades são dados expansíveis, sem limite codificado.
+- Raças, sub-raças, classes, profissões e especializações profissionais são dados expansíveis, sem limite codificado.
 - Toda raça/sub-raça tem lore própria e a interface a mostra ao selecionar.
-- Toda profissão/classe tem descrição e lista explícita de competências/efeitos.
+- Toda classe tem descrição e lista explícita de habilidades/efeitos; toda profissão tem lore, competências e efeitos próprios.
 - A ficha conserva as escolhas por IDs estáveis e permite rever as lores.
-- Efeitos raciais e profissionais são acumulados corretamente, respeitando escopo e regras do pacote.
-- O exemplo Elfo + Arqueiro diferencia Precisão +1 racial e Dano +1 com arcos/bestas profissional, depois de o motor suportar formalmente esses efeitos.
+- Efeitos raciais, de classe e profissionais são acumulados corretamente, respeitando escopo e regras do pacote.
+- A combinação Anão + Arqueiro + Especialista em Joias é válida sem vínculo predefinido; cada escolha contribui apenas com seus efeitos próprios.
 - Alterar uma escolha recalcula efeitos derivados sem apagar dados independentes silenciosamente.
 - Catálogo inválido produz erro claro e não corrompe a ficha.
 - Build/testes/aparelho só serão declarados validados após execução explícita; esta etapa é planejamento, não aprovação de validação.
@@ -162,6 +175,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Ampliar plano para incluir profissão/classe e composição de efeitos.
 - [ ] Auditar modelos e telas atuais.
 - [ ] Confirmar esquema compatível com o motor.
+- [ ] Separar formalmente os modelos de classe e profissão.
 - [ ] Implementar catálogo, lore e validação.
 - [ ] Integrar efeitos tipados à ficha e às ações.
 - [ ] Implementar interface de criação e persistência.
