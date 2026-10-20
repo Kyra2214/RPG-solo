@@ -90,6 +90,23 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun characterChoices(fichaId: String): CharacterChoices =
         CharacterChoices.fromJson(characterChoicesPrefs.getString(fichaId, null))
 
+    /**
+     * Efeitos explícitos do catálogo para a ficha ativa. Só entram quando as escolhas e
+     * os escopos são válidos para o pacote ativo; não altera Ficha.traits nem persiste bônus derivados.
+     */
+    private fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.TraitBonus> {
+        val fichaId = activeFichaId ?: activeFicha?.id ?: return emptyList()
+        val choices = characterChoices(fichaId)
+        if (CharacterCreationCatalog.validateChoices(choices).isNotEmpty()) return emptyList()
+        if (CharacterCreationCatalog.validateEffectScopes(pkg, choices).isNotEmpty()) return emptyList()
+        return CharacterCreationCatalog.selectedEffects(choices).map {
+            dev.rpgsolo.rules.TraitBonus(scope = it.scope, bonus = it.bonus)
+        }
+    }
+
+    private fun selectedCatalogBonus(pkg: RulePackage, scope: String): Int =
+        selectedCatalogBonuses(pkg).filter { it.scope == scope }.sumOf { it.bonus }
+
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
         val choices = characterChoices(fichaId)
@@ -892,7 +909,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             base,
             session.state.conditions[playerId].orEmpty(),
             combatTraitIds(playerId),
-            checkId
+            checkId,
+            additionalBonuses = selectedCatalogBonuses(pkg)
         )
         val adaptation = listOfNotNull(adjusted.checkId, adjusted.stat, checkId).distinct().sumOf(::approvedRuleBonus)
         val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
