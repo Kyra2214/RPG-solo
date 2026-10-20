@@ -103,6 +103,8 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
 
     fun fichas(): List<FichaRow> = db.fichas().listar()
     fun fichasArquivadas(): List<FichaRow> = db.fichas().listarArquivadas()
+    /** Consulta a chave primária sem depender de a ficha ter sido decodificada em memória. */
+    fun fichaExiste(id: String): Boolean = db.fichas().buscar(id) != null
     fun definirFichaArquivada(id: String, arquivada: Boolean): Boolean = db.fichas().definirArquivada(id, arquivada) > 0
     fun apagarFicha(id: String): Boolean = db.fichas().apagar(id) > 0
 
