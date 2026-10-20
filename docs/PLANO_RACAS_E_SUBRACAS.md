@@ -35,19 +35,18 @@ Raça, classe e profissão são seleções independentes. Um anão pode ser Arqu
 
 ## 3. Metas do catálogo
 
-Metas editoriais, não contagens já implementadas:
+Metas editoriais mínimas para o catálogo, não contagens já implementadas:
 
 | Coleção | Meta |
 |---|---:|
-| Raças principais de fantasia | 10–15 |
-| Raças adicionais de fantasia | 30–50 |
-| Sub-raças e variantes | Expansível |
-| Classes iniciais | Definir após mapear as regras comuns do motor |
-| Profissões iniciais | Definir após mapear as regras comuns do motor |
-| Especialidades | Expansível, opcional por pacote |
-| Catálogo potencial | 50+ raças, mais variantes, profissões e especialidades |
+| Raças (somando núcleo e adicionais) | 50+ |
+| Sub-raças e variantes | 50+ |
+| Classes | 50+ |
+| Profissões | 50+ |
+| Especializações profissionais | Expansível; não substitui a meta de profissões |
+| Catálogo potencial | Pelo menos 50 opções em cada categoria principal; expansível |
 
-O catálogo não terá limite fixo. Adicionar entradas deve ser uma operação de dados, não uma mudança de código de interface por opção.
+O catálogo não terá limite fixo. As metas são independentes: 50+ raças, 50+ sub-raças/variantes, 50+ classes e 50+ profissões. Não contar uma sub-raça como se fosse uma raça-base nem uma especialização como se fosse uma profissão. Adicionar entradas deve ser uma operação de dados, não uma mudança de código de interface por opção. As opções precisam ter diferenças reais de lore, competências e/ou efeitos; não inflar o catálogo com nomes duplicados ou variações cosméticas.
 
 ## 4. Dados e identificadores
 
@@ -103,13 +102,13 @@ A lore canônica vem do catálogo de dados e funciona offline; a IA pode usá-la
 ## 7. Ordem editorial do catálogo
 
 ### Raças
-Começar por um núcleo de 10–15 povos reconhecíveis de fantasia, com lore original; depois ampliar para 30–50 raças adicionais. Sub-raças serão criadas quando diferenças culturais, geográficas, mágicas ou biológicas forem significativas, não só para inflar números.
+Construir um catálogo de pelo menos 50 raças-base, com lore original, e pelo menos 50 sub-raças/variantes com identidade própria. As diferenças entre variantes devem ser significativas — culturais, geográficas, mágicas ou biológicas — e não apenas cosméticas para atingir a meta.
 
 ### Classes
-Depois da auditoria do motor, elaborar catálogo inicial que cubra funções distintas — combate corpo a corpo, armas à distância, defesa, furtividade, exploração, conhecimento, suporte e magia quando suportada. Classes como Arqueiro definem o papel e as habilidades de aventura.
+Planejar pelo menos 50 classes com funções e mecânicas distintas, cobrindo combate corpo a corpo, armas à distância, defesa, furtividade, exploração, conhecimento, suporte e magia quando suportada pelo pacote. Classes como Arqueiro definem o papel e as habilidades de aventura. O catálogo deve ser desenvolvido por grupos e balanceado, evitando opções duplicadas com nomes diferentes.
 
 ### Profissões
-Criar catálogo separado de ofícios e conhecimentos técnicos, sem acoplamento obrigatório às classes: Ferreiro, Especialista em Joias, Alquimista, Perito em Arcos e outras. Cada profissão terá lore própria e efeitos contextualizados. Por exemplo, Especialista em Joias pode criar ou aprimorar equipamentos com gemas, se essas mecânicas existirem no motor.
+Planejar pelo menos 50 profissões distintas, em catálogo separado de classes e sem acoplamento obrigatório a raça ou classe: Ferreiro, Especialista em Joias, Alquimista, Perito em Arcos e outras. Cada profissão terá lore própria, competências e efeitos contextualizados; o catálogo deve abranger ofícios, artes, ciência, comércio, exploração e outros conhecimentos, sem criar opções meramente repetidas para alcançar a meta. Por exemplo, Especialista em Joias pode criar ou aprimorar equipamentos com gemas, se essas mecânicas existirem no motor.
 
 ### Especializações profissionais
 Tratar como camada opcional de refinamento de uma profissão. Não transformar a profissão em classe nem limitar a profissão pelo papel de combate.
@@ -151,14 +150,14 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - Garantir que backups e restaurações preservem as escolhas e os efeitos derivados sem duplicá-los.
 
 ### R6 — Expansão editorial
-- Aumentar gradualmente raças, sub-raças, classes e profissões.
+- Atingir pelo menos 50 raças, 50 sub-raças/variantes, 50 classes e 50 profissões, ampliando depois conforme necessário.
 - Criar lore original para cada opção.
 - Revisar coerência, balanceamento, sobreposições e compatibilidade.
 - Versionar conteúdo e documentar efeitos pendentes.
 
 ## 10. Critérios de conclusão
 
-- Raças, sub-raças, classes, profissões e especializações profissionais são dados expansíveis, sem limite codificado.
+- Raças, sub-raças, classes, profissões e especializações profissionais são dados expansíveis, sem limite codificado; metas mínimas: 50+ em cada uma das quatro categorias principais (raças, sub-raças/variantes, classes e profissões).
 - Toda raça/sub-raça tem lore própria e a interface a mostra ao selecionar.
 - Toda classe tem descrição e lista explícita de habilidades/efeitos; toda profissão tem lore, competências e efeitos próprios.
 - A ficha conserva as escolhas por IDs estáveis e permite rever as lores.
@@ -176,6 +175,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [ ] Auditar modelos e telas atuais.
 - [ ] Confirmar esquema compatível com o motor.
 - [ ] Separar formalmente os modelos de classe e profissão.
+- [ ] Planejar e catalogar pelo menos 50 raças, 50 sub-raças/variantes, 50 classes e 50 profissões.
 - [ ] Implementar catálogo, lore e validação.
 - [ ] Integrar efeitos tipados à ficha e às ações.
 - [ ] Implementar interface de criação e persistência.
