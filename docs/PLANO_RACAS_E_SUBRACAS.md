@@ -166,6 +166,8 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Validar a estrutura dos efeitos, os limites numéricos e a compatibilidade dos escopos com o pacote ativo.
 - [x] Restringir os escopos aceitos aos que o resolvedor reconhece: atributos, testes, perícias e escopos de combate; IDs de vantagens/poderes não são tratados como escopos executáveis por si só.
 - [x] Exibir os efeitos declarados e sua origem sem afirmar que já estão aplicados.
+- [x] Criar `selectedEffects(choices)` para retornar somente efeitos explicitamente declarados nas escolhas, preservando ID estável da entrada e origem (entrada/benefício/custo).
+- [x] Manter efeitos de fontes diferentes separados, sem deduplicação silenciosa; o catálogo não decide a política de acúmulo.
 - [ ] Integrar os efeitos à resolução canônica de testes/combate, usando as mesmas regras de acumulação do motor e preservando a origem de cada bônus.
 - [ ] Garantir que efeitos de raça, sub-raça, híbrido, classe, profissão e maldição não sejam aplicados em duplicidade quando compartilham escopo.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
