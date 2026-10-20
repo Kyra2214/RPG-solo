@@ -11,7 +11,9 @@ data class CharacterCatalogEntry(
     val lore: String = "",
     val benefit: String = "",
     val drawback: String = "",
-    val hybridRaceIds: List<String> = emptyList()
+    val hybridRaceIds: List<String> = emptyList(),
+    val benefits: List<String> = emptyList(),
+    val drawbacks: List<String> = emptyList()
 )
 
 data class CharacterChoices(
@@ -73,7 +75,13 @@ object CharacterCreationCatalog {
                 lore = item.optString("lore"),
                 benefit = item.optJSONArray("benefits")?.optJSONObject(0)?.optString("description").orEmpty(),
                 drawback = item.optJSONArray("drawbacks")?.optJSONObject(0)?.optString("description").orEmpty(),
-                hybridRaceIds = item.optJSONArray("raceIds")?.let { arr -> (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() } }.orEmpty()
+                hybridRaceIds = item.optJSONArray("raceIds")?.let { arr -> (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() } }.orEmpty(),
+                benefits = item.optJSONArray("benefits")?.let { arr ->
+                    (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.optString("description")?.takeIf { text -> text.isNotBlank() } }
+                }.orEmpty(),
+                drawbacks = item.optJSONArray("drawbacks")?.let { arr ->
+                    (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.optString("description")?.takeIf { text -> text.isNotBlank() } }
+                }.orEmpty()
             )
         }
     }
