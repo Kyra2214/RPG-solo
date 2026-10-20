@@ -57,4 +57,15 @@ class CheckChoicesTest {
         assertTrue((result as ParseResult.Fail).errors.any { "atributo inexistente" in it })
     }
 
+
+    @Test fun validadorConfereEscopoDepoisDaHeranca() {
+        val registry = PackageRegistry(null)
+        assertTrue(registry.install(files("teste-basico")) is InstallResult.Success)
+        val child = files("teste-avancado").toMutableMap()
+        child["tracos.txt"] = child.getValue("tracos.txt").trimEnd() + "|bonus-fantasma:+2\n"
+        val result = registry.install(child)
+        assertTrue(result is InstallResult.Failure)
+        assertTrue((result as InstallResult.Failure).errors.any { "escopo de bônus sem regra mecânica" in it })
+    }
+
 }
