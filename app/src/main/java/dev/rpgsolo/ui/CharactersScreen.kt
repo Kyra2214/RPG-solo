@@ -82,8 +82,10 @@ private fun ConsultLinks(model: AppModel) {
 
 @Composable
 private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
-    // Um rascunho por pacote; "version" força redesenhar depois de mudar o rascunho (ele não é observável).
-    val draft = remember(key) { CharacterDraft(pkg, model.newFichaId()) }
+    // Um rascunho por pacote. Depois de salvar, gira o ID para que a próxima criação
+    // não sobrescreva a ficha recém-criada.
+    var draftId by remember(key) { mutableStateOf(model.newFichaId()) }
+    val draft = remember(key, draftId) { CharacterDraft(pkg, draftId) }
     var version by remember(key) { mutableIntStateOf(0) }
     var message by remember(key) { mutableStateOf<String?>(null) }
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
@@ -347,7 +349,13 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     // ---------- 9. Criar ----------
     Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null && choiceErrors.isEmpty(), onClick = {
         message = when (val b = draft.build()) {
-            is FichaBuild.Created -> { model.saveFicha(b.ficha); model.saveCharacterChoices(b.ficha.id, choices); "Ficha de ${b.ficha.name} criada e salva." }
+            is FichaBuild.Created -> {
+                model.saveFicha(b.ficha)
+                model.saveCharacterChoices(b.ficha.id, choices)
+                val createdName = b.ficha.name
+                draftId = model.newFichaId()
+                "Ficha de $createdName criada e salva."
+            }
             is FichaBuild.Invalid -> b.errors.joinToString("; ")
         }
         version++
