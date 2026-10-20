@@ -102,6 +102,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var hybridId by remember(key) { mutableStateOf("") }
     var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
     val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId)
+    val choiceErrors = CharacterCreationCatalog.validateChoices(choices)
     @Suppress("UNUSED_EXPRESSION") version
 
     fun toggle(id: String) {
@@ -153,6 +154,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     SectionTitle("Raça, linhagem, classe e profissão", "Escolhas editoriais do catálogo. Híbridos são combinações catalogadas, não sub-raças. Nenhuma opção aplica bônus automaticamente.")
     val catalogErrors = CharacterCreationCatalog.validationErrors()
     if (catalogErrors.isNotEmpty()) AppCard { Text("Catálogo com referências inválidas", color = MaterialTheme.colorScheme.error); catalogErrors.take(5).forEach { Muted(it) } }
+    if (choiceErrors.isNotEmpty()) AppCard { Text("Revise as escolhas", color = MaterialTheme.colorScheme.error); choiceErrors.forEach { Muted(it) } }
     val catalogRaces = CharacterCreationCatalog.races
     val catalogSubraces = CharacterCreationCatalog.subraces.filter { it.parentRaceId == raceId }
     CatalogPicker("Raça", catalogRaces, raceId, { selected ->
@@ -206,7 +208,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             Text("Editando escolhas de ${model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId}", style = MaterialTheme.typography.titleSmall)
             Muted("Esta ação altera somente os metadados editoriais; não recalcula nem inventa bônus mecânicos.")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = {
+                Button(enabled = choiceErrors.isEmpty(), onClick = {
                     model.saveCharacterChoices(fichaId, choices)
                     editingChoicesFichaId = null
                     libraryMessage = "Escolhas da ficha atualizadas."
@@ -335,7 +337,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     }
 
     // ---------- 9. Criar ----------
-    Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null, onClick = {
+    Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null && choiceErrors.isEmpty(), onClick = {
         message = when (val b = draft.build()) {
             is FichaBuild.Created -> { model.saveFicha(b.ficha); model.saveCharacterChoices(b.ficha.id, choices); "Ficha de ${b.ficha.name} criada e salva." }
             is FichaBuild.Invalid -> b.errors.joinToString("; ")
