@@ -93,7 +93,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
         val choices = characterChoices(fichaId)
-        val ids = listOf(choices.raceId, choices.subraceId, choices.classId, choices.professionId) + choices.curseIds
+        val ids = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
         return ids.filter { it.isNotBlank() }.mapNotNull { id ->
             CharacterCreationCatalog.find(id)?.let { entry ->
                 buildString {
