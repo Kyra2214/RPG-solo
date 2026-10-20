@@ -87,6 +87,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var version by remember(key) { mutableIntStateOf(0) }
     var message by remember(key) { mutableStateOf<String?>(null) }
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
+    var fichaImportText by remember(key) { mutableStateOf("") }
     var expandedFichaId by remember(key) { mutableStateOf<String?>(null) }
     val clipboard = LocalClipboardManager.current
     var archId by remember(key) { mutableStateOf<String?>(null) }
@@ -307,6 +308,27 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         version++
     }) { Text("Criar ficha") }
     message?.let { Muted(it) }
+
+    SectionTitle("Importar ficha por JSON", "Aceita exportações novas com escolhas editoriais e JSONs antigos contendo apenas a ficha.")
+    AppCard {
+        OutlinedTextField(
+            value = fichaImportText,
+            onValueChange = { fichaImportText = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("JSON da ficha") },
+            placeholder = { Text("Cole aqui o JSON exportado") },
+            minLines = 3,
+            maxLines = 8
+        )
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                libraryMessage = model.importFicha(fichaImportText)
+                if (libraryMessage?.startsWith("Ficha ") == true && libraryMessage?.contains("importada") == true) fichaImportText = ""
+                version++
+            }
+        ) { Text("Importar ficha") }
+    }
 
     if (model.fichas.isNotEmpty()) {
         SectionTitle("Biblioteca")
