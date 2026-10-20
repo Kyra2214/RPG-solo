@@ -173,7 +173,8 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Preservar a origem nos objetos `ExternalBonus` durante a resolução de testes; efeitos externos são somados separadamente dos `TraitBonus` canônicos.
 - [ ] Exibir a origem de cada efeito aplicado no registro/descrição da rolagem e no combate.
 - [x] Integrar também o fluxo normal do `GameLoop` e os testes avançados preparados por ele, preservando a origem no rótulo do teste; o teste de fuga continua usando o mesmo resolvedor tipado.
-- [ ] Revisar outros caminhos de ação direta que não passem pelo `GameLoop` e exibir a origem no resumo/registro de combate.
+- [x] Exibir a origem dos efeitos de catálogo efetivamente aplicados nos resultados de ataque do jogador e nos resultados de defesa/resistência contra ataques de NPC, sem alterar a resolução mecânica.
+- [ ] Revisar outros caminhos de ação direta que não passem pelo `GameLoop` e confirmar a política final de acumulação entre efeitos externos de fontes diferentes e bônus canônicos.
 - [ ] Garantir que efeitos de raça, sub-raça, híbrido, classe, profissão e maldição não sejam aplicados em duplicidade quando compartilham escopo.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
 - [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
