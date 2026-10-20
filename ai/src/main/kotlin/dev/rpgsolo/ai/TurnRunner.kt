@@ -51,7 +51,8 @@ class TurnRunner(
         menu: CheckMenu? = null,
         canRequest: Boolean = true,
         playerEntityId: String? = null,
-        onNarrativeChunk: (String) -> Unit = {}
+        onNarrativeChunk: (String) -> Unit = {},
+        sceneNpcIds: Set<String> = emptySet()
     ): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
@@ -72,7 +73,7 @@ class TurnRunner(
             } catch (e: AiError) {
                 return TurnOutcome.Failed(e.message ?: "erro de IA", e)
             }
-            when (val a = attempt(session, response.text, menu, canRequest, playerEntityId)) {
+            when (val a = attempt(session, response.text, menu, canRequest, playerEntityId, sceneNpcIds)) {
                 is Attempt.Done -> return a.outcome
                 is Attempt.Retry -> {
                     lastProblem = a.problem
@@ -133,7 +134,14 @@ class TurnRunner(
         }
     }
 
-    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?): Attempt {
+    private fun attempt(
+        session: CampaignSession,
+        text: String,
+        menu: CheckMenu?,
+        canRequest: Boolean,
+        playerEntityId: String?,
+        sceneNpcIds: Set<String>
+    ): Attempt {
         return when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
                 Attempt.Retry("formato inválido: " + parsed.errors.joinToString("; "), false)
@@ -152,7 +160,7 @@ class TurnRunner(
                     val secretInvalid = req?.let { menu?.validateSecretRequest(it, session.state) }
                     val advancedInvalid = req?.let { request ->
                         val playerId = playerEntityId ?: return@let "o jogador não foi identificado para o teste avançado"
-                        menu?.validateAdvancedRequest(request, session.state, playerId)
+                        menu?.validateAdvancedRequest(request, session.state, playerId, sceneNpcIds)
                     }
                     val problem: String? = when {
                         menu == null -> "este jogo não oferece testes nem rolagens; não use request_check nem request_roll"
