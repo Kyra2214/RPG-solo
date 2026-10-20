@@ -277,6 +277,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val original = requireNotNull(fichas.firstOrNull { it.id == id }) { "ficha não encontrada na biblioteca" }
         val copy = original.copy(id = "f-${System.nanoTime()}", name = "${original.name} (cópia)")
         saveFicha(copy)
+        characterChoicesPrefs.getString(id, null)?.let { characterChoicesPrefs.edit().putString(copy.id, it).apply() }
         campaignVersion++
         null
     } catch (e: IllegalArgumentException) { e.message }
@@ -298,6 +299,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteFicha(id: String): String? = try {
         require(store.apagarFicha(id)) { "ficha não encontrada na biblioteca" }
+        characterChoicesPrefs.edit().remove(id).apply()
         fichas.removeAll { it.id == id }
         archivedFichas.removeAll { it.id == id }
         campaignVersion++
