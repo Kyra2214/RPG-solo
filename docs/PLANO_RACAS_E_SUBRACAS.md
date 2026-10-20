@@ -186,7 +186,8 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Confirmar no catálogo versionado que `mechanicalEffects` está vazio nas entradas atuais: não há bônus de raça/classe/profissão/maldição efetivamente declarados para duplicar neste momento.
 - [x] Auditar o alcance das adaptações aprovadas: `Adaptation.kt` aplica os efeitos à ficha (`Ficha`) e o estado as descreve como adaptações aprovadas; `GameLoop` agora limita esses bônus aos testes da entidade `PLAYER`.
 - [x] Remover a aplicação de adaptações aprovadas aos bônus de ataque/dano de NPCs e à defesa/resistência de NPCs em combate direto; manter os efeitos nos cálculos do jogador.
-- [ ] Revisar a semântica histórica das adaptações em campanhas antigas e validar se alguma adaptação aprovada deve ser explicitamente global, em vez de alteração da ficha do jogador.
+- [x] Auditar o modelo e a persistência das adaptações: `RegraAdicional` contém ID, nome, descrição, efeitos, limite, origem e aprovação, mas não contém alvo/escopo de aplicação (jogador, NPC ou global). `AdditionalRuleProposed/Approved/Rejected` entram no log event-sourced e o estado é reconstruído a partir dos eventos.
+- [ ] Revisar a semântica histórica das adaptações em campanhas antigas e validar se alguma adaptação aprovada deve ser explicitamente global, em vez de alteração da ficha do jogador. Como o modelo antigo não registra alvo, não reinterpretar campanhas existentes sem migração/regra de compatibilidade.
 - [x] Confirmar que efeitos distintos com o mesmo escopo são somados pela implementação atual e não são deduplicados silenciosamente.
 - [ ] Definir a política de equivalência entre um efeito externo e um `TraitBonus` canônico antes de adicionar bloqueios ou deduplicação.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
@@ -234,7 +235,8 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 - Exibir resumo de bônus e sua origem antes da confirmação.
 
 ### R5 — Persistência
-- [x] Guardar IDs escolhidos por ficha e incluir escolhas editoriais em backups e exportação/importação individual versionada; unificação no JSON canônico da ficha ainda pendente.
+- [x] Guardar IDs escolhidos por ficha e incluir escolhas editoriais em backups e exportação/importação individual versionada; auditoria confirmou que a fonte atual é SharedPreferences (`rpg_character_choices`) indexada por ID da ficha, e não um campo de `Ficha`.
+- [ ] Unificar escolhas no JSON canônico da ficha com migração compatível: preservar leitura de SharedPreferences, fichas antigas, duplicação, arquivamento, importação/exportação e backups; não remover a fonte legada até validar migração e restauração.
 - [x] Preservar compatibilidade com fichas/backups antigos sem essas escolhas.
 - [x] Backups/restaurações preservam as escolhas editoriais; efeitos derivados ainda não existem para essas opções e não são duplicados.
 
@@ -281,7 +283,9 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 
 **Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador; as entradas atuais ainda têm efeitos vazios. Build, testes e CI não foram executados.
 
-**Próxima ação:** concluir o contrato de persistência canônica e auditar o motor de bônus tipados antes de definir como converter traços raciais/profissionais em efeitos executáveis, sem duplicar os traços já escolhidos na ficha.
+**Auditoria desta rodada:** `RegraAdicional` é persistida como evento no log da campanha, mas não identifica se o efeito é individual ou global; a semântica de campanhas antigas permanece deliberadamente sem alteração. As escolhas editoriais de personagem, por sua vez, ficam em SharedPreferences separadas do JSON serializado de `Ficha`, embora exportação/importação e backup já as transportem em metadados próprios.
+
+**Próxima ação:** implementar a migração das escolhas editoriais para o modelo canônico de ficha, mantendo leitura retrocompatível dos metadados antigos; depois auditar o ciclo completo de criar, duplicar, importar, exportar, restaurar e reabrir ficha antes de ativar efeitos de catálogo.
 
 ## 10. Maldições, benefícios e custos narrativos
 
