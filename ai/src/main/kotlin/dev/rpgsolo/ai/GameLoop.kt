@@ -75,7 +75,7 @@ class GameLoop(
     /** Bônus mecânicos de adaptações aprovadas, consultados por escopo (teste, atributo ou perícia). */
     private val additionalBonus: (String) -> Int = { 0 },
     /** Efeitos tipados de outras fontes, preservando a origem no registro do teste. */
-    private val externalBonuses: (String) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() }
+    private val externalBonuses: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() }
 ) {
     private val history = mutableListOf<TurnRecord>()
     private val narrations = mutableListOf<String>()
@@ -123,7 +123,7 @@ class GameLoop(
                 adjusted.copy(modifier = adjusted.modifier + bonus, label = adjusted.label + suffix)
             }
         }
-        val selectedExternal = externalBonuses(scopes.firstOrNull().orEmpty())
+        val selectedExternal = externalBonuses(scopes)
             .filter { it.scope in scopes }
         val externalTotal = selectedExternal.sumOf { it.bonus }
         val withExternal = if (externalTotal == 0) withAdaptations else {
