@@ -263,8 +263,10 @@ class PlayController(
             val result = session.checkOpposed(preparedChallenger, preparedDefender)
             entries.addLast(Entry(start, localMark = mark, viaLoop = false))
             chat += ChatLine(Author.SYSTEM, "Disputa: $challengerName contra $defenderName.")
-            chat += ChatLine(Author.ROLL, rollText(result.challenger), rollView(result.challenger))
-            chat += ChatLine(Author.ROLL, rollText(result.defender), rollView(result.defender))
+            result.challengerAlternatives.forEach { alternative -> chat += ChatLine(Author.ROLL, "Não escolhido · $challengerName · " + rollText(alternative), rollView(alternative)) }
+            chat += ChatLine(Author.ROLL, "$challengerName · " + rollText(result.challenger), rollView(result.challenger))
+            result.defenderAlternatives.forEach { alternative -> chat += ChatLine(Author.ROLL, "Não escolhido · $defenderName · " + rollText(alternative), rollView(alternative)) }
+            chat += ChatLine(Author.ROLL, "$defenderName · " + rollText(result.defender), rollView(result.defender))
             chat += ChatLine(
                 Author.SYSTEM,
                 if (result.challengerWins) "$challengerName vence a disputa."
