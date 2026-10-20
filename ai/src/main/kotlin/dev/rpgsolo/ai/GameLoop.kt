@@ -137,7 +137,11 @@ class GameLoop(
             }
         }
         // Efeitos da ficha escolhida pertencem somente ao jogador; nunca a NPCs ou adversários.
-        val selectedExternal = if (isPlayerEntity) externalBonuses(scopes).filter { it.scope in scopes && it.bonus != 0 } else emptyList()
+        val selectedExternal = if (isPlayerEntity) {
+            dev.rpgsolo.rules.distinctExternalBonuses(
+                externalBonuses(scopes).filter { it.scope in scopes && it.bonus != 0 }
+            )
+        } else emptyList()
         val externalTotal = selectedExternal.sumOf { it.bonus }
         val withExternal = if (selectedExternal.isEmpty()) withAdaptations else {
             // Mostra cada origem/escopo mesmo quando bônus diferentes se anulam no total.
