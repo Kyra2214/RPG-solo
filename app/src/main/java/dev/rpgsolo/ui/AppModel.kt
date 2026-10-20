@@ -218,7 +218,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         var candidate: String
         do {
             candidate = "f-${java.util.UUID.randomUUID()}"
-        } while ((fichas + archivedFichas).any { it.id == candidate })
+        } while ((fichas + archivedFichas).any { it.id == candidate } || store.fichaExiste(candidate))
         return candidate
     }
 
@@ -429,7 +429,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         val decoded = dev.rpgsolo.engine.Codec.decodeFicha(fichaJson)
         require(decoded.id.isNotBlank()) { "a ficha importada precisa ter um ID" }
-        val exists = (fichas + archivedFichas).any { it.id == decoded.id }
+        val exists = store.fichaExiste(decoded.id) || (fichas + archivedFichas).any { it.id == decoded.id }
         val importedId = if (exists) newFichaId() else decoded.id
         val importedChoices = when {
             choices != CharacterChoices() -> choices
@@ -1105,11 +1105,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
         // Nunca sobrescrever uma ficha local só porque o backup reutiliza o mesmo ID.
-        val usedIds = (fichas + archivedFichas).map { it.id }.toMutableSet()
+        val localFichaIds = (fichas + archivedFichas).map { it.id }.toMutableSet()
+        val usedIds = localFichaIds.toMutableSet()
         val fichaIdMap = linkedMapOf<String, String>()
         decodedFichas.forEach { ficha ->
             var mappedId = ficha.id
-            if (mappedId in usedIds) {
+            if (mappedId in usedIds || store.fichaExiste(mappedId)) {
                 do { mappedId = newFichaId() } while (mappedId in usedIds)
             }
             usedIds += mappedId
@@ -1152,6 +1153,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 val mappedId = fichaIdMap.getValue(decoded.id)
                 val choices = decoded.editorialChoicesJson.ifBlank { meta.characterChoices[decoded.id].orEmpty() }
                 if (choices.isNotBlank()) characterChoicesPrefs.edit().putString(mappedId, choices).apply()
+            }
+            // Backups antigos podem ter escolhas sem a ficha serializada. Preservá-las como
+            // legado apenas se o ID não pertence a uma ficha local, evitando sobrescrever dados.
+            meta.characterChoices.forEach { (legacyId, rawChoices) ->
+                if (legacyId.isNotBlank() &&
+                    legacyId !in fichaIdMap.keys &&
+                    legacyId !in localFichaIds &&
+                    rawChoices.isNotBlank()
+                ) {
+                    characterChoicesPrefs.edit().putString(legacyId, rawChoices).apply()
+                }
             }
         }
         restoreFichas()
