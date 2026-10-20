@@ -10,7 +10,8 @@ data class CharacterCatalogEntry(
     val parentRaceId: String? = null,
     val lore: String = "",
     val benefit: String = "",
-    val drawback: String = ""
+    val drawback: String = "",
+    val hybridRaceIds: List<String> = emptyList()
 )
 
 data class CharacterChoices(
@@ -18,13 +19,15 @@ data class CharacterChoices(
     val subraceId: String = "",
     val classId: String = "",
     val professionId: String = "",
-    val curseIds: List<String> = emptyList()
+    val curseIds: List<String> = emptyList(),
+    val hybridId: String = ""
 ) {
     fun toJson(): String = JSONObject()
         .put("raceId", raceId)
         .put("subraceId", subraceId)
         .put("classId", classId)
         .put("professionId", professionId)
+        .put("hybridId", hybridId)
         .put("curseIds", org.json.JSONArray(curseIds))
         .toString()
 
@@ -39,6 +42,7 @@ data class CharacterChoices(
                     subraceId = obj.optString("subraceId"),
                     classId = obj.optString("classId"),
                     professionId = obj.optString("professionId"),
+                    hybridId = obj.optString("hybridId"),
                     curseIds = (0 until (curses?.length() ?: 0)).map { curses!!.optString(it) }.filter { it.isNotBlank() }
                 )
             }.getOrDefault(CharacterChoices())
@@ -68,17 +72,33 @@ object CharacterCreationCatalog {
                 parentRaceId = item.optString("parentRaceId").takeIf { it.isNotBlank() && it != "null" },
                 lore = item.optString("lore"),
                 benefit = item.optJSONArray("benefits")?.optJSONObject(0)?.optString("description").orEmpty(),
-                drawback = item.optJSONArray("drawbacks")?.optJSONObject(0)?.optString("description").orEmpty()
+                drawback = item.optJSONArray("drawbacks")?.optJSONObject(0)?.optString("description").orEmpty(),
+                hybridRaceIds = item.optJSONArray("raceIds")?.let { arr -> (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() } }.orEmpty()
             )
         }
     }
 
     val races: List<CharacterCatalogEntry> get() = entries("races")
     val subraces: List<CharacterCatalogEntry> get() = entries("subraces")
+    val hybrids: List<CharacterCatalogEntry> get() = entries("hybrids")
     val classes: List<CharacterCatalogEntry> get() = entries("classes")
     val professions: List<CharacterCatalogEntry> get() = entries("professions")
     val curses: List<CharacterCatalogEntry> get() = entries("curses")
 
     fun find(id: String): CharacterCatalogEntry? =
-        (races + subraces + classes + professions + curses).firstOrNull { it.id == id }
+        (races + subraces + hybrids + classes + professions + curses).firstOrNull { it.id == id }
+
+    /** Valida IDs únicos e referências de linhagem antes de expor o catálogo à criação. */
+    fun validationErrors(): List<String> {
+        val all = races + subraces + hybrids + classes + professions + curses
+        val errors = mutableListOf<String>()
+        all.groupBy { it.id }.filterValues { it.size > 1 }.keys.forEach { errors += "ID duplicado no catálogo: $it" }
+        val raceIds = races.map { it.id }.toSet()
+        subraces.filter { it.parentRaceId !in raceIds }.forEach { errors += "Sub-raça ${it.id} referencia raça inexistente" }
+        hybrids.forEach { hybrid ->
+            if (hybrid.hybridRaceIds.size != 2 || hybrid.hybridRaceIds.toSet().size != 2) errors += "Híbrido ${hybrid.id} precisa referenciar duas raças distintas"
+            else if (hybrid.hybridRaceIds.any { it !in raceIds }) errors += "Híbrido ${hybrid.id} referencia raça inexistente"
+        }
+        return errors
+    }
 }
