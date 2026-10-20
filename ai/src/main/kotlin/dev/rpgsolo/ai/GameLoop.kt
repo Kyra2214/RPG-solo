@@ -123,8 +123,9 @@ class GameLoop(
                 adjusted.copy(modifier = adjusted.modifier + bonus, label = adjusted.label + suffix)
             }
         }
-        val selectedExternal = externalBonuses(scopes)
-            .filter { it.scope in scopes }
+        // Efeitos da ficha escolhida pertencem somente ao jogador; nunca a NPCs ou adversários.
+        val isPlayerEntity = session.state.entities[playerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+        val selectedExternal = if (isPlayerEntity) externalBonuses(scopes).filter { it.scope in scopes } else emptyList()
         val externalTotal = selectedExternal.sumOf { it.bonus }
         val withExternal = if (externalTotal == 0) withAdaptations else {
             val sources = selectedExternal.map { it.source.substringBeforeLast(":") }.distinct()
