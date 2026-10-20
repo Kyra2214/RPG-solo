@@ -110,8 +110,10 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
 
     /** Atualiza fichas existentes preservando o campo `arquivada`; só insere quando não existem. */
     fun saveFicha(row: FichaRow) {
-        val updated = db.fichas().atualizarConteudo(row.id, row.nome, row.json)
-        if (updated == 0) db.fichas().salvar(row)
+        db.runInTransaction {
+            val updated = db.fichas().atualizarConteudo(row.id, row.nome, row.json)
+            if (updated == 0) db.fichas().salvar(row)
+        }
     }
 
     fun duplicate(sourceId: String, newId: String, newName: String): CampaignRecord {
