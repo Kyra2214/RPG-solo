@@ -492,7 +492,12 @@ private fun CatalogPicker(
                 onClick = { onSelected(if (selectedId == entry.id && allowNone) "" else entry.id) },
                 label = { Text(entry.name) }
             )
-            if (selectedId == entry.id && entry.summary.isNotBlank()) Muted(entry.summary)
+            if (selectedId == entry.id) {
+                if (entry.summary.isNotBlank()) Muted(entry.summary)
+                if (entry.lore.isNotBlank()) Muted("Lore: " + entry.lore)
+                entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
+                entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
+            }
         }
         if (entries.size > visible.size) Muted("Mostrando até 30 opções; use a busca para localizar as demais.")
     }
