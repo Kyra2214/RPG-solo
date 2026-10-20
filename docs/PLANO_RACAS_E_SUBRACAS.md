@@ -385,3 +385,11 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Manter os efeitos válidos ancorados na ficha mecânica e no pacote de regras.
 - [ ] Implementar geração de história pessoal opcional e persistência do texto aprovado sem alterar escolhas ou mecânicas.
 - [ ] Implementar geração opcional de retrato e armazenamento da referência da imagem.
+
+
+### Recuperação de referências antigas na importação (20/10/2026)
+
+- [x] Validar as escolhas importadas contra o catálogo atual.
+- [x] Preservar as escolhas antigas mesmo quando uma referência não existe mais, para evitar perda silenciosa de dados.
+- [x] Mostrar aviso com os problemas encontrados e direcionar para “Editar escolhas” na biblioteca.
+- [ ] Criar um assistente de migração com sugestões de substituição quando IDs do catálogo forem removidos ou renomeados.
