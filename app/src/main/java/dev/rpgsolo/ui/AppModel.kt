@@ -317,12 +317,22 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun restoreFichas() {
         fichas.clear()
         archivedFichas.clear()
-        fichas.addAll(store.fichas().mapNotNull { row ->
-            runCatching { dev.rpgsolo.engine.Codec.decodeFicha(row.json) }.getOrNull()
-        })
-        archivedFichas.addAll(store.fichasArquivadas().mapNotNull { row ->
-            runCatching { dev.rpgsolo.engine.Codec.decodeFicha(row.json) }.getOrNull()
-        })
+
+        fun decodeAndMigrate(row: FichaRow): Ficha? = runCatching {
+            val decoded = dev.rpgsolo.engine.Codec.decodeFicha(row.json)
+            val legacy = characterChoicesPrefs.getString(decoded.id, null).orEmpty()
+            if (decoded.editorialChoicesJson.isNotBlank() || legacy.isBlank()) {
+                decoded
+            } else {
+                val migrated = decoded.copy(editorialChoicesJson = legacy)
+                // RoomEventStore atualiza o JSON sem alterar o sinalizador de arquivamento.
+                store.saveFicha(FichaRow(migrated.id, migrated.name, dev.rpgsolo.engine.Codec.encode(migrated)))
+                migrated
+            }
+        }.getOrNull()
+
+        fichas.addAll(store.fichas().mapNotNull(::decodeAndMigrate))
+        archivedFichas.addAll(store.fichasArquivadas().mapNotNull(::decodeAndMigrate))
     }
 
     /** Salva uma ficha na biblioteca e atualiza a cópia observável em memória. */
