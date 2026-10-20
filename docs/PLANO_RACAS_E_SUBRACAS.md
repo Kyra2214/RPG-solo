@@ -309,3 +309,18 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - Efeitos mecânicos tipados das maldições, revisão de compatibilidade, história gerada e retrato por IA ainda não foram implementados.
 - Não foi executado build, teste ou CI nesta etapa; a validação de compilação permanece pendente.
 
+
+
+### Implementação de híbridos/ascendências mistas (20/10/2026)
+
+- [x] Adicionar categoria `hybrids` separada de `subraces` no catálogo.
+- [x] Cadastrar 20 combinações explícitas de duas raças existentes, cada uma com IDs de ascendência e lore original.
+- [x] Adicionar seletor de híbrido à criação; escolher híbrido limpa raça/sub-raça e escolher raça limpa híbrido, evitando duas origens conflitantes na ficha-base.
+- [x] Persistir o ID do híbrido junto aos demais metadados editoriais e incluí-lo no contexto narrativo da IA.
+- [x] Validar IDs duplicados, referências de sub-raças e referências de ambos os pais dos híbridos.
+- [x] Exibir lore e descrições de benefício/custo no resumo quando existirem.
+- [ ] Integrar metadados ao formato canônico de exportação/importação e aos backups.
+- [ ] Implementar fluxo de edição da ficha já criada para reabrir e alterar as escolhas.
+- [ ] Implementar efeitos mecânicos tipados; as combinações adicionadas permanecem narrativas e não concedem bônus automaticamente.
+
+**Limite desta etapa:** as 20 combinações são opções editoriais explícitas, não uma regra para gerar todas as combinações possíveis. Nenhum efeito mecânico foi criado nem aplicado. Build, testes e CI continuam pendentes por instrução de priorizar implementação.
