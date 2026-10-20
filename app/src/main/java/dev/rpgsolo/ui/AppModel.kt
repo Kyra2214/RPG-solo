@@ -1079,12 +1079,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             packageId = activePackage?.manifest?.id,
             systemId = activeSystemId ?: activeFicha?.system?.systemId,
             editionId = activeEditionId ?: activeFicha?.system?.editionId,
-            fichas = fichas.map { dev.rpgsolo.engine.Codec.encode(it) },
-            characterChoices = fichas.associate { ficha ->
+            fichas = (fichas + archivedFichas).map { dev.rpgsolo.engine.Codec.encode(it) },
+            characterChoices = (fichas + archivedFichas).associate { ficha ->
                 ficha.id to characterChoices(ficha.id).toJson()
             }.filterValues { raw ->
                 CharacterChoices.fromJson(raw) != CharacterChoices()
-            }
+            },
+            archivedFichaIds = archivedFichas.map { it.id }
         )
     )
 
@@ -1141,7 +1142,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     val legacyChoices = meta.characterChoices[decoded.id].orEmpty()
                     val canonicalChoices = decoded.editorialChoicesJson.ifBlank { legacyChoices }
                     val ficha = decoded.copy(id = mappedId, editorialChoicesJson = canonicalChoices)
-                    store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha)))
+                    val archived = decoded.id in meta.archivedFichaIds
+                    store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha), arquivada = archived))
                 }
             }
         }
