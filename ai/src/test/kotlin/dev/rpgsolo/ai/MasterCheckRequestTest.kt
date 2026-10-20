@@ -91,6 +91,42 @@ class MasterCheckRequestTest {
         assertTrue(provider.requests.last().messages.last().content.contains("Resultado mecânico"))
     }
 
+    @Test fun resolucaoRevalidaPresencaDoNpcNaCenaAntesDeRolarDisputa() {
+        val p = pkg()
+        val f = ficha(p)
+        val session = session(f)
+        val raw = """{"narrative":"O guarda bloqueia a passagem.",
+            "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"passa","onFailure":"não passa",
+            "opposed":{"entityId":"orc","check":"esquiva","difficulty":"facil"}}}"""
+        val provider = ScriptedProvider(listOf(raw, fim("Você continua.")))
+        val loop = GameLoop(provider, menu = CheckMenu(p))
+        assertTrue(loop.play(session, PlayInput("hero", "tento passar", sceneNpcIds = setOf("orc"))) is PlayResult.Played)
+        val beforeRoll = session.mark()
+
+        val result = loop.resolvePending(session, PlayInput("hero", "tento passar", sceneNpcIds = setOf("outro-npc")))
+
+        assertTrue(result is PlayResult.Failed)
+        assertEquals(beforeRoll, session.mark())
+    }
+
+    @Test fun resolucaoRevalidaPresencaDosNpcsNaCenaAntesDoTesteDeGrupo() {
+        val p = pkg()
+        val f = ficha(p)
+        val session = session(f)
+        val raw = """{"narrative":"Vamos juntos.",
+            "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"passa","onFailure":"falha",
+            "group":{"participantIds":["player","orc"],"requiredSuccesses":1,"onSuccess":"grupo passa","onFailure":"grupo falha"}}}"""
+        val provider = ScriptedProvider(listOf(raw, fim("O grupo segue.")))
+        val loop = GameLoop(provider, menu = CheckMenu(p))
+        assertTrue(loop.play(session, PlayInput("hero", "ajudo", sceneNpcIds = setOf("orc"))) is PlayResult.Played)
+        val beforeRoll = session.mark()
+
+        val result = loop.resolvePending(session, PlayInput("hero", "ajudo", sceneNpcIds = setOf("outro-npc")))
+
+        assertTrue(result is PlayResult.Failed)
+        assertEquals(beforeRoll, session.mark())
+    }
+
     @Test fun testeAvancadoRecusaNpcForaDaCenaQuandoAListaEstaDisponivel() {
         val p = pkg()
         val f = ficha(p)
