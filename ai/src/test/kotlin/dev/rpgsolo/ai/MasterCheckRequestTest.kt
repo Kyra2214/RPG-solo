@@ -65,6 +65,30 @@ class MasterCheckRequestTest {
         assertTrue(r.errors.any { "onFailure" in it })
     }
 
+    @Test fun parserLePedidoDeDisputaEGrupo() {
+        val opposed = """{"narrative":"O guarda bloqueia a passagem; role para vencê-lo.",
+            "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"você passa","onFailure":"o guarda impede a passagem",
+            "opposed":{"entityId":"orc","check":"esquiva","difficulty":"facil","label":"Guarda"}}}"""
+        val parsedOpposed = ProposalParser.parse(opposed) as ParseResult.Ok
+        assertEquals("orc", parsedOpposed.output.checkRequest!!.opposed!!.entityId)
+        assertEquals("esquiva", parsedOpposed.output.checkRequest!!.opposed!!.checkId)
+
+        val group = """{"narrative":"Vocês tentam erguer a porta juntos.",
+            "request_check":{"check":"forca","difficulty":"facil","onSuccess":"a porta abre","onFailure":"a porta não cede",
+            "group":{"participantIds":["player","orc"],"requiredSuccesses":1,"onSuccess":"a porta abre","onFailure":"a porta continua fechada"}}}"""
+        val parsedGroup = ProposalParser.parse(group) as ParseResult.Ok
+        assertEquals(listOf("player", "orc"), parsedGroup.output.checkRequest!!.group!!.participantIds)
+        assertEquals(1, parsedGroup.output.checkRequest!!.group!!.requiredSuccesses)
+    }
+
+    @Test fun pedidoAvancadoNaoPodeMisturarDisputaEGrupo() {
+        val raw = """{"narrative":"x","request_check":{"check":"esquiva","onSuccess":"a","onFailure":"b",
+            "opposed":{"entityId":"orc","check":"esquiva"},
+            "group":{"participantIds":["player","orc"],"requiredSuccesses":1,"onSuccess":"a","onFailure":"b"}}}"""
+        val parsed = ProposalParser.parse(raw) as ParseResult.Invalid
+        assertTrue(parsed.errors.any { "opposed ou group" in it })
+    }
+
     @Test fun semRequestCheckNadaMudaNoParser() {
         assertNull((ProposalParser.parse(fim("ok")) as ParseResult.Ok).output.checkRequest)
     }
