@@ -80,7 +80,7 @@ class CheckChoicesTest {
         assertTrue((result as InstallResult.Failure).errors.any { "escopo de bônus sem regra mecânica" in it })
     }
 
-    @Test fun validadorRejeitaEscopoDeEquipamentoSemRegraMesmoAposHeranca() {
+    @Test fun validadorRejeitaEscopoDeEquipamentoSemRegraMecanica() {
         val data = basico().data.copy(
             items = listOf(
                 ItemDef(
