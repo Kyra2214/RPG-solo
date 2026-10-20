@@ -48,6 +48,19 @@ class PersistenceTest {
         assertEquals("", Codec.decodeFicha(oldJson).editorialChoicesJson)
     }
 
+    @Test fun backupPreservaEstadoArquivadoELeBackupsAntigos() {
+        val (_, store) = newSession()
+        val metadata = CampaignBackupMetadata(archivedFichaIds = listOf("f-arquivada"))
+        val current = Backup.export(store, "c1", metadata)
+        assertEquals(listOf("f-arquivada"), Backup.decode(current).metadata?.archivedFichaIds)
+
+        // Backups anteriores ao campo opcional não devem falhar na leitura.
+        val oldBackup = Backup.export(store, "c1", CampaignBackupMetadata())
+            .replace(",\"archivedFichaIds\":[]", "")
+        assertTrue(oldBackup.contains("\"metadata\""))
+        assertEquals(emptyList<String>(), Backup.decode(oldBackup).metadata?.archivedFichaIds)
+    }
+
     @Test fun autosaveReabreComOMesmoEstado() {
         val (s, store) = newSession()
         s.execute(Damage("orc", "hp", 4))
