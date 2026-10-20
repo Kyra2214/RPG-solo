@@ -294,7 +294,11 @@ class PlayController(
                 TurnRecord(
                     PlayInput(playerId, "disputa: $challengerName vs. $defenderName"),
                     mark, session.mark(), result.challenger,
-                    if (result.challengerWins) "$challengerName vence a disputa." else "$defenderName vence ou mantém a disputa."
+                    if (result.challengerWins) "$challengerName vence a disputa." else "$defenderName vence ou mantém a disputa.",
+                    advancedChecks = listOf(
+                        challengerName to result.challenger,
+                        defenderName to result.defender
+                    )
                 )
             )
         } catch (e: Exception) {
@@ -366,8 +370,11 @@ class PlayController(
             PlayResult.Played(
                 TurnRecord(
                     PlayInput(playerId, "teste de grupo (${checks.size} participantes)"),
-                    mark, session.mark(), result.individual.firstOrNull(),
-                    if (result.passed) "grupo passou" else "grupo falhou"
+                    mark, session.mark(), result.individual[participantEntityIds.indexOf(playerId)],
+                    if (result.passed) "grupo passou" else "grupo falhou",
+                    advancedChecks = result.individual.mapIndexed { index, check ->
+                        participantNames[index] to check
+                    }
                 )
             )
         } catch (e: Exception) {
