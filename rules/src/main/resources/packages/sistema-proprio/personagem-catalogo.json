@@ -20,7 +20,8 @@
     "subracePolicy": "sub-raça referencia uma raça-base por parentRaceId; herança e substituições devem ser validadas pelo carregador.",
     "aiPolicy": "IA pode usar lore e escolhas confirmadas para narrativa e retrato, mas não pode criar ou alterar regras, vantagens, desvantagens, atributos ou equipamentos.",
     "equipmentAndBuffs": "equipamentos, buffs, debuffs e outros modificadores pertencem a camadas separadas e são calculados pelo motor.",
-    "cursePolicy": "Maldições são escolhas independentes e podem combinar benefícios e desvantagens mecânicos ou narrativos. Benefícios/desvantagens em texto são conteúdo editorial; mechanicalEffects permanece vazio até o motor definir e suportar um esquema tipado. Não aplicar efeitos automaticamente nem permitir que a IA invente ou altere regras. Maldições podem coexistir com raça/sub-raça, classe, profissão, vantagens e desvantagens; equipamentos e buffs continuam em camada separada."
+    "cursePolicy": "Maldições são escolhas independentes e podem combinar benefícios e desvantagens mecânicos ou narrativos. Benefícios/desvantagens em texto são conteúdo editorial; mechanicalEffects permanece vazio até o motor definir e suportar um esquema tipado. Não aplicar efeitos automaticamente nem permitir que a IA invente ou altere regras. Maldições podem coexistir com raça/sub-raça, classe, profissão, vantagens e desvantagens; equipamentos e buffs continuam em camada separada.",
+    "hybridPolicy": "Híbridos são uma categoria separada de sub-raças e só podem usar combinações listadas em hybrids. Selecionar híbrido exclui raça-base e sub-raça nesta ficha-base; a ascendência não concede bônus sem mechanicalEffects tipados suportados pelo motor."
   },
   "races": [
     {
@@ -6567,6 +6568,368 @@
       "narrativeConsequences": [
         "Sussurros inquietantes escapam em momentos de tensão."
       ],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    }
+  ],
+  "hybrids": [
+    {
+      "id": "humano-elfo",
+      "name": "Meio-Elfo Errante",
+      "summary": "Ascendência de comunidades humanas e élficas; transita entre tradições sem pertencer automaticamente a nenhuma delas.",
+      "lore": "Ascendência de comunidades humanas e élficas; transita entre tradições sem pertencer automaticamente a nenhuma delas.",
+      "raceIds": [
+        "humano",
+        "elfo"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "humano-anao",
+      "name": "Sangue de Pedra",
+      "summary": "Descendente de humanos e anões, criado entre ofícios, pactos familiares e cidades de fronteira.",
+      "lore": "Descendente de humanos e anões, criado entre ofícios, pactos familiares e cidades de fronteira.",
+      "raceIds": [
+        "humano",
+        "anao"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "humano-orcano",
+      "name": "Meio-Orcão",
+      "summary": "Carrega heranças humanas e orcânicas, com identidade moldada mais pela comunidade do que pela origem.",
+      "lore": "Carrega heranças humanas e orcânicas, com identidade moldada mais pela comunidade do que pela origem.",
+      "raceIds": [
+        "humano",
+        "orcano"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "elfo-anao",
+      "name": "Filho do Crepúsculo Mineral",
+      "summary": "Une memória élfica e tradição anã, frequentemente dividido entre a vida das florestas e os salões de pedra.",
+      "lore": "Une memória élfica e tradição anã, frequentemente dividido entre a vida das florestas e os salões de pedra.",
+      "raceIds": [
+        "elfo",
+        "anao"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "elfo-orcano",
+      "name": "Elfo de Cinza",
+      "summary": "Uma linhagem rara que reúne disciplina tribal e costumes élficos, sem implicar hostilidade ou alinhamento.",
+      "lore": "Uma linhagem rara que reúne disciplina tribal e costumes élficos, sem implicar hostilidade ou alinhamento.",
+      "raceIds": [
+        "elfo",
+        "orcano"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "anao-gnomo",
+      "name": "Forjarruna",
+      "summary": "Combina o legado artesanal anão com curiosidade experimental e engenhosidade gnômica.",
+      "lore": "Combina o legado artesanal anão com curiosidade experimental e engenhosidade gnômica.",
+      "raceIds": [
+        "anao",
+        "gnomo"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "humano-tiefling",
+      "name": "Herdeiro do Véu Rubro",
+      "summary": "Ascendência humana marcada por herança infernal, cuja aparência e reputação variam entre regiões.",
+      "lore": "Ascendência humana marcada por herança infernal, cuja aparência e reputação variam entre regiões.",
+      "raceIds": [
+        "humano",
+        "tiefling"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "humano-aasimar",
+      "name": "Herdeiro do Alvorecer",
+      "summary": "Uma linhagem humana com ascendência celestial, sem que isso determine caráter, destino ou poderes.",
+      "lore": "Uma linhagem humana com ascendência celestial, sem que isso determine caráter, destino ou poderes.",
+      "raceIds": [
+        "humano",
+        "aasimar"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "elfo-feerico",
+      "name": "Sangue do Reino Feérico",
+      "summary": "Descende de povos élficos e feéricos; tradições e laços com o mundo natural mudam de família para família.",
+      "lore": "Descende de povos élficos e feéricos; tradições e laços com o mundo natural mudam de família para família.",
+      "raceIds": [
+        "elfo",
+        "feerico"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "humano-tabaxi",
+      "name": "Andarilho Felino",
+      "summary": "Famílias de herança humana e tabaxi que costumam preservar histórias de viagem, migração e adaptação.",
+      "lore": "Famílias de herança humana e tabaxi que costumam preservar histórias de viagem, migração e adaptação.",
+      "raceIds": [
+        "humano",
+        "tabaxi"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "orcano-goliath",
+      "name": "Sangue de Colosso",
+      "summary": "Reúne heranças orcânicas e goliath; comunidades distintas interpretam essa ascendência de formas próprias.",
+      "lore": "Reúne heranças orcânicas e goliath; comunidades distintas interpretam essa ascendência de formas próprias.",
+      "raceIds": [
+        "orcano",
+        "goliath"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "anao-goblin",
+      "name": "Mão-de-Bronze",
+      "summary": "Uma linhagem entre anões e goblins conhecida em algumas regiões por redes familiares e ofícios compartilhados.",
+      "lore": "Uma linhagem entre anões e goblins conhecida em algumas regiões por redes familiares e ofícios compartilhados.",
+      "raceIds": [
+        "anao",
+        "goblin"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "tritao-sereiano",
+      "name": "Herdeiro das Duas Marés",
+      "summary": "Mistura tradições de povos aquáticos, com costumes ligados a correntes, recifes e cidades submersas.",
+      "lore": "Mistura tradições de povos aquáticos, com costumes ligados a correntes, recifes e cidades submersas.",
+      "raceIds": [
+        "tritao",
+        "sereiano"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "humano-licantropo",
+      "name": "Sangue Lunar",
+      "summary": "Descende de humanos e linhagens licantrópicas; a ascendência por si só não concede transformação nem bônus.",
+      "lore": "Descende de humanos e linhagens licantrópicas; a ascendência por si só não concede transformação nem bônus.",
+      "raceIds": [
+        "humano",
+        "licantropo"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "humano-vampirico",
+      "name": "Herdeiro da Noite",
+      "summary": "Uma família de origem humana e vampírica que carrega histórias e estigmas variados, sem implicar poderes automáticos.",
+      "lore": "Uma família de origem humana e vampírica que carrega histórias e estigmas variados, sem implicar poderes automáticos.",
+      "raceIds": [
+        "humano",
+        "vampirico"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "gnomo-construto",
+      "name": "Artífice Nascente",
+      "summary": "Uma ascendência cultural ou arcana entre gnomos e seres construídos, com identidades individuais muito diversas.",
+      "lore": "Uma ascendência cultural ou arcana entre gnomos e seres construídos, com identidades individuais muito diversas.",
+      "raceIds": [
+        "gnomo",
+        "construto"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "centauro-satiro",
+      "name": "Povo dos Caminhos Verdes",
+      "summary": "Une tradições de centauros e sátiros, frequentemente ligadas a rotas antigas e celebrações sazonais.",
+      "lore": "Une tradições de centauros e sátiros, frequentemente ligadas a rotas antigas e celebrações sazonais.",
+      "raceIds": [
+        "centauro",
+        "satiro"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "kobold-draconato",
+      "name": "Herdeiro Escamado",
+      "summary": "Descende de povos kobolds e draconatos; a aparência escamada não define poderes nem lealdades.",
+      "lore": "Descende de povos kobolds e draconatos; a aparência escamada não define poderes nem lealdades.",
+      "raceIds": [
+        "kobold",
+        "draconato"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "homem-lobo-homem-urso",
+      "name": "Sangue das Feras Gêmeas",
+      "summary": "Uma linhagem rara entre comunidades de traços lupinos e ursinos, com herança cultural e corporal variável.",
+      "lore": "Uma linhagem rara entre comunidades de traços lupinos e ursinos, com herança cultural e corporal variável.",
+      "raceIds": [
+        "homem-lobo",
+        "homem-urso"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "elemental-terra-elemental-fogo",
+      "name": "Forjado da Brasa e da Rocha",
+      "summary": "Mistura ascendências elementais de terra e fogo; seus efeitos são apenas narrativos até existirem regras explícitas.",
+      "lore": "Mistura ascendências elementais de terra e fogo; seus efeitos são apenas narrativos até existirem regras explícitas.",
+      "raceIds": [
+        "elemental-terra",
+        "elemental-fogo"
+      ],
+      "tags": [
+        "hibrido",
+        "ascendencia-mista",
+        "original"
+      ],
+      "traits": [],
       "mechanicalEffects": [],
       "contentVersion": 1
     }
