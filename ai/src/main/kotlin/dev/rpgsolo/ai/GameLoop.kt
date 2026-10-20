@@ -11,6 +11,8 @@ import dev.rpgsolo.engine.ExecResult
 import dev.rpgsolo.engine.Reveal
 import dev.rpgsolo.engine.checkWithFortune
 import dev.rpgsolo.engine.checkWithFortuneSpendingResource
+import dev.rpgsolo.engine.checkOpposed
+import dev.rpgsolo.engine.checkGroup
 
 data class PlayInput(
     val playerEntityId: String,
@@ -45,7 +47,9 @@ data class TurnRecord(
     /** Teste ou rolagem que o mestre pediu nesta jogada e que o jogador ainda não rolou. */
     val pending: Pending? = null,
     /** Rolagens de vantagem/desvantagem não escolhidas; o resultado efetivo continua em [check]. */
-    val fortuneAlternatives: List<CheckResult> = emptyList()
+    val fortuneAlternatives: List<CheckResult> = emptyList(),
+    /** Resultados de todos os participantes em uma disputa ou teste de grupo pedido pela IA. */
+    val advancedChecks: List<Pair<String, CheckResult>> = emptyList()
 )
 
 private data class CheckResolution(
@@ -170,7 +174,8 @@ class GameLoop(
         onNarrativeChunk: (String) -> Unit = {}
     ): PlayResult {
         val pending = pending() ?: return PlayResult.Failed("não há teste pendente")
-        val input = template.copy(text = pending.playerText, check = null, resolving = pending)
+        var resolvedPending: Pending = pending
+        var advancedChecks: List<Pair<String, CheckResult>> = emptyList()
         val markBefore = session.mark()
         if (pending is PendingCheck && (pending.request.revealSecretId != null || pending.request.revealPlaceSecret)) {
             val player = session.state.entities[template.playerEntityId]
@@ -185,26 +190,94 @@ class GameLoop(
             adjusted(pending.spec, session, template.playerEntityId, pending.request.skill)
         } else pending.spec
         val resolution = try {
-            if (!useFortuneResource) {
-                resolveCheck(session, pendingSpec)
-            } else {
-                val pendingCheck = pending as? PendingCheck
-                    ?: return PlayResult.Failed("gasto de fortuna só pode ser usado em um teste")
-                val option = pendingCheck.fortuneSpendOption
-                    ?: return PlayResult.Failed("este teste não oferece gasto de recurso para fortuna")
-                when (val spent = session.checkWithFortuneSpendingResource(
-                    template.playerEntityId, option.resource, option.cost, pendingSpec, option.mode
-                )) {
-                    is dev.rpgsolo.engine.FortuneSpendResult.Rejected -> {
-                        runCatching { session.rollbackTo(markBefore) }
-                        return PlayResult.Failed(spent.reason)
+            when {
+                pending is PendingCheck && pending.request.opposed != null -> {
+                    if (useFortuneResource) return PlayResult.Failed("gasto de fortuna não é suportado em disputa")
+                    val req = pending.request
+                    val opposed = req.opposed
+                    val target = session.state.entities[opposed.entityId]
+                        ?: return PlayResult.Failed("participante oposto inexistente: ${opposed.entityId}")
+                    val targetRequest = req.copy(
+                        checkId = opposed.checkId,
+                        difficultyId = opposed.difficultyId ?: req.difficultyId,
+                        label = opposed.label ?: target.name,
+                        opposed = null, group = null,
+                        targetNpcId = null, revealSecretId = null, targetPlaceId = null,
+                        revealPlaceSecret = false, requiredStat = null
+                    )
+                    val targetSpec = menu?.build(targetRequest, target.stats, target.skills)
+                        ?: return PlayResult.Failed("não foi possível montar o teste do oponente")
+                    val challenger = prepareAdvancedCheck(session, pending.spec, template.playerEntityId, req.skill)
+                        ?: return PlayResult.Failed("personagem do jogador inexistente")
+                    val defender = prepareAdvancedCheck(session, targetSpec, target.id, req.skill)
+                        ?: return PlayResult.Failed("participante oposto inexistente")
+                    val result = session.checkOpposed(challenger, defender)
+                    advancedChecks = listOf(
+                        (session.state.entities[template.playerEntityId]?.name ?: "Jogador") to result.challenger,
+                        target.name to result.defender
+                    )
+                    val playerWon = result.challengerWins
+                    val note = if (playerWon) {
+                        "Resultado mecânico: o jogador venceu a disputa. Nota privada deste ramo: ${req.onSuccess}. Não revele o ramo alternativo."
+                    } else {
+                        "Resultado mecânico: o NPC venceu ou manteve a disputa. Nota privada deste ramo: ${req.onFailure}. Não revele o ramo alternativo."
                     }
-                    is dev.rpgsolo.engine.FortuneSpendResult.Resolved -> {
-                        val result = spent.result
-                        val unchosen = result.second?.let { second ->
-                            if (result.chosen.roll === result.first.roll) second else result.first
+                    resolvedPending = pending.copy(resultNote = note)
+                    CheckResolution(result.challenger)
+                }
+                pending is PendingCheck && pending.request.group != null -> {
+                    if (useFortuneResource) return PlayResult.Failed("gasto de fortuna não é suportado em teste de grupo")
+                    val req = pending.request
+                    val group = req.group
+                    val ids = group.participantIds.map { if (it == "player") template.playerEntityId else it }
+                    val names = mutableListOf<String>()
+                    val specs = ids.mapIndexed { index, id ->
+                        val entity = session.state.entities[id]
+                            ?: return PlayResult.Failed("participante de grupo inexistente: $id")
+                        names += entity.name
+                        val base = if (id == template.playerEntityId) pending.spec else {
+                            val participantRequest = req.copy(
+                                opposed = null, group = null, targetNpcId = null, revealSecretId = null,
+                                targetPlaceId = null, revealPlaceSecret = false, requiredStat = null,
+                                label = req.label ?: entity.name
+                            )
+                            menu?.build(participantRequest, entity.stats, entity.skills)
+                                ?: return PlayResult.Failed("não foi possível montar o teste de ${entity.name}")
                         }
-                        CheckResolution(result.chosen, listOfNotNull(unchosen))
+                        prepareAdvancedCheck(session, base, id, req.skill)
+                            ?: return PlayResult.Failed("participante de grupo inexistente: $id")
+                    }
+                    val result = session.checkGroup(specs, group.requiredSuccesses)
+                    advancedChecks = result.individual.mapIndexed { index, check -> names[index] to check }
+                    val playerIndex = ids.indexOf(template.playerEntityId)
+                    val note = if (result.passed) {
+                        "Resultado mecânico: o grupo atingiu o limiar de sucesso. Nota privada deste ramo: ${group.onSuccess}. Não revele o ramo alternativo."
+                    } else {
+                        "Resultado mecânico: o grupo não atingiu o limiar de sucesso. Nota privada deste ramo: ${group.onFailure}. Não revele o ramo alternativo."
+                    }
+                    resolvedPending = pending.copy(resultNote = note)
+                    CheckResolution(result.individual[playerIndex])
+                }
+                !useFortuneResource -> resolveCheck(session, pendingSpec)
+                else -> {
+                    val pendingCheck = pending as? PendingCheck
+                        ?: return PlayResult.Failed("gasto de fortuna só pode ser usado em um teste")
+                    val option = pendingCheck.fortuneSpendOption
+                        ?: return PlayResult.Failed("este teste não oferece gasto de recurso para fortuna")
+                    when (val spent = session.checkWithFortuneSpendingResource(
+                        template.playerEntityId, option.resource, option.cost, pendingSpec, option.mode
+                    )) {
+                        is dev.rpgsolo.engine.FortuneSpendResult.Rejected -> {
+                            runCatching { session.rollbackTo(markBefore) }
+                            return PlayResult.Failed(spent.reason)
+                        }
+                        is dev.rpgsolo.engine.FortuneSpendResult.Resolved -> {
+                            val result = spent.result
+                            val unchosen = result.second?.let { second ->
+                                if (result.chosen.roll === result.first.roll) second else result.first
+                            }
+                            CheckResolution(result.chosen, listOfNotNull(unchosen))
+                        }
                     }
                 }
             }
@@ -212,6 +285,7 @@ class GameLoop(
             runCatching { session.rollbackTo(markBefore) }
             return PlayResult.Failed(e.message ?: "falha ao resolver o teste pendente")
         }
+        val input = template.copy(text = pending.playerText, check = null, resolving = resolvedPending)
         val check = resolution.chosen
         if (pending is PendingCheck && pending.request.revealSecretId != null) {
             val npcId = pending.request.targetNpcId ?: run {
@@ -275,7 +349,7 @@ class GameLoop(
         }
         val markAfterRoll = session.mark()
         return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
-            fortuneAlternatives = resolution.alternatives)
+            fortuneAlternatives = resolution.alternatives, advancedChecks = advancedChecks)
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
@@ -311,7 +385,8 @@ class GameLoop(
     private fun narrate(
         session: CampaignSession, input: PlayInput, check: CheckResult?, markBefore: Int, markAfterRoll: Int, depth: Int,
         onNarrativeChunk: (String) -> Unit = {},
-        fortuneAlternatives: List<CheckResult> = emptyList()
+        fortuneAlternatives: List<CheckResult> = emptyList(),
+        advancedChecks: List<Pair<String, CheckResult>> = emptyList()
     ): PlayResult {
         val request = ContextAssembler.build(
             ContextInput(
@@ -361,7 +436,7 @@ class GameLoop(
                     rollReq != null -> menu?.let { PendingRoll(rollReq, it.buildRoll(rollReq), baseText) }
                     else -> null
                 }
-                PlayResult.Played(TurnRecord(input, markBefore, markAfterRoll, check, o.narrative, o.suggestions, pending, fortuneAlternatives))
+                PlayResult.Played(TurnRecord(input, markBefore, markAfterRoll, check, o.narrative, o.suggestions, pending, fortuneAlternatives, advancedChecks))
             }
             is TurnOutcome.Refused -> fail(session, markBefore, o.reason, null)
             is TurnOutcome.Failed -> fail(session, markBefore, o.reason, o.error)
