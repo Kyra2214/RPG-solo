@@ -354,9 +354,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             if (choices != CharacterChoices()) append(" com escolhas de raça/linhagem, classe, profissão e maldições")
             append(".")
             if (choiceWarnings.isNotEmpty()) {
-                append("\\nAtenção: as escolhas foram preservadas, mas precisam ser revisadas porque algumas referências não são válidas neste catálogo:")
-                choiceWarnings.forEach { append("\\n- ").append(it) }
-                append("\\nAbra “Editar escolhas” na biblioteca para corrigir.")
+                append("\nAtenção: as escolhas foram preservadas, mas precisam ser revisadas porque algumas referências não são válidas neste catálogo:")
+                choiceWarnings.forEach { append("\n- ").append(it) }
+                append("\nAbra “Editar escolhas” na biblioteca para corrigir.")
             }
         }
     } catch (e: Exception) {
