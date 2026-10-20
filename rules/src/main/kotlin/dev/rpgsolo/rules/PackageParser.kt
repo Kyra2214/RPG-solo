@@ -324,6 +324,7 @@ object PackageParser {
 
         // Referências mecânicas precisam apontar para definições existentes no próprio pacote.
         // Isso evita traços/poderes que parecem válidos na ficha, mas nunca podem produzir efeito.
+        if (manifest.extends == null) {
         val statIds = stats.map { it.id }.toSet()
         val resourceIds = resources.map { it.id }.toSet()
         val traitById = traits.associateBy { it.id }
@@ -394,6 +395,8 @@ object PackageParser {
                 errors += "${PackageFiles.ARCHETYPE_OPTIONS}: arquétipo '${options.archetype}' referencia traço inexistente '${unknown}'"
             }
         }
+
+        } // Child packages may refer to definitions inherited from their parent.
 
         if (errors.isNotEmpty()) return ParseResult.Fail(errors)
         return ParseResult.Ok(PackageData(manifest, stats, resources, traits, checks, difficulties, conditions, damage, items,
