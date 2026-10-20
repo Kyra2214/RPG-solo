@@ -1057,8 +1057,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             editionId = activeEditionId ?: activeFicha?.system?.editionId,
             fichas = fichas.map { dev.rpgsolo.engine.Codec.encode(it) },
             characterChoices = fichas.associate { ficha ->
-                ficha.id to characterChoicesPrefs.getString(ficha.id, null).orEmpty()
-            }.filterValues { it.isNotBlank() }
+                ficha.id to characterChoices(ficha.id).toJson()
+            }.filterValues { raw ->
+                CharacterChoices.fromJson(raw) != CharacterChoices()
+            }
         )
     )
 
@@ -1082,10 +1084,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             )
             meta.fichas.forEach { rawFicha ->
                 runCatching {
-                    val ficha = dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
-                    store.saveFicha(FichaRow(ficha.id, ficha.name, rawFicha))
+                    val decoded = dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
+                    val legacyChoices = meta.characterChoices[decoded.id]
+                    val canonicalChoices = decoded.editorialChoicesJson.ifBlank { legacyChoices.orEmpty() }
+                    val ficha = if (canonicalChoices == decoded.editorialChoicesJson) decoded
+                        else decoded.copy(editorialChoicesJson = canonicalChoices)
+                    store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha)))
+                    if (canonicalChoices.isNotBlank()) {
+                        characterChoicesPrefs.edit().putString(ficha.id, canonicalChoices).apply()
+                    }
                 }
             }
+            // Preserva metadados de versões antigas mesmo quando a ficha não veio no array.
             meta.characterChoices.forEach { (fichaId, rawChoices) ->
                 if (fichaId.isNotBlank() && rawChoices.isNotBlank()) {
                     val choices = CharacterChoices.fromJson(rawChoices)
