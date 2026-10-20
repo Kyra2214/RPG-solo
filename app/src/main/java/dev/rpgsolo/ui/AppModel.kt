@@ -558,14 +558,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(combatTraitIds(attacker), "ataque") +
-                    selectedCatalogBonus(pkg, "ataque") +
                     approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
                     attackConditionShift +
                     ((session.state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
                         .roundToInt().coerceIn(0, 10) - 5),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
                     pkg.traitBonus(combatTraitIds(attacker), "dano") +
-                    selectedCatalogBonus(pkg, "dano") +
                     approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(playerId), "defesa") +
@@ -839,10 +837,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 damage = baseDamage,
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(playerId), "ataque") +
-                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
+                    selectedCatalogBonus(pkg, "ataque") + approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
                     attackConditionShift,
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano") +
-                    approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
+                    selectedCatalogBonus(pkg, "dano") + approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(targetId), "defesa") +
                     selectedCatalogBonus(pkg, "defesa") +
