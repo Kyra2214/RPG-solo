@@ -82,13 +82,34 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Metadados editoriais da nova criação, separados da ficha mecânica e persistidos por ID. */
     private val characterChoicesPrefs = application.getSharedPreferences("rpg_character_choices", 0)
 
+    /**
+     * Salva a escolha editorial dentro da ficha canônica e mantém o espelho legado
+     * por compatibilidade com backups/metadados de versões antigas.
+     */
     fun saveCharacterChoices(fichaId: String, choices: CharacterChoices) {
         if (fichaId.isBlank()) return
-        characterChoicesPrefs.edit().putString(fichaId, choices.toJson()).apply()
+        val json = choices.toJson()
+        characterChoicesPrefs.edit().putString(fichaId, json).apply()
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId } ?: return
+        if (ficha.editorialChoicesJson != json) {
+            val updated = ficha.copy(editorialChoicesJson = json)
+            store.saveFicha(FichaRow(updated.id, updated.name, dev.rpgsolo.engine.Codec.encode(updated)))
+            val activeIndex = fichas.indexOfFirst { it.id == fichaId }
+            if (activeIndex >= 0) fichas[activeIndex] = updated
+            val archivedIndex = archivedFichas.indexOfFirst { it.id == fichaId }
+            if (archivedIndex >= 0) archivedFichas[archivedIndex] = updated
+            if (activeFichaId == fichaId) activeFicha = updated
+        }
+        campaignVersion++
     }
 
-    fun characterChoices(fichaId: String): CharacterChoices =
-        CharacterChoices.fromJson(characterChoicesPrefs.getString(fichaId, null))
+    /** O campo canônico tem precedência; SharedPreferences só é fallback para fichas antigas. */
+    fun characterChoices(fichaId: String): CharacterChoices {
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId }
+        val canonical = ficha?.editorialChoicesJson.orEmpty()
+        if (canonical.isNotBlank()) return CharacterChoices.fromJson(canonical)
+        return CharacterChoices.fromJson(characterChoicesPrefs.getString(fichaId, null))
+    }
 
     /**
      * Efeitos explícitos do catálogo para a ficha ativa. Só entram quando as escolhas e
@@ -306,16 +327,28 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Salva uma ficha na biblioteca e atualiza a cópia observável em memória. */
     fun saveFicha(ficha: Ficha) {
-        store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha)))
-        val index = fichas.indexOfFirst { it.id == ficha.id }
-        if (index >= 0) fichas[index] = ficha else fichas.add(ficha)
+        // Migração sob demanda: qualquer gravação de uma ficha antiga incorpora as escolhas
+        // legadas antes de persistir, sem apagar o registro de origem.
+        val legacyChoices = characterChoicesPrefs.getString(ficha.id, null)
+        val canonical = ficha.editorialChoicesJson.ifBlank { legacyChoices.orEmpty() }
+        val persisted = if (canonical == ficha.editorialChoicesJson) ficha else ficha.copy(editorialChoicesJson = canonical)
+        store.saveFicha(FichaRow(persisted.id, persisted.name, dev.rpgsolo.engine.Codec.encode(persisted)))
+        val index = fichas.indexOfFirst { it.id == persisted.id }
+        if (index >= 0) fichas[index] = persisted else fichas.add(persisted)
+        val archivedIndex = archivedFichas.indexOfFirst { it.id == persisted.id }
+        if (archivedIndex >= 0) archivedFichas[archivedIndex] = persisted
+        if (activeFichaId == persisted.id) activeFicha = persisted
     }
 
     fun duplicateFicha(id: String): String? = try {
         val original = requireNotNull(fichas.firstOrNull { it.id == id }) { "ficha não encontrada na biblioteca" }
-        val copy = original.copy(id = "f-${System.nanoTime()}", name = "${original.name} (cópia)")
+        val copy = original.copy(
+            id = "f-${System.nanoTime()}",
+            name = "${original.name} (cópia)",
+            editorialChoicesJson = characterChoices(id).toJson()
+        )
         saveFicha(copy)
-        characterChoicesPrefs.getString(id, null)?.let { characterChoicesPrefs.edit().putString(copy.id, it).apply() }
+        characterChoicesPrefs.edit().putString(copy.id, copy.editorialChoicesJson).apply()
         campaignVersion++
         null
     } catch (e: IllegalArgumentException) { e.message }
@@ -373,9 +406,19 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         val decoded = dev.rpgsolo.engine.Codec.decodeFicha(fichaJson)
         val exists = (fichas + archivedFichas).any { it.id == decoded.id }
-        val imported = if (exists) decoded.copy(id = "f-${System.nanoTime()}", name = "${decoded.name} (importada)") else decoded
+        val importedId = if (exists) "f-${System.nanoTime()}" else decoded.id
+        val importedChoices = when {
+            choices != CharacterChoices() -> choices
+            decoded.editorialChoicesJson.isNotBlank() -> CharacterChoices.fromJson(decoded.editorialChoicesJson)
+            else -> CharacterChoices()
+        }
+        val imported = decoded.copy(
+            id = importedId,
+            name = if (exists) "${decoded.name} (importada)" else decoded.name,
+            editorialChoicesJson = if (importedChoices != CharacterChoices()) importedChoices.toJson() else decoded.editorialChoicesJson
+        )
         saveFicha(imported)
-        if (choices != CharacterChoices()) saveCharacterChoices(imported.id, choices)
+        if (importedChoices != CharacterChoices()) saveCharacterChoices(imported.id, importedChoices)
         val choiceWarnings = if (choices != CharacterChoices()) CharacterCreationCatalog.validateChoices(choices) else emptyList()
         buildString {
             append("Ficha ").append(imported.name).append(" importada")
