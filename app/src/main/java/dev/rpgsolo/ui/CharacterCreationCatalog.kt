@@ -94,7 +94,7 @@ object CharacterCreationCatalog {
         val errors = mutableListOf<String>()
         all.groupBy { it.id }.filterValues { it.size > 1 }.keys.forEach { errors += "ID duplicado no catálogo: $it" }
         val raceIds = races.map { it.id }.toSet()
-        subraces.filter { it.parentRaceId !in raceIds }.forEach { errors += "Sub-raça ${it.id} referencia raça inexistente" }
+        subraces.filter { it.parentRaceId == null || it.parentRaceId !in raceIds }.forEach { errors += "Sub-raça ${it.id} referencia raça inexistente" }
         hybrids.forEach { hybrid ->
             if (hybrid.hybridRaceIds.size != 2 || hybrid.hybridRaceIds.toSet().size != 2) errors += "Híbrido ${hybrid.id} precisa referenciar duas raças distintas"
             else if (hybrid.hybridRaceIds.any { it !in raceIds }) errors += "Híbrido ${hybrid.id} referencia raça inexistente"
