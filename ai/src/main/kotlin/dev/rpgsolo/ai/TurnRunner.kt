@@ -150,11 +150,16 @@ class TurnRunner(
                         else -> null
                     }
                     val secretInvalid = req?.let { menu?.validateSecretRequest(it, session.state) }
+                    val advancedInvalid = req?.let { request ->
+                        val playerId = playerEntityId ?: return@let "o jogador não foi identificado para o teste avançado"
+                        menu?.validateAdvancedRequest(request, session.state, playerId)
+                    }
                     val problem: String? = when {
                         menu == null -> "este jogo não oferece testes nem rolagens; não use request_check nem request_roll"
                         !canRequest -> "você já pediu testes demais em sequência; narre o desfecho agora, sem request_check nem request_roll"
                         invalid != null -> "pedido inválido: $invalid"
                         secretInvalid != null -> "pedido de segredo inválido: $secretInvalid"
+                        advancedInvalid != null -> "pedido de teste avançado inválido: $advancedInvalid"
                         out.proposals.isNotEmpty() || out.npcProposal != null -> "com request_check/request_roll não envie proposals nem create_npc; proponha mudanças só depois do resultado"
                         else -> null
                     }
