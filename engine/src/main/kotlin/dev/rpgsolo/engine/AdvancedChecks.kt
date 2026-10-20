@@ -17,7 +17,10 @@ data class OpposedCheckResult(
     val challenger: CheckResult,
     val defender: CheckResult,
     /** Empate favorece o defensor para que a ação contestada não tenha sucesso por padrão. */
-    val challengerWins: Boolean
+    val challengerWins: Boolean,
+    /** Rolagens descartadas pela política de fortuna, agrupadas por participante. */
+    val challengerAlternatives: List<CheckResult> = emptyList(),
+    val defenderAlternatives: List<CheckResult> = emptyList()
 )
 
 data class GroupCheckResult(
@@ -25,7 +28,9 @@ data class GroupCheckResult(
     val successes: Int,
     val failures: Int,
     val requiredSuccesses: Int,
-    val passed: Boolean
+    val passed: Boolean,
+    /** Uma lista por participante; contém apenas as rolagens descartadas pela fortuna. */
+    val alternatives: List<List<CheckResult>> = emptyList()
 )
 
 private fun compareQuality(a: CheckResult, b: CheckResult): Int {
@@ -97,10 +102,14 @@ fun GameEngine.checkOpposed(
     val leftSpec = challenger.copy(label = "${challenger.label} [oposto]")
     val rightSpec = defender.copy(label = "${defender.label} [oposto]")
     // Cada lado aplica sua própria política de fortuna, sem misturar a rolagem descartada na disputa.
-    val left = checkWithFortune(leftSpec, leftSpec.fortuneMode).chosen
-    val right = checkWithFortune(rightSpec, rightSpec.fortuneMode).chosen
+    val leftResolution = checkWithFortune(leftSpec, leftSpec.fortuneMode)
+    val rightResolution = checkWithFortune(rightSpec, rightSpec.fortuneMode)
+    val left = leftResolution.chosen
+    val right = rightResolution.chosen
     // Margens de testes diferentes não são diretamente comparáveis: primeiro vence quem obteve o melhor resultado; em igualdade, compara-se a margem. Empate absoluto favorece o defensor.
-    OpposedCheckResult(left, right, compareQuality(left, right) > 0)
+    val leftAlternative = listOfNotNull(leftResolution.second).filter { it.roll !== leftResolution.chosen.roll }
+    val rightAlternative = listOfNotNull(rightResolution.second).filter { it.roll !== rightResolution.chosen.roll }
+    OpposedCheckResult(left, right, compareQuality(left, right) > 0, leftAlternative, rightAlternative)
 }
 
 /**
@@ -115,13 +124,17 @@ fun GameEngine.checkGroup(
     require(requiredSuccesses in 1..checks.size) {
         "sucessos necessários devem ficar entre 1 e o número de participantes"
     }
-    val results = checks.mapIndexed { index, spec ->
+    val resolutions = checks.mapIndexed { index, spec ->
         val participantSpec = spec.copy(label = "${spec.label} [grupo ${index + 1}]")
-        checkWithFortune(participantSpec, participantSpec.fortuneMode).chosen
+        checkWithFortune(participantSpec, participantSpec.fortuneMode)
+    }
+    val results = resolutions.map { it.chosen }
+    val alternatives = resolutions.map { resolution ->
+        listOfNotNull(resolution.second).filter { it.roll !== resolution.chosen.roll }
     }
     val successes = results.count { it.outcome == Outcome.SUCCESS || it.outcome == Outcome.CRITICAL_SUCCESS }
     val failures = results.size - successes
-    GroupCheckResult(results, successes, failures, requiredSuccesses, successes >= requiredSuccesses)
+    GroupCheckResult(results, successes, failures, requiredSuccesses, successes >= requiredSuccesses, alternatives)
 }
 
 /**
