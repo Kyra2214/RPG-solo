@@ -243,12 +243,15 @@ class CheckMenu(private val pkg: RulePackage) {
     }
 
     /** Valida participantes e limites de um teste oposto ou em grupo solicitado pela IA. */
-    fun validateAdvancedRequest(req: CheckRequest, state: GameState, playerEntityId: String): String? {
+    fun validateAdvancedRequest(req: CheckRequest, state: GameState, playerEntityId: String, allowedNpcIds: Set<String> = emptySet()): String? {
         if (req.opposed != null && req.group != null) return "um teste não pode ser oposto e em grupo ao mesmo tempo"
         req.opposed?.let { opposed ->
             val target = state.entities[opposed.entityId] ?: return "participante oposto inexistente: ${opposed.entityId}"
             if (target.id == playerEntityId || target.kind != EntityKind.NPC || !target.alive) {
                 return "o participante oposto deve ser um NPC vivo diferente do jogador"
+            }
+            if (allowedNpcIds.isNotEmpty() && target.id !in allowedNpcIds) {
+                return "o participante oposto não está presente na cena"
             }
             val targetRequest = req.copy(
                 checkId = opposed.checkId,
@@ -274,6 +277,9 @@ class CheckMenu(private val pkg: RulePackage) {
             for (id in group.participantIds.filter { it != "player" }) {
                 val entity = state.entities[id] ?: return "participante de grupo inexistente: $id"
                 if (entity.kind != EntityKind.NPC || !entity.alive) return "participante de grupo deve ser um NPC vivo: $id"
+                if (allowedNpcIds.isNotEmpty() && id !in allowedNpcIds) {
+                    return "participante de grupo não está presente na cena: $id"
+                }
             }
         }
         return null
