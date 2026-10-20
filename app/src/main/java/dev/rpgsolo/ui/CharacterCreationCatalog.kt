@@ -4,7 +4,13 @@ import org.json.JSONObject
 import dev.rpgsolo.rules.RulePackage
 
 /** Efeito tipado declarado no catálogo. Declarar não significa aplicar ao motor. */
-data class CharacterCatalogEffect(val scope: String, val bonus: Int, val source: String = "entry")
+data class CharacterCatalogEffect(
+    val scope: String,
+    val bonus: Int,
+    val source: String = "entry",
+    /** Caminho estável até a declaração no JSON; não depende do texto de lore. */
+    val effectId: String = ""
+)
 
 /** Entrada editorial do catálogo de criação; efeitos mecânicos só vêm do motor de regras. */
 data class CharacterCatalogEntry(
@@ -74,7 +80,12 @@ object CharacterCreationCatalog {
             val scope = effect.optString("scope").trim()
             val rawBonus = effect.opt("bonus")
             val bonus = if (rawBonus is Number && rawBonus.toDouble() % 1.0 == 0.0) rawBonus.toInt() else null
-            if (scope.isBlank() || bonus == null) null else CharacterCatalogEffect(scope, bonus, source)
+            if (scope.isBlank() || bonus == null) null else CharacterCatalogEffect(
+                scope = scope,
+                bonus = bonus,
+                source = source,
+                effectId = "$source#$index"
+            )
         }
     }
 
@@ -143,7 +154,10 @@ object CharacterCreationCatalog {
             .mapNotNull(::find)
             .flatMap { entry ->
                 entry.mechanicalEffects.map { effect ->
-                    effect.copy(source = entry.id + "/" + effect.source)
+                    effect.copy(
+                        source = entry.id + "/" + effect.source,
+                        effectId = entry.id + "/" + effect.effectId
+                    )
                 }
             }
     }
