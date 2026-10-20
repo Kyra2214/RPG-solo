@@ -310,8 +310,7 @@ class RulePackage internal constructor(val data: PackageData) {
             .sumOf { scope -> additionalBonuses.filter { it.scope == scope }.sumOf { it.bonus } }
         val totalBonus = bonus + externalBonus
         val pointShift = if (pool) shift else 0
-        if (count == spec.diceCount && totalBonus == 0 && pointShift == 0) return spec
-        // O cartão do dado mostra por que mudou: "(2d6)" vira "(1d6) · Perda"; o bônus aparece como "· +2".
+        // O cartão do dado mostra por que mudou: "(2d6)" vira "(1d6) · Perda"; o bônus combinado aparece como "· +2".
         var label = spec.label
         if (count != spec.diceCount) {
             label = label.replace(Regex("\\(\\d+d\\d+\\)"), "(${count}d${spec.diceSides})") +
@@ -320,12 +319,15 @@ class RulePackage internal constructor(val data: PackageData) {
         if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
         if (totalBonus != 0) label += if (totalBonus > 0) " · +$totalBonus" else " · $totalBonus"
         val matchingExternal = additionalBonuses.filter { b ->
-            b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill)
+            b.bonus != 0 && (b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill))
         }
-        val externalSources = matchingExternal.filter { it.bonus != 0 }.map { it.source }.distinct()
-        if (externalBonus != 0 && externalSources.isNotEmpty()) {
-            label += " · efeitos: " + externalSources.joinToString(", ")
+        if (matchingExternal.isNotEmpty()) {
+            val effectDetails = matchingExternal.joinToString(", ") { effect ->
+                "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+            }
+            label += " · efeitos: $effectDetails"
         }
+        if (count == spec.diceCount && totalBonus == 0 && pointShift == 0 && matchingExternal.isEmpty()) return spec
         return if (spec.comparison == Comparison.ROLL_UNDER) {
             spec.copy(diceCount = count, difficulty = spec.difficulty + totalBonus, modifier = spec.modifier + pointShift, label = label)
         } else {
