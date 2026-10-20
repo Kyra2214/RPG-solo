@@ -340,9 +340,21 @@ object ProposalParser {
                     (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
                         ?: throw Bad("group.participantIds deve conter ids em texto")
                 }
+                if (participants.size < 2) {
+                    throw Bad("group.participantIds deve conter pelo menos dois participantes")
+                }
+                if (participants.distinct().size != participants.size) {
+                    throw Bad("group.participantIds não pode repetir participantes")
+                }
+                if ("player" !in participants) {
+                    throw Bad("group.participantIds deve incluir 'player' para resolver o resultado do personagem do jogador")
+                }
                 val required = raw["requiredSuccesses"]?.let {
                     (it as? JsonPrimitive)?.takeIf { p -> !p.isString }?.intOrNull
                 } ?: throw Bad("group.requiredSuccesses deve ser inteiro")
+                if (required !in 1..participants.size) {
+                    throw Bad("group.requiredSuccesses deve ficar entre 1 e o número de participantes")
+                }
                 val success = raw.str("onSuccess")?.trim()?.takeIf { it.isNotEmpty() }
                     ?: throw Bad("group.onSuccess ausente")
                 val failure = raw.str("onFailure")?.trim()?.takeIf { it.isNotEmpty() }
