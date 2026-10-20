@@ -319,8 +319,19 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - [x] Persistir o ID do híbrido junto aos demais metadados editoriais e incluí-lo no contexto narrativo da IA.
 - [x] Validar IDs duplicados, referências de sub-raças e referências de ambos os pais dos híbridos.
 - [x] Exibir lore e descrições de benefício/custo no resumo quando existirem.
-- [ ] Integrar metadados ao formato canônico de exportação/importação e aos backups.
+- [x] Incluir escolhas editoriais nos backups de campanha e restaurá-las quando o backup é importado.
+- [ ] Integrar metadados ao formato de exportação/importação individual da ficha.
 - [ ] Implementar fluxo de edição da ficha já criada para reabrir e alterar as escolhas.
 - [ ] Implementar efeitos mecânicos tipados; as combinações adicionadas permanecem narrativas e não concedem bônus automaticamente.
 
 **Limite desta etapa:** as 20 combinações são opções editoriais explícitas, não uma regra para gerar todas as combinações possíveis. Nenhum efeito mecânico foi criado nem aplicado. Build, testes e CI continuam pendentes por instrução de priorizar implementação.
+
+
+### Persistência das escolhas em backup (20/10/2026)
+
+- [x] Adicionar campo opcional `characterChoices` aos metadados do backup, mantendo compatibilidade com backups antigos por valor padrão vazio.
+- [x] Exportar as escolhas das fichas associadas aos IDs estáveis, incluindo fichas arquivadas no mapa de metadados.
+- [x] Restaurar as escolhas ao importar um backup, sem converter lore ou descrições em efeitos mecânicos.
+- [ ] Definir um formato versionado de exportação/importação individual que inclua a ficha e suas escolhas sem quebrar JSONs antigos.
+
+Build, testes e CI não foram executados.
