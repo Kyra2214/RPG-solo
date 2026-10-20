@@ -22,7 +22,8 @@ class NewCampaignFlowTest {
     private val registry = PackageRegistry(catalog).also {
         val files = listOf("manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes", "dano", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "itens", "opcoes-arquetipo")
             .mapNotNull { f -> runCatching { "$f.txt" to res("packages/sistema-proprio/$f.txt") }.getOrNull() }.toMap()
-        assertTrue("pacote sistema-proprio deve instalar: ${it.install(files)}", it.install(files) is InstallResult.Success)
+        val installed = it.install(files)
+        assertTrue("pacote sistema-proprio deve instalar: $installed", installed is InstallResult.Success)
     }
 
     private val store = InMemoryEventStore()
