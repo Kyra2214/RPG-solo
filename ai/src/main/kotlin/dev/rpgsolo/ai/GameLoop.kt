@@ -418,7 +418,7 @@ class GameLoop(
         // No máximo duas resoluções seguidas pedindo coisa nova: evita o mestre prender o jogador em pedidos.
         return when (val o = chosen.run(
             session, request, menu, canRequest = depth < 2, playerEntityId = input.playerEntityId,
-            onNarrativeChunk = onNarrativeChunk
+            onNarrativeChunk = onNarrativeChunk, sceneNpcIds = input.sceneNpcIds
         )) {
             is TurnOutcome.Applied -> {
                 narrations += o.narrative
