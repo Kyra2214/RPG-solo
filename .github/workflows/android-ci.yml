@@ -46,9 +46,14 @@ jobs:
           disable-animations: true
           script: |
             set +e
+            adb logcat -c
+            adb logcat -v threadtime > e2e-logcat.txt &
+            logcat_pid=$!
             ./gradlew :app:connectedDebugAndroidTest --stacktrace
             result=$?
-            adb logcat -d -v threadtime > e2e-logcat.txt || true
+            sleep 2
+            kill "$logcat_pid" 2>/dev/null || true
+            wait "$logcat_pid" 2>/dev/null || true
             exit $result
 
       - name: Upload E2E diagnostics
