@@ -1,6 +1,6 @@
 # Plano de implementação — Raças, sub-raças, classes e profissões do RPG Solo
 
-**Estado atual (20/10/2026):** catálogo editorial, seletores e validação estão implementados parcialmente; as escolhas têm campo canônico `Ficha.editorialChoicesJson`. Ao restaurar fichas, o app migra o JSON legado para o campo canônico, preservando fichas ativas e arquivadas; a leitura mantém SharedPreferences como fallback/espelho. Duplicação, exportação/importação individual e backup/restauração transportam as escolhas canônicas. O DAO atualiza o conteúdo sem desarquivar uma ficha existente. Ainda falta validar o ciclo completo por execução e revisar falhas parciais. Efeitos mecânicos completos do catálogo, história e retrato por IA continuam pendentes. Build/testes/CI não executados.  
+**Estado atual (20/10/2026):** catálogo editorial, seletores e validação estão implementados parcialmente; as escolhas têm campo canônico `Ficha.editorialChoicesJson`. Ao restaurar fichas, o app migra o JSON legado para o campo canônico, preservando fichas ativas e arquivadas; SharedPreferences permanece como fallback/espelho. Duplicação e importação/exportação individual transportam as escolhas. Backups incluem fichas ativas e arquivadas, registram o estado de arquivamento, remapeiam colisões de IDs e restauram campanha/metadados/fichas em transação. A gravação canônica ocorre antes do espelho legado, e a atualização/inserção da ficha é atômica sem perder seu estado arquivado. Ainda falta validação em execução e cobertura para falhas parciais. Efeitos mecânicos completos do catálogo, história e retrato por IA continuam pendentes. Build/testes/CI não executados.  
 **Branch:** `feature/racas-subracas`  
 **Inspiração:** D&D como referência criativa de fantasia, sem copiar lore, ilustrações ou blocos de regras protegidos. O RPG Solo terá conteúdo original e motor próprio.
 
@@ -240,10 +240,12 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 - [x] Persistir escolhas na ficha ao salvar a criação/edição; a gravação de uma ficha antiga incorpora escolhas legadas quando existirem.
 - [x] Fazer duplicação, exportação/importação individual e backup/restauração transportarem as escolhas canônicas; importar formatos antigos continua permitido.
 - [x] Gerar IDs por UUID para criação, cópia e importação com ID já existente; após salvar uma ficha, renovar o ID do rascunho para não sobrescrever a ficha recém-criada.
-- [x] Preservar o estado arquivado ao atualizar o JSON de uma ficha existente; a atualização do DAO não substitui a linha nem redefine `arquivada`.
+- [x] Preservar o estado arquivado ao atualizar o JSON de uma ficha existente; update/insert da ficha ocorre em transação sem limpar `arquivada`.
 - [x] Migrar escolhas de fichas antigas durante a restauração/carregamento quando houver metadado legado, sem sobrescrever um campo canônico já preenchido.
-- [x] Validar estaticamente IDs não vazios e duplicados dentro do backup antes de gravar; mapear IDs que colidem com fichas locais para novos UUIDs e atualizar a referência da ficha na metainformação da campanha.
-- [x] Executar a importação do backup, metadados e fichas na mesma transação Room; validar/decodificar todas as fichas antes da gravação e só atualizar SharedPreferences após o commit.
+- [x] Validar estaticamente IDs não vazios e duplicados dentro do backup; consultar também as chaves existentes no banco e remapear colisões para UUIDs.
+- [x] Restaurar fichas ativas e arquivadas no backup, incluindo IDs arquivados em metadado opcional retrocompatível.
+- [x] Restaurar campanha, metadados e fichas na mesma transação Room; decodificar todas as fichas antes da gravação e atualizar SharedPreferences somente após o commit.
+- [x] Evitar que metadados de um backup sem ficha correspondente se vinculem acidentalmente a uma ficha local de mesmo ID.
 - [ ] Validar por execução importação com IDs repetidos, restauração repetida e rollback de falhas parciais antes de remover o espelho legado.
 - [x] Preservar compatibilidade com fichas/backups antigos sem essas escolhas.
 - [x] Backups/restaurações preservam as escolhas editoriais; efeitos derivados não são copiados para `Ficha.traits`.
@@ -291,9 +293,9 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 
 **Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador; as entradas atuais ainda têm efeitos vazios. Build, testes e CI não foram executados.
 
-**Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` é o campo canônico das escolhas. Ao restaurar/carregar, o app migra as escolhas antigas para fichas sem valor canônico, tanto ativas quanto arquivadas. O DAO atualiza nome/JSON sem substituir a linha e sem limpar o indicador de arquivamento. Duplicação e importação/exportação individual transportam as escolhas; IDs novos usam UUID e o formulário recebe um novo ID após criar a ficha. A importação de backup valida as fichas antes da gravação, faz commit conjunto de campanha/metadados/fichas, remapeia IDs de fichas que colidem com a biblioteca local e atualiza a referência da ficha na campanha; SharedPreferences só é atualizado após o commit e permanece como espelho/fallback até a validação do ciclo. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
+**Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` é o campo canônico. A restauração migra escolhas antigas para fichas ativas e arquivadas; a escrita canônica precede o espelho SharedPreferences. A gravação de uma ficha atualiza ou insere atomicamente sem apagar o estado de arquivamento. Os backups agora incluem fichas ativas e arquivadas, transportam os IDs arquivados em metadado opcional e mantêm compatibilidade com backups antigos. A importação valida fichas e IDs, consulta colisões no banco, remapeia IDs, evita vínculo acidental a ficha local ausente do backup e restaura campanha/metadados/fichas na mesma transação. IDs de cópias e fichas novas usam UUID. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
 
-**Próxima ação:** concluir revisão estática de importação com IDs repetidos e restauração repetida, documentar limites de atomicidade do fluxo de backup e preparar cobertura de regressão para a etapa de validação. Não ativar efeitos novos do catálogo antes de definir a política de equivalência com bônus canônicos.
+**Próxima ação:** revisão estática final dos caminhos de backup legado, reimportação repetida e falhas parciais; depois, quando autorizado, executar a validação. Não ativar efeitos novos do catálogo antes de definir a política de equivalência com bônus canônicos.
 
 ## 10. Maldições, benefícios e custos narrativos
 
