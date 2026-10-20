@@ -97,4 +97,21 @@ class CheckChoicesTest {
         assertTrue(errors.any { "escopo de efeito sem regra mecânica" in it })
     }
 
+    @Test fun parserRejeitaRecursoDeMorteInexistente() {
+        val packageFiles = files("teste-basico").toMutableMap()
+        packageFiles["manifest.txt"] = packageFiles.getValue("manifest.txt").replace("morte|hp", "morte|recurso-fantasma")
+        val result = PackageParser.parse(packageFiles)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "deathResource referencia recurso inexistente" in it })
+    }
+
+    @Test fun parserRejeitaRecursoDeDanoPeriodicoInexistente() {
+        val packageFiles = files("teste-basico").toMutableMap()
+        packageFiles["condicoes.txt"] = packageFiles.getValue("condicoes.txt") +
+            "\ncondicao-teste|Condição de teste|Fixture| - |2|1|recurso-fantasma"
+        val result = PackageParser.parse(packageFiles)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "recurso inexistente 'recurso-fantasma'" in it })
+    }
+
 }
