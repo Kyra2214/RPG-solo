@@ -467,6 +467,12 @@ object PackageValidator {
             item.effects.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
                 .forEach { p += "item ${item.id}: escopo ou bônus de efeito inválido" }
         }
+        val validItemScopes = stats + d.checks.map { it.id } + traits +
+            setOf("ataque", "dano", "defesa", "resistencia_dano")
+        d.items.forEach { item ->
+            item.effects.filter { it.scope !in validItemScopes }
+                .forEach { p += "item ${item.id}: escopo de efeito sem regra mecânica: ${it.scope}" }
+        }
         d.traits.forEach { trait ->
             trait.bonuses.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
                 .forEach { p += "traço ${trait.id}: escopo ou bônus inválido" }
