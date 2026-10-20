@@ -471,6 +471,10 @@ object PackageValidator {
             trait.bonuses.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
                 .forEach { p += "traço ${trait.id}: escopo ou bônus inválido" }
         }
+        val validTraitScopes = stats + d.checks.map { it.id } + traits + setOf("ataque", "dano", "defesa", "resistencia_dano")
+        d.traits.forEach { trait ->
+            trait.bonuses.filter { it.scope !in validTraitScopes }.forEach { p += "traço " + trait.id + ": escopo de bônus sem regra mecânica: " + it.scope }
+        }
         d.conditions.forEach { condition ->
             condition.effect?.let { effect ->
                 if (effect.dice !in -10..10) p += "condição ${condition.id}: efeito de dados fora do limite -10..10"
