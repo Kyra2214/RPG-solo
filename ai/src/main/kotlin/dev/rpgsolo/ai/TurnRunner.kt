@@ -143,9 +143,12 @@ class TurnRunner(
                 val roll = out.rollRequest
                 if (req != null || roll != null) {
                     // Teste ou rolagem pedidos: valida contra o pacote e só guarda o pedido. Mudanças de estado esperam o resultado.
-                    val invalid = req?.let { request ->
-                        menu?.validate(request) ?: "este jogo não oferece testes"
-                    } ?: roll?.let { menu?.validateRoll(it, session.state) }
+                    val invalid = when {
+                        menu == null -> "este jogo não oferece testes nem rolagens"
+                        req != null -> menu.validate(req)
+                        roll != null -> menu.validateRoll(roll, session.state)
+                        else -> null
+                    }
                     val secretInvalid = req?.let { menu?.validateSecretRequest(it, session.state) }
                     val problem: String? = when {
                         menu == null -> "este jogo não oferece testes nem rolagens; não use request_check nem request_roll"
