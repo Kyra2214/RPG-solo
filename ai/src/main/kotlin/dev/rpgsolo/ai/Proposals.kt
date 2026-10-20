@@ -80,7 +80,7 @@ object ProposalSchema {
         Campo opcional "request_roll" (regra 9), uma entrada para CADA face: {"sides": 6, "label": "Onde a flecha acerta", "table": {"1": {"text": "raspa no ombro", "damage": 1}, "2": {...}, "4": {"text": "fura a coxa", "damage": 4, "conditions": ["sangramento"]}, "6": {"text": "atinge perto do coração", "damage": 6}}}
         "conditions" (opcional em cada face) é uma lista de ids de condição do sistema que o motor aplica ao personagem junto com o dano.
         Só um pedido por resposta: request_check OU request_roll.
-        Campo opcional "request_check" (veja a regra 8): {"check": "id", "difficulty": "id", "label": "nome curto, ex.: Percepção", "onSuccess": "o que acontece se passar", "onFailure": "o que acontece se falhar", "onPartial": "opcional", "skill": "opcional: tipo da situação, ex.: esquiva ou sorte"}. Para descobrir segredo de NPC, acrescente "targetNpc", "revealSecret" e "requiredStat"; para segredo do local atual, use "targetPlace" e "revealPlaceSecret":true com "requiredStat". O motor só libera o texto em sucesso parcial ou melhor.
+        Campo opcional "request_check": {"check":"id","difficulty":"id opcional","onSuccess":"...","onFailure":"...","skill":"escopo de bônus opcional"}. Pode incluir "opposed":{"entityId":"npc","check":"id"} para disputa, ou "group":{"participantIds":["player","npc"],"requiredSuccesses":1,"onSuccess":"...","onFailure":"..."} para tarefa cooperativa. Só NPCs vivos conhecidos; não combine com segredo. O motor resolve os resultados e só revela a consequência escolhida.
     """.trimIndent()
 
     val TYPES = listOf(
