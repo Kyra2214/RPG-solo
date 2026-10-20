@@ -127,7 +127,7 @@ class GameLoop(
             .filter { it.scope in scopes }
         val externalTotal = selectedExternal.sumOf { it.bonus }
         val withExternal = if (externalTotal == 0) withAdaptations else {
-            val sources = selectedExternal.map { it.source.substringBefore(":").substringBefore("/") }.distinct()
+            val sources = selectedExternal.map { it.source.substringBeforeLast(":") }.distinct()
             val sourceLabel = sources.joinToString(", ").ifBlank { "catálogo" }
             val suffix = " · $sourceLabel " + if (externalTotal > 0) "+$externalTotal" else externalTotal.toString()
             if (withAdaptations.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
