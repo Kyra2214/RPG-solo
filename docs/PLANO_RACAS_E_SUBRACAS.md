@@ -239,6 +239,7 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 - [x] Priorizar o campo canônico na leitura e manter SharedPreferences (`rpg_character_choices`) como fallback/espelho de compatibilidade.
 - [x] Persistir escolhas na ficha ao salvar a criação/edição; a gravação de uma ficha antiga incorpora escolhas legadas quando existirem.
 - [x] Fazer duplicação, exportação/importação individual e backup/restauração transportarem as escolhas canônicas; importar formatos antigos continua permitido.
+- [x] Gerar IDs por UUID para criação, cópia e importação com ID já existente; após salvar uma ficha, renovar o ID do rascunho para não sobrescrever a ficha recém-criada.
 - [x] Preservar o estado arquivado ao atualizar o JSON de uma ficha existente; a atualização do DAO não substitui a linha nem redefine `arquivada`.
 - [x] Migrar escolhas de fichas antigas durante a restauração/carregamento quando houver metadado legado, sem sobrescrever um campo canônico já preenchido.
 - [ ] Validar por execução importação com IDs repetidos, restauração repetida e rollback de falhas parciais antes de remover o espelho legado.
@@ -288,7 +289,7 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 
 **Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador; as entradas atuais ainda têm efeitos vazios. Build, testes e CI não foram executados.
 
-**Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` é o campo canônico das escolhas. Ao restaurar/carregar, o app migra as escolhas antigas para fichas sem valor canônico, tanto ativas quanto arquivadas. O DAO atualiza nome/JSON sem substituir a linha e sem limpar o indicador de arquivamento. Duplicação, importação/exportação individual e backup/restauração transportam as escolhas; SharedPreferences permanece como espelho/fallback até a validação do ciclo. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
+**Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` é o campo canônico das escolhas. Ao restaurar/carregar, o app migra as escolhas antigas para fichas sem valor canônico, tanto ativas quanto arquivadas. O DAO atualiza nome/JSON sem substituir a linha e sem limpar o indicador de arquivamento. Duplicação, importação/exportação individual e backup/restauração transportam as escolhas; SharedPreferences permanece como espelho/fallback até a validação do ciclo. A criação, duplicação e importação usam IDs UUID; depois de criar uma ficha, o formulário recebe um novo ID para evitar sobrescrever a anterior. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
 
 **Próxima ação:** concluir revisão estática de importação com IDs repetidos e restauração repetida, documentar limites de atomicidade do fluxo de backup e preparar cobertura de regressão para a etapa de validação. Não ativar efeitos novos do catálogo antes de definir a política de equivalência com bônus canônicos.
 
