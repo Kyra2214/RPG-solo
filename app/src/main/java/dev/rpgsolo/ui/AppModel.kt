@@ -1074,6 +1074,47 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         configError = null
     }
 
+    /** Testes disponíveis para os fluxos avançados; derivados do pacote e ficha ativos. */
+    fun advancedCheckOptions(): List<CheckOption> {
+        val pkg = activePackage ?: return emptyList()
+        val player = session.state.entities[playerId] ?: return emptyList()
+        return pkg.checkChoices(player.stats, skills = player.skills)
+            .map { CheckOption(it.id, it.description, it.spec) }
+    }
+
+    /** NPCs vivos que podem participar de uma disputa; não expõe fichas privadas na interface. */
+    fun advancedCheckTargets(): List<CombatTarget> =
+        session.state.entities.values
+            .filter { it.kind == EntityKind.NPC && it.alive }
+            .map { npc ->
+                CombatTarget(
+                    id = npc.id,
+                    name = npc.name,
+                    rulesValidated = npc.ruleSource != dev.rpgsolo.engine.RuleSource.IA_NAO_VERIFICADA
+                )
+            }
+            .sortedBy { it.name }
+
+    /** Resolve disputa jogador-versus-NPC usando os mesmos testes do pacote para ambos os lados. */
+    fun resolveOpposedCheck(targetId: String, checkId: String): String {
+        val pkg = activePackage ?: return "Não há pacote de regras ativo."
+        val player = session.state.entities[playerId] ?: return "Personagem do jogador inexistente."
+        val target = session.state.entities[targetId]?.takeIf { it.kind == EntityKind.NPC && it.alive }
+            ?: return "O adversário não existe ou não está disponível."
+        val playerChoice = pkg.checkChoices(player.stats, skills = player.skills).firstOrNull { it.id == checkId }
+            ?: return "O teste selecionado não existe no pacote ativo."
+        val targetChoice = pkg.checkChoices(target.stats, skills = target.skills).firstOrNull { it.id == checkId }
+            ?: return "O adversário não tem dados suficientes para esse teste."
+        val result = controller?.resolveOpposed(
+            playerChoice.spec, targetChoice.spec, player.name, target.name, player.id, target.id
+        ) ?: return "O controlador da campanha não está disponível."
+        campaignVersion++
+        return when (result) {
+            is dev.rpgsolo.ai.PlayResult.Played -> "Disputa resolvida. Revele as rolagens no chat para ver o desfecho."
+            is dev.rpgsolo.ai.PlayResult.Failed -> result.reason
+        }
+    }
+
     /**
      * 7.1.2: testes do pacote ativo (demo: sistema-proprio) com os atributos do herói. Sem pacote, sem testes:
      * toda ação segue sem teste e o mestre só narra. Falha do classificador vira aviso no chat, não erro.
