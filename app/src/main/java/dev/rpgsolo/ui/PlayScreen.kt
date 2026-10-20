@@ -391,6 +391,8 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
     val targets = remember(version) { model.advancedCheckTargets() }
     var selectedCheck by remember(version) { mutableStateOf(options.firstOrNull()?.id.orEmpty()) }
     var selectedTarget by remember(version) { mutableStateOf(targets.firstOrNull()?.id.orEmpty()) }
+    var selectedGroupTargets by remember(version) { mutableStateOf(emptySet<String>()) }
+    var requiredGroupSuccesses by remember(version) { mutableIntStateOf(1) }
     var message by remember(version) { mutableStateOf<String?>(null) }
 
     if (options.isEmpty() || targets.isEmpty()) return
