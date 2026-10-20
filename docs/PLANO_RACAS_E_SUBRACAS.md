@@ -247,3 +247,20 @@ Este primeiro lote é conteúdo versionado, ainda não conectado ao runtime. As 
 **Estado atual:** catálogo editorial inicial criado em `rules/src/main/resources/packages/sistema-proprio/personagem-catalogo.json` (50 raças, 50 sub-raças/variantes, 50 classes e 103 profissões). O catálogo ainda não é carregado pelo runtime; efeitos mecânicos estão vazios e nenhuma integração, build ou teste foi declarado.
 
 **Próxima ação:** auditar `CharacterDraft`, `PackageData`/`RulePackage`, persistência e telas de criação; depois implementar carregamento/validação do catálogo e integrar os IDs à ficha sem criar um segundo sistema de personagens.
+
+## 10. Maldições, benefícios e custos narrativos
+
+O catálogo editorial inicial contém 100 maldições em `curses`, cada uma com ID estável, nome, resumo, lore, benefício, desvantagem, consequências narrativas e versão. As maldições são independentes de raça/sub-raça, classe e profissão e podem coexistir com vantagens e desvantagens da ficha.
+
+Princípios obrigatórios:
+- Uma maldição pode conceder um benefício e impor um custo ao mesmo tempo.
+- Benefícios podem ser numéricos ou condicionais; custos podem ser mecânicos, comportamentais ou sociais.
+- Uma consequência narrativa não se transforma automaticamente em penalidade numérica. Ex.: má reputação entre elfos não concede penalidade de Persuasão sem uma regra mecânica explícita.
+- A maldição da espada pode conceder +1 de dano com armas e impor compulsão de tentar obter armas raras; a compulsão deve gerar escolhas e conflitos, não retirar o controle do jogador de forma arbitrária.
+- Os efeitos descritos no primeiro lote são conteúdo editorial para revisão e balanceamento. `mechanicalEffects` permanece vazio, portanto os bônus descritos ainda não são aplicados pelo motor.
+- A IA pode narrar consequências coerentes, mas não inventar, modificar ou ativar regras mecânicas ausentes do catálogo.
+- Equipamentos, buffs e debuffs temporários continuam em camada separada.
+- Futuras implementações devem tipar efeitos positivos e negativos, definir gatilhos, escopo, duração, resistência, acúmulo e condições de remoção; não inferir esses dados de texto livre.
+
+**Estado real:** catálogo de 100 maldições adicionado ao JSON no commit `bbdf336b6acb62cda2532dbd34af158018753399`. O runtime, a interface de seleção, a validação e a aplicação mecânica ainda não foram implementados nem validados.
+
