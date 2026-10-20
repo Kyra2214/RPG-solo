@@ -1633,6 +1633,46 @@
       "traits": [],
       "mechanicalEffects": [],
       "contentVersion": 1
+    },
+    {
+      "id": "homem-corvo-das-torres",
+      "parentRaceId": "homem-corvo",
+      "name": "Corvário das Torres",
+      "summary": "Sua comunidade ocupa torres antigas e mantém registros de sinais, sinos e movimentos no horizonte.",
+      "lore": "Sua comunidade ocupa torres antigas e mantém registros de sinais, sinos e movimentos no horizonte.",
+      "inheritance": {
+        "mode": "inherit-and-extend",
+        "inheritedTraitIds": [],
+        "addedTraitIds": [],
+        "replacedTraitIds": []
+      },
+      "tags": [
+        "sub-raca",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
+    },
+    {
+      "id": "homem-raposa-dos-vales",
+      "parentRaceId": "homem-raposa",
+      "name": "Vulpino dos Vales",
+      "summary": "Sua cultura desenvolveu feiras itinerantes e histórias cantadas para resolver disputas entre povoados.",
+      "lore": "Sua cultura desenvolveu feiras itinerantes e histórias cantadas para resolver disputas entre povoados.",
+      "inheritance": {
+        "mode": "inherit-and-extend",
+        "inheritedTraitIds": [],
+        "addedTraitIds": [],
+        "replacedTraitIds": []
+      },
+      "tags": [
+        "sub-raca",
+        "original"
+      ],
+      "traits": [],
+      "mechanicalEffects": [],
+      "contentVersion": 1
     }
   ],
   "classes": [
