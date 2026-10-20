@@ -244,7 +244,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 5.3.3 Regra: campanha nunca altera outra sem comando explícito do jogador
 - 5.3.4 Teste: a mudança numa campanha não vaza para outra
 
-**Atualização da criação/persistência (20/10/2026):** `Ficha.editorialChoicesJson` guarda as escolhas de raça/linhagem, classe, profissão e maldições no JSON canônico. O app migra valores antigos de SharedPreferences durante a restauração das fichas; o campo legado permanece como fallback/espelho até a validação. Duplicação, importação/exportação e backup/restauração carregam as escolhas. O salvamento de fichas existentes preserva o estado arquivado, e os IDs de criação/cópia/importação usam UUID. Foram acrescentados testes de codec/compatibilidade, mas não executados; build, testes e CI seguem adiados por orientação.
+**Atualização da criação/persistência (20/10/2026):** `Ficha.editorialChoicesJson` guarda as escolhas de raça/linhagem, classe, profissão e maldições no JSON canônico. O app migra valores antigos de SharedPreferences durante a restauração; o campo legado permanece como fallback/espelho. Duplicação, importação/exportação e backup/restauração carregam as escolhas. Os backups incluem fichas ativas e arquivadas e preservam o estado de arquivamento por metadado opcional retrocompatível. A gravação de ficha é atômica e não apaga o estado arquivado; IDs de criação/cópia/importação usam UUID e colisões consultam o banco. Foram acrescentados testes de codec/compatibilidade e metadados de backup, mas não executados; build, testes e CI seguem adiados por orientação.
 
 ---
 
