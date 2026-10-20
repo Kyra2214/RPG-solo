@@ -179,6 +179,8 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Exibir totais por escopo no resumo de combate, sem somar num único total bônus de ataque e dano que afetam cálculos diferentes; em ataques que erram, omitir efeitos de dano/resistência não usados.
 - [x] Auditar os caminhos de resolução identificados: testes comuns/avançados pelo `GameLoop`, fuga por `RulePackage.adjustCheck` e combate direto pelo `AppModel`; efeitos externos são encaminhados apenas aos cálculos do jogador.
 - [ ] Definir explicitamente a política de acumulação entre efeitos externos de fontes diferentes e bônus canônicos antes de tratá-la como regra definitiva.
+- [x] Confirmar no catálogo versionado que `mechanicalEffects` está vazio nas entradas atuais: não há bônus de raça/classe/profissão/maldição efetivamente declarados para duplicar neste momento.
+- [ ] Decidir/documentar o alcance de `additionalRules` aprovadas no combate: hoje `approvedRuleBonus` é consultado também no cálculo de ataque/dano de NPCs; não alterar esse comportamento até esclarecer se adaptações aprovadas são globais ou exclusivas do jogador.
 - [ ] Decidir e documentar quando efeitos distintos com o mesmo escopo devem acumular e quando um efeito externo equivalente a `TraitBonus` canônico deve ser considerado duplicado; até lá, não deduplicar silenciosamente nem inventar regra.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
 - [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
