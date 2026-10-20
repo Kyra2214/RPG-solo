@@ -407,7 +407,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
-    fun resolveNpcTurn(): String? = try {
+    fun resolveNpcTurn(): String? {
+        return try {
         val combat = requireNotNull(session.state.combat) { "não há combate ativo" }
         val combatantsBefore = combat.order
         require(combat.current != playerId) { "é o turno do jogador" }
@@ -492,8 +493,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val victoryXp = awardCombatVictoryXp(combatantsBefore)
         campaignVersion++
         if (victoryXp > 0) "$text Você venceu e recebeu $victoryXp XP." else text
-    } catch (e: IllegalArgumentException) { e.message }
-      catch (e: IllegalStateException) { e.message }
+        } catch (e: IllegalArgumentException) { e.message }
+          catch (e: IllegalStateException) { e.message }
+    }
 
     fun endCombat(): String? = when (val result = session.execute(dev.rpgsolo.engine.EndCombat)) {
         is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
@@ -669,8 +671,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun equipItem(itemId: String): String? = try {
         require(session.state.combat == null) { "não é possível trocar equipamento durante o combate" }
         val item = requireNotNull(activePackage?.item(itemId)) { "item não existe no catálogo: $itemId" }
-        require(item.kind == "equipamento" && item.slot != null) { "item não é equipável" }
-        when (val result = session.execute(dev.rpgsolo.engine.EquipItem(playerId, itemId, item.slot))) {
+        val slot = item.slot
+        require(item.kind == "equipamento" && slot != null) { "item não é equipável" }
+        when (val result = session.execute(dev.rpgsolo.engine.EquipItem(playerId, itemId, slot))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }

@@ -1,3 +1,12 @@
+# Changelog
+
+## 2026-10-19 — CI verde
+
+- Repositório tornado público para habilitar o uso gratuito dos runners padrão do GitHub Actions.
+- Execução oficial [Android CI #39260875061](https://github.com/Kyra2214/RPG-solo/actions/runs/39260875061) concluída com sucesso no commit `85b58ce`.
+- `./gradlew test` passou para `engine`, `rules`, `ai`, `data` e `app`; os testes unitários Android sem fontes foram reconhecidos como `NO-SOURCE`/`UP-TO-DATE`.
+- `./gradlew :app:assembleDebug` passou e o artefato `rpgsolo-debug-apk` foi publicado pelo workflow.
+
 ## 2026-10-20 — testes avançados e validação de pacotes
 
 - `PlayController` expõe fluxos para resolver testes opostos e em grupo com persistência, condições e traços de cada participante, rolagens individuais, desfecho calculado pelo motor e suporte a desfazer. As rolagens descartadas por vantagem/desvantagem são preservadas e exibidas; o resultado fica oculto até todas as rolagens da disputa serem reveladas. A aba Jogar permite configurar e executar os dois formatos.
