@@ -15,7 +15,8 @@ class ProvidersTest {
 
     @Test fun chaveMascaradaNaConfig() {
         assertFalse("segredo" in cfg.toString())
-        assertTrue(cfg.toString().endsWith("1234)"))
+        assertTrue(cfg.toString().contains("apiKey=••••••••1234"))
+        assertTrue(cfg.toString().endsWith("cacheSystemPrompt=false)"))
         assertEquals("••••••••", maskKey("curta"))
     }
 
