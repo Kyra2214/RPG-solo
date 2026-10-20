@@ -213,6 +213,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         campaignVersion++
     }
 
+    /** ID novo e resistente a colisões entre fichas ativas, arquivadas e importadas. */
+    fun newFichaId(): String {
+        var candidate: String
+        do {
+            candidate = "f-${java.util.UUID.randomUUID()}"
+        } while ((fichas + archivedFichas).any { it.id == candidate })
+        return candidate
+    }
+
     /** Biblioteca de fichas reutilizáveis, persistida separadamente das campanhas. */
     val fichas = mutableStateListOf<Ficha>()
     val archivedFichas = mutableStateListOf<Ficha>()
@@ -357,7 +366,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun duplicateFicha(id: String): String? = try {
         val original = requireNotNull(fichas.firstOrNull { it.id == id }) { "ficha não encontrada na biblioteca" }
         val copy = original.copy(
-            id = "f-${System.nanoTime()}",
+            id = newFichaId(),
             name = "${original.name} (cópia)",
             editorialChoicesJson = characterChoices(id).toJson()
         )
@@ -420,7 +429,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         val decoded = dev.rpgsolo.engine.Codec.decodeFicha(fichaJson)
         val exists = (fichas + archivedFichas).any { it.id == decoded.id }
-        val importedId = if (exists) "f-${System.nanoTime()}" else decoded.id
+        val importedId = if (exists) newFichaId() else decoded.id
         val importedChoices = when {
             choices != CharacterChoices() -> choices
             decoded.editorialChoicesJson.isNotBlank() -> CharacterChoices.fromJson(decoded.editorialChoicesJson)
