@@ -206,6 +206,39 @@ class PlayControllerTest {
         assertEquals(1, c.lines.count { it.author == Author.MASTER })
     }
 
+    @Test fun testeDeGrupoInvalidoERecusadoSemAlterarEstado() {
+        val s = session()
+        val c = ctrl(s, emptyList())
+        val before = s.mark()
+        val check = CheckSpec("ajuda", 1, 20, 0, 10)
+
+        assertTrue(c.resolveGroup(listOf(check), 1) is PlayResult.Failed)
+        assertTrue(c.resolveGroup(listOf(check, check), 3) is PlayResult.Failed)
+        assertTrue(c.resolveGroup(
+            listOf(check, check), 1,
+            participantNames = listOf("Herói", "Orc"),
+            participantEntityIds = listOf("hero", "hero")
+        ) is PlayResult.Failed)
+        assertTrue(c.resolveGroup(
+            listOf(check, check), 1,
+            participantNames = listOf("Herói", "Orc"),
+            participantEntityIds = listOf("orc", null)
+        ) is PlayResult.Failed)
+        assertEquals(before, s.mark())
+        assertTrue(c.lines.isEmpty())
+    }
+
+    @Test fun testeDeGrupoRecusaNomeVazio() {
+        val c = ctrl(session(), emptyList())
+        val check = CheckSpec("ajuda", 1, 20, 0, 10)
+        assertTrue(c.resolveGroup(
+            listOf(check, check), 1,
+            participantNames = listOf("Herói", " "),
+            participantEntityIds = listOf("hero", null)
+        ) is PlayResult.Failed)
+        assertTrue(c.lines.isEmpty())
+    }
+
     @Test fun textoVazioERecusado() {
         val c = ctrl(session(), emptyList())
         assertTrue(c.submit("  ") is PlayResult.Failed)
