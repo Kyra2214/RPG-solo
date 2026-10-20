@@ -91,6 +91,15 @@ class AdvancedChecksTest {
         assertEquals(2, engine.events.count { it is RollRecorded })
     }
 
+    @Test fun groupRejectsSingleParticipantBeforeRolling() {
+        val engine = GameEngine(seed = 777L)
+        val result = runCatching {
+            engine.checkGroup(listOf(spec("solo")), requiredSuccesses = 1)
+        }
+        assertTrue(result.isFailure)
+        assertEquals(0, engine.events.count { it is RollRecorded })
+    }
+
     @Test fun invalidMemberRollsBackWholeGroupCheck() {
         val engine = GameEngine(seed = 777L)
         val invalid = spec("invalid").copy(diceSides = 1)
