@@ -395,6 +395,17 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [ ] Criar um assistente de migração com sugestões de substituição quando IDs do catálogo forem removidos ou renomeados.
 
 
+### Validação estrutural do catálogo (20/10/2026)
+
+- [x] Validar a versão do esquema, o identificador do catálogo e o pacote de destino.
+- [x] Verificar que todas as categorias obrigatórias são listas e que cada entrada tem ID, nome, resumo, lore, `traits` e `mechanicalEffects` com tipos esperados.
+- [x] Validar a estrutura das listas editoriais de benefícios/custos quando presentes.
+- [x] Detectar itens JSON inválidos e diferenças entre entradas no documento bruto e opções efetivamente carregadas, em vez de ignorá-los silenciosamente.
+- [x] Manter validação de IDs duplicados e referências de sub-raças/híbridos.
+- [x] Exibir falhas pela validação existente da criação, bloqueando o salvamento de escolhas enquanto o catálogo for inválido.
+
+A validação é estrutural: não interpreta descrições como regras, não executa efeitos e não altera as escolhas salvas. Build, testes e CI não foram executados.
+
 ### Exibição de lore e custos no seletor (20/10/2026)
 
 - [x] Ao selecionar uma opção do catálogo, exibir resumo, lore e todas as descrições de benefícios/custos disponíveis.
