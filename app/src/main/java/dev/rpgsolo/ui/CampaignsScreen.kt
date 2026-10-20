@@ -18,12 +18,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets
+import java.io.ByteArrayOutputStream
 
 /** Aba Campanhas (10.4): capítulos e resumos, missões, diário (só o descoberto). */
 @Composable
@@ -32,6 +35,8 @@ fun CampaignsScreen(model: AppModel) {
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
     var quest by remember { mutableStateOf("") }
+    var questObjective by remember { mutableStateOf("") }
+    var timelineNote by remember { mutableStateOf("") }
     var newName by remember { mutableStateOf("") }
     var backup by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
@@ -71,7 +76,21 @@ fun CampaignsScreen(model: AppModel) {
                     withContext(Dispatchers.IO) {
                         val input = context.contentResolver.openInputStream(uri)
                             ?: error("não foi possível abrir o arquivo")
-                        input.bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
+                        input.use { stream ->
+                            val output = ByteArrayOutputStream()
+                            val buffer = ByteArray(8192)
+                            var total = 0
+                            while (true) {
+                                val count = stream.read(buffer)
+                                if (count < 0) break
+                                total += count
+                                require(total <= dev.rpgsolo.engine.Backup.MAX_BACKUP_CHARS) {
+                                    "backup excede o limite de 50 MiB; arquivo recusado durante a leitura"
+                                }
+                                output.write(buffer, 0, count)
+                            }
+                            String(output.toByteArray(), StandardCharsets.UTF_8)
+                        }
                     }
                 }
                 backupStatus = importedText.fold(
@@ -90,7 +109,13 @@ fun CampaignsScreen(model: AppModel) {
     val chapters = remember(v) { model.chapters.chapters }
     val open = remember(v) { model.chapters.current() }
     val active = remember(v) { model.quests.active() }
+    val allQuests = remember(v) { model.quests.all() }
+    val timeline = remember(v) { model.quests.timeline() }
+    val automaticTimeline = remember(v, model.controller?.lines?.size) { model.controller?.automaticTimeline().orEmpty() }
     val journal = remember(v, model.controller?.lines?.size) { model.journal() }
+    val progressionHistory = remember(v) { model.progressionHistory() }
+    val advancement = remember(v) { model.advancementState() }
+    val relationships = remember(v) { model.relationshipsView() }
 
     ScreenColumn {
         AppCard(accent = MaterialTheme.colorScheme.primary) { NewCampaignSection(model) }
@@ -122,7 +147,7 @@ fun CampaignsScreen(model: AppModel) {
         Button(modifier = Modifier.fillMaxWidth(), onClick = { message = model.deleteCurrentCampaign() }) { Text("Apagar campanha ativa") }
 
         SectionTitle("Backup local")
-        Muted("Inclui log de eventos e configuração do motor. Capítulos, missões, linha do tempo, biblioteca de fichas e chave de API não entram no arquivo. Restaurar cria uma nova campanha.")
+        Muted("Inclui log de eventos, configuração do motor, capítulos, missões, linha do tempo e fichas salvas. A chave de API e preferências secretas nunca entram no arquivo. Restaurar cria uma nova campanha.")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { backup = model.exportBackup(); message = null }) { Text("Gerar texto") }
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { exportFile.launch("rpg-solo-backup.json") }) { Text("Salvar arquivo") }
@@ -161,12 +186,123 @@ fun CampaignsScreen(model: AppModel) {
         }
         message?.let { ErrorText(it) }
 
+        SectionTitle("Relações")
+        if (relationships.isEmpty()) Muted("As atitudes dos NPCs ainda não foram registradas.")
+        relationships.forEach { relation ->
+            AppCard { 
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(relation.npcName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                    Pill(relation.attitude, MaterialTheme.colorScheme.secondary)
+                }
+            }
+        }
+
+        SectionTitle("Evolução do personagem")
+        if (progressionHistory.isEmpty()) Muted("Nenhum ganho de XP ou nível registrado ainda.")
+        progressionHistory.forEach { entry -> AppCard { Text(entry, style = MaterialTheme.typography.bodyMedium) } }
+
+        SectionTitle("Pontos de evolução")
+        Muted("Disponíveis: ${advancement.pointsAvailable}. Cada aumento custa 1 ponto e respeita os limites do pacote ativo.")
+        if (advancement.pointsAvailable <= 0) {
+            Muted("Você não tem pontos de evolução para gastar.")
+        } else if (advancement.choices.isEmpty()) {
+            Muted("O pacote ativo não define opções de evolução para esta ficha.")
+        } else {
+            advancement.choices.forEach { choice ->
+                AppCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(choice.name, style = MaterialTheme.typography.bodyMedium)
+                            Muted("${choice.current}/${choice.max}" + if (choice.skill) " · perícia" else " · atributo")
+                        }
+                        Button(
+                            modifier = Modifier.semantics {
+                                contentDescription = "Aumentar ${choice.name} em 1 ponto"
+                            },
+                            enabled = advancement.pointsAvailable > 0 && choice.current < choice.max,
+                            onClick = { message = model.increaseAdvancement(choice.id, choice.skill) }
+                        ) { Text("+1") }
+                    }
+                }
+            }
+        }
+
         SectionTitle("Missões")
         if (active.isEmpty()) Muted("Nenhuma missão ativa.")
-        active.forEach { AppCard(accent = MaterialTheme.colorScheme.secondary) { Text(it.title, style = MaterialTheme.typography.bodyLarge) } }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(quest, { quest = it }, Modifier.weight(1f), label = { Text("Nova missão") }, singleLine = true)
-            Button(onClick = { message = model.addQuest(quest); if (message == null) quest = "" }) { Text("Adicionar") }
+        active.forEach { currentQuest ->
+            AppCard(accent = MaterialTheme.colorScheme.secondary) {
+                Text(currentQuest.title, style = MaterialTheme.typography.bodyLarge)
+                currentQuest.objectives.forEachIndexed { index, objective ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            (if (objective.done) "✓ " else "○ ") + objective.text,
+                            modifier = Modifier.weight(1f),
+                            color = if (objective.done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface
+                        )
+                        if (!objective.done) {
+                            TextButton(onClick = { message = model.completeQuestObjective(currentQuest.id, index) }) {
+                                Text("Concluir")
+                            }
+                        }
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { message = model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.DONE) }) {
+                        Text("Encerrar como concluída")
+                    }
+                    TextButton(onClick = { message = model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.FAILED) }) {
+                        Text("Marcar como falhou")
+                    }
+                }
+            }
+        }
+        val finishedQuests = allQuests.filter { it.status != dev.rpgsolo.engine.QuestStatus.ACTIVE }
+        if (finishedQuests.isNotEmpty()) {
+            SectionTitle("Missões encerradas")
+            finishedQuests.forEach { finished ->
+                AppCard {
+                    Text(finished.title, style = MaterialTheme.typography.bodyLarge)
+                    Pill(
+                        if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) "concluída" else "falhou",
+                        if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+                    )
+                    finished.objectives.forEach { objective -> Muted((if (objective.done) "✓ " else "○ ") + objective.text) }
+                }
+            }
+        }
+        OutlinedTextField(quest, { quest = it }, Modifier.fillMaxWidth(), label = { Text("Nova missão") }, singleLine = true)
+        OutlinedTextField(
+            questObjective, { questObjective = it }, Modifier.fillMaxWidth(),
+            label = { Text("Objetivo inicial (opcional)") }, singleLine = true
+        )
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+            message = model.addQuest(quest, listOf(questObjective))
+            if (message == null) { quest = ""; questObjective = "" }
+        }) { Text("Adicionar missão") }
+
+        SectionTitle("Linha do tempo")
+        if (timeline.isEmpty()) Muted("Nenhum acontecimento importante registrado.")
+        timeline.forEach { (chapterNumber, text) ->
+            AppCard { Muted("Capítulo $chapterNumber"); Text(text) }
+        }
+        OutlinedTextField(
+            timelineNote, { timelineNote = it }, Modifier.fillMaxWidth(),
+            label = { Text("Acontecimento importante") }, minLines = 2, maxLines = 4
+        )
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+            message = model.addTimelineNote(timelineNote)
+            if (message == null) timelineNote = ""
+        }) { Text("Registrar acontecimento") }
+
+        SectionTitle("Acontecimentos automáticos")
+        if (automaticTimeline.isEmpty()) {
+            Muted("Os acontecimentos compatíveis aparecerão aqui conforme forem registrados no log.")
+        }
+        automaticTimeline.forEach { entry ->
+            AppCard {
+                Muted("Registro ${entry.eventIndex + 1} · ${entry.category}")
+                Text(entry.text, style = MaterialTheme.typography.bodyMedium)
+            }
         }
 
         SectionTitle("Diário", "Só o que você já descobriu.")

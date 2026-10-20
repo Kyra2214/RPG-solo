@@ -6,6 +6,13 @@ package dev.rpgsolo.rules
  */
 data class DifficultySetting(val levelId: String, val params: Map<String, Double> = emptyMap())
 
+/**
+ * Escala 0..10:
+ * - resource_scarcity: pressão narrativa sobre recursos/saque (0 abundante, 10 escasso).
+ * - danger_level: modificador mecânico dos testes do jogador (5 neutro; cada ponto acima reduz 1).
+ * - enemy_tactics: modificador mecânico do ataque de NPC (5 neutro; cada ponto acima soma 1).
+ * - defeat_consequence: intensidade narrativa de contratempos após derrota (0 leve, 10 severa); não altera resultados mecânicos.
+ */
 val ALLOWED_DIFFICULTY_PARAMS = setOf("resource_scarcity", "danger_level", "enemy_tactics", "defeat_consequence")
 
 /** Configuração escolhida pelo jogador (livre ou por formulário). */
@@ -45,6 +52,14 @@ fun resolveConfig(catalog: Catalog, c: CampaignConfig): ConfigResult {
     c.progressionId?.let { check(listOf(it), "progression") }
     c.difficulty.params.keys.filter { it !in ALLOWED_DIFFICULTY_PARAMS }
         .forEach { errors += "parâmetro de dificuldade não permitido: $it" }
+    c.difficulty.params.forEach { (key, value) ->
+        if (!value.isFinite() || value !in 0.0..10.0) {
+            errors += "parâmetro de dificuldade '$key' deve ser um número finito entre 0 e 10"
+        }
+    }
+    if (c.contentLimits.size > 30 || c.contentLimits.any { it.isBlank() || it.length > 200 }) {
+        errors += "limites de conteúdo: máximo 30 itens, cada um com 1 a 200 caracteres"
+    }
 
     val editions = catalog.editionsOf(c.systemFamily)
     if (editions.isEmpty()) errors += "sistema desconhecido: ${c.systemFamily}"

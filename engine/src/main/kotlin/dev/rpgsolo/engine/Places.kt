@@ -1,6 +1,9 @@
 package dev.rpgsolo.engine
 
+import kotlinx.serialization.Serializable
+
 /** Um local da campanha. [secret] guarda o que o jogador ainda não sabe e nunca sai em [PlaceMap.playerView]. */
+@Serializable
 data class Place(val id: String, val name: String, val description: String = "", val secret: String = "")
 
 /**

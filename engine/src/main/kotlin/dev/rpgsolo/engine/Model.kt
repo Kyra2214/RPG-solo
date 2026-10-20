@@ -25,7 +25,14 @@ data class Entity(
     val xp: Int = 0,
     val level: Int = 1,
     /** Pontos por perícia; ids e limites vêm do pacote de regras. */
-    val skills: Map<String, Int> = emptyMap()
+    val skills: Map<String, Int> = emptyMap(),
+    /** Conceito e traços de NPCs são privados para a interface; usados pelo mestre e pelo motor. */
+    val concept: String = "",
+    val traits: List<String> = emptyList(),
+    /** false = ficha criada sem pacote de regras para validação. */
+    val rulesValidated: Boolean = true,
+    /** Pontos de evolução não gastos, concedidos pelo pacote ao subir de nível. */
+    val advancementPoints: Int = 0
 )
 
 /** Estado canônico da campanha. Só muda aplicando eventos (ver [apply]). */
@@ -50,21 +57,21 @@ data class GameState(
     val conditionStates: Map<String, Map<String, ConditionState>> = emptyMap(),
     /** null = fora de combate. */
     val combat: CombatState? = null,
-    val eventCount: Int = 0
+    val eventCount: Int = 0,
+    /** Dossiês privados e event-sourced de NPCs; a interface do jogador nunca os exibe diretamente. */
+    val npcDossiers: Map<String, NpcDossier> = emptyMap(),
+    /** Regras adicionais propostas pela IA; efeitos só entram na mecânica após aprovação explícita. */
+    val additionalRules: Map<String, RegraAdicional> = emptyMap(),
+    /** Ambientação é independente da ficha e persistida no log da campanha. */
+    val ambientacao: Ambientacao? = null,
+    /** Mapa textual event-sourced: segredos ficam no estado privado, não na visão do jogador. */
+    val places: Map<String, Place> = emptyMap(),
+    val placeLinks: Map<String, Set<String>> = emptyMap(),
+    val knownPlaces: Set<String> = emptySet(),
+    val currentPlaceId: String? = null,
+    /** Preferências e limites de conteúdo persistidos separadamente das regras mecânicas. */
+    val campaignStyle: CampaignStyle? = null
 )
-
-/**
- * Conhecimento do jogador, com a fonte (pista, teste, conversa).
- * [believed] = true guarda informação falsa/incerta como "acreditada", nunca como verdade.
- */
-data class Knowledge(val key: String, val text: String, val source: String, val believed: Boolean = false)
-
-fun relationKey(fromId: String, toId: String) = "$fromId>$toId"
-
-/** Relógio de agenda: quando [filled] chega a [segments], a ameaça/plano se cumpre. */
-data class Clock(val id: String, val name: String, val segments: Int, val filled: Int = 0) {
-    val full: Boolean get() = filled >= segments
-}
 
 data class Promise(val id: String, val npcId: String, val text: String, val kept: Boolean = false)
 
@@ -83,6 +90,37 @@ data class ConditionState(
 }
 
 /** [order] já vem decidido (iniciativa rolada pelo motor). */
-data class CombatState(val order: List<String>, val round: Int = 1, val turnIndex: Int = 0) {
+data class CombatState(
+    val order: List<String>,
+    val round: Int = 1,
+    val turnIndex: Int = 0,
+    /** Entidades protegidas contra o próximo ataque recebido. */
+    val defending: Set<String> = emptySet()
+) {
     val current: String get() = order[turnIndex]
 }
+
+
+/** Relógio de agenda com preenchimento validado pelo motor. */
+@Serializable
+data class Clock(
+    val id: String,
+    val name: String,
+    val segments: Int,
+    val filled: Int = 0,
+    /** Pista pública opcional, revelada somente quando o relógio termina; nome e contagem seguem privados. */
+    val publicClue: String = ""
+) {
+    init {
+        require(id.isNotBlank() && id.length <= 80) { "id de relógio inválido" }
+        require(name.isNotBlank() && name.length <= 120) { "nome de relógio inválido" }
+        require(segments in 2..12) { "relógio precisa de 2 a 12 casas" }
+        require(filled in 0..segments) { "preenchimento de relógio fora dos limites" }
+        require(publicClue.length <= 500) { "pista pública excede 500 caracteres" }
+    }
+
+    val full: Boolean get() = filled >= segments
+}
+
+/** Chave não ambígua para a relação direcional entre duas entidades. */
+internal fun relationKey(fromId: String, toId: String): String = "$fromId\u0000$toId"

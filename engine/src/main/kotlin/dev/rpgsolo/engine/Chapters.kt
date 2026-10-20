@@ -55,7 +55,9 @@ data class Chapter(
  * Capítulos de uma campanha (9.2). Abre a partir do estado atual, encerra com resumo guardado uma vez e
  * tamanho configurável por [maxEvents]. Persistência no Room fica para depois; o log já é a verdade.
  */
-class ChapterBook(private val maxEvents: Int = 200) {
+class ChapterBook(maxEvents: Int = 200) {
+    var maxEvents: Int = maxEvents
+        private set
     init {
         require(maxEvents > 0) { "maxEvents deve ser positivo" }
     }
@@ -63,6 +65,10 @@ class ChapterBook(private val maxEvents: Int = 200) {
     private val list = mutableListOf<Chapter>()
     val chapters: List<Chapter> get() = list.toList()
     fun restore(items: List<Chapter>) { list.clear(); list.addAll(items) }
+    fun configureMaxEvents(value: Int) {
+        require(value in 50..2000) { "tamanho do capítulo deve ficar entre 50 e 2000 eventos" }
+        maxEvents = value
+    }
     fun current(): Chapter? = list.lastOrNull()?.takeIf { it.isOpen }
 
     fun open(session: CampaignSession, title: String): Chapter {

@@ -3,6 +3,8 @@ package dev.rpgsolo.ai
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.Event
 import dev.rpgsolo.engine.ExecResult
+import dev.rpgsolo.rules.NpcProposal
+import dev.rpgsolo.rules.NpcResult
 
 sealed interface TurnOutcome {
     /** Narrativa liberada e propostas aplicadas pelo motor (lista vazia = só narração). */
@@ -29,7 +31,9 @@ sealed interface TurnOutcome {
  */
 class TurnRunner(
     private val provider: AiProvider,
-    private val maxCorrections: Int = 1
+    private val maxCorrections: Int = 1,
+    /** Permite criar NPCs sem pacote, desde que o app forneça uma edição e marque a ficha como não validada. */
+    private val npcCreator: ((NpcProposal) -> NpcResult)? = null
 ) {
     init {
         require(maxCorrections >= 0) { "maxCorrections deve ser >= 0" }
@@ -41,7 +45,14 @@ class TurnRunner(
     }
 
     /** [menu] = testes que o mestre pode pedir neste jogo (null = o mestre não pode pedir teste). */
-    fun run(session: CampaignSession, request: AiRequest, menu: CheckMenu? = null, canRequest: Boolean = true): TurnOutcome {
+    fun run(
+        session: CampaignSession,
+        request: AiRequest,
+        menu: CheckMenu? = null,
+        canRequest: Boolean = true,
+        playerEntityId: String? = null,
+        onNarrativeChunk: (String) -> Unit = {}
+    ): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
         var lastProblem = ""
@@ -49,11 +60,19 @@ class TurnRunner(
 
         for (i in 0..maxCorrections) {
             val response = try {
-                provider.complete(request.copy(messages = messages, jsonMode = true))
+                val decoder = NarrativeJsonStream()
+                var emitted = ""
+                provider.stream(request.copy(messages = messages, jsonMode = true)) { chunk ->
+                    val narrative = decoder.accept(chunk)
+                    if (narrative.length > emitted.length) {
+                        emitted = narrative
+                        runCatching { onNarrativeChunk(narrative) }
+                    }
+                }
             } catch (e: AiError) {
                 return TurnOutcome.Failed(e.message ?: "erro de IA", e)
             }
-            when (val a = attempt(session, response.text, menu, canRequest)) {
+            when (val a = attempt(session, response.text, menu, canRequest, playerEntityId)) {
                 is Attempt.Done -> return a.outcome
                 is Attempt.Retry -> {
                     lastProblem = a.problem
@@ -73,7 +92,48 @@ class TurnRunner(
         return if (lastFromEngine) TurnOutcome.Refused(lastProblem) else TurnOutcome.Failed(lastProblem)
     }
 
-    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean): Attempt =
+    /** Extrai incrementalmente apenas o campo narrative do JSON; nunca mostra o restante do payload. */
+    private class NarrativeJsonStream {
+        private val raw = StringBuilder()
+        fun accept(chunk: String): String {
+            raw.append(chunk)
+            val source = raw.toString()
+            val keyText = "\"narrative\""
+            val key = source.indexOf(keyText)
+            if (key < 0) return ""
+            var i = key + keyText.length
+            while (i < source.length && source[i].isWhitespace()) i++
+            if (i >= source.length || source[i++] != ':') return ""
+            while (i < source.length && source[i].isWhitespace()) i++
+            if (i >= source.length || source[i++] != '"') return ""
+            val out = StringBuilder()
+            while (i < source.length) {
+                val ch = source[i++]
+                if (ch == '"') break
+                if (ch != '\\') { out.append(ch); continue }
+                if (i >= source.length) break
+                when (val esc = source[i++]) {
+                    '"' -> out.append('"')
+                    '\\' -> out.append('\\')
+                    '/' -> out.append('/')
+                    'b' -> out.append('\b')
+                    'f' -> out.append('\u000c')
+                    'n' -> out.append('\n')
+                    'r' -> out.append('\r')
+                    't' -> out.append('\t')
+                    'u' -> {
+                        if (i + 4 > source.length) break
+                        val code = source.substring(i, i + 4).toIntOrNull(16) ?: break
+                        out.append(code.toChar()); i += 4
+                    }
+                    else -> out.append(esc)
+                }
+            }
+            return out.toString()
+        }
+    }
+
+    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?): Attempt =
         when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
                 Attempt.Retry("formato inválido: " + parsed.errors.joinToString("; "), false)
@@ -83,21 +143,125 @@ class TurnRunner(
                 val roll = out.rollRequest
                 if (req != null || roll != null) {
                     // Teste ou rolagem pedidos: valida contra o pacote e só guarda o pedido. Mudanças de estado esperam o resultado.
-                    val invalid = req?.let { menu?.validate(it) } ?: roll?.let { menu?.validateRoll(it, session.state) }
+                    val invalid = req?.let { request ->
+                        menu?.validate(request) ?: "este jogo não oferece testes"
+                    } ?: roll?.let { menu?.validateRoll(it, session.state) }
+                    val secretInvalid = req?.let { menu?.validateSecretRequest(it, session.state) }
                     val problem: String? = when {
                         menu == null -> "este jogo não oferece testes nem rolagens; não use request_check nem request_roll"
                         !canRequest -> "você já pediu testes demais em sequência; narre o desfecho agora, sem request_check nem request_roll"
                         invalid != null -> "pedido inválido: $invalid"
-                        out.proposals.isNotEmpty() -> "com request_check/request_roll não envie proposals; proponha mudanças só depois do resultado"
+                        secretInvalid != null -> "pedido de segredo inválido: $secretInvalid"
+                        out.proposals.isNotEmpty() || out.npcProposal != null -> "com request_check/request_roll não envie proposals nem create_npc; proponha mudanças só depois do resultado"
                         else -> null
                     }
                     if (problem != null) Attempt.Retry(problem, false)
                     else Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), emptyList(), req, roll))
-                } else if (out.proposals.isEmpty()) {
+                } else if (out.proposals.isEmpty() && out.npcProposal == null) {
                     Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), out.suggestions))
                 } else {
-                    when (val r = session.executeAll(out.proposals)) {
-                        is ExecResult.Accepted -> Attempt.Done(TurnOutcome.Applied(out.narrative, r.events, out.suggestions))
+                    // O motor não aceita dano/cura/custo de recurso inventado para o personagem do jogador.
+                    // Itens e condições também precisam existir no pacote ativo; seus efeitos vêm do pacote.
+                    if (out.requestCombat && (menu == null || playerEntityId == null)) {
+                        return Attempt.Retry("request_combat exige personagem do jogador e pacote ativo", false)
+                    }
+                    val transactionMark = session.mark()
+                    val normalized = mutableListOf<dev.rpgsolo.engine.Command>()
+                    for (command in out.proposals) {
+                        val playerTarget = when (command) {
+                            is dev.rpgsolo.engine.Damage -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.Heal -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.SpendResource -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.GainXp -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.ConsumeItem -> session.state.entities[command.ownerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.AddCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            is dev.rpgsolo.engine.RemoveCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                            else -> false
+                        }
+                        if (playerTarget) {
+                            return Attempt.Retry(
+                                "esta proposta alteraria diretamente recursos, XP, inventário ou condições do jogador; use uma ação local ou uma rolagem mecânica do motor",
+                                false
+                            )
+                        }
+                        when (command) {
+                            is dev.rpgsolo.engine.AddCondition -> {
+                                val conditionMenu = menu
+                                    ?: return Attempt.Retry("não há pacote ativo para validar condições mecânicas", false)
+                                val configured = conditionMenu.conditionCommand(command.entityId, command.condition)
+                                    ?: return Attempt.Retry("condição '${command.condition}' não existe no pacote ativo", false)
+                                normalized += configured
+                            }
+                            is dev.rpgsolo.engine.AddItem, is dev.rpgsolo.engine.ConsumeItem -> {
+                                val itemMenu = menu
+                                    ?: return Attempt.Retry("não há pacote ativo para validar itens", false)
+                                val itemId = when (command) {
+                                    is dev.rpgsolo.engine.AddItem -> command.itemId
+                                    is dev.rpgsolo.engine.ConsumeItem -> command.itemId
+                                    else -> error("comando não é item")
+                                }
+                                if (!itemMenu.hasItem(itemId)) {
+                                    return Attempt.Retry("item '$itemId' não existe no pacote ativo", false)
+                                }
+                                normalized += command
+                            }
+                            is dev.rpgsolo.engine.ProposeRuleAddition -> {
+                                val ruleMenu = menu
+                                    ?: return Attempt.Retry("adaptação exige um pacote de regras ativo", false)
+                                val invalid = ruleMenu.validateRuleAddition(command.rule)
+                                if (invalid != null) return Attempt.Retry("adaptação recusada: $invalid", false)
+                                normalized += command
+                            }
+                            else -> normalized += command
+                        }
+                    }
+                    var combatNpcId: String? = null
+                    out.npcProposal?.let { proposal ->
+                        val npcMenu = menu
+                        if (npcMenu == null && npcCreator == null) {
+                            return Attempt.Retry("não há pacote nem contexto de sistema para criar a ficha de NPC", false)
+                        }
+                        val npcId = "npc-${transactionMark}-${proposal.name.trim().lowercase().hashCode()}"
+                        combatNpcId = npcId
+                        val candidate = proposal.copy(id = npcId)
+                        val result = npcCreator?.invoke(candidate)
+                            ?: npcMenu?.createNpc(candidate)
+                            ?: return Attempt.Retry("não há pacote ativo para validar a ficha de NPC", false)
+                        val sheet = when (result) {
+                            is NpcResult.Created -> result.sheet
+                            is NpcResult.Rejected ->
+                                return Attempt.Retry("ficha de NPC recusada: ${result.errors.joinToString("; ")}", false)
+                        }
+                        normalized += dev.rpgsolo.engine.CreateEntity(sheet.toEntity())
+                        sheet.dossier?.let { normalized += dev.rpgsolo.engine.SetNpcDossier(it) }
+                    }
+                    when (val r = session.executeAll(normalized)) {
+                        is ExecResult.Accepted -> {
+                            if (out.requestCombat) {
+                                val npcId = combatNpcId
+                                    ?: run {
+                                        session.rollbackTo(transactionMark)
+                                        return Attempt.Retry("request_combat não produziu um adversário", false)
+                                    }
+                                val activeMenu = menu
+                                    ?: run {
+                                        session.rollbackTo(transactionMark)
+                                        return Attempt.Retry("request_combat exige pacote de regras ativo", false)
+                                    }
+                                val startError = activeMenu.startCombat(session, playerEntityId!!, npcId)
+                                if (startError != null) {
+                                    session.rollbackTo(transactionMark)
+                                    return Attempt.Retry("não foi possível iniciar o combate: $startError", true)
+                                }
+                                Attempt.Done(TurnOutcome.Applied(
+                                    out.narrative,
+                                    session.engine.events.drop(transactionMark),
+                                    out.suggestions
+                                ))
+                            } else {
+                                Attempt.Done(TurnOutcome.Applied(out.narrative, r.events, out.suggestions))
+                            }
+                        }
                         is ExecResult.Rejected ->
                             Attempt.Retry("o motor recusou a proposta ${r.commandIndex + 1}: ${r.reason}", true)
                     }

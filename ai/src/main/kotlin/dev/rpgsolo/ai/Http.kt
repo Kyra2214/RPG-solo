@@ -10,12 +10,44 @@ data class HttpReply(val status: Int, val body: String, val headers: Map<String,
 interface HttpTransport {
     /** Lança [AiError.NoInternet] se não conseguir falar com o servidor. */
     fun post(url: String, headers: Map<String, String>, body: String): HttpReply
+
+    /** Lê uma resposta progressivamente por linhas (SSE). Implementações falsas herdam o fallback completo. */
+    fun postStream(url: String, headers: Map<String, String>, body: String, onLine: (String) -> Unit): HttpReply {
+        val reply = post(url, headers, body)
+        reply.body.lineSequence().forEach(onLine)
+        return reply
+    }
 }
 
 class JavaNetTransport(
     private val connectTimeoutMs: Int = 15_000,
     private val readTimeoutMs: Int = 60_000
 ) : HttpTransport {
+    override fun postStream(url: String, headers: Map<String, String>, body: String, onLine: (String) -> Unit): HttpReply {
+        try {
+            val conn = URL(url).openConnection() as HttpURLConnection
+            try {
+                conn.requestMethod = "POST"
+                conn.connectTimeout = connectTimeoutMs
+                conn.readTimeout = readTimeoutMs
+                conn.doOutput = true
+                headers.forEach { (k, v) -> conn.setRequestProperty(k, v) }
+                conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
+                val status = conn.responseCode
+                val stream = if (status in 200..299) conn.inputStream else conn.errorStream
+                val captured = StringBuilder()
+                stream?.bufferedReader(Charsets.UTF_8)?.useLines { lines ->
+                    lines.forEach { line -> captured.append(line).append('\n'); onLine(line) }
+                }
+                val hdrs = conn.headerFields.filterKeys { it != null }
+                    .mapKeys { it.key.lowercase() }.mapValues { it.value.firstOrNull().orEmpty() }
+                return HttpReply(status, captured.toString(), hdrs)
+            } finally { conn.disconnect() }
+        } catch (e: IOException) {
+            throw AiError.NoInternet(e.javaClass.simpleName)
+        }
+    }
+
     override fun post(url: String, headers: Map<String, String>, body: String): HttpReply {
         try {
             val conn = URL(url).openConnection() as HttpURLConnection

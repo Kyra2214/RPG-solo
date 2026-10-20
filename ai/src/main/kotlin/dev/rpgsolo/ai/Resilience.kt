@@ -38,11 +38,32 @@ class RetryingProvider(
 ) : AiProvider {
     override val name: String get() = inner.name
 
-    override fun complete(request: AiRequest): AiResponse {
+    override fun complete(request: AiRequest): AiResponse = retry { inner.complete(request) }
+
+    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse {
+        var attempt = 1
+        var emitted = false
+        while (true) {
+            try {
+                return inner.stream(request) { chunk ->
+                    emitted = true
+                    onChunk(chunk)
+                }
+            } catch (e: AiError) {
+                if (!e.retryable || emitted || attempt >= policy.maxAttempts) throw e
+                val serverWait = (e as? AiError.RateLimited)?.retryAfterMs
+                if (serverWait != null && serverWait > policy.maxDelayMs) throw e
+                sleeper.sleep(serverWait ?: policy.delayBefore(attempt))
+                attempt++
+            }
+        }
+    }
+
+    private fun retry(operation: () -> AiResponse): AiResponse {
         var attempt = 1
         while (true) {
             try {
-                return inner.complete(request)
+                return operation()
             } catch (e: AiError) {
                 if (!e.retryable || attempt >= policy.maxAttempts) throw e
                 val serverWait = (e as? AiError.RateLimited)?.retryAfterMs
@@ -92,27 +113,64 @@ class RateLimitedProvider(private val inner: AiProvider, private val limiter: Ra
         limiter.acquire()
         return inner.complete(request)
     }
+
+    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse {
+        limiter.acquire()
+        return inner.stream(request, onChunk)
+    }
 }
 
 /** Soma de uso (6.2.4). Usa os números do provedor; se faltarem, estima pelo tamanho do texto. */
 class UsageTracker {
     var calls = 0
         private set
+    /** Total de entrada, incluindo tokens lidos/criados no cache. */
     var inputTokens = 0L
         private set
     var outputTokens = 0L
         private set
+    var cacheReadInputTokens = 0L
+        private set
+    var cacheCreationInputTokens = 0L
+        private set
+    private var uncachedInputTokens = 0L
 
     @Synchronized
     fun record(usage: AiUsage?, request: AiRequest, response: AiResponse) {
         calls++
-        inputTokens += usage?.inputTokens ?: TokenEstimator.estimate(request)
-        outputTokens += usage?.outputTokens ?: TokenEstimator.estimate(response.text)
+        if (usage == null) {
+            val estimated = TokenEstimator.estimate(request).toLong()
+            uncachedInputTokens += estimated
+            inputTokens += estimated
+        } else {
+            val uncached = usage.inputTokens.coerceAtLeast(0)
+            val cachedRead = usage.cacheReadInputTokens.coerceAtLeast(0)
+            val cachedCreation = usage.cacheCreationInputTokens.coerceAtLeast(0)
+            uncachedInputTokens += uncached
+            cacheReadInputTokens += cachedRead
+            cacheCreationInputTokens += cachedCreation
+            inputTokens += uncached.toLong() + cachedRead.toLong() + cachedCreation.toLong()
+        }
+        outputTokens += (usage?.outputTokens ?: TokenEstimator.estimate(response.text)).coerceAtLeast(0)
     }
 
-    /** Custo estimado com preços por milhão de tokens informados pelo usuário (o app não embute preços). */
+    /** Estimativa conservadora: sem preços específicos, tokens em cache usam o preço normal de entrada. */
+    @Synchronized
     fun estimateCost(inputPerMillion: Double, outputPerMillion: Double): Double =
-        inputTokens / 1_000_000.0 * inputPerMillion + outputTokens / 1_000_000.0 * outputPerMillion
+        estimateCost(inputPerMillion, outputPerMillion, inputPerMillion, inputPerMillion)
+
+    /** Preços por milhão informados pelo usuário; cache read e cache creation podem ter tarifas diferentes. */
+    @Synchronized
+    fun estimateCost(
+        inputPerMillion: Double,
+        outputPerMillion: Double,
+        cacheReadPerMillion: Double,
+        cacheCreationPerMillion: Double
+    ): Double =
+        uncachedInputTokens / 1_000_000.0 * inputPerMillion +
+            cacheReadInputTokens / 1_000_000.0 * cacheReadPerMillion +
+            cacheCreationInputTokens / 1_000_000.0 * cacheCreationPerMillion +
+            outputTokens / 1_000_000.0 * outputPerMillion
 }
 
 class UsageTrackingProvider(private val inner: AiProvider, private val tracker: UsageTracker) : AiProvider {
@@ -120,4 +178,7 @@ class UsageTrackingProvider(private val inner: AiProvider, private val tracker: 
 
     override fun complete(request: AiRequest): AiResponse =
         inner.complete(request).also { tracker.record(it.usage, request, it) }
+
+    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse =
+        inner.stream(request, onChunk).also { tracker.record(it.usage, request, it) }
 }

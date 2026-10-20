@@ -9,6 +9,9 @@ import dev.rpgsolo.engine.Entity
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.InMemoryEventStore
 import dev.rpgsolo.engine.Resource
+import dev.rpgsolo.rules.InstallResult
+import dev.rpgsolo.rules.PackageRegistry
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -26,12 +29,110 @@ class PlayControllerTest {
         PlayController(s, GameLoop(ScriptedProvider(script)), "hero", "pv", check)
     private fun ok(n: String) = """{"narrative":"$n"}"""
 
+    private fun fortuneMenu(): CheckMenu {
+        val root = listOf(
+            "rules/src/test/resources/packages/teste-basico",
+            "../rules/src/test/resources/packages/teste-basico",
+            "src/test/resources/packages/teste-basico"
+        ).map(::File).first { it.exists() }
+        val files = root.listFiles()!!.filter { it.name.endsWith(".txt") }
+            .associate { it.name to it.readText() }.toMutableMap()
+        files["testes.txt"] = files.getValue("testes.txt").lines().joinToString("\n") { line ->
+            if (line.isBlank() || line.startsWith("#")) line
+            else {
+                val fields = line.split("|").toMutableList()
+                if (fields.firstOrNull() == "ataque") {
+                    while (fields.size < 16) fields += "-"
+                    fields[11] = "NORMAL"
+                    fields[12] = "false"
+                    fields[13] = "mana"
+                    fields[14] = "1"
+                    fields[15] = "ADVANTAGE"
+                    fields.joinToString("|")
+                } else line
+            }
+        }
+        val installed = PackageRegistry().install(files)
+        assertTrue("pacote deveria instalar: $installed", installed is InstallResult.Success)
+        return CheckMenu((installed as InstallResult.Success).pkg)
+    }
+
     @Test fun jogadaMostraRolagemENarracao() {
         val c = ctrl(session(), listOf(ok("Você golpeia.")))
         assertTrue(c.submit("ataco o orc") is PlayResult.Played)
         assertEquals(listOf(Author.PLAYER, Author.ROLL, Author.MASTER), c.lines.map { it.author })
         assertTrue(c.lines[1].text.startsWith("ataque: 1d20 ["))
         assertTrue(" +2 = " in c.lines[1].text)
+    }
+
+    @Test fun vantagemMostraAlternativaDescartadaEResultadoEscolhido() {
+        val c = ctrl(
+            session(),
+            listOf(ok("Você consegue passar.")),
+            check = {
+                CheckSpec("furtividade", 1, 20, 2, 10, fortuneMode = dev.rpgsolo.engine.FortuneMode.ADVANTAGE)
+            }
+        )
+
+        assertTrue(c.submit("passo escondido") is PlayResult.Played)
+        assertEquals(listOf(Author.PLAYER, Author.ROLL, Author.ROLL, Author.MASTER), c.lines.map { it.author })
+        assertTrue(c.lines[1].text.startsWith("Não escolhido · "))
+        assertTrue(c.lines[2].text.startsWith("furtividade:"))
+        assertEquals(2, c.lines.count { it.roll != null })
+    }
+
+    @Test fun jogadorPodeEscolherGastarRecursoParaVantagemNoTestePendente() {
+        val s = CampaignSession.create(
+            InMemoryEventStore(),
+            CampaignRecord("paid-fortune", "Teste", 42L, EngineConfig(deathResource = "hp"))
+        )
+        s.execute(CreateEntity(Entity(
+            id = "hero", name = "Herói", kind = EntityKind.PLAYER,
+            stats = mapOf("forca" to 2, "agilidade" to 1, "mente" to 1),
+            resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(2, 2))
+        )))
+        val provider = ScriptedProvider(listOf(
+            """{"narrative":"A fechadura resiste.","request_check":{"check":"ataque","difficulty":"media","onSuccess":"abre","onFailure":"falha"}}""",
+            ok("A fechadura cede.")
+        ))
+        val c = PlayController(
+            s, GameLoop(provider, menu = fortuneMenu()), "hero", "hp",
+            checkFor = { null }
+        )
+
+        assertTrue(c.submit("forço a fechadura") is PlayResult.Played)
+        assertEquals(1, c.pendingFortuneSpendOption()!!.cost)
+        assertEquals("mana", c.pendingFortuneSpendOption()!!.resource)
+        assertTrue(c.rollPending(useFortuneResource = true) is PlayResult.Played)
+        assertEquals(1, s.state.entities.getValue("hero").resources.getValue("mana").current)
+        assertEquals(2, c.lines.count { it.author == Author.ROLL })
+        assertTrue(c.lines.any { it.text.startsWith("Não escolhido · ") })
+    }
+
+    @Test fun rolagemNormalNaoGastaRecursoMesmoQuandoExisteOpcaoPaga() {
+        val s = CampaignSession.create(
+            InMemoryEventStore(),
+            CampaignRecord("normal-fortune", "Teste", 43L, EngineConfig(deathResource = "hp"))
+        )
+        s.execute(CreateEntity(Entity(
+            id = "hero", name = "Herói", kind = EntityKind.PLAYER,
+            stats = mapOf("forca" to 2, "agilidade" to 1, "mente" to 1),
+            resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(2, 2))
+        )))
+        val provider = ScriptedProvider(listOf(
+            """{"narrative":"A fechadura resiste.","request_check":{"check":"ataque","difficulty":"media","onSuccess":"abre","onFailure":"falha"}}""",
+            ok("A fechadura resiste.")
+        ))
+        val c = PlayController(
+            s, GameLoop(provider, menu = fortuneMenu()), "hero", "hp",
+            checkFor = { null }
+        )
+
+        assertTrue(c.submit("forço a fechadura") is PlayResult.Played)
+        assertTrue(c.pendingFortuneSpendOption() != null)
+        assertTrue(c.rollPending() is PlayResult.Played)
+        assertEquals(2, s.state.entities.getValue("hero").resources.getValue("mana").current)
+        assertEquals(1, c.lines.count { it.author == Author.ROLL })
     }
 
     @Test fun linhaDeRolagemTrazOsDadosReaisDoMotorParaAnimar() {

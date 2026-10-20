@@ -4,6 +4,12 @@ Análise completa do projeto `RPG-solo-ficha-para-ia.zip` (módulos `engine`, `r
 
 > Limite da análise: não consegui compilar nem rodar o app (sem Gradle/SDK e sem rede). O que está dito sobre o comportamento das telas vem da leitura do código e precisa ser confirmado rodando no Android Studio. Itens assim estão marcados com **(verificar)**.
 
+> **Atualização de implementação — 18/10/2026:** este arquivo registra o diagnóstico original, não o estado atual completo. A branch `implementation/code-first-combat` já implementa várias melhorias descritas abaixo: Room/autosave e backup Android, chave protegida, importação de pacotes, combate integrado ao app, equipamento, condições com duração, biblioteca de fichas, mapa, capítulos, missões, linha do tempo, preferências de geração e ações de primeiro uso. Consulte `CHANGELOG.md` e `docs/PLANO_DESENVOLVIMENTO.md` para o estado da branch. Builds, testes, lint e CI foram deliberadamente adiados a pedido do usuário; os itens de validação continuam abertos até serem executados.
+
+> **Atualização code-first — 19/10/2026:** streaming SSE foi conectado ao transporte, aos provedores OpenAI-compatible/Anthropic, ao loop de jogo e à prévia progressiva da narração na tela. A tela também ganhou descrições semânticas dos dados para TalkBack. Alguns bônus/penalidades numéricos explícitos em `tracos.txt` agora entram na mecânica. Isso não equivale a implementar todos os 513 traços: usos por cena, gatilhos ficcionais, imunidades e efeitos que dependem do contexto ainda precisam de modelo mecânico próprio. O streaming e as alterações Compose **não foram compilados nem executados**.
+
+> **Atualização code-first — continuação de 19/10/2026:** a branch agora inclui APIs do motor para vantagem/desvantagem, testes opostos e testes em grupo; vantagem/desvantagem pode ser declarada por pacote. Foi adicionada a linha do tempo derivada do log, com pistas públicas opcionais reveladas quando um relógio de agenda completa. A API Anthropic oficial usa `cache_control: ephemeral` para o prefixo de sistema; Config permite ligar/desligar, exibe métricas de cache e aceita tarifas separadas para estimar custo. A progressão básica concede pontos por nível configurados em `pontos_por_nivel`, com alocação validada de atributo/perícia e pré-requisitos pelo motor e pela aba Campanhas. O primeiro uso bloqueia o chat até provedor, ficha disponível e campanha ativa; Config permite alternar cache e informar preços para estimar custo. Foram escritos testes para esses fluxos, mas nenhum build, teste, lint, CI ou validação em rede foi executado nesta continuação.
+
 Legenda de esforço: **P** = até 1 dia · **M** = 2 a 5 dias · **G** = mais de 1 semana.
 Legenda de prioridade: 🔴 bloqueia ou corrompe · 🟠 muda a experiência de jogo · 🟡 melhora · 🟢 polimento.
 
@@ -63,9 +69,8 @@ Ordem sugerida: **(A) fazer rodar e salvar → (B) combate e equipamento → (C)
 - Rodar o que mudou na última etapa: `./gradlew :engine:test :rules:test` com os testes novos de dados (`PointCheckTest`, `PointCheckPackageTest`, `SistemaProprioDadosTest`).
 - Primeira execução em aparelho real: medir tempo de abertura, consumo de bateria e dados (item 11.2.2 do plano, ainda aberto).
 
-### 3.5 Correção pendente da última entrega (🟠, P)
-**Achado:** ao mudar as perícias para o d6 por pontos e os dados reais, **não atualizei** `tutorial.txt` do sistema próprio. A linha 7 ainda diz: "O motor rola 2d6, soma o atributo e compara com a dificuldade." Isso agora é falso para esquiva e perícia, e é o texto que aparece na aba Regras.
-**Melhoria:** reescrever o passo "Testes" do tutorial com a regra nova (pontos = faces, dificuldade troca o dado, d20 para ataque/resistir/sorte) e conferir `criacao.txt`, `incerto.txt` e a documentação do README.
+### 3.5 Tutorial da mecânica de dados (🟢, concluído no código; validar)
+**Estado atual:** `tutorial.txt` do sistema próprio já descreve perícias por pontos, dados por dificuldade, ataque d20, dano, iniciativa, equipamento, condições e progressão. O achado acima é histórico e não deve ser tratado como pendência de implementação. Ainda é necessário conferir a apresentação no app depois da compilação.
 
 ---
 
@@ -103,7 +108,9 @@ Ordem sugerida: **(A) fazer rodar e salvar → (B) combate e equipamento → (C)
 
 ### 4.4 Efeitos mecânicos reais dos traços (🟠, G)
 **Achado:** dos 513 registros de `tracos.txt`, **18 têm bônus aplicado pelo motor**. As 219 vantagens, 197 desvantagens e 6 poderes são, na prática, texto que a IA interpreta. `criacao.txt` (regra 6) afirma "o motor aplica as penalidades" das desvantagens, o que hoje **não acontece**; o próprio arquivo de plano admite que "o motor valida custo e requisitos, mas ainda não aplica bônus".
-**Melhoria:** coluna de **efeitos tipados** em `tracos.txt`, começando pelos mais comuns:
+**Estado atualizado:** o formato de bônus numérico por escopo já existe e alguns traços explícitos foram ligados (por exemplo, penalidades de furtividade/ofícios e bônus de percepção/atletismo). Isso é parcial; não representa gatilhos condicionais, contadores de uso, imunidades ou efeitos de recursos. **Próxima implementação:** ampliar o modelo de efeitos tipados sem inferir mecânica a partir de texto livre.
+
+**Melhoria original:** coluna de **efeitos tipados** em `tracos.txt`, começando pelos mais comuns:
 - bônus ou penalidade em pontos num teste (já existe);
 - bônus de recurso máximo (+PV, +PM);
 - uso limitado ("1 vez por cena", "1 vez por descanso") com contador no estado;
@@ -119,7 +126,7 @@ Fazer primeiro as ~40 vantagens e desvantagens dos arquétipos mais usados e dei
 
 ### 4.6 Regra de dados: ajustes finos (🟡, P a M)
 Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade):
-- **0 e 1 ponto dão a mesma chance** (só a face mais alta). Decidir se o primeiro ponto deve valer (por exemplo, 0 pontos = 0 faces, mas com a face máxima ainda acertando como "chance mínima").
+- **Resolvido no código (19/10):** zero pontos mantém a chance mínima de uma face; cada ponto positivo acrescenta uma face até o teto do dado. A fórmula e o simulador foram alinhados; a tabela empírica será recalculada durante a validação.
 - **Teto no d4:** 3 faces. Um talento +2 em teste fácil pode não mudar nada; mostrar isso na tela ("já no máximo neste dado").
 - **Sem parcial nem crítico no d6 por pontos.** Opções: face máxima natural = sucesso crítico; face 1 natural = falha com complicação.
 - **Vantagem/desvantagem de rolagem** (rolar 2 dados e ficar com o melhor/pior) como alternativa ao Ganho/Perda por pontos, para o mestre usar em situações.
@@ -155,7 +162,9 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 
 ### 5.1 Dados e cartão de rolagem (🟠, M)
 **Achado (`DiceUi.kt`):** só o d6 tem desenho (pontos); qualquer outro dado é o número num quadrado arredondado. O cartão mostra sempre "dificuldade N", o que está errado para o teste de pontos (agora o motor converte para "d8 · acerta com 6–8").
-**Melhoria:**
+**Estado atualizado:** os seis tipos de dados têm formas geométricas e o cartão identifica faces de sucesso/margem; rolagens reveladas ficam no controlador. Descrições semânticas dos dados foram adicionadas para TalkBack, preservando resultado oculto até a revelação. O restante da seção continua como acabamento pendente.
+
+**Melhoria original:**
 - Formas por dado: d4 triângulo, d8 losango, d10 e d12 polígonos, d20 hexágono com facetas, d6 como já está.
 - Para testes de pontos: **faixa de faces** com as que acertam destacadas ("acerta com 6, 7 ou 8") e a face sorteada marcada.
 - Para d20: "d20 + 3 contra 12", com a **margem** do resultado ("passou por 2", "faltou 1") e o limiar de sucesso parcial e crítico visíveis.
@@ -174,9 +183,9 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 - Teclado: ajustar `imePadding` e rolagem para a última mensagem ao abrir o teclado.
 
 ### 5.3 Primeiro uso e navegação (🟠, M)
-**Achado:** a primeira tela é "A mesa ainda está vazia"; o jogador precisa descobrir sozinho que deve ir à aba Config (provedor, endpoint, modelo, chave), depois à aba Campanhas (nova campanha), depois à aba Heróis. São 6 abas com emoji no lugar de ícones.
-**Melhoria:**
-- **Assistente de primeiro uso:** 1) escolher provedor (com presets de endpoint e modelo sugerido) e **testar a conexão**; 2) criar ou escolher herói; 3) descrever a campanha; 4) jogar.
+**Estado atualizado:** a tela "A mesa ainda está vazia" agora apresenta explicitamente os três primeiros passos — configurar/testar provedor, criar ou escolher herói e criar campanha — com botões diretos. Isso melhora a descoberta, mas ainda não é um assistente transacional que guarde o progresso de cada etapa.
+**Melhoria restante:**
+- Assistente completo com presets de endpoint/modelo, estado de conclusão por etapa e transição automática até Jogar.
 - Reduzir a barra para 4 destinos (Jogar, Herói, Diário/Campanhas, Mais) e mover Regras, Sistemas e Config para "Mais".
 - Ícones vetoriais no lugar de emoji; transições entre telas.
 
@@ -209,8 +218,8 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 
 ### 5.8 Acessibilidade e idioma (🟢, M)
 - Strings fixas em português dentro do código: mover para `strings.xml` (facilita revisão e eventual tradução).
-- TalkBack: descrever cada dado ("d8, resultado 7, acerta") e cada botão; áreas de toque mínimas; contraste do tema taverna conferido nos dois modos.
-- Tamanho de fonte ajustável e suporte a tablet/paisagem (hoje coluna única).
+- **Parcial no código:** dados têm descrição semântica para TalkBack, sem revelar o resultado antes da hora; a escala global da fonte (85%–140%) já é configurável e persistida. Ainda falta revisar cada botão, áreas de toque, contraste nos dois temas e a experiência completa com TalkBack.
+- Suporte a tablet/paisagem continua pendente (hoje a interface é majoritariamente coluna única).
 
 ---
 
@@ -286,7 +295,7 @@ Sobre o que acabou de ser implementado (`POINTS`, dado trocado pela dificuldade)
 
 ## 10. Decisões que preciso de você
 
-1. **Primeiro ponto de perícia:** deve valer? (hoje 0 e 1 ponto dão a mesma chance.)
+1. **Primeiro ponto de perícia:** decisão aplicada no código: vale uma face adicional em relação a zero pontos. A validação deve confirmar se o equilíbrio em jogo fica bom.
 2. **Combate:** quer por turnos com botões (Atacar, Defender, Usar item…) ou mais narrativo, com a IA conduzindo e o motor só validando?
 3. **Morte:** permadeath, "caído com testes de sobrevivência" ou configurável por campanha?
 4. **Perícias:** manter os traços atuais (sim/não com +2) ou migrar para pontos por perícia (0 a 5), como você descreveu?

@@ -106,7 +106,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 2.3.4 Experiência e progressão
 - 2.3.5 Resultados: falha, sucesso parcial, sucesso, crítico (só quando o sistema permite)
 
-**Status em 17/10/2026:** `:engine:test :rules:test :ai:test :app:assembleDebug` passaram. O motor já oferece iniciativa/turnos, dano/cura, condições sem duração e XP/níveis; a validação de criação agora confere ids, pré-requisitos, limite 0–5 e custo de perícias também ao iniciar campanha. Ainda faltam uma resolução completa de ataque, equipamento, duração/efeitos mecânicos de condições e uma luta completa sem a IA decidir números. A escolha sobre a diferença entre 0 e 1 ponto de perícia continua pendente.
+**Status do código na branch `implementation/code-first-combat` (20/10/2026):** o motor e o app ligam iniciativa, ataques, dano, equipamento, bônus de traços/adaptações, condições com duração e dano por rodada, fuga, defesa, XP e encerramento de combate. A quantidade de dados de ataque continua definida pelo pacote; condições alteram o bônus/limiar de acordo com a comparação. Testes por pontos agora diferenciam 0 de 1 ponto: zero mantém uma face mínima e cada ponto positivo acrescenta uma face até o teto do dado. Resistência/vulnerabilidade a dano também é um efeito tipado de combate. A restauração de backup valida o estado reconstruído. A revisão estática também corrigiu o consumo de poção quando o recurso já está cheio e ligou efeitos numéricos explícitos de alguns traços. **Não executei builds/testes nesta etapa**, conforme pedido. A política de vantagem/desvantagem já é configurável por pacote e respeitada pelo fluxo principal do GameLoop: as duas rolagens são persistidas, a interface exibe a alternativa descartada e só o resultado escolhido alimenta o contexto de narração e as consequências. Testes opostos e de grupo aplicam também a política individual de fortuna de cada participante; a interface tem controles para ambos, mas a IA ainda não os solicita como ações pendentes narrativas. Dados explosivos determinísticos também estão disponíveis por teste e configuráveis no pacote, com limite defensivo de explosões. A progressão básica por pontos por nível está integrada; as APIs para rolagens opostas/em grupo já estão conectadas ao `PlayController`: cada fluxo grava os resultados, exibe as rolagens (incluindo alternativas descartadas por fortuna) e o desfecho calculado pelo motor e pode ser desfeito. Foram adicionados testes de regressão do controlador, ainda não executados. A aba Jogar agora oferece disputa entre o herói e um NPC com escolha explícita do teste; a interface também permite escolher participantes e limiar explícito de sucessos para o teste de grupo. Ainda não existe sintaxe de pacote nem pedido narrativo pendente para disparar essas modalidades pela IA. Testes opostos comparam primeiro a qualidade do resultado; a margem só desempata quando comparação, dados e dificuldade usam a mesma escala. Se a qualidade empata entre escalas incompatíveis, o defensor mantém a situação. Foi adicionada uma API transacional para pagar vantagem/desvantagem com um recurso da ficha; o pacote declara recurso/custo/modo pago por teste, separado da política automática, e a interface oferece escolha explícita entre rolagem normal e rolagem paga. A validação confirma referência do recurso, custo positivo e política compatível. O `EngineConfig` rejeita pré-requisitos de perícia que referenciem atributos inexistentes. O parser e o validador pós-herança dos pacotes também rejeitam escopos de bônus sem uma regra mecânica definida e referências cruzadas inválidas. O pacote já pode oferecer gasto opcional de um recurso por teste para vantagem/desvantagem e recompensas de recurso por nível; pontos de sorte/destino como subsistema geral e magia/poderes tipados continuam pendentes. Efeitos condicionais de traços não devem ser tratados como automáticos sem um modelo de gatilhos.
 
 **Pronto quando:** uma luta completa e uma sequência de testes rodam só com código, sem IA, e os testes provam as contradições bloqueadas.
 
@@ -114,7 +114,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 
 ## FASE 3 — Persistência local
 
-**Status em 17/10/2026:** campanhas, eventos, fichas e metadados usam Room com esquemas/migrações v1–v3; o autosave e a recuperação estão ligados ao app. Testes Gradle e `:app:assembleDebug` passam. Pendente: teste instrumentado de migração Room e validação em aparelho/emulador. Capítulos, missões e linha do tempo ficam hoje como metadados da campanha, não em tabelas dedicadas; os resumos automáticos previstos nas Fases 8/9 ainda faltam.
+**Status do código (18/10/2026):** campanhas, eventos, fichas e metadados usam Room com migrações v1–v3; autosave e recuperação estão ligados ao app. Backup/restauração já têm fluxo Android por seletor de arquivo e validação do estado reconstituído. Capítulos, missões e linha do tempo persistem em metadados da campanha, não em tabelas dedicadas. Pendente: teste instrumentado de migração Room e validação em aparelho/emulador; não executei essas verificações nesta etapa.
 
 ### Módulo 3.1 — Banco
 - 3.1.1 Tabelas: fichas, NPCs (com campo `privado`), eventos, capítulos, resumos, descobertas do jogador
@@ -159,7 +159,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 4.4.4 Regras adicionais ficam guardadas por campanha e marcadas na ficha com um selo
 - 4.4.5 Nunca importar mecânica de outro sistema sem declarar a adaptação
 
-**Status:** 4.1, 4.2 (menos integração com o app/Android), 4.3.1, 4.3.3 e 4.4 escritos, não compilados. Pendente: 4.3.2 (3D&T escolhido; bloqueado por licença, ver acima), leitura por `assets`/seletor de arquivo no Android, 4.4.2 na interface.
+**Status do código (19/10/2026):** o formato/validador de pacotes, herança, pacote próprio, importação ZIP pela interface Android e restauração dos pacotes importados estão ligados ao app. A importação limita arquivos a 20 MiB e tenta resolver dependências em ordem. Adaptações podem ser propostas, recusadas ou aprovadas; os efeitos aprovados entram nos testes/combate. Alguns bônus e penalidades explícitos dos traços do pacote próprio também foram conectados aos testes ou ao combate, incluindo resistência/vulnerabilidade a dano antes de aplicar o dano final. Isso **não** significa que todas as descrições dos traços (especialmente efeitos condicionais, usos por cena ou imunidades) sejam mecânicas. 3D&T continua apenas como link de consulta por decisão de licença; PDF foi descartado. Pendente: revisar catálogo/conteúdo de cada sistema e validar importação real em aparelho.
 
 **Atenção legal:** a maioria dos sistemas comerciais (3D&T, D&D, Vampire etc.) tem direitos autorais. O pacote deve conter mecânicas escritas por nós e/ou conteúdo que o usuário importe do próprio material. Não embutir texto oficial no app sem licença.
 
@@ -273,7 +273,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 6.4.3 Ações simples resolvidas sem IA (ver ficha, inventário, descansar)
 - 6.4.4 Cache do bloco fixo (regras + cenário), quando o provedor suportar
 
-**Status:** núcleo escrito, não compilado (ver README): 6.1.1, 6.1.3 (dois provedores sobre transporte injetável), 6.1.4, 6.1.5 (máscara; armazenamento seguro fica no app), 6.2.1–6.2.5, 6.3.1–6.3.3. 6.4.1 (modelo barato classifica a intenção, `IntentClassifier`) e 6.4.3 (ações locais sem IA, `LocalActions`) escritos, não compilados. 6.4.2 (`AiRoles`, `ProviderFactory.buildRoles`, `Importance`: modelo melhor só em crítico, decidido pelo motor) escrito, não compilado; classificador e resumo de capítulo usam o modelo barato. Pendente: 6.1.2 (escolher provedor gratuito após testar limites), 6.4.4 (cache do bloco fixo).
+**Status do código (19/10/2026):** os provedores compatíveis com OpenAI e Anthropic, configuração de endpoint/modelo, chave protegida pelo Android Keystore, teste de conexão, estimativa de tokens, classificação barata, roteamento de modelo e ações locais estão ligados ao app. O streaming SSE foi ligado no transporte, nos provedores, no loop de jogada e na tela, extraindo progressivamente apenas o campo `narrative` do JSON. A resposta estruturada continua validada e propostas recusadas sofrem rollback. **Cache do prefixo system foi implementado para a API oficial Anthropic**, com opção na Config, métricas de leitura/criação no SSE e estimativa com tarifas de cache. A validação de cache-hit em rede real continua pendente. A escolha de um provedor gratuito padrão depende de confirmar limites atuais; não foi inventado um preset sem validação. O streaming ainda não foi compilado nem validado em rede real.
 
 ---
 
@@ -306,7 +306,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 
 **Pronto quando:** uma sessão de 20 jogadas roda com o pacote de teste, e nenhuma resposta da IA consegue mudar um resultado de dado.
 
-**Status:** núcleo escrito, não compilado: 7.1.3–7.1.6, 7.2, 7.3.1–7.3.3, 7.3.5, 7.4 (ver README). 7.1.2 (`IntentClassifier`: a IA só escolhe um id entre os testes do pacote) e 7.3.4 (campo opcional `suggestions`, até 3, nunca vira estado) escritos, não compilados. As opções de teste vêm do pacote (`RulePackage.checkChoices`) e já estão ligadas no app de demonstração (pacote teste-basico). Pendente: busca de regra no `RuleLookupChain`, escolha de dificuldade pelo classificador, pacote ativo da campanha em vez do fixo.
+**Status do código (19/10/2026):** o loop de jogo monta contexto da campanha, usa opções de teste do pacote ativo, envia resumo de capítulo e regras relevantes, valida propostas e desfaz alterações em caso de falha. O prompt proíbe a IA de decidir dados, dano ou segredos não liberados; há sugestões opcionais e controles de desfazer/refazer. O streaming progressivo do campo de narração está conectado ao fluxo da interface, mas continua pendente de validação em execução. Cache do prefixo system está implementado para Anthropic oficial; métricas e preferência aparecem em Config. Ainda não foi validado em rede real.
 
 ---
 
@@ -345,7 +345,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 8.5.1 Segredo de NPC só vai para a IA se a cena exigir
 - 8.5.2 Instrução fixa no prompt: não revelar segredo sem o motor liberar
 
-**Status:** núcleo escrito, não compilado: 8.0 (anterior), 8.1, 8.3, 8.4, 8.5 (ver README). 8.2.2 e 8.2.3 escritos e testados no motor (relações e relógios). IA propor e contexto também feitos. Pendente: persistência, tela.
+**Status do código (18/10/2026):** criação de NPC pelo fluxo validado, dossiês privados, promessas, relações, relógios, diário do conhecimento e revelação de segredos por teste estão ligados ao motor e ao log persistido. A tela mostra apenas atitudes direcionadas ao jogador em palavras, sem números de relação. **Pendente:** o mestre precisa fornecer uma pista pública apropriada no campo `publicClue`; o motor a revela só quando o relógio completa. A progressão automática de agendas e a geração contextual dessas pistas ainda não estão completas.
 
 ---
 
@@ -380,7 +380,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 9.5.2 Teste: o capítulo seguinte começa no estado correto
 - 9.5.3 Teste: promessa feita é lembrada, item consumido não volta
 
-**Status:** núcleo escrito, não compilado: 9.2, 9.3.1, 9.3.2, 9.4.4/9.4.5 (teste), 9.5.2/9.5.3 (testes em `ChapterTest`). 9.1.1/9.1.3/9.1.4 (`CampaignInterpreter`: a IA só mapeia a descrição para ids do catálogo; o motor valida com `resolveConfig` e pergunta sistema, dificuldade e edição) escritos, não compilados. `CampaignStarter` (rules) liga configuração resolvida + ficha aprovada + pacote da edição e cria a campanha salva (5.3.1/5.1.4), recusando ficha de outra edição ou inválida pelo pacote; escrito, não compilado. `NewCampaignFlow` (ai) e a seção "Nova campanha" na aba Campanhas (descrição → perguntas → revisão → ficha e nome → começar) escritos, não compilados. 9.1.2 (`CampaignForm`) e 9.3.3 (`PlaceMap`) escritos e testados. Pendente: tela do formulário, 9.4.2/9.4.3, persistência.
+**Status do código (18/10/2026):** a criação incremental por descrição livre, o formulário auxiliar, revisão de compatibilidade, capítulos com resumo, tamanho configurável, missões/objetivos, linha do tempo manual, mapa de locais descobertos e persistência de ambientação/configuração estão conectados ao app. O fechamento automático de capítulo é acionado após jogadas no chat. **Pendente:** registrar automaticamente mais eventos na linha do tempo e concluir a tipagem mecânica de equipamentos ficcionais por pacote/adaptação.
 
 ---
 
@@ -414,7 +414,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 10.6.3 Backup, exportar/importar, privacidade
 - 10.6.4 Uso estimado de tokens
 
-**Status:** partes 1 e 2 escritas, não compiladas: 10.1.1, 10.1.3–10.1.5, 10.2, 10.3, 10.4, 10.5.1, 10.6.1, 10.6.4 (ver README). Sugestões (10.1.2) aparecem como chips que só preenchem o campo de texto, não validados no Android. Pendente: 10.5.2, 10.6.2/10.6.3, persistência.
+**Status do código (19/10/2026):** as seis abas têm telas funcionais; Jogar inclui painel, dados visuais, inventário/equipamento, locais, regras adicionais, combate, atalhos locais e prévia de narração progressiva. Os dados incluem descrições semânticas para TalkBack, sem revelar faces antes da revelação. Heróis inclui criação guiada e biblioteca; Campanhas inclui backups por arquivo/texto, capítulos, missões, diário, linha do tempo e evolução; Sistemas importa ZIP; Config inclui teste de conexão, chave segura, preferências de narração e limites de conteúdo. **Pendente:** validação do streaming em execução, revisão completa TalkBack/contraste em aparelho e validação visual do primeiro uso. A estimativa monetária já aceita preços por milhão e tarifas de cache, mas depende dos preços informados pelo usuário e ainda não foi validada. A tela inicial agora mostra os três passos de configuração; a escala global de fonte já existe na Configuração, mas ainda não foi validada visualmente.
 
 ---
 
@@ -441,7 +441,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 11.3.2 Aviso de privacidade (o texto da jogada vai ao provedor de IA)
 - 11.3.3 APK de uso pessoal; versão pública só com chave do próprio usuário
 
-**Status:** parte 1 escrita, não compilada: 11.1.1–11.1.6, 11.1.8–11.1.10, 11.2.1, 11.3.1 (núcleo) e 11.3.2 (texto na Config). 11.1.7 já tinha teste. Pendente: 11.2.2, backup no Android, 11.3.3.
+**Status do código (19/10/2026):** há cobertura automatizada já existente para o motor e os fluxos puros, mas **nenhum build, teste, lint ou CI foi executado nesta etapa**, conforme pedido. Backup Android, migrações Room instrumentadas, teste em aparelho/emulador, bateria completa de continuidade e entrega/assinatura do APK continuam como validações pendentes. A revisão estática e as correções code-first foram ampliadas para streaming SSE, integração do fluxo de narração, bônus de traços explícitos e descrições acessíveis dos dados.
 
 ---
 
@@ -462,3 +462,38 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 3. **A IA pode narrar um segredo cedo demais.** Mitigação: só enviar o segredo quando a cena precisa e instruir no prompt (8.5).
 4. **Resposta inválida da IA.** Mitigação: validação de esquema, rollback, nova tentativa (6.2, 6.3).
 5. **Perda do aparelho = perda dos dados.** Mitigação: backup local exportável (10.6.3).
+
+---
+
+## Atualização code-first — 20/10/2026 (implementações e lacunas abertas)
+
+Esta atualização registra somente alterações efetivamente gravadas nesta branch. Não substitui a validação posterior e não declara como concluídas integrações que ainda não existem.
+
+### Implementado nesta continuação
+
+- **Motor — testes avançados:** a API `AdvancedChecks.kt` resolve vantagem/desvantagem, testes opostos e testes em grupo. `CheckSpec` aceita `fortuneMode` e `explodeOnMax`; `testes.txt` pode declarar `NORMAL`, `ADVANTAGE` ou `DISADVANTAGE`, ativar dados explosivos com `true` e configurar `recurso_fortuna|custo_fortuna|modo_fortuna_pago` para oferecer gasto opcional ao jogador sem conceder vantagem automática gratuita. O fluxo principal respeita essa política; ambas as rolagens ficam persistidas, a alternativa descartada aparece no chat e apenas a escolhida vai para a narração. Os testes opostos e de grupo também respeitam a política individual de cada participante. A persistência dessas resoluções e o gasto de recurso associado são transacionais no nível da sessão. Os testes opostos/em grupo já estão acessíveis por controles próprios na aba Jogar; falta adicionar o formato de pedido narrativo e a resolução pendente dessas modalidades.
+- **Continuidade — linha do tempo automática:** criada a projeção `automaticTimeline(events, playerId, state)`, derivada do log canônico, para descobertas do jogador, locais conhecidos, deslocamentos, XP/nível e condições do próprio personagem. Dossiês, segredos privados, dados internos de relógios e mudanças ocultas de NPC ficam fora dessa projeção; apenas a pista pública opcional de um relógio concluído pode aparecer. A camada `PlayController` a expõe e a aba Campanhas mostra os registros. Relógios de agenda aceitam uma `publicClue` opcional, revelada só ao completar o relógio e sem exibir nome interno ou contagem.
+- **IA — cache de prompt Anthropic:** `ProviderConfig.cacheSystemPrompt` habilita o bloco `cache_control: ephemeral` para o endpoint oficial `api.anthropic.com`; endpoints compatíveis de terceiros não presumem suporte. O cache é aplicado ao prefixo system, não a mensagens dinâmicas do jogador. A configuração pode ser desativada explicitamente. Isso pede suporte real do modelo/endpoint e ainda precisa de validação em rede.
+- **Progressão básica:** `pontos_por_nivel` concede pontos ao subir de nível; o motor valida saldo, teto e pré-requisitos tipados, registra a alocação em evento reversível e a aba Campanhas permite gastar pontos em atributos/perícias. O pacote próprio concede um ponto por nível.
+- **Cobertura preparada:** adicionados testes unitários para rolagens avançadas e rollback (incluindo falha de persistência, escalas incompatíveis em disputas, alternativa visível de vantagem, gasto opcional de recurso e dados explosivos), linha do tempo e pistas públicas, alocação/requisitos de evolução e recompensas de recurso por nível, configuração de pacote, cache Anthropic e métricas SSE/custo. Eles foram escritos, mas não executados nesta etapa.
+- **Documentação:** este plano e o changelog registram o estado atual e as limitações sem tratar código não compilado como validado.
+
+### Ainda não fechado em código
+
+1. **Mecânicas:** testes opostos e em grupo já têm controles próprios na aba Jogar, resultados persistidos e opção de desfazer; ainda falta a sintaxe de pedido narrativo pendente da IA para essas modalidades. A progressão básica concede pontos por nível conforme `pontos_por_nivel`, valida requisitos e limites de atributo/perícia contra a configuração gravada na campanha e oferece botões de gasto na aba Campanhas. Continuam pendentes o subsistema geral de sorte/destino e o modelo tipado completo para gatilhos/limites/imunidades dos traços e poderes; a progressão também pode conceder pontos e restaurar recursos por nível conforme o pacote.
+2. **Continuidade:** a linha do tempo cobre eventos atribuíveis ao jogador e pode revelar uma `publicClue` quando um relógio completa, sem exibir nome interno ou contagem. Ainda não há avanço automático de agendas com consequências contextuais nem geração automática de pistas a partir desses eventos.
+3. **IA:** o cache está implementado para a API oficial Anthropic e as contagens de tokens lidos/criados no cache aparecem em Config; o controle visual de ativar/desativar já está na Config; falta confirmação de hit/uso em rede real. A estimativa aceita tarifas distintas para entrada normal, leitura de cache e criação de cache. A escolha de provedor gratuito padrão continua dependente de verificar limites atuais. Não declarar cache real para OpenAI-compatible: o comportamento varia por serviço.
+4. **Interface:** a linha do tempo derivada foi adicionada à aba Campanhas; continuam pendentes revisão completa de TalkBack/contraste e relatório de diagnóstico. O primeiro uso agora mostra o progresso real das etapas e bloqueia o chat até haver provedor, ficha disponível e campanha ativa. A Config agora aceita preços por milhão para entrada/saída e tarifas distintas de leitura/criação de cache, e mostra estimativa na moeda informada; ainda depende de o usuário informar preços atuais do modelo.
+5. **Documentação e fechamento:** o estado do código está atualizado; o plano geral só poderá ser marcado como fechado depois de implementar as lacunas acima. Builds, testes, lint, CI, migrações instrumentadas e validação em aparelho permanecem deliberadamente adiados.
+
+### Regra de trabalho mantida
+
+Continuar corrigindo e integrando o código antes de iniciar a etapa de validação. Não marcar build, teste, rede real ou experiência em aparelho como aprovados sem executá-los.
+
+### CI — primeira execução na branch code-first (19/10/2026)
+
+- Workflow: [Android CI](https://github.com/Kyra2214/RPG-solo/actions/runs/39256577704), execução #26, commit `09cd4a7420341d093fb918745fb205eb4644de94`.
+- Ajuste realizado: o gatilho `push` agora inclui `implementation/code-first-combat`; antes, o workflow só disparava em `main`.
+- Resultado observado: falha antes de qualquer etapa do job; a API do GitHub reportou `steps: []` e nenhum runner atribuído. A repetição da execução também terminou sem iniciar etapas.
+- Interpretação: **testes e compilação não foram executados**. Não classificar como falha de teste do código nem como aprovação. É necessário resolver a inicialização do job/runner e obter uma execução com as etapas `Run JVM and Android tests` e `Build debug APK`.
+- Artefato APK: não gerado nesta execução.

@@ -36,7 +36,9 @@ data class PanelState(
     val resources: Map<String, Pair<Int, Int>>,
     val conditions: List<String>,
     val quest: String?,
-    val inCombat: Boolean
+    val inCombat: Boolean,
+    val level: Int = 1,
+    val xp: Int = 0
 )
 
 /**
@@ -56,7 +58,17 @@ class PlayController(
     /** Ficha do jogador para o mestre ver (vantagens, desvantagens, atributos...). null = o mestre só vê a saúde em palavras. */
     private val sheet: PlayerSheet? = null,
     /** id da condição -> nome para mostrar no painel (ex.: "visao-turva" -> "Visão turva"). Sem entrada, mostra o id. */
-    private val conditionNames: Map<String, String> = emptyMap()
+    private val conditionNames: Map<String, String> = emptyMap(),
+    /** Busca só regras relevantes no pacote ativo (4.2.3/7.2.2). */
+    private val ruleLookup: (String) -> List<String> = { emptyList() },
+    /** Resumo do capítulo já encerrado, sem mandar todo o histórico à IA. */
+    private val chapterSummary: () -> String? = { null },
+    /** Fichas privadas dos NPCs que participam do combate atual; nunca renderizadas na interface do jogador. */
+    private val npcContext: (String) -> List<String> = { emptyList() },
+    /** NPCs presentes: todos os combatentes ou os mencionados explicitamente na ação atual. */
+    private val sceneNpcIds: (String) -> Set<String> = { emptySet() },
+    private val worldContext: () -> String? = { null },
+    private val generationPreferences: () -> String? = { null }
 ) {
     /** Uma jogada no chat: onde começa e, se foi ação local que gravou estado, a marca para desfazer. */
     private data class Entry(val start: Int, val localMark: Int? = null, val viaLoop: Boolean = true)
@@ -67,6 +79,9 @@ class PlayController(
     private val revealedRolls = mutableSetOf<Int>()
 
     val lines: List<ChatLine> get() = chat.toList()
+
+    /** Linha do tempo derivada do log persistido; segredos e estado privado de NPC não são incluídos. */
+    fun automaticTimeline() = dev.rpgsolo.engine.automaticTimeline(session.engine.events, playerId, session.state)
 
     fun isRollRevealed(index: Int): Boolean = index in revealedRolls
 
@@ -82,6 +97,13 @@ class PlayController(
 
     /** Teste ou rolagem que o mestre pediu e o jogador ainda não rolou. A tela mostra o botão de rolar enquanto houver um. */
     fun pending(): Pending? = loop.pending()
+
+    /** Opção paga, definida pelo pacote, para ativar vantagem/desvantagem no teste pendente. */
+    fun pendingFortuneSpendOption(): FortuneSpendOption? {
+        val option = (loop.pending() as? PendingCheck)?.fortuneSpendOption ?: return null
+        val current = session.state.entities[playerId]?.resources?.get(option.resource)?.current ?: return null
+        return option.takeIf { current >= it.cost }
+    }
 
     /**
      * Quanto da ficha enviar agora (cada pedido à IA é independente):
@@ -102,7 +124,7 @@ class PlayController(
         return level to s.render(session.state, playerId, level)
     }
 
-    fun submit(text: String): PlayResult {
+    fun submit(text: String, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         if (text.isBlank()) return PlayResult.Failed("texto vazio")
         if (loop.pending() != null) return PlayResult.Failed("o mestre pediu uma rolagem: role-a antes de continuar")
         val start = chat.size
@@ -111,7 +133,18 @@ class PlayController(
         val sheetNow = sheetNow()
         val result = loop.play(
             session,
-            PlayInput(playerId, text, checkFor(text), healthResource, playerSheet = sheetNow?.second, sheetLevel = sheetNow?.first)
+            PlayInput(
+                playerId, text, checkFor(text), healthResource,
+                ruleSnippets = ruleLookup(text).take(5),
+                chapterSummary = chapterSummary(),
+                npcPrivate = npcContext(text),
+                sceneNpcIds = sceneNpcIds(text),
+                worldContext = worldContext(),
+                generationPreferences = generationPreferences(),
+                playerSheet = sheetNow?.second,
+                sheetLevel = sheetNow?.first
+            ),
+            onNarrativeChunk = onNarrativeChunk
         )
         when (result) {
             is PlayResult.Played -> {
@@ -124,13 +157,25 @@ class PlayController(
     }
 
     /** O jogador rola o teste pedido pelo mestre: o motor rola e o mestre narra o desfecho. Chamada de rede. */
-    fun rollPending(): PlayResult {
+    fun rollPending(useFortuneResource: Boolean = false, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
         val pending = loop.pending() ?: return PlayResult.Failed("não há teste pendente")
         val start = chat.size
         val sheetNow = sheetNow()
         val result = loop.resolvePending(
             session,
-            PlayInput(playerId, pending.playerText, null, healthResource, playerSheet = sheetNow?.second, sheetLevel = sheetNow?.first)
+            PlayInput(
+                playerId, pending.playerText, null, healthResource,
+                ruleSnippets = ruleLookup(pending.playerText).take(5),
+                chapterSummary = chapterSummary(),
+                npcPrivate = npcContext(pending.playerText),
+                sceneNpcIds = sceneNpcIds(pending.playerText),
+                worldContext = worldContext(),
+                generationPreferences = generationPreferences(),
+                playerSheet = sheetNow?.second,
+                sheetLevel = sheetNow?.first
+            ),
+            useFortuneResource = useFortuneResource,
+            onNarrativeChunk = onNarrativeChunk
         )
         when (result) {
             is PlayResult.Played -> {
@@ -192,6 +237,103 @@ class PlayController(
         return result
     }
 
+
+    /**
+     * Resolve uma disputa com especificações mecânicas explícitas do pacote.
+     * Registra ambas as rolagens; o motor determina o vencedor e o empate favorece o defensor.
+     */
+    fun resolveOpposed(
+        challenger: CheckSpec,
+        defender: CheckSpec,
+        challengerName: String = challenger.label,
+        defenderName: String = defender.label,
+        challengerEntityId: String = playerId,
+        defenderEntityId: String? = null
+    ): PlayResult {
+        if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes da disputa")
+        val start = chat.size
+        val mark = session.mark()
+        return try {
+            val preparedChallenger = loop.prepareAdvancedCheck(session, challenger, challengerEntityId)
+                ?: return PlayResult.Failed("participante desafiante inexistente: $challengerEntityId")
+            val preparedDefender = defenderEntityId?.let { id ->
+                loop.prepareAdvancedCheck(session, defender, id)
+                    ?: return PlayResult.Failed("participante defensor inexistente: $id")
+            } ?: defender
+            val result = session.checkOpposed(preparedChallenger, preparedDefender)
+            entries.addLast(Entry(start, localMark = mark, viaLoop = false))
+            chat += ChatLine(Author.SYSTEM, "Disputa: $challengerName contra $defenderName.")
+            result.challengerAlternatives.forEach { alternative -> chat += ChatLine(Author.ROLL, "Não escolhido · $challengerName · " + rollText(alternative), rollView(alternative)) }
+            chat += ChatLine(Author.ROLL, "$challengerName · " + rollText(result.challenger), rollView(result.challenger))
+            result.defenderAlternatives.forEach { alternative -> chat += ChatLine(Author.ROLL, "Não escolhido · $defenderName · " + rollText(alternative), rollView(alternative)) }
+            chat += ChatLine(Author.ROLL, "$defenderName · " + rollText(result.defender), rollView(result.defender))
+            chat += ChatLine(
+                Author.MASTER,
+                if (result.challengerWins) "$challengerName vence a disputa."
+                else "$defenderName vence ou mantém a disputa; empate favorece o defensor."
+            )
+            PlayResult.Played(
+                TurnRecord(
+                    PlayInput(playerId, "disputa: $challengerName vs. $defenderName"),
+                    mark, session.mark(), result.challenger,
+                    if (result.challengerWins) "$challengerName vence a disputa." else "$defenderName vence ou mantém a disputa."
+                )
+            )
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(mark) }
+            PlayResult.Failed(e.message ?: "falha ao resolver a disputa")
+        }
+    }
+
+    /**
+     * Resolve uma tarefa em grupo com limiar explícito. Cada participante respeita a política
+     * de fortuna de sua especificação; o motor conta sucessos e decide se o grupo passou.
+     */
+    fun resolveGroup(
+        checks: List<CheckSpec>,
+        requiredSuccesses: Int,
+        participantNames: List<String> = checks.map { it.label },
+        participantEntityIds: List<String?> = listOf(playerId) + List((checks.size - 1).coerceAtLeast(0)) { null }
+    ): PlayResult {
+        if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes do teste de grupo")
+        if (participantNames.size != checks.size || participantEntityIds.size != checks.size) {
+            return PlayResult.Failed("cada participante precisa de nome e referência correspondentes")
+        }
+        val start = chat.size
+        val mark = session.mark()
+        return try {
+            val preparedChecks = checks.mapIndexed { index, spec ->
+                val entityId = participantEntityIds[index]
+                if (entityId == null) spec else loop.prepareAdvancedCheck(session, spec, entityId)
+                    ?: return PlayResult.Failed("participante inexistente: $entityId")
+            }
+            val result = session.checkGroup(preparedChecks, requiredSuccesses)
+            entries.addLast(Entry(start, localMark = mark, viaLoop = false))
+            chat += ChatLine(Author.SYSTEM, "Teste de grupo: ${checks.size} participantes; necessários ${result.requiredSuccesses} sucessos.")
+            result.individual.forEachIndexed { index, check ->
+                result.alternatives.getOrNull(index).orEmpty().forEach { alternative ->
+                    chat += ChatLine(Author.ROLL, "Não escolhido · " + participantNames[index] + " · " + rollText(alternative), rollView(alternative))
+                }
+                chat += ChatLine(Author.ROLL, participantNames[index] + " · " + rollText(check), rollView(check))
+            }
+            chat += ChatLine(
+                Author.MASTER,
+                if (result.passed) "O grupo alcançou o limiar de sucesso."
+                else "O grupo não alcançou o limiar de sucesso."
+            )
+            PlayResult.Played(
+                TurnRecord(
+                    PlayInput(playerId, "teste de grupo (${checks.size} participantes)"),
+                    mark, session.mark(), result.individual.firstOrNull(),
+                    if (result.passed) "grupo passou" else "grupo falhou"
+                )
+            )
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(mark) }
+            PlayResult.Failed(e.message ?: "falha ao resolver o teste de grupo")
+        }
+    }
+
     fun panel(): PanelState? {
         val e = session.state.entities[playerId] ?: return null
         return PanelState(
@@ -199,7 +341,9 @@ class PlayController(
             resources = e.resources.mapValues { (_, r) -> r.current to r.max },
             conditions = session.state.conditions[playerId].orEmpty().sorted().map { conditionNames[it] ?: it },
             quest = quests?.active()?.firstOrNull()?.title,
-            inCombat = session.state.combat != null
+            inCombat = session.state.combat != null,
+            level = e.level,
+            xp = e.xp
         )
     }
 
@@ -212,6 +356,11 @@ class PlayController(
     private fun showTurn(r: PlayResult.Played) {
         // Rolagem com tabela (ex.: d6 do dano) não tem dificuldade nem sucesso/falha: o cartão mostra só o dado.
         val plain = r.record.input.resolving is PendingRoll
+        // Mostra a rolagem descartada para transparência, mas deixa o resultado escolhido
+        // como a única rolagem efetiva usada pela narração e pelas consequências.
+        r.record.fortuneAlternatives.forEach { alternative ->
+            chat += ChatLine(Author.ROLL, "Não escolhido · " + rollText(alternative, plain), rollView(alternative, plain))
+        }
         r.record.check?.let { chat += ChatLine(Author.ROLL, rollText(it, plain), rollView(it, plain)) }
         chat += ChatLine(Author.MASTER, r.record.narrative)
     }

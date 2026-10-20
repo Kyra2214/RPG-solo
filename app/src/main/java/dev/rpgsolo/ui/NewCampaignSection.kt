@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.ai.NewCampaignFlow
+import dev.rpgsolo.ai.CampaignForm
 import dev.rpgsolo.engine.Ficha
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +32,7 @@ import kotlin.random.Random
  */
 @Composable
 fun NewCampaignSection(model: AppModel) {
-    val flow = remember(model.controller != null) { model.newCampaignFlow() }
+    val flow = remember(model.controller != null, model.packageVersion) { model.newCampaignFlow() }
     Text("Nova campanha", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
     if (flow == null) {
         Muted("Configure o provedor de IA na aba Config para criar uma campanha.")
@@ -42,8 +44,42 @@ fun NewCampaignSection(model: AppModel) {
     var name by remember { mutableStateOf("") }
     var chosen by remember { mutableStateOf<Ficha?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var showForm by remember { mutableStateOf(false) }
+    var genre by remember { mutableStateOf("") }
+    var era by remember { mutableStateOf("") }
+    var tone by remember { mutableStateOf("") }
+    var difficulty by remember { mutableStateOf("") }
+    var themes by remember { mutableStateOf("") }
+    var duration by remember { mutableStateOf("") }
+    var contentLimits by remember { mutableStateOf("") }
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        TextButton(onClick = { showForm = !showForm }) {
+            Text(if (showForm) "Ocultar formulário auxiliar" else "Abrir formulário auxiliar")
+        }
+        if (showForm) {
+            Text("O formulário é opcional; a descrição livre continua sendo aceita.", style = MaterialTheme.typography.bodySmall)
+            OutlinedTextField(genre, { genre = it }, Modifier.fillMaxWidth(), label = { Text("Gênero") }, singleLine = true)
+            OutlinedTextField(era, { era = it }, Modifier.fillMaxWidth(), label = { Text("Época") }, singleLine = true)
+            OutlinedTextField(tone, { tone = it }, Modifier.fillMaxWidth(), label = { Text("Tom") }, singleLine = true)
+            OutlinedTextField(difficulty, { difficulty = it }, Modifier.fillMaxWidth(), label = { Text("Dificuldade") }, singleLine = true)
+            OutlinedTextField(themes, { themes = it }, Modifier.fillMaxWidth(), label = { Text("Temas (separados por vírgula)") })
+            OutlinedTextField(duration, { duration = it }, Modifier.fillMaxWidth(), label = { Text("Duração desejada") }, singleLine = true)
+            OutlinedTextField(
+                contentLimits, { contentLimits = it }, Modifier.fillMaxWidth(),
+                label = { Text("Limites de conteúdo (ex.: sem violência sexual, sem crueldade explícita)") }
+            )
+            OutlinedButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    text = CampaignForm(
+                        genre = genre, era = era, tone = tone, difficulty = difficulty,
+                        themes = themes.split(',').map { it.trim() }.filter { it.isNotEmpty() },
+                        duration = duration, contentLimits = contentLimits, freeText = text
+                    ).toDescription()
+                }
+            ) { Text("Adicionar campos à descrição") }
+        }
         when (val s = step) {
             NewCampaignFlow.Step.Describe -> {
                 OutlinedTextField(

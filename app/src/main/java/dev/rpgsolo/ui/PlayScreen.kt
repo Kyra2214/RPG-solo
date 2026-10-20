@@ -30,6 +30,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -59,14 +60,53 @@ import kotlinx.coroutines.withContext
 
 /** Aba Jogar (10.1): chat com o mestre, rolagem animada de dados e painel rápido do personagem. */
 @Composable
-fun PlayScreen(model: AppModel) {
+fun PlayScreen(model: AppModel, onNavigate: (Tab) -> Unit = {}) {
+    val setup = model.setupStatus()
+    if (!setup.complete) {
+        Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+            AppCard {
+                Text("🎲", fontSize = 40.sp)
+                Text("Preparar sua mesa", style = MaterialTheme.typography.titleLarge)
+                Muted("Complete as três etapas para começar uma campanha. O progresso acompanha sua configuração real.")
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (setup.providerReady) {
+                        Muted("✓ 1. Provedor de IA configurado.")
+                    } else {
+                        Muted("1. Configure e teste o provedor de IA.")
+                        OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.fillMaxWidth()) {
+                            Text("1 · Configurar IA")
+                        }
+                    }
+                    if (setup.heroReady) {
+                        Muted("✓ 2. Herói disponível na biblioteca.")
+                    } else {
+                        Muted("2. Crie ou escolha uma ficha de herói.")
+                        OutlinedButton(onClick = { onNavigate(Tab.PERSONAGENS) }, modifier = Modifier.fillMaxWidth()) {
+                            Text("2 · Criar ou escolher herói")
+                        }
+                    }
+                    if (setup.campaignReady) {
+                        Muted("✓ 3. Campanha criada.")
+                    } else {
+                        Muted("3. Descreva a aventura e inicie a campanha com o herói escolhido.")
+                        Button(onClick = { onNavigate(Tab.CAMPANHAS) }, modifier = Modifier.fillMaxWidth()) {
+                            Text("3 · Criar campanha")
+                        }
+                    }
+                }
+            }
+        }
+        return
+    }
     val c = model.controller
     if (c == null) {
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
             AppCard {
-                Text("🎲", fontSize = 40.sp)
-                Text("A mesa ainda está vazia", style = MaterialTheme.typography.titleLarge)
-                Muted("Configure o provedor de IA na aba Config e crie uma campanha na aba Campanhas para começar a jogar.")
+                Text("Não foi possível iniciar o mestre", style = MaterialTheme.typography.titleLarge)
+                Muted(model.configError ?: "Confira o provedor e tente novamente na aba Config.")
+                OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Abrir Config")
+                }
             }
         }
         return
@@ -78,6 +118,8 @@ fun PlayScreen(model: AppModel) {
 private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: String?) {
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
+    var playError by remember { mutableStateOf<String?>(null) }
+    var streamingText by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var version by remember { mutableIntStateOf(0) }
     val lines = remember(version) { c.lines }
@@ -85,35 +127,60 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     val suggestions = remember(version) { c.suggestions() }
     // Teste pedido pelo mestre no meio da história: o jogo espera o jogador rolar.
     val pendingCheck = remember(version) { c.pending()?.label }
+    val fortuneSpendOption = remember(version) { c.pendingFortuneSpendOption() }
     val listState = rememberLazyListState()
 
-    val visible = lines.withIndex().filter { (i, l) ->
-        !(l.author == Author.MASTER && i > 0 && lines[i - 1].roll != null && !c.isRollRevealed(i - 1))
+    val visible = lines.withIndex().filter { (i, line) ->
+        val hasHiddenRollBeforeNarrative = if (line.author == Author.MASTER) {
+            var cursor = i - 1
+            var hidden = false
+            while (cursor >= 0 && lines[cursor].roll != null) {
+                if (!c.isRollRevealed(cursor)) hidden = true
+                cursor--
+            }
+            hidden
+        } else false
+        !hasHiddenRollBeforeNarrative
     }
     val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && !c.isRollRevealed(i) }
 
-    LaunchedEffect(visible.size, pendingRoll) { if (visible.isNotEmpty()) listState.animateScrollToItem(visible.lastIndex) }
+    LaunchedEffect(visible.size, pendingRoll, streamingText.length, busy) {
+        val lastIndex = visible.lastIndex + if (busy && streamingText.isNotBlank()) 1 else 0
+        if (lastIndex >= 0) listState.animateScrollToItem(lastIndex)
+    }
 
     // A chamada à IA é de rede: sempre fora da thread principal.
     fun run(block: () -> Unit) {
         if (busy) return
         busy = true
         scope.launch {
-            withContext(Dispatchers.IO) { block() }
-            busy = false
-            version++
+            try {
+                withContext(Dispatchers.IO) { block() }
+            } catch (e: Exception) {
+                playError = e.message ?: "A ação falhou inesperadamente. Você pode tentar de novo."
+                streamingText = ""
+            } finally {
+                busy = false
+                version++
+            }
         }
     }
 
     Column(Modifier.fillMaxSize()) {
+        model.chapterNotice?.let { notice ->
+            Muted(notice)
+        }
         panel?.let { StatusPanel(it) }
-        EquipmentPanel(model)
+        InventoryPanel(model)
+        AdditionalRulesPanel(model)
+        PlacesPanel(model)
         QuickActions(
             enabled = !busy && !pendingRoll && pendingCheck == null,
             onSheet = { run { c.submit("ver ficha") } },
             onInventory = { run { c.submit("inventário") } },
             onRest = { run { c.submit("descansar") } }
         )
+        AdvancedCheckControls(model, enabled = !busy && !pendingRoll && pendingCheck == null)
         CombatControls(model)
 
         LazyColumn(
@@ -134,38 +201,176 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                     onRevealed = { c.revealRoll(iv.index); version++ }
                 )
             }
+            if (busy && streamingText.isNotBlank()) {
+                item(key = "streaming-narration") {
+                    AppCard {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            LinearProgressIndicator(modifier = Modifier.width(28.dp))
+                            Text("Mestre narrando…", style = MaterialTheme.typography.labelMedium)
+                        }
+                        Text(streamingText)
+                    }
+                }
+            }
         }
 
+        playError?.let { ErrorText(it) }
         BottomBar(
-            busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck, text = text, onText = { text = it },
+            busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck,
+            fortuneSpendLabel = fortuneSpendOption?.let {
+                "${it.cost} ${it.resourceName} para " + when (it.mode) {
+                    dev.rpgsolo.engine.FortuneMode.ADVANTAGE -> "vantagem"
+                    dev.rpgsolo.engine.FortuneMode.DISADVANTAGE -> "desvantagem"
+                    dev.rpgsolo.engine.FortuneMode.NORMAL -> "fortuna"
+                }
+            }, text = text,
+            onText = { text = it; playError = null },
             suggestions = suggestions, warning = classifierWarning,
-            onSend = { val t = text; text = ""; run { c.submit(t) } },
-            onRollCheck = { run { c.rollPending() } },
-            onUndo = { run { c.undo() } },
-            onRegenerate = { run { c.regenerate() } }
+            onSend = {
+                val submitted = text
+                run {
+                    val result = c.submit(submitted) { partial ->
+                        scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+                    }
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        streamingText = ""
+                        if (result is dev.rpgsolo.ai.PlayResult.Failed) playError = result.reason
+                        else {
+                            text = ""
+                            playError = null
+                        }
+                    }
+                    model.autoCloseChapterIfNeeded()
+                }
+            },
+            onRollCheck = { run {
+                val result = c.rollPending { partial ->
+                    scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+                }
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    streamingText = ""
+                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                }
+                model.autoCloseChapterIfNeeded()
+            } },
+            onRollFortune = { run {
+                val result = c.rollPending(useFortuneResource = true) { partial ->
+                    scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+                }
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    streamingText = ""
+                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                }
+                model.autoCloseChapterIfNeeded()
+            } },
+            onUndo = { run {
+                val undone = c.undo()
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    playError = if (undone) null else "Não há jogada para desfazer."
+                }
+            } },
+            onRegenerate = { run {
+                val result = c.regenerate()
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                }
+            } }
         )
     }
 }
 
 @Composable
-private fun EquipmentPanel(model: AppModel) {
+private fun InventoryPanel(model: AppModel) {
     val campaignVersion = model.campaignVersion
     @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
-    val equipment = remember(campaignVersion) { model.equipmentView() }
-    if (equipment.isEmpty()) return
+    val inventory = model.inventoryView()
+    if (inventory.isEmpty()) return
     AppCard {
-        Text("Equipamentos", style = MaterialTheme.typography.titleSmall)
-        equipment.forEach { item ->
+        Text("Inventário", style = MaterialTheme.typography.titleSmall)
+        inventory.forEach { item ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("${item.name} x${item.quantity}")
-                    Muted("slot: ${item.slot}${if (item.equipped) " · equipado" else ""}")
+                    Muted(item.description)
+                    if (item.kind == "equipamento" && item.slot != null) {
+                        Muted("slot: ${item.slot}${if (item.equipped) " · equipado" else ""}")
+                    } else {
+                        Muted("tipo: ${item.kind}")
+                    }
                 }
-                if (item.equipped) {
-                    TextButton(onClick = { message = model.unequipItem(item.slot) }) { Text("Desequipar") }
-                } else {
-                    TextButton(onClick = { message = model.equipItem(item.id) }) { Text("Equipar") }
+                when {
+                    item.kind == "equipamento" && item.slot != null && item.equipped ->
+                        TextButton(onClick = { message = model.unequipItem(item.slot) }) { Text("Desequipar") }
+                    item.kind == "equipamento" && item.slot != null ->
+                        TextButton(onClick = { message = model.equipItem(item.id) }) { Text("Equipar") }
+                    item.kind == "consumivel" ->
+                        TextButton(onClick = { message = model.useItem(item.id) }) { Text("Usar") }
+                }
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun PlacesPanel(model: AppModel) {
+    val places = model.placesView()
+    var message by remember { mutableStateOf<String?>(null) }
+    if (places.isEmpty()) return
+    AppCard {
+        Text("Mapa textual", style = MaterialTheme.typography.titleSmall)
+        places.forEach { place ->
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(place.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    if (place.current) Pill("Você está aqui", MaterialTheme.colorScheme.tertiary)
+                }
+                if (place.description.isNotBlank()) Text(place.description)
+                if (place.current && place.exits.isNotEmpty()) {
+                    Muted("Saídas conhecidas:")
+                    Row(
+                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        place.exits.forEach { (id, name) ->
+                            OutlinedButton(onClick = { message = model.moveToPlace(id) }) { Text("Ir para $name") }
+                        }
+                    }
+                }
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun AdditionalRulesPanel(model: AppModel) {
+    val campaignVersion = model.campaignVersion
+    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+    val rules = model.additionalRulesView()
+    var message by remember { mutableStateOf<String?>(null) }
+    if (rules.isEmpty()) return
+    AppCard {
+        Text("Adaptações da campanha", style = MaterialTheme.typography.titleSmall)
+        Muted("Regras propostas pela IA não alteram a mecânica até você aprová-las.")
+        rules.forEach { rule ->
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(rule.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    if (rule.approved) Pill("Aprovada", MaterialTheme.colorScheme.tertiary)
+                    else Pill("Pendente", MaterialTheme.colorScheme.error)
+                }
+                Text(rule.description)
+                Muted("Efeitos: " + rule.effects.entries.joinToString(", ") { (key, value) ->
+                    "${key} ${if (value >= 0) "+" else ""}${value}"
+                })
+                Muted("Limite/custo: ${rule.limit}")
+                if (!rule.approved) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { message = model.approveAdditionalRule(rule.id) }) { Text("Aprovar") }
+                        TextButton(onClick = { message = model.rejectAdditionalRule(rule.id) }) { Text("Descartar") }
+                    }
                 }
             }
         }
@@ -189,10 +394,110 @@ private fun QuickActions(enabled: Boolean, onSheet: () -> Unit, onInventory: () 
 }
 
 @Composable
+private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
+    val version = model.campaignVersion
+    val options = remember(version) { model.advancedCheckOptions() }
+    val targets = remember(version) { model.advancedCheckTargets() }
+    var selectedCheck by remember(version) { mutableStateOf(options.firstOrNull()?.id.orEmpty()) }
+    var selectedTarget by remember(version) { mutableStateOf(targets.firstOrNull()?.id.orEmpty()) }
+    var selectedGroupTargets by remember(version) { mutableStateOf(emptySet<String>()) }
+    var requiredGroupSuccesses by remember(version) { mutableIntStateOf(1) }
+    var message by remember { mutableStateOf<String?>(null) }
+
+    if (options.isEmpty() || targets.isEmpty()) return
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text("Disputa de testes", style = MaterialTheme.typography.labelLarge)
+            Muted("Escolha o mesmo teste para seu personagem e o NPC. Os resultados são decididos pelo motor.")
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                options.forEach { option ->
+                    AssistChip(
+                        onClick = { selectedCheck = option.id },
+                        enabled = enabled,
+                        label = { Text(option.id) },
+                        leadingIcon = if (selectedCheck == option.id) ({ Text("✓") }) else null
+                    )
+                }
+            }
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                targets.forEach { target ->
+                    AssistChip(
+                        onClick = { selectedTarget = target.id },
+                        enabled = enabled,
+                        label = { Text(target.name + if (target.rulesValidated) "" else " · não validado") },
+                        leadingIcon = if (selectedTarget == target.id) ({ Text("✓") }) else null
+                    )
+                }
+            }
+            Button(
+                onClick = { message = model.resolveOpposedCheck(selectedTarget, selectedCheck) },
+                enabled = enabled && selectedCheck in options.map { it.id } && selectedTarget in targets.map { it.id },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Resolver disputa")
+            }
+            Text("Teste de grupo", style = MaterialTheme.typography.labelLarge)
+            Muted("O herói participa automaticamente. Marque os NPCs que participam da tarefa.")
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                targets.forEach { target ->
+                    val chosen = target.id in selectedGroupTargets
+                    AssistChip(
+                        onClick = {
+                            selectedGroupTargets = if (chosen) selectedGroupTargets - target.id
+                            else selectedGroupTargets + target.id
+                            val count = selectedGroupTargets.size + 1
+                            if (requiredGroupSuccesses > count) requiredGroupSuccesses = count
+                        },
+                        enabled = enabled,
+                        label = { Text(target.name) },
+                        leadingIcon = if (chosen) ({ Text("✓") }) else null
+                    )
+                }
+            }
+            val participantCount = selectedGroupTargets.size + 1
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                (1..participantCount).forEach { threshold ->
+                    AssistChip(
+                        onClick = { requiredGroupSuccesses = threshold },
+                        enabled = enabled,
+                        label = { Text("$threshold sucesso(s)") },
+                        leadingIcon = if (requiredGroupSuccesses == threshold) ({ Text("✓") }) else null
+                    )
+                }
+            }
+            Button(
+                onClick = { message = model.resolveGroupCheck(selectedGroupTargets.toList(), selectedCheck, requiredGroupSuccesses) },
+                enabled = enabled && selectedCheck in options.map { it.id } && requiredGroupSuccesses in 1..participantCount,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Resolver teste de grupo")
+            }
+            message?.let { Muted(it) }
+        }
+    }
+}
+
+@Composable
 private fun CombatControls(model: AppModel) {
     val campaignVersion = model.campaignVersion
     @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
     var message by remember(campaignVersion) { mutableStateOf<String?>(null) }
+    var npcName by remember { mutableStateOf("") }
     val combat = model.combatState()
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Column(
@@ -200,11 +505,31 @@ private fun CombatControls(model: AppModel) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             if (combat == null) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = npcName,
+                        onValueChange = { npcName = it },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("Nome do adversário") },
+                        singleLine = true
+                    )
+                    Button(onClick = {
+                        message = model.addNpc(npcName)
+                        if (message?.contains("adicionado") == true) npcName = ""
+                    }, enabled = npcName.isNotBlank()) { Text("Adicionar") }
+                }
                 Button(onClick = { message = model.startCombat() }, modifier = Modifier.fillMaxWidth()) {
                     Text("⚔ Iniciar combate")
                 }
             } else {
-                Text("Rodada ${combat.round} · turno ${combat.turnIndex + 1}/${combat.order.size}: ${combat.current}", style = MaterialTheme.typography.labelLarge)
+                Text("Rodada ${combat.round} · turno ${combat.turnIndex + 1}/${combat.order.size}: ${model.combatantName(combat.current)}", style = MaterialTheme.typography.labelLarge)
+                model.combatOrderDescription()?.let { order ->
+                    Muted("Ordem de iniciativa: $order")
+                }
                 if (model.isPlayerCombatTurn()) {
                     val targets = model.combatTargets()
                     if (targets.isEmpty()) {
@@ -216,17 +541,24 @@ private fun CombatControls(model: AppModel) {
                         ) {
                             targets.forEach { target ->
                                 Button(onClick = { message = model.attack(target.id) }) {
-                                    Text("Atacar ${target.name}")
+                                    Text("Atacar ${target.name}${target.condition.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()}${if (target.rulesValidated) "" else " (não validado)"}")
                                 }
                             }
                         }
                     }
                 } else {
-                    Muted("Aguarde o turno de ${combat.current}.")
+                    Muted("Aguarde o turno de ${model.combatantName(combat.current)}.")
+                }
+                if (model.isPlayerCombatTurn() && model.canDefend()) {
+                    OutlinedButton(
+                        onClick = { message = model.defend() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Defender — bônus contra o próximo ataque") }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (model.isPlayerCombatTurn()) {
-                        Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Próximo turno") }
+                        Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Passar turno") }
+                        OutlinedButton(onClick = { message = model.fleeCombat() }, modifier = Modifier.weight(1f)) { Text("Fugir") }
                     } else {
                         Button(onClick = { message = model.resolveNpcTurn() }, modifier = Modifier.weight(1f)) { Text("Resolver turno inimigo") }
                     }
@@ -246,6 +578,7 @@ private fun StatusPanel(p: PanelState) {
                 Text(p.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                 if (p.inCombat) Pill("⚔ em combate", MaterialTheme.colorScheme.error)
             }
+            Muted("Nível ${p.level} · ${p.xp} XP")
             p.resources.forEach { (id, v) -> ResourceBar(id, v.first, v.second) }
             if (p.conditions.isNotEmpty()) {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -314,9 +647,9 @@ private fun Thinking() {
 
 @Composable
 private fun BottomBar(
-    busy: Boolean, pendingRoll: Boolean, pendingCheck: String?, text: String, onText: (String) -> Unit,
+    busy: Boolean, pendingRoll: Boolean, pendingCheck: String?, fortuneSpendLabel: String?, text: String, onText: (String) -> Unit,
     suggestions: List<String>, warning: String?,
-    onSend: () -> Unit, onRollCheck: () -> Unit, onUndo: () -> Unit, onRegenerate: () -> Unit
+    onSend: () -> Unit, onRollCheck: () -> Unit, onRollFortune: () -> Unit, onUndo: () -> Unit, onRegenerate: () -> Unit
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -326,6 +659,11 @@ private fun BottomBar(
             // O mestre pediu um teste: só resta rolar (ou desfazer). O motor rola e o mestre narra o desfecho.
             if (pendingCheck != null && !busy && !pendingRoll) {
                 Button(onClick = onRollCheck, modifier = Modifier.fillMaxWidth()) { Text("🎲 Rolar $pendingCheck") }
+                if (fortuneSpendLabel != null) {
+                    OutlinedButton(onClick = onRollFortune, modifier = Modifier.fillMaxWidth()) {
+                        Text("🎲 Gastar $fortuneSpendLabel")
+                    }
+                }
             }
             // 10.1.2: sugestões opcionais. Tocar só preenche o campo; o jogador pode editar ou ignorar.
             if (suggestions.isNotEmpty() && !busy && !pendingRoll) {

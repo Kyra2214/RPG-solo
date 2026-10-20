@@ -19,6 +19,12 @@ object MasterPrompt {
         7. Você recebe a ficha completa do jogador (atributos, recursos, vantagens, desvantagens, perícias, condições, itens). Use-a em toda cena, principalmente em combate: respeite o que o personagem sabe e não sabe fazer, faça vantagens e desvantagens aparecerem na história e nunca conceda a ele algo que a ficha não permite. A ficha é só para você: não a recite nem cite números, pontos ou nomes de mecânica.
         8. Testes pedidos por você: quando o desfecho de algo for realmente incerto, em vez de decidir você pode PEDIR um teste ao jogador com "request_check", usando só os testes e dificuldades da seção "Testes que você pode pedir" do pedido (se a seção não existir, nunca peça teste). Vale para descobertas (notar algo escondido, forçar, convencer, lembrar) e para eventos surpresa (armadilha, emboscada, uma flecha vinda do escuro: peça o teste que permite evitar). Ao pedir: narre apenas até o momento do teste e termine convidando o jogador a rolar; não revele nem decida o resultado; não envie proposals; escreva em onSuccess e onFailure (privados) o que acontece em cada caso. Se o teste falhar numa descoberta, o jogador simplesmente não percebe o que estava escondido e a história segue, sem avisar que algo foi perdido. Peça poucos testes, só quando a descoberta ou o risco importar, e não peça outro se a jogada já trouxe um resultado de teste. Se a ficha do jogador listar um traço com "bônus nos testes" (ex.: +2 em esquiva) e o teste for dessa situação, preencha "skill" com o escopo (esquiva, sorte...): o motor soma o bônus sozinho, você não calcula nem cita números.
         9. Rolagem com tabela: quando uma falha ou evento precisa de variação (onde a flecha acerta, quanto fere, o que cai do baú), peça com "request_roll", na mesma resposta em que narra o resultado do teste: 1 dado e uma entrada para CADA face, com "text" (privado), "damage" (dano que o motor aplicará; 0 se não fere; faces maiores são mais graves, até a vida máxima do personagem, e só fatais quando a cena justificar) e, se couber, "conditions" (status do sistema que o motor aplicará, como sangramento ou veneno; use só ids da lista de condições do pedido). Ao pedir, diga ao jogador o que o dado decide (ex.: "role um d6: quanto maior, pior"), sem revelar a tabela. Depois da rolagem o motor JÁ aplicou o dano e as condições: você só narra, sem números, e nunca propõe isso de novo. Condições ativas continuam valendo: faça-as pesar nas cenas seguintes (visão turva atrapalha mirar, sangramento enfraquece) e proponha remove_condition quando forem tratadas ou passarem. Não encadeie mais de dois pedidos seguidos.
+        10. Ritmo: avance a cena com consequências concretas, preserve a agência do jogador e termine decisões importantes perguntando o que ele faz. Não transforme toda ação em teste; peça teste só quando o resultado for incerto e relevante.
+        11. Combate: respeite a ordem de iniciativa e os turnos informados pelo motor. Não narre ataque, dano, cura, condição ou morte como ocorridos antes da resolução mecânica. O jogador decide suas ações e não recebe ações extras fora do turno.
+        12. Locais: não invente nem revele nomes de passagens desconhecidas. Segredos de lugares seguem a mesma regra dos segredos de NPC: só descreva conteúdo que o motor liberou.
+        13. Adaptações: proposta pendente não tem efeito mecânico. Só adaptações aprovadas podem afetar a resolução; nunca as chame de regra oficial.
+        14. Limites de conteúdo da campanha são obrigatórios. Não os contorne por metáforas ou eufemismos; redirecione a cena de forma natural.
+        15. Agenda e relógios: avance relógios somente quando a ação ou a passagem de tempo justificar progresso. Nunca mostre o nome interno do relógio, a quantidade de casas ou números ao jogador. Quando um relógio completar, narre sinais e consequências no mundo; não fale da mecânica do relógio. Não avance todos os relógios em toda resposta.
         ${ProposalSchema.INSTRUCTIONS}
     """.trimIndent()
 }
@@ -28,24 +34,21 @@ data class ContextInput(
     val state: GameState,
     val playerEntityId: String,
     val playerText: String,
-    /** Resultado já rolado pelo motor, se a jogada exigiu teste. */
     val check: CheckResult? = null,
-    /** Recurso que representa saúde (ex.: "pv"), para descrever estado sem números. */
     val healthResource: String? = null,
+    val recentNarrative: List<String> = emptyList(),
+    val playerSheet: String? = null,
     val ruleSnippets: List<String> = emptyList(),
     val chapterSummary: String? = null,
     /** Texto privado de NPCs da cena (ver DossierBook.contextFor); só o que a cena exige (8.5.1). */
     val npcPrivate: List<String> = emptyList(),
-    /** Ficha do jogador em texto (ver [PlayerSheet]). Sempre entra no pedido, antes do resto, e não é cortada pelo orçamento. */
-    val playerSheet: String? = null,
-    /** Testes e dificuldades que o mestre pode pedir (ver [CheckMenu.describe]). null = o mestre não pode pedir teste. */
     val checkMenu: String? = null,
-    /** Teste ou rolagem que o mestre pediu e o jogador acabou de rolar: [check] traz o resultado e a nota privada do resultado volta à IA. */
     val resolving: Pending? = null,
-    /** Últimas narrações, da mais antiga para a mais nova. */
-    val recentNarrative: List<String> = emptyList(),
-    /** Orçamento de tokens do pedido inteiro (7.2.4). */
-    val budgetTokens: Int = 2000
+    val budgetTokens: Int = 2000,
+    /** IDs de NPCs realmente presentes na cena, para não vazar estado de toda a campanha. */
+    val sceneNpcIds: Set<String> = emptySet(),
+    val worldContext: String? = null,
+    val generationPreferences: String? = null
 )
 
 object ContextAssembler {
@@ -125,17 +128,21 @@ object ContextAssembler {
                 if (resolving is PendingCheck) append("\n").append(notesFor(resolving.request, rolled.outcome))
             }
         }
-        val present = s.entities.values.joinToString("\n") { e ->
+        val sceneIds = input.sceneNpcIds + input.playerEntityId
+        val present = s.entities.values.filter { it.id in sceneIds }.joinToString("\n") { e ->
             val conds = s.conditions[e.id].orEmpty()
             "- ${e.id} (${e.name}, ${if (e.id == input.playerEntityId) "jogador" else "NPC"}): ${healthWord(e, input.healthResource)}" +
                 if (conds.isEmpty()) "" else ", condições: ${conds.joinToString(", ")}"
         }
         val optional = listOfNotNull(
             "Personagens e estado:\n$present".takeIf { s.entities.isNotEmpty() },
-            s.combat?.let { "Combate: rodada ${it.round}, vez de ${it.current}" },
-            s.openPromises().takeIf { it.isNotEmpty() }
+            s.combat?.let { "Combate: rodada ${it.round}, vez de ${s.entities[it.current]?.name ?: it.current}" },
+            s.openPromises().filter { it.npcId in sceneIds }.takeIf { it.isNotEmpty() }
                 ?.let { ps -> "Promessas em aberto:\n" + ps.joinToString("\n") { "- ${it.npcId}: ${it.text}" } },
-            s.relations.takeIf { it.isNotEmpty() }?.let { r ->
+            s.relations.filterKeys { key ->
+                val pair = key.split(">", limit = 2)
+                pair.size == 2 && (pair[0] in sceneIds || pair[1] in sceneIds)
+            }.takeIf { it.isNotEmpty() }?.let { r ->
                 "Relações (só em palavras, nunca números):\n" + r.entries.joinToString("\n") { (k, v) ->
                     val (a, b) = k.split(">", limit = 2)
                     "- ${s.entities[a]?.name ?: a} em relação a ${s.entities[b]?.name ?: b}: ${relationWord(v)}"
@@ -148,15 +155,25 @@ object ContextAssembler {
             },
             s.facts.takeIf { it.isNotEmpty() }
                 ?.let { f -> "Fatos registrados:\n" + f.entries.joinToString("\n") { "- ${it.key}: ${it.value}" } },
+            s.additionalRules.values.takeIf { it.isNotEmpty() }?.let { rules ->
+                "Adaptações da campanha (nunca trate como regra oficial):\n" + rules.joinToString("\n") { rule ->
+                    val status = if (rule.approved) "APROVADA — efeito ativo" else "PENDENTE — não aplique ainda"
+                    "- ${rule.name} [$status]: ${rule.description}; efeitos ${rule.effects}; limite ${rule.limit}"
+                }
+            },
             s.knowledge.values.takeIf { it.isNotEmpty() }
                 ?.let { k -> "O jogador sabe:\n" + k.joinToString("\n") { "- ${it.text}" + if (it.believed) " (apenas acreditado)" else "" } },
-            input.npcPrivate.takeIf { it.isNotEmpty() }?.let { "Notas privadas do mestre (nunca mostrar ao jogador):\n" + it.joinToString("\n") },
             input.ruleSnippets.takeIf { it.isNotEmpty() }?.let { "Regras relevantes:\n" + it.joinToString("\n") },
             input.chapterSummary?.takeIf { it.isNotBlank() }?.let { "Resumo do capítulo:\n$it" },
+            input.generationPreferences?.takeIf { it.isNotBlank() },
             input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") }
         )
-        // Sempre entram (não são cortadas pelo orçamento): ficha do jogador e menu de testes.
-        val always = listOfNotNull(input.playerSheet?.takeIf { it.isNotBlank() }, input.checkMenu?.takeIf { it.isNotBlank() })
+        // Sempre entram (não são cortadas pelo orçamento): ficha, menu, cena e contexto privado relevante.
+        val always = listOfNotNull(
+            input.playerSheet?.takeIf { it.isNotBlank() },
+            input.checkMenu?.takeIf { it.isNotBlank() },
+            input.worldContext?.takeIf { it.isNotBlank() }
+        ) + input.npcPrivate
         var used = TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required) +
             always.sumOf { TokenEstimator.estimate(it) }
         val kept = mutableListOf<String>()

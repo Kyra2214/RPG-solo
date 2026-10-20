@@ -12,6 +12,7 @@ data class CampaignForm(
     val difficulty: String = "",
     val themes: List<String> = emptyList(),
     val duration: String = "",
+    val contentLimits: String = "",
     val freeText: String = ""
 ) {
     fun isEmpty() = toDescription().isBlank()
@@ -25,6 +26,7 @@ data class CampaignForm(
             val t = themes.map { it.trim() }.filter { it.isNotEmpty() }
             if (t.isNotEmpty()) add("Temas: ${t.joinToString(", ")}")
             if (duration.isNotBlank()) add("Duração: ${duration.trim()}")
+            if (contentLimits.isNotBlank()) add("Limites de conteúdo que devem ser respeitados: ${contentLimits.trim()}")
         }
         val free = freeText.trim()
         return when {

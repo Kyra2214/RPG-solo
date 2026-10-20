@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 data class SystemRef(val systemId: String, val editionId: String)
 
 /** Regras adicionais nunca são "oficiais": só existe a origem ADAPTACAO (plano 4.4.1 / 11.1.9). */
+@Serializable
 enum class RuleOrigin { ADAPTACAO }
 
 /** Identidade mecânica do personagem. Reutilizável entre campanhas e sem referência a cenário. */
@@ -32,10 +33,27 @@ data class Ficha(
     val skills: Map<String, Int> = emptyMap()
 ) {
     fun toEntity(kind: EntityKind = EntityKind.PLAYER): Entity =
-        Entity(id = id, name = name, kind = kind, stats = stats, resources = resources, skills = skills)
+        Entity(
+            id = id, name = name, kind = kind, stats = stats, resources = resources,
+            skills = skills, concept = concept, traits = traits
+        )
 }
 
+/** Preferências de jogo da campanha; não alteram a mecânica do sistema sem regra explícita. */
+@Serializable
+data class CampaignStyle(
+    val settingIds: List<String> = emptyList(),
+    val structureIds: List<String> = emptyList(),
+    val philosophyIds: List<String> = emptyList(),
+    val toneIds: List<String> = emptyList(),
+    val difficultyId: String? = null,
+    val difficultyParams: Map<String, Double> = emptyMap(),
+    val progressionId: String? = null,
+    val contentLimits: List<String> = emptyList()
+)
+
 /** Universo ficcional. Referencia a campanha, nunca a ficha. */
+@Serializable
 data class Ambientacao(
     val id: String,
     val campaignId: String,
@@ -48,6 +66,7 @@ data class Ambientacao(
 )
 
 /** Adaptação explícita para algo que o sistema não cobre. */
+@Serializable
 data class RegraAdicional(
     val id: String,
     val name: String,
@@ -65,7 +84,8 @@ data class Campanha(
     val fichaId: String,
     val system: SystemRef,
     val ambientacao: Ambientacao,
-    val additionalRules: List<RegraAdicional> = emptyList()
+    val additionalRules: List<RegraAdicional> = emptyList(),
+    val style: CampaignStyle = CampaignStyle()
 ) {
     /** Troca o cenário sem tocar na ficha (9.4.4). */
     fun withAmbientacao(a: Ambientacao): Campanha = copy(ambientacao = a.copy(campaignId = id))

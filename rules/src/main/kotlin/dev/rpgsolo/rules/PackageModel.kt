@@ -1,11 +1,29 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.Comparison
+import dev.rpgsolo.engine.FortuneMode
 
 /** TESTE = mecânica própria para validar o formato. REAL = sistema de verdade (exige licença verificada ou importação do usuário). */
 enum class PackageKind { TESTE, REAL }
 
 const val USER_IMPORT_SOURCE = "importacao-usuario"
+
+/** Formato de criacao.txt: recompensa_recurso|mana=2,pv=1 (quantidade por nível). */
+internal fun parseResourceRewards(raw: String?): Map<String, Int> {
+    if (raw.isNullOrBlank() || raw.trim() == "-") return emptyMap()
+    val result = linkedMapOf<String, Int>()
+    for (entry in raw.split(",")) {
+        val pair = entry.split("=", limit = 2)
+        require(pair.size == 2) { "recompensa_recurso inválida: '${entry}' (use recurso=quantidade)" }
+        val id = pair[0].trim()
+        require(Regex("[a-z0-9][a-z0-9_-]*").matches(id)) { "recurso de recompensa inválido: '${id}'" }
+        val amount = pair[1].trim().toIntOrNull()
+            ?: throw IllegalArgumentException("quantidade de recompensa inválida: '${pair[1]}'")
+        require(amount > 0) { "recompensa de recurso deve ser positiva: '${id}'" }
+        require(result.put(id, amount) == null) { "recurso de recompensa repetido: '${id}'" }
+    }
+    return result
+}
 
 data class Manifest(
     val id: String,
@@ -36,7 +54,7 @@ sealed interface Requirement {
 }
 
 /** Vantagem, desvantagem, perícia ou poder. Custo negativo devolve pontos. */
-/** Bônus fixo no total de um teste. [scope] = id de teste, id de atributo ou tipo de situação (ex.: "esquiva", "sorte"). */
+/** Bônus mecânico tipado. Escopos de teste: id do teste, atributo ou perícia; combate: ataque, dano, defesa, resistencia_dano. */
 data class TraitBonus(val scope: String, val bonus: Int)
 
 data class TraitDef(
@@ -62,7 +80,17 @@ data class CheckDef(
     val critSuccess: IntRange?,
     val critFailure: IntRange?,
     /** Id opcional de perícia; quando presente, seus pontos são a base do teste. */
-    val skill: String? = null
+    val skill: String? = null,
+    /** Política opcional de rolagem; pacote antigo mantém NORMAL. */
+    val fortuneMode: FortuneMode = FortuneMode.NORMAL,
+    /** Explosão opcional: cada face máxima gera outro dado. */
+    val explodeOnMax: Boolean = false,
+    /** Recurso opcional que o jogador pode gastar para usar a política de fortuna. */
+    val fortuneResource: String? = null,
+    /** Custo positivo do recurso para ativar vantagem/desvantagem. */
+    val fortuneCost: Int = 0,
+    /** Política ativada pelo gasto opcional; independente da política automática do teste. */
+    val fortuneSpendMode: FortuneMode? = null
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)
@@ -71,11 +99,26 @@ data class DifficultyDef(val id: String, val name: String, val value: Int)
  * [stats] = atributos afetados; null = todos os testes.
  */
 data class ConditionEffect(val dice: Int, val stats: Set<String>?)
-data class ConditionDef(val id: String, val name: String, val description: String, val effect: ConditionEffect? = null)
+data class ConditionDef(
+    val id: String,
+    val name: String,
+    val description: String,
+    val effect: ConditionEffect? = null,
+    /** null = duração narrativa/indefinida; valor positivo = rodadas restantes. */
+    val durationRounds: Int? = null,
+    val damagePerRound: Int = 0,
+    val damageResource: String = "hp"
+)
 data class DamageDef(val id: String, val name: String, val diceCount: Int, val diceSides: Int, val bonusStat: String?)
 
 /** Item do catálogo: equipamento ocupa [slot]; itens narrativos não têm efeito mecânico. */
-data class ItemDef(val id: String, val name: String, val kind: String, val slot: String?, val description: String)
+data class ItemEffect(val scope: String, val bonus: Int)
+
+/** Item do catálogo: efeitos tipados aplicados pelo motor, nunca inferidos da descrição. */
+data class ItemDef(
+    val id: String, val name: String, val kind: String, val slot: String?, val description: String,
+    val effects: List<ItemEffect> = emptyList()
+)
 
 /** Regra ambígua: nunca apresentada como oficial (4.1.6). */
 data class UncertainRule(val id: String, val note: String)

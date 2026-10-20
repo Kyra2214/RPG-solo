@@ -1,0 +1,6 @@
+# nivel|XP total necessário
+2|10
+3|25
+4|45
+5|70
+6|100

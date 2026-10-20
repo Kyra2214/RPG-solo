@@ -10,19 +10,24 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-Em 17/10/2026, `./gradlew test :app:assembleDebug` passou neste ambiente com JDK 17 e Android SDK 35. O APK de depuração é gerado em `app/build/outputs/apk/debug/app-debug.apk`.
+A última validação documentada antes da branch atual foi em 17/10/2026, com JDK 17 e Android SDK 35. Desde então, a branch `implementation/code-first-combat` recebeu alterações de código. **Builds, testes, lint e CI não foram executados nesta etapa**, conforme a orientação de consolidar a implementação antes da validação. Portanto, o estado atual da branch ainda não está validado e não deve ser tratado como APK pronto para uso.
 
-Esse resultado confirma a compilação e os testes Gradle, mas não substitui a validação visual em emulador/aparelho nem testes instrumentados do Room. O APK ainda não foi validado em dispositivo físico.
+## Funcionalidades implementadas no código
 
-## Funcionalidades implementadas
-
-- Seis áreas Compose: Jogar, Heróis, Regras, Campanhas, Sistemas e Configuração.
-- Motor determinístico em Kotlin puro, com comandos validados, log de eventos, rolagens reproduzíveis, rollback e backup de campanha.
-- Pacote próprio de regras carregado de recursos, criação de ficha, arquétipos, opções de traços e orçamento de perícias validado no pacote (0–5 pontos por perícia).
-- Camada de IA com provedores configuráveis, classificação de intenção, narração, propostas validadas, sugestões e ações locais sem chamada de IA.
-- Persistência local via Room para campanhas, eventos, fichas e metadados; a sessão principal é mantida em `ViewModel`. A lista de Campanhas permite reabrir e alternar entre campanhas salvas.
-- Chave do provedor cifrada com AES/GCM usando Android Keystore; a chave não é incluída no backup.
-- Backup JSON local do log de eventos e da configuração do motor, com salvar/restaurar pelo seletor de arquivos Android (SAF) ou copiar/colar texto. Restaurar cria uma nova campanha. Capítulos, missões e linha do tempo ainda não fazem parte do arquivo exportado.
+- Seis áreas Compose: Jogar, Heróis, Regras, Campanhas, Sistemas e Configuração, com orientação de primeiro uso em três etapas.
+- Motor determinístico em Kotlin puro, com comandos/eventos, rolagens reproduzíveis, rollback, estado de conhecimento, mapa, relações, relógios com pista pública opcional ao completar e validação de backups.
+- Pacote de regras com criação de fichas, perícias de 0–5 pontos, perfis de dano, itens/equipamento, bônus mecânicos e condições com duração/efeitos por rodada.
+- Combate integrado à interface: iniciativa configurada pelo pacote, ataque, dano, defesa, fuga, turnos de NPC e XP; a IA não escolhe os números mecânicos.
+- Progressão básica por pacote: pontos por nível, alocação validada de atributos/perícias (incluindo pré-requisitos) e histórico de XP/nível; o sistema próprio concede 1 ponto por nível.
+- Primeiro uso transacional: a tela Jogar acompanha provedor, ficha disponível e campanha ativa e não abre o chat antes das três etapas estarem prontas.
+- Camada de IA com provedores configuráveis, teste de conexão, classificação de intenção, contexto, propostas validadas, sugestões e ações locais sem chamada de IA.
+- Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; Config permite ativar/desativar o cache, mostra contagens de tokens lidos/criados e aceita preços por milhão com tarifas separadas para estimar custo na moeda informada. O uso real ainda não foi validado em rede. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas, incluindo acontecimentos de combate com participação do jogador.
+- Persistência via Room para campanhas, eventos, fichas e metadados; sessão principal mantida em `ViewModel`.
+- Chave do provedor protegida pelo Android Keystore e excluída do backup.
+- Backup JSON local com eventos/configuração do motor e metadados de capítulos, missões e linha do tempo, por seletor de arquivos Android (SAF) ou copiar/colar texto.
+- Importação ZIP de pacotes de regras pela interface, com validação, limite de tamanho e restauração de pacotes importados ao reabrir o app.
+- Biblioteca de fichas com consulta, duplicação, arquivamento/restauração, exclusão de arquivadas e cópia do JSON.
+- Acessibilidade inicial: escala global de fonte ajustável (85%–140%) e descrições TalkBack para os dados, mantendo os resultados ocultos até serem revelados.
 
 ## Módulos
 
@@ -56,7 +61,11 @@ Abra a pasta do repositório no Android Studio para executar o app em emulador o
 
 ## Lacunas conhecidas
 
-A interface e a migração Room ainda precisam de testes em aparelho/emulador e testes instrumentados, respectivamente. O app também ainda não oferece importação de pacotes de regras ou PDFs do usuário. A fase de mecânica está em andamento: falta resolução completa de ataques, equipamento e condições com duração; o efeito diferencial do primeiro ponto de perícia (0 versus 1) permanece uma decisão de regra pendente. O pacote próprio contém decisões de regra marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
+- Esta branch ainda precisa de compilação, testes unitários, validação visual em aparelho/emulador e teste instrumentado das migrações Room.
+- O streaming progressivo agora está ligado do transporte SSE até a interface; permanece sem validação de execução nesta etapa. Provedores compatíveis podem variar no suporte a SSE e JSON mode.
+- Permanecem melhorias de mecânica fora do fluxo principal: a API do motor e os fluxos do `PlayController` para rolagens opostas/em grupo foram adicionados, com resultados exibidos no chat e suporte a desfazer; vantagem/desvantagem pode ser declarada em `testes.txt` (`NORMAL`, `ADVANTAGE`, `DISADVANTAGE`). Há controles na aba Jogar para disputar um teste entre o herói e um NPC vivo. A interface também oferece teste de grupo com participantes e limiar de sucessos selecionados. Nenhuma dessas modalidades tem sintaxe de pacote nem pedido pendente narrativo. A progressão básica por pontos por nível e gasto em atributo/perícia está implementada no motor e na aba Campanhas; pontos de sorte/destino, recompensas adicionais e poderes/magias com efeitos tipados seguem pendentes. Bônus numéricos de traços, incluindo resistência/vulnerabilidade a dano, só são aplicados quando o pacote declara um efeito explícito; descrições condicionais ainda não são gatilhos automáticos.
+- A escala global da fonte e descrições TalkBack dos dados foram implementadas no código; revisão completa de TalkBack, contraste e layout em aparelho ainda falta. Também faltam relatório de diagnóstico exportável e configuração comprovada de um provedor gratuito padrão.
+- O pacote próprio contém fórmulas e regras marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
 
 ## Princípios de conteúdo e licença
 

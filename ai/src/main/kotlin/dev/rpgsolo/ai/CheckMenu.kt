@@ -3,7 +3,13 @@ package dev.rpgsolo.ai
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.GameState
+import dev.rpgsolo.engine.CampaignSession
+import dev.rpgsolo.engine.ExecResult
 import dev.rpgsolo.rules.RulePackage
+import dev.rpgsolo.rules.NpcProposal
+import dev.rpgsolo.rules.NpcResult
+import dev.rpgsolo.rules.NpcFactory
+import dev.rpgsolo.engine.RegraAdicional
 
 /**
  * Pedido de teste feito pelo MESTRE no meio da história (ex.: "role Percepção", "role Esquiva contra a flecha").
@@ -11,6 +17,14 @@ import dev.rpgsolo.rules.RulePackage
  * [onSuccess] e [onFailure] são notas PRIVADAS do mestre: o que acontece em cada caso. Só a nota que
  * corresponde ao resultado volta para a IA, para o que estava escondido não vazar numa falha.
  */
+/** Opção de vantagem/desvantagem paga, definida pelo pacote e nunca escolhida pela IA. */
+data class FortuneSpendOption(
+    val resource: String,
+    val resourceName: String,
+    val cost: Int,
+    val mode: dev.rpgsolo.engine.FortuneMode
+)
+
 data class CheckRequest(
     val checkId: String,
     val difficultyId: String? = null,
@@ -20,7 +34,13 @@ data class CheckRequest(
     val onFailure: String,
     val onPartial: String? = null,
     /** Situação do teste (ex.: "esquiva", "sorte"): ativa bônus de traços do personagem com esse escopo. */
-    val skill: String? = null
+    val skill: String? = null,
+    /** Revelação de um segredo específico só após o resultado do teste. */
+    val targetNpcId: String? = null,
+    val revealSecretId: String? = null,
+    val targetPlaceId: String? = null,
+    val revealPlaceSecret: Boolean = false,
+    val requiredStat: String? = null
 )
 
 /**
@@ -45,7 +65,12 @@ sealed interface Pending {
     val spec: CheckSpec
 }
 
-data class PendingCheck(val request: CheckRequest, override val spec: CheckSpec, override val playerText: String) : Pending {
+data class PendingCheck(
+    val request: CheckRequest,
+    override val spec: CheckSpec,
+    override val playerText: String,
+    val fortuneSpendOption: FortuneSpendOption? = null
+) : Pending {
     override val label: String get() = spec.label
 }
 
@@ -64,6 +89,82 @@ class CheckMenu(private val pkg: RulePackage) {
     /** Recurso de saúde do pacote (o que mata ao chegar a 0). null = o sistema não tem. */
     fun healthResource(): String? = pkg.manifest.deathResource
 
+    /** Custo opcional por teste para o jogador escolher gastar recurso ao rolar com fortuna. */
+    fun fortuneSpendOption(checkId: String): FortuneSpendOption? {
+        val check = checks.firstOrNull { it.id == checkId } ?: return null
+        val resource = check.fortuneResource ?: return null
+        val paidMode = check.fortuneSpendMode ?: return null
+        if (check.fortuneCost <= 0 || paidMode == dev.rpgsolo.engine.FortuneMode.NORMAL) return null
+        val resourceName = pkg.data.resources.firstOrNull { it.id == resource }?.name ?: resource
+        return FortuneSpendOption(resource, resourceName, check.fortuneCost, paidMode)
+    }
+
+    /** Itens válidos no pacote ativo; a IA não pode inventar ids de inventário. */
+    fun hasItem(itemId: String): Boolean = pkg.item(itemId) != null
+
+    /** Valida e inicia combate entre o herói e um NPC recém-criado usando só o perfil do pacote. */
+    fun startCombat(session: CampaignSession, playerId: String, npcId: String): String? {
+        if (session.state.combat != null) return "já existe um combate ativo"
+        val player = session.state.entities[playerId] ?: return "personagem inexistente: $playerId"
+        if (player.kind != EntityKind.PLAYER || !player.alive) return "o combatente do jogador não está disponível"
+        val npc = session.state.entities[npcId] ?: return "NPC inexistente: $npcId"
+        if (npc.kind != EntityKind.NPC || !npc.alive) return "o adversário não é um NPC vivo"
+        val creation = pkg.data.creation
+        val stat = creation["combate_atributo_iniciativa"]
+            ?: return "o pacote não define o atributo de iniciativa"
+        val count = creation["combate_dados_iniciativa"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dados_iniciativa"
+        val sides = creation["combate_lados_iniciativa"]?.toIntOrNull()
+            ?: return "o pacote não define combate_lados_iniciativa"
+        val highestFirst = when (creation["combate_ordem_iniciativa"]) {
+            "MAIOR" -> true
+            "MENOR" -> false
+            else -> return "o pacote não define combate_ordem_iniciativa válida"
+        }
+        return when (val result = session.rollInitiative(
+            ids = listOf(playerId, npcId),
+            diceCount = count,
+            diceSides = sides,
+            statKey = stat,
+            highestFirst = highestFirst
+        )) {
+            is ExecResult.Accepted -> null
+            is ExecResult.Rejected -> result.reason
+        }
+    }
+
+    /** Valida a ficha mecânica proposta para um NPC pelo pacote ativo. */
+    fun createNpc(proposal: NpcProposal): NpcResult = NpcFactory.create(proposal, pkg)
+
+    /** Só aceita efeitos explícitos que o motor da campanha sabe aplicar. */
+    fun validateRuleAddition(rule: RegraAdicional): String? {
+        if (rule.name.isBlank() || rule.description.isBlank() || rule.limit.isBlank()) {
+            return "adaptação exige nome, descrição e limite"
+        }
+        if (rule.limit.trim().lowercase() !in setOf("passivo", "passiva", "sempre", "permanente")) {
+            return "este motor só aplica efeitos passivos; declare limite 'passivo' ou 'sempre' até existir controle mecânico de cargas"
+        }
+        if (rule.origin != dev.rpgsolo.engine.RuleOrigin.ADAPTACAO) return "a origem deve ser ADAPTACAO"
+        if (rule.effects.isEmpty()) return "adaptação sem efeitos mecânicos"
+        val allowed = pkg.data.stats.map { it.id }.toSet() + setOf("ataque", "dano", "defesa")
+        val unknown = rule.effects.keys.filter { it !in allowed }
+        if (unknown.isNotEmpty()) return "escopo de efeito não suportado: ${unknown.joinToString(", ")}"
+        if (rule.effects.values.any { it !in -5..5 }) return "efeitos devem ficar entre -5 e +5"
+        return null
+    }
+
+    /** Converte um id de condição em comando com duração e dano definidos pelo pacote, nunca pela IA. */
+    fun conditionCommand(entityId: String, conditionId: String): dev.rpgsolo.engine.AddCondition? {
+        val definition = pkg.data.conditions.firstOrNull { it.id == conditionId } ?: return null
+        return dev.rpgsolo.engine.AddCondition(
+            entityId = entityId,
+            condition = definition.id,
+            durationRounds = definition.durationRounds,
+            damagePerRound = definition.damagePerRound,
+            damageResource = definition.damageResource
+        )
+    }
+
     /** Mensagem de erro (para a IA corrigir) ou null se o pedido é válido. */
     fun validate(req: CheckRequest): String? {
         if (checks.none { it.id == req.checkId }) {
@@ -76,6 +177,49 @@ class CheckMenu(private val pkg: RulePackage) {
         }
         if (req.difficultyId == null && pkg.defaultDifficulty() == null) {
             return "este sistema não define dificuldades, então não há como pedir teste"
+        }
+        return null
+    }
+
+    /** Valida uma descoberta de segredo de NPC ou local sem entregar o texto antes do resultado. */
+    fun validateSecretRequest(req: CheckRequest, state: GameState, allowedNpcIds: Set<String>? = null): String? {
+        val requested = req.targetNpcId != null || req.revealSecretId != null ||
+            req.targetPlaceId != null || req.revealPlaceSecret || req.requiredStat != null
+        if (!requested) return null
+        if (req.targetNpcId != null && req.targetPlaceId != null) return "um teste só pode investigar um NPC ou um local"
+        val requiredStat = req.requiredStat ?: return "revelação exige requiredStat"
+        val skill = pkg.trait(requiredStat)
+        if (pkg.stat(requiredStat) == null && skill?.type != "pericia") {
+            return "requiredStat '$requiredStat' não é atributo nem perícia do pacote"
+        }
+        val check = pkg.data.checks.firstOrNull { it.id == req.checkId }
+            ?: return "teste de revelação não existe no pacote"
+        if (pkg.stat(requiredStat) != null && check.stat != requiredStat) {
+            return "o teste deve usar o atributo '$requiredStat'"
+        }
+        if (skill?.type == "pericia" && check.skill != requiredStat) {
+            return "o teste deve usar a perícia '$requiredStat'"
+        }
+        if (req.targetNpcId != null || req.revealSecretId != null) {
+            val npcId = req.targetNpcId ?: return "revelação de NPC exige targetNpc"
+            val secretId = req.revealSecretId ?: return "revelação de NPC exige revealSecret"
+            val npc = state.entities[npcId] ?: return "NPC inexistente: $npcId"
+            if (npc.kind != EntityKind.NPC) return "targetNpc não é um NPC"
+            if (allowedNpcIds != null && npcId !in allowedNpcIds) {
+                return "só é possível investigar um NPC presente ou explicitamente mencionado na cena atual"
+            }
+            val dossier = state.npcDossiers[npcId] ?: return "NPC não tem dossiê privado"
+            if (dossier.secrets.none { it.id == secretId }) return "segredo '$secretId' não existe no dossiê de $npcId"
+            if (state.knowledge.containsKey("npc-secret:$npcId:$secretId")) return "esse segredo já foi descoberto"
+        }
+        if (req.targetPlaceId != null || req.revealPlaceSecret) {
+            val placeId = req.targetPlaceId ?: return "revelação de local exige targetPlace"
+            val place = state.places[placeId] ?: return "local inexistente: $placeId"
+            if (placeId !in state.knownPlaces || state.currentPlaceId != placeId) {
+                return "só é possível investigar o segredo do local atual e descoberto"
+            }
+            if (place.secret.isBlank()) return "este local não tem segredo mecânico registrado"
+            if (state.knowledge.containsKey("place-secret:$placeId")) return "o segredo deste local já foi descoberto"
         }
         return null
     }
@@ -131,7 +275,19 @@ class CheckMenu(private val pkg: RulePackage) {
                 append("Testes que você pode pedir (campo check = id; o jogador rola, o motor decide):")
                 checks.forEach { c ->
                     val using = c.stat?.let { " (usa ${pkg.stat(it)?.name ?: it})" } ?: ""
+                    val fortune = when (c.fortuneMode) {
+                        dev.rpgsolo.engine.FortuneMode.NORMAL -> ""
+                        dev.rpgsolo.engine.FortuneMode.ADVANTAGE -> " · vantagem automática"
+                        dev.rpgsolo.engine.FortuneMode.DISADVANTAGE -> " · desvantagem automática"
+                    }
+                    val exploding = if (c.explodeOnMax) " · dados explosivos" else ""
+                    val paid = if (c.fortuneResource != null && c.fortuneCost > 0 && c.fortuneSpendMode != null) {
+                        val resourceName = pkg.data.resources.firstOrNull { it.id == c.fortuneResource }?.name ?: c.fortuneResource
+                        val modeName = if (c.fortuneSpendMode == dev.rpgsolo.engine.FortuneMode.ADVANTAGE) "vantagem" else "desvantagem"
+                        " · jogador pode gastar ${c.fortuneCost} ${resourceName} para ${modeName}"
+                    } else ""
                     append("\n- ").append(c.id).append(": ").append(c.name).append(using)
+                        .append(fortune).append(exploding).append(paid)
                 }
                 append("\nDificuldades (campo difficulty = id, opcional): ")
                 append(difficulties.joinToString(", ") { "${it.id} (${it.name})" })
@@ -145,7 +301,20 @@ class CheckMenu(private val pkg: RulePackage) {
         }
         if (pkg.data.conditions.isNotEmpty()) {
             parts += "Condições que existem neste sistema (ids para conditions e add_condition/remove_condition): " +
-                pkg.data.conditions.joinToString(", ") { "${it.id} (${it.name})" }
+                pkg.data.conditions.joinToString(", ") { condition ->
+                    buildString {
+                        append(condition.id).append(" (").append(condition.name)
+                        condition.durationRounds?.let { append("; duração: ").append(it).append(" rodadas") }
+                        if (condition.damagePerRound > 0) {
+                            append("; dano por rodada: ").append(condition.damagePerRound)
+                                .append(" ").append(condition.damageResource)
+                        }
+                        condition.effect?.let {
+                            append("; efeito nos testes: ").append(if (it.dice > 0) "Ganho" else "Perda")
+                        }
+                        append(")")
+                    }
+                }
         }
         return parts.joinToString("\n")
     }

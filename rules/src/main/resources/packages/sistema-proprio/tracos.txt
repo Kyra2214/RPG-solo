@@ -9,11 +9,11 @@ sobrevivencia|pericia|Sobrevivência|1||Encontrar abrigo, comida e rastros em am
 cuidados|pericia|Cuidados|1||Primeiros socorros e tratamento de ferimentos.|cuidados:+2
 olhar-atento|pericia|Olhar atento|2|trait:percepcao|Evolução da Percepção: quase nada passa despercebido.|percepcao:+1
 golpe-forte|vantagem|Golpe forte|0|poder>=2|Ataques corpo a corpo castigam mais.
-reflexos|vantagem|Reflexos|0|habilidade>=2|Reação rápida diante de surpresas.|esquiva:+2
-pele-dura|vantagem|Pele dura|0|resistencia>=2|Aguenta pancadas que derrubariam outros.
+reflexos|vantagem|Reflexos|0|habilidade>=2|Reação rápida diante de surpresas.|esquiva:+2;defesa:+1
+pele-dura|vantagem|Pele dura|0|resistencia>=2|Aguenta pancadas que derrubariam outros.|resistencia_dano:+1
 aliado|vantagem|Aliado|0||Alguém de confiança ajuda o herói quando pode.
 talento-arcano|poder|Talento arcano|0|habilidade>=2|Permite gastar PM em efeitos fora do comum.
-fragil|desvantagem|Frágil|0|not:pele-dura|Corpo delicado, se machuca com facilidade.
+fragil|desvantagem|Frágil|0|not:pele-dura|Corpo delicado, se machuca com facilidade.|resistencia_dano:-1
 devedor|desvantagem|Devedor|0||Deve um favor ou dinheiro a alguém perigoso.
 inimigo|desvantagem|Inimigo|0||Alguém poderoso quer ver o herói em apuros.
 medroso|desvantagem|Medroso|0||Perde a coragem diante de ameaças grandes.
@@ -48,7 +48,7 @@ nao-foge-de-luta|desvantagem|Não foge de luta|0||Bárbaro: Nunca recua de um co
 bencao-da-fe|vantagem|Bênção da fé|0|resistencia>=1;trait:juramento-sagrado|Paladino: Ganha +1 em testes quando age por sua fé ou protege inocentes.
 juramento-sagrado|desvantagem|Juramento sagrado|0||Paladino: Não pode fazer maldade: mentir, trair ou ferir indefesos tira a bênção até se redimir.
 mestre-de-armas|vantagem|Mestre de armas|0|poder>=2;trait:mao-pesada|Guerreiro: Uma vez por luta, repete um ataque que falhou.
-mao-pesada|desvantagem|Mão pesada|0||Guerreiro: Tem dificuldade com ações delicadas ou discretas (-1 nesses testes).
+mao-pesada|desvantagem|Mão pesada|0||Guerreiro: Tem dificuldade com ações delicadas ou discretas (-1 nesses testes).|furtividade:-1;oficios:-1
 grimorio-vasto|vantagem|Grimório vasto|0|habilidade>=2;trait:dependente-do-grimorio|Mago: Conhece mais magias e prepara efeitos novos com uma hora de estudo.
 dependente-do-grimorio|desvantagem|Dependente do grimório|0||Mago: Sem o grimório, perde -2 nos testes de magia.
 golpe-furtivo|vantagem|Golpe furtivo|0|habilidade>=2;trait:consciencia-leve|Ladino: Ataque surpresa soma +1d6 se o alvo não o viu.
@@ -103,20 +103,20 @@ fascinar|vantagem|Fascinar|0|habilidade>=1;trait:convite-necessario|Vampiro: Olh
 convite-necessario|desvantagem|Convite necessário|0||Vampiro: Não entra em lugares onde não foi convidado.
 sobrecarga|vantagem|Sobrecarga|0|resistencia>=1;trait:vulneravel-a-pulso|Ciborgue: Gasta energia para +1d6 em força ou velocidade por um turno.
 vulneravel-a-pulso|desvantagem|Vulnerável a pulso|0||Ciborgue: Ataques elétricos ou de pulso desligam implantes (-2).
-tenacidade-anao|vantagem|Tenacidade anã|0|resistencia>=2;trait:rancor-ancestral|Anão: Reduz em 1 o dano de golpes comuns.
+tenacidade-anao|vantagem|Tenacidade anã|0|resistencia>=2;trait:rancor-ancestral|Anão: Reduz em 1 o dano de golpes comuns.|resistencia_dano:+1
 rancor-ancestral|desvantagem|Rancor ancestral|0||Anão: Guarda mágoas por gerações; custa a perdoar ou fazer as pazes.
-graca-feerica|vantagem|Graça feérica|0|habilidade>=2;trait:melancolia-longa|Elfo: +1 em testes de movimento e de percepção natural.
+graca-feerica|vantagem|Graça feérica|0|habilidade>=2;trait:melancolia-longa|Elfo: +1 em testes de movimento e de percepção natural.|atletismo:+1;percepcao:+1
 melancolia-longa|desvantagem|Melancolia longa|0||Elfo: A vida longa pesa; perde o ânimo diante de perdas.
 veu-de-sombras|vantagem|Véu de sombras|0|habilidade>=2;trait:desconfianca-geral|Elfo negro: Cria uma escuridão curta que favorece fuga e emboscada.
-desconfianca-geral|desvantagem|Desconfiança geral|0||Elfo negro: Quase todos o evitam ou o vigiam (-1 em testes sociais).
+desconfianca-geral|desvantagem|Desconfiança geral|0||Elfo negro: Quase todos o evitam ou o vigiam (-1 em testes sociais).|persuasao:-1;intimidacao:-1
 sangue-de-guerra|vantagem|Sangue de guerra|0|poder>=2;trait:temperamento-explosivo|Orc: Ao ferir um inimigo, ganha +1 no próximo ataque.
 temperamento-explosivo|desvantagem|Temperamento explosivo|0||Orc: Provocações o tiram do sério.
-corpo-de-pedra|vantagem|Corpo de pedra|0|resistencia>=3;trait:ordens-literais|Golem: Imune a veneno e doença; reduz em 1 o dano comum.
+corpo-de-pedra|vantagem|Corpo de pedra|0|resistencia>=3;trait:ordens-literais|Golem: Imune a veneno e doença; reduz em 1 o dano comum.|resistencia_dano:+1
 ordens-literais|desvantagem|Ordens literais|0||Golem: Cumpre ordens ao pé da letra; a ambiguidade o trava.
 po-de-fada|vantagem|Pó de fada|0|habilidade>=3;trait:pequena-demais|Fada: Faz um alvo flutuar ou brilhar por uma cena.
 pequena-demais|desvantagem|Pequena demais|0||Fada: Tamanho minúsculo: força física quase nula e fácil de capturar.
 calculo-preciso|vantagem|Cálculo preciso|0|habilidade>=2;trait:emocao-confusa|Androide: +2 em testes de análise e de pontaria uma vez por cena.
-emocao-confusa|desvantagem|Emoção confusa|0||Androide: Tem dificuldade em entender sentimentos (-1 em testes sociais).
+emocao-confusa|desvantagem|Emoção confusa|0||Androide: Tem dificuldade em entender sentimentos (-1 em testes sociais).|persuasao:-1;intimidacao:-1
 investida-brutal|vantagem|Investida brutal|0|poder>=3;trait:labirinto-na-mente|Minotauro: Ao investir, derruba o alvo e soma +1d6 de dano.
 labirinto-na-mente|desvantagem|Labirinto na mente|0||Minotauro: Fácil de enganar e de desorientar em lugares apertados.
 luz-remanescente|vantagem|Luz remanescente|0|habilidade>=1;trait:peso-da-queda|Anjo caído: Uma vez por cena, ilumina e fere seres sombrios.

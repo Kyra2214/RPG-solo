@@ -102,6 +102,9 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
     fun saveMetadata(row: CampanhaMetaRow) = db.meta().salvar(row)
 
     fun fichas(): List<FichaRow> = db.fichas().listar()
+    fun fichasArquivadas(): List<FichaRow> = db.fichas().listarArquivadas()
+    fun definirFichaArquivada(id: String, arquivada: Boolean): Boolean = db.fichas().definirArquivada(id, arquivada) > 0
+    fun apagarFicha(id: String): Boolean = db.fichas().apagar(id) > 0
     fun saveFicha(row: FichaRow) = db.fichas().salvar(row)
 
     fun duplicate(sourceId: String, newId: String, newName: String): CampaignRecord {

@@ -47,8 +47,14 @@ class GameEngine private constructor(
 
     /** Rola o teste, registra no log e devolve o resultado definitivo. */
     fun check(original: CheckSpec): CheckResult {
+        if (original.fortuneMode != FortuneMode.NORMAL) {
+            return checkWithFortune(
+                original.copy(fortuneMode = FortuneMode.NORMAL),
+                original.fortuneMode
+            ).chosen
+        }
         val spec = original.resolvedPool()
-        val roll = dice.roll(spec.diceCount, spec.diceSides, spec.modifier)
+        val roll = dice.roll(spec.diceCount, spec.diceSides, spec.modifier, spec.explodeOnMax)
         val result = resolveCheck(spec, roll)
         recordRoll(spec.label, roll)
         return result
@@ -71,27 +77,60 @@ class GameEngine private constructor(
         if (!attacker.alive) return AttackResult.Rejected("${attacker.name} está morto")
         if (!target.alive) return AttackResult.Rejected("${target.name} está morto")
         if (spec.targetId !in combat.order) return AttackResult.Rejected("alvo fora do combate")
-        val damageResource = target.resources[spec.damageResource]
-            ?: return AttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
-        if (spec.damage > damageResource.max) return AttackResult.Rejected("dano acima do máximo do recurso")
+        if (target.resources[spec.damageResource] == null) {
+            return AttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
+        }
 
-        val defense = target.stats[spec.defenseStat] ?: spec.defenseDefault
+        val attackModifier = (attacker.stats[spec.attackStat] ?: 0) + spec.attackBonus
+        val defending = target.id in combat.defending
+        val stanceBonus = if (defending) config.defendBonus else 0
+        val targetDefenseModifier = (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus + stanceBonus
+        val defense = maxOf(0, when (spec.attackComparison) {
+            Comparison.ROLL_OVER -> spec.defenseDefault + targetDefenseModifier
+            Comparison.ROLL_UNDER -> spec.defenseDefault + attackModifier - targetDefenseModifier
+            Comparison.POINTS -> spec.defenseDefault + targetDefenseModifier
+        })
         val mark = mark()
-        val roll = dice.roll(1, 20, attacker.stats[spec.attackStat] ?: 0)
+        val roll = when (spec.attackComparison) {
+            Comparison.POINTS, Comparison.ROLL_UNDER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides)
+            Comparison.ROLL_OVER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides, attackModifier)
+        }
         recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
-        val hit = roll.total >= defense
-        val actualDamage = if (hit) spec.damage else 0
-        recordEvent(AttackResolved(spec.attackerId, spec.targetId, defense, hit, actualDamage))
+        val hit = when (spec.attackComparison) {
+            Comparison.ROLL_OVER -> roll.total >= defense
+            Comparison.ROLL_UNDER -> roll.total <= defense
+            Comparison.POINTS -> {
+                val faces = pointFaces(attackModifier - targetDefenseModifier, spec.attackDiceSides)
+                val lowestSuccess = spec.attackDiceSides + 1 - faces
+                roll.dice.single() >= lowestSuccess
+            }
+        }
+        var damageRoll: RollResult? = null
+        var resolvedDamage = 0
         if (hit) {
-            when (val result = execute(Damage(spec.targetId, spec.damageResource, spec.damage))) {
-                is ExecResult.Accepted -> return AttackResult.Resolved(roll, true, defense, actualDamage, eventsSince(mark))
+            damageRoll = if (spec.damageDiceCount > 0) {
+                dice.roll(
+                    spec.damageDiceCount,
+                    spec.damageDiceSides,
+                    (spec.damageStat?.let { attacker.stats[it] } ?: 0) + spec.damageBonus
+                ).also { recordRoll("dano:${spec.attackerId}->${spec.targetId}", it) }
+            } else null
+            val rolledDamage = (damageRoll?.total ?: spec.damage) + if (damageRoll == null) spec.damageBonus else 0
+            resolvedDamage = maxOf(0, rolledDamage - spec.damageReduction)
+        }
+        val actualDamage = if (hit) resolvedDamage else 0
+        recordEvent(AttackResolved(spec.attackerId, spec.targetId, defense, hit, actualDamage))
+        if (defending) recordEvent(CombatantDefenseConsumed(target.id))
+        if (hit) {
+            when (val result = execute(Damage(spec.targetId, spec.damageResource, resolvedDamage))) {
+                is ExecResult.Accepted -> return AttackResult.Resolved(roll, true, defense, actualDamage, eventsSince(mark), damageRoll)
                 is ExecResult.Rejected -> {
                     rollbackTo(mark)
                     return AttackResult.Rejected(result.reason)
                 }
             }
         }
-        return AttackResult.Resolved(roll, false, defense, 0, eventsSince(mark))
+        return AttackResult.Resolved(roll, false, defense, 0, eventsSince(mark), null)
     }
 
     private fun recordRoll(label: String, roll: RollResult) {
@@ -111,7 +150,13 @@ class GameEngine private constructor(
      * Maior total age primeiro; empate resolve por id (determinístico). [statKey] = atributo somado, se houver.
      * Se o combate for recusado, as rolagens são desfeitas.
      */
-    fun rollInitiative(ids: List<String>, diceCount: Int = 1, diceSides: Int = 20, statKey: String? = null): ExecResult {
+    fun rollInitiative(
+        ids: List<String>,
+        diceCount: Int = 1,
+        diceSides: Int = 20,
+        statKey: String? = null,
+        highestFirst: Boolean = true
+    ): ExecResult {
         ids.firstOrNull { !state.entities.containsKey(it) }
             ?.let { return ExecResult.Rejected("entidade inexistente: $it") }
         val m = mark()
@@ -122,7 +167,10 @@ class GameEngine private constructor(
             id to roll.total
         }
         val order = totals
-            .sortedWith(compareByDescending<Pair<String, Int>> { it.second }.thenBy { it.first })
+            .sortedWith(
+                (if (highestFirst) compareByDescending<Pair<String, Int>> { it.second }
+                else compareBy<Pair<String, Int>> { it.second }).thenBy { it.first }
+            )
             .map { it.first }
         val result = execute(StartCombat(order))
         if (result is ExecResult.Rejected) rollbackTo(m)
@@ -157,6 +205,7 @@ fun GameState.openPromises(npcId: String? = null): List<Promise> =
 fun validateState(state: GameState): List<String> {
     val problems = mutableListOf<String>()
     for (e in state.entities.values) {
+        if (e.advancementPoints < 0) problems += "${e.id} com pontos de evolução negativos"
         for ((name, r) in e.resources) {
             if (r.current !in 0..r.max) problems += "${e.id}.$name fora do limite"
         }
@@ -175,12 +224,59 @@ fun validateState(state: GameState): List<String> {
     for (p in state.promises.values) {
         if (!state.entities.containsKey(p.npcId)) problems += "promessa ${p.id} de NPC inexistente: ${p.npcId}"
     }
-    for (id in state.conditions.keys) {
+    for ((id, activeConditions) in state.conditions) {
         if (!state.entities.containsKey(id)) problems += "condição em entidade inexistente: $id"
+        for (condition in activeConditions) {
+            if (state.conditionStates[id]?.containsKey(condition) != true) {
+                problems += "condição sem estado mecânico: $id/$condition"
+            }
+        }
+    }
+    for ((id, states) in state.conditionStates) {
+        val entity = state.entities[id]
+        if (entity == null) problems += "estado de condição em entidade inexistente: $id"
+        for ((condition, effect) in states) {
+            if (condition !in state.conditions[id].orEmpty()) problems += "estado de condição órfão: $id/$condition"
+            if (effect.remainingRounds != null && effect.remainingRounds <= 0) problems += "duração inválida: $id/$condition"
+            if (effect.damagePerRound < 0) problems += "dano por rodada negativo: $id/$condition"
+            if (effect.damagePerRound > 0 && entity?.resources?.containsKey(effect.damageResource) != true) {
+                problems += "recurso de dano de condição inexistente: $id/$condition/${effect.damageResource}"
+            }
+        }
+    }
+    for ((from, destinations) in state.placeLinks) {
+        if (from !in state.places) problems += "conexões de local inexistente: $from"
+        for (to in destinations) {
+            if (to !in state.places) problems += "destino de local inexistente: $to"
+            if (from !in state.placeLinks[to].orEmpty()) problems += "conexão de local não recíproca: $from/$to"
+        }
+    }
+    if (state.currentPlaceId != null && state.currentPlaceId !in state.knownPlaces) {
+        problems += "local atual não está descoberto: ${state.currentPlaceId}"
+    }
+    if (state.knownPlaces.any { it !in state.places }) problems += "há local descoberto sem definição"
+    for ((npcId, dossier) in state.npcDossiers) {
+        if (state.entities[npcId]?.kind != EntityKind.NPC) problems += "dossiê sem NPC válido: $npcId"
+        if (dossier.npcId != npcId) problems += "id do dossiê não corresponde à chave: $npcId"
+    }
+    for ((key, value) in state.relations) {
+        if (value !in -100..100) problems += "relação fora do intervalo: $key"
+        val ids = key.split('\u0000', limit = 2)
+        if (ids.size != 2 || ids.any { it.isBlank() } ||
+            ids.size == 2 && (ids[0] !in state.entities || ids[1] !in state.entities)) {
+            problems += "relação aponta para entidade inexistente: $key"
+        }
+    }
+    for ((id, clock) in state.clocks) {
+        if (id != clock.id) problems += "id de relógio inconsistente: $id"
+        if (clock.filled !in 0..clock.segments) problems += "preenchimento de relógio inválido: $id"
     }
     state.combat?.let { c ->
         if (c.turnIndex !in c.order.indices) problems += "turno fora da ordem de iniciativa"
         for (id in c.order) if (!state.entities.containsKey(id)) problems += "combate com entidade inexistente: $id"
+        for (id in c.defending) if (id !in c.order || state.entities[id]?.alive != true) {
+            problems += "postura defensiva inválida no combate: $id"
+        }
     }
     return problems
 }

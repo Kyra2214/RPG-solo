@@ -57,6 +57,31 @@ class GameLoopTest {
         assertEquals(1, loop.turns.size)
     }
 
+    @Test fun politicaDeVantagemDoTesteRolaDuasVezesEUsaUmResultadoEscolhido() {
+        val s = session()
+        val loop = GameLoop(ScriptedProvider(listOf(dano(1))))
+        val spec = teste.copy(fortuneMode = dev.rpgsolo.engine.FortuneMode.ADVANTAGE)
+
+        val result = loop.play(s, input.copy(check = spec)) as PlayResult.Played
+
+        assertEquals(dev.rpgsolo.engine.FortuneMode.ADVANTAGE, result.record.check!!.spec.fortuneMode)
+        assertEquals(1, result.record.fortuneAlternatives.size)
+        assertTrue(result.record.fortuneAlternatives.single().spec.label.contains("["))
+        assertEquals(2, result.record.markAfterRoll - result.record.markBefore)
+        assertTrue(s.mark() >= result.record.markAfterRoll) // ambas as rolagens persistidas antes da narração
+    }
+
+    @Test fun testeInvalidoFalhaSemDeixarRolagemNoLog() {
+        val s = session()
+        val before = s.mark()
+        val loop = GameLoop(ScriptedProvider(emptyList()))
+
+        val result = loop.play(s, input.copy(check = teste.copy(diceSides = 1)))
+
+        assertTrue(result is PlayResult.Failed)
+        assertEquals(before, s.mark())
+    }
+
     @Test fun falhaDesfazAteARolagem() {
         val s = session()
         val before = s.mark()

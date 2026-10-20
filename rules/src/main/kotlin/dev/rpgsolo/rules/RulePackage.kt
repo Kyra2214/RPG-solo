@@ -1,6 +1,7 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.CheckSpec
+import dev.rpgsolo.engine.AdvancementRequirement
 import dev.rpgsolo.engine.Comparison
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Ficha
@@ -78,12 +79,50 @@ class RulePackage internal constructor(val data: PackageData) {
     fun difficultyValue(id: String): Int? = difficultyById[id]?.value
     fun isUncertain(id: String): Boolean = id in uncertainById
     fun item(id: String): ItemDef? = itemById[id]
+    /** Soma os efeitos dos equipamentos atualmente equipados para um escopo mecânico. */
+    fun equipmentBonus(itemIds: Collection<String>, scope: String): Int =
+        itemIds.sumOf { id -> itemById[id]?.effects.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
+
+    /** Bônus mecânico de traços para testes e combate (ataque, dano, defesa e resistência/vulnerabilidade a dano). */
+    fun traitBonus(traitIds: Collection<String>, scope: String): Int =
+        traitIds.distinct().sumOf { id -> traitById[id]?.bonuses.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
+
     fun isEquipableItem(id: String, slot: String): Boolean =
         itemById[id]?.kind == "equipamento" && itemById[id]?.slot == slot
 
+    /** Regras de elegibilidade para comprar novos pontos de uma perícia fora da criação inicial. */
+    fun canImproveSkill(skillId: String, stats: Map<String, Int>, traitIds: Collection<String>): Boolean {
+        val skill = traitById[skillId]?.takeIf { it.type == "pericia" } ?: return false
+        val fullStats = data.stats.associate { it.id to (stats[it.id] ?: it.default) }
+        val projectedTraits = (traitIds + skillId).toSet()
+        return skill.requires.all { requirement ->
+            when (requirement) {
+                is Requirement.MinStat -> (fullStats[requirement.stat] ?: Int.MIN_VALUE) >= requirement.min
+                is Requirement.HasTrait -> requirement.traitId in projectedTraits
+                is Requirement.Excludes -> requirement.traitId !in projectedTraits
+            }
+        }
+    }
+
     /** Configuração para o motor: o que mata e os níveis. Sem isso no pacote, o motor não mata nem sobe de nível. */
     fun engineConfig(): EngineConfig =
-        EngineConfig(deathResource = manifest.deathResource, levelThresholds = data.progression ?: emptyList())
+        EngineConfig(
+            deathResource = manifest.deathResource,
+            levelThresholds = data.progression ?: emptyList(),
+            defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
+            advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
+            levelResourceRewards = parseResourceRewards(data.creation["recompensa_recurso"]),
+            statCaps = data.stats.associate { it.id to it.max },
+            statDefaults = data.stats.associate { it.id to it.default },
+            skillCaps = data.traits.filter { it.type == "pericia" }.associate { it.id to MAX_SKILL_POINTS },
+            skillRequirements = data.traits.filter { it.type == "pericia" }.associate { skill ->
+                skill.id to AdvancementRequirement(
+                    minStats = skill.requires.filterIsInstance<Requirement.MinStat>().associate { it.stat to it.min },
+                    requiredTraits = skill.requires.filterIsInstance<Requirement.HasTrait>().map { it.traitId }.toSet(),
+                    excludedTraits = skill.requires.filterIsInstance<Requirement.Excludes>().map { it.traitId }.toSet()
+                )
+            }
+        )
 
     /** Recursos derivados dos atributos (vida, mana...), cheios. */
     fun resourcesFor(stats: Map<String, Int>): Map<String, Resource> =
@@ -229,7 +268,8 @@ class RulePackage internal constructor(val data: PackageData) {
         return CheckSpec(
             label = c.name, diceCount = c.diceCount, diceSides = sides, modifier = base, difficulty = difficulty,
             comparison = c.comparison, partialMargin = c.partialMargin,
-            criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure, stat = c.stat, checkId = c.id
+            criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure,
+            stat = c.stat, checkId = c.id, fortuneMode = c.fortuneMode, explodeOnMax = c.explodeOnMax
         )
     }
 
@@ -271,7 +311,11 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
         if (bonus != 0) label += if (bonus > 0) " · +$bonus" else " · $bonus"
-        return spec.copy(diceCount = count, modifier = spec.modifier + bonus + pointShift, label = label)
+        return if (spec.comparison == Comparison.ROLL_UNDER) {
+            spec.copy(diceCount = count, difficulty = spec.difficulty + bonus, modifier = spec.modifier + pointShift, label = label)
+        } else {
+            spec.copy(diceCount = count, modifier = spec.modifier + bonus + pointShift, label = label)
+        }
     }
 
     /**
@@ -304,7 +348,32 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         val all = mutableListOf<RuleSnippet>()
         data.traits.forEach { all += RuleSnippet("traco", it.id, it.name, it.description, score(it.name, it.description)) }
-        data.conditions.forEach { all += RuleSnippet("condicao", it.id, it.name, it.description, score(it.name, it.description)) }
+        data.conditions.forEach {
+            val mechanics = buildString {
+                append(it.description)
+                it.effect?.let { effect -> append(" Efeito nos testes: ").append(if (effect.dice > 0) "Ganho" else "Perda") }
+                it.durationRounds?.let { rounds -> append(" Duração: ").append(rounds).append(" rodadas.") }
+                if (it.damagePerRound > 0) append(" Dano por rodada: ").append(it.damagePerRound).append(" ").append(it.damageResource).append(".")
+            }
+            all += RuleSnippet("condicao", it.id, it.name, mechanics, score(it.name, mechanics))
+        }
+        data.stats.forEach { all += RuleSnippet("atributo", it.id, it.name, "Limites ${it.min}..${it.max}; padrão ${it.default}.", score(it.name, it.id)) }
+        data.resources.forEach {
+            val text = "Recurso ${it.name}; base ${it.base}; atributo ${it.stat ?: "nenhum"}; multiplicador ${it.mult}."
+            all += RuleSnippet("recurso", it.id, it.name, text, score(it.name, text))
+        }
+        data.items.forEach {
+            val mechanics = it.description + if (it.effects.isEmpty()) "" else
+                " Efeitos: " + it.effects.joinToString(", ") { e -> "${e.scope} ${if (e.bonus >= 0) "+" else ""}${e.bonus}" }
+            all += RuleSnippet("item", it.id, it.name, mechanics, score(it.name, mechanics))
+        }
+        data.damage.forEach {
+            val mechanics = "${it.diceCount}d${it.diceSides}" + (it.bonusStat?.let { stat -> " + $stat" } ?: "")
+            all += RuleSnippet("dano", it.id, it.name, mechanics, score(it.name, mechanics))
+        }
+        data.difficulties.forEach {
+            all += RuleSnippet("dificuldade", it.id, it.name, "Valor ${it.value}.", score(it.name, it.id))
+        }
         data.tutorial.forEach { all += RuleSnippet("tutorial", it.order.toString(), it.title, it.text, score(it.title, it.text)) }
         data.checks.forEach {
             val d = "${it.diceCount}d${it.diceSides}"
@@ -323,11 +392,99 @@ object PackageValidator {
         val p = mutableListOf<String>()
         val stats = d.stats.map { it.id }.toSet()
         val traits = d.traits.map { it.id }.toSet()
+        val idGroups = listOf(
+            "atributo" to d.stats.map { it.id },
+            "recurso" to d.resources.map { it.id },
+            "traço" to d.traits.map { it.id },
+            "teste" to d.checks.map { it.id },
+            "dificuldade" to d.difficulties.map { it.id },
+            "condição" to d.conditions.map { it.id },
+            "perfil de dano" to d.damage.map { it.id },
+            "item" to d.items.map { it.id }
+        )
+        idGroups.forEach { (kind, ids) ->
+            ids.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.forEach { id ->
+                p += "$kind duplicado: $id"
+            }
+            ids.filter { it.isBlank() }.forEach { p += "$kind com id vazio" }
+        }
         if (d.stats.isEmpty()) p += "pacote sem atributos"
         d.resources.filter { it.stat != null && it.stat !in stats }.forEach { p += "recurso ${it.id}: atributo inexistente ${it.stat}" }
+        val levelRewards = try {
+            parseResourceRewards(d.creation["recompensa_recurso"])
+        } catch (e: IllegalArgumentException) {
+            p += "criacao.txt: ${e.message}"
+            emptyMap()
+        }
+        levelRewards.keys.filter { reward -> d.resources.none { it.id == reward } }
+            .forEach { p += "criacao.txt: recompensa por nível referencia recurso inexistente $it" }
+        if (levelRewards.isNotEmpty() && d.progression.isNullOrEmpty()) {
+            p += "criacao.txt: recompensa_recurso exige progressao.txt com limiares de XP"
+        }
         d.checks.filter { it.stat != null && it.stat !in stats }.forEach { p += "teste ${it.id}: atributo inexistente ${it.stat}" }
+        d.checks.filter { it.skill != null && d.traits.none { trait -> trait.id == it.skill && trait.type == "pericia" } }
+            .forEach { p += "teste ${it.id}: perícia inexistente ou não classificada como perícia: ${it.skill}" }
+        d.checks.forEach { check ->
+            if (check.fortuneResource != null && d.resources.none { it.id == check.fortuneResource }) {
+                p += "teste ${check.id}: recurso de fortuna inexistente ${check.fortuneResource}"
+            }
+            if ((check.fortuneResource == null) != (check.fortuneCost == 0) || check.fortuneCost < 0) {
+                p += "teste ${check.id}: recurso e custo de fortuna inválidos"
+            }
+            if (check.fortuneResource != null && check.fortuneCost <= 0) {
+                p += "teste ${check.id}: custo de fortuna deve ser positivo"
+            }
+            if (check.fortuneResource != null && check.fortuneSpendMode == null) {
+                p += "teste ${check.id}: custo de fortuna exige modo pago"
+            }
+            if (check.fortuneResource == null && check.fortuneSpendMode != null) {
+                p += "teste ${check.id}: modo pago exige recurso e custo de fortuna"
+            }
+            if (check.fortuneResource != null && check.fortuneMode != dev.rpgsolo.engine.FortuneMode.NORMAL) {
+                p += "teste ${check.id}: política automática conflita com fortuna paga"
+            }
+            if (check.fortuneSpendMode == dev.rpgsolo.engine.FortuneMode.NORMAL) {
+                p += "teste ${check.id}: modo de fortuna paga não pode ser NORMAL"
+            }
+        }
         d.conditions.forEach { c -> c.effect?.stats?.filter { it !in stats }?.forEach { p += "condição ${c.id}: atributo inexistente no efeito $it" } }
+        d.conditions.forEach { c ->
+            if (c.durationRounds != null && c.durationRounds <= 0) p += "condição ${c.id}: duração deve ser positiva"
+            if (c.damageResource.isBlank()) p += "condição ${c.id}: recurso de dano vazio"
+            if (c.damagePerRound < 0) p += "condição ${c.id}: dano por rodada negativo"
+            if (c.damagePerRound > 0 && d.resources.none { it.id == c.damageResource }) {
+                p += "condição ${c.id}: recurso de dano inexistente ${c.damageResource}"
+            }
+        }
         d.damage.filter { it.bonusStat != null && it.bonusStat !in stats }.forEach { p += "dano ${it.id}: atributo inexistente ${it.bonusStat}" }
+        d.items.filter { it.kind !in setOf("equipamento", "consumivel", "narrativo") }
+            .forEach { p += "item ${it.id}: tipo desconhecido '${it.kind}'" }
+        d.items.filter { it.kind == "equipamento" && it.slot.isNullOrBlank() }
+            .forEach { p += "item ${it.id}: equipamento exige slot" }
+        d.items.filter { it.effects.isNotEmpty() && (it.kind != "equipamento" || it.slot.isNullOrBlank()) }
+            .forEach { p += "item ${it.id}: efeitos mecânicos exigem equipamento com slot" }
+        d.items.forEach { item ->
+            item.effects.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
+                .forEach { p += "item ${item.id}: escopo ou bônus de efeito inválido" }
+        }
+        val validItemScopes = setOf("ataque", "dano", "defesa")
+        d.items.forEach { item ->
+            item.effects.filter { it.scope !in validItemScopes }
+                .forEach { p += "item ${item.id}: escopo de efeito sem regra mecânica: ${it.scope}" }
+        }
+        d.traits.forEach { trait ->
+            trait.bonuses.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
+                .forEach { p += "traço ${trait.id}: escopo ou bônus inválido" }
+        }
+        val validTraitScopes = stats + d.checks.map { it.id } + traits + setOf("ataque", "dano", "defesa", "resistencia_dano")
+        d.traits.forEach { trait ->
+            trait.bonuses.filter { it.scope !in validTraitScopes }.forEach { p += "traço " + trait.id + ": escopo de bônus sem regra mecânica: " + it.scope }
+        }
+        d.conditions.forEach { condition ->
+            condition.effect?.let { effect ->
+                if (effect.dice !in -10..10) p += "condição ${condition.id}: efeito de dados fora do limite -10..10"
+            }
+        }
         for (t in d.traits) for (r in t.requires) when (r) {
             is Requirement.MinStat -> if (r.stat !in stats) p += "traço ${t.id}: requisito de atributo inexistente ${r.stat}"
             is Requirement.HasTrait -> if (r.traitId !in traits) p += "traço ${t.id}: requisito de traço inexistente ${r.traitId}"
@@ -335,6 +492,109 @@ object PackageValidator {
         }
         d.manifest.deathResource?.let { dr ->
             if (d.resources.none { it.id == dr }) p += "morte aponta para recurso inexistente: $dr"
+        }
+        val combatAttack = d.creation["combate_atributo_ataque"]
+        val combatDefense = d.creation["combate_atributo_defesa"]
+        val combatInitiative = d.creation["combate_atributo_iniciativa"]
+        val attackDiceCount = d.creation["combate_dados_ataque"]
+        val attackDiceSides = d.creation["combate_lados_ataque"]
+        val attackComparison = d.creation["combate_comparacao_ataque"]
+        val initiativeDiceCount = d.creation["combate_dados_iniciativa"]
+        val initiativeDiceSides = d.creation["combate_lados_iniciativa"]
+        val initiativeOrder = d.creation["combate_ordem_iniciativa"]
+        val hasCombatProfile = combatAttack != null || combatDefense != null || combatInitiative != null
+        if (listOf(combatAttack, combatDefense, combatInitiative).any { it != null } &&
+            listOf(combatAttack, combatDefense, combatInitiative).any { it == null }) {
+            p += "criacao.txt: perfil de combate incompleto; ataque, defesa e iniciativa devem ser definidos juntos"
+        }
+        listOf(
+            "combate_atributo_ataque" to combatAttack,
+            "combate_atributo_defesa" to combatDefense,
+            "combate_atributo_iniciativa" to combatInitiative
+        ).filter { it.second != null && it.second !in stats }
+            .forEach { p += "criacao.txt: ${it.first} referencia atributo inexistente ${it.second}" }
+        if (hasCombatProfile) {
+            if (attackDiceCount == null || (attackDiceCount.toIntOrNull() ?: 0) !in 1..100) {
+                p += "criacao.txt: combate_dados_ataque ausente ou inválido"
+            }
+            if (attackDiceSides == null || (attackDiceSides.toIntOrNull() ?: 0) < 2) {
+                p += "criacao.txt: combate_lados_ataque ausente ou inválido"
+            }
+            if (attackComparison == null || attackComparison !in setOf("ROLL_OVER", "ROLL_UNDER", "POINTS")) {
+                p += "criacao.txt: combate_comparacao_ataque ausente ou inválido"
+            } else if (attackComparison == "POINTS") {
+                if (attackDiceCount?.toIntOrNull() != 1 || attackDiceSides?.toIntOrNull() !in REAL_DICE) {
+                    p += "criacao.txt: ataque POINTS exige combate_dados_ataque=1 e um dado real em combate_lados_ataque"
+                }
+            }
+            if (initiativeDiceCount == null || (initiativeDiceCount.toIntOrNull() ?: 0) !in 1..100) {
+                p += "criacao.txt: combate_dados_iniciativa ausente ou inválido"
+            }
+            if (initiativeDiceSides == null || (initiativeDiceSides.toIntOrNull() ?: 0) < 2) {
+                p += "criacao.txt: combate_lados_iniciativa ausente ou inválido"
+            }
+            if (initiativeOrder !in setOf("MAIOR", "MENOR")) {
+                p += "criacao.txt: combate_ordem_iniciativa ausente ou inválido (MAIOR ou MENOR)"
+            }
+            if ((d.creation["combate_defesa_base"]?.toIntOrNull() ?: -1) < 0) {
+                p += "criacao.txt: combate_defesa_base ausente ou inválido"
+            }
+            if ((d.creation["combate_dano_base"]?.toIntOrNull() ?: -1) < 0) {
+                p += "criacao.txt: combate_dano_base ausente ou inválido"
+            }
+        }
+        listOf(
+            "combate_atributo_ataque" to combatAttack,
+            "combate_atributo_defesa" to combatDefense,
+            "combate_atributo_iniciativa" to combatInitiative
+        ).forEach { (key, value) ->
+            if (value != null && value !in stats) p += "criacao.txt: '$key' referencia atributo inexistente: $value"
+        }
+        d.creation["combate_defesa_base"]?.let {
+            if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'combate_defesa_base' inválido"
+        }
+        d.creation["combate_dano_base"]?.let {
+            if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'combate_dano_base' inválido"
+        }
+        d.creation["combate_xp_vitoria"]?.let {
+            if ((it.toIntOrNull() ?: -1) !in 0..100000) p += "criacao.txt: 'combate_xp_vitoria' deve ficar entre 0 e 100000"
+        }
+        d.creation["combate_bonus_defender"]?.let {
+            if ((it.toIntOrNull() ?: -1) !in 0..10) p += "criacao.txt: 'combate_bonus_defender' deve ficar entre 0 e 10"
+        }
+        d.creation["combate_dano"]?.let { id ->
+            if (d.damage.none { it.id == id }) p += "criacao.txt: perfil de dano inexistente: $id"
+        }
+        for ((key, value) in d.creation) {
+            if (!key.startsWith("item_")) continue
+            val suffix = key.removePrefix("item_")
+            val itemId = suffix.substringBeforeLast('_', "")
+            val property = suffix.substringAfterLast('_', "")
+            val item = d.items.firstOrNull { it.id == itemId }
+            if (item == null) {
+                p += "criacao.txt: configuração referencia item inexistente: $itemId"
+                continue
+            }
+            if (item.kind != "consumivel") p += "criacao.txt: só consumíveis podem ter configuração de uso: $itemId"
+            when (property) {
+                "acao" -> if (value !in setOf("cura")) p += "criacao.txt: ação de item não suportada: $value"
+                "recurso" -> if (d.resources.none { it.id == value }) p += "criacao.txt: recurso de item inexistente: $value"
+                "quantidade" -> if ((value.toIntOrNull() ?: 0) <= 0) p += "criacao.txt: quantidade de item inválida: $value"
+                else -> p += "criacao.txt: propriedade de item desconhecida: $key"
+            }
+        }
+        d.items.filter { it.kind == "consumivel" }.forEach { item ->
+            val prefix = "item_${item.id}_"
+            val action = d.creation[prefix + "acao"]
+            val resource = d.creation[prefix + "recurso"]
+            val amount = d.creation[prefix + "quantidade"]
+            if (listOf(action, resource, amount).any { it != null } && action == null) {
+                p += "criacao.txt: consumível ${item.id} define recurso/quantidade sem ação"
+            }
+            if (action != null) {
+                if (resource == null) p += "criacao.txt: consumível ${item.id} sem recurso"
+                if (amount == null) p += "criacao.txt: consumível ${item.id} sem quantidade"
+            }
         }
         val pontos = d.creation["pontos"]?.toIntOrNull()
         if (pontos == null || pontos < 0) p += "criacao.txt: 'pontos' ausente ou inválido"

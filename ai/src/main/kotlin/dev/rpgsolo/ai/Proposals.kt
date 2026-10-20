@@ -17,6 +17,17 @@ import dev.rpgsolo.engine.RecordFact
 import dev.rpgsolo.engine.RemoveCondition
 import dev.rpgsolo.engine.Revive
 import dev.rpgsolo.engine.SpendResource
+import dev.rpgsolo.engine.ProposeRuleAddition
+import dev.rpgsolo.engine.AddPlace
+import dev.rpgsolo.engine.ConnectPlaces
+import dev.rpgsolo.engine.DiscoverPlace
+import dev.rpgsolo.engine.Place
+import dev.rpgsolo.engine.RegraAdicional
+import dev.rpgsolo.engine.RuleOrigin
+import dev.rpgsolo.rules.NpcProposal
+import dev.rpgsolo.rules.RuleSource
+import dev.rpgsolo.engine.NpcDossier
+import dev.rpgsolo.engine.Secret
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -34,7 +45,11 @@ data class TurnOutput(
     /** Teste que o mestre pede ao jogador no meio da história. Quando existe, a narração para antes do resultado. */
     val checkRequest: CheckRequest? = null,
     /** Rolagem com tabela (ex.: d6 para onde a flecha acerta). Também para a narração antes do resultado. */
-    val rollRequest: RollRequest? = null
+    val rollRequest: RollRequest? = null,
+    /** NPC proposto pela IA; a ficha só é criada após validação pelo pacote ativo. */
+    val npcProposal: NpcProposal? = null,
+    /** Quando true, cria o NPC validado e inicia combate com iniciativa rolada pelo motor. */
+    val requestCombat: Boolean = false
 )
 
 sealed interface ParseResult {
@@ -46,7 +61,9 @@ sealed interface ParseResult {
 object ProposalSchema {
     val INSTRUCTIONS: String = """
         Responda SOMENTE com um objeto JSON, sem texto fora dele:
-        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"]}
+        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}, "personality":"...", "goals":[], "motivations":[], "relations":{}, "secrets":[{"id":"...", "text":"...", "falseInfo":false}]}, "request_combat": false}
+        "create_npc" é opcional: quando criar um NPC relevante, proponha nome, conceito, atributos, traços e perícias. O pacote valida tudo; não invente ids nem regras. Não inclua create_npc ao pedir teste/rolagem.
+        "request_combat" é opcional e booleano. Use true somente quando a cena realmente iniciar uma luta; nesse caso, envie também create_npc com um único adversário e deixe proposals, request_check e request_roll vazios/ausentes. O app valida a ficha pelo pacote, cria o NPC e o motor rola a iniciativa. Não use request_combat para ameaças ainda não hostis.
         "suggestions" é opcional: no máximo ${ProposalParser.MAX_SUGGESTIONS} ideias curtas do que o personagem poderia fazer; o jogador pode ignorá-las.
         "proposals" é a lista (pode ser vazia) de mudanças que você PROPÕE. O motor valida cada uma e pode recusar.
         Você nunca rola dados nem decide o resultado de testes: o motor já decidiu; você só descreve.
@@ -55,17 +72,22 @@ object ProposalSchema {
         add_item(ownerId, itemId, qty) · consume_item(ownerId, itemId, qty) · gain_xp(entityId, amount)
         revive(entityId, reason) · record_fact(key, value) · learn(key, text, source, believed)
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
-        change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments) · advance_clock(id, by)
+        change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments, publicClue opcional) · advance_clock(id, by)
+        Em create_clock, publicClue é opcional e só aparece ao jogador quando o relógio completa. Use apenas consequência/pista pública; nunca coloque nela o nome interno do relógio, a contagem ou segredo privado.
+        propose_rule(id, name, description, effects, limit): adaptação explícita, nunca regra oficial; fica pendente até aprovação do jogador.
+        add_place(id, name, description, secret) · connect_places(fromId, toId) · discover_place(id); não use move_to_place, pois só o jogador se desloca.
+        Se ainda não houver local conhecido, crie o ponto inicial e descubra-o; segredos de local só são revelados pelo motor após teste apropriado.
         Campo opcional "request_roll" (regra 9), uma entrada para CADA face: {"sides": 6, "label": "Onde a flecha acerta", "table": {"1": {"text": "raspa no ombro", "damage": 1}, "2": {...}, "4": {"text": "fura a coxa", "damage": 4, "conditions": ["sangramento"]}, "6": {"text": "atinge perto do coração", "damage": 6}}}
         "conditions" (opcional em cada face) é uma lista de ids de condição do sistema que o motor aplica ao personagem junto com o dano.
         Só um pedido por resposta: request_check OU request_roll.
-        Campo opcional "request_check" (veja a regra 8): {"check": "id", "difficulty": "id", "label": "nome curto, ex.: Percepção", "onSuccess": "o que acontece se passar", "onFailure": "o que acontece se falhar", "onPartial": "opcional", "skill": "opcional: tipo da situação, ex.: esquiva ou sorte"}
+        Campo opcional "request_check" (veja a regra 8): {"check": "id", "difficulty": "id", "label": "nome curto, ex.: Percepção", "onSuccess": "o que acontece se passar", "onFailure": "o que acontece se falhar", "onPartial": "opcional", "skill": "opcional: tipo da situação, ex.: esquiva ou sorte"}. Para descobrir segredo de NPC, acrescente "targetNpc", "revealSecret" e "requiredStat"; para segredo do local atual, use "targetPlace" e "revealPlaceSecret":true com "requiredStat". O motor só libera o texto em sucesso parcial ou melhor.
     """.trimIndent()
 
     val TYPES = listOf(
         "damage", "heal", "spend_resource", "add_item", "consume_item", "gain_xp", "revive",
         "record_fact", "learn", "make_promise", "keep_promise", "add_condition", "remove_condition",
-        "change_relation", "create_clock", "advance_clock"
+        "change_relation", "create_clock", "advance_clock", "propose_rule",
+        "add_place", "connect_places", "discover_place"
     )
 }
 
@@ -145,8 +167,35 @@ object ProposalParser {
             }
         }
         if (checkRequest != null && rollRequest != null) errors += "peça só um por vez: request_check ou request_roll"
-        return if (errors.isEmpty()) ParseResult.Ok(TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest))
-        else ParseResult.Invalid(errors)
+        val npcProposal = when (val rawNpc = obj["create_npc"]) {
+            null, is JsonNull -> null
+            is JsonObject -> try { toNpcProposal(rawNpc) }
+                catch (e: Bad) { errors += "create_npc: ${e.message}"; null }
+            else -> { errors += "'create_npc' deve ser um objeto"; null }
+        }
+        val requestCombat = when (val rawCombat = obj["request_combat"]) {
+            null, is JsonNull -> false
+            is JsonPrimitive -> rawCombat.booleanOrNull ?: run {
+                errors += "'request_combat' deve ser booleano"
+                false
+            }
+            else -> {
+                errors += "'request_combat' deve ser booleano"
+                false
+            }
+        }
+        if (npcProposal != null && (checkRequest != null || rollRequest != null)) {
+            errors += "não combine create_npc com request_check/request_roll; crie o NPC em outra jogada"
+        }
+        if (requestCombat && npcProposal == null) {
+            errors += "request_combat exige create_npc com a ficha do adversário"
+        }
+        if (requestCombat && (commands.isNotEmpty() || checkRequest != null || rollRequest != null)) {
+            errors += "request_combat deve vir sozinho, sem proposals nem pedidos de rolagem"
+        }
+        return if (errors.isEmpty()) ParseResult.Ok(
+            TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal, requestCombat)
+        ) else ParseResult.Invalid(errors)
     }
 
     internal fun extractJson(raw: String): String? {
@@ -163,6 +212,77 @@ object ProposalParser {
 
     private fun JsonObject.bool(key: String): Boolean? =
         (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull
+
+    private fun toNpcProposal(o: JsonObject): NpcProposal {
+        fun requiredText(key: String): String =
+            o.str(key)?.trim()?.takeIf { it.isNotEmpty() } ?: throw Bad("campo '$key' ausente ou vazio")
+        fun intMap(key: String, optional: Boolean = false): Map<String, Int> {
+            val raw = o[key]
+            if (raw == null && optional) return emptyMap()
+            val obj = raw as? JsonObject ?: throw Bad("campo '$key' deve ser um objeto id -> número")
+            return obj.mapValues { (id, value) ->
+                val primitive = value as? JsonPrimitive
+                if (primitive == null || primitive.isString) throw Bad("campo '$key.$id' deve ser inteiro")
+                primitive.intOrNull ?: throw Bad("campo '$key.$id' deve ser inteiro")
+            }
+        }
+        val rawTraits = o["traits"]
+        val traits = when (rawTraits) {
+            null, is JsonNull -> emptyList()
+            is JsonArray -> rawTraits.map { value ->
+                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("campo 'traits' deve ser uma lista de ids em texto")
+            }
+            else -> throw Bad("campo 'traits' deve ser uma lista de ids em texto")
+        }
+        val stats = intMap("stats")
+        if (stats.isEmpty()) throw Bad("informe os atributos do NPC em 'stats'")
+        fun textList(key: String): List<String> = when (val raw = o[key]) {
+            null, is JsonNull -> emptyList()
+            is JsonArray -> raw.map { value ->
+                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("campo '$key' deve ser uma lista de textos")
+            }
+            else -> throw Bad("campo '$key' deve ser uma lista de textos")
+        }
+        val relations = when (val raw = o["relations"]) {
+            null, is JsonNull -> emptyMap()
+            is JsonObject -> raw.mapValues { (key, value) ->
+                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("campo 'relations.$key' deve ser texto")
+            }
+            else -> throw Bad("campo 'relations' deve ser um objeto")
+        }
+        val secrets = when (val raw = o["secrets"]) {
+            null, is JsonNull -> emptyList()
+            is JsonArray -> raw.mapIndexed { index, value ->
+                val secret = value as? JsonObject ?: throw Bad("secrets[$index] deve ser um objeto")
+                val id = secret.str("id")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("secrets[$index].id ausente")
+                val text = secret.str("text")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("secrets[$index].text ausente")
+                Secret(id, text, secret.bool("falseInfo") ?: false)
+            }
+            else -> throw Bad("campo 'secrets' deve ser uma lista de objetos")
+        }
+        val personality = o.str("personality")?.trim().orEmpty()
+        val goals = textList("goals")
+        val motivations = textList("motivations")
+        val dossier = if (personality.isBlank() && goals.isEmpty() && motivations.isEmpty() && relations.isEmpty() && secrets.isEmpty()) {
+            null
+        } else NpcDossier("pending", personality, goals, motivations, relations, secrets)
+        return NpcProposal(
+            id = "pending",
+            name = requiredText("name"),
+            concept = o.str("concept")?.trim().orEmpty(),
+            stats = stats,
+            traits = traits.distinct(),
+            ruleSource = RuleSource.PACOTE,
+            skills = intMap("skills", optional = true),
+            dossier = dossier,
+            resources = intMap("resources", optional = true)
+        )
+    }
 
     private fun toRollRequest(o: JsonObject): RollRequest {
         val sides = o.int("sides") ?: throw Bad("campo 'sides' ausente ou não numérico")
@@ -207,8 +327,26 @@ object ProposalParser {
             onSuccess = req("onSuccess").trim(),
             onFailure = req("onFailure").trim(),
             onPartial = opt("onPartial"),
-            skill = opt("skill")?.let(::slug)
-        )
+            skill = opt("skill")?.let(::slug),
+            targetNpcId = opt("targetNpc"),
+            revealSecretId = opt("revealSecret"),
+            targetPlaceId = opt("targetPlace"),
+            revealPlaceSecret = o.bool("revealPlaceSecret") ?: false,
+            requiredStat = opt("requiredStat")
+        ).also {
+            if ((it.targetNpcId == null) != (it.revealSecretId == null)) {
+                throw Bad("use targetNpc e revealSecret juntos")
+            }
+            if ((it.targetPlaceId == null) == it.revealPlaceSecret) {
+                throw Bad("use targetPlace junto com revealPlaceSecret:true")
+            }
+            if (it.targetNpcId != null && (it.targetPlaceId != null || it.revealPlaceSecret)) {
+                throw Bad("não combine segredo de NPC e de local")
+            }
+            if ((it.revealSecretId != null || it.revealPlaceSecret) && it.requiredStat.isNullOrBlank()) {
+                throw Bad("revelar segredo exige requiredStat")
+            }
+        }
     }
 
     private fun toCommand(o: JsonObject): Command {
@@ -231,8 +369,37 @@ object ProposalParser {
             "add_condition" -> AddCondition(s("entityId"), s("condition"))
             "remove_condition" -> RemoveCondition(s("entityId"), s("condition"))
             "change_relation" -> ChangeRelation(s("fromId"), s("toId"), n("delta"), s("reason"))
-            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"))
+            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"), opt("publicClue").orEmpty())
             "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
+            "add_place" -> AddPlace(
+                Place(
+                    id = slug(s("id")),
+                    name = s("name"),
+                    description = opt("description").orEmpty(),
+                    secret = opt("secret").orEmpty()
+                )
+            )
+            "connect_places" -> ConnectPlaces(slug(s("fromId")), slug(s("toId")))
+            "discover_place" -> DiscoverPlace(slug(s("id")))
+            "propose_rule" -> {
+                val rawEffects = o["effects"] as? JsonObject ?: throw Bad("propose_rule: campo 'effects' deve ser um objeto escopo -> bônus")
+                val effects = rawEffects.mapValues { (scope, value) ->
+                    val primitive = value as? JsonPrimitive
+                    if (primitive == null || primitive.isString) throw Bad("propose_rule: efeito '$scope' deve ser inteiro")
+                    primitive.intOrNull ?: throw Bad("propose_rule: efeito '$scope' deve ser inteiro")
+                }
+                ProposeRuleAddition(
+                    RegraAdicional(
+                        id = slug(s("id")),
+                        name = s("name"),
+                        description = s("description"),
+                        effects = effects,
+                        limit = s("limit"),
+                        origin = RuleOrigin.ADAPTACAO,
+                        approved = false
+                    )
+                )
+            }
             "roll", "dice", "check", "set_hp", "set_resource", "create_entity", "start_combat", "end_combat", "next_turn" ->
                 throw Bad("'$type' não é permitido à IA: dados, testes e combate são decididos pelo motor")
             else -> throw Bad("tipo desconhecido '$type' (permitidos: ${ProposalSchema.TYPES.joinToString(", ")})")

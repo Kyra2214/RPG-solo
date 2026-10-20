@@ -40,4 +40,78 @@ class CheckChoicesTest {
         assertNull(p.defaultDifficulty())
         assertTrue(p.checkChoices(emptyMap()).isEmpty())
     }
+
+    @Test fun pacoteRecusaEscopoDeBonusSemDefinicaoMecanica() {
+        val files = files("teste-basico").toMutableMap()
+        files["tracos.txt"] = files.getValue("tracos.txt").replace("esquiva:+2", "bonus-fantasma:+2")
+        val result = PackageParser.parse(files)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "escopo de bônus desconhecido" in it })
+    }
+
+    @Test fun pacoteRecusaReferenciaDeRequisitoInexistente() {
+        val files = files("teste-basico").toMutableMap()
+        files["tracos.txt"] = files.getValue("tracos.txt").replace("forca>=2", "forca-inexistente>=2")
+        val result = PackageParser.parse(files)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "atributo inexistente" in it })
+    }
+
+
+    @Test fun parserRejeitaEscopoDeBonusSemRegraMecanica() {
+        val files = files("teste-basico").toMutableMap()
+        val traits = files.getValue("tracos.txt")
+        val line = traits.lineSequence().first { it.isNotBlank() && !it.trimStart().startsWith("#") && "esquiva:+2" in it }
+        files["tracos.txt"] = traits.replace(line, line.replace("esquiva:+2", "bonus-fantasma:+2"))
+        val result = PackageParser.parse(files)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "escopo de bônus desconhecido" in it })
+    }
+
+    @Test fun validadorConfereEscopoDepoisDaHeranca() {
+        val registry = PackageRegistry(null)
+        assertTrue(registry.install(files("teste-basico")) is InstallResult.Success)
+        val child = files("teste-avancado").toMutableMap()
+        val traits = child.getValue("tracos.txt")
+        val line = traits.lineSequence().first { it.isNotBlank() && !it.trimStart().startsWith("#") && it.split("|").size >= 6 }
+        child["tracos.txt"] = traits.replace(line, line + "|bonus-fantasma:+2")
+        val result = registry.install(child)
+        assertTrue(result is InstallResult.Failure)
+        assertTrue((result as InstallResult.Failure).errors.any { "escopo de bônus sem regra mecânica" in it })
+    }
+
+    @Test fun validadorRejeitaEscopoDeEquipamentoSemRegraMecanica() {
+        val data = basico().data.copy(
+            items = listOf(
+                ItemDef(
+                    id = "teste-escopo",
+                    name = "Equipamento de teste",
+                    kind = "equipamento",
+                    slot = "mao",
+                    description = "Fixture de validação",
+                    effects = listOf(ItemEffect("bonus-fantasma", 1))
+                )
+            )
+        )
+        val errors = PackageValidator.validate(data)
+        assertTrue(errors.any { "escopo de efeito sem regra mecânica" in it })
+    }
+
+    @Test fun parserRejeitaRecursoDeMorteInexistente() {
+        val packageFiles = files("teste-basico").toMutableMap()
+        packageFiles["manifest.txt"] = packageFiles.getValue("manifest.txt").replace("morte|hp", "morte|recurso-fantasma")
+        val result = PackageParser.parse(packageFiles)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "deathResource referencia recurso inexistente" in it })
+    }
+
+    @Test fun parserRejeitaRecursoDeDanoPeriodicoInexistente() {
+        val packageFiles = files("teste-basico").toMutableMap()
+        packageFiles["condicoes.txt"] = packageFiles.getValue("condicoes.txt") +
+            "\ncondicao-teste|Condição de teste|Fixture| - |2|1|recurso-fantasma"
+        val result = PackageParser.parse(packageFiles)
+        assertTrue(result is ParseResult.Fail)
+        assertTrue((result as ParseResult.Fail).errors.any { "recurso inexistente 'recurso-fantasma'" in it })
+    }
+
 }

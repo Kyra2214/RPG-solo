@@ -2,8 +2,8 @@
 """Simula a regra POINTS do sistema próprio.
 
 Uso: python3 tools/simulate_checks.py [--runs 100000]
-A regra do motor limita os pontos a 1..(lados-1): sempre existe uma chance
-mínima de sucesso e a face 1 continua sendo falha.
+Zero pontos dá apenas a chance mínima (uma face); cada ponto positivo acrescenta
+uma face de sucesso até lados-1. A face 1 continua sendo falha.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ DICE_BY_DIFFICULTY = {"fácil": 4, "média": 6, "difícil": 8, "heroica": 10}
 
 
 def success_faces(points: int, sides: int) -> int:
-    return max(1, min(points, max(1, sides - 1)))
+    return max(1, min(max(points, 0) + 1, max(1, sides - 1)))
 
 
 def exact_probability(points: int, sides: int) -> float:

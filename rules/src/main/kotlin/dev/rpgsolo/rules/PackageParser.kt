@@ -1,6 +1,7 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.Comparison
+import dev.rpgsolo.engine.FortuneMode
 import dev.rpgsolo.engine.REAL_DICE
 
 object PackageFiles {
@@ -53,6 +54,19 @@ object PackageParser {
             val kv = part.split(":", limit = 2)
             if (kv.size != 2) bad("bônus inválido: '$part' (use escopo:+N, ex.: esquiva:+2)")
             TraitBonus(id(kv[0].trim(), "escopo do bônus"), int(kv[1].trim(), "valor do bônus"))
+        }
+    }
+
+    /** "ataque:+1;dano:+1;defesa:+1" ou "-" (sem efeito mecânico). */
+    private fun itemEffects(s: String?): List<ItemEffect> {
+        val t = s?.trim().orEmpty()
+        if (t.isEmpty() || t == "-") return emptyList()
+        return t.split(";").map { part ->
+            val kv = part.split(":", limit = 2)
+            if (kv.size != 2) bad("efeito de item inválido: '$part' (use escopo:+N)")
+            val scope = id(kv[0].trim(), "escopo do efeito de item")
+            if (scope !in setOf("ataque", "dano", "defesa")) bad("escopo de item não suportado: '$scope' (use ataque, dano ou defesa)")
+            ItemEffect(scope, int(kv[1].trim(), "bônus do item"))
         }
     }
 
@@ -175,7 +189,7 @@ object PackageParser {
             if (type !in TRAIT_TYPES) bad("tipo inválido: '$type' (${TRAIT_TYPES.joinToString()})")
             TraitDef(id(f[0], "id"), type, text(f[2], "nome"), int(f[3], "custo"), requirements(f[4]), f[5], traitBonuses(f.getOrNull(6)))
         }
-        val checks = table(PackageFiles.CHECKS, 10, 11) { f ->
+        val checks = table(PackageFiles.CHECKS, 10, 16) { f ->
             val cmp = Comparison.values().firstOrNull { it.name == f[6] }
                 ?: bad("comparacao inválida: '${f[6]}' (ROLL_OVER, ROLL_UNDER ou POINTS)")
             val count = int(f[2], "dados")
@@ -183,15 +197,55 @@ object PackageParser {
             if (count !in 1..100) bad("dados fora de 1..100")
             if (sides < 2) bad("lados menor que 2")
             if (cmp == Comparison.POINTS && (count != 1 || sides !in REAL_DICE)) bad("POINTS exige 1 dado real (dados=1, lados ${REAL_DICE.joinToString(", ")})")
+            val skill = f.getOrNull(10)?.takeIf { it.isNotBlank() && !blank(it) }?.let { id(it, "perícia") }
+            val fortune = f.getOrNull(11)?.takeIf { it.isNotBlank() && !blank(it) }?.let { value ->
+                FortuneMode.values().firstOrNull { it.name == value.uppercase() }
+                    ?: bad("política de rolagem inválida: '$value' (NORMAL, ADVANTAGE ou DISADVANTAGE)")
+            } ?: FortuneMode.NORMAL
+            val explode = f.getOrNull(12)?.takeIf { it.isNotBlank() && !blank(it) }?.let { value ->
+                when (value.lowercase()) {
+                    "true", "sim", "1" -> true
+                    "false", "nao", "não", "0" -> false
+                    else -> bad("explosão inválida: '$value' (true/false, sim/não ou 1/0)")
+                }
+            } ?: false
+            val fortuneResource = f.getOrNull(13)?.takeIf { it.isNotBlank() && !blank(it) }?.let { id(it, "recurso de fortuna") }
+            val fortuneCost = f.getOrNull(14)?.takeIf { it.isNotBlank() && !blank(it) }?.let { int(it, "custo de fortuna") } ?: 0
+            if ((fortuneResource == null) != (fortuneCost == 0)) {
+                bad("recurso e custo de fortuna devem ser declarados juntos")
+            }
+            if (fortuneCost < 0) bad("custo de fortuna negativo")
+            if (fortuneResource != null && fortuneCost <= 0) bad("custo de fortuna deve ser positivo")
+            val fortuneSpendMode = f.getOrNull(15)?.takeIf { it.isNotBlank() && !blank(it) }?.let { value ->
+                FortuneMode.values().firstOrNull { it.name == value.uppercase() && it != FortuneMode.NORMAL }
+                    ?: bad("política paga inválida: '$value' (ADVANTAGE ou DISADVANTAGE)")
+            }
+            if (fortuneResource != null && fortuneSpendMode == null) {
+                bad("recurso e custo de fortuna exigem modo_fortuna_pago (ADVANTAGE ou DISADVANTAGE)")
+            }
+            if (fortuneResource == null && fortuneSpendMode != null) {
+                bad("modo_fortuna_pago exige recurso_fortuna e custo_fortuna")
+            }
+            if (fortuneResource != null && fortune != FortuneMode.NORMAL) {
+                bad("um teste com fortuna paga não pode aplicar outra política de fortuna automaticamente")
+            }
             CheckDef(id(f[0], "id"), text(f[1], "nome"), count, sides, optId(f[4], "atributo"), int(f[5], "mult"),
                 cmp, optInt(f[7], "parcial"), range(f[8], "crit_sucesso"), range(f[9], "crit_falha"),
-                f.getOrNull(10)?.takeIf { it.isNotBlank() }?.let { id(it, "perícia") })
+                skill, fortune, explode, fortuneResource, fortuneCost, fortuneSpendMode)
         }
         val difficulties = table(PackageFiles.DIFFICULTIES, 3) { f ->
             DifficultyDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "valor"))
         }
-        val conditions = table(PackageFiles.CONDITIONS, 3, 4) { f ->
-            ConditionDef(id(f[0], "id"), text(f[1], "nome"), f[2], f.getOrNull(3)?.let { conditionEffect(it) })
+        val conditions = table(PackageFiles.CONDITIONS, 3, 7) { f ->
+            val duration = f.getOrNull(4)?.takeIf { !blank(it) }?.let { int(it, "duração em rodadas") }
+            if (duration != null && duration <= 0) bad("duração de condição deve ser positiva")
+            val damagePerRound = f.getOrNull(5)?.takeIf { !blank(it) }?.let { int(it, "dano por rodada") } ?: 0
+            if (damagePerRound < 0) bad("dano por rodada negativo")
+            val resource = f.getOrNull(6)?.takeIf { !blank(it) }?.let { id(it, "recurso de condição") } ?: "hp"
+            ConditionDef(
+                id(f[0], "id"), text(f[1], "nome"), f[2],
+                f.getOrNull(3)?.let { conditionEffect(it) }, duration, damagePerRound, resource
+            )
         }
         val damage = table(PackageFiles.DAMAGE, 5) { f ->
             val count = int(f[2], "dados")
@@ -200,16 +254,30 @@ object PackageParser {
             if (sides < 2) bad("lados menor que 2")
             DamageDef(id(f[0], "id"), text(f[1], "nome"), count, sides, optId(f[4], "atributo"))
         }
-        val items = table(PackageFiles.ITEMS, 5) { f ->
+        val items = table(PackageFiles.ITEMS, 5, 6) { f ->
             val kind = f[2]
             if (kind !in setOf("equipamento", "consumivel", "narrativo")) bad("tipo de item inválido: '$kind'")
             val slot = optId(f[3], "slot")
             if (kind == "equipamento" && slot == null) bad("equipamento exige slot")
             if (kind != "equipamento" && slot != null) bad("apenas equipamento pode ocupar slot")
-            ItemDef(id(f[0], "id"), text(f[1], "nome"), kind, slot, text(f[4], "descricao"))
+            val effects = itemEffects(f.getOrNull(5))
+            if (kind != "equipamento" && effects.isNotEmpty()) bad("apenas equipamento pode ter efeitos automáticos")
+            ItemDef(id(f[0], "id"), text(f[1], "nome"), kind, slot, text(f[4], "descricao"), effects)
         }
         val creationRows = table(PackageFiles.CREATION, 2) { f -> text(f[0], "chave") to f[1] }
         noDups(PackageFiles.CREATION, creationRows.map { it.first })
+        val creationMap = creationRows.toMap()
+        try {
+            parseResourceRewards(creationMap["recompensa_recurso"])
+        } catch (e: IllegalArgumentException) {
+            errors += "${PackageFiles.CREATION}: ${e.message}"
+        }
+        creationMap["pontos_por_nivel"]?.let { raw ->
+            val points = raw.toIntOrNull()
+            if (points == null || points !in 0..100) {
+                errors += "${PackageFiles.CREATION}: pontos_por_nivel deve ser inteiro de 0 a 100"
+            }
+        }
         val progressionRows = table(PackageFiles.PROGRESSION, 2) { f -> int(f[0], "nivel") to int(f[1], "xp") }
         var progression: List<Int>? = null
         if (files.containsKey(PackageFiles.PROGRESSION)) {
@@ -254,8 +322,100 @@ object PackageParser {
         noDups(PackageFiles.ARCHETYPES, archetypes.map { it.id })
         noDups(PackageFiles.ARCHETYPE_OPTIONS, archetypeOptions.map { it.archetype })
 
+        // Referências mecânicas precisam apontar para definições existentes no próprio pacote.
+        // Isso evita traços/poderes que parecem válidos na ficha, mas nunca podem produzir efeito.
+        if (manifest.extends == null) {
+        val statIds = stats.map { it.id }.toSet()
+        val resourceIds = resources.map { it.id }.toSet()
+        val traitById = traits.associateBy { it.id }
+        val traitIds = traitById.keys
+        val checkIds = checks.map { it.id }.toSet()
+        val supportedTraitScopes = statIds + checkIds + traitIds +
+            setOf("ataque", "dano", "defesa", "resistencia_dano")
+
+        resources.forEach { resource ->
+            if (resource.stat != null && resource.stat !in statIds) {
+                errors += "${PackageFiles.RESOURCES}: recurso '${resource.id}' referencia atributo inexistente '${resource.stat}'"
+            }
+        }
+        traits.forEach { trait ->
+            trait.requires.forEach { requirement ->
+                when (requirement) {
+                    is Requirement.MinStat -> if (requirement.stat !in statIds) {
+                        errors += "${PackageFiles.TRAITS}: traço '${trait.id}' referencia atributo inexistente '${requirement.stat}'"
+                    }
+                    is Requirement.HasTrait -> if (requirement.traitId !in traitIds) {
+                        errors += "${PackageFiles.TRAITS}: traço '${trait.id}' exige traço inexistente '${requirement.traitId}'"
+                    }
+                    is Requirement.Excludes -> if (requirement.traitId !in traitIds) {
+                        errors += "${PackageFiles.TRAITS}: traço '${trait.id}' exclui traço inexistente '${requirement.traitId}'"
+                    }
+                }
+            }
+            trait.bonuses.forEach { bonus ->
+                if (bonus.scope !in supportedTraitScopes) {
+                    errors += "${PackageFiles.TRAITS}: traço '${trait.id}' usa escopo de bônus desconhecido '${bonus.scope}'"
+                }
+            }
+        }
+        checks.forEach { check ->
+            if (check.stat != null && check.stat !in statIds) {
+                errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia atributo inexistente '${check.stat}'"
+            }
+            if (check.skill != null && traitById[check.skill]?.type != "pericia") {
+                errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia perícia inexistente '${check.skill}'"
+            }
+            if (check.fortuneResource != null && check.fortuneResource !in resourceIds) {
+                errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia recurso de fortuna inexistente '${check.fortuneResource}'"
+            }
+        }
+        manifest.deathResource?.let { deathResource ->
+            if (deathResource !in resourceIds) {
+                errors += "${PackageFiles.MANIFEST}: deathResource referencia recurso inexistente '${deathResource}'"
+            }
+        }
+        conditions.forEach { condition ->
+            condition.effect?.stats?.filter { it !in statIds }?.forEach { unknown ->
+                errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' referencia atributo inexistente '${unknown}'"
+            }
+            if (condition.damagePerRound > 0 && condition.damageResource !in resourceIds) {
+                errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' causa dano em recurso inexistente '${condition.damageResource}'"
+            }
+        }
+        val validItemScopes = setOf("ataque", "dano", "defesa")
+        items.forEach { item ->
+            item.effects.forEach { effect ->
+                if (effect.scope !in validItemScopes) {
+                    errors += "${PackageFiles.ITEMS}: item '${item.id}' usa escopo de efeito desconhecido '${effect.scope}'"
+                }
+            }
+        }
+        examples.forEach { example ->
+            (example.stats.keys - statIds).forEach { unknown ->
+                errors += "${PackageFiles.EXAMPLES}: exemplo '${example.id}' referencia atributo inexistente '${unknown}'"
+            }
+            (example.traits - traitIds).forEach { unknown ->
+                errors += "${PackageFiles.EXAMPLES}: exemplo '${example.id}' referencia traço inexistente '${unknown}'"
+            }
+        }
+        archetypes.forEach { archetype ->
+            (archetype.stats.keys - statIds).forEach { unknown ->
+                errors += "${PackageFiles.ARCHETYPES}: arquétipo '${archetype.id}' referencia atributo inexistente '${unknown}'"
+            }
+            (archetype.traits - traitIds).forEach { unknown ->
+                errors += "${PackageFiles.ARCHETYPES}: arquétipo '${archetype.id}' referencia traço inexistente '${unknown}'"
+            }
+        }
+        archetypeOptions.forEach { options ->
+            (options.advantages + options.disadvantages).distinct().filter { it !in traitIds }.forEach { unknown ->
+                errors += "${PackageFiles.ARCHETYPE_OPTIONS}: arquétipo '${options.archetype}' referencia traço inexistente '${unknown}'"
+            }
+        }
+
+        } // Child packages may refer to definitions inherited from their parent.
+
         if (errors.isNotEmpty()) return ParseResult.Fail(errors)
         return ParseResult.Ok(PackageData(manifest, stats, resources, traits, checks, difficulties, conditions, damage, items,
-            creationRows.toMap(), progression, uncertain, tutorial, examples, archetypes, archetypeOptions))
+            creationMap, progression, uncertain, tutorial, examples, archetypes, archetypeOptions))
     }
 }

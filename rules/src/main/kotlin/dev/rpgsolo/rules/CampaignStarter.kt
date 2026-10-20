@@ -4,6 +4,7 @@ import dev.rpgsolo.engine.Ambientacao
 import dev.rpgsolo.engine.Campanha
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
+import dev.rpgsolo.engine.CampaignStyle
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.EventStore
@@ -71,12 +72,22 @@ object CampaignStarter {
             id = campaignId,
             fichaId = ficha.id,
             system = ficha.system,
-            ambientacao = Ambientacao(id = "amb-$campaignId", campaignId = campaignId, name = settingName, tone = tone)
+            ambientacao = Ambientacao(id = "amb-$campaignId", campaignId = campaignId, name = settingName, tone = tone),
+            style = CampaignStyle(
+                settingIds = config.settingIds,
+                structureIds = config.structureIds,
+                philosophyIds = config.philosophyIds,
+                toneIds = config.toneIds,
+                difficultyId = config.difficulty.levelId,
+                difficultyParams = config.difficulty.params,
+                progressionId = config.progressionId,
+                contentLimits = config.contentLimits
+            )
         )
 
         val record = CampaignRecord(campaignId, name.trim(), seed, pkg?.engineConfig() ?: EngineConfig())
         val session = CampaignSession.create(store, record)
-        when (val r = session.execute(CreateEntity(ficha.toEntity()))) {
+        when (val r = session.execute(CreateEntity(ficha.toEntity().copy(rulesValidated = pkg != null)))) {
             is ExecResult.Accepted -> {}
             is ExecResult.Rejected -> {
                 // Defesa: em campanha recém-criada isso não deveria ocorrer; zera o log para não ficar estado pela metade.

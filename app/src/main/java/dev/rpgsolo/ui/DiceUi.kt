@@ -38,6 +38,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -108,7 +110,13 @@ private fun Die(sides: Int, final: Int, index: Int, rolling: Boolean, done: Bool
     val face = MaterialTheme.colorScheme.surfaceContainerHighest
     val ink = MaterialTheme.colorScheme.onSurface
     Surface(
-        modifier = Modifier.size(58.dp).graphicsLayer {
+        modifier = Modifier.size(58.dp).semantics {
+            contentDescription = when {
+                rolling -> "Dado de $sides lados, rolando"
+                !done -> "Dado de $sides lados, resultado oculto"
+                else -> "Dado de $sides lados, resultado $final"
+            }
+        }.graphicsLayer {
             rotationZ = rot.value
             translationY = lift.value
             scaleX = pop.value
