@@ -285,7 +285,7 @@ class RulePackage internal constructor(val data: PackageData) {
     fun adjustCheck(
         spec: CheckSpec, conditions: Collection<String>,
         traits: Collection<String> = emptyList(), skill: String? = null,
-        additionalBonuses: Collection<TraitBonus> = emptyList()
+        additionalBonuses: Collection<ExternalBonus> = emptyList()
     ): CheckSpec {
         val stat: String? = spec.stat
         val shift = conditions.sumOf { id ->
