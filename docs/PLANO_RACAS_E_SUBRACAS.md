@@ -189,7 +189,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
 - [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
 
-**Limite atual:** o motor já resolve bônus de traços do pacote via `TraitBonus`, mas as escolhas do catálogo editorial ainda são persistidas separadamente e não são convertidas em traços canônicos. Por isso, os efeitos declarados no catálogo continuam inativos. Não habilitar bônus até a integração abaixo estar completa.
+**Limite atual:** as escolhas editoriais continuam separadas de `Ficha.traits`, mas efeitos declarados em `mechanicalEffects` podem ser encaminhados como `ExternalBonus` aos caminhos já integrados. As entradas atuais têm efeitos vazios, então não concedem bônus novos. A política de equivalência com `TraitBonus` e os testes de integração continuam pendentes.
 
 ### R2 — Esquema de dados e catálogo
 - [x] Criar primeiro catálogo editorial versionado em `rules/src/main/resources/packages/sistema-proprio/personagem-catalogo.json`.
@@ -197,7 +197,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Referenciar cada sub-raça à sua raça-base por `parentRaceId`.
 - [x] Deixar `mechanicalEffects` vazio em todas as opções; nenhum bônus foi inventado ou concedido por lore.
 - [x] Implementar carregador e validação estrutural de IDs, referências e esquema; falhas do catálogo são exibidas na interface.
-- [x] Carregar o catálogo versionado na criação e persistir escolhas editoriais por ID da ficha; a integração mecânica com a ficha/motor permanece pendente.
+- [x] Carregar o catálogo versionado na criação, persistir escolhas editoriais por ID da ficha e encaminhar efeitos tipados explícitos aos caminhos mecânicos cobertos, sem copiá-los para `Ficha.traits`.
 - [ ] Completar campos editoriais de competências e traços depois da auditoria das mecânicas existentes.
 
 Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime editorial da criação. As entradas não concedem efeitos mecânicos até que regras válidas sejam explicitamente definidas e suportadas pelo motor.
@@ -213,7 +213,7 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 - [x] Implementar seleção de classe com descrição/lore visível; lista de habilidades mecânicas do catálogo ainda pendente.
 - [x] Implementar seleção independente de profissão com lore visível; competências e efeitos mecânicos tipados ainda pendentes.
 - Adicionar especialização profissional apenas quando o esquema estiver definido.
-- [x] Exibir revisão das escolhas e separar explicitamente os traços mecânicos atuais das descrições editoriais; origem/escopo de efeitos raciais e profissionais aguarda implementação mecânica.
+- [x] Exibir revisão das escolhas e separar explicitamente os traços mecânicos atuais das descrições editoriais; quando há efeitos tipados, preservar origem/escopo nos caminhos de resolução integrados.
 
 ### R4A — Criação narrativa assistida por IA
 - Definir entrada estruturada e controlada para a IA com dados confirmados da ficha e contexto da campanha.
@@ -272,11 +272,11 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 - [x] Registrar lore/descrições originais e IDs estáveis para o primeiro lote.
 - [ ] Implementar carregador, validação do catálogo e integração ao runtime.
 - [ ] Integrar efeitos tipados à ficha e às ações.
-- [x] Implementar interface inicial de criação e persistência editorial; integração mecânica e edição unificada continuam pendentes.
+- [x] Implementar interface de criação, persistência editorial e edição das escolhas em fichas existentes; efeitos tipados explícitos estão integrados aos caminhos mecânicos cobertos.
 - [ ] Implementar geração opcional de lore e retrato com IA, com limites rígidos contra alterações mecânicas.
 - [ ] Expandir e balancear o catálogo.
 
-**Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste metadados de escolhas; a aplicação de efeitos mecânicos ainda não foi integrada. Importação/exportação e backups preservam as escolhas. Build, testes e CI não foram executados.
+**Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador; as entradas atuais ainda têm efeitos vazios. Build, testes e CI não foram executados.
 
 **Próxima ação:** concluir o contrato de persistência canônica e auditar o motor de bônus tipados antes de definir como converter traços raciais/profissionais em efeitos executáveis, sem duplicar os traços já escolhidos na ficha.
 
@@ -443,7 +443,8 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Integrar efeitos explícitos ao motor sem copiá-los para `Ficha.traits`, preservando origem e escopo rastreáveis nos testes e combates cobertos.
 - [ ] Decidir a política de equivalência/duplicação com `TraitBonus` canônico antes de habilitar entradas com efeitos mecânicos não vazios.
 - [ ] Definir catálogo de escopos por pacote/sistema e validação semântica contra atributos, perícias e testes realmente existentes.
-- [ ] Só habilitar execução de efeitos após migração e testes de compatibilidade; o catálogo atual continua com listas de efeitos vazias e nenhum bônus novo é concedido.
+- [x] Habilitar a resolução de efeitos explicitamente declarados apenas nos caminhos integrados, mantendo o catálogo atual sem bônus inventados.
+- [ ] Executar testes de compatibilidade antes de preencher `mechanicalEffects` com efeitos não vazios.
 
 A integração consulta efeitos explícitos no teste de fuga, nos testes normais/avançados e nos cálculos de combate do jogador. O catálogo atual ainda declara listas de efeitos vazias; portanto, esta integração não concede bônus novos por si só. As origens são exibidas nos rótulos dos testes e nos resumos de combate, inclusive quando efeitos externos se anulam no total. Build, testes e CI não foram executados.
 
