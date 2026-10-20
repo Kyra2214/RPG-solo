@@ -126,9 +126,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val choices = characterChoices(fichaId)
         if (CharacterCreationCatalog.validateChoices(choices).isNotEmpty()) return emptyList()
         if (CharacterCreationCatalog.validateEffectScopes(pkg, choices).isNotEmpty()) return emptyList()
-        return CharacterCreationCatalog.selectedEffects(choices).map {
-            dev.rpgsolo.rules.ExternalBonus(scope = it.scope, bonus = it.bonus, source = it.source)
-        }
+        return dev.rpgsolo.rules.distinctExternalBonuses(
+            CharacterCreationCatalog.selectedEffects(choices).map {
+                dev.rpgsolo.rules.ExternalBonus(
+                    scope = it.scope,
+                    bonus = it.bonus,
+                    source = it.source,
+                    effectId = it.effectId
+                )
+            }
+        )
     }
 
     private fun selectedCatalogBonus(pkg: RulePackage, scope: String): Int =
