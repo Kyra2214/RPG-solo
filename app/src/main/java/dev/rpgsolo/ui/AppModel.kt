@@ -306,8 +306,42 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         null
     } catch (e: IllegalArgumentException) { e.message }
 
+    /** Exportação individual versionada: ficha mecânica e escolhas editoriais viajam juntas. */
     fun exportFicha(id: String): String? =
-        (fichas + archivedFichas).firstOrNull { it.id == id }?.let { dev.rpgsolo.engine.Codec.encode(it) }
+        (fichas + archivedFichas).firstOrNull { it.id == id }?.let { ficha ->
+            org.json.JSONObject()
+                .put("format", "rpgsolo-character-export")
+                .put("schemaVersion", 1)
+                .put("ficha", org.json.JSONObject(dev.rpgsolo.engine.Codec.encode(ficha)))
+                .put("characterChoices", org.json.JSONObject(characterChoices(ficha.id).toJson()))
+                .toString(2)
+        }
+
+    /** Importa o formato versionado atual e também JSONs antigos que continham somente a ficha. */
+    fun importFicha(raw: String): String? = try {
+        require(raw.isNotBlank()) { "cole o JSON da ficha" }
+        val envelope = org.json.JSONObject(raw)
+        val format = envelope.optString("format")
+        val fichaJson: String
+        val choices: CharacterChoices
+        if (format == "rpgsolo-character-export") {
+            require(envelope.optInt("schemaVersion", -1) == 1) { "versão de exportação de ficha não suportada" }
+            fichaJson = requireNotNull(envelope.optJSONObject("ficha")) { "exportação sem objeto ficha" }.toString()
+            choices = CharacterChoices.fromJson(envelope.optJSONObject("characterChoices")?.toString())
+        } else {
+            require(format.isBlank()) { "formato de exportação desconhecido: $format" }
+            fichaJson = raw
+            choices = CharacterChoices()
+        }
+        val decoded = dev.rpgsolo.engine.Codec.decodeFicha(fichaJson)
+        val exists = (fichas + archivedFichas).any { it.id == decoded.id }
+        val imported = if (exists) decoded.copy(id = "f-${System.nanoTime()}", name = "${decoded.name} (importada)") else decoded
+        saveFicha(imported)
+        if (choices != CharacterChoices()) saveCharacterChoices(imported.id, choices)
+        "Ficha ${imported.name} importada${if (choices != CharacterChoices()) " com escolhas de raça/linhagem, classe, profissão e maldições" else ""}."
+    } catch (e: Exception) {
+        e.message ?: "JSON de ficha inválido"
+    }
 
     fun activeCampaignId(): String = session.campaignId
 
