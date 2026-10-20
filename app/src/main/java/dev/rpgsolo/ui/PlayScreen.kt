@@ -437,7 +437,7 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
                 Text("Resolver disputa")
             }
             Text("Teste de grupo", style = MaterialTheme.typography.labelLarge)
-            Muted("O herói participa automaticamente. Marque os NPCs aliados que também farão o teste.")
+            Muted("O herói participa automaticamente. Marque os NPCs que participam da tarefa.")
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
