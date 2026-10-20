@@ -221,6 +221,22 @@ class PlayControllerTest {
         assertTrue(c.lines.isEmpty())
     }
 
+    @Test fun registroDeGrupoPreservaResultadoDoJogadorMesmoForaDaPrimeiraPosicao() {
+        val c = ctrl(session(), emptyList())
+        val check = CheckSpec("ajuda", 1, 20, 0, 10)
+
+        val result = c.resolveGroup(
+            listOf(check.copy(label = "Orc"), check.copy(label = "Herói")),
+            requiredSuccesses = 1,
+            participantNames = listOf("Orc", "Herói"),
+            participantEntityIds = listOf(null, "hero")
+        ) as PlayResult.Played
+
+        assertEquals(2, result.record.advancedChecks.size)
+        assertEquals("Herói", result.record.advancedChecks[1].first)
+        assertEquals(result.record.advancedChecks[1].second, result.record.check)
+    }
+
     @Test fun testeDeGrupoInvalidoERecusadoSemAlterarEstado() {
         val s = session()
         val c = ctrl(s, emptyList())
