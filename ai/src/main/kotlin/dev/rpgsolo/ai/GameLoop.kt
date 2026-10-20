@@ -75,7 +75,9 @@ class GameLoop(
     /** Bônus mecânicos de adaptações aprovadas, consultados por escopo (teste, atributo ou perícia). */
     private val additionalBonus: (String) -> Int = { 0 },
     /** Efeitos tipados de outras fontes, preservando a origem no registro do teste. */
-    private val externalBonuses: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() }
+    private val externalBonuses: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
+    /** Origem individual das adaptações aprovadas; o total mecânico continua vindo de additionalBonus. */
+    private val additionalBonusSources: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() }
 ) {
     private val history = mutableListOf<TurnRecord>()
     private val narrations = mutableListOf<String>()
@@ -117,12 +119,21 @@ class GameLoop(
         // Adaptações aprovadas alteram a ficha do jogador; não devem virar bônus globais de NPC.
         val isPlayerEntity = session.state.entities[playerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
         val bonus = if (isPlayerEntity) scopes.sumOf(additionalBonus) else 0
-        val withAdaptations = if (bonus == 0) adjusted else {
-            val suffix = if (bonus > 0) " · adaptação +$bonus" else " · adaptação $bonus"
-            if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
-                adjusted.copy(difficulty = adjusted.difficulty + bonus, label = adjusted.label + suffix)
+        val adaptationSources = if (isPlayerEntity) additionalBonusSources(scopes)
+            .filter { it.scope in scopes && it.bonus != 0 } else emptyList()
+        val withAdaptations = if (bonus == 0 && adaptationSources.isEmpty()) adjusted else {
+            val sourceLabel = if (adaptationSources.isEmpty()) "" else " · adaptações: " +
+                adaptationSources.joinToString(", ") { effect ->
+                    "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+                }
+            val totalLabel = if (bonus == 0) "" else
+                " · adaptação " + if (bonus > 0) "+$bonus" else bonus.toString()
+            val label = adjusted.label + sourceLabel + totalLabel
+            if (bonus == 0) adjusted.copy(label = label)
+            else if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
+                adjusted.copy(difficulty = adjusted.difficulty + bonus, label = label)
             } else {
-                adjusted.copy(modifier = adjusted.modifier + bonus, label = adjusted.label + suffix)
+                adjusted.copy(modifier = adjusted.modifier + bonus, label = label)
             }
         }
         // Efeitos da ficha escolhida pertencem somente ao jogador; nunca a NPCs ou adversários.
