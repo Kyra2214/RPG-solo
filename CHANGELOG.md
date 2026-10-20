@@ -1,3 +1,10 @@
+## 2026-10-20 — testes avançados e validação de pacotes
+
+- `PlayController` agora expõe fluxos para resolver testes opostos e em grupo usando as APIs persistidas do motor. O chat registra as rolagens individuais e o desfecho mecânico; cada resolução pode ser desfeita.
+- Adicionados testes de regressão para disputa/grupo no controlador e referências inválidas nos pacotes. **Os testes não foram executados**; o código ainda não está validado.
+- `PackageParser` valida referências de atributos em recursos, requisitos de traços, escopos de bônus, atributos/perícias/recursos usados por testes, efeitos de condições e referências em exemplos e arquétipos.
+- Pendências mantidas: controles próprios na interface e pedidos narrativos para testes opostos/em grupo; poderes ativáveis e subsistema geral de sorte/destino.
+
 # Changelog — implementação code-first
 
 ## 2026-10-19 — correções de consistência nas fases 1–4
