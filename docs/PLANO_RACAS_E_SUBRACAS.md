@@ -395,6 +395,12 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [ ] Criar um assistente de migração com sugestões de substituição quando IDs do catálogo forem removidos ou renomeados.
 
 
+### Exibição completa das maldições selecionadas (20/10/2026)
+
+- [x] Exibir lore e todas as descrições editoriais de benefícios/custos das maldições selecionadas, não somente o resumo.
+- [x] Repetir a indicação explícita de que descrições de benefício/custo não equivalem a bônus ou penalidades automáticos.
+- [x] No resumo final das escolhas, listar todas as descrições disponíveis; manter compatibilidade com campos editoriais antigos de benefício/custo único.
+
 ### Validação estrutural do catálogo (20/10/2026)
 
 - [x] Validar a versão do esquema, o identificador do catálogo e o pacote de destino.
