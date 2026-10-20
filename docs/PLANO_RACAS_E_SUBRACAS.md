@@ -176,8 +176,10 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Exibir a origem dos efeitos de catálogo aplicados nos rótulos de testes do `GameLoop` e nos resultados de combate do jogador, incluindo defesa/resistência contra NPCs.
 - [x] Integrar também o fluxo normal do `GameLoop` e os testes avançados preparados por ele, preservando a origem no rótulo do teste; o teste de fuga continua usando o mesmo resolvedor tipado.
 - [x] Exibir a origem dos efeitos de catálogo efetivamente aplicados nos resultados de ataque do jogador e nos resultados de defesa/resistência contra ataques de NPC, sem alterar a resolução mecânica.
+- [x] Preservar também a origem individual das adaptações aprovadas nos rótulos dos testes comuns/avançados e nos resultados de fuga e combate, inclusive quando o total de adaptações aplicáveis é zero.
 - [x] Exibir totais por escopo no resumo de combate, sem somar num único total bônus de ataque e dano que afetam cálculos diferentes; em ataques que erram, omitir efeitos de dano/resistência não usados.
 - [x] Auditar os caminhos de resolução identificados: testes comuns/avançados pelo `GameLoop`, fuga por `RulePackage.adjustCheck` e combate direto pelo `AppModel`; efeitos externos são encaminhados apenas aos cálculos do jogador.
+- [x] Completar a rastreabilidade das adaptações aprovadas nos caminhos diretos do `AppModel` e no `GameLoop`, mantendo os totais mecânicos atuais e expondo as fontes usadas.
 - [x] Documentar o comportamento atual: `RulePackage.adjustCheck` soma efeitos externos aos bônus de `TraitBonus`, e efeitos externos de escopos correspondentes são aditivos; não há deduplicação automática. Isso registra a implementação existente, não uma decisão de design definitiva sobre equivalências.
 - [ ] Definir se efeitos externos equivalentes a um `TraitBonus` canônico devem ser bloqueados, substituídos ou acumulados, sem alterar silenciosamente o comportamento atual.
 - [x] Confirmar no catálogo versionado que `mechanicalEffects` está vazio nas entradas atuais: não há bônus de raça/classe/profissão/maldição efetivamente declarados para duplicar neste momento.
