@@ -1,6 +1,6 @@
 # Plano de implementação — Raças, sub-raças, classes e profissões do RPG Solo
 
-**Estado:** planejamento iniciado; não declara catálogo, interface ou mecânicas implementados.  
+**Estado atual (20/10/2026):** catálogo editorial, seleção de raça/sub-raça/híbrido/classe/profissão/maldições, validação de escolhas, persistência editorial, importação/exportação e edição das escolhas parcialmente implementados. Efeitos mecânicos do catálogo, história e retrato por IA ainda pendentes. Build/testes/CI não executados.  
 **Branch:** `feature/racas-subracas`  
 **Inspiração:** D&D como referência criativa de fantasia, sem copiar lore, ilustrações ou blocos de regras protegidos. O RPG Solo terá conteúdo original e motor próprio.
 
@@ -164,11 +164,11 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Cadastrar 50 raças, 50 sub-raças/variantes, 50 classes e 103 profissões com IDs estáveis, resumo e lore/descrição originais.
 - [x] Referenciar cada sub-raça à sua raça-base por `parentRaceId`.
 - [x] Deixar `mechanicalEffects` vazio em todas as opções; nenhum bônus foi inventado ou concedido por lore.
-- [ ] Definir e implementar carregador/validador de IDs, referências e esquema.
-- [ ] Integrar o catálogo ao carregamento real do pacote e à ficha.
+- [x] Implementar carregador e validação estrutural de IDs, referências e esquema; falhas do catálogo são exibidas na interface.
+- [x] Carregar o catálogo versionado na criação e persistir escolhas editoriais por ID da ficha; a integração mecânica com a ficha/motor permanece pendente.
 - [ ] Completar campos editoriais de competências e traços depois da auditoria das mecânicas existentes.
 
-Este primeiro lote é conteúdo versionado, ainda não conectado ao runtime. As entradas não concedem efeitos mecânicos até que regras válidas sejam explicitamente definidas e suportadas pelo motor.
+Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime editorial da criação. As entradas não concedem efeitos mecânicos até que regras válidas sejam explicitamente definidas e suportadas pelo motor.
 
 ### R3 — Efeitos combinados
 - Formalizar os efeitos tipados que o motor realmente consegue executar.
@@ -177,11 +177,11 @@ Este primeiro lote é conteúdo versionado, ainda não conectado ao runtime. As 
 - Sinalizar efeitos não suportados; não fingir que funcionam.
 
 ### R4 — Interface
-- Implementar seleção de raça/sub-raça com lore visível.
-- Implementar seleção de classe com descrição e habilidades visíveis.
-- Implementar seleção de profissão independente, com lore, competências e efeitos visíveis.
+- [x] Implementar seleção de raça/sub-raça com lore visível.
+- [x] Implementar seleção de classe com descrição/lore visível; lista de habilidades mecânicas do catálogo ainda pendente.
+- [x] Implementar seleção independente de profissão com lore visível; competências e efeitos mecânicos tipados ainda pendentes.
 - Adicionar especialização profissional apenas quando o esquema estiver definido.
-- Exibir resumo de bônus e sua origem antes da confirmação.
+- [x] Exibir revisão das escolhas e separar explicitamente os traços mecânicos atuais das descrições editoriais; origem/escopo de efeitos raciais e profissionais aguarda implementação mecânica.
 
 ### R4A — Criação narrativa assistida por IA
 - Definir entrada estruturada e controlada para a IA com dados confirmados da ficha e contexto da campanha.
@@ -199,9 +199,9 @@ Este primeiro lote é conteúdo versionado, ainda não conectado ao runtime. As 
 - Exibir resumo de bônus e sua origem antes da confirmação.
 
 ### R5 — Persistência
-- Guardar IDs escolhidos, versão/origem necessárias e estado da ficha.
-- Preservar compatibilidade com fichas antigas sem essas escolhas.
-- Garantir que backups e restaurações preservem as escolhas e os efeitos derivados sem duplicá-los.
+- [x] Guardar IDs escolhidos por ficha e incluir escolhas editoriais em backups e exportação/importação individual versionada; unificação no JSON canônico da ficha ainda pendente.
+- [x] Preservar compatibilidade com fichas/backups antigos sem essas escolhas.
+- [x] Backups/restaurações preservam as escolhas editoriais; efeitos derivados ainda não existem para essas opções e não são duplicados.
 
 ### R6 — Expansão editorial
 - Atingir pelo menos 50 raças, 50 sub-raças/variantes, 50 classes e 50 profissões, ampliando depois conforme necessário.
@@ -240,13 +240,13 @@ Este primeiro lote é conteúdo versionado, ainda não conectado ao runtime. As 
 - [x] Registrar lore/descrições originais e IDs estáveis para o primeiro lote.
 - [ ] Implementar carregador, validação do catálogo e integração ao runtime.
 - [ ] Integrar efeitos tipados à ficha e às ações.
-- [ ] Implementar interface de criação e persistência.
+- [x] Implementar interface inicial de criação e persistência editorial; integração mecânica e edição unificada continuam pendentes.
 - [ ] Implementar geração opcional de lore e retrato com IA, com limites rígidos contra alterações mecânicas.
 - [ ] Expandir e balancear o catálogo.
 
-**Estado atual:** catálogo editorial inicial criado em `rules/src/main/resources/packages/sistema-proprio/personagem-catalogo.json` (50 raças, 50 sub-raças/variantes, 50 classes e 103 profissões). O catálogo ainda não é carregado pelo runtime; efeitos mecânicos estão vazios e nenhuma integração, build ou teste foi declarado.
+**Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste metadados de escolhas; a aplicação de efeitos mecânicos ainda não foi integrada. Importação/exportação e backups preservam as escolhas. Build, testes e CI não foram executados.
 
-**Próxima ação:** auditar `CharacterDraft`, `PackageData`/`RulePackage`, persistência e telas de criação; depois implementar carregamento/validação do catálogo e integrar os IDs à ficha sem criar um segundo sistema de personagens.
+**Próxima ação:** concluir o contrato de persistência canônica e auditar o motor de bônus tipados antes de definir como converter traços raciais/profissionais em efeitos executáveis, sem duplicar os traços já escolhidos na ficha.
 
 ## 10. Maldições, benefícios e custos narrativos
 
