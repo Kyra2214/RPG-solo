@@ -77,6 +77,31 @@ class MasterCheckRequestTest {
         assertFalse("o guarda mantém a passagem" in context && "você rompe a guarda" in context)
     }
 
+    @Test fun refazerNarracaoDaDisputaPreservaResultadosDosDoisParticipantes() {
+        val p = pkg()
+        val f = ficha(p)
+        val session = session(f)
+        val opposed = """{"narrative":"O guarda bloqueia a passagem.",
+            "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"passa","onFailure":"não passa",
+            "opposed":{"entityId":"orc","check":"esquiva","difficulty":"facil","label":"Guarda"}}}"""
+        val provider = ScriptedProvider(listOf(opposed, fim("O jogador venceu."), fim("O jogador vence após nova narração.")))
+        val loop = GameLoop(provider, menu = CheckMenu(p))
+        val input = PlayInput("hero", "tento passar", sceneNpcIds = setOf("orc"))
+        assertTrue(loop.play(session, input) is PlayResult.Played)
+        val resolved = loop.resolvePending(session, input)
+        assertTrue(resolved is PlayResult.Played)
+        assertEquals(2, (resolved as PlayResult.Played).record.advancedChecks.size)
+
+        val regenerated = loop.regenerate(session)
+
+        assertTrue(regenerated is PlayResult.Played)
+        assertEquals(2, (regenerated as PlayResult.Played).record.advancedChecks.size)
+        assertEquals(
+            resolved.record.advancedChecks.map { it.first },
+            regenerated.record.advancedChecks.map { it.first }
+        )
+    }
+
     @Test fun grupoPedidoPelaIaRolaTodosOsParticipantes() {
         val group = """{"narrative":"Vocês tentam passar a porta pesada juntos.",
             "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"vocês conseguem passar","onFailure":"a porta continua fechada",
