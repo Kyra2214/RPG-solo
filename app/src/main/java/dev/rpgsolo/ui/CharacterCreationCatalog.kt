@@ -66,6 +66,17 @@ object CharacterCreationCatalog {
         }.getOrNull()
     }
 
+    private fun parseEffects(array: org.json.JSONArray?): List<CharacterCatalogEffect> {
+        if (array == null) return emptyList()
+        return (0 until array.length()).mapNotNull { index ->
+            val effect = array.optJSONObject(index) ?: return@mapNotNull null
+            val scope = effect.optString("scope").trim()
+            val rawBonus = effect.opt("bonus")
+            val bonus = if (rawBonus is Number && rawBonus.toDouble() % 1.0 == 0.0) rawBonus.toInt() else null
+            if (scope.isBlank() || bonus == null) null else CharacterCatalogEffect(scope, bonus)
+        }
+    }
+
     private fun entries(key: String): List<CharacterCatalogEntry> {
         val array = catalog?.optJSONArray(key) ?: return emptyList()
         return (0 until array.length()).mapNotNull { index ->
@@ -85,7 +96,8 @@ object CharacterCreationCatalog {
                 }.orEmpty(),
                 drawbacks = item.optJSONArray("drawbacks")?.let { arr ->
                     (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.optString("description")?.takeIf { text -> text.isNotBlank() } }
-                }.orEmpty()
+                }.orEmpty(),
+                mechanicalEffects = parseEffects(item.optJSONArray("mechanicalEffects"))
             )
         }
     }
