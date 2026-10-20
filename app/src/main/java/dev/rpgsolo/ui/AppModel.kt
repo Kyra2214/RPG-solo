@@ -1131,7 +1131,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         questsJson = meta.questsJson,
                         timelineJson = meta.timelineJson,
                         playerId = meta.playerId,
-                        fichaId = meta.fichaId?.let { fichaIdMap[it] ?: it },
+                        fichaId = meta.fichaId?.let { fichaId ->
+                            fichaIdMap[fichaId] ?: if (store.fichaExiste(fichaId)) null else fichaId
+                        },
                         packageId = meta.packageId,
                         systemId = meta.systemId,
                         editionId = meta.editionId
