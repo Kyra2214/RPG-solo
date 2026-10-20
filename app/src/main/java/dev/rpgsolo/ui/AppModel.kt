@@ -597,7 +597,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     "${session.state.entities.getValue(attacker).name} errou o ataque."
                 }
-                outcome + selectedCatalogBonusSummary(pkg, listOf("defesa", defenseStat, "resistencia_dano"))
+                outcome + selectedCatalogBonusSummary(pkg, listOf("defesa", "resistencia_dano"))
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> return result.reason
         }
