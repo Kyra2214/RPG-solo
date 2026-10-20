@@ -293,7 +293,7 @@ class PlayController(
         checks: List<CheckSpec>,
         requiredSuccesses: Int,
         participantNames: List<String> = checks.map { it.label },
-        participantEntityIds: List<String?> = listOf(playerId) + List(checks.size - 1) { null }
+        participantEntityIds: List<String?> = listOf(playerId) + List((checks.size - 1).coerceAtLeast(0)) { null }
     ): PlayResult {
         if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes do teste de grupo")
         if (participantNames.size != checks.size || participantEntityIds.size != checks.size) {
