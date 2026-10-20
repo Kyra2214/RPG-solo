@@ -80,4 +80,21 @@ class CheckChoicesTest {
         assertTrue((result as InstallResult.Failure).errors.any { "escopo de bônus sem regra mecânica" in it })
     }
 
+    @Test fun validadorRejeitaEscopoDeEquipamentoSemRegraMesmoAposHeranca() {
+        val data = basico().data.copy(
+            items = listOf(
+                ItemDef(
+                    id = "teste-escopo",
+                    name = "Equipamento de teste",
+                    kind = "equipamento",
+                    slot = "mao",
+                    description = "Fixture de validação",
+                    effects = listOf(ItemEffect("bonus-fantasma", 1))
+                )
+            )
+        )
+        val errors = PackageValidator.validate(data)
+        assertTrue(errors.any { "escopo de efeito sem regra mecânica" in it })
+    }
+
 }
