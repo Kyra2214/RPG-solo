@@ -167,7 +167,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Restringir os escopos aceitos aos que o resolvedor reconhece: atributos, testes, perícias e escopos de combate; IDs de vantagens/poderes não são tratados como escopos executáveis por si só.
 - [x] Exibir os efeitos declarados e sua origem sem afirmar que já estão aplicados.
 - [x] Criar `selectedEffects(choices)` para retornar somente efeitos explicitamente declarados nas escolhas, preservando ID estável da entrada e origem (entrada/benefício/custo).
-- [x] Manter efeitos de fontes diferentes separados, sem deduplicação silenciosa; o catálogo não decide a política de acúmulo.
+- [x] Dar a cada declaração mecânica um ID estável derivado do caminho no JSON, independente do texto de lore; deduplicar apenas repetição da mesma declaração com ID explícito.
 - [x] Integrar efeitos externos tipados à resolução do teste de fuga sem copiar os bônus para `Ficha.traits`.
 - [x] Aplicar efeitos de combate declarados nos escopos `ataque`, `dano`, `defesa` e `resistencia_dano` aos cálculos correspondentes do personagem jogador, sem transferi-los aos NPCs.
 - [x] Restringir os efeitos externos do catálogo no `GameLoop` às entidades do tipo jogador, inclusive em testes avançados com vários participantes; NPCs não recebem escolhas mecânicas da ficha ativa.
@@ -181,19 +181,19 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Auditar os caminhos de resolução identificados: testes comuns/avançados pelo `GameLoop`, fuga por `RulePackage.adjustCheck` e combate direto pelo `AppModel`; efeitos externos são encaminhados apenas aos cálculos do jogador.
 - [x] Reauditar a fuga no `AppModel`: `adjustCheck` recebe os efeitos do catálogo; adaptações aprovadas são somadas depois, uma única vez, aos escopos distintos do teste e ao ajuste de dificuldade/modificador. O resumo lista cada adaptação por ID/escopo, inclusive quando efeitos opostos se anulam; não foi encontrada dupla aplicação nesse caminho.
 - [x] Completar a rastreabilidade das adaptações aprovadas nos caminhos diretos do `AppModel` e no `GameLoop`, mantendo os totais mecânicos atuais e expondo as fontes usadas.
-- [x] Documentar o comportamento atual: `RulePackage.adjustCheck` soma efeitos externos aos bônus de `TraitBonus`, e efeitos externos de escopos correspondentes são aditivos; não há deduplicação automática. Isso registra a implementação existente, não uma decisão de design definitiva sobre equivalências.
+- [x] Documentar a política atual de identidade: uma mesma declaração externa com `effectId` repetido é aplicada uma vez; efeitos com IDs distintos acumulam mesmo que tenham o mesmo escopo e valor. Efeitos sem ID explícito não são deduplicados por semelhança numérica.
 - [ ] Definir se efeitos externos equivalentes a um `TraitBonus` canônico devem ser bloqueados, substituídos ou acumulados, sem alterar silenciosamente o comportamento atual.
 - [x] Confirmar no catálogo versionado que `mechanicalEffects` está vazio nas entradas atuais: não há bônus de raça/classe/profissão/maldição efetivamente declarados para duplicar neste momento.
 - [x] Auditar o alcance das adaptações aprovadas: `Adaptation.kt` aplica os efeitos à ficha (`Ficha`) e o estado as descreve como adaptações aprovadas; `GameLoop` agora limita esses bônus aos testes da entidade `PLAYER`.
 - [x] Remover a aplicação de adaptações aprovadas aos bônus de ataque/dano de NPCs e à defesa/resistência de NPCs em combate direto; manter os efeitos nos cálculos do jogador.
 - [x] Auditar o modelo e a persistência das adaptações: `RegraAdicional` contém ID, nome, descrição, efeitos, limite, origem e aprovação, mas não contém alvo/escopo de aplicação (jogador, NPC ou global). `AdditionalRuleProposed/Approved/Rejected` entram no log event-sourced e o estado é reconstruído a partir dos eventos.
 - [ ] Revisar a semântica histórica das adaptações em campanhas antigas e validar se alguma adaptação aprovada deve ser explicitamente global, em vez de alteração da ficha do jogador. Como o modelo antigo não registra alvo, não reinterpretar campanhas existentes sem migração/regra de compatibilidade.
-- [x] Confirmar que efeitos distintos com o mesmo escopo são somados pela implementação atual e não são deduplicados silenciosamente.
+- [x] Confirmar que efeitos com IDs distintos e mesmo escopo/valor acumulam; apenas uma declaração com o mesmo `effectId` é deduplicada.
 - [ ] Definir a política de equivalência entre um efeito externo e um `TraitBonus` canônico antes de adicionar bloqueios ou deduplicação.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
 - [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
 
-**Limite atual:** as escolhas editoriais continuam separadas de `Ficha.traits`, mas efeitos declarados em `mechanicalEffects` podem ser encaminhados como `ExternalBonus` aos caminhos já integrados. As entradas atuais têm efeitos vazios, então não concedem bônus novos. A política de equivalência com `TraitBonus` e os testes de integração continuam pendentes.
+**Limite atual:** as escolhas editoriais continuam separadas de `Ficha.traits`. Cada efeito explícito recebe um ID estável baseado no caminho do JSON; a mesma declaração externa não se aplica duas vezes, mas declarações diferentes continuam acumulando. As entradas atuais têm `mechanicalEffects` vazios, então não concedem bônus novos. A equivalência entre efeitos externos e `TraitBonus` canônicos segue pendente: não deduplicamos por coincidência de escopo/valor e não inferimos equivalência a partir de lore.
 
 ### R2 — Esquema de dados e catálogo
 - [x] Criar primeiro catálogo editorial versionado em `rules/src/main/resources/packages/sistema-proprio/personagem-catalogo.json`.
@@ -295,7 +295,7 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 
 **Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` é o campo canônico. A restauração migra escolhas antigas para fichas ativas e arquivadas; a escrita canônica precede o espelho SharedPreferences. A gravação de uma ficha atualiza ou insere atomicamente sem apagar o estado de arquivamento. Os backups agora incluem fichas ativas e arquivadas, transportam os IDs arquivados em metadado opcional e mantêm compatibilidade com backups antigos. A importação valida fichas e IDs, consulta colisões no banco, remapeia IDs, evita vínculo acidental a ficha local ausente do backup e restaura campanha/metadados/fichas na mesma transação. IDs de cópias e fichas novas usam UUID. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
 
-**Próxima ação:** revisão estática final dos caminhos de backup legado, reimportação repetida e falhas parciais; depois, quando autorizado, executar a validação. Não ativar efeitos novos do catálogo antes de definir a política de equivalência com bônus canônicos.
+**Próxima ação:** revisar os efeitos contextuais (arma, gatilho, duração e condição) e a equivalência com `TraitBonus` canônico antes de preencher `mechanicalEffects`; validar a persistência/backup em execução somente quando autorizado. Não inventar nem ativar bônus por texto de lore.
 
 ## 10. Maldições, benefícios e custos narrativos
 
