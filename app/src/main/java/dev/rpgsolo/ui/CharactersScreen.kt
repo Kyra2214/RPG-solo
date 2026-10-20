@@ -89,6 +89,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
     var fichaImportText by remember(key) { mutableStateOf("") }
     var expandedFichaId by remember(key) { mutableStateOf<String?>(null) }
+    var editingChoicesFichaId by remember(key) { mutableStateOf<String?>(null) }
     val clipboard = LocalClipboardManager.current
     var archId by remember(key) { mutableStateOf<String?>(null) }
     var archQuery by remember(key) { mutableStateOf("") }
@@ -200,6 +201,22 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         }
     }
 
+    editingChoicesFichaId?.let { fichaId ->
+        AppCard {
+            Text("Editando escolhas de ${model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId}", style = MaterialTheme.typography.titleSmall)
+            Muted("Esta ação altera somente os metadados editoriais; não recalcula nem inventa bônus mecânicos.")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    model.saveCharacterChoices(fichaId, choices)
+                    editingChoicesFichaId = null
+                    libraryMessage = "Escolhas da ficha atualizadas."
+                    version++
+                }) { Text("Salvar escolhas") }
+                TextButton(onClick = { editingChoicesFichaId = null }) { Text("Cancelar") }
+            }
+        }
+    }
+
     // ---------- 2. Nome ----------
     OutlinedTextField(draft.name, { draft.name = it; version++ }, Modifier.fillMaxWidth(), label = { Text("Nome") }, singleLine = true)
     OutlinedTextField(draft.concept, { draft.concept = it; version++ }, Modifier.fillMaxWidth(), label = { Text("Conceito (livre)") })
@@ -300,7 +317,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     shown.take(40).forEach { TraitRow(it, false) { toggle(it.id) } }
 
     // ---------- 8. Criar ----------
-    Button(modifier = Modifier.fillMaxWidth(), onClick = {
+    Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null, onClick = {
         message = when (val b = draft.build()) {
             is FichaBuild.Created -> { model.saveFicha(b.ficha); model.saveCharacterChoices(b.ficha.id, choices); "Ficha de ${b.ficha.name} criada e salva." }
             is FichaBuild.Invalid -> b.errors.joinToString("; ")
@@ -358,6 +375,18 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                     if (f.adaptations.isNotEmpty()) Muted("Adaptações: " + f.adaptations.joinToString(", "))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    TextButton(onClick = {
+                        val saved = model.characterChoices(f.id)
+                        raceId = saved.raceId
+                        subraceId = saved.subraceId
+                        hybridId = saved.hybridId
+                        classId = saved.classId
+                        professionId = saved.professionId
+                        curseIds = saved.curseIds.toSet()
+                        editingChoicesFichaId = f.id
+                        message = null
+                        version++
+                    }) { Text("Editar escolhas") }
                     TextButton(onClick = { libraryMessage = model.duplicateFicha(f.id) ?: "Ficha duplicada." }) { Text("Duplicar") }
                     TextButton(onClick = { libraryMessage = model.archiveFicha(f.id, true) ?: "Ficha arquivada." }) { Text("Arquivar") }
                     TextButton(onClick = {
