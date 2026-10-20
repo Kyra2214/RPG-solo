@@ -932,7 +932,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             systemId = activeSystemId ?: activeFicha?.system?.systemId,
             editionId = activeEditionId ?: activeFicha?.system?.editionId,
             fichas = fichas.map { dev.rpgsolo.engine.Codec.encode(it) },
-            characterChoices = (fichas + archivedFichas).associate { ficha ->
+            characterChoices = fichas.associate { ficha ->
                 ficha.id to characterChoicesPrefs.getString(ficha.id, null).orEmpty()
             }.filterValues { it.isNotBlank() }
         )
