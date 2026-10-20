@@ -128,6 +128,26 @@ object CharacterCreationCatalog {
         return errors.distinct()
     }
 
+    private fun validateEffects(array: org.json.JSONArray, location: String, errors: MutableList<String>) {
+        val seen = mutableSetOf<String>()
+        for (index in 0 until array.length()) {
+            val effect = array.optJSONObject(index)
+            if (effect == null) {
+                errors += "$location[$index] deve ser um objeto"
+                continue
+            }
+            val scope = effect.optString("scope").trim()
+            if (!Regex("[a-z0-9][a-z0-9_-]*").matches(scope)) {
+                errors += "$location[$index] possui scope inválido"
+            } else if (!seen.add(scope)) {
+                errors += "$location declara scope duplicado: $scope"
+            }
+            val rawBonus = effect.opt("bonus")
+            val bonus = if (rawBonus is Number && rawBonus.toDouble().isFinite() && rawBonus.toDouble() % 1.0 == 0.0) rawBonus.toInt() else null
+            if (bonus == null || bonus !in -100..100) errors += "$location[$index] deve declarar bonus inteiro entre -100 e 100"
+        }
+    }
+
     /**
      * Valida o documento bruto antes de expor as opções.
      * Entradas malformadas não podem desaparecer silenciosamente durante o parsing.
@@ -170,8 +190,11 @@ object CharacterCreationCatalog {
                     if (item.optJSONArray("traits") == null) {
                         errors += "Entrada ${id ?: index} em $key não declara traits como lista"
                     }
-                    if (item.optJSONArray("mechanicalEffects") == null) {
+                    val effects = item.optJSONArray("mechanicalEffects")
+                    if (effects == null) {
                         errors += "Entrada ${id ?: index} em $key não declara mechanicalEffects como lista"
+                    } else {
+                        validateEffects(effects, "mechanicalEffects da entrada ${id ?: index} em $key", errors)
                     }
                     listOf("benefits", "drawbacks").forEach { field ->
                         val value = item.opt(field)
@@ -181,9 +204,18 @@ object CharacterCreationCatalog {
                                 errors += "Campo $field da entrada ${id ?: index} em $key deve ser uma lista"
                             } else {
                                 for (effectIndex in 0 until descriptions.length()) {
-                                    val description = descriptions.optJSONObject(effectIndex)?.optString("description")
+                                    val detail = descriptions.optJSONObject(effectIndex)
+                                    val description = detail?.optString("description")
                                     if (description.isNullOrBlank() || description == "null") {
                                         errors += "Descrição ausente em $field[$effectIndex] da entrada ${id ?: index}"
+                                    }
+                                    if (detail != null && detail.has("mechanicalEffects") && !detail.isNull("mechanicalEffects")) {
+                                        val nested = detail.optJSONArray("mechanicalEffects")
+                                        if (nested == null) {
+                                            errors += "mechanicalEffects de $field[$effectIndex] da entrada ${id ?: index} deve ser uma lista"
+                                        } else {
+                                            validateEffects(nested, "mechanicalEffects de $field[$effectIndex] da entrada ${id ?: index}", errors)
+                                        }
                                     }
                                 }
                             }
