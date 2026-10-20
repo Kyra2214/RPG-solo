@@ -3,7 +3,7 @@ package dev.rpgsolo.ui
 import org.json.JSONObject
 
 /** Efeito tipado declarado no catálogo. Declarar não significa aplicar ao motor. */
-data class CharacterCatalogEffect(val scope: String, val bonus: Int)
+data class CharacterCatalogEffect(val scope: String, val bonus: Int, val source: String = "entry")
 
 /** Entrada editorial do catálogo de criação; efeitos mecânicos só vêm do motor de regras. */
 data class CharacterCatalogEntry(
@@ -66,14 +66,14 @@ object CharacterCreationCatalog {
         }.getOrNull()
     }
 
-    private fun parseEffects(array: org.json.JSONArray?): List<CharacterCatalogEffect> {
+    private fun parseEffects(array: org.json.JSONArray?, source: String): List<CharacterCatalogEffect> {
         if (array == null) return emptyList()
         return (0 until array.length()).mapNotNull { index ->
             val effect = array.optJSONObject(index) ?: return@mapNotNull null
             val scope = effect.optString("scope").trim()
             val rawBonus = effect.opt("bonus")
             val bonus = if (rawBonus is Number && rawBonus.toDouble() % 1.0 == 0.0) rawBonus.toInt() else null
-            if (scope.isBlank() || bonus == null) null else CharacterCatalogEffect(scope, bonus)
+            if (scope.isBlank() || bonus == null) null else CharacterCatalogEffect(scope, bonus, source)
         }
     }
 
@@ -97,7 +97,18 @@ object CharacterCreationCatalog {
                 drawbacks = item.optJSONArray("drawbacks")?.let { arr ->
                     (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.optString("description")?.takeIf { text -> text.isNotBlank() } }
                 }.orEmpty(),
-                mechanicalEffects = parseEffects(item.optJSONArray("mechanicalEffects"))
+                mechanicalEffects = parseEffects(item.optJSONArray("mechanicalEffects"), "entrada").toMutableList().apply {
+                    listOf("benefits", "drawbacks").forEach { field ->
+                        val details = item.optJSONArray(field)
+                        if (details != null) {
+                            for (detailIndex in 0 until details.length()) {
+                                val detail = details.optJSONObject(detailIndex) ?: continue
+                                val description = detail.optString("description", field).takeIf { it.isNotBlank() } ?: field
+                                addAll(parseEffects(detail.optJSONArray("mechanicalEffects"), "$field: $description"))
+                            }
+                        }
+                    }
+                }
             )
         }
     }
