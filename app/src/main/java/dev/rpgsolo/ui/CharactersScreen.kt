@@ -102,7 +102,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var hybridId by remember(key) { mutableStateOf("") }
     var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
     val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId)
-    val choiceErrors = CharacterCreationCatalog.validateChoices(choices)
+    val choiceErrors = (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct()
     @Suppress("UNUSED_EXPRESSION") version
 
     fun toggle(id: String) {
