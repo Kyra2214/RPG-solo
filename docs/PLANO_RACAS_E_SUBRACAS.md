@@ -332,7 +332,7 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 ### Persistência das escolhas em backup (20/10/2026)
 
 - [x] Adicionar campo opcional `characterChoices` aos metadados do backup, mantendo compatibilidade com backups antigos por valor padrão vazio.
-- [x] Exportar as escolhas das fichas associadas aos IDs estáveis, incluindo fichas arquivadas no mapa de metadados.
+- [x] Exportar as escolhas das fichas associadas aos IDs estáveis, para as fichas incluídas no backup.
 - [x] Restaurar as escolhas ao importar um backup, sem converter lore ou descrições em efeitos mecânicos.
 - [x] Definir formato versionado de exportação/importação individual, mantendo compatibilidade de leitura com JSONs antigos.
 
