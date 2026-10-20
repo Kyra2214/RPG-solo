@@ -109,8 +109,8 @@ class GameLoop(
             CheckResolution(result.chosen, listOfNotNull(unchosen))
         }
 
-    private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null): CheckSpec {
-        val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), playerTraits(), skill) ?: spec
+    private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null, traitIds: List<String> = playerTraits()): CheckSpec {
+        val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), traitIds, skill) ?: spec
         val scopes = listOfNotNull(spec.checkId, spec.stat, skill).distinct()
         val bonus = scopes.sumOf(additionalBonus)
         val withAdaptations = if (bonus == 0) adjusted else {
@@ -133,6 +133,23 @@ class GameLoop(
             dev.rpgsolo.engine.Comparison.POINTS ->
                 withAdaptations.copy(modifier = (withAdaptations.modifier - shift).coerceAtLeast(0), label = withAdaptations.label + suffix)
         }
+    }
+
+    /**
+     * Prepara uma especificação para um participante de teste avançado, aplicando as condições,
+     * traços e adaptações mecânicas da entidade real antes de rolar.
+     */
+    fun prepareAdvancedCheck(
+        session: CampaignSession,
+        spec: CheckSpec,
+        entityId: String,
+        skill: String? = null
+    ): CheckSpec? {
+        val entity = session.state.entities[entityId] ?: return null
+        return adjusted(spec, session, entityId, skill, entity.traits.ifEmpty {
+            if (entityId == session.state.entities.values.firstOrNull { it.kind == dev.rpgsolo.engine.EntityKind.PLAYER }?.id) playerTraits()
+            else emptyList()
+        })
     }
 
     /** Quantas resoluções de pedido do mestre vieram em sequência no fim do histórico (limita o encadeamento). */
