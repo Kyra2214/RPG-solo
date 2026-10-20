@@ -264,3 +264,31 @@ Princípios obrigatórios:
 
 **Estado real:** catálogo de 100 maldições adicionado ao JSON no commit `bbdf336b6acb62cda2532dbd34af158018753399`. O runtime, a interface de seleção, a validação e a aplicação mecânica ainda não foram implementados nem validados.
 
+## 11. Refatoração completa da aba de criação de personagem
+
+A entrega não se limita à aba de maldições: o objetivo é refazer o fluxo de criação de personagem de ponta a ponta, integrando as escolhas em uma única ficha e reaproveitando o modelo de personagem já existente no projeto. Antes de alterar a interface, auditar os componentes e serviços atuais para evitar um segundo sistema de fichas.
+
+### Fluxo proposto
+1. **Identidade:** nome e demais campos de identidade já suportados pela aplicação.
+2. **Raça e linhagem:** raça-base, sub-raça/variante ou híbrido permitido pelo catálogo; condições/origens sobrenaturais são escolhas separadas.
+3. **Classe:** escolha independente, sujeita apenas a requisitos reais definidos nos dados.
+4. **Profissão:** escolha independente e, quando suportada, especialização vinculada à profissão.
+5. **Vantagens e desvantagens:** selecionar entradas válidas do catálogo, sem fabricar opções ou efeitos.
+6. **Maldições:** selecionar maldições do catálogo; cada uma pode combinar benefício e custo narrativo/mecânico explícitos.
+7. **Revisão:** exibir ficha-base, escolhas e efeitos separados por fonte, explicar de onde cada efeito vem e mostrar problemas de validação antes de salvar.
+8. **História e retrato por IA (opcionais):** enviar à IA apenas as escolhas confirmadas e a lore canônica relevante; permitir revisar/salvar a história e salvar o retrato gerado. A IA não pode alterar a ficha nem inventar regras.
+9. **Salvar e editar:** persistir a ficha no formato usado pelo projeto, preservar IDs estáveis e permitir reabrir/editar sem perder escolhas.
+
+### Regras de integridade
+- Auditar o fluxo atual, modelo/draft, persistência, navegação, catálogos e serviços de IA antes de codificar a refatoração.
+- Reutilizar os modelos e contratos existentes; não criar uma segunda entidade de personagem nem duplicar a lógica de persistência.
+- Raça/sub-raça/híbrido, classe, profissão, vantagens, desvantagens e maldições devem ser campos distintos. Equipamentos, buffs e debuffs temporários continuam em camadas separadas.
+- Efeitos mecânicos devem ser estruturados e executados somente se suportados pelo motor. Texto de lore ou descrição nunca se converte automaticamente em regra.
+- Validar IDs e referências, compatibilidades explícitas, duplicatas, limites e requisitos definidos nos dados; não presumir restrições por temática.
+- Mostrar benefícios e custos de cada maldição antes da confirmação. Efeitos sociais/comportamentais podem ser narrativos; não inventar penalidades numéricas.
+- Geração de história/retrato é opcional e não bloqueia criação manual.
+- Não declarar a refatoração concluída até que interface, integração, persistência e fluxos relevantes tenham sido implementados. A prioridade inicial é código e integração, não CI, salvo pedido explícito posterior.
+
+### Estado
+Este escopo foi registrado como plano. A interface e o runtime ainda precisam ser auditados para localizar a aba atual e determinar os arquivos concretos a modificar.
+
