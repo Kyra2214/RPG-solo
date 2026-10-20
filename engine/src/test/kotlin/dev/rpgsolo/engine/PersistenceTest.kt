@@ -35,6 +35,19 @@ class PersistenceTest {
         assertEquals(f, Codec.decodeFicha(Codec.encode(f)))
     }
 
+    @Test fun escolhasEditoriaisPersistemNoJsonCanonicoDaFicha() {
+        val choices = """{"raceId":"elfo","subraceId":"elfo-da-lua","classId":"guerreiro","professionId":"ferreiro","curseIds":["marca-do-vazio"],"hybridId":""}"""
+        val ficha = Ficha("f-editorial", "Ari", SystemRef("s", "1e"), editorialChoicesJson = choices)
+        assertEquals(choices, Codec.decodeFicha(Codec.encode(ficha)).editorialChoicesJson)
+    }
+
+    @Test fun fichaAntigaSemCampoEditorialContinuaDecodificavel() {
+        val ficha = Ficha("f-antiga", "Brokk", SystemRef("s", "1e"))
+        val oldJson = Codec.encode(ficha).replace(",\\"editorialChoicesJson\\":\\"\\"", "")
+        assertTrue(oldJson.contains("\\"id\\":\\"f-antiga\\""))
+        assertEquals("", Codec.decodeFicha(oldJson).editorialChoicesJson)
+    }
+
     @Test fun autosaveReabreComOMesmoEstado() {
         val (s, store) = newSession()
         s.execute(Damage("orc", "hp", 4))
