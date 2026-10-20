@@ -1,178 +1,170 @@
-# Plano de implementação — Raças e sub-raças do RPG Solo
+# Plano de implementação — Raças, sub-raças e profissões do RPG Solo
 
-**Estado:** planejamento iniciado; ainda não declara catálogo, interface ou mecânicas implementados.  
-**Branch de trabalho:** `feature/racas-subracas`  
-**Referência criativa:** Dungeons & Dragons (D&D), sem copiar texto de livros, nomes de cenários protegidos ou blocos de regras proprietários. O conteúdo narrativo do RPG Solo será original; D&D serve como inspiração de fantasia e como referência de categorias, não como texto a reproduzir.
+**Estado:** planejamento iniciado; não declara catálogo, interface ou mecânicas implementados.  
+**Branch:** `feature/racas-subracas`  
+**Inspiração:** D&D como referência criativa de fantasia, sem copiar lore, ilustrações ou blocos de regras protegidos. O RPG Solo terá conteúdo original e motor próprio.
 
 ## 1. Objetivo
 
-Permitir que a criação de personagem ofereça raças e sub-raças por catálogo de dados expansível. Cada opção precisa ser identificável, explicada e, quando o pacote de regras ativo suportar, produzir efeitos mecânicos reais na ficha. A raça não pode ser apenas um rótulo visual.
+A criação de personagem combina escolhas independentes: **raça**, **sub-raça** (quando existir), **classe/profissão** e **especialidade** (quando o desenho final a incluir). Cada escolha tem identidade, lore/descrição e traços próprios. Os efeitos mecânicos válidos são acumulados pela ficha e resolvidos pelo motor.
 
-**Requisito de experiência:** ao selecionar uma raça, a tela mostra sua lore. Ao selecionar uma sub-raça, mostra também a lore específica dela, sem perder a descrição da raça-base. A lore deve ser consultável novamente depois da seleção e durante a visualização/edição da ficha.
+Exemplo de design:
+- Raça **Elfo** concede Precisão +1.
+- Profissão **Arqueiro** concede Dano +1 ao usar arcos e bestas.
+- Resultado: o personagem recebe o benefício racial de precisão e o bônus profissional de dano com armas de projéteis. Os bônus permanecem identificados pela origem, em vez de serem fundidos num modificador sem explicação.
 
-## 2. Escopo e metas de catálogo
+Os valores acima são exemplos propostos, ainda não regras implementadas ou balanceadas. A semântica de “Precisão” e “Dano” deverá corresponder a atributos/efeitos que o motor realmente suporte.
 
-As quantidades abaixo são metas editoriais, não conteúdo já existente no aplicativo:
+## 2. Conceitos separados
 
-| Coleção | Meta inicial |
+- **Raça:** identidade de povo/linhagem, lore, traços raciais comuns.
+- **Sub-raça:** variante ligada a uma raça-base, com lore própria e traços adicionais ou substituições declaradas.
+- **Classe/profissão:** treinamento, ocupação ou papel de aventura que concede competências e efeitos independentes da raça.
+- **Especialidade:** foco mais estreito dentro da profissão, se a ficha e o pacote de regras ativo suportarem essa camada. Não presumir que seja obrigatória em todos os sistemas.
+- **Traço:** característica descritiva que pode ter efeito mecânico tipado ou ser apenas narrativa.
+- **Efeito mecânico:** modificação estruturada, validada pelo motor e com escopo explícito (por exemplo, bônus de dano apenas com arcos e bestas).
+- **Lore:** conteúdo narrativo original. A lore não é executável e não deve ser confundida com regra.
+
+Raça e profissão não devem se excluir mutuamente nem ter listas rigidamente acopladas: um elfo pode ser arqueiro, guerreiro, curandeiro ou escolher outra profissão compatível com as regras do pacote ativo.
+
+## 3. Metas do catálogo
+
+Metas editoriais, não contagens já implementadas:
+
+| Coleção | Meta |
 |---|---:|
 | Raças principais de fantasia | 10–15 |
 | Raças adicionais de fantasia | 30–50 |
-| Variantes, sub-raças e opções avançadas | Expansível |
-| Catálogo total possível | 50+ opções de raça, sem contar todas as variantes |
+| Sub-raças e variantes | Expansível |
+| Profissões/classes iniciais | Definir após mapear as regras comuns do motor |
+| Especialidades | Expansível, opcional por pacote |
+| Catálogo potencial | 50+ raças, mais variantes, profissões e especialidades |
 
-O sistema não terá limite fixo de raças ou sub-raças. Novas opções devem poder ser adicionadas aos arquivos de dados sem reescrever a lógica da interface.
+O catálogo não terá limite fixo. Adicionar entradas deve ser uma operação de dados, não uma mudança de código de interface por opção.
 
-## 3. Vocabulário e hierarquia
+## 4. Dados e identificadores
 
-- **Raça:** opção principal de personagem, com identidade, lore e traços comuns.
-- **Sub-raça:** variante ligada a uma raça-base; herda sua identidade e seus traços compartilhados e pode acrescentar lore e traços próprios.
-- **Variante/opção avançada:** extensão opcional, quando um pacote ou conteúdo futuro precisar representar diferenças que não se encaixam como sub-raça.
-- **Traço:** descrição de uma característica narrativa ou regra associada.
-- **Efeito mecânico:** efeito tipado e validável pelo motor. Texto descritivo, sozinho, não pode alterar números ou resultados.
-- **Lore:** conteúdo narrativo original sobre origem, cultura, aparência, costumes, visão de mundo e diversidade interna. Não é regra mecânica.
+Cada raça deve ter `id` estável, `name`, `summary`, `lore`, traços, tags, proveniência e versão. Uma sub-raça também exige `parentRaceId`, lore própria e definição explícita de traços herdados, adicionais ou substituídos.
 
-Evitar pressupor que toda raça precisa de sub-raças. Uma raça pode ter zero, uma ou várias.
+Cada profissão/classe deve ter:
+- `id` estável e nome de exibição;
+- resumo e descrição/lore própria;
+- requisitos e compatibilidades opcionais, definidos por dados;
+- competências e traços concedidos;
+- efeitos mecânicos tipados, com escopo de aplicação;
+- proveniência e versão.
 
-## 4. Modelo de dados proposto
+Cada especialidade, se usada, deve referenciar uma profissão/classe válida e definir o que acrescenta ou substitui.
 
-Cada registro de raça deve incluir, no mínimo:
+Os traços devem separar `description` de `mechanicalEffects`. Efeitos estruturados devem expressar tipo, valor, escopo, requisitos, gatilhos, limites e duração quando aplicável. Exemplo conceitual: `damage_bonus +1` com escopo `weapon_group: bows_and_crossbows`; não um bônus universal de dano. O esquema concreto será alinhado às capacidades reais do motor após a auditoria.
 
-- `id`: identificador estável, único e independente do nome traduzido.
-- `name`: nome de exibição.
-- `summary`: resumo curto para a lista.
-- `lore`: texto original completo para o painel de detalhes.
-- `traits`: traços compartilhados, com IDs estáveis.
-- `subraces`: referências/IDs das sub-raças disponíveis.
-- `tags`: classificação para busca e filtros.
-- `source`: origem editorial e nota de licença/proveniência.
-- `version`: versão do conteúdo.
+## 5. Combinação dos efeitos
 
-Cada sub-raça deve incluir:
+A ficha deve guardar separadamente as escolhas e suas fontes:
+1. traços da raça;
+2. traços da sub-raça;
+3. traços da profissão/classe;
+4. traços da especialidade, se houver;
+5. vantagens, perícias, poderes e regras adicionais do pacote ativo.
 
-- `id` único e estável;
-- `parentRaceId` obrigatório;
-- `name`, `summary` e `lore` próprios;
-- `traits` adicionais ou substituições explícitas, sem duplicar silenciosamente os traços herdados;
-- `source` e `version`.
+O motor calcula os efeitos aplicáveis a cada teste ou ação a partir dessas fontes. Não se deve somar cegamente efeitos que não se aplicam à ação atual. Bônus limitados a armas, situações, usos ou gatilhos só funcionam dentro do escopo declarado.
 
-Os traços devem separar claramente texto narrativo e mecânica:
+Regras de segurança:
+- IDs únicos e referências válidas;
+- sem duplicação acidental de traços herdados;
+- substituições explícitas por ID;
+- efeitos desconhecidos/incompatíveis são sinalizados e não aplicados silenciosamente;
+- alterações de raça/profissão recalculam efeitos derivados, sem apagar escolhas independentes sem confirmação;
+- a ficha e os logs permitem explicar a origem de cada bônus;
+- nenhuma mecânica de um sistema externo é apresentada como regra oficial do pacote próprio.
 
-- `id`, `name`, `description`;
-- `mechanicalEffects` tipados e opcionais;
-- requisitos, limites, gatilhos e usos, quando aplicáveis;
-- indicação explícita quando o traço é apenas narrativo ou ainda não tem implementação mecânica.
+## 6. Lore e fluxo de criação
 
-Não usar efeitos livres em texto para executar regras. Efeitos desconhecidos ou incompatíveis com o pacote ativo devem ser sinalizados e não aplicados silenciosamente.
+1. Selecionar raça; exibir imediatamente resumo e lore completa.
+2. Se houver sub-raças, listar apenas as ligadas à raça selecionada. Ao selecionar uma, exibir sua lore específica e manter a lore-base acessível.
+3. Selecionar profissão/classe; exibir descrição, lore e competências/efeitos.
+4. Selecionar especialidade apenas quando disponível e compatível.
+5. Mostrar uma revisão final: escolhas, lore consultável, traços herdados e próprios, efeitos reconhecidos, escopos e avisos de compatibilidade.
+6. Confirmar e gravar IDs estáveis na ficha.
+7. Na ficha salva, permitir consultar as lores e a origem dos bônus.
+8. Se uma escolha for alterada, recalcular os efeitos derivados e pedir confirmação quando outra escolha se tornar incompatível.
 
-## 5. Regras de herança e validação
+A lore canônica vem do catálogo de dados e funciona offline; a IA pode usá-la na narração, mas não a substitui nem altera a mecânica.
 
-1. Uma sub-raça referencia exatamente uma raça-base existente.
-2. A ficha registra os IDs escolhidos, não só os nomes exibidos.
-3. Os traços compartilhados da raça-base e os traços próprios da sub-raça são combinados por uma regra explícita e determinística.
-4. Se uma sub-raça substituir um traço-base, a substituição deve ser declarada por ID; não pode gerar duplicação ou acumular efeitos por acidente.
-5. IDs duplicados, referências quebradas, ciclos, efeitos inválidos e sub-raças sem raça-base devem reprovar a validação do catálogo.
-6. Alterar nome ou lore não deve quebrar fichas salvas; IDs existentes não devem ser reutilizados para outra opção.
-7. Se o pacote de regras ativo não der suporte a um efeito, a interface deve informar a limitação e manter o efeito sem aplicação mecânica — nunca inventar uma regra oficial.
-8. O catálogo de fantasia é independente de sistema. O pacote ativo decide como traços mecânicos são validados e aplicados.
+## 7. Ordem editorial do catálogo
 
-## 6. Fluxo de criação de personagem
+### Raças
+Começar por um núcleo de 10–15 povos reconhecíveis de fantasia, com lore original; depois ampliar para 30–50 raças adicionais. Sub-raças serão criadas quando diferenças culturais, geográficas, mágicas ou biológicas forem significativas, não só para inflar números.
 
-1. Usuário abre a etapa **Raça**.
-2. A lista mostra nome, resumo e filtros; catálogo vazio ou inválido apresenta erro claro.
-3. Ao selecionar uma raça, abrir/atualizar o painel com nome e lore completa.
-4. Se houver sub-raças, listar apenas as vinculadas à raça selecionada.
-5. Ao selecionar uma sub-raça, exibir a lore dela e manter acessível a lore da raça-base.
-6. Antes de confirmar, mostrar resumo da escolha e os traços herdados/adicionais, diferenciando descrição narrativa de efeito mecânico reconhecido.
-7. Validar compatibilidade com o pacote ativo e só então salvar os IDs na ficha.
-8. Na ficha salva, permitir consultar raça, sub-raça, lore e traços sem reiniciar a criação.
-9. Se o jogador mudar a raça depois, recalcular os traços derivados sem apagar atributos ou escolhas independentes; pedir confirmação se a mudança invalidar opções já selecionadas.
+### Profissões/classes
+Depois da auditoria do motor, elaborar catálogo inicial que cubra funções distintas — combate corpo a corpo, armas à distância, defesa, furtividade, exploração, conhecimento, suporte e magia quando suportada. Os nomes finais, requisitos e efeitos serão definidos como conteúdo original e balanceados no sistema próprio.
 
-A lore exibida é conteúdo do catálogo e não depende de chamada à IA. A IA poderá narrar a partir dela depois, mas não deve reescrevê-la como se fosse a fonte canônica.
-
-## 7. Catálogo editorial: ordem sugerida
-
-### Etapa A — núcleo de fantasia (meta: 10–15 raças)
-
-Começar pelas opções reconhecíveis de fantasia, por exemplo: humanos, elfos, anões, halflings, gnomos, orcs, meio-orcs, draconatos, tieflings, seres feéricos e opções de linhagem elemental ou celestial. A lista final será revisada para evitar duplicações conceituais e para manter o conteúdo original.
-
-### Etapa B — sub-raças e variantes
-
-Criar variantes quando elas representarem diferenças culturais, geográficas, mágicas ou biológicas relevantes. Cada uma terá lore própria e uma relação explícita com a raça-base. Não criar variantes só para inflar a contagem.
-
-### Etapa C — catálogo expandido (meta: 30–50 raças adicionais)
-
-Adicionar opções menos comuns, povos híbridos e linhagens fantásticas originais, incluindo opções sombrias, feéricas, extraplanares, aquáticas, subterrâneas e artificiais. O catálogo deve aceitar novas famílias sem alteração de código.
-
-### Etapa D — opções avançadas
-
-Deixar extensões para variantes de cenário, linhagens, heranças e pacotes comunitários. Marcar claramente conteúdo original, adaptação e conteúdo importado pelo usuário.
-
-Esses grupos são metas de planejamento; ainda não significam que os registros, lores ou efeitos estejam cadastrados.
+### Especialidades
+Tratar como camada opcional de refinamento, não duplicar automaticamente a profissão. Exemplo ilustrativo: Arqueiro pode ter especialidades futuras, mas isso não deve ser implementado antes de definir o esquema e o equilíbrio.
 
 ## 8. Licença e originalidade
 
-D&D é inspiração, não autorização para copiar. Não embutir lore textual de livros, ilustrações, tabelas ou blocos de regras protegidos. Escrever lore própria, usar nomes e conceitos com avaliação adequada de direitos e registrar proveniência de cada entrada. Quando uma opção for importada pelo usuário, manter a origem identificada e não redistribuir esse material como conteúdo nativo do app.
+D&D é inspiração, não autorização para copiar. Não embutir textos de lore, ilustrações, tabelas ou blocos de regras protegidos. Escrever conteúdo original, registrar proveniência e identificar conteúdo importado pelo usuário, sem redistribuí-lo como nativo.
 
 ## 9. Fases de implementação
 
-### Fase R1 — auditoria do código existente
-- Localizar os modelos de ficha, `CharacterDraft`, pacote de regras e telas de criação.
-- Identificar onde conceitos de raça já são armazenados ou apresentados.
-- Confirmar persistência, edição de ficha e compatibilidade com backups.
-- Reutilizar estruturas existentes; não criar um segundo sistema de personagens paralelo.
+### R1 — Auditoria e compatibilidade
+- Localizar modelos da ficha, `CharacterDraft`, pacotes de regras, criação de personagem, persistência e backups.
+- Identificar os atributos, perícias, armas, bônus tipados e validações já suportados.
+- Confirmar como a ficha guarda traços e como o motor aplica efeitos.
+- Reutilizar o fluxo existente; não criar um segundo sistema de personagens.
 
-### Fase R2 — esquema e catálogo
-- Definir modelos Kotlin e formato de dados versionado.
-- Implementar carregamento, IDs estáveis, referências de sub-raça e validação.
-- Criar o núcleo inicial de raças com lore original.
-- Manter o catálogo separado dos pacotes de regras e do cenário da campanha.
+### R2 — Esquema de dados e catálogo
+- Definir formatos versionados para raça, sub-raça, profissão/classe e especialidade.
+- Criar carregador e validador de IDs e referências.
+- Manter catálogo separado dos pacotes de regras e da ambientação.
+- Cadastrar primeiro um conjunto pequeno de exemplos originais, incluindo Elfo e Arqueiro, para validar o modelo.
 
-### Fase R3 — traços e efeitos mecânicos
-- Separar lore/descrição de efeitos tipados.
-- Integrar os efeitos aceitos ao validador e ao motor, sem lógica específica de uma raça espalhada pela interface.
-- Declarar efeitos não suportados sem fingir que foram aplicados.
-- Definir herança e substituição de traços da raça-base pela sub-raça.
+### R3 — Efeitos combinados
+- Formalizar os efeitos tipados que o motor realmente consegue executar.
+- Definir escopos para bônus raciais e profissionais.
+- Combinar efeitos de fontes diferentes sem duplicação nem aplicação fora do escopo.
+- Sinalizar efeitos não suportados; não fingir que funcionam.
 
-### Fase R4 — interface de criação
-- Adicionar seleção pesquisável de raça e sub-raça.
-- Exibir lore da raça assim que ela for selecionada.
-- Exibir lore específica da sub-raça assim que ela for selecionada.
-- Mostrar traços herdados, traços próprios e efeitos mecânicos separadamente.
-- Permitir rever lore e escolhas na ficha final.
+### R4 — Interface
+- Implementar seleção de raça/sub-raça com lore visível.
+- Implementar seleção de profissão/classe com descrição e efeitos visíveis.
+- Adicionar especialidade apenas quando o esquema estiver definido.
+- Exibir resumo de bônus e sua origem antes da confirmação.
 
-### Fase R5 — persistência e compatibilidade
-- Salvar IDs de raça/sub-raça na ficha e nos backups.
-- Garantir que fichas antigas sem raça continuem abrindo.
-- Definir comportamento para opção removida/descontinuada: preservar o registro histórico e apresentar aviso, sem apagar a ficha.
-- Verificar edição da ficha e troca de pacote sem perda de dados.
+### R5 — Persistência
+- Guardar IDs escolhidos, versão/origem necessárias e estado da ficha.
+- Preservar compatibilidade com fichas antigas sem essas escolhas.
+- Garantir que backups e restaurações preservem as escolhas e os efeitos derivados sem duplicá-los.
 
-### Fase R6 — expansão editorial
-- Aumentar o catálogo por lotes, com lore original para cada raça e sub-raça.
-- Revisar coerência, diversidade interna, duplicações e balanceamento.
-- Registrar versão, proveniência e estado de implementação dos efeitos.
+### R6 — Expansão editorial
+- Aumentar gradualmente raças, sub-raças e profissões.
+- Criar lore original para cada opção.
+- Revisar coerência, balanceamento, sobreposições e compatibilidade.
+- Versionar conteúdo e documentar efeitos pendentes.
 
 ## 10. Critérios de conclusão
 
-- Catálogo sem limite fixo, carregado de dados.
-- Cada raça e sub-raça tem ID único, resumo e lore própria.
-- A lore aparece ao selecionar cada opção e pode ser consultada na ficha salva.
-- Sub-raças herdam corretamente os traços-base e acrescentam/substituem apenas o que declaram.
-- A ficha salva e restaurada preserva as escolhas por ID.
-- Efeitos mecânicos reconhecidos são aplicados pelo motor; descrições não suportadas ficam explicitamente identificadas.
-- Conteúdo inválido gera erro claro, sem corromper a criação.
-- O catálogo pode crescer para 50+ raças sem mudança estrutural da interface.
-- Testes/builds e validação em aparelho serão executados numa etapa posterior, conforme a regra de trabalho atual. Este plano não declara essas verificações aprovadas.
+- Raças, sub-raças, profissões e especialidades são dados expansíveis, sem limite codificado.
+- Toda raça/sub-raça tem lore própria e a interface a mostra ao selecionar.
+- Toda profissão/classe tem descrição e lista explícita de competências/efeitos.
+- A ficha conserva as escolhas por IDs estáveis e permite rever as lores.
+- Efeitos raciais e profissionais são acumulados corretamente, respeitando escopo e regras do pacote.
+- O exemplo Elfo + Arqueiro diferencia Precisão +1 racial e Dano +1 com arcos/bestas profissional, depois de o motor suportar formalmente esses efeitos.
+- Alterar uma escolha recalcula efeitos derivados sem apagar dados independentes silenciosamente.
+- Catálogo inválido produz erro claro e não corrompe a ficha.
+- Build/testes/aparelho só serão declarados validados após execução explícita; esta etapa é planejamento, não aprovação de validação.
 
-## 11. Estado inicial
+## 11. Estado
 
-- [x] Criar branch dedicada para o trabalho de raças/sub-raças.
-- [ ] Auditar os modelos e a tela de criação existentes.
-- [ ] Confirmar o esquema de dados e integração com o pacote ativo.
-- [ ] Implementar catálogo e validação.
-- [ ] Implementar seleção e exibição de lore.
-- [ ] Integrar efeitos mecânicos tipados.
-- [ ] Persistir escolhas e garantir compatibilidade com fichas antigas.
-- [ ] Expandir o catálogo para as metas editoriais.
+- [x] Criar branch dedicada.
+- [x] Registrar plano inicial de raças/sub-raças.
+- [x] Ampliar plano para incluir profissão/classe e composição de efeitos.
+- [ ] Auditar modelos e telas atuais.
+- [ ] Confirmar esquema compatível com o motor.
+- [ ] Implementar catálogo, lore e validação.
+- [ ] Integrar efeitos tipados à ficha e às ações.
+- [ ] Implementar interface de criação e persistência.
+- [ ] Expandir e balancear o catálogo.
 
-**Próxima ação de código:** concluir a auditoria dos modelos e telas existentes antes de alterar a ficha, para integrar o catálogo ao fluxo atual em vez de duplicar funcionalidades.
+**Próxima ação:** auditar o código existente antes de implementar os modelos e os bônus, para encaixar raça e profissão na ficha atual e garantir que o motor aplique cada efeito no lugar correto.
