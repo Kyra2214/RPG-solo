@@ -706,6 +706,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun approvedRuleBonus(scope: String): Int =
         session.state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
 
+    private fun approvedRuleEffects(scopes: Collection<String>): List<dev.rpgsolo.rules.ExternalBonus> =
+        session.state.additionalRules.values.filter { it.approved }.flatMap { rule ->
+            scopes.distinct().mapNotNull { scope ->
+                rule.effects[scope]?.takeIf { it != 0 }?.let { bonus ->
+                    dev.rpgsolo.rules.ExternalBonus(scope, bonus, "adaptação ${rule.id}")
+                }
+            }
+        }
+
     /** Explica quais adaptações aprovadas contribuíram para os escopos usados neste cálculo. */
     private fun approvedRuleBonusSummary(scopes: Collection<String>): String {
         val details = session.state.additionalRules.values
@@ -1329,7 +1338,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             additionalBonus = { scope -> approvedRuleBonus(scope) },
             externalBonuses = { scopes ->
                 activePackage?.let { pkg -> selectedCatalogBonuses(pkg).filter { it.scope in scopes } }.orEmpty()
-            }
+            },
+            additionalBonusSources = { scopes -> approvedRuleEffects(scopes) }
         )
         return PlayController(
             session,
