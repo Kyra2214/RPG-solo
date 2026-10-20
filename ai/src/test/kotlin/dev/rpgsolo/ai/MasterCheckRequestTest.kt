@@ -113,6 +113,27 @@ class MasterCheckRequestTest {
         assertEquals(1, parsedGroup.output.checkRequest!!.group!!.requiredSuccesses)
     }
 
+    @Test fun pedidoDeGrupoRejeitaIdsDuplicados() {
+        val raw = """{"narrative":"x","request_check":{"check":"esquiva","onSuccess":"a","onFailure":"b",
+            "group":{"participantIds":["player","orc","orc"],"requiredSuccesses":1,"onSuccess":"a","onFailure":"b"}}}"""
+        val parsed = ProposalParser.parse(raw) as ParseResult.Invalid
+        assertTrue(parsed.errors.any { "não pode repetir participantes" in it })
+    }
+
+    @Test fun pedidoDeGrupoExigePersonagemDoJogador() {
+        val raw = """{"narrative":"x","request_check":{"check":"esquiva","onSuccess":"a","onFailure":"b",
+            "group":{"participantIds":["orc","guard"],"requiredSuccesses":1,"onSuccess":"a","onFailure":"b"}}}"""
+        val parsed = ProposalParser.parse(raw) as ParseResult.Invalid
+        assertTrue(parsed.errors.any { "deve incluir 'player'" in it })
+    }
+
+    @Test fun pedidoDeGrupoRejeitaLimiarImpossivel() {
+        val raw = """{"narrative":"x","request_check":{"check":"esquiva","onSuccess":"a","onFailure":"b",
+            "group":{"participantIds":["player","orc"],"requiredSuccesses":3,"onSuccess":"a","onFailure":"b"}}}"""
+        val parsed = ProposalParser.parse(raw) as ParseResult.Invalid
+        assertTrue(parsed.errors.any { "entre 1 e o número de participantes" in it })
+    }
+
     @Test fun pedidoAvancadoNaoPodeMisturarDisputaEGrupo() {
         val raw = """{"narrative":"x","request_check":{"check":"esquiva","onSuccess":"a","onFailure":"b",
             "opposed":{"entityId":"orc","check":"esquiva"},
