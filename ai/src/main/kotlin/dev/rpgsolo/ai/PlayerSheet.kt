@@ -49,6 +49,7 @@ class PlayerSheet(
         append("nunca recite números, pontos ou nomes de mecânica ao jogador):")
         append("\n- Nome: ").append(e.name)
         ficha?.concept?.takeIf { it.isNotBlank() }?.let { append("\n- Conceito: ").append(it) }
+        characterChoices.takeIf { it.isNotBlank() }?.let { append("\\n- Origem, classe, profissão e maldições (lore do catálogo; sem regras inventadas):\\n").append(it) }
         append("\n- Nível ").append(e.level)
         if (!e.alive) append(" (MORTO)")
         if (e.stats.isNotEmpty()) {
