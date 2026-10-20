@@ -7,7 +7,10 @@ data class CharacterCatalogEntry(
     val id: String,
     val name: String,
     val summary: String,
-    val parentRaceId: String? = null
+    val parentRaceId: String? = null,
+    val lore: String = "",
+    val benefit: String = "",
+    val drawback: String = ""
 )
 
 data class CharacterChoices(
@@ -58,7 +61,15 @@ object CharacterCreationCatalog {
         return (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val id = item.optString("id").takeIf { it.isNotBlank() } ?: return@mapNotNull null
-            CharacterCatalogEntry(id, item.optString("name", id), item.optString("summary"), item.optString("parentRaceId").takeIf { it.isNotBlank() && it != "null" })
+            CharacterCatalogEntry(
+                id = id,
+                name = item.optString("name", id),
+                summary = item.optString("summary"),
+                parentRaceId = item.optString("parentRaceId").takeIf { it.isNotBlank() && it != "null" },
+                lore = item.optString("lore"),
+                benefit = item.optJSONArray("benefits")?.optJSONObject(0)?.optString("description").orEmpty(),
+                drawback = item.optJSONArray("drawbacks")?.optJSONObject(0)?.optString("description").orEmpty()
+            )
         }
     }
 
