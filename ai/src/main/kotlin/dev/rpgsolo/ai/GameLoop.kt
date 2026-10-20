@@ -114,7 +114,9 @@ class GameLoop(
     private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null, traitIds: List<String> = playerTraits()): CheckSpec {
         val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), traitIds, skill) ?: spec
         val scopes = listOfNotNull(spec.checkId, spec.stat, skill).distinct()
-        val bonus = scopes.sumOf(additionalBonus)
+        // Adaptações aprovadas alteram a ficha do jogador; não devem virar bônus globais de NPC.
+        val isPlayerEntity = session.state.entities[playerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+        val bonus = if (isPlayerEntity) scopes.sumOf(additionalBonus) else 0
         val withAdaptations = if (bonus == 0) adjusted else {
             val suffix = if (bonus > 0) " · adaptação +$bonus" else " · adaptação $bonus"
             if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
@@ -124,7 +126,6 @@ class GameLoop(
             }
         }
         // Efeitos da ficha escolhida pertencem somente ao jogador; nunca a NPCs ou adversários.
-        val isPlayerEntity = session.state.entities[playerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
         val selectedExternal = if (isPlayerEntity) externalBonuses(scopes).filter { it.scope in scopes } else emptyList()
         val externalTotal = selectedExternal.sumOf { it.bonus }
         val withExternal = if (externalTotal == 0) withAdaptations else {
