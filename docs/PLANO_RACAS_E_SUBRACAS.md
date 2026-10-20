@@ -374,7 +374,7 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Validar que a sub-raça pertença à raça escolhida e impedir combinação simultânea de raça/sub-raça com híbrido.
 - [x] Detectar IDs repetidos de maldições e impedir salvar escolhas inválidas pela interface.
 - [x] Exibir os problemas de validação ao jogador sem inferir ou aplicar efeitos mecânicos.
-- [ ] Validar/migrar escolhas antigas durante importação e apresentar um fluxo explícito de reparo quando o catálogo mudou.
+- [x] Validar escolhas antigas durante a importação e apresentar um aviso/fluxo de reparo quando referências não existem mais; sugestões automáticas de substituição continuam pendentes.
 
 
 ### Contexto completo e seguro para a IA (20/10/2026)
