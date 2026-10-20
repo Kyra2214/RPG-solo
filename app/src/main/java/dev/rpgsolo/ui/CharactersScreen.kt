@@ -505,6 +505,9 @@ private fun CatalogPicker(
                 if (entry.lore.isNotBlank()) Muted("Lore: " + entry.lore)
                 entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
                 entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
+                entry.mechanicalEffects.forEach {
+                    Muted("Efeito tipado declarado, ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                }
             }
         }
         if (entries.size > visible.size) Muted("Mostrando até 30 opções; use a busca para localizar as demais.")
@@ -542,6 +545,9 @@ private fun CatalogMultiPicker(
                 if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted("Lore: " + entry.lore)
                 entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
                 entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
+                entry.mechanicalEffects.forEach {
+                    Muted("Efeito tipado declarado, ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                }
             }
         }
         if (entries.size > visible.size) Muted("Catálogo com ${entries.size} opções; busque pelo nome para encontrar outras.")
