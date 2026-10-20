@@ -176,6 +176,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Exibir a origem dos efeitos de catálogo aplicados nos rótulos de testes do `GameLoop` e nos resultados de combate do jogador, incluindo defesa/resistência contra NPCs.
 - [x] Integrar também o fluxo normal do `GameLoop` e os testes avançados preparados por ele, preservando a origem no rótulo do teste; o teste de fuga continua usando o mesmo resolvedor tipado.
 - [x] Exibir a origem dos efeitos de catálogo efetivamente aplicados nos resultados de ataque do jogador e nos resultados de defesa/resistência contra ataques de NPC, sem alterar a resolução mecânica.
+- [x] Exibir totais por escopo no resumo de combate, sem somar num único total bônus de ataque e dano que afetam cálculos diferentes; em ataques que erram, omitir efeitos de dano/resistência não usados.
 - [ ] Revisar outros caminhos de ação direta que não passem pelo `GameLoop` e confirmar a política final de acumulação entre efeitos externos de fontes diferentes e bônus canônicos.
 - [ ] Garantir que efeitos de raça, sub-raça, híbrido, classe, profissão e maldição não sejam aplicados em duplicidade quando compartilham escopo.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
