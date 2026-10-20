@@ -303,16 +303,17 @@ class CheckMenu(private val pkg: RulePackage) {
             parts += "Condições que existem neste sistema (ids para conditions e add_condition/remove_condition): " +
                 pkg.data.conditions.joinToString(", ") { condition ->
                     buildString {
-                        append(condition.id).append(" (").append(condition.name)
-                        condition.durationRounds?.let { append("; duração: ").append(it).append(" rodadas") }
-                        if (condition.damagePerRound > 0) {
-                            append("; dano por rodada: ").append(condition.damagePerRound)
-                                .append(" ").append(condition.damageResource)
+                        append(condition.id).append(" (").append(condition.name).append(")")
+                        val details = buildList {
+                            condition.durationRounds?.let { add("duração: " + it + " rodadas") }
+                            if (condition.damagePerRound > 0) {
+                                add("dano por rodada: " + condition.damagePerRound + " " + condition.damageResource)
+                            }
+                            condition.effect?.let {
+                                add("efeito nos testes: " + if (it.dice > 0) "Ganho" else "Perda")
+                            }
                         }
-                        condition.effect?.let {
-                            append("; efeito nos testes: ").append(if (it.dice > 0) "Ganho" else "Perda")
-                        }
-                        append(")")
+                        if (details.isNotEmpty()) append(" — ").append(details.joinToString("; "))
                     }
                 }
         }
