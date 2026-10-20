@@ -246,13 +246,21 @@ class PlayController(
         challenger: CheckSpec,
         defender: CheckSpec,
         challengerName: String = challenger.label,
-        defenderName: String = defender.label
+        defenderName: String = defender.label,
+        challengerEntityId: String = playerId,
+        defenderEntityId: String? = null
     ): PlayResult {
         if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes da disputa")
         val start = chat.size
         val mark = session.mark()
         return try {
-            val result = session.checkOpposed(challenger, defender)
+            val preparedChallenger = loop.prepareAdvancedCheck(session, challenger, challengerEntityId)
+                ?: return PlayResult.Failed("participante desafiante inexistente: $challengerEntityId")
+            val preparedDefender = defenderEntityId?.let { id ->
+                loop.prepareAdvancedCheck(session, defender, id)
+                    ?: return PlayResult.Failed("participante defensor inexistente: $id")
+            } ?: defender
+            val result = session.checkOpposed(preparedChallenger, preparedDefender)
             entries.addLast(Entry(start, localMark = mark, viaLoop = false))
             chat += ChatLine(Author.SYSTEM, "Disputa: $challengerName contra $defenderName.")
             chat += ChatLine(Author.ROLL, rollText(result.challenger), rollView(result.challenger))
@@ -282,16 +290,22 @@ class PlayController(
     fun resolveGroup(
         checks: List<CheckSpec>,
         requiredSuccesses: Int,
-        participantNames: List<String> = checks.map { it.label }
+        participantNames: List<String> = checks.map { it.label },
+        participantEntityIds: List<String?> = listOf(playerId) + List(checks.size - 1) { null }
     ): PlayResult {
         if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes do teste de grupo")
-        if (participantNames.size != checks.size) {
-            return PlayResult.Failed("cada participante precisa de um nome correspondente")
+        if (participantNames.size != checks.size || participantEntityIds.size != checks.size) {
+            return PlayResult.Failed("cada participante precisa de nome e referência correspondentes")
         }
         val start = chat.size
         val mark = session.mark()
         return try {
-            val result = session.checkGroup(checks, requiredSuccesses)
+            val preparedChecks = checks.mapIndexed { index, spec ->
+                val entityId = participantEntityIds[index]
+                if (entityId == null) spec else loop.prepareAdvancedCheck(session, spec, entityId)
+                    ?: return PlayResult.Failed("participante inexistente: $entityId")
+            }
+            val result = session.checkGroup(preparedChecks, requiredSuccesses)
             entries.addLast(Entry(start, localMark = mark, viaLoop = false))
             chat += ChatLine(Author.SYSTEM, "Teste de grupo: ${result.successes} sucessos e ${result.failures} falhas; necessários ${result.requiredSuccesses}.")
             result.individual.forEachIndexed { index, check ->
