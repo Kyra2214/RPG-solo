@@ -897,7 +897,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             packageId = activePackage?.manifest?.id,
             systemId = activeSystemId ?: activeFicha?.system?.systemId,
             editionId = activeEditionId ?: activeFicha?.system?.editionId,
-            fichas = fichas.map { dev.rpgsolo.engine.Codec.encode(it) }
+            fichas = fichas.map { dev.rpgsolo.engine.Codec.encode(it) },
+            characterChoices = (fichas + archivedFichas).associate { ficha ->
+                ficha.id to characterChoicesPrefs.getString(ficha.id, null).orEmpty()
+            }.filterValues { it.isNotBlank() }
         )
     )
 
@@ -923,6 +926,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 runCatching {
                     val ficha = dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
                     store.saveFicha(FichaRow(ficha.id, ficha.name, rawFicha))
+                }
+            }
+            meta.characterChoices.forEach { (fichaId, rawChoices) ->
+                if (fichaId.isNotBlank() && rawChoices.isNotBlank()) {
+                    val choices = CharacterChoices.fromJson(rawChoices)
+                    characterChoicesPrefs.edit().putString(fichaId, choices.toJson()).apply()
                 }
             }
         }
