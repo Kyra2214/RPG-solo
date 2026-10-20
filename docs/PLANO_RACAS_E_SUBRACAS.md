@@ -404,7 +404,8 @@ Build, testes e CI continuam sem execução nesta sequência.
 ### Contrato inicial de efeitos tipados do catálogo (20/10/2026)
 
 - [x] Criar modelo de dado `CharacterCatalogEffect(scope, bonus)` e ler declarações `mechanicalEffects` do catálogo sem inferir valores a partir de texto.
-- [x] Validar efeitos declarados como objetos com escopo válido e bônus inteiro entre -100 e 100; detectar escopos repetidos na mesma lista.
+- [x] Validar efeitos declarados como objetos com escopo sintaticamente válido e bônus inteiro entre -100 e 100; detectar escopos repetidos na mesma lista.
+- [x] Validar os escopos dos efeitos selecionados contra os atributos, testes, traços e escopos de combate suportados pelo pacote ativo; isso bloqueia escolhas incompatíveis sem executar os efeitos.
 - [x] Validar a estrutura de efeitos tanto na entrada principal quanto em descrições de benefícios/custos quando a propriedade existe.
 - [x] Preservar a origem do efeito tipado (entrada principal, benefício ou custo) e mostrá-la na interface, identificando explicitamente que ainda não é aplicado pelo motor.
 - [ ] Integrar efeitos à ficha canônica e ao motor com origem/escopo rastreável, regras de acumulação definidas e prevenção de duplicação com `TraitBonus` já existente.
