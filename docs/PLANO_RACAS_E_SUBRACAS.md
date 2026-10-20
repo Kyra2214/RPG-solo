@@ -322,8 +322,8 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - [x] Incluir escolhas editoriais nos backups de campanha e restaurá-las quando o backup é importado.
 - [x] Criar exportação individual versionada com ficha e escolhas editoriais e importar esse formato.
 - [x] Aceitar também JSONs antigos que contêm apenas a ficha.
-- [ ] Implementar edição das escolhas de uma ficha já criada sem recriar a ficha.
-- [ ] Implementar fluxo de edição da ficha já criada para reabrir e alterar as escolhas.
+- [x] Implementar edição das escolhas de uma ficha já criada sem recriar a ficha.
+- [x] Implementar edição das escolhas editoriais de fichas já salvas sem recriar a ficha; a edição não altera a mecânica.
 - [ ] Implementar efeitos mecânicos tipados; as combinações adicionadas permanecem narrativas e não concedem bônus automaticamente.
 
 **Limite desta etapa:** as 20 combinações são opções editoriais explícitas, não uma regra para gerar todas as combinações possíveis. Nenhum efeito mecânico foi criado nem aplicado. Build, testes e CI continuam pendentes por instrução de priorizar implementação.
@@ -348,3 +348,13 @@ Build, testes e CI não foram executados.
 - [ ] Implementar edição das escolhas de uma ficha já criada sem recriar a ficha.
 
 Build, testes e CI não foram executados.
+
+
+### Edição de escolhas em fichas existentes (20/10/2026)
+
+- [x] Adicionar ação para carregar raça/sub-raça/híbrido, classe, profissão e maldições de uma ficha salva.
+- [x] Salvar as alterações de escolhas no ID original da ficha, sem recriar atributos, traços ou recursos.
+- [x] Desabilitar a criação de outra ficha enquanto o modo de edição está ativo e oferecer cancelamento.
+- [ ] Implementar edição unificada dos campos mecânicos e editoriais na mesma tela, com validação final do pacote.
+
+Build, testes e CI continuam sem execução nesta sequência.
