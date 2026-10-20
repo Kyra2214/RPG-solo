@@ -159,6 +159,19 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - Confirmar como a ficha guarda traços e como o motor aplica efeitos.
 - Reutilizar o fluxo existente; não criar um segundo sistema de personagens.
 
+### R2.1 — Contrato de efeitos tipados (em andamento)
+
+- [x] Criar modelo explícito `scope`, `bonus` e `source` no catálogo de criação.
+- [x] Ler efeitos apenas de campos `mechanicalEffects` declarados; nunca inferir bônus a partir de lore/descrição.
+- [x] Validar a estrutura dos efeitos, os limites numéricos e a compatibilidade dos escopos com o pacote ativo.
+- [x] Exibir os efeitos declarados e sua origem sem afirmar que já estão aplicados.
+- [ ] Integrar os efeitos à resolução canônica de testes/combate, usando as mesmas regras de acumulação do motor e preservando a origem de cada bônus.
+- [ ] Garantir que efeitos de raça, sub-raça, híbrido, classe, profissão e maldição não sejam aplicados em duplicidade quando compartilham escopo.
+- [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
+- [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
+
+**Limite atual:** o motor já resolve bônus de traços do pacote via `TraitBonus`, mas as escolhas do catálogo editorial ainda são persistidas separadamente e não são convertidas em traços canônicos. Por isso, os efeitos declarados no catálogo continuam inativos. Não habilitar bônus até a integração abaixo estar completa.
+
 ### R2 — Esquema de dados e catálogo
 - [x] Criar primeiro catálogo editorial versionado em `rules/src/main/resources/packages/sistema-proprio/personagem-catalogo.json`.
 - [x] Cadastrar 50 raças, 50 sub-raças/variantes, 50 classes e 103 profissões com IDs estáveis, resumo e lore/descrição originais.
