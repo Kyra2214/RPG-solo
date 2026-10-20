@@ -303,8 +303,8 @@ Foi implementada uma primeira fatia vertical do fluxo de criação:
 - Nenhum bônus ou penalidade do catálogo é aplicado automaticamente pelo motor.
 
 **Limitações ainda abertas (não declarar refatoração completa):**
-- Os metadados da criação ainda são guardados em SharedPreferences separado do JSON canônico da ficha; exportação/importação de ficha e migração dos metadados ainda precisam ser unificadas.
-- Híbridos/ascendências mistas ainda não têm seletor ou validação de combinações.
+- Os metadados da criação ainda são guardados em SharedPreferences separado do JSON canônico da ficha; exportação/importação individual da ficha e migração dos metadados ainda precisam ser unificadas. Backups de campanha já carregam/restauram essas escolhas.
+- Híbridos/ascendências mistas agora têm seletor, 20 combinações catalogadas e validação de referências; efeitos mecânicos continuam desativados.
 - Vantagens e desvantagens continuam usando o sistema de traços do pacote atual; a integração com o novo catálogo precisa ser definida sem duplicar regras.
 - Efeitos mecânicos tipados das maldições, revisão de compatibilidade, história gerada e retrato por IA ainda não foram implementados.
 - Não foi executado build, teste ou CI nesta etapa; a validação de compilação permanece pendente.
