@@ -107,8 +107,10 @@ fun GameEngine.checkOpposed(
     val left = leftResolution.chosen
     val right = rightResolution.chosen
     // Margens de testes diferentes não são diretamente comparáveis: primeiro vence quem obteve o melhor resultado; em igualdade, compara-se a margem. Empate absoluto favorece o defensor.
-    val leftAlternative = listOfNotNull(leftResolution.second).filter { it.roll !== leftResolution.chosen.roll }
-    val rightAlternative = listOfNotNull(rightResolution.second).filter { it.roll !== rightResolution.chosen.roll }
+    val leftAlternative = listOfNotNull(leftResolution.first, leftResolution.second)
+        .filter { it.roll !== leftResolution.chosen.roll }
+    val rightAlternative = listOfNotNull(rightResolution.first, rightResolution.second)
+        .filter { it.roll !== rightResolution.chosen.roll }
     OpposedCheckResult(left, right, compareQuality(left, right) > 0, leftAlternative, rightAlternative)
 }
 
@@ -130,7 +132,7 @@ fun GameEngine.checkGroup(
     }
     val results = resolutions.map { it.chosen }
     val alternatives = resolutions.map { resolution ->
-        listOfNotNull(resolution.second).filter { it.roll !== resolution.chosen.roll }
+        listOfNotNull(resolution.first, resolution.second).filter { it.roll !== resolution.chosen.roll }
     }
     val successes = results.count { it.outcome == Outcome.SUCCESS || it.outcome == Outcome.CRITICAL_SUCCESS }
     val failures = results.size - successes

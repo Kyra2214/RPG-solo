@@ -311,11 +311,11 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
         if (bonus != 0) label += if (bonus > 0) " · +$bonus" else " · $bonus"
-        return if (spec.comparison == Comparison.ROLL_UNDER) {
-            spec.copy(diceCount = count, difficulty = spec.difficulty + bonus, modifier = spec.modifier + pointShift, label = label)
-        } else {
-            spec.copy(diceCount = count, modifier = spec.modifier + bonus + pointShift, label = label)
-        }
+        return spec.copy(
+            diceCount = count,
+            modifier = spec.modifier + bonus + pointShift,
+            label = label
+        )
     }
 
     /**
@@ -422,8 +422,6 @@ object PackageValidator {
             p += "criacao.txt: recompensa_recurso exige progressao.txt com limiares de XP"
         }
         d.checks.filter { it.stat != null && it.stat !in stats }.forEach { p += "teste ${it.id}: atributo inexistente ${it.stat}" }
-        d.checks.filter { it.skill != null && d.traits.none { trait -> trait.id == it.skill && trait.type == "pericia" } }
-            .forEach { p += "teste ${it.id}: perícia inexistente ou não classificada como perícia: ${it.skill}" }
         d.checks.forEach { check ->
             if (check.fortuneResource != null && d.resources.none { it.id == check.fortuneResource }) {
                 p += "teste ${check.id}: recurso de fortuna inexistente ${check.fortuneResource}"

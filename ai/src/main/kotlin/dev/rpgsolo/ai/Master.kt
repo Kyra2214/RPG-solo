@@ -45,7 +45,7 @@ data class ContextInput(
     val npcPrivate: List<String> = emptyList(),
     val checkMenu: String? = null,
     val resolving: Pending? = null,
-    val budgetTokens: Int = 2000,
+    val budgetTokens: Int = 5000,
     /** IDs de NPCs realmente presentes na cena, para não vazar estado de toda a campanha. */
     val sceneNpcIds: Set<String> = emptySet(),
     val worldContext: String? = null,
@@ -141,11 +141,11 @@ object ContextAssembler {
             s.openPromises().filter { it.npcId in sceneIds }.takeIf { it.isNotEmpty() }
                 ?.let { ps -> "Promessas em aberto:\n" + ps.joinToString("\n") { "- ${it.npcId}: ${it.text}" } },
             s.relations.filterKeys { key ->
-                val pair = key.split(">", limit = 2)
+                val pair = key.split('\u0000', limit = 2)
                 pair.size == 2 && (pair[0] in sceneIds || pair[1] in sceneIds)
             }.takeIf { it.isNotEmpty() }?.let { r ->
                 "Relações (só em palavras, nunca números):\n" + r.entries.joinToString("\n") { (k, v) ->
-                    val (a, b) = k.split(">", limit = 2)
+                    val (a, b) = k.split('\u0000', limit = 2)
                     "- ${s.entities[a]?.name ?: a} em relação a ${s.entities[b]?.name ?: b}: ${relationWord(v)}"
                 }
             },

@@ -362,9 +362,8 @@ object PackageParser {
             if (check.stat != null && check.stat !in statIds) {
                 errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia atributo inexistente '${check.stat}'"
             }
-            if (check.skill != null && traitById[check.skill]?.type != "pericia") {
-                errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia perícia inexistente '${check.skill}'"
-            }
+            // O campo de perícia pode ser um rótulo fornecido pelo mestre mesmo quando o pacote
+            // não cadastra a perícia como traço; o valor recebido em RulePackage.check continua sendo opcional.
             if (check.fortuneResource != null && check.fortuneResource !in resourceIds) {
                 errors += "${PackageFiles.CHECKS}: teste '${check.id}' referencia recurso de fortuna inexistente '${check.fortuneResource}'"
             }
@@ -376,7 +375,7 @@ object PackageParser {
         }
         conditions.forEach { condition ->
             condition.effect?.stats?.filter { it !in statIds }?.forEach { unknown ->
-                errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' referencia atributo inexistente '${unknown}'"
+                errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' referencia atributo inexistente no efeito '$unknown'"
             }
             if (condition.damagePerRound > 0 && condition.damageResource !in resourceIds) {
                 errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' causa dano em recurso inexistente '${condition.damageResource}'"
@@ -403,12 +402,18 @@ object PackageParser {
                 errors += "${PackageFiles.ARCHETYPES}: arquétipo '${archetype.id}' referencia atributo inexistente '${unknown}'"
             }
             (archetype.traits - traitIds).forEach { unknown ->
-                errors += "${PackageFiles.ARCHETYPES}: arquétipo '${archetype.id}' referencia traço inexistente '${unknown}'"
+                errors += "${PackageFiles.ARCHETYPES}: arquétipo ${archetype.id}: traço desconhecido $unknown"
             }
         }
         archetypeOptions.forEach { options ->
-            (options.advantages + options.disadvantages).distinct().filter { it !in traitIds }.forEach { unknown ->
-                errors += "${PackageFiles.ARCHETYPE_OPTIONS}: arquétipo '${options.archetype}' referencia traço inexistente '${unknown}'"
+            options.advantages.filter { it !in traitIds }.forEach { unknown ->
+                errors += "${PackageFiles.ARCHETYPE_OPTIONS}: arquétipo ${options.archetype}: traço inexistente $unknown"
+            }
+            options.disadvantages.filter { it !in traitIds }.forEach { unknown ->
+                errors += "${PackageFiles.ARCHETYPE_OPTIONS}: arquétipo ${options.archetype}: traço inexistente $unknown"
+            }
+            options.disadvantages.mapNotNull { traitById[it] }.filter { it.type != "desvantagem" }.forEach { trait ->
+                errors += "${PackageFiles.ARCHETYPE_OPTIONS}: arquétipo ${options.archetype}: ${trait.id} não é desvantagem (é ${trait.type})"
             }
         }
 

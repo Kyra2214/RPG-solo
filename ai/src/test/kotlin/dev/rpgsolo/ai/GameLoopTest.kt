@@ -30,7 +30,7 @@ class GameLoopTest {
     @Test fun contextoDescreveSaudeSemNumerosEPoeResultadoDoMotor() {
         val s = session()
         val check = s.check(teste)
-        val req = ContextAssembler.build(ContextInput(s.state, "hero", "ando", check, "pv"))
+        val req = ContextAssembler.build(ContextInput(s.state, "hero", "ando", check, "pv", sceneNpcIds = setOf("orc")))
         val user = req.messages.last().content
         assertTrue("ileso" in user && "gravemente ferido" in user)
         assertFalse("10/10" in user || "3/6" in user)
