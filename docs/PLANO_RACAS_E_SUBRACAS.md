@@ -168,7 +168,11 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Exibir os efeitos declarados e sua origem sem afirmar que já estão aplicados.
 - [x] Criar `selectedEffects(choices)` para retornar somente efeitos explicitamente declarados nas escolhas, preservando ID estável da entrada e origem (entrada/benefício/custo).
 - [x] Manter efeitos de fontes diferentes separados, sem deduplicação silenciosa; o catálogo não decide a política de acúmulo.
-- [ ] Integrar os efeitos à resolução canônica de testes/combate, usando as mesmas regras de acumulação do motor e preservando a origem de cada bônus.
+- [x] Integrar efeitos externos tipados à resolução do teste de fuga sem copiar os bônus para `Ficha.traits`.
+- [x] Aplicar efeitos de combate declarados nos escopos `ataque`, `dano`, `defesa` e `resistencia_dano` aos cálculos correspondentes do personagem jogador, sem transferi-los aos NPCs.
+- [x] Preservar a origem nos objetos `ExternalBonus` durante a resolução de testes; efeitos externos são somados separadamente dos `TraitBonus` canônicos.
+- [ ] Exibir a origem de cada efeito aplicado no registro/descrição da rolagem e no combate.
+- [ ] Integrar todos os caminhos de testes e ações, não apenas o teste de fuga atualmente ajustado pelo `AppModel`.
 - [ ] Garantir que efeitos de raça, sub-raça, híbrido, classe, profissão e maldição não sejam aplicados em duplicidade quando compartilham escopo.
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
 - [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
@@ -428,7 +432,7 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [ ] Definir catálogo de escopos por pacote/sistema e validação semântica contra atributos, perícias e testes realmente existentes.
 - [ ] Só habilitar execução de efeitos após migração e testes de compatibilidade; o catálogo atual continua com listas de efeitos vazias e nenhum bônus novo é concedido.
 
-Esta etapa define e valida o formato de dados, não a aplicação mecânica. Build, testes e CI não foram executados.
+A integração inicial já consulta efeitos explícitos no teste de fuga e nos cálculos de combate do jogador. O catálogo atual ainda declara listas de efeitos vazias; portanto, esta integração não concede bônus novos por si só. A origem ainda não é exibida no log de rolagem/combate. Build, testes e CI não foram executados.
 
 ### Validação estrutural do catálogo (20/10/2026)
 
