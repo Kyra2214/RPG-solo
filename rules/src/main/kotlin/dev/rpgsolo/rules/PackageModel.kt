@@ -57,6 +57,9 @@ sealed interface Requirement {
 /** Bônus mecânico tipado. Escopos de teste: id do teste, atributo ou perícia; combate: ataque, dano, defesa, resistencia_dano. */
 data class TraitBonus(val scope: String, val bonus: Int)
 
+/** Bônus tipado externo ao pacote, com origem rastreável (ex.: raça, classe ou maldição). */
+data class ExternalBonus(val scope: String, val bonus: Int, val source: String)
+
 data class TraitDef(
     val id: String,
     val type: String,
