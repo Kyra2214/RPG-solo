@@ -392,7 +392,7 @@ class GameLoop(
         session.rollbackTo(last.markAfterRoll)
         narrations.removeLastOrNull()
         return when (val r = narrate(session, last.input, last.check, last.markBefore, last.markAfterRoll, chainDepth(history.dropLast(1)),
-            fortuneAlternatives = last.fortuneAlternatives)) {
+            fortuneAlternatives = last.fortuneAlternatives, advancedChecks = last.advancedChecks)) {
             is PlayResult.Played -> {
                 history[history.lastIndex] = r.record
                 r
