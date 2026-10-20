@@ -1294,7 +1294,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             premiumRunner = if (r.hasPremium) TurnRunner(r.premium, npcCreator = npcCreator) else null,
             menu = activePackage?.let { CheckMenu(it) },
             playerTraits = { activeFicha?.traits.orEmpty() },
-            additionalBonus = { scope -> approvedRuleBonus(scope) }
+            additionalBonus = { scope -> approvedRuleBonus(scope) },
+            externalBonuses = { scopes ->
+                activePackage?.let { pkg -> selectedCatalogBonuses(pkg).filter { it.scope in scopes } }.orEmpty()
+            }
         )
         return PlayController(
             session,
