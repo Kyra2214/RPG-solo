@@ -358,3 +358,11 @@ Build, testes e CI não foram executados.
 - [ ] Implementar edição unificada dos campos mecânicos e editoriais na mesma tela, com validação final do pacote.
 
 Build, testes e CI continuam sem execução nesta sequência.
+
+
+### Revisão final antes de salvar (20/10/2026)
+
+- [x] Adicionar revisão com nome, raça/sub-raça ou híbrido, classe, profissão e maldições.
+- [x] Mostrar atributos e traços mecânicos do pacote em bloco separado das escolhas editoriais.
+- [x] Informar explicitamente que as escolhas editoriais não concedem bônus automaticamente.
+- [ ] Ampliar a revisão para apresentar origem e escopo de cada efeito mecânico tipado quando esses efeitos forem implementados.
