@@ -2,6 +2,9 @@ package dev.rpgsolo.ui
 
 import org.json.JSONObject
 
+/** Efeito tipado declarado no catálogo. Declarar não significa aplicar ao motor. */
+data class CharacterCatalogEffect(val scope: String, val bonus: Int)
+
 /** Entrada editorial do catálogo de criação; efeitos mecânicos só vêm do motor de regras. */
 data class CharacterCatalogEntry(
     val id: String,
@@ -13,7 +16,8 @@ data class CharacterCatalogEntry(
     val drawback: String = "",
     val hybridRaceIds: List<String> = emptyList(),
     val benefits: List<String> = emptyList(),
-    val drawbacks: List<String> = emptyList()
+    val drawbacks: List<String> = emptyList(),
+    val mechanicalEffects: List<CharacterCatalogEffect> = emptyList()
 )
 
 data class CharacterChoices(
