@@ -320,6 +320,37 @@ object ProposalParser {
     private fun toCheckRequest(o: JsonObject): CheckRequest {
         fun req(k: String): String = o.str(k)?.takeIf { it.isNotBlank() } ?: throw Bad("campo '$k' ausente ou vazio")
         fun opt(k: String): String? = o.str(k)?.trim()?.takeIf { it.isNotEmpty() }
+        val opposed = when (val raw = o["opposed"]) {
+            null, is JsonNull -> null
+            is JsonObject -> {
+                val entityId = raw.str("entityId")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("opposed.entityId ausente")
+                val checkId = raw.str("check")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("opposed.check ausente")
+                OpposedCheckRequest(entityId, checkId, raw.str("difficulty")?.trim()?.takeIf { it.isNotEmpty() },
+                    raw.str("label")?.trim()?.takeIf { it.isNotEmpty() })
+            }
+            else -> throw Bad("'opposed' deve ser um objeto")
+        }
+        val group = when (val raw = o["group"]) {
+            null, is JsonNull -> null
+            is JsonObject -> {
+                val ids = raw["participantIds"] as? JsonArray ?: throw Bad("group.participantIds deve ser uma lista")
+                val participants = ids.map { value ->
+                    (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                        ?: throw Bad("group.participantIds deve conter ids em texto")
+                }
+                val required = raw["requiredSuccesses"]?.let {
+                    (it as? JsonPrimitive)?.takeIf { p -> !p.isString }?.intOrNull
+                } ?: throw Bad("group.requiredSuccesses deve ser inteiro")
+                val success = raw.str("onSuccess")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("group.onSuccess ausente")
+                val failure = raw.str("onFailure")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw Bad("group.onFailure ausente")
+                GroupCheckRequest(participants, required, success, failure)
+            }
+            else -> throw Bad("'group' deve ser um objeto")
+        }
         return CheckRequest(
             checkId = req("check").trim(),
             difficultyId = opt("difficulty"),
@@ -332,7 +363,9 @@ object ProposalParser {
             revealSecretId = opt("revealSecret"),
             targetPlaceId = opt("targetPlace"),
             revealPlaceSecret = o.bool("revealPlaceSecret") ?: false,
-            requiredStat = opt("requiredStat")
+            requiredStat = opt("requiredStat"),
+            opposed = opposed,
+            group = group
         ).also {
             if ((it.targetNpcId == null) != (it.revealSecretId == null)) {
                 throw Bad("use targetNpc e revealSecret juntos")
@@ -346,6 +379,11 @@ object ProposalParser {
             if ((it.revealSecretId != null || it.revealPlaceSecret) && it.requiredStat.isNullOrBlank()) {
                 throw Bad("revelar segredo exige requiredStat")
             }
+            if ((it.opposed != null || it.group != null) &&
+                (it.targetNpcId != null || it.revealSecretId != null || it.targetPlaceId != null || it.revealPlaceSecret)) {
+                throw Bad("não combine teste oposto/em grupo com revelação de segredo")
+            }
+            if (it.opposed != null && it.group != null) throw Bad("use opposed ou group, não ambos")
         }
     }
 
