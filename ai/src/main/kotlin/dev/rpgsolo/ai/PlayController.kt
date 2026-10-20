@@ -298,8 +298,24 @@ class PlayController(
         participantEntityIds: List<String?> = listOf(playerId) + List((checks.size - 1).coerceAtLeast(0)) { null }
     ): PlayResult {
         if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes do teste de grupo")
+        if (checks.size < 2) {
+            return PlayResult.Failed("teste de grupo exige pelo menos dois participantes")
+        }
+        if (requiredSuccesses !in 1..checks.size) {
+            return PlayResult.Failed("sucessos necessários devem ficar entre 1 e o número de participantes")
+        }
         if (participantNames.size != checks.size || participantEntityIds.size != checks.size) {
             return PlayResult.Failed("cada participante precisa de nome e referência correspondentes")
+        }
+        if (participantNames.any { it.isBlank() }) {
+            return PlayResult.Failed("cada participante precisa de um nome não vazio")
+        }
+        val referencedIds = participantEntityIds.filterNotNull()
+        if (referencedIds.distinct().size != referencedIds.size) {
+            return PlayResult.Failed("um participante não pode ser incluído mais de uma vez")
+        }
+        if (playerId !in referencedIds) {
+            return PlayResult.Failed("o teste de grupo precisa incluir o personagem do jogador")
         }
         val start = chat.size
         val mark = session.mark()
