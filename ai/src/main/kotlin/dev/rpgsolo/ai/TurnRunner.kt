@@ -51,8 +51,8 @@ class TurnRunner(
         menu: CheckMenu? = null,
         canRequest: Boolean = true,
         playerEntityId: String? = null,
-        onNarrativeChunk: (String) -> Unit = {},
-        sceneNpcIds: Set<String> = emptySet()
+        sceneNpcIds: Set<String> = emptySet(),
+        onNarrativeChunk: (String) -> Unit = {}
     ): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
