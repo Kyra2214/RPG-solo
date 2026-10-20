@@ -146,10 +146,10 @@ class GameLoop(
         skill: String? = null
     ): CheckSpec? {
         val entity = session.state.entities[entityId] ?: return null
-        return adjusted(spec, session, entityId, skill, entity.traits.ifEmpty {
-            if (entityId == session.state.entities.values.firstOrNull { it.kind == dev.rpgsolo.engine.EntityKind.PLAYER }?.id) playerTraits()
-            else emptyList()
-        })
+        val traits = entity.traits.ifEmpty {
+            if (entity.kind == dev.rpgsolo.engine.EntityKind.PLAYER) playerTraits() else emptyList()
+        }
+        return adjusted(spec, session, entityId, skill, traits)
     }
 
     /** Quantas resoluções de pedido do mestre vieram em sequência no fim do histórico (limita o encadeamento). */
