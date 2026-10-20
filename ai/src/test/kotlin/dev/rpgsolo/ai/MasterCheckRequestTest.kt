@@ -59,6 +59,38 @@ class MasterCheckRequestTest {
         assertNull(req.onPartial)
     }
 
+    @Test fun disputaPedidaPelaIaRolaJogadorENpcEPassaSoODesfechoEscolhido() {
+        val opposed = """{"narrative":"O guarda cruza a lança. Role para passar.",
+            "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"você rompe a guarda","onFailure":"o guarda mantém a passagem",
+            "opposed":{"entityId":"orc","check":"esquiva","difficulty":"facil","label":"Guarda"}}}"""
+        val provider = ScriptedProvider(listOf(opposed, fim("Você continua pelo caminho.")))
+        val c = ctrl(provider)
+        assertTrue(c.submit("tento passar pelo guarda") is PlayResult.Played)
+        assertNotNull(c.pending())
+        val result = c.rollPending()
+        assertTrue(result is PlayResult.Played)
+        assertNull(c.pending())
+        assertEquals(2, c.lines.count { it.author == Author.ROLL })
+        assertTrue(c.lines.any { it.text.contains("Orc") || it.text.contains("Guarda") })
+        val context = provider.requests.last().messages.last().content
+        assertTrue("Resultado mecânico" in context)
+        assertFalse("o guarda mantém a passagem" in context && "você rompe a guarda" in context)
+    }
+
+    @Test fun grupoPedidoPelaIaRolaTodosOsParticipantes() {
+        val group = """{"narrative":"Vocês tentam passar a porta pesada juntos.",
+            "request_check":{"check":"esquiva","difficulty":"facil","onSuccess":"vocês conseguem passar","onFailure":"a porta continua fechada",
+            "group":{"participantIds":["player","orc"],"requiredSuccesses":1,"onSuccess":"o grupo abre a porta","onFailure":"o grupo não consegue abrir a porta"}}}"""
+        val provider = ScriptedProvider(listOf(group, fim("A porta finalmente se move.")))
+        val c = ctrl(provider)
+        assertTrue(c.submit("ajudo o orc a abrir a porta") is PlayResult.Played)
+        assertNotNull(c.pending())
+        assertTrue(c.rollPending() is PlayResult.Played)
+        assertNull(c.pending())
+        assertEquals(2, c.lines.count { it.author == Author.ROLL })
+        assertTrue(provider.requests.last().messages.last().content.contains("Resultado mecânico"))
+    }
+
     @Test fun pedidoSemAsDuasNotasEInvalido() {
         val raw = """{"narrative":"x","request_check":{"check":"esquiva","onSuccess":"a"}}"""
         val r = ProposalParser.parse(raw) as ParseResult.Invalid
