@@ -342,4 +342,16 @@ class MasterCheckRequestTest {
         val f = (p.buildFicha("hero", "Brokk", "", mapOf("forca" to 3, "agilidade" to 1, "mente" to 0), listOf("lutador", "esquivador")) as FichaBuild.Created).ficha
         assertTrue("+2 em esquiva" in PlayerSheet(p, f).render(session(f).state, "hero")!!)
     }
+
+    @Test fun controllerExibeDisputaOpostaEPermiteDesfazer() {
+        val p = pkg()
+        val f = ficha(p)
+        val c = PlayController(session(f), GameLoop(ScriptedProvider(emptyList()), menu = CheckMenu(p)), "hero", "hp")
+        val spec = p.check("esquiva", mapOf("agilidade" to 1), 0)
+        assertTrue(c.resolveOpposed(spec.copy(label = "Herói"), spec.copy(label = "Guarda")) is PlayResult.Played)
+        assertEquals(2, c.lines.count { it.author == Author.ROLL })
+        assertTrue(c.undo())
+        assertTrue(c.lines.isEmpty())
+    }
+
 }
