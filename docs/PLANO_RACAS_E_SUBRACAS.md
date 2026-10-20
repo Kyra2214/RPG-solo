@@ -375,3 +375,13 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Detectar IDs repetidos de maldições e impedir salvar escolhas inválidas pela interface.
 - [x] Exibir os problemas de validação ao jogador sem inferir ou aplicar efeitos mecânicos.
 - [ ] Validar/migrar escolhas antigas durante importação e apresentar um fluxo explícito de reparo quando o catálogo mudou.
+
+
+### Contexto completo e seguro para a IA (20/10/2026)
+
+- [x] Carregar todas as descrições de benefícios e custos do catálogo, não apenas a primeira entrada de cada lista.
+- [x] Ao selecionar um híbrido, incluir também as duas raças de ascendência e suas descrições canônicas no contexto narrativo.
+- [x] Reforçar no contexto enviado ao mestre IA que lore, benefícios editoriais e custos editoriais não concedem bônus, penalidades, poderes, resistências ou alterações de atributos.
+- [x] Manter os efeitos válidos ancorados na ficha mecânica e no pacote de regras.
+- [ ] Implementar geração de história pessoal opcional e persistência do texto aprovado sem alterar escolhas ou mecânicas.
+- [ ] Implementar geração opcional de retrato e armazenamento da referência da imagem.
