@@ -333,10 +333,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val canonical = ficha.editorialChoicesJson.ifBlank { legacyChoices.orEmpty() }
         val persisted = if (canonical == ficha.editorialChoicesJson) ficha else ficha.copy(editorialChoicesJson = canonical)
         store.saveFicha(FichaRow(persisted.id, persisted.name, dev.rpgsolo.engine.Codec.encode(persisted)))
-        val index = fichas.indexOfFirst { it.id == persisted.id }
-        if (index >= 0) fichas[index] = persisted else fichas.add(persisted)
         val archivedIndex = archivedFichas.indexOfFirst { it.id == persisted.id }
-        if (archivedIndex >= 0) archivedFichas[archivedIndex] = persisted
+        if (archivedIndex >= 0) {
+            archivedFichas[archivedIndex] = persisted
+            fichas.removeAll { it.id == persisted.id }
+        } else {
+            val index = fichas.indexOfFirst { it.id == persisted.id }
+            if (index >= 0) fichas[index] = persisted else fichas.add(persisted)
+        }
         if (activeFichaId == persisted.id) activeFicha = persisted
     }
 
