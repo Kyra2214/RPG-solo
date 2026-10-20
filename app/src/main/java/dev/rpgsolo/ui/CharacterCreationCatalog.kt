@@ -166,9 +166,11 @@ object CharacterCreationCatalog {
      */
     fun validateEffectScopes(pkg: RulePackage, choices: CharacterChoices): List<String> {
         val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
+        // O resolvedor de testes só consome escopos de atributo, teste, perícia e combate.
+        // Um ID de vantagem/poder não é, por si só, um escopo executável.
         val validScopes = pkg.data.stats.map { it.id }.toSet() +
             pkg.data.checks.map { it.id } +
-            pkg.data.traits.map { it.id } +
+            pkg.data.traits.filter { it.type == "pericia" }.map { it.id } +
             setOf("ataque", "dano", "defesa", "resistencia_dano")
         return selectedIds.filter { it.isNotBlank() }.distinct()
             .mapNotNull(::find)
