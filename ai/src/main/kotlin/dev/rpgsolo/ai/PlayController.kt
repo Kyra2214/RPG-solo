@@ -253,6 +253,12 @@ class PlayController(
         defenderEntityId: String? = null
     ): PlayResult {
         if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes da disputa")
+        if (challengerName.isBlank() || defenderName.isBlank()) {
+            return PlayResult.Failed("cada participante da disputa precisa de um nome não vazio")
+        }
+        if (defenderEntityId != null && challengerEntityId == defenderEntityId) {
+            return PlayResult.Failed("uma disputa exige dois participantes diferentes")
+        }
         val start = chat.size
         val mark = session.mark()
         return try {
