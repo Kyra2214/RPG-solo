@@ -125,7 +125,7 @@ object ContextAssembler {
             } else if (rolled != null) {
                 append("\nResultado decidido pelo motor para '").append(rolled.spec.label).append("': ")
                 append(outcomeWord(rolled.outcome)).append(". Narre exatamente esse resultado.")
-                if (resolving is PendingCheck) append("\n").append(notesFor(resolving.request, rolled.outcome))
+                if (resolving is PendingCheck) append("\n").append(resolving.resultNote ?: notesFor(resolving.request, rolled.outcome))
             }
         }
         val sceneIds = input.sceneNpcIds + input.playerEntityId
