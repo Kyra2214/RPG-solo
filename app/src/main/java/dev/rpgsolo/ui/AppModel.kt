@@ -1090,44 +1090,68 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun importBackup(text: String): String? = try {
         val raw = text.trim()
         val file = dev.rpgsolo.engine.Backup.decode(raw)
-        val id = dev.rpgsolo.engine.Backup.import(store, raw, "import-${System.nanoTime()}")
-        file.metadata?.let { meta ->
-            store.saveMetadata(
-                CampanhaMetaRow(
-                    campanhaId = id,
-                    chaptersJson = meta.chaptersJson,
-                    questsJson = meta.questsJson,
-                    timelineJson = meta.timelineJson,
-                    playerId = meta.playerId,
-                    fichaId = meta.fichaId,
-                    packageId = meta.packageId,
-                    systemId = meta.systemId,
-                    editionId = meta.editionId
-                )
-            )
-            meta.fichas.forEach { rawFicha ->
-                runCatching {
-                    val decoded = dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
-                    val legacyChoices = meta.characterChoices[decoded.id]
-                    val canonicalChoices = decoded.editorialChoicesJson.ifBlank { legacyChoices.orEmpty() }
-                    val ficha = if (canonicalChoices == decoded.editorialChoicesJson) decoded
-                        else decoded.copy(editorialChoicesJson = canonicalChoices)
-                    store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha)))
-                    if (canonicalChoices.isNotBlank()) {
-                        characterChoicesPrefs.edit().putString(ficha.id, canonicalChoices).apply()
-                    }
-                }
+        val meta = file.metadata
+        // Validar todas as fichas antes de criar a campanha: não ignorar JSONs inválidos
+        // nem deixar um backup parcialmente restaurado por causa de uma ficha corrompida.
+        val decodedFichas = meta?.fichas.orEmpty().map { rawFicha ->
+            dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
+        }
+        require(decodedFichas.map { it.id }.distinct().size == decodedFichas.size) {
+            "backup contém IDs de ficha duplicados"
+        }
+
+        // Nunca sobrescrever uma ficha local só porque o backup reutiliza o mesmo ID.
+        val usedIds = (fichas + archivedFichas).map { it.id }.toMutableSet()
+        val fichaIdMap = linkedMapOf<String, String>()
+        decodedFichas.forEach { ficha ->
+            var mappedId = ficha.id
+            if (mappedId in usedIds) {
+                do { mappedId = newFichaId() } while (mappedId in usedIds)
             }
-            // Preserva metadados de versões antigas mesmo quando a ficha não veio no array.
-            meta.characterChoices.forEach { (fichaId, rawChoices) ->
-                if (fichaId.isNotBlank() && rawChoices.isNotBlank()) {
-                    val choices = CharacterChoices.fromJson(rawChoices)
-                    characterChoicesPrefs.edit().putString(fichaId, choices.toJson()).apply()
+            usedIds += mappedId
+            fichaIdMap[ficha.id] = mappedId
+        }
+
+        var importedCampaignId = ""
+        database.runInTransaction {
+            importedCampaignId = dev.rpgsolo.engine.Backup.import(
+                store, raw, "import-${java.util.UUID.randomUUID()}"
+            )
+            if (meta != null) {
+                store.saveMetadata(
+                    CampanhaMetaRow(
+                        campanhaId = importedCampaignId,
+                        chaptersJson = meta.chaptersJson,
+                        questsJson = meta.questsJson,
+                        timelineJson = meta.timelineJson,
+                        playerId = meta.playerId,
+                        fichaId = meta.fichaId?.let { fichaIdMap[it] ?: it },
+                        packageId = meta.packageId,
+                        systemId = meta.systemId,
+                        editionId = meta.editionId
+                    )
+                )
+                decodedFichas.forEach { decoded ->
+                    val mappedId = fichaIdMap.getValue(decoded.id)
+                    val legacyChoices = meta.characterChoices[decoded.id].orEmpty()
+                    val canonicalChoices = decoded.editorialChoicesJson.ifBlank { legacyChoices }
+                    val ficha = decoded.copy(id = mappedId, editorialChoicesJson = canonicalChoices)
+                    store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha)))
                 }
             }
         }
+
+        // Preferências legadas só são atualizadas após o commit do banco; a ficha canônica
+        // já contém as escolhas, e repetir a restauração não sobrescreve fichas locais.
+        if (meta != null) {
+            decodedFichas.forEach { decoded ->
+                val mappedId = fichaIdMap.getValue(decoded.id)
+                val choices = decoded.editorialChoicesJson.ifBlank { meta.characterChoices[decoded.id].orEmpty() }
+                if (choices.isNotBlank()) characterChoicesPrefs.edit().putString(mappedId, choices).apply()
+            }
+        }
         restoreFichas()
-        switchCampaign(id)
+        switchCampaign(importedCampaignId)
         refreshCampaigns(); campaignVersion++; null
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
