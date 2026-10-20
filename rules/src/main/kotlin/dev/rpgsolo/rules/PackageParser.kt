@@ -382,7 +382,7 @@ object PackageParser {
                 errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' causa dano em recurso inexistente '${condition.damageResource}'"
             }
         }
-        val validItemScopes = statIds + checkIds + traitIds + setOf("ataque", "dano", "defesa", "resistencia_dano")
+        val validItemScopes = setOf("ataque", "dano", "defesa")
         items.forEach { item ->
             item.effects.forEach { effect ->
                 if (effect.scope !in validItemScopes) {
