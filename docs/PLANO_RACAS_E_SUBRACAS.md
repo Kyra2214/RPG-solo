@@ -170,6 +170,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [x] Manter efeitos de fontes diferentes separados, sem deduplicação silenciosa; o catálogo não decide a política de acúmulo.
 - [x] Integrar efeitos externos tipados à resolução do teste de fuga sem copiar os bônus para `Ficha.traits`.
 - [x] Aplicar efeitos de combate declarados nos escopos `ataque`, `dano`, `defesa` e `resistencia_dano` aos cálculos correspondentes do personagem jogador, sem transferi-los aos NPCs.
+- [x] Restringir os efeitos externos do catálogo no `GameLoop` às entidades do tipo jogador, inclusive em testes avançados com vários participantes; NPCs não recebem escolhas mecânicas da ficha ativa.
 - [x] Preservar a origem nos objetos `ExternalBonus` durante a resolução de testes; efeitos externos são somados separadamente dos `TraitBonus` canônicos.
 - [x] Exibir a origem dos efeitos de catálogo aplicados nos rótulos de testes do `GameLoop` e nos resultados de combate do jogador, incluindo defesa/resistência contra NPCs.
 - [x] Integrar também o fluxo normal do `GameLoop` e os testes avançados preparados por ele, preservando a origem no rótulo do teste; o teste de fuga continua usando o mesmo resolvedor tipado.
