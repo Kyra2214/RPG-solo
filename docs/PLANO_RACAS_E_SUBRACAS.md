@@ -401,6 +401,18 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Repetir a indicação explícita de que descrições de benefício/custo não equivalem a bônus ou penalidades automáticos.
 - [x] No resumo final das escolhas, listar todas as descrições disponíveis; manter compatibilidade com campos editoriais antigos de benefício/custo único.
 
+### Contrato inicial de efeitos tipados do catálogo (20/10/2026)
+
+- [x] Criar modelo de dado `CharacterCatalogEffect(scope, bonus)` e ler declarações `mechanicalEffects` do catálogo sem inferir valores a partir de texto.
+- [x] Validar efeitos declarados como objetos com escopo válido e bônus inteiro entre -100 e 100; detectar escopos repetidos na mesma lista.
+- [x] Validar a estrutura de efeitos tanto na entrada principal quanto em descrições de benefícios/custos quando a propriedade existe.
+- [x] Mostrar na interface os efeitos tipados declarados, identificando explicitamente que ainda não são aplicados pelo motor.
+- [ ] Integrar efeitos à ficha canônica e ao motor com origem/escopo rastreável, regras de acumulação definidas e prevenção de duplicação com `TraitBonus` já existente.
+- [ ] Definir catálogo de escopos por pacote/sistema e validação semântica contra atributos, perícias e testes realmente existentes.
+- [ ] Só habilitar execução de efeitos após migração e testes de compatibilidade; o catálogo atual continua com listas de efeitos vazias e nenhum bônus novo é concedido.
+
+Esta etapa define e valida o formato de dados, não a aplicação mecânica. Build, testes e CI não foram executados.
+
 ### Validação estrutural do catálogo (20/10/2026)
 
 - [x] Validar a versão do esquema, o identificador do catálogo e o pacote de destino.
