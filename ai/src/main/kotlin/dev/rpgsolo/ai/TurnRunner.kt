@@ -133,8 +133,8 @@ class TurnRunner(
         }
     }
 
-    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?): Attempt =
-        when (val parsed = ProposalParser.parse(text)) {
+    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?): Attempt {
+        return when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
                 Attempt.Retry("formato inválido: " + parsed.errors.joinToString("; "), false)
             is ParseResult.Ok -> {
@@ -268,4 +268,5 @@ class TurnRunner(
                 }
             }
         }
+    }
 }
