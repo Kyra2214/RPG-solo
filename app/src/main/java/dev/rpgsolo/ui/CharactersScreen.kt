@@ -83,7 +83,7 @@ private fun ConsultLinks(model: AppModel) {
 @Composable
 private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     // Um rascunho por pacote; "version" força redesenhar depois de mudar o rascunho (ele não é observável).
-    val draft = remember(key) { CharacterDraft(pkg, "f-${model.fichas.size + 1}") }
+    val draft = remember(key) { CharacterDraft(pkg, model.newFichaId()) }
     var version by remember(key) { mutableIntStateOf(0) }
     var message by remember(key) { mutableStateOf<String?>(null) }
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
