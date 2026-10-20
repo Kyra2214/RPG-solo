@@ -112,18 +112,104 @@ object CharacterCreationCatalog {
         return errors.distinct()
     }
 
-    /** Valida IDs únicos e referências de linhagem antes de expor o catálogo à criação. */
+    /**
+     * Valida o documento bruto antes de expor as opções.
+     * Entradas malformadas não podem desaparecer silenciosamente durante o parsing.
+     * Este validador verifica estrutura editorial; nunca interpreta lore como regra.
+     */
     fun validationErrors(): List<String> {
-        if (catalog == null) return listOf("O catálogo de criação não foi carregado do pacote de regras")
-        val all = races + subraces + hybrids + classes + professions + curses
+        val root = catalog ?: return listOf("O catálogo de criação não foi carregado do pacote de regras")
         val errors = mutableListOf<String>()
-        all.groupBy { it.id }.filterValues { it.size > 1 }.keys.forEach { errors += "ID duplicado no catálogo: $it" }
-        val raceIds = races.map { it.id }.toSet()
-        subraces.filter { it.parentRaceId == null || it.parentRaceId !in raceIds }.forEach { errors += "Sub-raça ${it.id} referencia raça inexistente" }
-        hybrids.forEach { hybrid ->
-            if (hybrid.hybridRaceIds.size != 2 || hybrid.hybridRaceIds.toSet().size != 2) errors += "Híbrido ${hybrid.id} precisa referenciar duas raças distintas"
-            else if (hybrid.hybridRaceIds.any { it !in raceIds }) errors += "Híbrido ${hybrid.id} referencia raça inexistente"
+        if (root.optInt("schemaVersion", -1) != 1) errors += "Versão de esquema do catálogo ausente ou incompatível"
+        if (root.optString("catalogId").isBlank()) errors += "catalogId obrigatório ausente"
+        if (root.optString("packageId") != "sistema-proprio") errors += "packageId do catálogo não corresponde a sistema-proprio"
+
+        val categoryKeys = listOf("races", "subraces", "hybrids", "classes", "professions", "curses")
+        val rawEntries = mutableMapOf<String, List<JSONObject>>()
+        categoryKeys.forEach { key ->
+            val array = root.optJSONArray(key)
+            if (array == null) {
+                errors += "Categoria obrigatória ausente ou inválida: $key"
+                rawEntries[key] = emptyList()
+            } else {
+                val entries = mutableListOf<JSONObject>()
+                for (index in 0 until array.length()) {
+                    val item = array.optJSONObject(index)
+                    if (item == null) {
+                        errors += "Entrada $index inválida na categoria $key"
+                        continue
+                    }
+                    entries += item
+                    val id = item.optString("id").takeIf { it.isNotBlank() && it != "null" }
+                    if (id == null) errors += "Entrada $index em $key não possui ID"
+                    if (item.optString("name").isBlank() || item.optString("name") == "null") {
+                        errors += "Entrada ${id ?: index} em $key não possui nome"
+                    }
+                    if (item.optString("summary").isBlank() || item.optString("summary") == "null") {
+                        errors += "Entrada ${id ?: index} em $key não possui resumo"
+                    }
+                    if (item.optString("lore").isBlank() || item.optString("lore") == "null") {
+                        errors += "Entrada ${id ?: index} em $key não possui lore"
+                    }
+                    if (item.optJSONArray("traits") == null) {
+                        errors += "Entrada ${id ?: index} em $key não declara traits como lista"
+                    }
+                    if (item.optJSONArray("mechanicalEffects") == null) {
+                        errors += "Entrada ${id ?: index} em $key não declara mechanicalEffects como lista"
+                    }
+                    listOf("benefits", "drawbacks").forEach { field ->
+                        val value = item.opt(field)
+                        if (value != null && value != JSONObject.NULL) {
+                            val descriptions = item.optJSONArray(field)
+                            if (descriptions == null) {
+                                errors += "Campo $field da entrada ${id ?: index} em $key deve ser uma lista"
+                            } else {
+                                for (effectIndex in 0 until descriptions.length()) {
+                                    val description = descriptions.optJSONObject(effectIndex)?.optString("description")
+                                    if (description.isNullOrBlank() || description == "null") {
+                                        errors += "Descrição ausente em $field[$effectIndex] da entrada ${id ?: index}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                rawEntries[key] = entries
+            }
         }
-        return errors
+
+        val allIds = rawEntries.values.flatten().mapNotNull { it.optString("id").takeIf(String::isNotBlank) }
+        allIds.groupBy { it }.filterValues { it.size > 1 }.keys.forEach { errors += "ID duplicado no catálogo: $it" }
+
+        val raceIds = rawEntries["races"].orEmpty().mapNotNull { it.optString("id").takeIf(String::isNotBlank) }.toSet()
+        rawEntries["subraces"].orEmpty().forEach { item ->
+            val id = item.optString("id", "(sem ID)")
+            val parentId = item.optString("parentRaceId").takeIf { it.isNotBlank() && it != "null" }
+            if (parentId == null || parentId !in raceIds) errors += "Sub-raça $id referencia raça inexistente"
+        }
+        rawEntries["hybrids"].orEmpty().forEach { item ->
+            val id = item.optString("id", "(sem ID)")
+            val ids = item.optJSONArray("raceIds")?.let { arr ->
+                (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() && it != "null" }
+            }.orEmpty()
+            if (ids.size != 2 || ids.toSet().size != 2) errors += "Híbrido $id precisa referenciar duas raças distintas"
+            else if (ids.any { it !in raceIds }) errors += "Híbrido $id referencia raça inexistente"
+        }
+
+        // Detecta divergência entre o documento bruto e as opções efetivamente carregadas.
+        val expectedByCategory = rawEntries.mapValues { (_, entries) -> entries.size }
+        val loadedByCategory = mapOf(
+            "races" to races.size,
+            "subraces" to subraces.size,
+            "hybrids" to hybrids.size,
+            "classes" to classes.size,
+            "professions" to professions.size,
+            "curses" to curses.size
+        )
+        expectedByCategory.forEach { (key, expected) ->
+            val loaded = loadedByCategory[key] ?: 0
+            if (loaded != expected) errors += "Categoria $key: $expected entradas no arquivo, mas $loaded carregadas"
+        }
+        return errors.distinct()
     }
 }
