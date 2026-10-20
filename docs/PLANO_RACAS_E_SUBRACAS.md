@@ -87,6 +87,40 @@ Regras de segurança:
 
 ## 6. Lore e fluxo de criação
 
+### Geração narrativa e retrato com IA
+
+Após definir e validar a ficha-base, o jogador poderá pedir à IA para criar a lore do personagem e uma imagem original para salvar. Isso é uma etapa narrativa opcional da criação, não um mecanismo de criação de regras.
+
+Modos previstos:
+- **Desenvolver uma ideia do jogador:** o jogador fornece um conceito, passado ou premissa; a IA desenvolve uma história coerente com a ficha e a campanha.
+- **Criar do zero:** o jogador autoriza a IA a propor uma história original compatível com as escolhas já confirmadas.
+
+Contexto permitido para a geração: raça/sub-raça e sua lore canônica, classe e sua descrição, profissão e sua lore, vantagens e desvantagens escolhidas, aparência fornecida pelo jogador, ideia inicial e ambientação da campanha. A IA deve respeitar os dados canônicos e não substituir a lore oficial dos catálogos.
+
+A imagem do personagem será gerada separadamente da lore, com base na ficha e na descrição narrativa aprovada. O jogador poderá salvar o retrato e consultar a história na ficha. A lore e a imagem poderão ser regeneradas independentemente, sem alterar escolhas mecânicas já confirmadas.
+
+### Limites rígidos da IA
+
+- A IA narrativa **não cria, concede, remove, altera nem balanceia bônus ou regras**.
+- A IA só pode referenciar vantagens e desvantagens válidas e já escolhidas; não pode adicioná-las por conta própria.
+- A IA não inventa atributos, perícias, poderes, habilidades, proficiências, requisitos ou efeitos de itens.
+- Uma informação narrativa — por exemplo, ter crescido numa guilda, conhecer um ferreiro ou ter encontrado uma joia — não concede automaticamente competência, equipamento, vantagem ou bônus mecânico.
+- Imagens podem representar apenas equipamentos e características coerentes com a ficha e com as escolhas aprovadas; a imagem não cria itens nem altera o inventário.
+- A saída narrativa fica separada dos dados mecânicos estruturados. Somente o motor de regras pode calcular e aplicar efeitos válidos.
+- A IA poderá sugerir ganchos narrativos, rivais, relações, segredos e objetivos pessoais, mas esses elementos só passam a integrar o estado persistente da campanha por meio dos fluxos de jogo autorizados.
+
+### Ficha-base e modificadores derivados
+
+A ficha-base registra separadamente as escolhas confirmadas de:
+1. raça ou sub-raça;
+2. classe;
+3. profissão;
+4. vantagens;
+5. desvantagens.
+
+Essa ficha-base não deve ser confundida com modificadores derivados de equipamentos, buffs, debuffs ou outros efeitos temporários. Esses elementos pertencem às suas próprias fontes e camadas; o motor determina quando se aplicam, seu escopo, duração, acúmulo e remoção. A geração de lore e imagem não modifica nenhuma dessas camadas.
+
+
 1. Selecionar raça; exibir imediatamente resumo e lore completa.
 2. Se houver sub-raças, listar apenas as ligadas à raça selecionada. Ao selecionar uma, exibir sua lore específica e manter a lore-base acessível.
 3. Selecionar classe; exibir descrição, lore e habilidades/efeitos.
@@ -144,6 +178,21 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - Adicionar especialização profissional apenas quando o esquema estiver definido.
 - Exibir resumo de bônus e sua origem antes da confirmação.
 
+### R4A — Criação narrativa assistida por IA
+- Definir entrada estruturada e controlada para a IA com dados confirmados da ficha e contexto da campanha.
+- Oferecer modo de desenvolver a ideia do jogador e modo de criar lore do zero.
+- Gerar lore original coerente com raça/sub-raça, classe, profissão, vantagens e desvantagens selecionadas.
+- Gerar retrato original em uma etapa separada, usando a ficha e a descrição aprovada.
+- Permitir salvar/consultar lore e imagem na ficha e regenerá-las separadamente.
+- Validar que a resposta narrativa não altere dados mecânicos, escolhas, inventário ou estado da campanha.
+- Manter a funcionalidade de consulta da lore canônica offline; geração por IA/imagem depende dos serviços disponíveis e não deve ser apresentada como recurso offline.
+
+- Implementar seleção de raça/sub-raça com lore visível.
+- Implementar seleção de classe com descrição e habilidades visíveis.
+- Implementar seleção de profissão independente, com lore, competências e efeitos visíveis.
+- Adicionar especialização profissional apenas quando o esquema estiver definido.
+- Exibir resumo de bônus e sua origem antes da confirmação.
+
 ### R5 — Persistência
 - Guardar IDs escolhidos, versão/origem necessárias e estado da ficha.
 - Preservar compatibilidade com fichas antigas sem essas escolhas.
@@ -156,6 +205,13 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - Versionar conteúdo e documentar efeitos pendentes.
 
 ## 10. Critérios de conclusão
+
+- A ficha-base registra separadamente raça/sub-raça, classe, profissão, vantagens e desvantagens.
+- Lore gerada por IA é opcional, coerente com os dados confirmados e armazenada separadamente das regras mecânicas.
+- O jogador pode fornecer uma premissa ou autorizar a criação de lore do zero.
+- A imagem gerada representa o personagem e pode ser salva sem alterar ficha, inventário ou regras.
+- A IA narrativa não concede bônus, vantagens, desvantagens, atributos, habilidades, itens ou outros efeitos mecânicos.
+- Equipamentos, buffs, debuffs e demais modificadores são calculados separadamente pelo motor de regras.
 
 - Raças, sub-raças, classes, profissões e especializações profissionais são dados expansíveis, sem limite codificado; metas mínimas: 50+ em cada uma das quatro categorias principais (raças, sub-raças/variantes, classes e profissões).
 - Toda raça/sub-raça tem lore própria e a interface a mostra ao selecionar.
@@ -179,6 +235,7 @@ D&D é inspiração, não autorização para copiar. Não embutir textos de lore
 - [ ] Implementar catálogo, lore e validação.
 - [ ] Integrar efeitos tipados à ficha e às ações.
 - [ ] Implementar interface de criação e persistência.
+- [ ] Implementar geração opcional de lore e retrato com IA, com limites rígidos contra alterações mecânicas.
 - [ ] Expandir e balancear o catálogo.
 
 **Próxima ação:** auditar o código existente antes de implementar os modelos e os bônus, para encaixar raça e profissão na ficha atual e garantir que o motor aplique cada efeito no lugar correto.
