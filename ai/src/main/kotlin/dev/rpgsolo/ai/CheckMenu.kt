@@ -25,6 +25,20 @@ data class FortuneSpendOption(
     val mode: dev.rpgsolo.engine.FortuneMode
 )
 
+data class OpposedCheckRequest(
+    val entityId: String,
+    val checkId: String,
+    val difficultyId: String? = null,
+    val label: String? = null
+)
+
+data class GroupCheckRequest(
+    val participantIds: List<String>,
+    val requiredSuccesses: Int,
+    val onSuccess: String,
+    val onFailure: String
+)
+
 data class CheckRequest(
     val checkId: String,
     val difficultyId: String? = null,
@@ -40,7 +54,9 @@ data class CheckRequest(
     val revealSecretId: String? = null,
     val targetPlaceId: String? = null,
     val revealPlaceSecret: Boolean = false,
-    val requiredStat: String? = null
+    val requiredStat: String? = null,
+    val opposed: OpposedCheckRequest? = null,
+    val group: GroupCheckRequest? = null
 )
 
 /**
@@ -69,7 +85,9 @@ data class PendingCheck(
     val request: CheckRequest,
     override val spec: CheckSpec,
     override val playerText: String,
-    val fortuneSpendOption: FortuneSpendOption? = null
+    val fortuneSpendOption: FortuneSpendOption? = null,
+    /** Nota privada escolhida pelo resultado de uma disputa ou teste em grupo. */
+    val resultNote: String? = null
 ) : Pending {
     override val label: String get() = spec.label
 }
@@ -220,6 +238,43 @@ class CheckMenu(private val pkg: RulePackage) {
             }
             if (place.secret.isBlank()) return "este local não tem segredo mecânico registrado"
             if (state.knowledge.containsKey("place-secret:$placeId")) return "o segredo deste local já foi descoberto"
+        }
+        return null
+    }
+
+    /** Valida participantes e limites de um teste oposto ou em grupo solicitado pela IA. */
+    fun validateAdvancedRequest(req: CheckRequest, state: GameState, playerEntityId: String): String? {
+        if (req.opposed != null && req.group != null) return "um teste não pode ser oposto e em grupo ao mesmo tempo"
+        req.opposed?.let { opposed ->
+            val target = state.entities[opposed.entityId] ?: return "participante oposto inexistente: ${opposed.entityId}"
+            if (target.id == playerEntityId || target.kind != EntityKind.NPC || !target.alive) {
+                return "o participante oposto deve ser um NPC vivo diferente do jogador"
+            }
+            val targetRequest = req.copy(
+                checkId = opposed.checkId,
+                difficultyId = opposed.difficultyId ?: req.difficultyId,
+                label = opposed.label,
+                opposed = null,
+                group = null,
+                targetNpcId = null,
+                revealSecretId = null,
+                targetPlaceId = null,
+                revealPlaceSecret = false,
+                requiredStat = null
+            )
+            validate(targetRequest)?.let { return "teste do oponente inválido: $it" }
+        }
+        req.group?.let { group ->
+            if (group.participantIds.size < 2) return "teste em grupo exige ao menos dois participantes"
+            if (group.participantIds.distinct().size != group.participantIds.size) return "participantes repetidos no teste em grupo"
+            if ("player" !in group.participantIds) return "o teste em grupo deve incluir 'player'"
+            if (group.requiredSuccesses !in 1..group.participantIds.size) {
+                return "requiredSuccesses deve ficar entre 1 e o número de participantes"
+            }
+            for (id in group.participantIds.filter { it != "player" }) {
+                val entity = state.entities[id] ?: return "participante de grupo inexistente: $id"
+                if (entity.kind != EntityKind.NPC || !entity.alive) return "participante de grupo deve ser um NPC vivo: $id"
+            }
         }
         return null
     }
