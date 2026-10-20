@@ -311,11 +311,10 @@ class PlayController(
             entries.addLast(Entry(start, localMark = mark, viaLoop = false))
             chat += ChatLine(Author.SYSTEM, "Teste de grupo: ${result.successes} sucessos e ${result.failures} falhas; necessários ${result.requiredSuccesses}.")
             result.individual.forEachIndexed { index, check ->
-                chat += ChatLine(
-                    Author.ROLL,
-                    "${participantNames[index]} · ${rollText(check)}",
-                    rollView(check)
-                )
+                result.alternatives.getOrNull(index).orEmpty().forEach { alternative ->
+                    chat += ChatLine(Author.ROLL, "Não escolhido · " + participantNames[index] + " · " + rollText(alternative), rollView(alternative))
+                }
+                chat += ChatLine(Author.ROLL, participantNames[index] + " · " + rollText(check), rollView(check))
             }
             chat += ChatLine(
                 Author.SYSTEM,
