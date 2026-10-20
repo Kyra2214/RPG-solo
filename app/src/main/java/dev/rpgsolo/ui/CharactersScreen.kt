@@ -197,8 +197,16 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                 Text(entry.name, style = MaterialTheme.typography.bodyMedium)
                 if (entry.summary.isNotBlank()) Muted(entry.summary)
                 if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted("Lore: " + entry.lore)
-                if (entry.benefit.isNotBlank()) Muted("Benefício descrito (não aplicado): " + entry.benefit)
-                if (entry.drawback.isNotBlank()) Muted("Custo descrito (não aplicado): " + entry.drawback)
+                if (entry.benefits.isNotEmpty()) {
+                    entry.benefits.forEach { Muted("Benefício descrito (não aplicado): " + it) }
+                } else if (entry.benefit.isNotBlank()) {
+                    Muted("Benefício descrito (não aplicado): " + entry.benefit)
+                }
+                if (entry.drawbacks.isNotEmpty()) {
+                    entry.drawbacks.forEach { Muted("Custo descrito (não aplicado): " + it) }
+                } else if (entry.drawback.isNotBlank()) {
+                    Muted("Custo descrito (não aplicado): " + entry.drawback)
+                }
             }
         }
     }
@@ -529,7 +537,12 @@ private fun CatalogMultiPicker(
                 onClick = { onToggle(entry.id) },
                 label = { Text(entry.name) }
             )
-            if (entry.id in selectedIds && entry.summary.isNotBlank()) Muted(entry.summary)
+            if (entry.id in selectedIds) {
+                if (entry.summary.isNotBlank()) Muted(entry.summary)
+                if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted("Lore: " + entry.lore)
+                entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
+                entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
+            }
         }
         if (entries.size > visible.size) Muted("Catálogo com ${entries.size} opções; busque pelo nome para encontrar outras.")
     }
