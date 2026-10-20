@@ -78,6 +78,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private val secureSettings = SecureSettings(application)
     private var storedSettings: StoredProviderSettings? = secureSettings.load()
     private val narrationPrefs = application.getSharedPreferences("rpg_narration_prefs", 0)
+
+    /** Metadados editoriais da nova criação, separados da ficha mecânica e persistidos por ID. */
+    private val characterChoicesPrefs = application.getSharedPreferences("rpg_character_choices", 0)
+
+    fun saveCharacterChoices(fichaId: String, choices: CharacterChoices) {
+        if (fichaId.isBlank()) return
+        characterChoicesPrefs.edit().putString(fichaId, choices.toJson()).apply()
+    }
+
+    fun characterChoices(fichaId: String): CharacterChoices =
+        CharacterChoices.fromJson(characterChoicesPrefs.getString(fichaId, null))
+
     var narrationLength by mutableStateOf(narrationPrefs.getString("length", "equilibrada") ?: "equilibrada")
         private set
     var narrationStyle by mutableStateOf(narrationPrefs.getString("style", "cinematográfica") ?: "cinematográfica")
