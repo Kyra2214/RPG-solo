@@ -506,7 +506,7 @@ private fun CatalogPicker(
                 entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
                 entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
                 entry.mechanicalEffects.forEach {
-                    Muted("Efeito tipado declarado, ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                    Muted("Efeito tipado (${it.source}), ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
                 }
             }
         }
@@ -546,7 +546,7 @@ private fun CatalogMultiPicker(
                 entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
                 entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
                 entry.mechanicalEffects.forEach {
-                    Muted("Efeito tipado declarado, ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                    Muted("Efeito tipado (${it.source}), ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
                 }
             }
         }
