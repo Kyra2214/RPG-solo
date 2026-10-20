@@ -43,8 +43,8 @@ class PersistenceTest {
 
     @Test fun fichaAntigaSemCampoEditorialContinuaDecodificavel() {
         val ficha = Ficha("f-antiga", "Brokk", SystemRef("s", "1e"))
-        val oldJson = Codec.encode(ficha).replace(",\\"editorialChoicesJson\\":\\"\\"", "")
-        assertTrue(oldJson.contains("\\"id\\":\\"f-antiga\\""))
+        val oldJson = Codec.encode(ficha).replace(",\"editorialChoicesJson\":\"\"", "")
+        assertTrue(oldJson.contains("\"id\":\"f-antiga\""))
         assertEquals("", Codec.decodeFicha(oldJson).editorialChoicesJson)
     }
 
