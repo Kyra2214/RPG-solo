@@ -237,6 +237,88 @@ class PlayController(
         return result
     }
 
+
+    /**
+     * Resolve uma disputa com especificações mecânicas explícitas do pacote.
+     * Registra ambas as rolagens; o motor determina o vencedor e o empate favorece o defensor.
+     */
+    fun resolveOpposed(
+        challenger: CheckSpec,
+        defender: CheckSpec,
+        challengerName: String = challenger.label,
+        defenderName: String = defender.label
+    ): PlayResult {
+        if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes da disputa")
+        val start = chat.size
+        val mark = session.mark()
+        return try {
+            val result = session.checkOpposed(challenger, defender)
+            entries.addLast(Entry(start, localMark = mark, viaLoop = false))
+            chat += ChatLine(Author.SYSTEM, "Disputa: $challengerName contra $defenderName.")
+            chat += ChatLine(Author.ROLL, rollText(result.challenger), rollView(result.challenger))
+            chat += ChatLine(Author.ROLL, rollText(result.defender), rollView(result.defender))
+            chat += ChatLine(
+                Author.SYSTEM,
+                if (result.challengerWins) "$challengerName vence a disputa."
+                else "$defenderName mantém a vantagem; empate favorece o defensor."
+            )
+            PlayResult.Played(
+                TurnRecord(
+                    PlayInput(playerId, "disputa: $challengerName vs. $defenderName"),
+                    mark, session.mark(), result.challenger,
+                    if (result.challengerWins) "$challengerName vence a disputa." else "$defenderName vence ou mantém a disputa."
+                )
+            )
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(mark) }
+            PlayResult.Failed(e.message ?: "falha ao resolver a disputa")
+        }
+    }
+
+    /**
+     * Resolve uma tarefa em grupo com limiar explícito. Cada participante respeita a política
+     * de fortuna de sua especificação; o motor conta sucessos e decide se o grupo passou.
+     */
+    fun resolveGroup(
+        checks: List<CheckSpec>,
+        requiredSuccesses: Int,
+        participantNames: List<String> = checks.map { it.label }
+    ): PlayResult {
+        if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes do teste de grupo")
+        if (participantNames.size != checks.size) {
+            return PlayResult.Failed("cada participante precisa de um nome correspondente")
+        }
+        val start = chat.size
+        val mark = session.mark()
+        return try {
+            val result = session.checkGroup(checks, requiredSuccesses)
+            entries.addLast(Entry(start, localMark = mark, viaLoop = false))
+            chat += ChatLine(Author.SYSTEM, "Teste de grupo: ${result.successes} sucessos e ${result.failures} falhas; necessários ${result.requiredSuccesses}.")
+            result.individual.forEachIndexed { index, check ->
+                chat += ChatLine(
+                    Author.ROLL,
+                    "${participantNames[index]} · ${rollText(check)}",
+                    rollView(check)
+                )
+            }
+            chat += ChatLine(
+                Author.SYSTEM,
+                if (result.passed) "O grupo alcançou o limiar de sucesso."
+                else "O grupo não alcançou o limiar de sucesso."
+            )
+            PlayResult.Played(
+                TurnRecord(
+                    PlayInput(playerId, "teste de grupo (${checks.size} participantes)"),
+                    mark, session.mark(), result.individual.firstOrNull(),
+                    if (result.passed) "grupo passou" else "grupo falhou"
+                )
+            )
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(mark) }
+            PlayResult.Failed(e.message ?: "falha ao resolver o teste de grupo")
+        }
+    }
+
     fun panel(): PanelState? {
         val e = session.state.entities[playerId] ?: return null
         return PanelState(
