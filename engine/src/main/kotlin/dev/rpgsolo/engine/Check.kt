@@ -20,7 +20,7 @@ const val MIN_POINT_FACES = 1
 
 /** Zero pontos = uma face mínima; cada ponto positivo acrescenta uma face, até lados − 1. */
 fun pointFaces(points: Int, sides: Int): Int =
-    minOf(points.coerceAtLeast(MIN_POINT_FACES), maxOf(MIN_POINT_FACES, sides - 1))
+    minOf(points.coerceAtLeast(0), maxOf(0, sides - 2)) + MIN_POINT_FACES
 
 enum class Outcome {
     CRITICAL_FAILURE, FAILURE, PARTIAL_SUCCESS, SUCCESS, CRITICAL_SUCCESS;
