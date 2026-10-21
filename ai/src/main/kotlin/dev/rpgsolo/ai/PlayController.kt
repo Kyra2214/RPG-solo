@@ -5,6 +5,8 @@ import dev.rpgsolo.engine.CheckResult
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.Outcome
 import dev.rpgsolo.engine.QuestLog
+import dev.rpgsolo.engine.checkOpposed
+import dev.rpgsolo.engine.checkGroup
 
 enum class Author { PLAYER, ROLL, MASTER, SYSTEM }
 
