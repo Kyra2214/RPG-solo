@@ -10,7 +10,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-A última validação documentada antes da branch atual foi em 17/10/2026, com JDK 17 e Android SDK 35. Desde então, a branch `implementation/code-first-combat` recebeu alterações de código. **Builds, testes, lint e CI não foram executados nesta etapa**, conforme a orientação de consolidar a implementação antes da validação. Portanto, o estado atual da branch ainda não está validado e não deve ser tratado como APK pronto para uso.
+A execução #169 do Android CI, no commit `44d82157f2cbd554944ea71a64c95c87cc12accc`, passou nos testes JVM e na montagem/upload do APK de depuração. O PR #2 foi mesclado à `main` no commit `62a3e8a96befd950981d8caa19239abf03aabe34`. O teste instrumentado E2E foi tentado no emulador, mas falhou ao iniciar os testes (o log registrou “Starting 0 tests”); como essa etapa é não bloqueante, ela não tornou o CI vermelho. Portanto, o fluxo JVM e a geração do APK estão validados nessa execução, mas a jornada E2E em emulador continua pendente. Consulte [Validação CI](docs/VALIDACAO_CI.md) para detalhes.
 
 ## Funcionalidades implementadas no código
 
@@ -61,8 +61,9 @@ Abra a pasta do repositório no Android Studio para executar o app em emulador o
 
 ## Lacunas conhecidas
 
-- Esta branch ainda precisa de compilação, testes unitários, validação visual em aparelho/emulador e teste instrumentado das migrações Room.
-- O streaming progressivo agora está ligado do transporte SSE até a interface; permanece sem validação de execução nesta etapa. Provedores compatíveis podem variar no suporte a SSE e JSON mode.
+- O teste instrumentado E2E precisa de diagnóstico: a última tentativa falhou em `:app:connectedDebugAndroidTest` e reportou “Starting 0 tests”. Veja [Validação CI](docs/VALIDACAO_CI.md).
+- A validação visual em aparelho/emulador e os testes instrumentados das migrações Room ainda precisam ser concluídos.
+- O streaming progressivo está ligado do transporte SSE até a interface; permanece sem validação real em rede. Provedores compatíveis podem variar no suporte a SSE e JSON mode.
 - Permanecem melhorias de mecânica fora do fluxo principal: a API do motor e os fluxos do `PlayController` para rolagens opostas/em grupo foram adicionados, com resultados exibidos no chat e suporte a desfazer; vantagem/desvantagem pode ser declarada em `testes.txt` (`NORMAL`, `ADVANTAGE`, `DISADVANTAGE`). Há controles na aba Jogar para disputar um teste entre o herói e um NPC vivo. A interface também oferece teste de grupo com participantes e limiar de sucessos selecionados. Nenhuma dessas modalidades tem sintaxe de pacote nem pedido pendente narrativo. A progressão básica por pontos por nível e gasto em atributo/perícia está implementada no motor e na aba Campanhas; pontos de sorte/destino, recompensas adicionais e poderes/magias com efeitos tipados seguem pendentes. Bônus numéricos de traços, incluindo resistência/vulnerabilidade a dano, só são aplicados quando o pacote declara um efeito explícito; descrições condicionais ainda não são gatilhos automáticos.
 - A escala global da fonte e descrições TalkBack dos dados foram implementadas no código; revisão completa de TalkBack, contraste e layout em aparelho ainda falta. Também faltam relatório de diagnóstico exportável e configuração comprovada de um provedor gratuito padrão.
 - O pacote próprio contém fórmulas e regras marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
