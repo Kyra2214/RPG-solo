@@ -397,7 +397,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                     Text(if (expandedFichaId == f.id) "Ocultar ficha" else "Ver ficha")
                 }
                 if (expandedFichaId == f.id) {
-                    val fichaPkg = dev.rpgsolo.rules.CampaignStarter.packageFor(reg, f.system.editionId)
+                    val fichaPkg = dev.rpgsolo.rules.CampaignStarter.packageFor(model.content.registry, f.system.editionId)
                     Muted("Atributos: " + f.stats.entries.joinToString(", ") { (id, value) ->
                         "${fichaPkg?.stat(id)?.name ?: id}: $value"
                     })
