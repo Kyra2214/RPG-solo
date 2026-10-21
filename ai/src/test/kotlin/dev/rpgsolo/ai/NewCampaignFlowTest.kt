@@ -20,7 +20,7 @@ class NewCampaignFlowTest {
     private val catalog = (CatalogLoader.load(res("catalog/estilos.txt"), res("catalog/sistemas.txt"), res("catalog/compat.txt")) as LoadResult.Success).catalog
 
     private val registry = PackageRegistry(catalog).also {
-        val files = listOf("manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes", "dano", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "itens", "opcoes-arquetipo")
+        val files = listOf("manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes", "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo")
             .mapNotNull { f -> runCatching { "$f.txt" to res("packages/sistema-proprio/$f.txt") }.getOrNull() }.toMap()
         val installed = it.install(files)
         assertTrue("pacote sistema-proprio deve instalar: $installed", installed is InstallResult.Success)

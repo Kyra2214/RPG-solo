@@ -18,7 +18,7 @@ data class ProviderConfig(
     }
 
     /** A chave nunca vai para texto de log. */
-    override fun toString(): String = "ProviderConfig(endpoint=$endpoint, model=$model, apiKey=${maskKey(apiKey)}, cacheSystemPrompt=$cacheSystemPrompt)"
+    override fun toString(): String = "ProviderConfig(endpoint=$endpoint, model=$model, cacheSystemPrompt=$cacheSystemPrompt, apiKey=${maskKey(apiKey)})"
 }
 
 /** Mostra só o final da chave: `••••••••wxyz`. Chave curta demais some inteira. */

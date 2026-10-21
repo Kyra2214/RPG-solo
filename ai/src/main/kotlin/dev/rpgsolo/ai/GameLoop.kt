@@ -77,7 +77,11 @@ class GameLoop(
     /** Ids dos traços do personagem do jogador (vantagens e perícias que dão bônus nos testes). */
     private val playerTraits: () -> List<String> = { emptyList() },
     /** Bônus mecânicos de adaptações aprovadas, consultados por escopo (teste, atributo ou perícia). */
-    private val additionalBonus: (String) -> Int = { 0 }
+    private val additionalBonus: (String) -> Int = { 0 },
+    /** Efeitos tipados de outras fontes, preservando a origem no registro do teste. */
+    private val externalBonuses: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
+    /** Origem individual das adaptações aprovadas; o total mecânico continua vindo de additionalBonus. */
+    private val additionalBonusSources: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() }
 ) {
     private val history = mutableListOf<TurnRecord>()
     private val narrations = mutableListOf<String>()
@@ -116,26 +120,60 @@ class GameLoop(
     private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null, traitIds: List<String> = playerTraits()): CheckSpec {
         val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), traitIds, skill) ?: spec
         val scopes = listOfNotNull(spec.checkId, spec.stat, skill).distinct()
-        val bonus = scopes.sumOf(additionalBonus)
-        val withAdaptations = if (bonus == 0) adjusted else {
-            val suffix = if (bonus > 0) " · adaptação +$bonus" else " · adaptação $bonus"
-            if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
-                adjusted.copy(difficulty = adjusted.difficulty + bonus, label = adjusted.label + suffix)
+        // Adaptações aprovadas alteram a ficha do jogador; não devem virar bônus globais de NPC.
+        val isPlayerEntity = session.state.entities[playerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+        val bonus = if (isPlayerEntity) scopes.sumOf(additionalBonus) else 0
+        val adaptationSources = if (isPlayerEntity) additionalBonusSources(scopes)
+            .filter { it.scope in scopes && it.bonus != 0 } else emptyList()
+        val withAdaptations = if (bonus == 0 && adaptationSources.isEmpty()) adjusted else {
+            val sourceLabel = if (adaptationSources.isEmpty()) "" else " · adaptações: " +
+                adaptationSources.joinToString(", ") { effect ->
+                    "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+                }
+            val totalLabel = if (bonus == 0) "" else
+                " · adaptação " + if (bonus > 0) "+$bonus" else bonus.toString()
+            val label = adjusted.label + sourceLabel + totalLabel
+            if (bonus == 0) adjusted.copy(label = label)
+            else if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
+                adjusted.copy(difficulty = adjusted.difficulty + bonus, label = label)
             } else {
-                adjusted.copy(modifier = adjusted.modifier + bonus, label = adjusted.label + suffix)
+                adjusted.copy(modifier = adjusted.modifier + bonus, label = label)
+            }
+        }
+        // Efeitos da ficha escolhida pertencem somente ao jogador; nunca a NPCs ou adversários.
+        val selectedExternal = if (isPlayerEntity) {
+            dev.rpgsolo.rules.distinctExternalBonuses(
+                externalBonuses(scopes).filter { it.scope in scopes && it.bonus != 0 }
+            )
+        } else emptyList()
+        val externalTotal = selectedExternal.sumOf { it.bonus }
+        val withExternal = if (selectedExternal.isEmpty()) withAdaptations else {
+            // Mostra cada origem/escopo mesmo quando bônus diferentes se anulam no total.
+            val details = selectedExternal.joinToString(", ") { effect ->
+                "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+            }
+            val totalSuffix = if (externalTotal == 0) "" else
+                " · efeito externo " + if (externalTotal > 0) "+$externalTotal" else externalTotal.toString()
+            val label = withAdaptations.label + " · efeitos: $details" + totalSuffix
+            if (externalTotal == 0) {
+                withAdaptations.copy(label = label)
+            } else if (withAdaptations.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
+                withAdaptations.copy(difficulty = withAdaptations.difficulty + externalTotal, label = label)
+            } else {
+                withAdaptations.copy(modifier = withAdaptations.modifier + externalTotal, label = label)
             }
         }
         val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
         val shift = danger - 5
-        if (shift == 0) return withAdaptations
+        if (shift == 0) return withExternal
         val suffix = " · perigo ${if (shift > 0) "+" else ""}$shift"
-        return when (withAdaptations.comparison) {
+        return when (withExternal.comparison) {
             dev.rpgsolo.engine.Comparison.ROLL_OVER ->
-                withAdaptations.copy(modifier = withAdaptations.modifier - shift, label = withAdaptations.label + suffix)
+                withExternal.copy(modifier = withExternal.modifier - shift, label = withExternal.label + suffix)
             dev.rpgsolo.engine.Comparison.ROLL_UNDER ->
-                withAdaptations.copy(difficulty = (withAdaptations.difficulty - shift).coerceAtLeast(1), label = withAdaptations.label + suffix)
+                withExternal.copy(difficulty = (withExternal.difficulty - shift).coerceAtLeast(1), label = withExternal.label + suffix)
             dev.rpgsolo.engine.Comparison.POINTS ->
-                withAdaptations.copy(modifier = (withAdaptations.modifier - shift).coerceAtLeast(0), label = withAdaptations.label + suffix)
+                withExternal.copy(modifier = (withExternal.modifier - shift).coerceAtLeast(0), label = withExternal.label + suffix)
         }
     }
 
