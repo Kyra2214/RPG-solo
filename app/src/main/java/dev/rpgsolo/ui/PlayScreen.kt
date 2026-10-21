@@ -150,7 +150,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     }
 
     // A chamada à IA é de rede: sempre fora da thread principal.
-    fun run(block: () -> Unit) {
+    fun run(block: suspend () -> Unit) {
         if (busy) return
         busy = true
         scope.launch {
