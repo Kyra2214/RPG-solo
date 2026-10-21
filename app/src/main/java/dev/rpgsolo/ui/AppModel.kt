@@ -192,12 +192,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var fontScale by mutableStateOf(narrationPrefs.getFloat("font_scale", 1.0f).coerceIn(0.85f, 1.4f))
         private set
 
+    @JvmName("persistFontScale")
     fun setFontScale(value: Float) {
         if (!value.isFinite()) return
         fontScale = value.coerceIn(0.85f, 1.4f)
         narrationPrefs.edit().putFloat("font_scale", fontScale).apply()
     }
 
+    @JvmName("persistChapterEventLimit")
     fun setChapterEventLimit(value: Int) {
         if (value !in 50..2000) return
         chapterEventLimit = value
