@@ -434,6 +434,39 @@ class RulePackageTest {
         assertTrue(failure(PackageRegistry().install(b)).any { it.contains("atributo inexistente no efeito") })
     }
 
+    @Test fun efeitosExternosDeduplicamPorIdentidadeSemApagarAcumuloEntreFontes() {
+        val race = ExternalBonus("sorte", 1, "raça: elfo", effectId = "race:elfo#mechanicalEffects#0")
+        val sameDeclaration = race.copy()
+        val classBonus = ExternalBonus("sorte", 1, "classe: arqueiro", effectId = "class:arqueiro#mechanicalEffects#0")
+        assertEquals(
+            listOf(race, classBonus),
+            distinctExternalBonuses(listOf(race, sameDeclaration, classBonus))
+        )
+        // Sem identidade explícita, a equivalência não é inferida pelo mesmo número/escopo.
+        assertEquals(
+            2,
+            distinctExternalBonuses(
+                listOf(
+                    ExternalBonus("sorte", 1, "fonte A"),
+                    ExternalBonus("sorte", 1, "fonte B")
+                )
+            ).size
+        )
+    }
+
+    @Test fun adjustCheckNaoAplicaDuasVezesAMesmaDeclaracaoExterna() {
+        val p = basico()
+        val spec = p.check("sorte", emptyMap(), 7)
+        val declaration = ExternalBonus("sorte", 1, "raça: elfo", effectId = "race:elfo#0")
+        val otherSource = ExternalBonus("sorte", 1, "classe: arqueiro", effectId = "class:arqueiro#0")
+        val adjusted = p.adjustCheck(
+            spec,
+            emptyList(),
+            additionalBonuses = listOf(declaration, declaration, otherSource)
+        )
+        assertEquals(spec.modifier + 2, adjusted.modifier)
+    }
+
     // ---- bônus de traços (vantagens e perícias) nos testes ----
     @Test fun tracoDaBonusNaSituacaoCerta() {
         val p = basico()

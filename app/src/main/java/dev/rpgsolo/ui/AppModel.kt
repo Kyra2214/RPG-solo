@@ -78,6 +78,107 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private val secureSettings = SecureSettings(application)
     private var storedSettings: StoredProviderSettings? = secureSettings.load()
     private val narrationPrefs = application.getSharedPreferences("rpg_narration_prefs", 0)
+
+    /** Metadados editoriais da nova criação, separados da ficha mecânica e persistidos por ID. */
+    private val characterChoicesPrefs = application.getSharedPreferences("rpg_character_choices", 0)
+
+    /**
+     * Salva a escolha editorial dentro da ficha canônica e mantém o espelho legado
+     * por compatibilidade com backups/metadados de versões antigas.
+     */
+    fun saveCharacterChoices(fichaId: String, choices: CharacterChoices) {
+        if (fichaId.isBlank()) return
+        val json = choices.toJson()
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId }
+        if (ficha == null) {
+            // Compatibilidade para chamadas antigas que possam anteceder a gravação da ficha.
+            characterChoicesPrefs.edit().putString(fichaId, json).apply()
+            return
+        }
+        if (ficha.editorialChoicesJson != json) {
+            val updated = ficha.copy(editorialChoicesJson = json)
+            // Persistir primeiro no modelo canônico; se o banco falhar, não avançar o espelho.
+            store.saveFicha(FichaRow(updated.id, updated.name, dev.rpgsolo.engine.Codec.encode(updated)))
+            val activeIndex = fichas.indexOfFirst { it.id == fichaId }
+            if (activeIndex >= 0) fichas[activeIndex] = updated
+            val archivedIndex = archivedFichas.indexOfFirst { it.id == fichaId }
+            if (archivedIndex >= 0) archivedFichas[archivedIndex] = updated
+            if (activeFichaId == fichaId) activeFicha = updated
+        }
+        characterChoicesPrefs.edit().putString(fichaId, json).apply()
+        campaignVersion++
+    }
+
+    /** O campo canônico tem precedência; SharedPreferences só é fallback para fichas antigas. */
+    fun characterChoices(fichaId: String): CharacterChoices {
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId }
+        val canonical = ficha?.editorialChoicesJson.orEmpty()
+        if (canonical.isNotBlank()) return CharacterChoices.fromJson(canonical)
+        return CharacterChoices.fromJson(characterChoicesPrefs.getString(fichaId, null))
+    }
+
+    /**
+     * Efeitos explícitos do catálogo para a ficha ativa. Só entram quando as escolhas e
+     * os escopos são válidos para o pacote ativo; não altera Ficha.traits nem persiste bônus derivados.
+     */
+    private fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> {
+        val fichaId = activeFichaId ?: activeFicha?.id ?: return emptyList()
+        val choices = characterChoices(fichaId)
+        if (CharacterCreationCatalog.validateChoices(choices).isNotEmpty()) return emptyList()
+        if (CharacterCreationCatalog.validateEffectScopes(pkg, choices).isNotEmpty()) return emptyList()
+        return dev.rpgsolo.rules.distinctExternalBonuses(
+            CharacterCreationCatalog.selectedEffects(choices).map {
+                dev.rpgsolo.rules.ExternalBonus(
+                    scope = it.scope,
+                    bonus = it.bonus,
+                    source = it.source,
+                    effectId = it.effectId
+                )
+            }
+        )
+    }
+
+    private fun selectedCatalogBonus(pkg: RulePackage, scope: String): Int =
+        selectedCatalogBonuses(pkg).filter { it.scope == scope }.sumOf { it.bonus }
+
+    /** Explica os efeitos por escopo, sem somar bônus que modificam cálculos diferentes. */
+    private fun selectedCatalogBonusSummary(pkg: RulePackage, scopes: Collection<String>): String {
+        val applied = selectedCatalogBonuses(pkg).filter { it.scope in scopes && it.bonus != 0 }
+        if (applied.isEmpty()) return ""
+        val details = applied.groupBy { it.scope }.entries.joinToString("; ") { (scope, effects) ->
+            val total = effects.sumOf { it.bonus }
+            val sources = effects.map { it.source }.distinct().joinToString(", ")
+            scope + " " + (if (total > 0) "+" else "") + total + " [" + sources + "]"
+        }
+        return " Efeitos de personagem: $details."
+    }
+    /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
+    fun characterChoicesForAi(fichaId: String): String {
+        val choices = characterChoices(fichaId)
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
+        val selected = selectedIds.filter { it.isNotBlank() }.distinct().mapNotNull(CharacterCreationCatalog::find)
+        val ancestryIds = selected.filter { it.id == choices.hybridId }.flatMap { it.hybridRaceIds }
+        val ancestry = ancestryIds.mapNotNull(CharacterCreationCatalog::find)
+        val entries = (selected + ancestry).distinctBy { it.id }
+        return buildString {
+            append("INSTRUÇÕES DE INTEGRIDADE: este bloco contém escolhas e descrições editoriais, não regras mecânicas. ")
+            append("Não conceda bônus, penalidades, poderes, resistências ou alterações de atributos a partir dele. ")
+            append("Use apenas como contexto narrativo; os efeitos mecânicos válidos vêm da ficha e do pacote de regras.\n")
+            entries.forEach { entry ->
+                append("- ").append(entry.name)
+                if (entry.id == choices.hybridId && ancestry.isNotEmpty()) {
+                    append(" (híbrido de ").append(ancestry.filter { it.id in entry.hybridRaceIds }.joinToString(" + ") { it.name }).append(")")
+                }
+                if (entry.lore.isNotBlank()) append("\n  Lore: ").append(entry.lore)
+                if (entry.summary.isNotBlank()) append("\n  Resumo: ").append(entry.summary)
+                if (entry.benefits.isNotEmpty()) append("\n  Benefícios descritos (narrativos, não aplicar mecanicamente): ").append(entry.benefits.joinToString("; "))
+                if (entry.drawbacks.isNotEmpty()) append("\n  Custos descritos (narrativos, não aplicar mecanicamente): ").append(entry.drawbacks.joinToString("; "))
+                if (entry.benefits.isEmpty() && entry.benefit.isNotBlank()) append("\n  Benefício descrito no catálogo (não aplicar mecanicamente): ").append(entry.benefit)
+                if (entry.drawbacks.isEmpty() && entry.drawback.isNotBlank()) append("\n  Custo descrito no catálogo (não aplicar mecanicamente): ").append(entry.drawback)
+            }
+        }
+    }
+
     var narrationLength by mutableStateOf(narrationPrefs.getString("length", "equilibrada") ?: "equilibrada")
         private set
     var narrationStyle by mutableStateOf(narrationPrefs.getString("style", "cinematográfica") ?: "cinematográfica")
@@ -91,12 +192,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var fontScale by mutableStateOf(narrationPrefs.getFloat("font_scale", 1.0f).coerceIn(0.85f, 1.4f))
         private set
 
+    @JvmName("persistFontScale")
     fun setFontScale(value: Float) {
         if (!value.isFinite()) return
         fontScale = value.coerceIn(0.85f, 1.4f)
         narrationPrefs.edit().putFloat("font_scale", fontScale).apply()
     }
 
+    @JvmName("persistChapterEventLimit")
     fun setChapterEventLimit(value: Int) {
         if (value !in 50..2000) return
         chapterEventLimit = value
@@ -123,6 +226,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         narrationStyle = style
         narrationPrefs.edit().putString("length", length).putString("style", style).apply()
         campaignVersion++
+    }
+
+    /** ID novo e resistente a colisões entre fichas ativas, arquivadas e importadas. */
+    fun newFichaId(): String {
+        var candidate: String
+        do {
+            candidate = "f-${java.util.UUID.randomUUID()}"
+        } while ((fichas + archivedFichas).any { it.id == candidate } || store.fichaExiste(candidate))
+        return candidate
     }
 
     /** Biblioteca de fichas reutilizáveis, persistida separadamente das campanhas. */
@@ -229,25 +341,52 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun restoreFichas() {
         fichas.clear()
         archivedFichas.clear()
-        fichas.addAll(store.fichas().mapNotNull { row ->
-            runCatching { dev.rpgsolo.engine.Codec.decodeFicha(row.json) }.getOrNull()
-        })
-        archivedFichas.addAll(store.fichasArquivadas().mapNotNull { row ->
-            runCatching { dev.rpgsolo.engine.Codec.decodeFicha(row.json) }.getOrNull()
-        })
+
+        fun decodeAndMigrate(row: FichaRow): Ficha? = runCatching {
+            val decoded = dev.rpgsolo.engine.Codec.decodeFicha(row.json)
+            val legacy = characterChoicesPrefs.getString(decoded.id, null).orEmpty()
+            if (decoded.editorialChoicesJson.isNotBlank() || legacy.isBlank()) {
+                decoded
+            } else {
+                val migrated = decoded.copy(editorialChoicesJson = legacy)
+                // RoomEventStore atualiza o JSON sem alterar o sinalizador de arquivamento.
+                store.saveFicha(FichaRow(migrated.id, migrated.name, dev.rpgsolo.engine.Codec.encode(migrated)))
+                migrated
+            }
+        }.getOrNull()
+
+        fichas.addAll(store.fichas().mapNotNull(::decodeAndMigrate))
+        archivedFichas.addAll(store.fichasArquivadas().mapNotNull(::decodeAndMigrate))
     }
 
     /** Salva uma ficha na biblioteca e atualiza a cópia observável em memória. */
     fun saveFicha(ficha: Ficha) {
-        store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha)))
-        val index = fichas.indexOfFirst { it.id == ficha.id }
-        if (index >= 0) fichas[index] = ficha else fichas.add(ficha)
+        // Migração sob demanda: qualquer gravação de uma ficha antiga incorpora as escolhas
+        // legadas antes de persistir, sem apagar o registro de origem.
+        val legacyChoices = characterChoicesPrefs.getString(ficha.id, null)
+        val canonical = ficha.editorialChoicesJson.ifBlank { legacyChoices.orEmpty() }
+        val persisted = if (canonical == ficha.editorialChoicesJson) ficha else ficha.copy(editorialChoicesJson = canonical)
+        store.saveFicha(FichaRow(persisted.id, persisted.name, dev.rpgsolo.engine.Codec.encode(persisted)))
+        val archivedIndex = archivedFichas.indexOfFirst { it.id == persisted.id }
+        if (archivedIndex >= 0) {
+            archivedFichas[archivedIndex] = persisted
+            fichas.removeAll { it.id == persisted.id }
+        } else {
+            val index = fichas.indexOfFirst { it.id == persisted.id }
+            if (index >= 0) fichas[index] = persisted else fichas.add(persisted)
+        }
+        if (activeFichaId == persisted.id) activeFicha = persisted
     }
 
     fun duplicateFicha(id: String): String? = try {
         val original = requireNotNull(fichas.firstOrNull { it.id == id }) { "ficha não encontrada na biblioteca" }
-        val copy = original.copy(id = "f-${System.nanoTime()}", name = "${original.name} (cópia)")
+        val copy = original.copy(
+            id = newFichaId(),
+            name = "${original.name} (cópia)",
+            editorialChoicesJson = characterChoices(id).toJson()
+        )
         saveFicha(copy)
+        characterChoicesPrefs.edit().putString(copy.id, copy.editorialChoicesJson).apply()
         campaignVersion++
         null
     } catch (e: IllegalArgumentException) { e.message }
@@ -269,14 +408,70 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteFicha(id: String): String? = try {
         require(store.apagarFicha(id)) { "ficha não encontrada na biblioteca" }
+        characterChoicesPrefs.edit().remove(id).apply()
         fichas.removeAll { it.id == id }
         archivedFichas.removeAll { it.id == id }
         campaignVersion++
         null
     } catch (e: IllegalArgumentException) { e.message }
 
+    /** Exportação individual versionada: ficha mecânica e escolhas editoriais viajam juntas. */
     fun exportFicha(id: String): String? =
-        (fichas + archivedFichas).firstOrNull { it.id == id }?.let { dev.rpgsolo.engine.Codec.encode(it) }
+        (fichas + archivedFichas).firstOrNull { it.id == id }?.let { ficha ->
+            org.json.JSONObject()
+                .put("format", "rpgsolo-character-export")
+                .put("schemaVersion", 1)
+                .put("ficha", org.json.JSONObject(dev.rpgsolo.engine.Codec.encode(ficha)))
+                .put("characterChoices", org.json.JSONObject(characterChoices(ficha.id).toJson()))
+                .toString(2)
+        }
+
+    /** Importa o formato versionado atual e também JSONs antigos que continham somente a ficha. */
+    fun importFicha(raw: String): String? = try {
+        require(raw.isNotBlank()) { "cole o JSON da ficha" }
+        val envelope = org.json.JSONObject(raw)
+        val format = envelope.optString("format")
+        val fichaJson: String
+        val choices: CharacterChoices
+        if (format == "rpgsolo-character-export") {
+            require(envelope.optInt("schemaVersion", -1) == 1) { "versão de exportação de ficha não suportada" }
+            fichaJson = requireNotNull(envelope.optJSONObject("ficha")) { "exportação sem objeto ficha" }.toString()
+            choices = CharacterChoices.fromJson(envelope.optJSONObject("characterChoices")?.toString())
+        } else {
+            require(format.isBlank()) { "formato de exportação desconhecido: $format" }
+            fichaJson = raw
+            choices = CharacterChoices()
+        }
+        val decoded = dev.rpgsolo.engine.Codec.decodeFicha(fichaJson)
+        require(decoded.id.isNotBlank()) { "a ficha importada precisa ter um ID" }
+        val exists = store.fichaExiste(decoded.id) || (fichas + archivedFichas).any { it.id == decoded.id }
+        val importedId = if (exists) newFichaId() else decoded.id
+        val importedChoices = when {
+            choices != CharacterChoices() -> choices
+            decoded.editorialChoicesJson.isNotBlank() -> CharacterChoices.fromJson(decoded.editorialChoicesJson)
+            else -> CharacterChoices()
+        }
+        val imported = decoded.copy(
+            id = importedId,
+            name = if (exists) "${decoded.name} (importada)" else decoded.name,
+            editorialChoicesJson = if (importedChoices != CharacterChoices()) importedChoices.toJson() else decoded.editorialChoicesJson
+        )
+        saveFicha(imported)
+        if (importedChoices != CharacterChoices()) saveCharacterChoices(imported.id, importedChoices)
+        val choiceWarnings = if (importedChoices != CharacterChoices()) CharacterCreationCatalog.validateChoices(importedChoices) else emptyList()
+        buildString {
+            append("Ficha ").append(imported.name).append(" importada")
+            if (importedChoices != CharacterChoices()) append(" com escolhas de raça/linhagem, classe, profissão e maldições")
+            append(".")
+            if (choiceWarnings.isNotEmpty()) {
+                append("\nAtenção: as escolhas foram preservadas, mas precisam ser revisadas porque algumas referências não são válidas neste catálogo:")
+                choiceWarnings.forEach { append("\n- ").append(it) }
+                append("\nAbra “Editar escolhas” na biblioteca para corrigir.")
+            }
+        }
+    } catch (e: Exception) {
+        e.message ?: "JSON de ficha inválido"
+    }
 
     fun activeCampaignId(): String = session.campaignId
 
@@ -456,17 +651,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(combatTraitIds(attacker), "ataque") +
-                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
                     attackConditionShift +
                     ((session.state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
                         .roundToInt().coerceIn(0, 10) - 5),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
-                    pkg.traitBonus(combatTraitIds(attacker), "dano") +
-                    approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
+                    pkg.traitBonus(combatTraitIds(attacker), "dano"),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(combatTraitIds(playerId), "defesa") +
+                    selectedCatalogBonus(pkg, "defesa") +
                     approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
                 damageReduction = pkg.traitBonus(combatTraitIds(playerId), "resistencia_dano") +
+                    selectedCatalogBonus(pkg, "resistencia_dano") +
                     approvedRuleBonus("resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
@@ -474,10 +669,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             )
         )
         val text = when (result) {
-            is dev.rpgsolo.engine.AttackResult.Resolved -> if (result.hit) {
-                "${session.state.entities.getValue(attacker).name} acertou você."
-            } else {
-                "${session.state.entities.getValue(attacker).name} errou o ataque."
+            is dev.rpgsolo.engine.AttackResult.Resolved -> {
+                val outcome = if (result.hit) {
+                    "${session.state.entities.getValue(attacker).name} acertou você."
+                } else {
+                    "${session.state.entities.getValue(attacker).name} errou o ataque."
+                }
+                outcome +
+                    selectedCatalogBonusSummary(pkg, if (result.hit) listOf("defesa", "resistencia_dano") else listOf("defesa")) +
+                    approvedRuleBonusSummary(if (result.hit) listOf("defesa", defenseStat, "resistencia_dano") else listOf("defesa", defenseStat))
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> return result.reason
         }
@@ -588,6 +788,29 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun approvedRuleBonus(scope: String): Int =
         session.state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
 
+    private fun approvedRuleEffects(scopes: Collection<String>): List<dev.rpgsolo.rules.ExternalBonus> =
+        session.state.additionalRules.values.filter { it.approved }.flatMap { rule ->
+            scopes.distinct().mapNotNull { scope ->
+                rule.effects[scope]?.takeIf { it != 0 }?.let { bonus ->
+                    dev.rpgsolo.rules.ExternalBonus(scope, bonus, "adaptação ${rule.id}")
+                }
+            }
+        }
+
+    /** Explica quais adaptações aprovadas contribuíram para os escopos usados neste cálculo. */
+    private fun approvedRuleBonusSummary(scopes: Collection<String>): String {
+        val details = session.state.additionalRules.values
+            .filter { it.approved }
+            .flatMap { rule ->
+                scopes.distinct().mapNotNull { scope ->
+                    rule.effects[scope]?.takeIf { it != 0 }?.let { bonus ->
+                        "${rule.id} ($scope ${if (bonus > 0) "+" else ""}$bonus)"
+                    }
+                }
+            }
+        return if (details.isEmpty()) "" else " · adaptações: ${details.joinToString(", ")}"
+    }
+
     fun approveAdditionalRule(id: String): String? = when (
         val result = session.execute(dev.rpgsolo.engine.ApproveRuleAddition(id))
     ) {
@@ -606,8 +829,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun conditionDiceShift(entityId: String, stat: String): Int =
         session.state.conditions[entityId].orEmpty().sumOf { conditionId ->
             val effect = activePackage?.data?.conditions?.firstOrNull { it.id == conditionId }?.effect
-            val stats = effect?.stats
-            if (effect != null && (stats == null || stat in stats)) effect.dice else 0
+            val effectStats = effect?.stats
+            if (effect != null && (effectStats == null || stat in effectStats)) effect.dice else 0
         }
 
     /** Traços mecânicos do combatente; a ficha salva cobre campanhas antigas cujo Entity ainda não os continha. */
@@ -667,8 +890,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
-    } catch (e: IllegalArgumentException) { e.message }
-        catch (e: IllegalStateException) { e.message }
+        } catch (e: IllegalArgumentException) { e.message }
+          catch (e: IllegalStateException) { e.message }
     }
 
     fun equipItem(itemId: String): String? = try {
@@ -737,15 +960,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 damage = baseDamage,
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(playerId), "ataque") +
-                    approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
+                    selectedCatalogBonus(pkg, "ataque") + approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
                     attackConditionShift,
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano") +
-                    approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
+                    selectedCatalogBonus(pkg, "dano") + approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
-                    pkg.traitBonus(combatTraitIds(targetId), "defesa") +
-                    approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
-                damageReduction = pkg.traitBonus(combatTraitIds(targetId), "resistencia_dano") +
-                    approvedRuleBonus("resistencia_dano"),
+                    pkg.traitBonus(combatTraitIds(targetId), "defesa") + targetConditionShift,
+                damageReduction = pkg.traitBonus(combatTraitIds(targetId), "resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
@@ -770,12 +991,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     }.orEmpty()
                     "Ataque: $attackText. Acertou e causou ${result.damage} de dano.$damageText"
                 } else "Ataque: $attackText. Errou."
-                if (victoryXp > 0) "$outcome Vitória! Você recebeu $victoryXp XP." else outcome
+                val withSources = outcome +
+                    selectedCatalogBonusSummary(pkg, if (result.hit) listOf("ataque", "dano") else listOf("ataque")) +
+                    approvedRuleBonusSummary(
+                        if (result.hit) listOf("ataque", attackStat, "dano", damageDef?.bonusStat ?: "") else listOf("ataque", attackStat)
+                    )
+                if (victoryXp > 0) "$withSources Vitória! Você recebeu $victoryXp XP." else withSources
             }
             is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
         }
-    } catch (e: IllegalArgumentException) { e.message }
-        catch (e: IllegalStateException) { e.message }
+        } catch (e: IllegalArgumentException) { e.message }
+          catch (e: IllegalStateException) { e.message }
     }
 
     /** A postura defensiva concede o bônus do pacote contra o próximo ataque recebido e consome o turno. */
@@ -812,7 +1038,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             base,
             session.state.conditions[playerId].orEmpty(),
             combatTraitIds(playerId),
-            checkId
+            checkId,
+            additionalBonuses = selectedCatalogBonuses(pkg)
         )
         val adaptation = listOfNotNull(adjusted.checkId, adjusted.stat, checkId).distinct().sumOf(::approvedRuleBonus)
         val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
@@ -827,7 +1054,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             )
         }
         val result = session.check(spec)
-        val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}."
+        val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}." +
+            approvedRuleBonusSummary(listOfNotNull(adjusted.checkId, adjusted.stat, checkId))
         if (result.outcome in setOf(
                 dev.rpgsolo.engine.Outcome.SUCCESS,
                 dev.rpgsolo.engine.Outcome.CRITICAL_SUCCESS
@@ -871,37 +1099,99 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             packageId = activePackage?.manifest?.id,
             systemId = activeSystemId ?: activeFicha?.system?.systemId,
             editionId = activeEditionId ?: activeFicha?.system?.editionId,
-            fichas = fichas.map { dev.rpgsolo.engine.Codec.encode(it) }
+            fichas = (fichas + archivedFichas).map { dev.rpgsolo.engine.Codec.encode(it) },
+            characterChoices = (fichas + archivedFichas).associate { ficha ->
+                ficha.id to characterChoices(ficha.id).toJson()
+            }.filterValues { raw ->
+                CharacterChoices.fromJson(raw) != CharacterChoices()
+            },
+            archivedFichaIds = archivedFichas.map { it.id }
         )
     )
 
     fun importBackup(text: String): String? = try {
         val raw = text.trim()
         val file = dev.rpgsolo.engine.Backup.decode(raw)
-        val id = dev.rpgsolo.engine.Backup.import(store, raw, "import-${System.nanoTime()}")
-        file.metadata?.let { meta ->
-            store.saveMetadata(
-                CampanhaMetaRow(
-                    campanhaId = id,
-                    chaptersJson = meta.chaptersJson,
-                    questsJson = meta.questsJson,
-                    timelineJson = meta.timelineJson,
-                    playerId = meta.playerId,
-                    fichaId = meta.fichaId,
-                    packageId = meta.packageId,
-                    systemId = meta.systemId,
-                    editionId = meta.editionId
-                )
+        val meta = file.metadata
+        // Validar todas as fichas antes de criar a campanha: não ignorar JSONs inválidos
+        // nem deixar um backup parcialmente restaurado por causa de uma ficha corrompida.
+        val decodedFichas = meta?.fichas.orEmpty().map { rawFicha ->
+            dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
+        }
+        require(decodedFichas.all { it.id.isNotBlank() }) {
+            "backup contém ficha sem ID"
+        }
+        require(decodedFichas.map { it.id }.distinct().size == decodedFichas.size) {
+            "backup contém IDs de ficha duplicados"
+        }
+
+        // Nunca sobrescrever uma ficha local só porque o backup reutiliza o mesmo ID.
+        val localFichaIds = (fichas + archivedFichas).map { it.id }.toMutableSet()
+        val usedIds = localFichaIds.toMutableSet()
+        val fichaIdMap = linkedMapOf<String, String>()
+        decodedFichas.forEach { ficha ->
+            var mappedId = ficha.id
+            if (mappedId in usedIds || store.fichaExiste(mappedId)) {
+                do { mappedId = newFichaId() } while (mappedId in usedIds)
+            }
+            usedIds += mappedId
+            fichaIdMap[ficha.id] = mappedId
+        }
+
+        var importedCampaignId = ""
+        database.runInTransaction {
+            importedCampaignId = dev.rpgsolo.engine.Backup.import(
+                store, raw, "import-${java.util.UUID.randomUUID()}"
             )
-            meta.fichas.forEach { rawFicha ->
-                runCatching {
-                    val ficha = dev.rpgsolo.engine.Codec.decodeFicha(rawFicha)
-                    store.saveFicha(FichaRow(ficha.id, ficha.name, rawFicha))
+            if (meta != null) {
+                store.saveMetadata(
+                    CampanhaMetaRow(
+                        campanhaId = importedCampaignId,
+                        chaptersJson = meta.chaptersJson,
+                        questsJson = meta.questsJson,
+                        timelineJson = meta.timelineJson,
+                        playerId = meta.playerId,
+                        fichaId = meta.fichaId?.let { fichaId ->
+                            fichaIdMap[fichaId] ?: if (store.fichaExiste(fichaId)) null else fichaId
+                        },
+                        packageId = meta.packageId,
+                        systemId = meta.systemId,
+                        editionId = meta.editionId
+                    )
+                )
+                decodedFichas.forEach { decoded ->
+                    val mappedId = fichaIdMap.getValue(decoded.id)
+                    val legacyChoices = meta.characterChoices[decoded.id].orEmpty()
+                    val canonicalChoices = decoded.editorialChoicesJson.ifBlank { legacyChoices }
+                    val ficha = decoded.copy(id = mappedId, editorialChoicesJson = canonicalChoices)
+                    val archived = decoded.id in meta.archivedFichaIds
+                    store.saveFicha(FichaRow(ficha.id, ficha.name, dev.rpgsolo.engine.Codec.encode(ficha), arquivada = archived))
+                }
+            }
+        }
+
+        // Preferências legadas só são atualizadas após o commit do banco; a ficha canônica
+        // já contém as escolhas, e repetir a restauração não sobrescreve fichas locais.
+        if (meta != null) {
+            decodedFichas.forEach { decoded ->
+                val mappedId = fichaIdMap.getValue(decoded.id)
+                val choices = decoded.editorialChoicesJson.ifBlank { meta.characterChoices[decoded.id].orEmpty() }
+                if (choices.isNotBlank()) characterChoicesPrefs.edit().putString(mappedId, choices).apply()
+            }
+            // Backups antigos podem ter escolhas sem a ficha serializada. Preservá-las como
+            // legado apenas se o ID não pertence a uma ficha local, evitando sobrescrever dados.
+            meta.characterChoices.forEach { (legacyId, rawChoices) ->
+                if (legacyId.isNotBlank() &&
+                    legacyId !in fichaIdMap.keys &&
+                    legacyId !in localFichaIds &&
+                    rawChoices.isNotBlank()
+                ) {
+                    characterChoicesPrefs.edit().putString(legacyId, rawChoices).apply()
                 }
             }
         }
         restoreFichas()
-        switchCampaign(id)
+        switchCampaign(importedCampaignId)
         refreshCampaigns(); campaignVersion++; null
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
@@ -1185,7 +1475,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             premiumRunner = if (r.hasPremium) TurnRunner(r.premium, npcCreator = npcCreator) else null,
             menu = activePackage?.let { CheckMenu(it) },
             playerTraits = { activeFicha?.traits.orEmpty() },
-            additionalBonus = { scope -> approvedRuleBonus(scope) }
+            additionalBonus = { scope -> approvedRuleBonus(scope) },
+            externalBonuses = { scopes ->
+                activePackage?.let { pkg -> selectedCatalogBonuses(pkg).filter { it.scope in scopes } }.orEmpty()
+            },
+            additionalBonusSources = { scopes -> approvedRuleEffects(scopes) }
         )
         return PlayController(
             session,
@@ -1198,7 +1492,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             quests = quests,
             restResources = activePackage?.data?.resources?.map { it.id }?.toSet()
                 ?: session.state.entities[playerId]?.resources?.keys.orEmpty(),
-            sheet = PlayerSheet(activePackage, activeFicha),
+            sheet = PlayerSheet(activePackage, activeFicha, characterChoicesForAi(activeFicha?.id.orEmpty())),
             conditionNames = activePackage?.data?.conditions?.associate { it.id to it.name }.orEmpty(),
             ruleLookup = { query ->
                 val packageRules = activePackage?.search(query, 5)?.map { "${it.kind}: ${it.title} — ${it.text}" }.orEmpty()

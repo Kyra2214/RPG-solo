@@ -35,6 +35,32 @@ class PersistenceTest {
         assertEquals(f, Codec.decodeFicha(Codec.encode(f)))
     }
 
+    @Test fun escolhasEditoriaisPersistemNoJsonCanonicoDaFicha() {
+        val choices = """{"raceId":"elfo","subraceId":"elfo-da-lua","classId":"guerreiro","professionId":"ferreiro","curseIds":["marca-do-vazio"],"hybridId":""}"""
+        val ficha = Ficha("f-editorial", "Ari", SystemRef("s", "1e"), editorialChoicesJson = choices)
+        assertEquals(choices, Codec.decodeFicha(Codec.encode(ficha)).editorialChoicesJson)
+    }
+
+    @Test fun fichaAntigaSemCampoEditorialContinuaDecodificavel() {
+        val ficha = Ficha("f-antiga", "Brokk", SystemRef("s", "1e"))
+        val oldJson = Codec.encode(ficha).replace(",\"editorialChoicesJson\":\"\"", "")
+        assertTrue(oldJson.contains("\"id\":\"f-antiga\""))
+        assertEquals("", Codec.decodeFicha(oldJson).editorialChoicesJson)
+    }
+
+    @Test fun backupPreservaEstadoArquivadoELeBackupsAntigos() {
+        val (_, store) = newSession()
+        val metadata = CampaignBackupMetadata(archivedFichaIds = listOf("f-arquivada"))
+        val current = Backup.export(store, "c1", metadata)
+        assertEquals(listOf("f-arquivada"), Backup.decode(current).metadata?.archivedFichaIds)
+
+        // Backups anteriores ao campo opcional não devem falhar na leitura.
+        val oldBackup = Backup.export(store, "c1", CampaignBackupMetadata())
+            .replace(",\"archivedFichaIds\":[]", "")
+        assertTrue(oldBackup.contains("\"metadata\""))
+        assertEquals(emptyList<String>(), Backup.decode(oldBackup).metadata?.archivedFichaIds)
+    }
+
     @Test fun autosaveReabreComOMesmoEstado() {
         val (s, store) = newSession()
         s.execute(Damage("orc", "hp", 4))

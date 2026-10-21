@@ -30,7 +30,13 @@ data class Ficha(
     /** Ids das regras adicionais aplicadas: o "selo" de adaptação na ficha (4.4.4). */
     val adaptations: List<String> = emptyList(),
     /** Pontos por perícia, separados dos atributos e dos traços narrativos. */
-    val skills: Map<String, Int> = emptyMap()
+    val skills: Map<String, Int> = emptyMap(),
+    /**
+     * Escolhas editoriais da criação (raça, linhagem, classe, profissão e maldições),
+     * serializadas como JSON versionável. Não são bônus nem traços mecânicos.
+     * Campo vazio mantém compatibilidade com fichas antigas.
+     */
+    val editorialChoicesJson: String = ""
 ) {
     fun toEntity(kind: EntityKind = EntityKind.PLAYER): Entity =
         Entity(

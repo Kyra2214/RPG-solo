@@ -14,7 +14,11 @@ data class CampaignBackupMetadata(
     val systemId: String? = null,
     val editionId: String? = null,
     /** Fichas reutilizáveis em JSON. Chaves de API e preferências secretas nunca entram no backup. */
-    val fichas: List<String> = emptyList()
+    val fichas: List<String> = emptyList(),
+    /** Escolhas editoriais associadas às fichas; ausente em backups antigos. */
+    val characterChoices: Map<String, String> = emptyMap(),
+    /** IDs das fichas arquivadas; vazio em backups antigos. */
+    val archivedFichaIds: List<String> = emptyList()
 )
 
 @Serializable
@@ -46,7 +50,11 @@ object Backup {
     ): String {
         val rec = requireNotNull(store.campaign(campaignId)) { "campanha não encontrada: $campaignId" }
         val file = BackupFile(VERSION, rec.id, rec.name, rec.seed, rec.config, store.load(campaignId), metadata)
-        return json.encodeToString(BackupFile.serializer(), file)
+        val encoded = json.encodeToString(BackupFile.serializer(), file)
+        require(encoded.length <= MAX_BACKUP_CHARS) {
+            "backup excede o limite de 50 MiB; reduza os metadados ou divida o conteúdo"
+        }
+        return encoded
     }
 
     /** Lê os metadados para o app restaurar capítulos, missões e fichas sem incluir segredos do provedor. */

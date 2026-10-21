@@ -24,7 +24,8 @@ enum class SheetLevel { BRIEF, FULL, ROUND }
  */
 class PlayerSheet(
     private val pkg: RulePackage? = null,
-    private val ficha: Ficha? = null
+    private val ficha: Ficha? = null,
+    private val characterChoices: String = ""
 ) {
     /** Ordem e rótulo dos tipos de traço; tipos que o pacote inventar caem no fim com o próprio nome. */
     private val typeLabels = linkedMapOf(
@@ -48,6 +49,7 @@ class PlayerSheet(
         append("nunca recite números, pontos ou nomes de mecânica ao jogador):")
         append("\n- Nome: ").append(e.name)
         ficha?.concept?.takeIf { it.isNotBlank() }?.let { append("\n- Conceito: ").append(it) }
+        characterChoices.takeIf { it.isNotBlank() }?.let { append("\n- Raça/linhagem, classe, profissão e maldições (lore do catálogo; sem regras inventadas):\n").append(it) }
         append("\n- Nível ").append(e.level)
         if (!e.alive) append(" (MORTO)")
         if (e.stats.isNotEmpty()) {
@@ -64,6 +66,7 @@ class PlayerSheet(
     private fun brief(e: Entity): String = buildString {
         append("Personagem do jogador (resumo privado; não recite): ").append(e.name).append(", nível ").append(e.level)
         ficha?.concept?.takeIf { it.isNotBlank() }?.let { append(" — ").append(it) }
+        characterChoices.takeIf { it.isNotBlank() }?.let { append("\n").append(it) }
         if (!e.alive) append(" (MORTO)")
         traitNames().forEach { append("\n").append(it) }
     }

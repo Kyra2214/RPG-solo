@@ -43,6 +43,10 @@ interface FichaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun salvar(row: FichaRow)
 
+    /** Atualiza o conteúdo sem substituir a linha e sem desarquivar a ficha. */
+    @Query("UPDATE fichas SET nome = :nome, json = :json WHERE id = :id")
+    fun atualizarConteudo(id: String, nome: String, json: String): Int
+
     @Query("SELECT * FROM fichas WHERE id = :id")
     fun buscar(id: String): FichaRow?
 

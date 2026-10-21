@@ -244,6 +244,10 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 5.3.3 Regra: campanha nunca altera outra sem comando explícito do jogador
 - 5.3.4 Teste: a mudança numa campanha não vaza para outra
 
+**Atualização da criação/persistência (20/10/2026):** `Ficha.editorialChoicesJson` guarda as escolhas de raça/linhagem, classe, profissão e maldições no JSON canônico. O app migra valores antigos de SharedPreferences durante a restauração; o campo legado permanece como fallback/espelho. Duplicação, importação/exportação e backup/restauração carregam as escolhas. Os backups incluem fichas ativas e arquivadas e preservam o estado de arquivamento por metadado opcional retrocompatível. A gravação de ficha é atômica e não apaga o estado arquivado; IDs de criação/cópia/importação usam UUID e colisões consultam o banco. Foram acrescentados testes de codec/compatibilidade e metadados de backup, mas não executados; build, testes e CI seguem adiados por orientação.
+
+**Atualização dos efeitos tipados de personagem (20/10/2026):** cada declaração `mechanicalEffects` recebe identidade estável derivada do caminho do JSON, não do texto narrativo. O resolvedor deduplica apenas a mesma declaração externa quando o `effectId` coincide; efeitos de fontes/IDs diferentes acumulam mesmo que compartilhem escopo e valor. Não há deduplicação inferida contra `TraitBonus` canônico: essa equivalência permanece pendente até existir identidade compartilhada explícita. As entradas atuais continuam sem efeitos mecânicos declarados; nenhum bônus foi inventado. Testes de regressão foram escritos, mas não executados.
+
 ---
 
 ## FASE 6 — Camada de IA
