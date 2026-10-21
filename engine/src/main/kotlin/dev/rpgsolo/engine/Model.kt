@@ -130,7 +130,7 @@ data class Clock(
  * Conhecimento do jogador, com a fonte (pista, teste, conversa).
  * [believed] = true guarda informação falsa/incerta como "acreditada", nunca como verdade.
  */
-data class Knowledge(val key: String, val text: String, val source: String, val believed: Boolean = false)
+
 
 /** Chave não ambígua para a relação direcional entre duas entidades. */
 internal fun relationKey(fromId: String, toId: String): String = "$fromId\u0000$toId"
