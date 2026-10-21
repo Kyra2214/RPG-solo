@@ -128,7 +128,8 @@ object ContextAssembler {
                 if (resolving is PendingCheck) append("\n").append(notesFor(resolving.request, rolled.outcome))
             }
         }
-        val sceneIds = input.sceneNpcIds + input.playerEntityId
+        // Uma lista explícita limita a cena aos NPCs presentes. Sem lista, preserva o contexto completo da campanha (incluindo testes e chamadas legadas).
+        val sceneIds = (if (input.sceneNpcIds.isEmpty()) s.entities.keys else input.sceneNpcIds) + input.playerEntityId
         val present = s.entities.values.filter { it.id in sceneIds }.joinToString("\n") { e ->
             val conds = s.conditions[e.id].orEmpty()
             "- ${e.id} (${e.name}, ${if (e.id == input.playerEntityId) "jogador" else "NPC"}): ${healthWord(e, input.healthResource)}" +
