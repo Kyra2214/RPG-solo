@@ -31,7 +31,18 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run JVM and Android tests
-        run: ./gradlew test --stacktrace
+        run: ./gradlew test --continue --stacktrace
+
+      - name: Upload JVM test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpgsolo-jvm-test-reports
+          path: |
+            **/build/test-results/test/*.xml
+            **/build/reports/tests/test/**
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Run Android E2E on emulator
         id: e2e
