@@ -329,7 +329,7 @@ class RulePackage internal constructor(val data: PackageData) {
             label += " · efeitos: $effectDetails"
         }
         if (count == spec.diceCount && totalBonus == 0 && pointShift == 0 && matchingExternal.isEmpty()) return spec
-            spec.copy(diceCount = count, modifier = spec.modifier + totalBonus + pointShift, label = label)
+        return spec.copy(diceCount = count, modifier = spec.modifier + totalBonus + pointShift, label = label)
     }
 
     /**
