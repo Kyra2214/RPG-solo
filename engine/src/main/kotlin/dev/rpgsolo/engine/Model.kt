@@ -75,6 +75,10 @@ data class GameState(
 
 data class Promise(val id: String, val npcId: String, val text: String, val kept: Boolean = false)
 
+/** Conhecimento descoberto pelo jogador; crenças podem ser falsas e preservam sua fonte. */
+@Serializable
+data class Knowledge(val key: String, val text: String, val source: String, val believed: Boolean = false)
+
 /** Efeito mecânico de uma condição ativa; null em [remainingRounds] significa duração indefinida. */
 @Serializable
 data class ConditionState(
