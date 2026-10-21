@@ -354,6 +354,7 @@ object ProposalParser {
         fun s(k: String): String = o.str(k)?.takeIf { it.isNotBlank() } ?: throw Bad("$type: campo '$k' ausente ou vazio")
         fun n(k: String): Int = o.int(k) ?: throw Bad("$type: campo '$k' ausente ou não numérico")
         fun nOr(k: String, default: Int): Int = if (o.containsKey(k)) n(k) else default
+        fun opt(k: String): String? = o.str(k)?.trim()?.takeIf { it.isNotEmpty() }
         return when (type) {
             "damage" -> Damage(s("entityId"), s("resource"), n("amount"))
             "heal" -> Heal(s("entityId"), s("resource"), n("amount"))
