@@ -17,4 +17,23 @@
     <string name="startup_error">Não foi possível abrir os dados: %1$s</string>
     <string name="navigation_label">Navegação: %1$s</string>
     <string name="crossfade_tab">aba</string>
+    <string name="config_provider_title">Provedor de IA</string>
+    <string name="config_provider_supporting">Quem faz o papel de mestre. O motor continua sendo quem rola os dados.</string>
+    <string name="config_endpoint_label">Endpoint (https)</string>
+    <string name="config_http_error">Endpoint http:// não é aceito: a chave de API e o texto das jogadas trafegariam sem criptografia. Use https://.</string>
+    <string name="config_model_label">Modelo</string>
+    <string name="config_cheap_model_label">Modelo barato (opcional): classifica e resume</string>
+    <string name="config_premium_model_label">Modelo melhor (opcional): só momentos importantes</string>
+    <string name="config_api_key_label">Chave de API</string>
+    <string name="config_cache_enabled">Cache de prompt ativado</string>
+    <string name="config_cache_disabled">Cache de prompt desativado</string>
+    <string name="config_cache_help">No endpoint oficial Anthropic, o cache reduz a repetição do prefixo system. Proxies compatíveis podem não suportar o recurso; desative se a conexão falhar.</string>
+    <string name="config_testing_connection">Testando conexão…</string>
+    <string name="config_test_connection">Testar conexão</string>
+    <string name="config_save_and_use">Salvar e usar</string>
+    <string name="config_forget_provider">Esquecer chave e desativar provedor</string>
+    <string name="config_provider_active">Provedor ativo. Chave: %1$s</string>
+    <string name="config_accessibility_title">Acessibilidade</string>
+    <string name="config_font_scale">Tamanho global da fonte: %1$d%%</string>
+    <string name="config_font_scale_help">Ajuste o texto de toda a interface; a preferência fica salva no aparelho.</string>
 </resources>

@@ -169,7 +169,7 @@ Removidos `packages-import/3det-victory/`, os links de consulta (`fontes.txt`, `
 ### 3.4 Interface
 
 - **U-01 Acessibilidade (M):** 🟡 primeira entrega em código: controles `+`/`−` da criação de ficha e ícones emoji da navegação receberam descrições semânticas para TalkBack, sem alterar o texto visual. Ainda falta revisar todos os botões, áreas de toque, contraste nos dois temas e a experiência completa com TalkBack. Escala de fonte (85% a 140%) e descrição dos dados já existem.
-- **U-02 Strings (M):** 🟡 primeira fatia em código: navegação principal, cabeçalho e estados de carregamento/erro usam `app/src/main/res/values/strings.xml`; os demais textos fixos ainda precisam ser migrados.
+- **U-02 Strings (M):** 🟡 segunda fatia em código: navegação principal, cabeçalho, estados de carregamento/erro e os blocos de provedor/acessibilidade da Configuração usam `app/src/main/res/values/strings.xml`; os demais textos fixos ainda precisam ser migrados.
 - **U-03 Cartão de rolagem (P):** conferir chips que explicam por que o teste mudou, histórico de rolagens da sessão, botão de pular animação e respeito a "reduzir movimento".
 - **U-04 Rolagem revelada (P):** confirmar que o estado "já revelada" vive no controlador, não em `remember` da tela (risco de reaparecer como não revelada ao girar ou trocar de aba).
 - **U-05 Primeiro uso (M):** presets de endpoint e modelo (depende de I-03) e transição automática até Jogar.

@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import dev.rpgsolo.R
 import dev.rpgsolo.ai.ProviderKind
 import dev.rpgsolo.ai.maskKey
 import kotlinx.coroutines.launch
@@ -54,21 +56,21 @@ fun ConfigScreen(model: AppModel) {
     var testResult by remember { mutableStateOf<ConnectionTestResult?>(null) }
     val scope = rememberCoroutineScope()
     ScreenColumn {
-        SectionTitle("Provedor de IA", "Quem faz o papel de mestre. O motor continua sendo quem rola os dados.")
+        SectionTitle(stringResource(R.string.config_provider_title), stringResource(R.string.config_provider_supporting))
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ProviderKind.values().forEach { k ->
                 FilterChip(selected = kind == k, onClick = { kind = k }, label = { Text(k.label) })
             }
         }
-        OutlinedTextField(endpoint, { endpoint = it }, Modifier.fillMaxWidth(), label = { Text("Endpoint (https)") }, singleLine = true)
+        OutlinedTextField(endpoint, { endpoint = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_endpoint_label)) }, singleLine = true)
         if (endpoint.trim().startsWith("http://", ignoreCase = true)) {
-            ErrorText("Endpoint http:// não é aceito: a chave de API e o texto das jogadas trafegariam sem criptografia. Use https://.")
+            ErrorText(stringResource(R.string.config_http_error))
         }
-        OutlinedTextField(modelName, { modelName = it }, Modifier.fillMaxWidth(), label = { Text("Modelo") }, singleLine = true)
-        OutlinedTextField(cheapModel, { cheapModel = it }, Modifier.fillMaxWidth(), label = { Text("Modelo barato (opcional): classifica e resume") }, singleLine = true)
-        OutlinedTextField(premiumModel, { premiumModel = it }, Modifier.fillMaxWidth(), label = { Text("Modelo melhor (opcional): só momentos importantes") }, singleLine = true)
+        OutlinedTextField(modelName, { modelName = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_model_label)) }, singleLine = true)
+        OutlinedTextField(cheapModel, { cheapModel = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_cheap_model_label)) }, singleLine = true)
+        OutlinedTextField(premiumModel, { premiumModel = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_premium_model_label)) }, singleLine = true)
         OutlinedTextField(
-            key, { key = it }, Modifier.fillMaxWidth(), label = { Text("Chave de API") }, singleLine = true,
+            key, { key = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_api_key_label)) }, singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
@@ -76,9 +78,9 @@ fun ConfigScreen(model: AppModel) {
             FilterChip(
                 selected = cacheSystemPrompt,
                 onClick = { cacheSystemPrompt = !cacheSystemPrompt },
-                label = { Text(if (cacheSystemPrompt) "Cache de prompt ativado" else "Cache de prompt desativado") }
+                label = { Text(stringResource(if (cacheSystemPrompt) R.string.config_cache_enabled else R.string.config_cache_disabled)) }
             )
-            Muted("No endpoint oficial Anthropic, o cache reduz a repetição do prefixo system. Proxies compatíveis podem não suportar o recurso; desative se a conexão falhar.")
+            Muted(stringResource(R.string.config_cache_help))
         }
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -94,7 +96,7 @@ fun ConfigScreen(model: AppModel) {
                     testing = false
                 }
             }
-        ) { Text(if (testing) "Testando conexão…" else "Testar conexão") }
+        ) { Text(stringResource(if (testing) R.string.config_testing_connection else R.string.config_test_connection)) }
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             fun parsePrice(value: String): Double? =
                 if (value.isBlank()) null else value.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
@@ -114,12 +116,12 @@ fun ConfigScreen(model: AppModel) {
                     baseInput, output ?: 0.0, cacheRead ?: baseInput, cacheCreation ?: baseInput
                 )
             }
-        }) { Text("Salvar e usar") }
+        }) { Text(stringResource(R.string.config_save_and_use)) }
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             model.forgetProvider()
             key = ""
             saved = false
-        }) { Text("Esquecer chave e desativar provedor") }
+        }) { Text(stringResource(R.string.config_forget_provider)) }
         model.configError?.let { ErrorText(it) }
         testResult?.let { result ->
             if (result.success) {
@@ -128,17 +130,17 @@ fun ConfigScreen(model: AppModel) {
                 ErrorText(result.message)
             }
         }
-        if (saved && model.configError == null) AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text("Provedor ativo. Chave: ${maskKey(key)}") }
+        if (saved && model.configError == null) AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text(stringResource(R.string.config_provider_active, maskKey(key))) }
         AppCard {
-            Text("Acessibilidade", style = MaterialTheme.typography.titleSmall)
-            Text("Tamanho global da fonte: ${(model.fontScale * 100).toInt()}%")
+            Text(stringResource(R.string.config_accessibility_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.config_font_scale, (model.fontScale * 100).toInt()))
             Slider(
                 value = model.fontScale,
                 onValueChange = model::setFontScale,
                 valueRange = 0.85f..1.4f,
                 steps = 10
             )
-            Muted("Ajuste o texto de toda a interface; a preferência fica salva no aparelho.")
+            Muted(stringResource(R.string.config_font_scale_help))
         }
         AppCard {
             Text("Preferências de geração", style = MaterialTheme.typography.titleSmall)

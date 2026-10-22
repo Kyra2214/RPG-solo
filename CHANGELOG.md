@@ -1,3 +1,10 @@
+## 2026-10-22 — U-02: strings do provedor e acessibilidade (não validado)
+
+- `app/ConfigScreen.kt`: títulos, campos, avisos, ações do provedor e o bloco de acessibilidade passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados os textos correspondentes, incluindo placeholders para estado de conexão, chave mascarada e escala de fonte.
+- `PLANO_RPG_SOLO.md`: U-02 atualizado como segunda fatia; preferências narrativas, limites de conteúdo, preços e privacidade permanecem para etapas posteriores.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — U-02: strings da navegação principal (não validado)
 
 - `app/src/main/res/values/strings.xml`: criado o primeiro catálogo de textos do app.
