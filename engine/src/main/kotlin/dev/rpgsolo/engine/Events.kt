@@ -126,6 +126,9 @@ data class FactRecorded(val key: String, val value: String) : Event
 /** I-02.1: nota curta de "o que importa lembrar" sobre um NPC ou lugar. */
 @Serializable
 data class MemoryNoted(val subjectId: String, val text: String) : Event
+/** I-02.4: substitui as notas antigas por um resumo extrativo e as notas recentes. */
+@Serializable
+data class MemoryRolledUp(val subjectId: String, val notes: List<String>) : Event
 @Serializable
 data class KnowledgeGained(val key: String, val text: String, val source: String, val believed: Boolean) : Event
 @Serializable
@@ -390,6 +393,7 @@ fun GameState.apply(e: Event): GameState {
         }
         is FactRecorded -> copy(facts = facts + (e.key to e.value))
         is MemoryNoted -> copy(memories = memories + (e.subjectId to (memories[e.subjectId].orEmpty() + e.text).takeLast(MEMORY_NOTES_PER_SUBJECT)))
+        is MemoryRolledUp -> copy(memories = memories + (e.subjectId to e.notes))
         is KnowledgeGained -> copy(knowledge = knowledge + (e.key to Knowledge(e.key, e.text, e.source, e.believed)))
         is PromiseMade -> copy(promises = promises + (e.id to Promise(e.id, e.npcId, e.text)))
         is PromiseKept -> {

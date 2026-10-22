@@ -889,7 +889,13 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val isNpc = state.entities[cmd.subjectId]?.kind == EntityKind.NPC
             if (!isNpc && cmd.subjectId !in state.places) return no("assunto inexistente (só NPC ou lugar): ${cmd.subjectId}")
             if (state.memories[cmd.subjectId]?.lastOrNull() == text) return no("nota repetida")
-            return Decision.Ok(listOf(MemoryNoted(cmd.subjectId, text)))
+            val updated = state.memories[cmd.subjectId].orEmpty() + text
+            val events = buildList {
+                add(MemoryNoted(cmd.subjectId, text))
+                val compacted = MemoryRollup.compact(updated)
+                if (compacted != updated) add(MemoryRolledUp(cmd.subjectId, compacted))
+            }
+            return Decision.Ok(events)
         }
     }
 }
