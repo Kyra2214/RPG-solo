@@ -1,6 +1,7 @@
 package dev.rpgsolo.rules
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -31,6 +32,19 @@ class CurseCatalogTest {
             }
             if (curse.durationRounds != null) {
                 assertTrue("${curse.id} temporária precisa declarar resistência", curse.resistanceCheckId != null)
+            }
+        }
+    }
+
+    @Test fun efeitosDeMaldicaoNaoMisturamSinaisNoMesmoGrupoDeAcumulo() {
+        val result = CurseCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        result.curses.forEach { curse ->
+            curse.effects.groupBy { it.target to it.stackingGroup }.forEach { (key, effects) ->
+                assertFalse(
+                    "maldição ${curse.id} mistura bônus e penalidade no mesmo alvo/grupo: $key",
+                    effects.any { it.baseValue > 0 } && effects.any { it.baseValue < 0 }
+                )
             }
         }
     }
