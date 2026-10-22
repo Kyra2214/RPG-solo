@@ -93,6 +93,25 @@ O item custa 25.000 prata. O escopo precisa estar explícito (habilidade, árvor
 - Jogador e IA sujeitos às mesmas regras.
 - Testes e build executados apenas na fase 17; resultados comunicados sem alegar sucesso não verificado.
 
+## Atualização de auditoria documental — 2026-10-22
+
+Este bloco complementa o status anterior. Ele **não** declara as 17 fases concluídas; os itens abaixo são alterações feitas na branch e ainda precisam de validação automatizada integrada.
+
+### Alterações recentes registradas
+- O catálogo de habilidades de classe foi revisado para distinguir as seis primeiras habilidades de 50 árvores de classe (300 registros), com categorias/efeitos tipados e restrição de afinidade declarada para as árvores mágicas identificadas. A sétima habilidade continua sendo a culminância e deve ser auditada separadamente para confirmar que o efeito realmente é excepcional.
+- As 103 culminâncias de profissão receberam nomes distintos e efeitos voltados ao ofício; profissões não combatentes usam principalmente passivas de perícia/ofício em vez de serem forçadas a ter ataques. As seis primeiras posições de 103 árvores de profissão também foram ajustadas por perfil de ofício. Isso é conteúdo de catálogo, não prova de equilíbrio ou de integração funcional.
+- O catálogo separado `rules/src/main/resources/catalogs/sistema-proprio/maldicoes-lancadas.txt` foi expandido de 20 para 100 maldições, com origem, teste/dificuldade de resistência, duração, métodos de remoção e pelo menos um efeito positivo e um negativo tipados por registro. A validação de formato está coberta por teste escrito, ainda sem resultado executado confirmado.
+- A consequência mecânica de classes híbridas foi documentada no código como penalidade social crescente por mistura, de 0 para uma classe até -3 para quatro classes. Isso não substitui a validação de desbloqueio por nível, aparência na interface e persistência da combinação.
+- Foram acrescentados testes de catálogo para nomes distintos, categorias de profissão, habilidades de classe/afinidade, progressão de bônus e quantidade de maldições. **Testes escritos não equivalem a testes aprovados.**
+
+### Pendências obrigatórias antes de declarar conclusão
+1. Executar os testes de `engine`, `rules`, `ai` e `app`, compilar o APK e resolver todos os erros encontrados.
+2. Auditar cada efeito do catálogo contra os escopos aceitos pelo motor e contra os cálculos reais de ataque/dano/defesa; confirmar que bônus positivos e penalidades negativas não se anulam ou acumulam incorretamente por compartilharem grupos.
+3. Confirmar que as 100 maldições podem ser aplicadas, resistidas, expiradas e removidas no fluxo real da campanha — não apenas carregadas pelo parser — e que a persistência sobrevive a salvar/reabrir.
+4. Confirmar que o efeito de híbridos usa a quantidade de classes realmente desbloqueadas, não apenas a quantidade de árvores selecionadas, e que a penalidade social alcança todos os testes pertinentes sem contaminar outros escopos.
+5. Verificar a sétima habilidade de cada árvore, em especial ressurreição, multiataque e habilidades de ofício, com custos, alvos, duração e consequências executados pelo motor.
+6. Atualizar este status com o resultado real da CI e listar separadamente qualquer teste não executado. Não marcar fase 17 nem a implementação geral como concluídas antes disso.
+
 ## Status da implementação code-first — antes da fase 17
 
 **Branch de trabalho:** `feature/arvores-habilidades`  
