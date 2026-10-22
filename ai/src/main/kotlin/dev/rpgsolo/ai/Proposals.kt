@@ -559,16 +559,30 @@ object ProposalParser {
             "add_condition" -> AddCondition(s("entityId"), s("condition"))
             "remove_condition" -> RemoveCondition(s("entityId"), s("condition"))
             "change_relation" -> ChangeRelation(s("fromId"), s("toId"), n("delta"), s("reason"))
-            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"), o.str("publicClue")?.trim().orEmpty(), nOr("restTick", 0), nOr("moveTick", 0), nOr("chapterTick", 0), o.str("midClue")?.trim().orEmpty(), o.str("consequence")?.trim().orEmpty(), nOr("combatTick", 0), nOr("questTick", 0))
-            "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
-            "add_place" -> AddPlace(
-                Place(
-                    id = slug(s("id")),
-                    name = s("name"),
-                    description = o.str("description")?.trim().orEmpty(),
-                    secret = o.str("secret")?.trim().orEmpty()
+            "create_clock" ->
+                CreateClock(
+                    s("id"),
+                    s("name"),
+                    n("segments"),
+                    o.str("publicClue")?.trim().orEmpty(),
+                    nOr("restTick", 0),
+                    nOr("moveTick", 0),
+                    nOr("chapterTick", 0),
+                    o.str("midClue")?.trim().orEmpty(),
+                    o.str("consequence")?.trim().orEmpty(),
+                    nOr("combatTick", 0),
+                    nOr("questTick", 0),
                 )
-            )
+            "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
+            "add_place" ->
+                AddPlace(
+                    Place(
+                        id = slug(s("id")),
+                        name = s("name"),
+                        description = o.str("description")?.trim().orEmpty(),
+                        secret = o.str("secret")?.trim().orEmpty(),
+                    ),
+                )
             "connect_places" -> ConnectPlaces(slug(s("fromId")), slug(s("toId")))
             "discover_place" -> DiscoverPlace(slug(s("id")))
             "propose_rule" -> {
