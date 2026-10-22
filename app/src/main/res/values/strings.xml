@@ -66,4 +66,15 @@
     <string name="config_privacy_key">A chave é cifrada pelo Android Keystore e não entra em backups nem logs. A jogada que você escreve é enviada ao provedor escolhido.</string>
     <string name="config_usage">Uso estimado nesta sessão: %1$d chamadas, %2$d tokens de entrada, %3$d de saída.</string>
     <string name="config_cache_usage">Cache do provedor: %1$d tokens reutilizados e %2$d tokens gravados.</string>
+    <string name="systems_import_title">Importar pacote de regras</string>
+    <string name="systems_import_help">Selecione um ZIP contendo manifest.txt e os arquivos .txt do pacote.</string>
+    <string name="systems_import_zip">Importar ZIP</string>
+    <string name="systems_importing">Importando…</string>
+    <string name="systems_import_failure">Falha ao importar o pacote.</string>
+    <string name="systems_installed_title">Sistemas instalados</string>
+    <string name="systems_empty">Nenhum pacote de regras instalado.</string>
+    <string name="systems_active">Ativo nesta campanha</string>
+    <string name="systems_package_id">Pacote %1$s</string>
+    <string name="systems_origin_license">Origem: %1$s · Licença: %2$s</string>
+    <string name="systems_license_status">Estado da licença: %1$s</string>
 </resources>
