@@ -187,6 +187,7 @@ class SkillTreeActions(
             val commands = buildList<Command> {
                 if (skill.actionCost > 0) add(SpendResource(playerId(), resource, skill.actionCost))
                 add(Revive(reviveTargetId, skill.name))
+                if (combat != null) add(NextTurn)
             }
             return execute(commands)
         }
