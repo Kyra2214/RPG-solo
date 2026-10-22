@@ -408,6 +408,7 @@ class GameLoop(
                 }
             }
         }
+        val mechanicalNotes = mutableListOf<String>()
         if (pending is PendingRoll) {
             val face = check.roll.dice.single()
             val entry = pending.request.table[face]
@@ -426,6 +427,11 @@ class GameLoop(
                 val player = session.state.entities[template.playerEntityId] ?: break
                 if (!player.alive) break
                 if (session.state.conditions[player.id]?.contains(condition) == true) continue
+                if (menu?.isImmune(player.id, condition, player.traits) == true) {
+                    val name = menu.conditionName(condition) ?: condition
+                    mechanicalNotes += "A condição $name foi bloqueada pela imunidade de $\{player.name}; não a aplique nem descreva como instalada."
+                    continue
+                }
                 val configured = menu?.conditionCommand(player.id, condition)
                     ?: run {
                         session.rollbackTo(markBefore)
@@ -440,7 +446,8 @@ class GameLoop(
         }
         val markAfterRoll = session.mark()
         return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
-            fortuneAlternatives = resolution.alternatives, advancedChecks = advancedChecks)
+            fortuneAlternatives = resolution.alternatives, advancedChecks = advancedChecks,
+            mechanicalNotes = mechanicalNotes)
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
@@ -536,7 +543,8 @@ class GameLoop(
         session: CampaignSession, input: PlayInput, check: CheckResult?, markBefore: Int, markAfterRoll: Int, depth: Int,
         onNarrativeChunk: (String) -> Unit = {},
         fortuneAlternatives: List<CheckResult> = emptyList(),
-        advancedChecks: List<Pair<String, CheckResult>> = emptyList()
+        advancedChecks: List<Pair<String, CheckResult>> = emptyList(),
+        mechanicalNotes: List<String> = emptyList()
     ): PlayResult {
         val recentClockEvents = if (narratedUpTo < 0) emptyList() else session.events
             .let { all -> all.subList(minOf(narratedUpTo, markBefore).coerceIn(0, all.size), markBefore.coerceIn(0, all.size)) }
@@ -553,6 +561,7 @@ class GameLoop(
             ContextInput(
                 advancedClockIds = advancedClocks,
                 midpointClockIds = midpointClocks,
+                mechanicalNotes = mechanicalNotes,
                 state = session.state,
                 playerEntityId = input.playerEntityId,
                 playerText = input.text,
