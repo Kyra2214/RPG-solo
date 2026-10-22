@@ -6,7 +6,7 @@
 - `docs/PLANO_DESENVOLVIMENTO.md`: corrigida a descrição do fluxo narrativo de testes opostos/em grupo e registrada a configuração global de sorte.
 - `docs/pacotes/FORMATO_PACOTE.md`: documentadas as três chaves globais e a prioridade da configuração específica por teste.
 - `engine/AutomaticTimeline.kt`: a timeline passa a registrar alterações de inventário/equipamento, evolução da árvore e distribuição inicial. Eventos de aplicação/remoção de maldições ficam fora da projeção para não revelar efeitos ocultos.
-- `engine/Commands.kt`: uma viagem válida agora avança os relógios com `moveTick` no mesmo lote de eventos; relógios já completos são ignorados e o preenchimento é limitado ao total de casas.
+- `engine/Commands.kt`: uma viagem válida agora avança os relógios com `moveTick` no mesmo lote de eventos; relógios já completos são ignorados e o preenchimento é limitado ao total de casas. `app/ui/AppModel.kt` delega o deslocamento ao motor sem enviar avanços duplicados.
 - **Validação:** nenhum teste, build, lint ou CI executado, conforme a prioridade definida. Não declarar compilação ou integração confirmadas até a etapa final.
 
 ## 2026-10-22 — Árvores de habilidades e maldições: revisão de conteúdo (ainda não validada)
