@@ -35,14 +35,14 @@ fun CursePanel(
     val actions = remember(model, version, model.campaignVersion, model.packageVersion) { model.curseActions() }
     val curses = remember(version) { actions.all() }
     val targets = remember(version, model.campaignVersion) { actions.targets() }
-    val targetId = selectedTargetId ?: targets.firstOrNull { it.first == "hero" }?.first ?: targets.firstOrNull()?.first
+    val targetId = selectedTargetId ?: actions.defaultTargetId().takeIf { id -> targets.any { it.first == id } } ?: targets.firstOrNull()?.first
     val selectedCurse = curses.firstOrNull { it.id == selectedCurseId } ?: curses.firstOrNull()
     val active = targetId?.let(actions::applied).orEmpty()
 
     AppCard {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             SectionTitle("Maldições lançadas", "Catálogo separado da Classe de Malditos")
-            TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Ocultar" else "Abrir (\${curses.size})") }
+            TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Ocultar" else "Abrir (${curses.size})") }
         }
         if (expanded) {
             if (targets.isEmpty() || selectedCurse == null) {
@@ -71,12 +71,12 @@ fun CursePanel(
                     }
                 }
                 Muted(selectedCurse.description)
-                Muted("Origem: \${selectedCurse.sourceType}. Duração: \${selectedCurse.durationRounds?.let { "\${it} rodadas" } ?: "até ser removida"}.")
+                Muted("Origem: ${selectedCurse.sourceType}. Duração: ${selectedCurse.durationRounds?.let { "${it} rodadas" } ?: "até ser removida"}.")
                 selectedCurse.effects.forEach { effect ->
-                    Muted("\${effect.target}: \${if (effect.baseValue > 0) "+" else ""}\${effect.baseValue} (\${effect.stackingGroup})")
+                    Muted("${effect.target}: ${if (effect.baseValue > 0) "+" else ""}${effect.baseValue} (${effect.stackingGroup})")
                 }
                 if (selectedCurse.resistanceCheckId != null) {
-                    Muted("Exige teste '\${selectedCurse.resistanceCheckId}' contra dificuldade \${selectedCurse.resistanceDifficulty}. Resolva o teste real antes de marcar o resultado abaixo.")
+                    Muted("Exige teste '${selectedCurse.resistanceCheckId}' contra dificuldade ${selectedCurse.resistanceDifficulty}. Resolva o teste real antes de marcar o resultado abaixo.")
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
                             selected = resistanceSucceeded == false,
@@ -95,7 +95,7 @@ fun CursePanel(
                 Button(
                     enabled = enabled && targetId != null && (selectedCurse.resistanceCheckId == null || resistanceSucceeded != null),
                     onClick = {
-                        act({ actions.apply(requireNotNull(targetId), selectedCurse.id, "aventura", resistanceSucceeded) }) { result ->
+                        act({ actions.apply(requireNotNull(targetId), selectedCurse.id, actions.defaultSourceId(), resistanceSucceeded) }) { result ->
                             message = result ?: "Maldição aplicada."
                             resistanceSucceeded = null
                             version++
@@ -109,7 +109,7 @@ fun CursePanel(
                 active.forEach { applied ->
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(applied.curse.name, style = androidx.compose.material3.MaterialTheme.typography.bodyMedium)
-                        Muted("Origem: \${applied.sourceId}; duração: \${applied.remainingRounds?.let { "\${it} rodadas" } ?: "permanente"}.")
+                        Muted("Origem: ${applied.sourceId}; duração: ${applied.remainingRounds?.let { "${it} rodadas" } ?: "permanente"}.")
                         val method = applied.curse.removalMethods.firstOrNull()
                         if (method != null) {
                             OutlinedButton(
