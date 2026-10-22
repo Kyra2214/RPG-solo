@@ -58,6 +58,15 @@ class SkillTreeProgressionTest {
         assertEquals(setOf(5, 3), selected.map { it.second }.toSet())
     }
 
+    @Test fun misturaDeClassesAplicaPenalidadeSocialCrescente() {
+        assertEquals(0, HybridClassRules.socialPenalty(0))
+        assertEquals(0, HybridClassRules.socialPenalty(1))
+        assertEquals(-1, HybridClassRules.socialPenalty(2))
+        assertEquals(-2, HybridClassRules.socialPenalty(3))
+        assertEquals(-3, HybridClassRules.socialPenalty(4))
+        assertTrue(runCatching { HybridClassRules.socialPenalty(5) }.isFailure)
+    }
+
     @Test fun economiaDePergaminhosSegueTabelaDefinida() {
         assertEquals(listOf(200L, 2_000L, 10_000L, 15_000L, 20_000L, 30_000L, 50_000L), SkillTreeEconomy.scrollPricesSilver)
         assertEquals(25_000L, SkillTreeEconomy.RESET_PRICE_SILVER)
