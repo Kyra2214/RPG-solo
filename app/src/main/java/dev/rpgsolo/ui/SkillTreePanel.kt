@@ -150,8 +150,11 @@ fun SkillTreePanel(
                                 }
                             }
                             if (entry.skill.category != SkillCategory.PASSIVE) {
+                                val needsCombat = entry.skill.actionKind == SkillActionKind.POWER_STRIKE ||
+                                    entry.skill.actionKind == SkillActionKind.MULTI_HIT ||
+                                    entry.skill.effects.any { it.durationRounds != null }
                                 OutlinedButton(
-                                    enabled = enabled && ((entry.skill.effects.none { it.recipient == SkillEffectRecipient.TARGET } && entry.skill.actionKind != SkillActionKind.REVIVE && entry.skill.actionKind != SkillActionKind.MULTI_HIT && entry.skill.actionKind != SkillActionKind.POWER_STRIKE) || selectedTargets[entry.skill.id] != null),
+                                    enabled = enabled && (!needsCombat || model.hasActiveCombat()) && ((entry.skill.effects.none { it.recipient == SkillEffectRecipient.TARGET } && entry.skill.actionKind != SkillActionKind.REVIVE && entry.skill.actionKind != SkillActionKind.MULTI_HIT && entry.skill.actionKind != SkillActionKind.POWER_STRIKE) || selectedTargets[entry.skill.id] != null),
                                     onClick = {
                                         act({ actions.activate(entry.skill.id, selectedTargets[entry.skill.id]) }) { result ->
                                             message = result ?: "Habilidade ativada."
