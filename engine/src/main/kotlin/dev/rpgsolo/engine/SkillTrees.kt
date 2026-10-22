@@ -115,14 +115,14 @@ object SkillTreeProgression {
     fun validate(skill: SkillTreeSkill, context: SkillTreeCharacterContext): SkillTreeValidation {
         val reasons = mutableListOf<String>()
         if (context.characterLevel < skill.requiredCharacterLevel) {
-            reasons += "exige nível de personagem \${skill.requiredCharacterLevel}"
+            reasons += "exige nível de personagem ${skill.requiredCharacterLevel}"
         }
         if (skill.affinityBound && context.element == ElementPath.NONE) reasons += "exige escolher uma afinidade elemental"
         if (skill.requiredElement != null && skill.requiredElement != context.element) {
-            reasons += "exige afinidade \${skill.requiredElement}"
+            reasons += "exige afinidade ${skill.requiredElement}"
         }
         if (skill.element != ElementPath.NONE && skill.element != context.element) {
-            reasons += "incompatível com afinidade \${context.element}"
+            reasons += "incompatível com afinidade ${context.element}"
         }
         if (skill.weaponTags.isNotEmpty() && skill.weaponTags.intersect(context.weaponTags).isEmpty()) {
             reasons += "arma incompatível"
