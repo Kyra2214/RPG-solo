@@ -199,10 +199,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
 
     SectionTitle("Maldições", "Podem trazer benefícios e custos narrativos. Os efeitos ainda não são aplicados pelo motor.")
     CatalogPicker("Classe de Malditos / vertente", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, { cursedClassBranchId = it; version++ }, allowNone = true)
-    CatalogMultiPicker("Maldições lançadas sobre o personagem", CharacterCreationCatalog.curses, curseIds, { id ->
-        curseIds = if (id in curseIds) curseIds - id else curseIds + id
-        version++
-    })
+
     val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + curseIds.toList())
         .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
     if (chosenCatalogEntries.isNotEmpty()) {
@@ -358,7 +355,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         Muted("Classe: " + (CharacterCreationCatalog.find(classId)?.name ?: "não selecionada"))
         Muted("Profissão: " + (CharacterCreationCatalog.find(professionId)?.name ?: "não selecionada"))
         Muted("Classe de Malditos: " + (CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: "nenhuma"))
-        Muted("Maldições: " + curseIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(", "))
+        Muted("Maldições lançadas são aplicadas durante a aventura, não escolhidas na criação da ficha.")
         Muted("Traços mecânicos do pacote: " + draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf("nenhum") }.joinToString(", "))
         Muted("Atributos: " + draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" })
     }
