@@ -7,6 +7,7 @@
 - `app/CombatActions.kt`: turnos de NPC usam o mesmo pipeline unificado do jogador (`f01c173`); a ação escolhe atacante/alvo, mas o motor decide rolagens, defesa e dano.
 - `engine/AutomaticTimeline.kt`: projeção pública neutraliza dano, XP, nível, quantidades de itens, recuperação numérica e dano periódico de condições.
 - **Validação:** nenhuma alteração acima foi compilada, testada, submetida ao CI ou validada em aparelho, conforme a instrução de seguir code-first sem disparar testes/CI.
+- **Auditoria de documentação:** a leitura de `engine/Commands.kt` confirmou que `NextTurn` já emite `EffectsRoundEnded` ao fechar a rodada; a lacuna correspondente foi removida do plano sem duplicar implementação.
 
 ## 2026-10-22 — Contexto privado, timeline e consistência de relógios
 
