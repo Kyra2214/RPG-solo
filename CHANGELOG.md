@@ -1,3 +1,13 @@
+## 2026-10-22 — Combate unificado, privacidade narrativa e memória longa
+
+- `engine/MemoryRollup.kt`, `engine/Commands.kt` e `engine/Events.kt`: resumo rolante de memórias persistido por evento quando o limite é excedido (`bbc4261`).
+- `engine/Commands.kt`: pistas públicas e intermediárias de relógios recusam números, IDs, nomes internos e metadados mecânicos (`21704f1`).
+- `ai/PlayController.kt`, `app/PlayScreen.kt` e `app/ClashCard.kt`: confrontos persistidos são listados na tela sem recalcular valores (`f4cf65f`); os cartões exibem nomes públicos em vez de IDs internos (`4ee497c`).
+- `app/CombatActions.kt`, `app/AppModel.kt` e `app/PlayScreen.kt`: ataque manual usa `unifiedAttackBetween`, grava `ClashRecorded` e avança o turno (`ec598af`).
+- `app/CombatActions.kt`: turnos de NPC usam o mesmo pipeline unificado do jogador (`f01c173`); a ação escolhe atacante/alvo, mas o motor decide rolagens, defesa e dano.
+- `engine/AutomaticTimeline.kt`: projeção pública neutraliza dano, XP, nível, quantidades de itens, recuperação numérica e dano periódico de condições.
+- **Validação:** nenhuma alteração acima foi compilada, testada, submetida ao CI ou validada em aparelho, conforme a instrução de seguir code-first sem disparar testes/CI.
+
 ## 2026-10-22 — Contexto privado, timeline e consistência de relógios
 
 - `ai/PowerMenu.kt`: valida o par efeito/alvo novamente no ponto de execução, além das validações do parser e da herança de pacotes.
@@ -6,7 +16,7 @@
 - `ai/GameLoop.kt`, `ai/Master.kt` e `engine/AutomaticTimeline.kt`: se um único avanço cruza a metade e completa o relógio, preserva a pista intermediária junto da conclusão; consequências não são repetidas em narrações posteriores.
 - `engine/Npc.kt` e `app/ui/AppModel.kt`: o contexto privado do mestre inclui motivações e relações de NPCs, ordenadas de forma determinística; não são expostas na interface do jogador.
 - `ai/GameLoop.kt`, `ai/CheckMenu.kt` e `ai/Master.kt`: rolagens com tabela respeitam imunidades a condições declaradas no pacote; uma nota mecânica privada acompanha a jogada e permanece disponível ao regenerar a narração.
-- **Pendente:** avanço automático de agendas por outros eventos narrativos e geração contextual segura de pistas.
+- **Pendente:** avanço automático de agendas por outros eventos narrativos e ligação das agendas a gatilhos narrativos persistidos.
 - **Validação:** nenhum teste, build, lint ou CI executado; tudo permanece adiado para a etapa final.
 
 ## 2026-10-22 — Continuação code-first: testes avançados e sorte global (não validado)
