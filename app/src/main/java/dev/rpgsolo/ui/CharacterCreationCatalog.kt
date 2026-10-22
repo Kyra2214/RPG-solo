@@ -62,7 +62,7 @@ data class CharacterChoices(
                     hybridId = obj.optString("hybridId"),
                     elementalAffinity = obj.optString("elementalAffinity"),
                     cursedClassBranchId = obj.optString("cursedClassBranchId"),
-                    curseIds = (0 until (curses?.length() ?: 0)).map { curses!!.optString(it) }.filter { it.isNotBlank() }
+                    curseIds = emptyList() // migração: conceitos antigos da Classe de Malditos não são maldições lançadas
                 )
             }.getOrDefault(CharacterChoices())
         }
@@ -149,6 +149,7 @@ object CharacterCreationCatalog {
     val classes: List<CharacterCatalogEntry> get() = entries("classes")
     val professions: List<CharacterCatalogEntry> get() = entries("professions")
     val curses: List<CharacterCatalogEntry> get() = entries("curses")
+    val cursedClassConcepts: List<CharacterCatalogEntry> get() = entries("cursedClassConcepts")
     val cursedClassBranches: List<CharacterCatalogEntry> by lazy {
         val raw = CharacterCreationCatalog::class.java.classLoader
             ?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")
@@ -180,7 +181,7 @@ object CharacterCreationCatalog {
             choices.cursedClassBranchId,
             choices.classId,
             choices.professionId
-        ) + choices.curseIds
+        )
         return selectedIds
             .filter { it.isNotBlank() }
             .distinct()
@@ -238,7 +239,7 @@ object CharacterCreationCatalog {
      * Isto só valida compatibilidade; não aplica os efeitos ao motor.
      */
     fun validateEffectScopes(pkg: RulePackage, choices: CharacterChoices): List<String> {
-        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId)
         // O resolvedor de testes só consome escopos de atributo, teste, perícia e combate.
         // Um ID de vantagem/poder não é, por si só, um escopo executável.
         val validScopes = pkg.data.stats.map { it.id }.toSet() +
