@@ -34,7 +34,8 @@ data class CharacterChoices(
     val professionId: String = "",
     val curseIds: List<String> = emptyList(),
     val hybridId: String = "",
-    val elementalAffinity: String = ""
+    val elementalAffinity: String = "",
+    val cursedClassBranchId: String = ""
 ) {
     fun toJson(): String = JSONObject()
         .put("raceId", raceId)
@@ -43,6 +44,7 @@ data class CharacterChoices(
         .put("professionId", professionId)
         .put("hybridId", hybridId)
         .put("elementalAffinity", elementalAffinity)
+        .put("cursedClassBranchId", cursedClassBranchId)
         .put("curseIds", org.json.JSONArray(curseIds))
         .toString()
 
@@ -59,6 +61,7 @@ data class CharacterChoices(
                     professionId = obj.optString("professionId"),
                     hybridId = obj.optString("hybridId"),
                     elementalAffinity = obj.optString("elementalAffinity"),
+                    cursedClassBranchId = obj.optString("cursedClassBranchId"),
                     curseIds = (0 until (curses?.length() ?: 0)).map { curses!!.optString(it) }.filter { it.isNotBlank() }
                 )
             }.getOrDefault(CharacterChoices())
@@ -146,9 +149,23 @@ object CharacterCreationCatalog {
     val classes: List<CharacterCatalogEntry> get() = entries("classes")
     val professions: List<CharacterCatalogEntry> get() = entries("professions")
     val curses: List<CharacterCatalogEntry> get() = entries("curses")
+    val cursedClassBranches: List<CharacterCatalogEntry> by lazy {
+        val raw = CharacterCreationCatalog::class.java.classLoader
+            ?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")
+            ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+        val loaded = dev.rpgsolo.rules.SkillTreeCatalogLoader.load(raw)
+        if (!loaded.valid) emptyList() else loaded.skills
+            .filter { it.origin == dev.rpgsolo.engine.SkillOrigin.CURSED_CLASS }
+            .groupBy { it.treeId }
+            .map { (id, skills) ->
+                val first = skills.firstOrNull { it.scrollRank == 1 }?.name.orEmpty().substringBefore(" — ")
+                CharacterCatalogEntry(id, first.ifBlank { id }, "Vertente da Classe de Malditos: ${first.ifBlank { id }}")
+            }
+            .sortedBy { it.name }
+    }
 
     fun find(id: String): CharacterCatalogEntry? =
-        (races + subraces + hybrids + classes + professions + curses).firstOrNull { it.id == id }
+        (races + subraces + hybrids + classes + professions + curses + cursedClassBranches).firstOrNull { it.id == id }
 
     /**
      * Retorna somente efeitos explicitamente declarados nas escolhas atuais.
@@ -160,6 +177,7 @@ object CharacterCreationCatalog {
             choices.raceId,
             choices.subraceId,
             choices.hybridId,
+            choices.cursedClassBranchId,
             choices.classId,
             choices.professionId
         ) + choices.curseIds
@@ -189,6 +207,7 @@ object CharacterCreationCatalog {
         if (choices.classId.isNotBlank() && classes.none { it.id == choices.classId }) errors += "Classe selecionada não existe no catálogo"
         if (choices.professionId.isNotBlank() && professions.none { it.id == choices.professionId }) errors += "Profissão selecionada não existe no catálogo"
         if (choices.elementalAffinity.isNotBlank() && choices.elementalAffinity !in setOf("WATER", "FIRE", "WIND", "EARTH", "METAL", "YIN", "YANG")) errors += "Afinidade elemental inválida"
+        if (choices.cursedClassBranchId.isNotBlank() && cursedClassBranches.none { it.id == choices.cursedClassBranchId }) errors += "Vertente da Classe de Malditos inválida"
         choices.curseIds.distinct().filter { id -> curses.none { it.id == id } }.forEach { errors += "Maldição selecionada não existe no catálogo: $it" }
         if (choices.curseIds.size != choices.curseIds.distinct().size) errors += "Há maldições duplicadas na seleção"
         return errors.distinct()
