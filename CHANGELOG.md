@@ -1,5 +1,7 @@
 ## 2026-10-22 — Continuação code-first: testes avançados e sorte global (não validado)
 
+- `ai/PowerMenu.kt`: adicionada validação defensiva no ponto de execução para recusar poder cuja combinação efeito/alvo seja incompatível com o motor, mesmo se uma definição incoerente escapar das validações do pacote. Não foram executados testes/build/CI.
+
 - `ai/GameLoop.kt`: testes opostos preservam as alternativas descartadas pela política de fortuna de ambos os participantes; testes em grupo preservam as alternativas descartadas de todos os integrantes no registro da jogada, para que a interface possa exibi-las sem alterar o resultado escolhido.
 - `ai/CheckMenu.kt`: a sorte/destino pós-rolagem pode ser configurada uma única vez no pacote com `recurso_sorte`, `custo_sorte` e `formas_sorte`; configurações específicas de um teste têm prioridade.
 - `rules/PackageParser.kt` e `rules/RulePackage.kt`: validação do conjunto de propriedades globais, custo positivo, formas permitidas e existência do recurso, inclusive após herança de pacotes.
