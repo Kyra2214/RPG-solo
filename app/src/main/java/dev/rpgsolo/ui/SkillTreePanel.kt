@@ -30,6 +30,7 @@ fun SkillTreePanel(
     var version by remember { mutableIntStateOf(0) }
     var message by remember { mutableStateOf<String?>(null) }
     var selectedTargets by remember { mutableStateOf(emptyMap<String, String>()) }
+    var completedQuestId by remember { mutableStateOf("") }
     var initialInputs by remember { mutableStateOf(emptyMap<String, String>()) }
     var initialSkillPoints by remember { mutableStateOf("0") }
     val initial = model.initialBuildState()
@@ -78,6 +79,15 @@ fun SkillTreePanel(
             ) { Text("Confirmar distribuição") }
         } else {
             Muted("Distribuição inicial concluída.")
+        }
+        if (initial.allocated && entries.any { it.currentLevel == 0 && it.skill.scrollRank != null }) {
+            OutlinedTextField(
+                value = completedQuestId,
+                onValueChange = { completedQuestId = it.trim() },
+                label = { Text("ID da missão concluída para resgatar pergaminho") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
         if (entries.isEmpty()) {
             Muted("Escolha uma raça/sub-raça, classe ou profissão na ficha ativa para ver suas árvores.")
@@ -151,6 +161,18 @@ fun SkillTreePanel(
                                 ) { Text("Ativar") }
                             }
                         }
+                    }
+                    if (entry.currentLevel == 0 && !entry.skill.freeBaseSkill && entry.skill.scrollRank != null) {
+                        OutlinedButton(
+                            enabled = enabled && completedQuestId.isNotBlank(),
+                            onClick = {
+                                act({ actions.rewardScrollFromQuest(entry.skill.id, completedQuestId) }) { result ->
+                                    message = result ?: "Pergaminho resgatado como recompensa da missão."
+                                    version++
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Resgatar pergaminho por missão") }
                     }
                 }
             }
