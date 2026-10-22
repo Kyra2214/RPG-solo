@@ -1,3 +1,10 @@
+## 2026-10-22 — DC-02: persistência da biblioteca de fontes (não validado)
+
+- `data`: novas tabelas Room `fontes` e `fonte_vinculos`, com migração explícita 7→8; apagar campanha remove só vínculos por FK e duplicar campanha copia seus vínculos.
+- `RoomEventStore` e `AppModel`: API de leitura e gravação transacional da `SourceLibrary`.
+- Os bytes originais, `PipelineState` e `CanonFacts` permanecem fora deste módulo; o schema exportado v8 depende da geração do Room em build.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — DC-05.2: seletor de modo das fontes (não validado)
 
 - `app/CampaignsScreen.kt`: adicionadas opções de História fiel, História alternativa e Universo inspirado na aba Campanhas.

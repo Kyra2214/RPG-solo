@@ -131,3 +131,24 @@ interface LinhaTempoDao {
     @Query("DELETE FROM linha_tempo WHERE campanhaId = :id")
     fun apagar(id: String)
 }
+
+@Dao
+interface FonteDao {
+    @Query("SELECT * FROM fontes ORDER BY importedAt, id")
+    fun listarFontes(): List<FonteRow>
+
+    @Query("SELECT * FROM fonte_vinculos ORDER BY campaignId, linkedAt, sourceId")
+    fun listarVinculos(): List<FonteVinculoRow>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvarFontes(rows: List<FonteRow>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvarVinculos(rows: List<FonteVinculoRow>)
+
+    @Query("DELETE FROM fonte_vinculos")
+    fun apagarVinculos()
+
+    @Query("DELETE FROM fontes")
+    fun apagarFontes()
+}

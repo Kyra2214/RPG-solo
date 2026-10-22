@@ -93,3 +93,32 @@ data class SnapshotRow(@androidx.room.PrimaryKey val campanhaId: String, val eve
     indices = [Index("campanhaId")]
 )
 data class LinhaTempoRow(val campanhaId: String, val ordem: Int, val eventoIndice: Int, val texto: String)
+
+/** Metadados de um documento-fonte importado (DC-02); o conteúdo binário é armazenado separadamente. */
+@Entity(tableName = "fontes")
+data class FonteRow(
+    @androidx.room.PrimaryKey val id: String,
+    val fileName: String,
+    val format: String?,
+    val title: String,
+    val sha256: String,
+    val byteSize: Int,
+    val status: String,
+    val error: String?,
+    val importedAt: Long
+)
+
+/** Vínculo fonte-campanha; a FK apaga somente o vínculo ao excluir a campanha, nunca a fonte. */
+@Entity(
+    tableName = "fonte_vinculos",
+    primaryKeys = ["campaignId", "sourceId"],
+    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campaignId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("campaignId")]
+)
+data class FonteVinculoRow(
+    val campaignId: String,
+    val sourceId: String,
+    val sha256: String,
+    val fileName: String,
+    val linkedAt: Long
+)

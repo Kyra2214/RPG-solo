@@ -53,6 +53,7 @@ import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SpellSlots
 import dev.rpgsolo.engine.CanonFacts
 import dev.rpgsolo.engine.SourceIndex
+import dev.rpgsolo.engine.SourceLibrary
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.CampanhaMetaRow
@@ -340,6 +341,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Sobe a cada mudança de capítulo/missão para a tela de campanhas redesenhar. */
     var campaignVersion by mutableIntStateOf(0)
         private set
+    var sourceLibraryVersion by mutableIntStateOf(0)
+        private set
     var packageVersion by mutableIntStateOf(0)
         private set
     var chapterNotice by mutableStateOf<String?>(null)
@@ -613,6 +616,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun activeCampaignId(): String = session.campaignId
+
+    /** DC-02: biblioteca persistida no Room; o texto dos arquivos não é mantido nesta estrutura. */
+    fun sourceLibrary(): SourceLibrary = store.sourceLibrary()
+
+    /** Grava a biblioteca e os vínculos como uma unidade transacional. Chamar fora da thread principal. */
+    fun saveSourceLibrary(library: SourceLibrary): String? = try {
+        store.saveSourceLibrary(library)
+        sourceLibraryVersion++
+        null
+    } catch (e: Exception) {
+        e.message ?: "falha ao salvar a biblioteca de fontes"
+    }
 
     /** DC-05.2: modo de fidelidade documental da campanha ativa, derivado do log do motor. */
     fun sourceMode(): dev.rpgsolo.engine.SourceMode? = session.state.sourceMode
