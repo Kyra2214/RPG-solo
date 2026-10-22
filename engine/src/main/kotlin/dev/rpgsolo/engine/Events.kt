@@ -315,9 +315,21 @@ fun GameState.apply(e: Event): GameState {
             val kept = activeEffects[e.entityId].orEmpty().filter { it.sourceId != source && it.sourceId != "$source:desvantagem" }
             copy(activeEffects = activeEffects + (e.entityId to (kept + e.effects)))
         }
-        is EffectsRoundEnded -> copy(activeEffects = activeEffects.mapValues { (_, list) ->
-            list.map { it.copy(remainingRounds = it.remainingRounds - 1) }.filter { it.remainingRounds > 0 }
-        }.filterValues { it.isNotEmpty() })
+        is EffectsRoundEnded -> copy(
+            activeEffects = activeEffects.mapValues { (_, list) ->
+                list.map { it.copy(remainingRounds = it.remainingRounds - 1) }.filter { it.remainingRounds > 0 }
+            }.filterValues { it.isNotEmpty() },
+            entities = entities.mapValues { (_, current) ->
+                current.copy(appliedCurses = current.appliedCurses.mapNotNull { (id, curse) ->
+                    val remaining = curse.remainingRounds
+                    when {
+                        remaining == null -> id to curse
+                        remaining > 1 -> id to curse.copy(remainingRounds = remaining - 1)
+                        else -> null
+                    }
+                }.toMap())
+            }
+        )
         is SkillMastered -> {
             val current = entity(e.entityId)
             copy(entities = entities + (e.entityId to current.copy(masteredSkills = current.masteredSkills + e.skillId)))
