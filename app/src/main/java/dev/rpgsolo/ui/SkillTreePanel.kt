@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.engine.SkillCategory
+import dev.rpgsolo.engine.SkillEffectRecipient
 
 @Composable
 fun SkillTreePanel(
@@ -26,6 +28,7 @@ fun SkillTreePanel(
 ) {
     var version by remember { mutableIntStateOf(0) }
     var message by remember { mutableStateOf<String?>(null) }
+    var selectedTargets by remember { mutableStateOf(emptyMap<String, String>()) }
     var initialInputs by remember { mutableStateOf(emptyMap<String, String>()) }
     var initialSkillPoints by remember { mutableStateOf("0") }
     val initial = model.initialBuildState()
@@ -35,6 +38,7 @@ fun SkillTreePanel(
         (initialSkillPoints.toIntOrNull()?.toLong() ?: 0L)
     val actions = remember(model, version, model.campaignVersion, model.packageVersion) { model.skillTreeActions() }
     val entries = remember(version, model.campaignVersion, model.packageVersion) { actions.view() }
+    val targets = remember(version, model.campaignVersion) { actions.targets() }
     val state = model.statPointsState()
 
     AppCard {
@@ -121,11 +125,23 @@ fun SkillTreePanel(
                                     }
                                 }
                             ) { Text("Evoluir (\${entry.pointCost} ponto)") }
+                            if (entry.skill.effects.any { it.recipient == SkillEffectRecipient.TARGET }) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+                                    targets.forEach { (targetId, targetName) ->
+                                        FilterChip(
+                                            selected = selectedTargets[entry.skill.id] == targetId,
+                                            onClick = { selectedTargets = selectedTargets + (entry.skill.id to targetId) },
+                                            label = { Text(targetName) },
+                                            enabled = enabled
+                                        )
+                                    }
+                                }
+                            }
                             if (entry.skill.category != SkillCategory.PASSIVE) {
                                 OutlinedButton(
-                                    enabled = enabled,
+                                    enabled = enabled && (entry.skill.effects.none { it.recipient == SkillEffectRecipient.TARGET } || selectedTargets[entry.skill.id] != null),
                                     onClick = {
-                                        act({ actions.activate(entry.skill.id) }) { result ->
+                                        act({ actions.activate(entry.skill.id, selectedTargets[entry.skill.id]) }) { result ->
                                             message = result ?: "Habilidade ativada."
                                             version++
                                         }
