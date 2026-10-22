@@ -614,6 +614,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun activeCampaignId(): String = session.campaignId
 
+    /** DC-05.2: modo de fidelidade documental da campanha ativa, derivado do log do motor. */
+    fun sourceMode(): dev.rpgsolo.engine.SourceMode? = session.state.sourceMode
+
+    /** Define o modo por comando/evento canônico; o próprio motor recusa repetir o modo atual. */
+    fun setSourceMode(mode: dev.rpgsolo.engine.SourceMode): String? =
+        when (val result = session.execute(dev.rpgsolo.engine.SetSourceMode(mode))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+
     fun activePackageId(): String? = activePackage?.manifest?.id
 
     /** Importa um ZIP de pacote de regras, valida-o antes de mantê-lo e persiste-o no armazenamento privado. */

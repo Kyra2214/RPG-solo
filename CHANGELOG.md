@@ -1,3 +1,10 @@
+## 2026-10-22 — DC-05.2: seletor de modo das fontes (não validado)
+
+- `app/CampaignsScreen.kt`: adicionadas opções de História fiel, História alternativa e Universo inspirado na aba Campanhas.
+- `app/AppModel.kt`: o modo selecionado é enviado como `SetSourceMode` ao motor e registrado no log da campanha.
+- `PLANO_RPG_SOLO.md`: atualizado DC-05.2; importação, biblioteca, persistência e consentimento de privacidade continuam pendentes.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — DC-05.1: integração de contexto de fontes (não validado)
 
 - `app/AppModel.kt`: conectado o callback de contexto do `PlayController` ao `SourceIndex`, fatos canônicos e modo da campanha.
