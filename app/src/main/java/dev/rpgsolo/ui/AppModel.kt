@@ -39,7 +39,7 @@ import dev.rpgsolo.ai.UsageTracker
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.ChapterBook
 import dev.rpgsolo.engine.Ficha
-import dev.rpgsolo.engine.chapterClocks
+import dev.rpgsolo.engine.advanceClocksAfterChapterClosure
 import dev.rpgsolo.engine.advanceClocksAfterQuestClosure
 import dev.rpgsolo.engine.Quest
 import dev.rpgsolo.engine.QuestLog
@@ -1585,10 +1585,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return when (val r = ChapterSummarizer(p).closeWithSummary(session, chapters, narrations)) {
             is ChapterSummarizer.Result.Closed -> {
                 // M-07: encerrar um capítulo faz o tempo passar; relógios com chapterTick avançam pelo motor.
-                val advances = session.state.chapterClocks().map {
-                    dev.rpgsolo.engine.AdvanceClock(it.id, minOf(it.chapterTick, it.segments - it.filled))
-                }
-                if (advances.isNotEmpty()) session.executeAll(advances)
+                session.advanceClocksAfterChapterClosure()
                 saveMetadata(); campaignVersion++; null
             }
             is ChapterSummarizer.Result.Failed -> r.reason

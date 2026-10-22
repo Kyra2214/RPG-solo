@@ -141,6 +141,25 @@ class AgendaTest {
         assertEquals(listOf("threat"), s.engine.events.drop(eventMark).filterIsInstance<ClockAdvanced>().map { it.id })
     }
 
+    @Test fun encerramentoDeCapituloAvancaSomenteRelogiosConfiguradosEIncompletos() {
+        val s = session()
+        s.executeAll(listOf(
+            CreateClock("threat", "Ameaça", 4, chapterTick = 2),
+            CreateClock("parado", "Plano parado", 4),
+            CreateClock("completo", "Plano concluído", 2, chapterTick = 1),
+            AdvanceClock("completo", 2)
+        ))
+        val eventMark = s.engine.events.size
+
+        val result = s.advanceClocksAfterChapterClosure()
+
+        assertTrue(result is ExecResult.Accepted)
+        assertEquals(2, s.state.clocks.getValue("threat").filled)
+        assertEquals(0, s.state.clocks.getValue("parado").filled)
+        assertEquals(2, s.state.clocks.getValue("completo").filled)
+        assertEquals(listOf("threat"), s.engine.events.drop(eventMark).filterIsInstance<ClockAdvanced>().map { it.id })
+    }
+
     @Test fun logReproduzOEstado() {
         val s = session()
         s.executeAll(listOf(ChangeRelation("ana", "hero", 10, "ajuda"), CreateClock("c", "C", 3, combatTick = 1), AdvanceClock("c", 2)))

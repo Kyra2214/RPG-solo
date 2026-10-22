@@ -207,6 +207,14 @@ class QuestLog {
     fun timeline(): List<Pair<Int, String>> = line.toList()
 }
 
+/** Avança, uma única vez por fechamento de capítulo, apenas relógios incompletos com [Clock.chapterTick] configurado. */
+fun CampaignSession.advanceClocksAfterChapterClosure(): ExecResult? = atomically {
+    val advances = state.clocks.values
+        .filter { !it.full && it.chapterTick > 0 }
+        .map { AdvanceClock(it.id, it.chapterTick) }
+    if (advances.isEmpty()) null else executeAll(advances)
+}
+
 /** Avança, uma única vez por fechamento de missão, apenas relógios incompletos com [Clock.questTick] configurado. */
 fun CampaignSession.advanceClocksAfterQuestClosure(): ExecResult? = atomically {
     val advances = state.clocks.values

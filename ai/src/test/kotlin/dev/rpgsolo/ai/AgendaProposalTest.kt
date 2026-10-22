@@ -32,6 +32,8 @@ class AgendaProposalTest {
         assertTrue("Não invente um acontecimento como já ocorrido" in instructions)
         assertTrue("se não houver uma pista segura e coerente, omita-a" in instructions)
         assertTrue("nunca coloque nela o nome interno do relógio, a contagem ou segredo privado" in instructions)
+        assertTrue("questTick" in instructions)
+        assertTrue("quando uma missão é encerrada como concluída ou falha" in instructions)
     }
 
     @Test fun contextoMostraRelacaoEmPalavrasERelogioPrivado() {
