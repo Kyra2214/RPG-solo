@@ -137,13 +137,13 @@ fun automaticTimeline(
                 AutomaticTimelineEntry(index, "progressão", "Você alcançou o nível ${event.level}.")
             } else null
             is SpellLearned -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você aprendeu a magia ${event.spellId}.")
+                AutomaticTimelineEntry(index, "progressão", "Você aprendeu uma magia.")
             } else null
             is AbilityLearned -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você aprendeu a habilidade ${event.abilityId}.")
+                AutomaticTimelineEntry(index, "progressão", "Você aprendeu uma habilidade.")
             } else null
             is SkillMastered -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você dominou a perícia ${event.skillId}.")
+                AutomaticTimelineEntry(index, "progressão", "Você dominou uma perícia.")
             } else null
             is StatPointsAllocated -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você distribuiu pontos de atributo.")
@@ -160,29 +160,8 @@ fun automaticTimeline(
             is InitialBuildAllocated -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você concluiu a distribuição inicial dos pontos da ficha.")
             } else null
-            is XpGained -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você recebeu experiência.")
-            } else null
-            is LevelGained -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você avançou para o nível ${event.level}.")
-            } else null
-            is AdvancementAllocated -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você investiu pontos de evolução na ficha.")
-            } else null
-            is SpellLearned -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você aprendeu uma magia.")
-            } else null
-            is AbilityLearned -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você aprendeu uma habilidade.")
-            } else null
             is AbilityActivated -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "habilidade", "Você ativou uma habilidade.")
-            } else null
-            is SkillMastered -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você alcançou o nível 2 de uma perícia.")
-            } else null
-            is StatPointsAllocated -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você investiu pontos de status na ficha.")
             } else null
             is ConditionTicked -> if (event.entityId == playerId && event.damage > 0) {
                 AutomaticTimelineEntry(index, "condição", "Uma condição causou ${event.damage} de dano em você.")
