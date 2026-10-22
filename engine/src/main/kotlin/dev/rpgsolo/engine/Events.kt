@@ -65,6 +65,14 @@ data class InitialBuildAllocated(
     val statIncreases: Map<String, Int>,
     val skillPointsGranted: Int
 ) : Event
+/** Efeito de habilidade aplicado pelo usuário da habilidade a outro combatente. */
+@Serializable
+data class TargetSkillEffectsApplied(
+    val actorId: String,
+    val targetId: String,
+    val skillId: String,
+    val effects: List<ActiveEffect>
+) : Event
 /** Reset de árvore: devolve exatamente os pontos investidos e mantém habilidades básicas no nível 1. */
 @Serializable
 data class SkillTreeProgressReset(val entityId: String, val pointsRefunded: Int) : Event
@@ -269,6 +277,11 @@ fun GameState.apply(e: Event): GameState {
                 abilityPoints = current.abilityPoints + e.skillPointsGranted,
                 initialBuildAllocated = true
             )))
+        }
+        is TargetSkillEffectsApplied -> {
+            val source = "habilidade:${e.skillId}"
+            val kept = activeEffects[e.targetId].orEmpty().filter { it.sourceId != source && it.sourceId != "$source:desvantagem" }
+            copy(activeEffects = activeEffects + (e.targetId to (kept + e.effects)))
         }
         is SkillTreeProgressReset -> {
             val current = entity(e.entityId)
