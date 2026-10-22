@@ -35,6 +35,12 @@ data class MasterSkill(val entityId: String, val skillId: String) : Command
 data class LearnSpell(val entityId: String, val spellId: String) : Command
 /** MU-06.3: aprende uma habilidade gastando [cost] pontos de habilidade. */
 data class LearnAbility(val entityId: String, val abilityId: String, val cost: Int) : Command
+/** Distribui uma única vez 12 pontos iniciais entre aumentos de atributo e pontos de habilidade. */
+data class AllocateInitialBuild(
+    val entityId: String,
+    val statIncreases: Map<String, Int>,
+    val skillPoints: Int
+) : Command
 /** Evolui uma habilidade da árvore; o catálogo valida origem, afinidade e pré-requisitos antes da chamada. */
 data class ProgressSkillTree(
     val entityId: String,
@@ -416,6 +422,21 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.abilityId in ent.abilities) return no("habilidade já aprendida: ${cmd.abilityId}")
             if (cmd.cost > ent.abilityPoints) return no("pontos de habilidade insuficientes: ${ent.abilityPoints}/${cmd.cost}")
             return Decision.Ok(listOf(AbilityLearned(ent.id, cmd.abilityId, cmd.cost)))
+        }
+
+        is AllocateInitialBuild -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (ent.initialBuildAllocated) return no("os 12 pontos iniciais já foram distribuídos")
+            if (cmd.skillPoints < 0 || cmd.statIncreases.values.any { it < 0 }) return no("a distribuição não pode conter valores negativos")
+            if (cmd.statIncreases.keys.any { it !in ent.stats }) return no("atributo inexistente na ficha")
+            val statTotal = cmd.statIncreases.values.sumOf { it.toLong() }
+            if (statTotal + cmd.skillPoints.toLong() != 12L) return no("distribua exatamente 12 pontos entre atributos e habilidades")
+            if (cmd.statIncreases.any { (key, value) -> (ent.stats[key] ?: 0).toLong() + value.toLong() > Int.MAX_VALUE }) {
+                return no("aumento inicial excede o limite numérico suportado")
+            }
+            if (ent.abilityPoints.toLong() + cmd.skillPoints.toLong() > Int.MAX_VALUE) return no("pontos de habilidade excedem o limite suportado")
+            return Decision.Ok(listOf(InitialBuildAllocated(ent.id, cmd.statIncreases.filterValues { it > 0 }, cmd.skillPoints)))
         }
 
         is ProgressSkillTree -> {
