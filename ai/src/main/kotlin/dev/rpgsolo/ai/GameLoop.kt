@@ -295,7 +295,7 @@ class GameLoop(
                         "Resultado mecânico: o NPC venceu ou manteve a disputa. Nota privada deste ramo: ${req.onFailure}. Não revele o ramo alternativo."
                     }
                     resolvedPending = pending.copy(resultNote = note)
-                    CheckResolution(result.challenger)
+                    CheckResolution(result.challenger, result.challengerAlternatives + result.defenderAlternatives)
                 }
                 pending is PendingCheck && pending.request.group != null -> {
                     if (useFortuneResource) return PlayResult.Failed("gasto de fortuna não é suportado em teste de grupo")
@@ -347,7 +347,7 @@ class GameLoop(
                         "Resultado mecânico: o grupo não atingiu o limiar de sucesso. Nota privada deste ramo: ${group.onFailure}. Não revele o ramo alternativo."
                     }
                     resolvedPending = pending.copy(resultNote = note)
-                    CheckResolution(result.individual[playerIndex])
+                    CheckResolution(result.individual[playerIndex], result.alternatives.flatten())
                 }
                 !useFortuneResource -> resolveCheck(session, pendingSpec)
                 else -> {
