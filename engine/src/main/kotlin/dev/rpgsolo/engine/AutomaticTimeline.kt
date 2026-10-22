@@ -121,13 +121,13 @@ fun automaticTimeline(
             is ItemChanged -> if (event.ownerId == playerId && event.delta != 0) {
                 val action = if (event.delta > 0) "Você recebeu" else "Você perdeu"
                 val amount = kotlin.math.abs(event.delta)
-                AutomaticTimelineEntry(index, "inventário", "$action $amount unidade(s) do item ${event.itemId}.")
+                AutomaticTimelineEntry(index, "inventário", "$action $amount unidade(s) de um item.")
             } else null
             is EquipmentChanged -> if (event.ownerId == playerId) {
                 if (event.itemId == null) {
-                    AutomaticTimelineEntry(index, "equipamento", "Você desequipou o item do espaço ${event.slot}.")
+                    AutomaticTimelineEntry(index, "equipamento", "Você desequipou um item.")
                 } else {
-                    AutomaticTimelineEntry(index, "equipamento", "Você equipou ${event.itemId} no espaço ${event.slot}.")
+                    AutomaticTimelineEntry(index, "equipamento", "Você equipou um item.")
                 }
             } else null
             is XpGained -> if (event.entityId == playerId && event.amount > 0) {
@@ -185,13 +185,13 @@ fun automaticTimeline(
                 AutomaticTimelineEntry(index, "progressão", "Você investiu pontos de status na ficha.")
             } else null
             is ConditionTicked -> if (event.entityId == playerId && event.damage > 0) {
-                AutomaticTimelineEntry(index, "condição", "A condição ${event.condition} causou ${event.damage} de dano em você.")
+                AutomaticTimelineEntry(index, "condição", "Uma condição causou ${event.damage} de dano em você.")
             } else null
             is ConditionAdded -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "condição", "Você sofreu a condição: ${event.condition}.")
+                AutomaticTimelineEntry(index, "condição", "Você sofreu uma condição.")
             } else null
             is ConditionRemoved -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "condição", "A condição ${event.condition} deixou de afetar você.")
+                AutomaticTimelineEntry(index, "condição", "Uma condição deixou de afetar você.")
             } else null
             is EntityDowned -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "consequência", "Seu personagem caiu.")
