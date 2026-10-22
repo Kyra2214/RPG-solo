@@ -248,7 +248,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                 )
             }
             itemsIndexed(clashes, key = { index, _ -> "clash-$index" }) { _, report ->
-                ClashCard(report)
+                ClashCard(report, c.combatantPublicName(report.attackerId), c.combatantPublicName(report.targetId))
             }
             if (busy && streamingText.isNotBlank()) {
                 item(key = "streaming-narration") {

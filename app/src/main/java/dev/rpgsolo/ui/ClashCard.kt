@@ -18,8 +18,8 @@ import dev.rpgsolo.engine.ClashReport
  * não recalcula valores, dados nem dano. Sem animação: vale igual para jogador e IA e para o histórico.
  */
 @Composable
-fun ClashCard(report: ClashReport) {
-    val lines = report.lines()
+fun ClashCard(report: ClashReport, attackerName: String = report.attackerId, targetName: String = report.targetId) {
+    val lines = report.lines(attackerName, targetName)
     val tint = when {
         report.damage > 0 -> MaterialTheme.colorScheme.error
         else -> MaterialTheme.colorScheme.primary

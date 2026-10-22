@@ -26,8 +26,8 @@ data class ClashReport(
     val ignoreLine: String?
 ) {
     /** Linhas em português para o cartão/histórico (strings localizadas ficam para a interface, U-03). */
-    fun lines(): List<String> = buildList {
-        add("Ataque de $attackerId em $targetId")
+    fun lines(attackerLabel: String = attackerId, targetLabel: String = targetId): List<String> = buildList {
+        add("Ataque de $attackerLabel em $targetLabel")
         addAll(attackSources.map { "• $it" })
         add("Valor efetivo: $attackValue · expressão $attackExpression")
         critLine?.let { add(it) }

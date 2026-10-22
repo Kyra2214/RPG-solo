@@ -110,6 +110,9 @@ class PlayController(
         .takeLast(20)
         .map(ClashReport::of)
 
+    /** Nome público do combatente; o ID só permanece no evento canônico. */
+    fun combatantPublicName(entityId: String): String = session.state.entities[entityId]?.name ?: "combatente"
+
     fun isRollRevealed(index: Int): Boolean = synchronized(chat) { index in revealedRolls }
 
     /** Marca uma rolagem como vista depois que a animação visual terminou. */
