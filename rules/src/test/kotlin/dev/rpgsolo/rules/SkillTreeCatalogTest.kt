@@ -41,6 +41,31 @@ class SkillTreeCatalogTest {
         }
     }
 
+    @Test fun classesTemSeisHabilidadesDistintivasAntesDaCulminancia() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val starters = result.skills.filter { it.origin == SkillOrigin.CLASS && it.scrollRank in 1..6 }
+        assertEquals(300, starters.size)
+        assertEquals(starters.size, starters.map { it.name }.distinct().size)
+        assertTrue(starters.filter { it.scrollRank == 1 }.all {
+            it.actionKind in setOf(
+                dev.rpgsolo.engine.SkillActionKind.POWER_STRIKE,
+                dev.rpgsolo.engine.SkillActionKind.MULTI_HIT
+            ) && it.effects.any { effect -> effect.target == "dano" }
+        })
+        val magicalTrees = setOf(
+            "mago", "feiticeiro", "invocador", "druida", "oraculo",
+            "xama", "ilusionista", "guardiao-runico", "psiquico", "tecelao-de-sonhos"
+        )
+        starters.filter { it.treeId in magicalTrees }.forEach {
+            assertTrue("${it.id} deveria respeitar afinidade elemental", it.affinityBound)
+        }
+        assertTrue(starters.filter { it.scrollRank == 5 }.all {
+            it.category == dev.rpgsolo.engine.SkillCategory.CONTROL &&
+                it.effects.any { effect -> effect.recipient == dev.rpgsolo.engine.SkillEffectRecipient.TARGET && effect.baseValue < 0 }
+        })
+    }
+
     @Test fun habilidadesSupremasDeClasseSaoUnicasETipadas() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
