@@ -1571,6 +1571,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         session.engine.config.takeIf { it.spellSlotLevels.isNotEmpty() }?.let { session.engine.spellSlots(playerId) }
 
     /** MU-05.3: pontos de status e habilidade do herói; atributos do pacote ativo, sem teto (max = 0 indica ilimitado). */
+    fun hasActiveCombat(): Boolean = session.state.combat != null
+
     fun statPointsState(): StatPointsState {
         val player = session.state.entities[playerId] ?: return StatPointsState(0, 0, emptyList())
         val pkg = activePackage ?: return StatPointsState(player.statPoints, player.abilityPoints, emptyList())
