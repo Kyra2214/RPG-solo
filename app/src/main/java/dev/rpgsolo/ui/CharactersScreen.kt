@@ -70,17 +70,11 @@ fun CharactersScreen(model: AppModel) {
 private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     // Um rascunho por pacote. Depois de salvar, gira o ID para que a próxima criação
     // não sobrescreva a ficha recém-criada.
-<<<<<<< HEAD
-    var draftId by remember(key) { mutableStateOf(model.newFichaId()) }
-=======
     var draftId by remember(key) { mutableStateOf(model.draftFichaId()) }
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     val draft = remember(key, draftId) { CharacterDraft(pkg, draftId) }
     var version by remember(key) { mutableIntStateOf(0) }
     var message by remember(key) { mutableStateOf<String?>(null) }
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
-<<<<<<< HEAD
-=======
     val scope = rememberCoroutineScope()
     var dbBusy by remember(key) { mutableStateOf(false) }
     /** Gravações no banco rodam em IO e desabilitam os botões enquanto duram (R-02). */
@@ -99,7 +93,6 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             version++
         }
     }
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     var fichaImportText by remember(key) { mutableStateOf("") }
     var expandedFichaId by remember(key) { mutableStateOf<String?>(null) }
     var editingChoicesFichaId by remember(key) { mutableStateOf<String?>(null) }
@@ -211,27 +204,18 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                 if (entry.summary.isNotBlank()) Muted(entry.summary)
                 if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted("Lore: " + entry.lore)
                 if (entry.benefits.isNotEmpty()) {
-<<<<<<< HEAD
-                    entry.benefits.forEach { Muted("Benefício descrito (não aplicado): " + it) }
-                } else if (entry.benefit.isNotBlank()) {
-                    Muted("Benefício descrito (não aplicado): " + entry.benefit)
-=======
                     entry.benefits.forEach { Muted("Benefício descrito (sem efeito automático, salvo o efeito listado abaixo): " + it) }
                 } else if (entry.benefit.isNotBlank()) {
                     Muted("Benefício descrito (sem efeito automático, salvo o efeito listado abaixo): " + entry.benefit)
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 }
                 if (entry.drawbacks.isNotEmpty()) {
                     entry.drawbacks.forEach { Muted("Custo descrito (não aplicado): " + it) }
                 } else if (entry.drawback.isNotBlank()) {
                     Muted("Custo descrito (não aplicado): " + entry.drawback)
                 }
-<<<<<<< HEAD
-=======
                 entry.mechanicalEffects.forEach {
                     Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
                 }
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
             }
         }
     }
@@ -241,19 +225,11 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             Text("Editando escolhas de ${model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId}", style = MaterialTheme.typography.titleSmall)
             Muted("Esta ação altera somente os metadados editoriais; não recalcula nem inventa bônus mecânicos.")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-<<<<<<< HEAD
-                Button(enabled = choiceErrors.isEmpty(), onClick = {
-                    model.saveCharacterChoices(fichaId, choices)
-                    editingChoicesFichaId = null
-                    libraryMessage = "Escolhas da ficha atualizadas."
-                    version++
-=======
                 Button(enabled = choiceErrors.isEmpty() && !dbBusy, onClick = {
                     io({ model.saveCharacterChoices(fichaId, choices); null }) {
                         editingChoicesFichaId = null
                         libraryMessage = "Escolhas da ficha atualizadas."
                     }
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 }) { Text("Salvar escolhas") }
                 TextButton(onClick = { editingChoicesFichaId = null }) { Text("Cancelar") }
             }
@@ -378,18 +354,6 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     }
 
     // ---------- 9. Criar ----------
-<<<<<<< HEAD
-    Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null && choiceErrors.isEmpty(), onClick = {
-        message = when (val b = draft.build()) {
-            is FichaBuild.Created -> {
-                model.saveFicha(b.ficha)
-                model.saveCharacterChoices(b.ficha.id, choices)
-                val createdName = b.ficha.name
-                draftId = model.newFichaId()
-                "Ficha de $createdName criada e salva."
-            }
-            is FichaBuild.Invalid -> b.errors.joinToString("; ")
-=======
     Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null && choiceErrors.isEmpty() && !dbBusy, onClick = {
         when (val b = draft.build()) {
             is FichaBuild.Created -> {
@@ -407,7 +371,6 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                 }
             }
             is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
         }
     }) { Text("Criar ficha") }
     message?.let { Muted(it) }
@@ -425,12 +388,6 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         )
         Button(
             modifier = Modifier.fillMaxWidth(),
-<<<<<<< HEAD
-            onClick = {
-                libraryMessage = model.importFicha(fichaImportText)
-                if (libraryMessage?.startsWith("Ficha ") == true && libraryMessage?.contains("importada") == true) fichaImportText = ""
-                version++
-=======
             enabled = !dbBusy,
             onClick = {
                 val raw = fichaImportText
@@ -438,7 +395,6 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                     libraryMessage = it
                     if (it?.startsWith("Ficha ") == true && it.orEmpty().contains("importada")) fichaImportText = ""
                 }
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
             }
         ) { Text("Importar ficha") }
     }
@@ -483,13 +439,8 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                         message = null
                         version++
                     }) { Text("Editar escolhas") }
-<<<<<<< HEAD
-                    TextButton(onClick = { libraryMessage = model.duplicateFicha(f.id) ?: "Ficha duplicada." }) { Text("Duplicar") }
-                    TextButton(onClick = { libraryMessage = model.archiveFicha(f.id, true) ?: "Ficha arquivada." }) { Text("Arquivar") }
-=======
                     TextButton(enabled = !dbBusy, onClick = { io({ model.duplicateFicha(f.id) }) { libraryMessage = it ?: "Ficha duplicada." } }) { Text("Duplicar") }
                     TextButton(enabled = !dbBusy, onClick = { io({ model.archiveFicha(f.id, true) }) { libraryMessage = it ?: "Ficha arquivada." } }) { Text("Arquivar") }
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                     TextButton(onClick = {
                         val raw = model.exportFicha(f.id)
                         if (raw != null) {
@@ -591,11 +542,7 @@ private fun CatalogPicker(
                 entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
                 entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
                 entry.mechanicalEffects.forEach {
-<<<<<<< HEAD
-                    Muted("Efeito tipado (${it.source}), ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
-=======
                     Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 }
             }
         }
@@ -635,11 +582,7 @@ private fun CatalogMultiPicker(
                 entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
                 entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
                 entry.mechanicalEffects.forEach {
-<<<<<<< HEAD
-                    Muted("Efeito tipado (${it.source}), ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
-=======
                     Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 }
             }
         }

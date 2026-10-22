@@ -137,9 +137,6 @@ class TurnRunner(
         }
     }
 
-<<<<<<< HEAD
-    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?, sceneNpcIds: Set<String>): Attempt {
-=======
     /** request_power: valida pelo pacote e deixa o motor gastar custo, rolar e aplicar o efeito. Recusa volta à IA. */
     private fun attemptPower(session: CampaignSession, out: TurnOutput, powers: PowerContext?, playerEntityId: String?): Attempt {
         val request = out.powerRequest!!
@@ -173,7 +170,6 @@ class TurnRunner(
     }
 
     private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?, sceneNpcIds: Set<String>, powers: PowerContext?): Attempt {
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
         return when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
                 Attempt.Retry("formato inválido: " + parsed.errors.joinToString("; "), false)

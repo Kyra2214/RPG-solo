@@ -38,6 +38,22 @@ class AgendaProposalTest {
         val user = ContextAssembler.build(ContextInput(session().state, "hero", "olho")).messages.last().content
         assertFalse("Relações" in user || "Relógios" in user)
     }
+
+    @Test fun contextoIncluiApenasMemoriasDosNpcsDaCena() {
+        val s = session()
+        s.executeAll(listOf(
+            NoteMemory("ana", "gosta de chá"),
+            CreateEntity(Entity("fora", "Pessoa distante", EntityKind.NPC)),
+            NoteMemory("fora", "segredo distante")
+        ))
+        val user = ContextAssembler.build(
+            ContextInput(s.state, "hero", "conversar", sceneNpcIds = setOf("ana"))
+        ).messages.last().content
+        assertTrue("Ana: gosta de chá" in user)
+        assertFalse("segredo distante" in user)
+        assertFalse("Pessoa distante" in user)
+    }
+
     @Test fun pistaPublicaDoRelogioSoEExpostaQuandoCompleta() {
         val o = ok("""{"narrative":"x","proposals":[
             {"type":"create_clock","id":"ameaca","name":"Plano oculto","segments":2,

@@ -90,13 +90,9 @@ class GameLoop(
     /** Efeitos tipados de outras fontes, preservando a origem no registro do teste. */
     private val externalBonuses: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
     /** Origem individual das adaptações aprovadas; o total mecânico continua vindo de additionalBonus. */
-<<<<<<< HEAD
-    private val additionalBonusSources: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() }
-=======
     private val additionalBonusSources: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
     /** Poderes que o mestre pode pedir por request_power (do pacote ativo). null = não pode. */
     private val powerMenu: PowerMenu? = null
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 ) {
     /** Uma jogada por vez: protege mark() → rede → rollbackTo() (R-01). Compartilhado com o PlayController. */
     val turnGate = TurnGate()

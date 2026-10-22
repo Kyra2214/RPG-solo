@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-21 — I-02.3: memórias narrativas por cena
+
+- O `ContextAssembler` agora inclui memórias registradas somente para os NPCs presentes em `sceneNpcIds`, identificando o personagem pelo nome e mantendo notas fora da cena fora do prompt.
+- Adicionado teste de regressão para inclusão da memória do NPC presente e exclusão de memória/identidade do NPC ausente.
+- Removidos marcadores de conflito que haviam sido publicados acidentalmente durante o rebase da fase 14.
+- Validação JVM: `:engine:test :rules:test :ai:test` aprovado.
+
 ## 2026-10-21 — Fase 14 concluída em código (DC-08)
 
 - Testes novos: `SourceImportTest`, `SourceLibraryTest`, `SourcePipelineTest`, `CanonFactsTest` (`engine`) e `SourceFidelityTest` (`ai`). Correção: aspas sem escape no prompt de `RuleDetector`; o prompt agora pede limite `passivo`.

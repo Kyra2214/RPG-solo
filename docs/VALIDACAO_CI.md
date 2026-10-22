@@ -1,8 +1,19 @@
 # Validação CI — RPG Solo
 
-<<<<<<< HEAD
-## Execução mais recente
-=======
+## Subfase I-02.3 — memórias por cena (2026-10-21)
+
+O contexto do mestre passou a incluir `GameState.memories` somente para entidades listadas em `sceneNpcIds`. Memórias de NPCs ausentes não são enviadas, evitando vazamento de informação entre cenas. O teste foi adicionado em `AgendaProposalTest.contextoIncluiApenasMemoriasDosNpcsDaCena`.
+
+Validação após a limpeza dos conflitos publicados no rebase:
+
+```text
+./gradlew :engine:test :rules:test :ai:test
+BUILD SUCCESSFUL in 20s
+14 actionable tasks: 14 executed
+```
+
+O CI Android da fase 14 continua em andamento no [workflow #39707201903](https://github.com/Kyra2214/RPG-solo/actions/runs/39707201903). O commit desta subfase será publicado e validado em uma execução própria.
+
 ## Fase 14 — validação local (2026-10-21)
 
 O conteúdo de `RPG-solo-fase14.zip` foi aplicado ao repositório e validado com Gradle. O ambiente Sandbox possui JDK 21, mas não possui JDK 17 nem Android SDK; por isso o `./gradlew test` literal não pôde iniciar por falta de toolchain 17 e, em uma cópia temporária usando JDK 21, parou ao resolver `:app:testDebugUnitTest` por ausência do SDK Android.
@@ -45,7 +56,6 @@ O bloqueio de runner descrito no histórico abaixo foi resolvido em 2026-10-19, 
 As seções abaixo descrevem o período em que os jobs não iniciavam e são mantidas só como registro.
 
 ## Execução autorizada
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
 - Workflow: [Android CI](https://github.com/Kyra2214/RPG-solo/actions/runs/39524086483).
 - Execução: **#169**, concluída em 21/10/2026.

@@ -87,8 +87,6 @@ fun distinctExternalBonuses(bonuses: Collection<ExternalBonus>): List<ExternalBo
     }
 }
 
-<<<<<<< HEAD
-=======
 /** MU-06.1: bônus de perícia que só vale com o item [itemId] equipado (qualquer slot). */
 /** MU-07.3: magia à venda; preço em moedas base (prata). Declarada por `magia_<id>_preco` em `criacao.txt`. */
 data class SpellDef(val id: String, val name: String, val price: Int)
@@ -98,7 +96,6 @@ data class CoinPayment(val silver: Int, val gold: Int, val change: Int)
 
 data class ConditionalBonus(val scope: String, val bonus: Int, val itemId: String)
 
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 data class TraitDef(
     val id: String,
     val type: String,

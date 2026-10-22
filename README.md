@@ -9,11 +9,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-<<<<<<< HEAD
-A execução #169 do Android CI, no commit `44d82157f2cbd554944ea71a64c95c87cc12accc`, passou nos testes JVM e na montagem/upload do APK de depuração. O PR #2 foi mesclado à `main` no commit `62a3e8a96befd950981d8caa19239abf03aabe34`. O teste instrumentado E2E foi tentado no emulador, mas falhou ao iniciar os testes (o log registrou “Starting 0 tests”); como essa etapa é não bloqueante, ela não tornou o CI vermelho. Portanto, o fluxo JVM e a geração do APK estão validados nessa execução, mas a jornada E2E em emulador continua pendente. Consulte [Validação CI](docs/VALIDACAO_CI.md) para detalhes.
-=======
 O último CI verde registrado foi em 19/10/2026 (commit `85b58ce`; detalhes em [`docs/VALIDACAO_CI.md`](docs/VALIDACAO_CI.md)). Desde então a branch recebeu alterações de código (remoção de conteúdo de terceiros, trava de sessão e exclusividade de turno, Room fora da thread principal e transporte HTTP cancelável). **Builds, testes, lint e CI não foram executados depois dessas alterações**, conforme a orientação de consolidar a implementação antes da validação. O estado atual da branch ainda não está validado e não deve ser tratado como APK pronto para uso.
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
 ## Funcionalidades implementadas no código
 
@@ -64,18 +60,11 @@ Abra a pasta do repositório no Android Studio para executar o app em emulador o
 
 ## Lacunas conhecidas
 
-<<<<<<< HEAD
-- O teste instrumentado E2E precisa de diagnóstico: a última tentativa falhou em `:app:connectedDebugAndroidTest` e reportou “Starting 0 tests”. Veja [Validação CI](docs/VALIDACAO_CI.md).
-- A validação visual em aparelho/emulador e os testes instrumentados das migrações Room ainda precisam ser concluídos.
-- O streaming progressivo está ligado do transporte SSE até a interface; permanece sem validação real em rede. Provedores compatíveis podem variar no suporte a SSE e JSON mode.
-- Permanecem melhorias de mecânica fora do fluxo principal: a API do motor e os fluxos do `PlayController` para rolagens opostas/em grupo foram adicionados, com resultados exibidos no chat e suporte a desfazer; vantagem/desvantagem pode ser declarada em `testes.txt` (`NORMAL`, `ADVANTAGE`, `DISADVANTAGE`). Há controles na aba Jogar para disputar um teste entre o herói e um NPC vivo. A interface também oferece teste de grupo com participantes e limiar de sucessos selecionados. Nenhuma dessas modalidades tem sintaxe de pacote nem pedido pendente narrativo. A progressão básica por pontos por nível e gasto em atributo/perícia está implementada no motor e na aba Campanhas; pontos de sorte/destino, recompensas adicionais e poderes/magias com efeitos tipados seguem pendentes. Bônus numéricos de traços, incluindo resistência/vulnerabilidade a dano, só são aplicados quando o pacote declara um efeito explícito; descrições condicionais ainda não são gatilhos automáticos.
-=======
 - Fase 14 concluída em código (testes escritos e nunca executados; sem tela nem persistência): DC-01 a DC-04 (importação, biblioteca, pipeline com busca local e fatos canônicos) no `engine` e DC-05 a DC-07 (contexto por cena, modos da fonte, resumo por título e regras detectadas) no `engine`/`ai`, escritos, sem tela, sem compilar e sem testes.
 - Fase 12 (motor unificado) concluída em código, com testes escritos mas nunca executados (`EffectiveValueTest`, `UnifiedCombatTest`, `AiParityTest`); lacunas listadas no plano (3.7, MU-08.4).
 - Esta branch ainda precisa de compilação, testes unitários, validação visual em aparelho/emulador e teste instrumentado das migrações Room.
 - O streaming progressivo agora está ligado do transporte SSE até a interface; permanece sem validação de execução nesta etapa. Provedores compatíveis podem variar no suporte a SSE e JSON mode.
 - Permanecem melhorias de mecânica fora do fluxo principal: a API do motor e os fluxos do `PlayController` para rolagens opostas/em grupo foram adicionados, com resultados exibidos no chat e suporte a desfazer; vantagem/desvantagem pode ser declarada em `testes.txt` (`NORMAL`, `ADVANTAGE`, `DISADVANTAGE`). Há controles na aba Jogar para disputar um teste entre o herói e um NPC vivo. A interface também oferece teste de grupo com participantes e limiar de sucessos selecionados. O mestre também pode pedir disputa ou teste de grupo por `request_check` (com `opposed`/`group`), validado pelo motor e resolvido como pedido pendente; não há sintaxe de pacote própria para essas modalidades (usam os testes de `testes.txt`). A progressão básica por pontos por nível e gasto em atributo/perícia está implementada no motor e na aba Campanhas; poderes ativáveis com efeitos tipados (`poderes.txt`) existem no código, na aba Jogar e por `request_power` da IA (sem execução); sorte/destino gasta depois de rolar (repetir rolagem ou somar face, declarada por pacote em `testes.txt`) existe no código e na aba Jogar, mas nenhum pacote embutido a declara; recompensas adicionais e magias adicionais seguem pendentes. Bônus numéricos de traços, incluindo resistência/vulnerabilidade a dano, só são aplicados quando o pacote declara um efeito explícito; descrições condicionais ainda não são gatilhos automáticos.
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 - A escala global da fonte e descrições TalkBack dos dados foram implementadas no código; revisão completa de TalkBack, contraste e layout em aparelho ainda falta. Também faltam relatório de diagnóstico exportável e configuração comprovada de um provedor gratuito padrão.
 - Catálogo de personagem: as 50 raças, 50 sub-raças, 50 classes, 103 profissões e 20 híbridos declaram efeito mecânico (+1 em uma perícia); o restante é editorial, sem bônus (M-02 em andamento).
 - O pacote próprio contém fórmulas e regras marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.

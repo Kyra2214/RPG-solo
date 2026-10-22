@@ -147,6 +147,12 @@ object ContextAssembler {
             s.combat?.let { "Combate: rodada ${it.round}, vez de ${s.entities[it.current]?.name ?: it.current}" },
             s.openPromises().filter { it.npcId in sceneIds }.takeIf { it.isNotEmpty() }
                 ?.let { ps -> "Promessas em aberto:\n" + ps.joinToString("\n") { "- ${it.npcId}: ${it.text}" } },
+            s.memories.filterKeys { it in sceneIds }.takeIf { it.isNotEmpty() }
+                ?.let { memories ->
+                    "Memórias relevantes da cena (privadas do mestre):\n" + memories.entries.joinToString("\n") { (id, notes) ->
+                        "- ${s.entities[id]?.name ?: id}: ${notes.joinToString(" | ")}"
+                    }
+                },
             s.relations.filterKeys { key ->
                 val pair = key.split('\u0000', limit = 2)
                 pair.size == 2 && (pair[0] in sceneIds || pair[1] in sceneIds)

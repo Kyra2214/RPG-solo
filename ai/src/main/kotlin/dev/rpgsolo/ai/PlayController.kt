@@ -9,11 +9,8 @@ import dev.rpgsolo.engine.Outcome
 import dev.rpgsolo.engine.QuestLog
 import dev.rpgsolo.engine.checkOpposed
 import dev.rpgsolo.engine.checkGroup
-<<<<<<< HEAD
-=======
 import dev.rpgsolo.engine.survivalTest
 import dev.rpgsolo.engine.removeConditionByCheck
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
 enum class Author { PLAYER, ROLL, MASTER, SYSTEM }
 

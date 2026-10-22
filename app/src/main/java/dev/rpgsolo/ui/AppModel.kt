@@ -162,22 +162,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-<<<<<<< HEAD
-    private fun selectedCatalogBonus(pkg: RulePackage, scope: String): Int =
-        selectedCatalogBonuses(pkg).filter { it.scope == scope }.sumOf { it.bonus }
-
-    /** Explica os efeitos por escopo, sem somar bônus que modificam cálculos diferentes. */
-    private fun selectedCatalogBonusSummary(pkg: RulePackage, scopes: Collection<String>): String {
-        val applied = selectedCatalogBonuses(pkg).filter { it.scope in scopes && it.bonus != 0 }
-        if (applied.isEmpty()) return ""
-        val details = applied.groupBy { it.scope }.entries.joinToString("; ") { (scope, effects) ->
-            val total = effects.sumOf { it.bonus }
-            val sources = effects.map { it.source }.distinct().joinToString(", ")
-            scope + " " + (if (total > 0) "+" else "") + total + " [" + sources + "]"
-        }
-        return " Efeitos de personagem: $details."
-    }
-=======
     private val bonuses = CombatBonuses(
         session = { session },
         activePackage = { activePackage },
@@ -191,7 +175,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun selectedCatalogBonusSummary(pkg: RulePackage, scopes: Collection<String>): String =
         bonuses.selectedCatalogBonusSummary(pkg, scopes)
 
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
         val choices = characterChoices(fichaId)
@@ -268,8 +251,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         campaignVersion++
     }
 
-<<<<<<< HEAD
-=======
     /** ID de rascunho sem acesso ao banco (seguro na composição): UUID aleatório conferido só contra a memória. */
     fun draftFichaId(): String {
         var candidate: String
@@ -279,7 +260,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return candidate
     }
 
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     /** ID novo e resistente a colisões entre fichas ativas, arquivadas e importadas. */
     fun newFichaId(): String {
         var candidate: String
@@ -628,104 +608,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun nextCombatTurn(): String? = combatActions.nextCombatTurn()
 
     /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
-<<<<<<< HEAD
-    fun resolveNpcTurn(): String? {
-        return try {
-        val combat = requireNotNull(session.state.combat) { "não há combate ativo" }
-        val combatantsBefore = combat.order
-        require(combat.current != playerId) { "é o turno do jogador" }
-        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
-        val resource = pkg.manifest.deathResource
-            ?: return "o pacote não define o recurso de vida usado no combate"
-        val attackStat = pkg.data.creation["combate_atributo_ataque"]
-            ?: return "o pacote não define o atributo de ataque"
-        val defenseStat = pkg.data.creation["combate_atributo_defesa"]
-            ?: return "o pacote não define o atributo de defesa"
-        val attackDiceCount = pkg.data.creation["combate_dados_ataque"]?.toIntOrNull()
-            ?: return "o pacote não define combate_dados_ataque"
-        val attackDiceSides = pkg.data.creation["combate_lados_ataque"]?.toIntOrNull()
-            ?: return "o pacote não define combate_lados_ataque"
-        val attackComparison = pkg.data.creation["combate_comparacao_ataque"]?.let {
-            runCatching { dev.rpgsolo.engine.Comparison.valueOf(it) }.getOrNull()
-        } ?: return "o pacote não define uma comparação de ataque válida"
-        val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
-            ?: return "o pacote não define combate_dano_base"
-        val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
-            ?: return "o pacote não define combate_defesa_base"
-        val damageDef = pkg.data.creation["combate_dano"]?.let { id ->
-            pkg.data.damage.firstOrNull { it.id == id }
-                ?: return "o pacote referencia um perfil de dano inexistente: $id"
-        }
-        val attacker = combat.current
-        val attackerEquipment = session.state.equipped[attacker].orEmpty().values
-        val targetEquipment = session.state.equipped[playerId].orEmpty().values
-        val attackConditionShift = conditionDiceShift(attacker, attackStat)
-        val targetConditionShift = conditionDiceShift(playerId, defenseStat)
-        // Ganho/Perda altera o bônus/limiar conforme a comparação, nunca a quantidade de dados.
-        val effectiveAttackDice = attackDiceCount
-        val npcAttackMark = session.mark()
-        val result = session.attack(
-            dev.rpgsolo.engine.AttackSpec(
-                attackerId = attacker,
-                targetId = playerId,
-                attackStat = attackStat,
-                defenseStat = defenseStat,
-                attackDiceCount = effectiveAttackDice,
-                attackDiceSides = attackDiceSides,
-                attackComparison = attackComparison,
-                damageResource = resource,
-                damage = baseDamage,
-                defenseDefault = baseDefense,
-                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
-                    pkg.traitBonus(combatTraitIds(attacker), "ataque") +
-                    attackConditionShift +
-                    ((session.state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
-                        .roundToInt().coerceIn(0, 10) - 5),
-                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
-                    pkg.traitBonus(combatTraitIds(attacker), "dano"),
-                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
-                    pkg.traitBonus(combatTraitIds(playerId), "defesa") +
-                    selectedCatalogBonus(pkg, "defesa") +
-                    approvedRuleBonus("defesa") + approvedRuleBonus(defenseStat) + targetConditionShift,
-                damageReduction = pkg.traitBonus(combatTraitIds(playerId), "resistencia_dano") +
-                    selectedCatalogBonus(pkg, "resistencia_dano") +
-                    approvedRuleBonus("resistencia_dano"),
-                damageDiceCount = damageDef?.diceCount ?: 0,
-                damageDiceSides = damageDef?.diceSides ?: 0,
-                damageStat = damageDef?.bonusStat
-            )
-        )
-        val text = when (result) {
-            is dev.rpgsolo.engine.AttackResult.Resolved -> {
-                val outcome = if (result.hit) {
-                    "${session.state.entities.getValue(attacker).name} acertou você."
-                } else {
-                    "${session.state.entities.getValue(attacker).name} errou o ataque."
-                }
-                outcome +
-                    selectedCatalogBonusSummary(pkg, if (result.hit) listOf("defesa", "resistencia_dano") else listOf("defesa")) +
-                    approvedRuleBonusSummary(if (result.hit) listOf("defesa", defenseStat, "resistencia_dano") else listOf("defesa", defenseStat))
-            }
-            is dev.rpgsolo.engine.AttackResult.Rejected -> return result.reason
-        }
-        if (session.state.combat != null) {
-            when (val advance = session.execute(dev.rpgsolo.engine.NextTurn)) {
-                is dev.rpgsolo.engine.ExecResult.Rejected -> {
-                    session.rollbackTo(npcAttackMark)
-                    return advance.reason
-                }
-                is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
-            }
-        }
-        val victoryXp = awardCombatVictoryXp(combatantsBefore)
-        campaignVersion++
-        if (victoryXp > 0) "$text Você venceu e recebeu $victoryXp XP." else text
-        } catch (e: IllegalArgumentException) { e.message }
-          catch (e: IllegalStateException) { e.message }
-    }
-=======
     fun resolveNpcTurn(): String? = combatActions.resolveNpcTurn()
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
     fun endCombat(): String? = combatActions.endCombat()
 
@@ -830,17 +713,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
     }
 
-<<<<<<< HEAD
-    /** Ganho/Perda das condições para um teste que usa o atributo informado. */
-    private fun conditionDiceShift(entityId: String, stat: String): Int =
-        session.state.conditions[entityId].orEmpty().sumOf { conditionId ->
-            val effect = activePackage?.data?.conditions?.firstOrNull { it.id == conditionId }?.effect
-            val effectStats = effect?.stats
-            if (effect != null && (effectStats == null || stat in effectStats)) effect.dice else 0
-        }
-=======
     private fun conditionDiceShift(entityId: String, stat: String): Int = bonuses.conditionDiceShift(entityId, stat)
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
     private fun combatTraitIds(entityId: String): List<String> = bonuses.combatTraitIds(entityId)
 
@@ -968,47 +841,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun inventoryView(): List<InventoryView> = inventory.inventoryView()
 
     /** Usa consumíveis apenas quando o pacote declara uma ação mecânica explícita. */
-<<<<<<< HEAD
-    fun useItem(itemId: String): String? {
-        return try {
-        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
-        val item = requireNotNull(pkg.item(itemId)) { "item não existe no pacote ativo: $itemId" }
-        require(item.kind == "consumivel") { "este item não é consumível" }
-        val action = pkg.data.creation["item_${itemId}_acao"]
-            ?: return "o pacote não definiu o efeito mecânico de $itemId"
-        val inCombat = session.state.combat != null
-        if (inCombat && !isPlayerCombatTurn()) return "só é possível usar item no seu turno"
-        val commands: List<dev.rpgsolo.engine.Command> = when (action) {
-            "cura" -> {
-                val resource = pkg.data.creation["item_${itemId}_recurso"]
-                    ?: return "o pacote não definiu o recurso restaurado por $itemId"
-                val amount = pkg.data.creation["item_${itemId}_quantidade"]?.toIntOrNull()
-                    ?: return "o pacote não definiu a quantidade restaurada por $itemId"
-                require(amount > 0) { "quantidade de cura deve ser positiva" }
-                val current = session.state.entities[playerId]?.resources?.get(resource)
-                    ?: return "o personagem não possui o recurso '$resource'"
-                require(current.current < current.max) { "o recurso já está cheio; o consumível não foi gasto" }
-                listOf(
-                    dev.rpgsolo.engine.Heal(playerId, resource, amount),
-                    dev.rpgsolo.engine.ConsumeItem(playerId, itemId, 1)
-                )
-            }
-            else -> return "ação de consumível não suportada pelo app: $action"
-        }
-        val actionCommands = if (inCombat) commands + dev.rpgsolo.engine.NextTurn else commands
-        when (val result = session.executeAll(actionCommands)) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> {
-                campaignVersion++
-                "${item.name} usado."
-            }
-            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
-        }
-        } catch (e: IllegalArgumentException) { e.message }
-          catch (e: IllegalStateException) { e.message }
-    }
-=======
     fun useItem(itemId: String): String? = inventory.useItem(itemId)
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
     fun equipItem(itemId: String): String? = inventory.equipItem(itemId)
 
@@ -1027,172 +860,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun unequipItem(slot: String): String? = inventory.unequipItem(slot)
 
     /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
-<<<<<<< HEAD
-    fun attack(targetId: String): String? {
-        return try {
-        require(isPlayerCombatTurn()) { "não é o turno do jogador" }
-        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
-        val resource = pkg.manifest.deathResource
-            ?: return "o pacote não define o recurso de vida usado no combate"
-        val attackStat = pkg.data.creation["combate_atributo_ataque"]
-            ?: return "o pacote não define o atributo de ataque"
-        val defenseStat = pkg.data.creation["combate_atributo_defesa"]
-            ?: return "o pacote não define o atributo de defesa"
-        val attackDiceCount = pkg.data.creation["combate_dados_ataque"]?.toIntOrNull()
-            ?: return "o pacote não define combate_dados_ataque"
-        val attackDiceSides = pkg.data.creation["combate_lados_ataque"]?.toIntOrNull()
-            ?: return "o pacote não define combate_lados_ataque"
-        val attackComparison = pkg.data.creation["combate_comparacao_ataque"]?.let {
-            runCatching { dev.rpgsolo.engine.Comparison.valueOf(it) }.getOrNull()
-        } ?: return "o pacote não define uma comparação de ataque válida"
-        val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
-            ?: return "o pacote não define combate_dano_base"
-        val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
-            ?: return "o pacote não define combate_defesa_base"
-        val damageDef = pkg.data.creation["combate_dano"]?.let { id ->
-            pkg.data.damage.firstOrNull { it.id == id }
-                ?: return "o pacote referencia um perfil de dano inexistente: $id"
-        }
-        val attackerEquipment = session.state.equipped[playerId].orEmpty().values
-        val targetEquipment = session.state.equipped[targetId].orEmpty().values
-        val attackConditionShift = conditionDiceShift(playerId, attackStat)
-        val targetConditionShift = conditionDiceShift(targetId, defenseStat)
-        // Condições modificam bônus/limiar; a quantidade de dados vem exclusivamente do pacote.
-        val effectiveAttackDice = attackDiceCount
-        val combatantsBefore = session.state.combat?.order.orEmpty()
-        val attackMark = session.mark()
-        when (val result = session.attack(
-            dev.rpgsolo.engine.AttackSpec(
-                attackerId = playerId,
-                targetId = targetId,
-                attackStat = attackStat,
-                defenseStat = defenseStat,
-                attackDiceCount = effectiveAttackDice,
-                attackDiceSides = attackDiceSides,
-                attackComparison = attackComparison,
-                damageResource = resource,
-                damage = baseDamage,
-                defenseDefault = baseDefense,
-                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(combatTraitIds(playerId), "ataque") +
-                    selectedCatalogBonus(pkg, "ataque") + approvedRuleBonus("ataque") + approvedRuleBonus(attackStat) +
-                    attackConditionShift,
-                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(combatTraitIds(playerId), "dano") +
-                    selectedCatalogBonus(pkg, "dano") + approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(::approvedRuleBonus) ?: 0),
-                defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
-                    pkg.traitBonus(combatTraitIds(targetId), "defesa") + targetConditionShift,
-                damageReduction = pkg.traitBonus(combatTraitIds(targetId), "resistencia_dano"),
-                damageDiceCount = damageDef?.diceCount ?: 0,
-                damageDiceSides = damageDef?.diceSides ?: 0,
-                damageStat = damageDef?.bonusStat
-            )
-        )) {
-            is dev.rpgsolo.engine.AttackResult.Resolved -> {
-                if (session.state.combat != null) {
-                    when (val advance = session.execute(dev.rpgsolo.engine.NextTurn)) {
-                        is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
-                        is dev.rpgsolo.engine.ExecResult.Rejected -> {
-                            session.rollbackTo(attackMark)
-                            return advance.reason
-                        }
-                    }
-                }
-                val victoryXp = awardCombatVictoryXp(combatantsBefore)
-                campaignVersion++
-                val attackText = "${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}"
-                val outcome = if (result.hit) {
-                    val damageText = result.damageRoll?.let {
-                        " Dano: ${it.expression} [${it.dice.joinToString(", ")}] = ${it.total}."
-                    }.orEmpty()
-                    "Ataque: $attackText. Acertou e causou ${result.damage} de dano.$damageText"
-                } else "Ataque: $attackText. Errou."
-                val withSources = outcome +
-                    selectedCatalogBonusSummary(pkg, if (result.hit) listOf("ataque", "dano") else listOf("ataque")) +
-                    approvedRuleBonusSummary(
-                        if (result.hit) listOf("ataque", attackStat, "dano", damageDef?.bonusStat ?: "") else listOf("ataque", attackStat)
-                    )
-                if (victoryXp > 0) "$withSources Vitória! Você recebeu $victoryXp XP." else withSources
-            }
-            is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
-        }
-        } catch (e: IllegalArgumentException) { e.message }
-          catch (e: IllegalStateException) { e.message }
-    }
-=======
     fun attack(targetId: String): String? = combatActions.attack(targetId)
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
     /** A postura defensiva concede o bônus do pacote contra o próximo ataque recebido e consome o turno. */
     fun defend(): String? = combatActions.defend()
 
     /** Fuga usa um teste real do pacote; sucesso encerra o combate, falha cede a próxima ação ao adversário. */
-<<<<<<< HEAD
-    fun fleeCombat(): String? = try {
-        require(isPlayerCombatTurn()) { "só é possível fugir no seu turno" }
-        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
-        val checkId = listOf("fuga", "esquiva", "furtividade").firstOrNull { id ->
-            pkg.data.checks.any { it.id == id }
-        } ?: return "o pacote não define um teste de fuga, esquiva ou furtividade"
-        val difficulty = pkg.defaultDifficulty()
-            ?: return "o pacote não define dificuldade para o teste de fuga"
-        val player = requireNotNull(session.state.entities[playerId]) { "personagem inexistente" }
-        val combatantsBefore = session.state.combat?.order.orEmpty()
-        val mark = session.mark()
-        val base = pkg.check(checkId, player.stats, difficulty, player.skills)
-        val adjusted = pkg.adjustCheck(
-            base,
-            session.state.conditions[playerId].orEmpty(),
-            combatTraitIds(playerId),
-            checkId,
-            additionalBonuses = selectedCatalogBonuses(pkg)
-        )
-        val adaptation = listOfNotNull(adjusted.checkId, adjusted.stat, checkId).distinct().sumOf(::approvedRuleBonus)
-        val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
-        val shift = danger - 5
-        val spec = when (adjusted.comparison) {
-            dev.rpgsolo.engine.Comparison.ROLL_OVER -> adjusted.copy(modifier = adjusted.modifier + adaptation - shift)
-            dev.rpgsolo.engine.Comparison.ROLL_UNDER -> adjusted.copy(
-                difficulty = (adjusted.difficulty + adaptation - shift).coerceAtLeast(1)
-            )
-            dev.rpgsolo.engine.Comparison.POINTS -> adjusted.copy(
-                modifier = (adjusted.modifier + adaptation - shift).coerceAtLeast(0)
-            )
-        }
-        val result = session.check(spec)
-        val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}." +
-            approvedRuleBonusSummary(listOfNotNull(adjusted.checkId, adjusted.stat, checkId))
-        if (result.outcome in setOf(
-                dev.rpgsolo.engine.Outcome.SUCCESS,
-                dev.rpgsolo.engine.Outcome.CRITICAL_SUCCESS
-            )
-        ) {
-            when (val ended = session.execute(dev.rpgsolo.engine.EndCombat)) {
-                is dev.rpgsolo.engine.ExecResult.Accepted -> {
-                    campaignVersion++
-                    "$roll Você conseguiu fugir e encerrou o combate."
-                }
-                is dev.rpgsolo.engine.ExecResult.Rejected -> {
-                    session.rollbackTo(mark)
-                    ended.reason
-                }
-            }
-        } else {
-            when (val advanced = session.execute(dev.rpgsolo.engine.NextTurn)) {
-                is dev.rpgsolo.engine.ExecResult.Accepted -> {
-                    awardCombatVictoryXp(combatantsBefore)
-                    campaignVersion++
-                    "$roll Você não conseguiu escapar; o adversário age agora."
-                }
-                is dev.rpgsolo.engine.ExecResult.Rejected -> {
-                    session.rollbackTo(mark)
-                    advanced.reason
-                }
-            }
-        }
-    } catch (e: IllegalArgumentException) { e.message }
-      catch (e: IllegalStateException) { e.message }
-=======
     fun fleeCombat(): String? = combatActions.fleeCombat()
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
     fun exportBackup(): String = dev.rpgsolo.engine.Backup.export(
         store,
@@ -1246,11 +920,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
         var importedCampaignId = ""
-<<<<<<< HEAD
-        database.runInTransaction {
-=======
         store.inTransaction {
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
             importedCampaignId = dev.rpgsolo.engine.Backup.import(
                 store, raw, "import-${java.util.UUID.randomUUID()}"
             )
@@ -1270,15 +940,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         editionId = meta.editionId
                     )
                 )
-<<<<<<< HEAD
-=======
                 runCatching { dev.rpgsolo.engine.Codec.decodeChapters(meta.chaptersJson) }.getOrNull()
                     ?.let { store.saveChapters(importedCampaignId, it) }
                 runCatching { dev.rpgsolo.engine.Codec.decodeQuests(meta.questsJson) }.getOrNull()
                     ?.let { store.saveQuests(importedCampaignId, it) }
                 runCatching { dev.rpgsolo.engine.Codec.decodeTimeline(meta.timelineJson) }.getOrNull()
                     ?.let { store.saveTimeline(importedCampaignId, it) }
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 decodedFichas.forEach { decoded ->
                     val mappedId = fichaIdMap.getValue(decoded.id)
                     val legacyChoices = meta.characterChoices[decoded.id].orEmpty()

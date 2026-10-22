@@ -2,11 +2,7 @@
 
 **Estado atual (20/10/2026):** catálogo editorial, seletores e validação estão implementados parcialmente; as escolhas têm campo canônico `Ficha.editorialChoicesJson`. Ao restaurar fichas, o app migra o JSON legado para o campo canônico, preservando fichas ativas e arquivadas; SharedPreferences permanece como fallback/espelho. Duplicação e importação/exportação individual transportam as escolhas. Backups incluem fichas ativas e arquivadas, registram o estado de arquivamento, remapeiam colisões de IDs e restauram campanha/metadados/fichas em transação. A gravação canônica ocorre antes do espelho legado, e a atualização/inserção da ficha é atômica sem perder seu estado arquivado. Ainda falta validação em execução e cobertura para falhas parciais. Efeitos mecânicos completos do catálogo, história e retrato por IA continuam pendentes. Build/testes/CI não executados.  
 **Branch:** `feature/racas-subracas`  
-<<<<<<< HEAD
-**Inspiração:** D&D como referência criativa de fantasia, sem copiar lore, ilustrações ou blocos de regras protegidos. O RPG Solo terá conteúdo original e motor próprio.
-=======
 **Originalidade:** todo o conteúdo é de criação própria (lore, regras e ilustrações). O RPG Solo tem conteúdo original e motor próprio.
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
 ## 1. Objetivo
 
@@ -153,11 +149,7 @@ Tratar como camada opcional de refinamento de uma profissão. Não transformar a
 
 ## 8. Licença e originalidade
 
-<<<<<<< HEAD
-D&D é inspiração, não autorização para copiar. Não embutir textos de lore, ilustrações, tabelas ou blocos de regras protegidos. Escrever conteúdo original, registrar proveniência e identificar conteúdo importado pelo usuário, sem redistribuí-lo como nativo.
-=======
 Não embutir textos de lore, ilustrações, tabelas ou blocos de regras de terceiros. Escrever conteúdo original, registrar proveniência e identificar conteúdo importado pelo usuário, sem redistribuí-lo como nativo.
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
 ## 9. Fases de implementação
 
@@ -191,8 +183,6 @@ Não embutir textos de lore, ilustrações, tabelas ou blocos de regras de terce
 - [x] Completar a rastreabilidade das adaptações aprovadas nos caminhos diretos do `AppModel` e no `GameLoop`, mantendo os totais mecânicos atuais e expondo as fontes usadas.
 - [x] Documentar a política atual de identidade: uma mesma declaração externa com `effectId` repetido é aplicada uma vez; efeitos com IDs distintos acumulam mesmo que tenham o mesmo escopo e valor. Efeitos sem ID explícito não são deduplicados por semelhança numérica.
 - [ ] Definir se efeitos externos equivalentes a um `TraitBonus` canônico devem ser bloqueados, substituídos ou acumulados, sem alterar silenciosamente o comportamento atual.
-<<<<<<< HEAD
-=======
 - [x] M-02.4: as 50 classes declaram +1 em uma perícia (sem escopos de combate).
 - [x] M-02.5: as 103 profissões declaram +1 em uma perícia (sem escopos de combate).
 - [x] M-02.6: os 20 híbridos declaram +1 na perícia da segunda raça.
@@ -200,7 +190,6 @@ Não embutir textos de lore, ilustrações, tabelas ou blocos de regras de terce
 - [x] M-02.3: as 50 sub-raças declaram +1 em uma perícia, somado ao da raça escolhida.
 - [x] M-02.2: as 45 raças restantes também declaram +1 em uma perícia (50 de 50).
 - [x] M-02.1: 5 raças base (`humano`, `elfo`, `anao`, `orcano`, `pequenino`) declaram +1 em uma perícia; as demais entradas seguem vazias.
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 - [x] Confirmar no catálogo versionado que `mechanicalEffects` está vazio nas entradas atuais: não há bônus de raça/classe/profissão/maldição efetivamente declarados para duplicar neste momento.
 - [x] Auditar o alcance das adaptações aprovadas: `Adaptation.kt` aplica os efeitos à ficha (`Ficha`) e o estado as descreve como adaptações aprovadas; `GameLoop` agora limita esses bônus aos testes da entidade `PLAYER`.
 - [x] Remover a aplicação de adaptações aprovadas aos bônus de ataque/dano de NPCs e à defesa/resistência de NPCs em combate direto; manter os efeitos nos cálculos do jogador.
@@ -309,11 +298,7 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 - [ ] Implementar geração opcional de lore e retrato com IA, com limites rígidos contra alterações mecânicas.
 - [ ] Expandir e balancear o catálogo.
 
-<<<<<<< HEAD
-**Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador; as entradas atuais ainda têm efeitos vazios. Build, testes e CI não foram executados.
-=======
 **Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador; raças, sub-raças, classes e profissões declaram +1 em uma perícia; híbridos declaram +1 em uma perícia; 4 maldições declaram `intimidacao` +1 e as demais seguem narrativas. Build, testes e CI não foram executados.
->>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
 **Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` é o campo canônico. A restauração migra escolhas antigas para fichas ativas e arquivadas; a escrita canônica precede o espelho SharedPreferences. A gravação de uma ficha atualiza ou insere atomicamente sem apagar o estado de arquivamento. Os backups agora incluem fichas ativas e arquivadas, transportam os IDs arquivados em metadado opcional e mantêm compatibilidade com backups antigos. A importação valida fichas e IDs, consulta colisões no banco, remapeia IDs, evita vínculo acidental a ficha local ausente do backup e restaura campanha/metadados/fichas na mesma transação. IDs de cópias e fichas novas usam UUID. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
 
