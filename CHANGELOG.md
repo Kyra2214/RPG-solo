@@ -861,3 +861,6 @@
 
 
 - Motor de maldições: adicionados testes para resistência pendente/sucesso/falha, expiração após rodadas completas, remoção com motivo e reconstrução do estado pelo log de eventos. A validação CI desses testes novos ainda está pendente.
+ 
+
+- Classe de Malditos: substituídos os 42 nomes genéricos das habilidades culminantes de rank 7 por nomes temáticos específicos das famílias/vertentes; adicionado teste contra regressão para placeholders.
