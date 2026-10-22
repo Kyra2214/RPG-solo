@@ -95,7 +95,8 @@ fun SkillTreePanel(
             entries.forEach { entry ->
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
                     Text(entry.displayName, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
-                    Muted("${categoryLabel(entry.skill.category)} · nível ${entry.currentLevel} · ${if (entry.skill.requiredElement != null) "exige ${elementLabelUi(entry.skill.requiredElement)}" else if (entry.skill.affinityBound) "afinidade ${elementLabelUi(entry.skill.element)}" else "neutra"}")
+                    val requiredElement = entry.skill.requiredElement
+                    Muted("${categoryLabel(entry.skill.category)} · nível ${entry.currentLevel} · ${if (requiredElement != null) "exige ${elementLabelUi(requiredElement)}" else if (entry.skill.affinityBound) "afinidade ${elementLabelUi(entry.skill.element)}" else "neutra"}")
                     entry.reason?.let { Muted("Requisitos: $it") }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         if (entry.skill.freeBaseSkill && entry.currentLevel == 0) {
