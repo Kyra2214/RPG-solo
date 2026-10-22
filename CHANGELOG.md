@@ -1,3 +1,10 @@
+## 2026-10-22 — U-02: strings da criação de campanha (não validado)
+
+- `app/NewCampaignSection.kt`: título, formulário auxiliar, campos, estados do fluxo, avisos e ações passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados placeholders para edição, personagem, notas, termos ignorados e mensagens de erro.
+- `PLANO_RPG_SOLO.md`: registrada a sexta fatia; as demais telas ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — U-02: strings da aba Regras (não validado)
 
 - `app/RulesScreen.kt`: estado vazio, busca, tutorial e aviso de regras incertas passaram a usar recursos Android.
