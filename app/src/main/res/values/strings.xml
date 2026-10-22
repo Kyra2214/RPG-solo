@@ -77,4 +77,13 @@
     <string name="systems_package_id">Pacote %1$s</string>
     <string name="systems_origin_license">Origem: %1$s · Licença: %2$s</string>
     <string name="systems_license_status">Estado da licença: %1$s</string>
+    <string name="rules_empty">Nenhum pacote de regras instalado.</string>
+    <string name="rules_search_placeholder">Buscar regra</string>
+    <string name="rules_no_results">Nada encontrado neste pacote.</string>
+    <string name="rules_tutorial_title">Tutorial</string>
+    <string name="rules_no_tutorial">Este pacote não traz tutorial.</string>
+    <string name="rules_tutorial_item">%1$d. %2$s</string>
+    <string name="rules_uncertain_title">Regras incertas</string>
+    <string name="rules_uncertain_help">Nunca tratadas como oficiais.</string>
+    <string name="rules_uncertain_item">• %1$s</string>
 </resources>

@@ -1,3 +1,10 @@
+## 2026-10-22 — U-02: strings da aba Regras (não validado)
+
+- `app/RulesScreen.kt`: estado vazio, busca, tutorial e aviso de regras incertas passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados placeholders para títulos numerados e notas de regras.
+- `PLANO_RPG_SOLO.md`: registrada a quinta fatia; as demais telas ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — U-02: strings da aba Sistemas (não validado)
 
 - `app/SystemsScreen.kt`: títulos, instruções, importação e metadados exibidos dos pacotes passaram a usar recursos Android.

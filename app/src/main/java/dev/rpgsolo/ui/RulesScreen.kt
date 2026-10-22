@@ -17,6 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import dev.rpgsolo.R
 
 /** Aba Tutorial e regras (10.3): passos do pacote, regras marcadas como incertas e busca por trecho (4.2.3). */
 @Composable
@@ -29,7 +31,7 @@ fun RulesScreen(model: AppModel) {
 
     ScreenColumn {
         if (pkg == null) {
-            AppCard { Text("Nenhum pacote de regras instalado.") }
+            AppCard { Text(stringResource(R.string.rules_empty)) }
             return@ScreenColumn
         }
         if (ids.size > 1) {
@@ -38,12 +40,12 @@ fun RulesScreen(model: AppModel) {
             }
         }
         OutlinedTextField(
-            query, { query = it }, Modifier.fillMaxWidth(), placeholder = { Text("Buscar regra") },
+            query, { query = it }, Modifier.fillMaxWidth(), placeholder = { Text(stringResource(R.string.rules_search_placeholder)) },
             singleLine = true, shape = MaterialTheme.shapes.large
         )
         if (query.isNotBlank()) {
             val hits = pkg.search(query, 5)
-            if (hits.isEmpty()) Muted("Nada encontrado neste pacote.")
+            if (hits.isEmpty()) Muted(stringResource(R.string.rules_no_results))
             hits.forEach {
                 AppCard {
                     Text(it.title, style = MaterialTheme.typography.titleSmall)
@@ -51,18 +53,18 @@ fun RulesScreen(model: AppModel) {
                 }
             }
         } else {
-            SectionTitle("Tutorial")
-            if (pkg.data.tutorial.isEmpty()) Muted("Este pacote não traz tutorial.")
+            SectionTitle(stringResource(R.string.rules_tutorial_title))
+            if (pkg.data.tutorial.isEmpty()) Muted(stringResource(R.string.rules_no_tutorial))
             pkg.data.tutorial.forEach {
                 AppCard(accent = MaterialTheme.colorScheme.primary) {
-                    Text("${it.order}. ${it.title}", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(R.string.rules_tutorial_item, it.order, it.title), style = MaterialTheme.typography.titleSmall)
                     Text(it.text, style = MaterialTheme.typography.bodyMedium)
                 }
             }
             if (pkg.data.uncertain.isNotEmpty()) {
-                SectionTitle("Regras incertas", "Nunca tratadas como oficiais.")
+                SectionTitle(stringResource(R.string.rules_uncertain_title), stringResource(R.string.rules_uncertain_help))
                 AppCard(accent = MaterialTheme.colorScheme.error) {
-                    pkg.data.uncertain.forEach { Muted("• ${it.note}") }
+                    pkg.data.uncertain.forEach { Muted(stringResource(R.string.rules_uncertain_item, it.note)) }
                 }
             }
         }
