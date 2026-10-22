@@ -45,6 +45,8 @@ data class SkillTreeSkill(
     val category: SkillCategory,
     val element: ElementPath = ElementPath.NONE,
     val requiredElement: ElementPath? = null,
+    /** A habilidade mágica acompanha a afinidade escolhida pelo personagem. */
+    val affinityBound: Boolean = false,
     val weaponTags: Set<String> = emptySet(),
     val requiredCharacterLevel: Int = 1,
     val prerequisiteSkillIds: Set<String> = emptySet(),
@@ -103,6 +105,7 @@ object SkillTreeProgression {
         if (context.characterLevel < skill.requiredCharacterLevel) {
             reasons += "exige nível de personagem \${skill.requiredCharacterLevel}"
         }
+        if (skill.affinityBound && context.element == ElementPath.NONE) reasons += "exige escolher uma afinidade elemental"
         if (skill.requiredElement != null && skill.requiredElement != context.element) {
             reasons += "exige afinidade \${skill.requiredElement}"
         }
