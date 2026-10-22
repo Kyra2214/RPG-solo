@@ -18,6 +18,7 @@ class CurseActions(
     private val session: () -> CampaignSession,
     private val activePackage: () -> RulePackage?,
     private val playerId: () -> String,
+    private val checkBonuses: (entityId: String, scopes: Set<String>) -> List<dev.rpgsolo.rules.ExternalBonus>,
     private val onChanged: () -> Unit
 ) {
     private val catalog: List<CurseDefinition> by lazy {
@@ -76,7 +77,8 @@ class CurseActions(
                     base,
                     conditions = session().state.conditions[targetId].orEmpty(),
                     traits = target.traits,
-                    skill = curse.resistanceCheckId
+                    skill = curse.resistanceCheckId,
+                    additionalBonuses = checkBonuses(targetId, setOf(curse.resistanceCheckId, base.stat ?: "").filter { it.isNotBlank() }.toSet())
                 )
                 val result = session().check(adjusted)
                 resistanceSucceeded = result.outcome.isSuccess
