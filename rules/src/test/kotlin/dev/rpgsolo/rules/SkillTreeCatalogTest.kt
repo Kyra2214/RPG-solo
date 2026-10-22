@@ -192,6 +192,28 @@ class SkillTreeCatalogTest {
         assertTrue("a culminância deve durar ao menos três rodadas", (capstone.durationRounds ?: 0) >= 3)
     }
 
+    @Test fun culminanciasDeControleSuperamOImpactoDoRankSeisEProlongamADuracao() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val trees = listOf(
+            "diplomata",
+            "especialista-em-toxinas",
+            "perito-em-armadilhas",
+            "maldito-praga-1",
+            "maldito-praga-2",
+            "maldito-praga-3"
+        )
+        trees.forEach { treeId ->
+            val tree = result.tree(treeId)
+            val rank6 = tree.single { it.scrollRank == 6 }
+            val rank7 = tree.single { it.scrollRank == 7 }
+            val rank6Magnitude = rank6.effects.maxOf { kotlin.math.abs(it.valueAt(1)) }
+            val targeted = rank7.effects.single { it.recipient == dev.rpgsolo.engine.SkillEffectRecipient.TARGET }
+            assertTrue("$treeId: rank 7 deve superar o efeito do rank 6", kotlin.math.abs(targeted.valueAt(1)) > rank6Magnitude)
+            assertTrue("$treeId: rank 7 deve durar mais que o rank 6", (targeted.durationRounds ?: 0) > (rank6.effects.maxOfOrNull { it.durationRounds ?: 0 } ?: 0))
+        }
+    }
+
     @Test fun efeitosEmAlvosDeclaradosUsamEscoposDeCombateEExpiramExplicitamente() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
