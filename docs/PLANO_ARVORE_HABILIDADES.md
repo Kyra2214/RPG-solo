@@ -92,3 +92,31 @@ O item custa 25.000 prata. O escopo precisa estar explícito (habilidade, árvor
 - Catálogo de maldições separado e realmente criado.
 - Jogador e IA sujeitos às mesmas regras.
 - Testes e build executados apenas na fase 17; resultados comunicados sem alegar sucesso não verificado.
+
+## Status da implementação code-first — antes da fase 17
+
+**Branch de trabalho:** `feature/arvores-habilidades`  
+**Validação automatizada:** ainda não executada; reservada para a fase 17, conforme pedido.
+
+Implementações adicionadas nesta branch:
+
+- Modelo persistente de níveis de habilidades, investimentos, habilidades gratuitas de origem, distribuição única dos 12 pontos iniciais e recompensas de pergaminhos por missão.
+- Distribuição inicial livre entre atributos e pontos de habilidade, com validação de exatamente 12 pontos e respeito aos limites de atributos definidos pelo pacote.
+- Árvores carregadas por catálogo tipado: habilidades raciais/sub-raciais gratuitas, árvores de classe e profissão, e vertentes da Classe de Malditos.
+- Progressão sem teto global fixo, desbloqueio por ponto, custos de evolução validados pelo motor, preços de pergaminhos em prata e reset por 25.000 prata.
+- Despertar de classes híbridas por ordem: classe principal no nível 1, segunda no nível 10, terceira no nível 20 e quarta no nível 30. A interface e o contexto da IA recebem a consequência visual/social da mistura.
+- Afinidade elemental validada; Luz tratada como expressão de Yang quando declarada. Habilidades ligadas à afinidade mostram o elemento escolhido e respeitam os requisitos.
+- Efeitos de habilidades aplicados como modificadores tipados. Passivas equivalentes do catálogo e das árvores são comparadas por escopo e sinal, mantendo o maior bônus ou a maior penalidade em vez de somar duplicatas.
+- Golpes especiais usam o resolvedor de ataque existente. A habilidade final do Espadachim executa até cinco ataques no mesmo turno; a final do Arqueiro adiciona dano ao golpe; a Ressurreição Suprema de Yang do Sacerdote custa 10 PM e consome o turno durante combate.
+- Separação explícita entre Classe de Malditos e maldições lançadas. Os 100 registros editoriais antigos foram preservados em `cursedClassConcepts`, não são mais apresentados como maldições lançadas na criação de personagem.
+- Catálogo separado com 20 maldições lançadas, efeitos positivos e negativos tipados, testes reais de resistência pelo teste `resistir` do pacote, duração, expiração no fim da rodada e remoção por métodos declarados.
+- Interface em campanha para consultar/aplicar/remover maldições, escolher alvos de habilidades e resgatar pergaminhos de missões concluídas.
+- Bônus de habilidades e maldições conectados ao cálculo de combate e ao pipeline de testes, sem trocar a fórmula-base de ataque já existente.
+
+### Limitações conhecidas antes da fase 17
+
+- A maioria das árvores foi gerada a partir de um modelo progressivo compartilhado. Os valores e a identidade de cada habilidade ainda precisam de balanceamento de conteúdo; a IA não pode improvisar parâmetros ausentes.
+- O sistema de efeitos especiais está tipado para os escopos já suportados. Novos efeitos narrativos complexos só podem ser considerados funcionais depois de terem implementação e validação próprias.
+- A interface de remoção de maldições apresenta os métodos cadastrados e pressupõe que o jogador/GM confirme narrativamente que o método foi cumprido; a elegibilidade de missões ou itens específicos ainda pode receber validação mais estrita.
+- Nenhum resultado de compilação ou suíte de testes deve ser inferido a partir deste documento. A fase 17 é necessária para confirmar compatibilidade, corrigir erros e verificar migração/persistência.
+
