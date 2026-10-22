@@ -95,6 +95,17 @@ class SkillTreeCatalogTest {
             it.name.startsWith("Técnica Suprema de") || it.name.contains("maldito-vampiro-") ||
                 it.name.contains("maldito-lobisomem-") || it.name.contains("maldito-necromante-")
         })
+        assertTrue("famílias de ataque múltiplo precisam declarar pelo menos dois golpes", capstones
+            .filter { it.actionKind == dev.rpgsolo.engine.SkillActionKind.MULTI_HIT }
+            .all { it.hitCount >= 2 && it.effects.any { effect -> effect.target == "dano" } })
+        assertTrue("maldições de controle devem afetar o alvo e reduzir um escopo mecânico", capstones
+            .filter { it.treeId.startsWith("maldito-possessao-") || it.treeId.startsWith("maldito-praga-") }
+            .all { it.category == dev.rpgsolo.engine.SkillCategory.CONTROL &&
+                it.effects.any { effect -> effect.recipient == dev.rpgsolo.engine.SkillEffectRecipient.TARGET && effect.baseValue < 0 } })
+        assertTrue("magias amaldiçoadas devem respeitar a afinidade declarada", capstones
+            .filter { it.treeId.startsWith("maldito-mago-negro-") || it.treeId.startsWith("maldito-lunar-") ||
+                it.treeId.startsWith("maldito-corrupcao-elemental-") }
+            .all { it.affinityBound })
     }
 
     @Test fun culminanciasDeProfissaoSaoUnicasENaoForcamTodoOficioACombater() {
