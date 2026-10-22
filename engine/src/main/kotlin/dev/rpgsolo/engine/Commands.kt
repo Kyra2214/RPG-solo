@@ -67,6 +67,17 @@ data class ActivateAbility(
 ) : Command
 /** MU-06.3: fim de rodada; desconta 1 de cada efeito temporário e remove os expirados. */
 object EndEffectsRound : Command
+/** Aplica uma maldição validada pelo catálogo; resistência deve ser resolvida antes quando exigida. */
+data class ApplyCurse(
+    val targetId: String,
+    val curseId: String,
+    val sourceId: String,
+    val durationRounds: Int? = null,
+    val requiresResistance: Boolean = false,
+    val resistanceSucceeded: Boolean? = null
+) : Command
+/** Remove uma maldição aplicada, por efeito, ritual, item ou condição narrativa válida. */
+data class RemoveCurse(val targetId: String, val curseId: String, val reason: String) : Command
 /** Ressurreição exige justificativa explícita. */
 /** M-04: registra uma falha de sobrevivência do caído; ao atingir [limit] falhas, a entidade morre. */
 data class FailSurvival(val entityId: String, val limit: Int) : Command
@@ -515,6 +526,24 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val events = mutableListOf<Event>(SurvivalFailed(ent.id, failures))
             if (failures >= cmd.limit) events += EntityDied(ent.id)
             return Decision.Ok(events)
+        }
+
+        is ApplyCurse -> {
+            val target = entity(cmd.targetId) ?: return no("alvo inexistente: ${cmd.targetId}")
+            if (!target.alive) return no("não é possível amaldiçoar uma entidade morta")
+            if (cmd.curseId.isBlank() || cmd.sourceId.isBlank()) return no("maldição exige id e origem")
+            if (cmd.durationRounds != null && cmd.durationRounds <= 0) return no("duração da maldição inválida")
+            if (cmd.curseId in target.appliedCurses) return no("esta maldição já está aplicada")
+            if (cmd.requiresResistance && cmd.resistanceSucceeded == null) return no("a resistência precisa ser resolvida antes de aplicar a maldição")
+            if (cmd.requiresResistance && cmd.resistanceSucceeded == true) return no("o alvo resistiu à maldição")
+            return Decision.Ok(listOf(CurseApplied(target.id, cmd.curseId, cmd.sourceId, cmd.durationRounds)))
+        }
+
+        is RemoveCurse -> {
+            val target = entity(cmd.targetId) ?: return no("alvo inexistente: ${cmd.targetId}")
+            if (cmd.curseId !in target.appliedCurses) return no("essa maldição não está aplicada")
+            if (cmd.reason.isBlank()) return no("remover uma maldição exige motivo explícito")
+            return Decision.Ok(listOf(CurseRemoved(target.id, cmd.curseId, cmd.reason)))
         }
 
         is Revive -> {
