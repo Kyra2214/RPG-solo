@@ -45,6 +45,12 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 - As árvores de classe, profissão e classe amaldiçoada mantêm ranks 1–7 completos; as 100 árvores de raça/sub-raça têm uma habilidade básica gratuita cada. Nenhuma habilidade marcada como gratuita exige custo de desbloqueio nem pertence a origem não permitida.
 - Adicionado teste de regressão para existência, pertença à mesma árvore, coerência de nível e ausência de ciclos na cadeia de pré-requisitos. Teste ainda não executado; CI continua deliberadamente adiada até o fim da fase.
 
+## Maldições — alinhamento de duração e cobertura de escopos
+
+- O catálogo foi comparado campo a campo: os 200 efeitos das 100 maldições têm duração igual à da maldição (permanente ou temporária); todas as maldições temporárias declaram teste de resistência. Adicionado teste de regressão para essa correspondência.
+- Já existem testes de motor escritos para exigir a resolução de resistência, aceitar aplicação após falha, expirar a duração e remover com motivo explícito; o teste novo cobre persistência em salvar/reabrir. Todos ainda aguardam execução nesta fase.
+- Achado de cobertura que permanece aberto: 665 efeitos de profissões usam 84 escopos que não aparecem como IDs de teste, atributos ou escopos das perícias/traços do pacote atual. Alguns podem ser escopos de perícia contextual fornecidos pela IA durante a cena, então a diferença estática não prova que estejam inoperantes; porém, ainda falta demonstrar com testes que o fluxo real de testes recebe esses escopos e aplica os bônus de ofício. Não remapeei esses alvos automaticamente para não mudar as regras sem confirmação.
+
 ## Integridade das ações e paridade IA/jogador
 
 1. `ProgressSkillTree` no motor valida saldo/custo/progressão, mas não recebe o catálogo canônico; árvore, afinidade e pré-requisitos são validados em `SkillTreeActions`.
