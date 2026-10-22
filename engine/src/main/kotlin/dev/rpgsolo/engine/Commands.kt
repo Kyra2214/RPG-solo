@@ -669,6 +669,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                     val wrapped = c.turnIndex + step >= n
                     val events = mutableListOf<Event>(TurnAdvanced(idx, if (wrapped) c.round + 1 else c.round))
                     if (wrapped) {
+                        events += EffectsRoundEnded
                         var tickState = state
                         for ((entityId, conditions) in state.conditionStates) {
                             for ((condition, effect) in conditions) {
