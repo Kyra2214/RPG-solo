@@ -88,6 +88,13 @@ class GameEngineTest {
         assertTrue(engine().execute(CreateEntity(hero())) is ExecResult.Rejected)
     }
 
+    @Test fun loadoutRejeitaMaisDeQuatroClassesHibridas() {
+        val e = engine()
+        val classes = listOf("guerreiro", "mago", "ladino", "clerigo", "druida")
+        val result = e.execute(SetSkillTreeLoadout("hero", classes.toSet(), classes, "FIRE"))
+        assertTrue(result is ExecResult.Rejected)
+    }
+
     @Test fun semRecursoDeMorteNaoMorreAutomaticamente() {
         val e = GameEngine(1, EngineConfig(deathResource = null))
         e.execute(CreateEntity(orc()))
