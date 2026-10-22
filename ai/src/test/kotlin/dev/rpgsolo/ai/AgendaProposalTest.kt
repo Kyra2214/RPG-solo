@@ -24,7 +24,14 @@ class AgendaProposalTest {
             {"type":"change_relation","fromId":"ana","toId":"hero","delta":20,"reason":"ajuda"},
             {"type":"create_clock","id":"c","name":"Culto","segments":4,"combatTick":1,"questTick":2},
             {"type":"advance_clock","id":"c"}]}""")
-        assertEquals(listOf(ChangeRelation("ana", "hero", 20, "ajuda"), CreateClock("c", "Culto", 4, combatTick = 1, questTick = 2), AdvanceClock("c", 1)), o.proposals)
+        assertEquals(
+            listOf(
+                ChangeRelation("ana", "hero", 20, "ajuda"),
+                CreateClock("c", "Culto", 4, combatTick = 1, questTick = 2),
+                AdvanceClock("c", 1),
+            ),
+            o.proposals,
+        )
     }
 
     @Test fun camposFaltandoSaoInvalidos() {
@@ -94,7 +101,8 @@ class AgendaProposalTest {
             {"type":"create_clock","id":"ameaca","name":"Plano oculto","segments":2,
              "publicClue":"As luzes da cidade se apagam.",
              "midClue":"Uma fumaça estranha cobre o céu.",
-             "consequence":"O culto abre o portal para a entidade."}]}""")
+             "consequence":"O culto abre o portal para a entidade."}]}""",
+            )
         val create = o.proposals.single() as CreateClock
         assertEquals("As luzes da cidade se apagam.", create.publicClue)
         assertEquals("Uma fumaça estranha cobre o céu.", create.midClue)
@@ -102,24 +110,39 @@ class AgendaProposalTest {
         val s = session()
         s.execute(create)
         s.execute(AdvanceClock("ameaca", 1))
-        val midpointContext = ContextAssembler.build(ContextInput(
-            s.state, "hero", "observar", advancedClockIds = setOf("ameaca"), midpointClockIds = setOf("ameaca")
-        )).messages.last().content
+        val midpointContext =
+            ContextAssembler.build(
+                ContextInput(
+                    s.state,
+                    "hero",
+                    "observar",
+                    advancedClockIds = setOf("ameaca"),
+                    midpointClockIds = setOf("ameaca"),
+                ),
+            ).messages.last().content
         assertTrue("Uma fumaça estranha cobre o céu." in midpointContext)
         assertFalse("O culto abre o portal" in midpointContext)
         val midpointTimeline = automaticTimeline(s.engine.events, "hero", s.state)
         assertTrue(midpointTimeline.none { it.text.contains("luzes da cidade") })
         assertTrue(midpointTimeline.any { it.text == "Uma fumaça estranha cobre o céu." })
         s.execute(AdvanceClock("ameaca", 1))
-        val completionContext = ContextAssembler.build(ContextInput(
-            s.state, "hero", "observar", advancedClockIds = setOf("ameaca")
-        )).messages.last().content
+        val completionContext =
+            ContextAssembler.build(
+                ContextInput(
+                    s.state,
+                    "hero",
+                    "observar",
+                    advancedClockIds = setOf("ameaca"),
+                ),
+            ).messages.last().content
         assertTrue("O culto abre o portal para a entidade." in completionContext)
         val timeline = automaticTimeline(s.engine.events, "hero", s.state)
         assertTrue(timeline.any { it.text == "As luzes da cidade se apagam." })
-        assertFalse(timeline.any {
-            it.text.contains("Plano oculto") || it.text.contains("ameaca") ||
-                it.text.contains("entidade") || it.text.contains("2/2")
-        })
+        assertFalse(
+            timeline.any {
+                it.text.contains("Plano oculto") || it.text.contains("ameaca") ||
+                    it.text.contains("entidade") || it.text.contains("2/2")
+            },
+        )
     }
 }
