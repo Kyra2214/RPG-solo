@@ -44,7 +44,7 @@ fun SkillTreePanel(
     val state = model.statPointsState()
 
     AppCard {
-        SectionTitle("Árvore de habilidades", "Pontos disponíveis: \${state.abilityPoints}. Habilidades básicas de raça/sub-raça são gratuitas; evolução custa pontos.")
+        SectionTitle("Árvore de habilidades", "Pontos disponíveis: ${state.abilityPoints}. Habilidades básicas de raça/sub-raça são gratuitas; evolução custa pontos.")
         if (!initial.allocated) {
             SectionTitle("Distribuir os 12 pontos iniciais", "Divida livremente entre atributos e pontos de habilidade. A distribuição só pode ser feita uma vez.")
             initial.stats.forEach { stat ->
@@ -85,7 +85,7 @@ fun SkillTreePanel(
             entries.forEach { entry ->
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
                     Text(entry.skill.name, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
-                    Muted("\${categoryLabel(entry.skill.category)} · nível \${entry.currentLevel} · \${entry.skill.element.takeUnless { it.name == "NONE" } ?: "sem elemento fixo"}")
+                    Muted("${categoryLabel(entry.skill.category)} · nível ${entry.currentLevel} · ${entry.skill.element.takeUnless { it.name == "NONE" } ?: "sem elemento fixo"}")
                     entry.reason?.let { Muted("Requisitos: $it") }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         if (entry.skill.freeBaseSkill && entry.currentLevel == 0) {
@@ -107,7 +107,7 @@ fun SkillTreePanel(
                                         version++
                                     }
                                 }
-                            ) { Text("Pergaminho: \${entry.scrollPriceSilver ?: "—"} prata") }
+                            ) { Text("Pergaminho: ${entry.scrollPriceSilver ?: "—"} prata") }
                             Button(
                                 enabled = enabled && entry.canUse && entry.hasScroll && state.abilityPoints >= entry.pointCost,
                                 onClick = {
@@ -116,7 +116,7 @@ fun SkillTreePanel(
                                         version++
                                     }
                                 }
-                            ) { Text("Desbloquear (\${entry.pointCost} ponto)") }
+                            ) { Text("Desbloquear (${entry.pointCost} ponto)") }
                         } else {
                             Button(
                                 enabled = enabled && entry.canUse && state.abilityPoints >= entry.pointCost,
@@ -126,7 +126,7 @@ fun SkillTreePanel(
                                         version++
                                     }
                                 }
-                            ) { Text("Evoluir (\${entry.pointCost} ponto)") }
+                            ) { Text("Evoluir (${entry.pointCost} ponto)") }
                             if (entry.skill.effects.any { it.recipient == SkillEffectRecipient.TARGET } || entry.skill.actionKind == SkillActionKind.REVIVE) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
                                     (if (entry.skill.actionKind == SkillActionKind.REVIVE) revivableTargets else targets).forEach { (targetId, targetName) ->
