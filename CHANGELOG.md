@@ -5,7 +5,7 @@
 - `engine/AutomaticTimeline.kt`: promessas feitas por NPCs e promessas cumpridas agora aparecem na timeline do jogador, usando o nome público do NPC e o texto da promessa; não expõe dossiês ou segredos privados.
 - `engine/AutomaticTimeline.kt`: registra mudanças de relação envolvendo o personagem em linguagem neutra, sem expor valores numéricos ou motivos privados.
 
-- `engine/Npc.kt`: `DossierBook.contextFor` inclui motivações e relações do dossiê privado junto de personalidade e objetivos. As relações são ordenadas por ID para manter a composição do contexto determinística; esses dados seguem restritos ao contexto do mestre e não são expostos na interface do jogador.
+- `engine/Npc.kt` e `app/ui/AppModel.kt`: os contextos privados de NPC incluem motivações e relações junto de personalidade e objetivos; as relações são ordenadas por ID para manter a composição determinística. Esses dados seguem restritos ao contexto do mestre e não são expostos na interface do jogador.
 - `ai/GameLoop.kt` e `ai/CheckMenu.kt`: rolagens com tabela agora respeitam imunidades a condições declaradas no pacote. A condição imune é ignorada e uma nota mecânica privada informa o mestre; a nota fica no `PlayInput` para não se perder ao regenerar a narração. `ai/Master.kt` injeta essas notas no contexto obrigatório, sem mostrá-las diretamente ao jogador.
 - **Pendente:** avanço automático das agendas por outras passagens de tempo e geração contextual de pistas.
 - **Validação:** nenhum teste, build, lint ou CI executado; tudo permanece adiado para a etapa final.
