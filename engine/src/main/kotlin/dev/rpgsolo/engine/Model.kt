@@ -56,7 +56,9 @@ data class Entity(
     /** Pontos efetivamente investidos por habilidade; usados para um reset sem gerar pontos extras. */
     val skillTreeInvestments: Map<String, Int> = emptyMap(),
     /** Habilidades básicas gratuitas de origem, preservadas em nível 1 durante o reset. */
-    val freeSkillIds: Set<String> = emptySet()
+    val freeSkillIds: Set<String> = emptySet(),
+    /** Marca a distribuição única dos 12 pontos iniciais do novo sistema. */
+    val initialBuildAllocated: Boolean = false
 )
 
 /** MU-07.2: slots de magia de uma entidade: [total] pelos níveis-chave alcançados, [used] por magias aprendidas. */
