@@ -555,8 +555,7 @@ class GameLoop(
             val clock = session.state.clocks[event.id] ?: return@filter false
             clock.midClue.isNotBlank() &&
                 event.filled - event.delta < clock.midpoint &&
-                event.filled >= clock.midpoint &&
-                event.filled < clock.segments
+                event.filled >= clock.midpoint
         }.map { it.id }.toSet()
         val request = ContextAssembler.build(
             ContextInput(
