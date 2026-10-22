@@ -192,6 +192,8 @@ data class ClockCreated(
     val chapterTick: Int = 0,
     val midClue: String = "",
     val consequence: String = "",
+    val combatTick: Int = 0,
+    val questTick: Int = 0,
 ) : Event
 
 @Serializable
@@ -557,7 +559,7 @@ fun GameState.apply(e: Event): GameState {
             is RelationChanged -> copy(relations = relations + (relationKey(e.fromId, e.toId) to e.value))
             is ClockCreated ->
                 copy(
-                    clocks = clocks + (e.id to Clock(e.id, e.name, e.segments, publicClue = e.publicClue, restTick = e.restTick, moveTick = e.moveTick, chapterTick = e.chapterTick, midClue = e.midClue, consequence = e.consequence)),
+                    clocks = clocks + (e.id to Clock(e.id, e.name, e.segments, publicClue = e.publicClue, restTick = e.restTick, moveTick = e.moveTick, chapterTick = e.chapterTick, midClue = e.midClue, consequence = e.consequence, combatTick = e.combatTick, questTick = e.questTick)),
                 )
             is ClockAdvanced -> {
                 val c = requireNotNull(clocks[e.id]) { "relógio inexistente: ${e.id}" }

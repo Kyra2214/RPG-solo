@@ -61,6 +61,22 @@ class RulePackageTest {
         assertEquals("Cura", p.item("pocao")!!.description)
     }
 
+    @Test fun efeitosTipadosDeEquipamentoVemDoPacoteESeAplicamPorEscopo() {
+        val f = files("teste-basico").toMutableMap()
+        f["itens.txt"] = """espada|Espada|equipamento|mao|Arma|ataque:+2;dano:+1
+            capa|Capa|equipamento|corpo|Proteção|defesa:+3
+        """.trimIndent()
+        val result = PackageRegistry().install(f)
+        assertTrue(result.toString(), result is InstallResult.Success)
+        val pkg = (result as InstallResult.Success).pkg
+
+        assertEquals(listOf(ItemEffect("ataque", 2), ItemEffect("dano", 1)), pkg.item("espada")!!.effects)
+        assertEquals(2, pkg.equipmentBonus(listOf("espada", "nao-existe"), "ataque"))
+        assertEquals(1, pkg.equipmentBonus(listOf("espada"), "dano"))
+        assertEquals(3, pkg.equipmentBonus(listOf("capa"), "defesa"))
+        assertEquals(0, pkg.equipmentBonus(listOf("espada"), "defesa"))
+    }
+
     @Test fun equipamentoSemSlotEItemComSlotInvalidoSaoRecusados() {
         val f = files("teste-basico").toMutableMap()
         f["itens.txt"] = "espada|Espada|equipamento|-|Arma\n"

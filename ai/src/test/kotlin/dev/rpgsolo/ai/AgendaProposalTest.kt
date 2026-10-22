@@ -22,10 +22,9 @@ class AgendaProposalTest {
             ok(
                 """{"narrative":"x","proposals":[
             {"type":"change_relation","fromId":"ana","toId":"hero","delta":20,"reason":"ajuda"},
-            {"type":"create_clock","id":"c","name":"Culto","segments":4},
-            {"type":"advance_clock","id":"c"}]}""",
-            )
-        assertEquals(listOf(ChangeRelation("ana", "hero", 20, "ajuda"), CreateClock("c", "Culto", 4), AdvanceClock("c", 1)), o.proposals)
+            {"type":"create_clock","id":"c","name":"Culto","segments":4,"combatTick":1,"questTick":2},
+            {"type":"advance_clock","id":"c"}]}""")
+        assertEquals(listOf(ChangeRelation("ana", "hero", 20, "ajuda"), CreateClock("c", "Culto", 4, combatTick = 1, questTick = 2), AdvanceClock("c", 1)), o.proposals)
     }
 
     @Test fun camposFaltandoSaoInvalidos() {
@@ -34,6 +33,17 @@ class AgendaProposalTest {
                 """{"narrative":"x","proposals":[{"type":"change_relation","fromId":"a","toId":"b","delta":1}]}""",
             ) is ParseResult.Invalid,
         )
+    }
+
+    @Test fun instrucoesPedemPistasContextuaisSemInventarFatosOuVazarSegredos() {
+        val instructions = ProposalSchema.INSTRUCTIONS
+        assertTrue("sinais observáveis, concretos e contextualizados" in instructions)
+        assertTrue("fatos já estabelecidos" in instructions)
+        assertTrue("Não invente um acontecimento como já ocorrido" in instructions)
+        assertTrue("se não houver uma pista segura e coerente, omita-a" in instructions)
+        assertTrue("nunca coloque nela o nome interno do relógio, a contagem ou segredo privado" in instructions)
+        assertTrue("questTick" in instructions)
+        assertTrue("quando uma missão é encerrada como concluída ou falha" in instructions)
     }
 
     @Test fun contextoMostraRelacaoEmPalavrasERelogioPrivado() {
@@ -82,21 +92,34 @@ class AgendaProposalTest {
             ok(
                 """{"narrative":"x","proposals":[
             {"type":"create_clock","id":"ameaca","name":"Plano oculto","segments":2,
-             "publicClue":"As luzes da cidade se apagam."}]}""",
-            )
+             "publicClue":"As luzes da cidade se apagam.",
+             "midClue":"Uma fumaça estranha cobre o céu.",
+             "consequence":"O culto abre o portal para a entidade."}]}""")
         val create = o.proposals.single() as CreateClock
         assertEquals("As luzes da cidade se apagam.", create.publicClue)
+        assertEquals("Uma fumaça estranha cobre o céu.", create.midClue)
+        assertEquals("O culto abre o portal para a entidade.", create.consequence)
         val s = session()
         s.execute(create)
         s.execute(AdvanceClock("ameaca", 1))
-        assertTrue(
-            automaticTimeline(s.engine.events, "hero", s.state).none {
-                it.text.contains("luzes da cidade")
-            },
-        )
+        val midpointContext = ContextAssembler.build(ContextInput(
+            s.state, "hero", "observar", advancedClockIds = setOf("ameaca"), midpointClockIds = setOf("ameaca")
+        )).messages.last().content
+        assertTrue("Uma fumaça estranha cobre o céu." in midpointContext)
+        assertFalse("O culto abre o portal" in midpointContext)
+        val midpointTimeline = automaticTimeline(s.engine.events, "hero", s.state)
+        assertTrue(midpointTimeline.none { it.text.contains("luzes da cidade") })
+        assertTrue(midpointTimeline.any { it.text == "Uma fumaça estranha cobre o céu." })
         s.execute(AdvanceClock("ameaca", 1))
+        val completionContext = ContextAssembler.build(ContextInput(
+            s.state, "hero", "observar", advancedClockIds = setOf("ameaca")
+        )).messages.last().content
+        assertTrue("O culto abre o portal para a entidade." in completionContext)
         val timeline = automaticTimeline(s.engine.events, "hero", s.state)
         assertTrue(timeline.any { it.text == "As luzes da cidade se apagam." })
-        assertFalse(timeline.any { it.text.contains("Plano oculto") || it.text.contains("ameaca") })
+        assertFalse(timeline.any {
+            it.text.contains("Plano oculto") || it.text.contains("ameaca") ||
+                it.text.contains("entidade") || it.text.contains("2/2")
+        })
     }
 }

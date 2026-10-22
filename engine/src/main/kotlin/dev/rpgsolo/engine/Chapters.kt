@@ -177,15 +177,19 @@ class QuestLog {
         line.addAll(timeline)
     }
 
-    fun completeObjective(
-        id: String,
-        index: Int,
-    ) {
+    fun completeObjective(id: String, index: Int, chapter: Int = 0) {
+        require(chapter >= 0) { "número de capítulo inválido" }
         val q = requireNotNull(quests[id]) { "missão inexistente: $id" }
         require(q.status == QuestStatus.ACTIVE) { "missão já encerrada: $id" }
         require(index in q.objectives.indices) { "objetivo inexistente: $index" }
+        require(!q.objectives[index].done) { "objetivo já concluído: $index" }
         val objs = q.objectives.mapIndexed { i, o -> if (i == index) o.copy(done = true) else o }
-        quests[id] = q.copy(objectives = objs, status = if (objs.all { it.done }) QuestStatus.DONE else q.status)
+        val completed = objs.all { it.done }
+        quests[id] = q.copy(objectives = objs, status = if (completed) QuestStatus.DONE else q.status)
+        if (chapter > 0) {
+            note(chapter, "Objetivo concluído: ${q.title} — ${q.objectives[index].text}")
+            if (completed) note(chapter, "Missão concluída: ${q.title}")
+        }
     }
 
     fun markRewarded(id: String) {
@@ -203,14 +207,16 @@ class QuestLog {
         quests[id] = q.copy(spellGranted = true)
     }
 
-    fun finish(
-        id: String,
-        status: QuestStatus,
-    ) {
+    fun finish(id: String, status: QuestStatus, chapter: Int = 0) {
+        require(chapter >= 0) { "número de capítulo inválido" }
         val q = requireNotNull(quests[id]) { "missão inexistente: $id" }
         require(status != QuestStatus.ACTIVE) { "use DONE ou FAILED" }
         require(q.status == QuestStatus.ACTIVE) { "missão já encerrada: $id" }
         quests[id] = q.copy(status = status)
+        if (chapter > 0) {
+            val description = if (status == QuestStatus.DONE) "Missão concluída" else "Missão encerrada sem sucesso"
+            note(chapter, "$description: ${q.title}")
+        }
     }
 
     /** Evento importante, com o número do capítulo. */
@@ -223,4 +229,20 @@ class QuestLog {
     }
 
     fun timeline(): List<Pair<Int, String>> = line.toList()
+}
+
+/** Avança, uma única vez por fechamento de capítulo, apenas relógios incompletos com [Clock.chapterTick] configurado. */
+fun CampaignSession.advanceClocksAfterChapterClosure(): ExecResult? = atomically {
+    val advances = state.clocks.values
+        .filter { !it.full && it.chapterTick > 0 }
+        .map { AdvanceClock(it.id, it.chapterTick) }
+    if (advances.isEmpty()) null else executeAll(advances)
+}
+
+/** Avança, uma única vez por fechamento de missão, apenas relógios incompletos com [Clock.questTick] configurado. */
+fun CampaignSession.advanceClocksAfterQuestClosure(): ExecResult? = atomically {
+    val advances = state.clocks.values
+        .filter { !it.full && it.questTick > 0 }
+        .map { AdvanceClock(it.id, it.questTick) }
+    if (advances.isEmpty()) null else executeAll(advances)
 }

@@ -34,6 +34,13 @@ import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.engine.CampaignRecord
+import dev.rpgsolo.engine.ChapterBook
+import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.engine.advanceClocksAfterChapterClosure
+import dev.rpgsolo.engine.advanceClocksAfterQuestClosure
+import dev.rpgsolo.engine.Quest
+import dev.rpgsolo.engine.QuestLog
+import dev.rpgsolo.engine.journal
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.ChapterBook
 import dev.rpgsolo.engine.CreateEntity
@@ -1937,14 +1944,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return when (val r = ChapterSummarizer(p).closeWithSummary(session, chapters, narrations)) {
             is ChapterSummarizer.Result.Closed -> {
                 // M-07: encerrar um capítulo faz o tempo passar; relógios com chapterTick avançam pelo motor.
-                val advances =
-                    session.state.chapterClocks().map {
-                        dev.rpgsolo.engine.AdvanceClock(it.id, minOf(it.chapterTick, it.segments - it.filled))
-                    }
-                if (advances.isNotEmpty()) session.executeAll(advances)
-                saveMetadata()
-                campaignVersion++
-                null
+                session.advanceClocksAfterChapterClosure()
+                saveMetadata(); campaignVersion++; null
             }
             is ChapterSummarizer.Result.Failed -> r.reason
         }
@@ -2227,12 +2228,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     ): String? =
         try {
             require(status != dev.rpgsolo.engine.QuestStatus.ACTIVE) { "escolha concluída ou falhou" }
-            quests.finish(questId, status)
+            quests.finish(questId, status, chapter = chapters.chapters.size)
             var warning: String? = null
             if (status == dev.rpgsolo.engine.QuestStatus.DONE && (quests.get(questId)?.xpReward ?: 0) > 0) {
                 val award = session.awardQuestXp(quests, questId, playerId)
                 if (award is dev.rpgsolo.engine.ExecResult.Rejected) warning = award.reason
             }
+            val clockAdvance = session.advanceClocksAfterQuestClosure()
+            if (clockAdvance is dev.rpgsolo.engine.ExecResult.Rejected && warning == null) warning = clockAdvance.reason
             saveMetadata()
             campaignVersion++
             warning
@@ -2247,10 +2250,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         index: Int,
     ): String? =
         try {
-            quests.completeObjective(questId, index)
+            quests.completeObjective(questId, index, chapter = chapters.chapters.size)
+            var warning: String? = null
+            val completed = quests.get(questId)?.status == dev.rpgsolo.engine.QuestStatus.DONE
+            if (completed) {
+                if ((quests.get(questId)?.xpReward ?: 0) > 0) {
+                    val award = session.awardQuestXp(quests, questId, playerId)
+                    if (award is dev.rpgsolo.engine.ExecResult.Rejected) warning = award.reason
+                }
+                val clockAdvance = session.advanceClocksAfterQuestClosure()
+                if (clockAdvance is dev.rpgsolo.engine.ExecResult.Rejected && warning == null) warning = clockAdvance.reason
+            }
             saveMetadata()
             campaignVersion++
-            null
+            warning
         } catch (e: IllegalArgumentException) {
             e.message
         } catch (e: IllegalStateException) {

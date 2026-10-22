@@ -38,6 +38,13 @@ class PersistenceTest {
         for (e in samples) assertEquals(e, Codec.decodeEvent(Codec.encode(e)))
     }
 
+    @Test fun eventoAntigoDeRelogioSemGatilhosNovosContinuaDecodificavel() {
+        val encoded = Codec.encode(ClockCreated("old", "Relógio antigo", 4, publicClue = "Sinal público"))
+        val legacy = encoded.replace(Regex(",\\\"(?:combatTick|questTick)\\\":\\d+"), "")
+
+        assertEquals(ClockCreated("old", "Relógio antigo", 4, publicClue = "Sinal público"), Codec.decodeEvent(legacy))
+    }
+
     @Test fun configEFichaTambemVoltamIguais() {
         assertEquals(rec.config, Codec.decodeConfig(Codec.encode(rec.config)))
         val f =

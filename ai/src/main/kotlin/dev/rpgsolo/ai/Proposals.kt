@@ -85,8 +85,8 @@ object ProposalSchema {
         add_item(ownerId, itemId, qty) · consume_item(ownerId, itemId, qty) · gain_xp(entityId, amount)
         revive(entityId, reason) · record_fact(key, value) · record_memory(subjectId, text: nota curta sobre um NPC ou lugar) · learn(key, text, source, believed)
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
-        change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments, publicClue opcional, midClue opcional, consequence opcional, restTick opcional, moveTick opcional, chapterTick opcional) · advance_clock(id, by)
-        Em create_clock, publicClue é opcional e só aparece ao jogador quando o relógio completa. Use apenas consequência/pista pública; nunca coloque nela o nome interno do relógio, a contagem ou segredo privado. restTick (inteiro, opcional, padrão 0) é quantas casas o relógio avança sozinho a cada descanso do jogador, para ameaças que crescem com o tempo; o motor aplica o avanço sem você propor. moveTick (inteiro, opcional, padrão 0) é o mesmo para cada viagem do jogador a outro local; chapterTick, a cada capítulo encerrado. midClue (opcional) é uma pista pública curta, só de mundo, revelada quando o relógio chega à metade das casas; as mesmas restrições de publicClue valem. consequence (opcional) é uma nota PRIVADA para você: o que acontece no mundo quando o relógio completar; o jogador nunca a vê.
+        change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments, publicClue opcional, midClue opcional, consequence opcional, restTick opcional, moveTick opcional, chapterTick opcional, combatTick opcional, questTick opcional) · advance_clock(id, by)
+        Em create_clock, publicClue é opcional e só aparece ao jogador quando o relógio completa. Use apenas consequência/pista pública; nunca coloque nela o nome interno do relógio, a contagem ou segredo privado. Quando houver base narrativa, proponha publicClue e midClue como sinais observáveis, concretos e contextualizados nos fatos já estabelecidos na cena/campanha. Não invente um acontecimento como já ocorrido, não explique a causa secreta nem revele planos, nomes internos ou contagens; se não houver uma pista segura e coerente, omita-a. midClue deve sinalizar uma mudança perceptível no meio do progresso; publicClue, um efeito observável quando ele se completa. restTick (inteiro, opcional, padrão 0) é quantas casas o relógio avança sozinho a cada descanso do jogador; moveTick, a cada viagem validada para outro local; chapterTick, a cada capítulo encerrado; combatTick, no fim de cada combate; questTick, quando uma missão é encerrada como concluída ou falha. Cada valor é número de casas de 0 até segments (padrão 0); o motor aplica automaticamente o avanço configurado, sem você propor outra ação. midClue (opcional) é uma pista pública curta, só de mundo, revelada quando o relógio chega à metade das casas; as mesmas restrições de publicClue valem. consequence (opcional) é uma nota PRIVADA para você: o que acontece no mundo quando o relógio completar; o jogador nunca a vê.
         propose_rule(id, name, description, effects, limit): adaptação explícita, nunca regra oficial; fica pendente até aprovação do jogador.
         add_place(id, name, description, secret) · connect_places(fromId, toId) · discover_place(id); não use move_to_place, pois só o jogador se desloca.
         Se ainda não houver local conhecido, crie o ponto inicial e descubra-o; segredos de local só são revelados pelo motor após teste apropriado.
@@ -559,36 +559,16 @@ object ProposalParser {
             "add_condition" -> AddCondition(s("entityId"), s("condition"))
             "remove_condition" -> RemoveCondition(s("entityId"), s("condition"))
             "change_relation" -> ChangeRelation(s("fromId"), s("toId"), n("delta"), s("reason"))
-            "create_clock" ->
-                CreateClock(
-                    s(
-                        "id",
-                    ),
-                    s(
-                        "name",
-                    ),
-                    n(
-                        "segments",
-                    ),
-                    o.str(
-                        "publicClue",
-                    )?.trim().orEmpty(),
-                    nOr(
-                        "restTick",
-                        0,
-                    ),
-                    nOr("moveTick", 0), nOr("chapterTick", 0), o.str("midClue")?.trim().orEmpty(), o.str("consequence")?.trim().orEmpty(),
-                )
+            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"), o.str("publicClue")?.trim().orEmpty(), nOr("restTick", 0), nOr("moveTick", 0), nOr("chapterTick", 0), o.str("midClue")?.trim().orEmpty(), o.str("consequence")?.trim().orEmpty(), nOr("combatTick", 0), nOr("questTick", 0))
             "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
-            "add_place" ->
-                AddPlace(
-                    Place(
-                        id = slug(s("id")),
-                        name = s("name"),
-                        description = o.str("description")?.trim().orEmpty(),
-                        secret = o.str("secret")?.trim().orEmpty(),
-                    ),
+            "add_place" -> AddPlace(
+                Place(
+                    id = slug(s("id")),
+                    name = s("name"),
+                    description = o.str("description")?.trim().orEmpty(),
+                    secret = o.str("secret")?.trim().orEmpty()
                 )
+            )
             "connect_places" -> ConnectPlaces(slug(s("fromId")), slug(s("toId")))
             "discover_place" -> DiscoverPlace(slug(s("id")))
             "propose_rule" -> {
