@@ -43,7 +43,7 @@ class SkillTreeActions(
 ) {
     private val definitions: List<SkillTreeSkill> by lazy {
         val stream = SkillTreeActions::class.java.classLoader
-            ?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")
+            ?.getResourceAsStream("catalogs/sistema-proprio/habilidades-arvore.txt")
             ?: error("catálogo de habilidades não encontrado")
         val raw = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
         val parsed = SkillTreeCatalogLoader.load(raw)
