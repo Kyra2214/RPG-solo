@@ -1,3 +1,10 @@
+## 2026-10-22 — Árvores de habilidades e maldições: revisão de conteúdo (ainda não validada)
+
+- `rules/.../habilidades-arvore.txt`: revisadas as seis primeiras habilidades das 50 árvores de classe e das 103 árvores de profissão; as culminâncias das 103 profissões receberam nomes e efeitos por ofício. Foram adicionados testes de catálogo para distinção de nomes, categorias, afinidade e progressão.
+- `rules/.../maldicoes-lancadas.txt`: catálogo de maldições lançadas ampliado de 20 para 100 registros, separado dos conceitos/vertentes da Classe de Malditos. Cada registro declara efeitos positivos e negativos, resistência, duração e remoção.
+- `engine/SkillTrees.kt` e `app/CombatBonuses.kt`: regra mecânica para penalidade social crescente de classes híbridas, com teste unitário.
+- **Estado de validação:** alterações e testes foram escritos na branch `feature/arvores-habilidades`, mas ainda não há confirmação de que a suíte final, o build Android e a CI passaram para o conjunto mais recente. Nenhum resultado verde é declarado aqui. A auditoria de integração de efeitos, persistência e fluxo real das maldições continua pendente.
+
 # Changelog
 
 ## 2026-10-21 — I-02.3: memórias narrativas por cena
