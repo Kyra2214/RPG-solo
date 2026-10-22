@@ -32,6 +32,13 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 - A alteração e o teste ainda não foram executados pela CI, conforme a instrução de só dispará-la ao concluir a fase.
 - Reanálise estática após a correção: 1.507 registros em 295 árvores, zero linhas malformadas; nenhuma culminância rank 7 sem efeito tipado (exceto REVIVE, que é resolvida pela ação de ressurreição); nenhum ataque especial com custo de recurso diferente de zero, evitando o caminho de rejeição atual da UI; zero divergências restantes entre alvos/grupos nas árvores profissionais integralmente passivas.
 
+## Auditoria de culminâncias e duração — verificação estática
+
+- As 194 árvores que têm rank 6 e rank 7 comparável por magnitude bruta foram verificadas. Sete pares não têm magnitude do rank 7 maior que a do rank 6, mas todos mudam alvo/escopo ou tipo de efeito (por exemplo, defesa do inimigo versus resistência a dano própria, ou passiva de ofício versus buff de velocidade). Isso não prova fraqueza: a magnitude bruta não compara utilidades distintas. Esses sete casos ficam marcados para revisão de balanceamento contextual, sem alterar números automaticamente.
+- Nenhuma culminância rank 7 não-REVIVE está sem efeito tipado. Todos os ataques POWER_STRIKE/MULTI_HIT do catálogo têm custo de recurso zero, compatível com o resolvedor atual da UI, que rejeita ataques especiais com custo não-zero. A única culminância REVIVE verificada custa 10 PM e segue o caminho específico de ressurreição.
+- Catálogo de maldições: 100 registros, 200 efeitos, nenhuma linha malformada, nenhum efeito com progressão por nível (perLevel diferente de zero) e nenhum grupo que misture efeitos positivos e negativos para o mesmo alvo. As durações são permanentes (45) ou temporárias de 3–6 rodadas (55), e a UI exige combate para aplicar as temporárias.
+- A revisão dos sete pares de culminância deve confirmar duração, alvo, uso real e valor narrativo/mecânico; não será feita normalização automática que possa apagar distinções de suporte/controle.
+
 ## Integridade das ações e paridade IA/jogador
 
 1. `ProgressSkillTree` no motor valida saldo/custo/progressão, mas não recebe o catálogo canônico; árvore, afinidade e pré-requisitos são validados em `SkillTreeActions`.
