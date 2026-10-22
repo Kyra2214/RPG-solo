@@ -547,6 +547,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
         is SetSkillTreeLoadout -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
             if (cmd.treeIds.any { it.isBlank() } || cmd.classOrder.any { it.isBlank() }) return no("loadout de habilidades inválido")
+            if (cmd.classOrder.size > 4) return no("personagem híbrido pode combinar no máximo quatro classes")
             if (cmd.classOrder.distinct().size != cmd.classOrder.size) return no("ordem de classes repetida")
             if (cmd.classOrder.any { it !in cmd.treeIds }) return no("a ordem de classes não corresponde às árvores escolhidas")
             if (cmd.elementalAffinity.isNotBlank() && cmd.elementalAffinity !in setOf("WATER", "FIRE", "WIND", "EARTH", "METAL", "YIN", "YANG")) return no("afinidade elemental inválida")
