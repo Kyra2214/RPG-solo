@@ -18,6 +18,23 @@ class CurseCatalogTest {
         assertEquals(result.curses.size, result.curses.map { it.id }.distinct().size)
     }
 
+    @Test fun duracaoDosEfeitosEstaAlinhadaComADuracaoDaMaldicao() {
+        val result = CurseCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        result.curses.forEach { curse ->
+            curse.effects.forEach { effect ->
+                assertEquals(
+                    "efeito ${effect.id} da maldição ${curse.id} deve acompanhar a duração da maldição",
+                    curse.durationRounds,
+                    effect.durationRounds
+                )
+            }
+            if (curse.durationRounds != null) {
+                assertTrue("${curse.id} temporária precisa declarar resistência", curse.resistanceCheckId != null)
+            }
+        }
+    }
+
     @Test fun cadaMaldicaoDeclaraBeneficioEContrapartida() {
         val result = CurseCatalogLoader.load(catalogText())
         assertTrue(result.valid)
