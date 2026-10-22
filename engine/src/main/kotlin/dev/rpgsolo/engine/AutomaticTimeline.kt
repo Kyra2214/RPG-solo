@@ -96,6 +96,18 @@ fun automaticTimeline(
                     AutomaticTimelineEntry(index, "promessa", "A promessa de ${npc.name} foi cumprida.")
                 }
             }
+            is RelationChanged -> {
+                val otherId = when (playerId) {
+                    event.fromId -> event.toId
+                    event.toId -> event.fromId
+                    else -> null
+                }
+                otherId?.let { id ->
+                    finalState.entities[id]?.takeIf { it.kind == EntityKind.NPC }?.let { npc ->
+                        AutomaticTimelineEntry(index, "relação", "Sua relação com ${npc.name} mudou.")
+                    }
+                }
+            }
             is PlaceDiscovered -> finalState.places[event.id]
                 ?.takeIf { event.id in finalState.knownPlaces }
                 ?.let { AutomaticTimelineEntry(index, "local", "Local descoberto: ${it.name}") }
