@@ -67,6 +67,13 @@ data class ActivateAbility(
 ) : Command
 /** MU-06.3: fim de rodada; desconta 1 de cada efeito temporário e remove os expirados. */
 object EndEffectsRound : Command
+/** Resgata um pergaminho de uma missão concluída; a camada de aplicação valida o estado da missão. */
+data class ClaimQuestScroll(
+    val entityId: String,
+    val questId: String,
+    val skillId: String,
+    val scrollId: String
+) : Command
 /** Aplica uma maldição validada pelo catálogo; resistência deve ser resolvida antes quando exigida. */
 data class ApplyCurse(
     val targetId: String,
@@ -528,6 +535,17 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val events = mutableListOf<Event>(SurvivalFailed(ent.id, failures))
             if (failures >= cmd.limit) events += EntityDied(ent.id)
             return Decision.Ok(events)
+        }
+
+        is ClaimQuestScroll -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("personagem está morto")
+            if (state.combat != null) return no("não é possível resgatar pergaminhos durante o combate")
+            if (cmd.questId.isBlank() || cmd.skillId.isBlank() || cmd.scrollId.isBlank()) return no("recompensa de missão inválida")
+            val claim = "${cmd.questId}:${cmd.skillId}"
+            if (claim in ent.claimedQuestRewards) return no("esta missão já foi usada para resgatar esse pergaminho")
+            if ((state.inventory[ent.id]?.get(cmd.scrollId) ?: 0) > 0) return no("o pergaminho já está no inventário")
+            return Decision.Ok(listOf(QuestScrollClaimed(ent.id, cmd.questId, cmd.skillId, cmd.scrollId)))
         }
 
         is ApplyCurse -> {
