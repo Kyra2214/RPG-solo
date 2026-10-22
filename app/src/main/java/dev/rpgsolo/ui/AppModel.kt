@@ -1591,8 +1591,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun skillTreeActions(): SkillTreeActions {
         val choices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
         val selected = listOf(
-            choices.raceId, choices.subraceId, choices.classId, choices.professionId, choices.hybridId, choices.cursedClassBranchId
-        ).filter { it.isNotBlank() }.toSet()
+            choices.raceId, choices.subraceId, choices.classId, choices.professionId, choices.hybridId, choices.cursedClassBranchId) + choices.additionalClassIds
+        .filter { it.isNotBlank() }.toSet()
         val affinity = runCatching {
             if (choices.elementalAffinity.isBlank()) dev.rpgsolo.engine.ElementPath.NONE
             else dev.rpgsolo.engine.ElementPath.valueOf(choices.elementalAffinity)
