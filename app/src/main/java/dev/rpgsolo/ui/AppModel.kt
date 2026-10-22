@@ -180,7 +180,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
-        val choices = characterChoices(fichaId)
+        val editorialChoices = characterChoices(fichaId)
+        val storedLoadout = runCatching { session.state.entities[playerId] }.getOrNull()
+        val loadoutIds = storedLoadout?.skillTreeTreeIds.orEmpty()
+        val classOrder = storedLoadout?.skillTreeClassOrder.orEmpty()
+        val choices = if (loadoutIds.isEmpty()) editorialChoices else editorialChoices.copy(
+            raceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.races.any { it.id == id } } ?: editorialChoices.raceId,
+            subraceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.subraces.any { it.id == id } } ?: editorialChoices.subraceId,
+            classId = classOrder.firstOrNull() ?: editorialChoices.classId,
+            professionId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.professions.any { it.id == id } } ?: editorialChoices.professionId,
+            hybridId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.hybrids.any { it.id == id } } ?: editorialChoices.hybridId,
+            cursedClassBranchId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.cursedClassBranches.any { it.id == id } } ?: editorialChoices.cursedClassBranchId,
+            additionalClassIds = classOrder.drop(1),
+            elementalAffinity = storedLoadout?.skillTreeElement?.takeIf { it.isNotBlank() } ?: editorialChoices.elementalAffinity
+        )
         val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds
         val selected = selectedIds.filter { it.isNotBlank() }.distinct().mapNotNull(CharacterCreationCatalog::find)
         val ancestryIds = selected.filter { it.id == choices.hybridId }.flatMap { it.hybridRaceIds }
