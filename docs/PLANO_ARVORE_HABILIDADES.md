@@ -139,3 +139,13 @@ Implementações adicionadas nesta branch:
 - A interface de remoção de maldições apresenta os métodos cadastrados e pressupõe que o jogador/GM confirme narrativamente que o método foi cumprido; a elegibilidade de missões ou itens específicos ainda pode receber validação mais estrita.
 - Nenhum resultado de compilação ou suíte de testes deve ser inferido a partir deste documento. A fase 17 é necessária para confirmar compatibilidade, corrigir erros e verificar migração/persistência.
 
+
+
+## Auditoria incremental — 2026-10-22
+
+- CI anterior confirmado verde no commit `7c2aecb3145e768ffee372ba94d61045a64ac385`: testes JVM/Android e build do APK debug passaram; E2E foi ignorado.
+- Corrigido um defeito na penalidade social de híbridos: ela agora conta apenas classes cujo desbloqueio por nível já ocorreu (níveis 1, 10, 20 e 30), em vez de penalizar imediatamente por todas as classes listadas na ficha.
+- O comando canônico `SetSkillTreeLoadout` agora rejeita mais de quatro classes, impedindo que um loadout inválido cause falha posterior durante o cálculo de bônus.
+- Foram adicionados testes para a contagem por nível e para o limite de quatro classes. A CI dos commits que contêm essas correções ainda precisa concluir; o resultado verde anterior não valida automaticamente estes novos commits.
+- O catálogo atual de maldições aplicadas contém 100 registros (não 20). O carregamento, teste de resistência, aplicação, remoção e expiração têm caminhos de código e UI; ainda falta uma auditoria específica de escopos mecânicos e de persistência salvar/reabrir para confirmar todos os casos de ponta a ponta.
+- O plano continua aberto: não declarar as 17 fases concluídas até validar os efeitos de cada habilidade final, os grupos de acúmulo e a execução real das regras para jogador e IA.
