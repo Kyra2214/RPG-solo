@@ -180,7 +180,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
         val choices = characterChoices(fichaId)
-        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.curseIds
         val selected = selectedIds.filter { it.isNotBlank() }.distinct().mapNotNull(CharacterCreationCatalog::find)
         val ancestryIds = selected.filter { it.id == choices.hybridId }.flatMap { it.hybridRaceIds }
         val ancestry = ancestryIds.mapNotNull(CharacterCreationCatalog::find)
@@ -1461,6 +1461,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         activeFichaId = started.campanha.fichaId
         activeSystemId = started.campanha.system.systemId
         activeEditionId = started.campanha.system.editionId
+        runCatching { skillTreeActions().grantSelectedFreeBaseSkills() }
+            .getOrNull()?.let { configError = "habilidades básicas não concedidas: $it" }
         when (val setting = session.execute(dev.rpgsolo.engine.SetAmbientacao(started.campanha.ambientacao))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
             is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "ambientação não salva: ${setting.reason}"
@@ -1581,7 +1583,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun skillTreeActions(): SkillTreeActions {
         val choices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
         val selected = listOf(
-            choices.raceId, choices.subraceId, choices.classId, choices.professionId, choices.hybridId
+            choices.raceId, choices.subraceId, choices.classId, choices.professionId, choices.hybridId, choices.cursedClassBranchId
         ).filter { it.isNotBlank() }.toSet()
         val affinity = runCatching {
             if (choices.elementalAffinity.isBlank()) dev.rpgsolo.engine.ElementPath.NONE
