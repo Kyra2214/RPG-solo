@@ -37,7 +37,16 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 - As 194 árvores que têm rank 6 e rank 7 comparável por magnitude bruta foram verificadas. Sete pares não têm magnitude do rank 7 maior que a do rank 6, mas todos mudam alvo/escopo ou tipo de efeito (por exemplo, defesa do inimigo versus resistência a dano própria, ou passiva de ofício versus buff de velocidade). Isso não prova fraqueza: a magnitude bruta não compara utilidades distintas. Esses sete casos ficam marcados para revisão de balanceamento contextual, sem alterar números automaticamente.
 - Nenhuma culminância rank 7 não-REVIVE está sem efeito tipado. Todos os ataques POWER_STRIKE/MULTI_HIT do catálogo têm custo de recurso zero, compatível com o resolvedor atual da UI, que rejeita ataques especiais com custo não-zero. A única culminância REVIVE verificada custa 10 PM e segue o caminho específico de ressurreição.
 - Catálogo de maldições: 100 registros, 200 efeitos, nenhuma linha malformada, nenhum efeito com progressão por nível (perLevel diferente de zero) e nenhum grupo que misture efeitos positivos e negativos para o mesmo alvo. As durações são permanentes (45) ou temporárias de 3–6 rodadas (55), e a UI exige combate para aplicar as temporárias.
-- A revisão dos sete pares de culminância deve confirmar duração, alvo, uso real e valor narrativo/mecânico; não será feita normalização automática que possa apagar distinções de suporte/controle.
+- A revisão contextual foi concluída: seis culminâncias de controle que atingiam um alvo foram reforçadas para superar numericamente o rank 6 e durar mais tempo; a culminância do Tratador de Montarias foi reforçada para +10 no primeiro nível da habilidade, crescimento de +2 por nível e duração de 3 rodadas. As mudanças têm testes de regressão escritos. A comparação numérica isolada continua inadequada para efeitos de tipos diferentes.
+
+## Auditoria final de efeitos e camadas — 2026-10-22
+
+- Os efeitos de habilidades direcionados a um alvo foram comparados com os escopos realmente consumidos pelo resolvedor de combate: todos usam `ataque`, `dano`, `defesa`, `resistencia_dano` ou escopos de combate suportados (`velocidade` também participa da defesa/ataque). Todos declaram duração explícita; nenhum efeito direcionado depende do fallback silencioso de uma rodada. Teste de regressão adicionado.
+- Os efeitos das 100 maldições usam escopos consumidos pelo resolvedor de combate; os 200 efeitos permanecem alinhados com a duração da maldição. A varredura não encontrou grupos que misturem bônus e penalidades no mesmo alvo/grupo, nem grupos conflitantes entre maldições diferentes. Teste de regressão adicionado para conflitos internos de grupo.
+- Corrigida a seleção de bônus entre camadas: a combinação de passivas tipadas com efeitos do catálogo colapsava tudo por escopo e sinal, suprimindo efeitos compatíveis de origens diferentes. Agora as passivas são deduplicadas pelo grupo explícito do provedor, o catálogo aplica sua própria regra de equivalência e a combinação final remove apenas declarações com o mesmo ID de efeito. Adicionados testes JVM do módulo app para preservar camadas compatíveis e continuar removendo duplicatas com o mesmo ID.
+- Corrigido um erro de compilação no teste de integração do bônus contextual: `ExternalBonus` usa `effectId`, não `sourceId`.
+- Corrigidas seis culminâncias direcionadas (Diplomata, Especialista em Toxinas, Perito em Armadilhas e três vertentes de Praga) para que o impacto inicial do rank 7 supere o efeito do rank 6 e a duração aumente para três rodadas. A culminância do Tratador de Montarias passou a `velocidade +10`, `+2 por nível da habilidade`, por três rodadas. Testes de catálogo foram adicionados; os valores ainda precisam passar pela validação executada da suíte.
+- Nenhuma alteração foi feita na fórmula-base de ataque. Os golpes especiais continuam delegando ao resolvedor de ataque existente; a ressurreição segue o caminho dedicado, com custo declarado de 10 PM.
 
 ## Integridade da progressão — auditoria de pré-requisitos
 
@@ -76,9 +85,7 @@ Esse estado é um resultado parcial de uma execução já iniciada pelo push ant
 
 ## Critérios restantes antes de concluir a fase 17
 
-- Completar auditoria dos efeitos contra os escopos usados pelos resolvedores reais de combate/testes e corrigir efeitos que não tenham consumidor mecânico.
-- Revisar culminâncias e suas regras de alvo, duração, custo e consequências, sem substituir a fórmula original de combate.
-- Confirmar o ciclo de vida e persistência das maldições e os efeitos híbridos.
-- Resolver ou documentar uma barreira autoritativa para a integridade dos comandos de habilidades/maldições.
-- Só então disparar a CI completa: `./gradlew test --continue --stacktrace` e `./gradlew :app:assembleDebug --stacktrace`; analisar relatórios, corrigir falhas e repetir até obter resultado conclusivo.
-- Não marcar a fase 17 nem a implementação geral como concluídas antes da validação real.
+- A auditoria estática dos escopos de combate, duração dos efeitos, pré-requisitos, culminâncias, camadas de bônus e grupos de acúmulo foi concluída; testes de regressão correspondentes foram adicionados, ainda sem execução.
+- O limite de confiança está documentado: comandos de árvore/maldição não são aceitos pelo parser da IA; a UI valida IDs e definições canônicas em `SkillTreeActions` e `CurseActions`. O motor continua sem carregar o catálogo de regras (dependência arquitetural evitada entre `engine` e `rules`), então chamadas internas futuras precisam passar por esses gateways. Os testes de parser protegem o caminho não confiável da IA; essa fronteira deve permanecer explícita.
+- Falta a validação executada: abrir PR para acionar o CI de pull request, acompanhar `./gradlew test --continue --stacktrace` e `./gradlew :app:assembleDebug --stacktrace`, corrigir falhas e repetir até resultado conclusivo. O E2E em emulator é diagnóstico e não é gate do CI principal.
+- Não marcar a fase 17 nem a implementação geral como concluídas antes de confirmar o CI verde no código final.
