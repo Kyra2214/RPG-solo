@@ -1,3 +1,9 @@
+## 2026-10-22 — I-06: ciclo de cena e turnos no prompt do mestre (não validado)
+
+- `ai/Master.kt`: adicionada a regra 17 ao prompt fixo para limitar cada resposta a um momento significativo, terminar com pergunta direta ao jogador e impedir que a IA escolha ações do jogador ou antecipe a resolução de turnos de NPC.
+- `PLANO_RPG_SOLO.md`: I-06 marcado como implementado em código, mantendo a validação executada pendente.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — F3: sorte/destino no sistema próprio (não validado)
 
 - `rules/src/main/resources/packages/sistema-proprio/criacao.txt`: o pacote próprio agora declara 1 PA como recurso global de sorte/destino, com custo 1 e as formas `REROLL+ADD_FACE`.

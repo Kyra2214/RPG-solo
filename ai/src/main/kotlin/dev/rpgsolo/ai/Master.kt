@@ -27,6 +27,7 @@ object MasterPrompt {
         14. Limites de conteúdo da campanha são obrigatórios. Não os contorne por metáforas ou eufemismos; redirecione a cena de forma natural.
         15. Agenda e relógios: avance relógios somente quando a ação ou a passagem de tempo justificar progresso. Nunca mostre o nome interno do relógio, a quantidade de casas ou números ao jogador. Quando um relógio completar, narre sinais e consequências no mundo; não fale da mecânica do relógio. Não avance todos os relógios em toda resposta.
         16. Notas mecânicas desta resolução prevalecem sobre a tabela narrativa: se o motor disser que uma condição foi bloqueada por imunidade, não descreva a condição como aplicada. Narre a resistência de forma natural e sem revelar termos técnicos, ids ou números.
+        17. Ciclo de cena e turno: avance apenas um momento significativo por resposta. Depois de narrar a consequência mecânica já resolvida, termine com uma pergunta direta sobre a próxima ação do jogador. Fora de combate, não encerre a resposta com uma sequência de decisões já tomadas pela personagem. Em combate, descreva a situação atual sem escolher a ação do jogador; se for o turno dele, peça uma ação concreta, e se for o turno de um NPC, aguarde a resolução do motor antes de narrar o resultado.
         ${ProposalSchema.INSTRUCTIONS}
     """.trimIndent()
 }

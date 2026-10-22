@@ -161,7 +161,7 @@ Removidos `packages-import/3det-victory/`, os links de consulta (`fontes.txt`, `
 | I-03 Provedor gratuito padrão | 🟡 | M | Testar limites reais de 2 ou 3 provedores e deixar presets. Não declarar preset sem validação |
 | I-04 Cache de prompt | 🟡 | P | Confirmar cache-hit na API oficial da Anthropic em rede real. Não presumir para provedores compatíveis |
 | I-05 Desfecho em palavras | 🟡 | P | Enviar à IA só o desfecho calculado pela margem ("acertou por pouco"), não números de dado |
-| I-06 Prompt do mestre | 🟡 | P | Regras de ritmo, pergunta ao jogador e combate por turnos |
+| I-06 Prompt do mestre | 🟡 | P | Feito em código: regra 17 do `MasterPrompt` formaliza um momento significativo por resposta, pergunta direta ao jogador e separação entre turno do jogador e resolução de NPC. Falta validação executada |
 | I-07 Cenas de referência | 🟡 | M | Conjunto gravado de entradas e estruturas esperadas para pegar regressão de prompt |
 | I-08 Fila única | 🟢 | P | Hoje cada papel (barato, narrador, premium) tem fila própria de 20/min; unificar por endpoint |
 | I-09 Retrato e narrativa assistida | 🟢 | G | Criação de lore e retrato do personagem por IA (planejado em `PLANO_RACAS_E_SUBRACAS.md`, R4A) |
