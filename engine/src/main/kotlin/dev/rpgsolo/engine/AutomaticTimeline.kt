@@ -139,6 +139,9 @@ fun automaticTimeline(
             is StatPointsAllocated -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você investiu pontos de status na ficha.")
             } else null
+            is ConditionTicked -> if (event.entityId == playerId && event.damage > 0) {
+                AutomaticTimelineEntry(index, "condição", "A condição ${event.condition} causou ${event.damage} de dano em você.")
+            } else null
             is ConditionAdded -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "condição", "Você sofreu a condição: ${event.condition}.")
             } else null
