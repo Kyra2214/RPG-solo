@@ -1590,6 +1590,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Ações da árvore vinculadas às escolhas salvas na ficha ativa. */
     fun skillTreeActions(): SkillTreeActions {
         val choices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
+        val orderedClasses = (listOf(choices.classId).filter { it.isNotBlank() } + choices.additionalClassIds).distinct()
         val selected = (listOf(
             choices.raceId, choices.subraceId, choices.classId, choices.professionId, choices.hybridId, choices.cursedClassBranchId
         ) + choices.additionalClassIds).filter { it.isNotBlank() }.toSet()
@@ -1604,6 +1605,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             activePackage = { activePackage },
             playerId = { playerId },
             selectedTreeIds = { selected },
+            classTreeUnlockLevel = { treeId ->
+                when (orderedClasses.indexOf(treeId)) {
+                    0 -> 1
+                    1 -> 10
+                    2 -> 20
+                    3 -> 30
+                    else -> 1
+                }
+            },
             element = { affinity },
             weaponTags = { weaponTags },
             multiHitAction = { targetId, hitCount, damageBonus -> combatActions.attack(targetId, hitCount, damageBonus) },
