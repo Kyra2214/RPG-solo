@@ -19,6 +19,7 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 ## Alteração feita nesta branch de auditoria
 
 - Adicionado em `engine/src/test/kotlin/dev/rpgsolo/engine/CampaignPersistenceTest.kt` um teste que aplica uma maldição temporária, reabre a campanha, avança rodadas, reabre novamente e confirma decremento e expiração, além de conferir replay do log.
+- Adicionado em `engine/src/test/kotlin/dev/rpgsolo/engine/GameEngineTest.kt` um teste de reset que confere devolução exata dos pontos investidos, preservação da habilidade básica gratuita no nível 1 e limpeza dos investimentos.
 - O teste foi escrito, mas **não foi executado**. A execução da suíte completa fica reservada para o fim da fase 17 conforme solicitado.
 
 ## Integridade das ações e paridade IA/jogador
