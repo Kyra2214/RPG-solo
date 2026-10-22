@@ -169,3 +169,10 @@ Implementações adicionadas nesta branch:
 - Além dos nomes, as 42 culminâncias receberam mecânicas diferenciadas por família/vertente: sequências de golpes para lobisomens, espectros, parasitas e mutações; efeitos de controle direcionados para possessão e praga; golpes culminantes de maior potência para outras famílias.
 - As vertentes de mago negro, lunar e corrupção elemental declaram vínculo com a afinidade elemental, para que o golpe use a afinidade escolhida pelo personagem.
 - Testes novos verificam multiataque, efeitos negativos aplicados ao alvo e vínculo elemental. O balanceamento numérico continua pendente de teste de jogo.
+
+
+### Segurança de efeitos direcionados
+
+- O motor agora rejeita efeitos ativos direcionados fora de combate, fora da iniciativa ou quando não é o turno de quem usa a habilidade. Isso fecha a diferença entre as validações da interface e o comando canônico que pode ser invocado pela IA.
+- Teste unitário cobre a rejeição fora de combate, a aplicação no turno correto, a rejeição fora do turno e o replay do estado.
+- A suíte deve validar esse commit antes de considerar a correção aprovada.
