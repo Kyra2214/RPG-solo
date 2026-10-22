@@ -21,6 +21,7 @@ class SkillTreeActions(
     private val activePackage: () -> RulePackage?,
     private val playerId: () -> String,
     private val selectedTreeIds: () -> Set<String>,
+    private val classTreeUnlockLevel: (treeId: String) -> Int,
     private val element: () -> ElementPath,
     private val weaponTags: () -> Set<String>,
     private val multiHitAction: (targetId: String, hitCount: Int, damageBonus: Int) -> String?,
@@ -41,7 +42,8 @@ class SkillTreeActions(
     fun view(): List<SkillTreeEntryView> {
         val state = session().state
         val hero = state.entities[playerId()] ?: return emptyList()
-        return definitions.filter { it.treeId in selectedTreeIds() }.map { skill ->
+        return definitions.filter { it.treeId in selectedTreeIds() }.map { rawSkill ->
+            val skill = effectiveSkill(rawSkill)
             val level = hero.skillTreeLevels[skill.id] ?: 0
             val validation = SkillTreeProgression.validate(skill, context(hero.skillTreeLevels))
             val scrollId = scrollItemId(skill.id)
@@ -227,7 +229,13 @@ class SkillTreeActions(
     )
 
     private fun requireSkill(id: String): SkillTreeSkill =
-        definitions.firstOrNull { it.id == id } ?: throw IllegalArgumentException("habilidade não existe no catálogo: $id")
+        effectiveSkill(definitions.firstOrNull { it.id == id } ?: throw IllegalArgumentException("habilidade não existe no catálogo: $id"))
+
+    /** Classes secundárias despertam em níveis 10, 20 e 30, respectivamente. */
+    private fun effectiveSkill(skill: SkillTreeSkill): SkillTreeSkill {
+        if (skill.origin != SkillOrigin.CLASS) return skill
+        return skill.copy(requiredCharacterLevel = maxOf(skill.requiredCharacterLevel, classTreeUnlockLevel(skill.treeId)))
+    }
 
     private fun scrollItemId(skillId: String) = "pergaminho-habilidade-$skillId"
 
