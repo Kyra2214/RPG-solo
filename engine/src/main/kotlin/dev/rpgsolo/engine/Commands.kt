@@ -35,6 +35,15 @@ data class MasterSkill(val entityId: String, val skillId: String) : Command
 data class LearnSpell(val entityId: String, val spellId: String) : Command
 /** MU-06.3: aprende uma habilidade gastando [cost] pontos de habilidade. */
 data class LearnAbility(val entityId: String, val abilityId: String, val cost: Int) : Command
+/** Evolui uma habilidade da árvore; o catálogo valida origem, afinidade e pré-requisitos antes da chamada. */
+data class ProgressSkillTree(
+    val entityId: String,
+    val skillId: String,
+    val pointCost: Int,
+    val freeBase: Boolean = false
+) : Command
+/** Reseta investimentos da árvore sem criar pontos extras. */
+data class ResetSkillTreeProgress(val entityId: String) : Command
 /** MU-06.3: ativa uma habilidade aprendida; [effects] já trazem a duração (fixa ou sorteada). */
 data class ActivateAbility(
     val entityId: String,
@@ -407,6 +416,38 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.abilityId in ent.abilities) return no("habilidade já aprendida: ${cmd.abilityId}")
             if (cmd.cost > ent.abilityPoints) return no("pontos de habilidade insuficientes: ${ent.abilityPoints}/${cmd.cost}")
             return Decision.Ok(listOf(AbilityLearned(ent.id, cmd.abilityId, cmd.cost)))
+        }
+
+        is ProgressSkillTree -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.skillId.isBlank()) return no("habilidade sem id")
+            if (cmd.pointCost < 0) return no("custo de pontos negativo")
+            val currentLevel = ent.skillTreeLevels[cmd.skillId] ?: 0
+            if (cmd.freeBase) {
+                if (currentLevel != 0) return no("habilidade básica já foi concedida: ${cmd.skillId}")
+                if (cmd.pointCost != 0) return no("habilidade básica deve ser gratuita")
+            } else {
+                if (cmd.pointCost <= 0) return no("desbloqueio/evolução deve custar ao menos 1 ponto")
+                if (cmd.pointCost > ent.abilityPoints) return no("pontos de habilidade insuficientes: ${ent.abilityPoints}/${cmd.pointCost}")
+                if (currentLevel == 0 && cmd.pointCost != 1) return no("desbloquear uma habilidade custa 1 ponto")
+                if (currentLevel > 0 && cmd.pointCost != SkillTreeProgression.upgradeCost(currentLevel)) {
+                    return no("custo de evolução inválido")
+                }
+            }
+            val next = try { SkillTreeProgression.nextLevel(currentLevel) }
+                catch (e: IllegalArgumentException) { return no(e.message ?: "nível de habilidade inválido") }
+            return Decision.Ok(listOf(SkillTreeProgressed(ent.id, cmd.skillId, next, cmd.pointCost, cmd.freeBase)))
+        }
+
+        is ResetSkillTreeProgress -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            val invested = ent.skillTreeInvestments.values.sumOf { it.toLong() }
+            if (invested <= 0L) return no("não há pontos investidos na árvore para devolver")
+            if (invested > Int.MAX_VALUE.toLong()) return no("investimento excede o limite numérico suportado")
+            if (ent.abilityPoints.toLong() + invested > Int.MAX_VALUE.toLong()) return no("reset excederia o limite de pontos suportado")
+            return Decision.Ok(listOf(SkillTreeProgressReset(ent.id, invested.toInt())))
         }
 
         is ActivateAbility -> {
