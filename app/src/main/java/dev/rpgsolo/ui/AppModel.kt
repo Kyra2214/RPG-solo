@@ -1563,6 +1563,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return StatPointsState(player.statPoints, player.abilityPoints, stats)
     }
 
+    /** Ações do catálogo de maldições lançadas durante a aventura. */
+    fun curseActions(): CurseActions = CurseActions(
+        session = { session },
+        activePackage = { activePackage },
+        playerId = { playerId },
+        onChanged = { campaignVersion++ }
+    )
+
     /** Estado da distribuição única de 12 pontos iniciais. */
     fun initialBuildState(): InitialBuildState {
         val player = session.state.entities[playerId] ?: return InitialBuildState(false, emptyList())
