@@ -136,3 +136,33 @@ object SkillTreeProgression {
             .values
             .mapNotNull { group -> group.maxByOrNull { it.second } }
 }
+
+/**
+ * Converts acquired PASSIVE tree skills into the existing modifier pipeline.
+ * Equivalent effects share a stacking group and only the strongest magnitude survives.
+ * Active skills are intentionally not treated as passive; their activation must be explicit.
+ */
+class SkillTreeModifierProvider(
+    private val definitions: Collection<SkillTreeSkill>
+) : ModifierProvider {
+    override fun modifiers(state: GameState, entity: Entity, target: String): List<Modifier> {
+        val definitionsById = definitions.associateBy { it.id }
+        val candidates = entity.skillTreeLevels.mapNotNull { (skillId, level) ->
+            val skill = definitionsById[skillId]?.takeIf { it.category == SkillCategory.PASSIVE } ?: return@mapNotNull null
+            skill.effects.mapNotNull { effect ->
+                if (effect.target != target) return@mapNotNull null
+                val value = effect.valueAt(level)
+                if (value == 0) return@mapNotNull null
+                Modifier(
+                    sourceId = "skill-tree-passive:${effect.target}:${effect.stackingGroup}",
+                    label = skill.name,
+                    target = effect.target,
+                    value = value
+                )
+            }
+        }.flatten()
+        return candidates.groupBy { it.sourceId }
+            .values
+            .mapNotNull { group -> group.maxWithOrNull(compareBy<Modifier>({ kotlin.math.abs(it.value) }, { it.value })) }
+    }
+}
