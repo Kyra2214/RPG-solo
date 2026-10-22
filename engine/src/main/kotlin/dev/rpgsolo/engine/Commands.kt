@@ -843,7 +843,13 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.id !in state.knownPlaces) return no("não é possível viajar para um local desconhecido")
             val current = state.currentPlaceId ?: return no("a campanha ainda não tem local atual")
             if (cmd.id !in state.placeLinks[current].orEmpty()) return no("não existe passagem conhecida direta para esse local")
-            return Decision.Ok(listOf(PlayerMovedToPlace(cmd.id)))
+            // A viagem avança automaticamente os relógios de agenda configurados para deslocamento.
+            // Calcula cada evento a partir do estado atual e não emite avanços para relógios já completos.
+            val travelTicks = state.travelClocks().mapNotNull { clock ->
+                val next = minOf(clock.segments, clock.filled + clock.moveTick)
+                if (next == clock.filled) null else ClockAdvanced(clock.id, next, next - clock.filled)
+            }
+            return Decision.Ok(listOf(PlayerMovedToPlace(cmd.id)) + travelTicks)
         }
         is ProposeRuleAddition -> {
             val rule = cmd.rule
