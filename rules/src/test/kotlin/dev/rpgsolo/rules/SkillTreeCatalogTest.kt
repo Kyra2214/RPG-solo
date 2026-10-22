@@ -192,6 +192,19 @@ class SkillTreeCatalogTest {
         assertTrue("a culminância deve durar ao menos três rodadas", (capstone.durationRounds ?: 0) >= 3)
     }
 
+    @Test fun efeitosEmAlvosDeclaradosUsamEscoposDeCombateEExpiramExplicitamente() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val combatScopes = setOf("ataque", "dano", "defesa", "resistencia_dano", "velocidade", "precisao", "percepcao")
+        val targetEffects = result.skills.filter { it.effects.any { effect -> effect.recipient == dev.rpgsolo.engine.SkillEffectRecipient.TARGET } }
+            .flatMap { skill -> skill.effects.filter { it.recipient == dev.rpgsolo.engine.SkillEffectRecipient.TARGET }.map { skill to it } }
+        assertTrue("deve haver efeitos de habilidade direcionados", targetEffects.isNotEmpty())
+        targetEffects.forEach { (skill, effect) ->
+            assertTrue("${skill.id} usa escopo de alvo não suportado: ${effect.target}", effect.target in combatScopes)
+            assertTrue("${skill.id} não declara duração do efeito direcionado", effect.durationRounds != null)
+        }
+    }
+
     @Test fun preRequisitosExistemNaMesmaArvoreENaoCriamCiclos() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
