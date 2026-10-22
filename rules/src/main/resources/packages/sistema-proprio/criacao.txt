@@ -2,6 +2,9 @@ pontos|10
 pontos_por_nivel|0
 pontos_status_por_nivel|1
 pontos_habilidade_por_nivel|1
+recurso_sorte|pa
+custo_sorte|1
+formas_sorte|REROLL+ADD_FACE
 custo_atributo|1
 equilibrio|1,3,5
 equilibrio_apos|dobrar

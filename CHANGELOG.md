@@ -1,3 +1,9 @@
+## 2026-10-22 — F3: sorte/destino no sistema próprio (não validado)
+
+- `rules/src/main/resources/packages/sistema-proprio/criacao.txt`: o pacote próprio agora declara 1 PA como recurso global de sorte/destino, com custo 1 e as formas `REROLL+ADD_FACE`.
+- `PLANO_RPG_SOLO.md` e `README.md`: documentado que a configuração global habilita o painel de sorte para testes sem configuração específica.
+- **Validação:** nenhum teste, build, lint ou CI executado, conforme a instrução de implementar código sem disparar validações.
+
 ## 2026-10-22 — Combate unificado, privacidade narrativa e memória longa
 
 - `engine/MemoryRollup.kt`, `engine/Commands.kt` e `engine/Events.kt`: resumo rolante de memórias persistido por evento quando o limite é excedido (`bbc4261`).
