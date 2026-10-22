@@ -1478,6 +1478,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         activeSystemId = started.campanha.system.systemId
         activeEditionId = started.campanha.system.editionId
         runCatching { skillTreeActions().grantSelectedFreeBaseSkills() }
+            .onFailure { configError = "falha ao conceder habilidades básicas: ${it.message}" }
             .getOrNull()?.let { configError = "habilidades básicas não concedidas: $it" }
         when (val setting = session.execute(dev.rpgsolo.engine.SetAmbientacao(started.campanha.ambientacao))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
