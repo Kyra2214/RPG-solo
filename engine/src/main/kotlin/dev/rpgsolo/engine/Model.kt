@@ -69,7 +69,11 @@ data class Entity(
     /** Maldições aplicadas durante a aventura, distintas da identidade Classe de Malditos. */
     val appliedCurses: Map<String, AppliedCurseState> = emptyMap(),
     /** Recompensas de pergaminhos já resgatadas, para impedir duplicação por missão. */
-    val claimedQuestRewards: Set<String> = emptySet()
+    val claimedQuestRewards: Set<String> = emptySet(),
+    /** Árvores e afinidade persistidas para que jogador e IA usem o mesmo loadout. */
+    val skillTreeTreeIds: Set<String> = emptySet(),
+    val skillTreeClassOrder: List<String> = emptyList(),
+    val skillTreeElement: String = ""
 )
 
 /** MU-07.2: slots de magia de uma entidade: [total] pelos níveis-chave alcançados, [used] por magias aprendidas. */
