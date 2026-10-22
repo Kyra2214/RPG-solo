@@ -1074,103 +1074,103 @@ profissao-arquivista-7|arquivista|Técnica Suprema de arquivista|PROFESSION|OFFE
 racial-humano|humano|Humano — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-humano,defesa,1,1,passiva-defesa,-,-
 racial-elfo|elfo|Elfo — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-elfo,defesa,1,1,racial-elfo,1,-
 racial-anao|anao|Anão — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-anao,ataque,1,1,racial-anao,1,-
-racial-orcano|orcano|Orcano — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-orcano|orcano|Orcano — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-orcano,percepcao,1,1,passiva-percepcao,-,-
 racial-pequenino|pequenino|Pequenino — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-pequenino,defesa,1,1,passiva-defesa,-,-
 racial-gnomo|gnomo|Gnomo — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-gnomo,defesa,1,1,racial-gnomo,1,-
 racial-draconato|draconato|Draconato — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-draconato,ataque,1,1,racial-draconato,1,-
-racial-tiefling|tiefling|Nascido do Crepúsculo — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-tiefling|tiefling|Nascido do Crepúsculo — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-tiefling,percepcao,1,1,passiva-percepcao,-,-
 racial-aasimar|aasimar|Luminar — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-aasimar,defesa,1,1,passiva-defesa,-,-
 racial-goliath|goliath|Altaneiro — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-goliath,defesa,1,1,racial-goliath,1,-
 racial-tabaxi|tabaxi|Felídeo Errante — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-tabaxi,ataque,1,1,racial-tabaxi,1,-
-racial-kenku|kenku|Corvídeo — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-kenku|kenku|Corvídeo — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-kenku,percepcao,1,1,passiva-percepcao,-,-
 racial-tortle|tortle|Tartarino — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-tortle,defesa,1,1,passiva-defesa,-,-
 racial-tritao|tritao|Abissal Costeiro — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-tritao,defesa,1,1,racial-tritao,1,-
 racial-satiro|satiro|Silvano Festivo — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-satiro,ataque,1,1,racial-satiro,1,-
-racial-centauro|centauro|Centauro — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-centauro|centauro|Centauro — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-centauro,percepcao,1,1,passiva-percepcao,-,-
 racial-minotauro|minotauro|Labiríntico — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-minotauro,defesa,1,1,passiva-defesa,-,-
 racial-goblin|goblin|Goblin — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-goblin,defesa,1,1,racial-goblin,1,-
 racial-hobgoblin|hobgoblin|Goblin de Legião — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-hobgoblin,ataque,1,1,racial-hobgoblin,1,-
-racial-bugbear|bugbear|Ursino Sombrio — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-bugbear|bugbear|Ursino Sombrio — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-bugbear,percepcao,1,1,passiva-percepcao,-,-
 racial-kobold|kobold|Escamado Miúdo — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-kobold,defesa,1,1,passiva-defesa,-,-
 racial-lizardino|lizardino|Escamado — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-lizardino,defesa,1,1,racial-lizardino,1,-
 racial-homem-rato|homem-rato|Ratoide — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-rato,ataque,1,1,racial-homem-rato,1,-
-racial-homem-corvo|homem-corvo|Corvário — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-homem-corvo|homem-corvo|Corvário — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-corvo,percepcao,1,1,passiva-percepcao,-,-
 racial-homem-raposa|homem-raposa|Vulpino — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-raposa,defesa,1,1,passiva-defesa,-,-
 racial-homem-coelho|homem-coelho|Leporino — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-coelho,defesa,1,1,racial-homem-coelho,1,-
 racial-homem-urso|homem-urso|Ursino — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-urso,ataque,1,1,racial-homem-urso,1,-
-racial-homem-lobo|homem-lobo|Lupino — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-homem-lobo|homem-lobo|Lupino — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-lobo,percepcao,1,1,passiva-percepcao,-,-
 racial-homem-javali|homem-javali|Porcino — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-javali,defesa,1,1,passiva-defesa,-,-
 racial-homem-cervo|homem-cervo|Cervino — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-cervo,defesa,1,1,racial-homem-cervo,1,-
 racial-elemental-terra|elemental-terra|Nascido da Rocha — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-elemental-terra,ataque,1,1,racial-elemental-terra,1,-
-racial-elemental-fogo|elemental-fogo|Nascido da Brasa — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-elemental-fogo|elemental-fogo|Nascido da Brasa — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-elemental-fogo,percepcao,1,1,passiva-percepcao,-,-
 racial-elemental-agua|elemental-agua|Nascido da Maré — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-elemental-agua,defesa,1,1,passiva-defesa,-,-
 racial-elemental-ar|elemental-ar|Nascido do Vento — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-elemental-ar,defesa,1,1,racial-elemental-ar,1,-
 racial-feerico|feerico|Feérico — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-feerico,ataque,1,1,racial-feerico,1,-
-racial-sombrio|sombrio|Umbral — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-sombrio|sombrio|Umbral — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-sombrio,percepcao,1,1,passiva-percepcao,-,-
 racial-onirico|onirico|Onírico — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-onirico,defesa,1,1,passiva-defesa,-,-
 racial-cristalino|cristalino|Cristalino — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-cristalino,defesa,1,1,racial-cristalino,1,-
 racial-fungal|fungal|Micélioide — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-fungal,ataque,1,1,racial-fungal,1,-
-racial-plantae|plantae|Verdejante — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-plantae|plantae|Verdejante — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-plantae,percepcao,1,1,passiva-percepcao,-,-
 racial-construto|construto|Construto Desperto — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-construto,defesa,1,1,passiva-defesa,-,-
 racial-vampirico|vampirico|Noctívago — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-vampirico,defesa,1,1,racial-vampirico,1,-
 racial-licantropo|licantropo|Metamorfo Lupino — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-licantropo,ataque,1,1,racial-licantropo,1,-
-racial-metamorfo|metamorfo|Moldável — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-metamorfo|metamorfo|Moldável — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-metamorfo,percepcao,1,1,passiva-percepcao,-,-
 racial-gigante|gigante|Giganteano — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-gigante,defesa,1,1,passiva-defesa,-,-
 racial-sereiano|sereiano|Sereiano — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-sereiano,defesa,1,1,racial-sereiano,1,-
 racial-aracnideo|aracnideo|Aracnídeo — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-aracnideo,ataque,1,1,racial-aracnideo,1,-
-racial-insetoide|insetoide|Insetoide — Dom Inato|RACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-insetoide|insetoide|Insetoide — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-insetoide,percepcao,1,1,passiva-percepcao,-,-
 racial-felino-das-nuvens|felino-das-nuvens|Felino das Nuvens — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-felino-das-nuvens,defesa,1,1,passiva-defesa,-,-
 racial-ancestral-estelar|ancestral-estelar|Estelar — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-ancestral-estelar,defesa,1,1,racial-ancestral-estelar,1,-
 racial-humano-das-cidades|humano-das-cidades|Humano das Cidades — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-humano-das-cidades,ataque,1,1,racial-humano-das-cidades,1,-
-racial-humano-das-fronteiras|humano-das-fronteiras|Humano das Fronteiras — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-humano-das-fronteiras|humano-das-fronteiras|Humano das Fronteiras — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-humano-das-fronteiras,percepcao,1,1,passiva-percepcao,-,-
 racial-elfo-dos-bosques|elfo-dos-bosques|Elfo dos Bosques — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-elfo-dos-bosques,defesa,1,1,passiva-defesa,-,-
 racial-elfo-das-estrelas|elfo-das-estrelas|Elfo das Estrelas — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-elfo-das-estrelas,defesa,1,1,racial-elfo-das-estrelas,1,-
 racial-elfo-do-crepusculo|elfo-do-crepusculo|Elfo do Crepúsculo — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-elfo-do-crepusculo,ataque,1,1,racial-elfo-do-crepusculo,1,-
-racial-anao-das-montanhas|anao-das-montanhas|Anão das Montanhas — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-anao-das-montanhas|anao-das-montanhas|Anão das Montanhas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-anao-das-montanhas,percepcao,1,1,passiva-percepcao,-,-
 racial-anao-das-forjas|anao-das-forjas|Anão das Forjas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-anao-das-forjas,defesa,1,1,passiva-defesa,-,-
 racial-anao-dos-abismos|anao-dos-abismos|Anão dos Abismos — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-anao-dos-abismos,defesa,1,1,racial-anao-dos-abismos,1,-
 racial-orcano-das-estepes|orcano-das-estepes|Orcano das Estepes — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-orcano-das-estepes,ataque,1,1,racial-orcano-das-estepes,1,-
-racial-orcano-das-matas|orcano-das-matas|Orcano das Matas — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-orcano-das-matas|orcano-das-matas|Orcano das Matas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-orcano-das-matas,percepcao,1,1,passiva-percepcao,-,-
 racial-pequenino-ribeirinho|pequenino-ribeirinho|Pequenino Ribeirinho — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-pequenino-ribeirinho,defesa,1,1,passiva-defesa,-,-
 racial-pequenino-viajante|pequenino-viajante|Pequenino Viajante — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-pequenino-viajante,defesa,1,1,racial-pequenino-viajante,1,-
 racial-gnomo-das-engrenagens|gnomo-das-engrenagens|Gnomo das Engrenagens — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-gnomo-das-engrenagens,ataque,1,1,racial-gnomo-das-engrenagens,1,-
-racial-gnomo-dos-vales|gnomo-dos-vales|Gnomo dos Vales — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-gnomo-dos-vales|gnomo-dos-vales|Gnomo dos Vales — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-gnomo-dos-vales,percepcao,1,1,passiva-percepcao,-,-
 racial-draconato-cinzento|draconato-cinzento|Draconato Cinzento — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-draconato-cinzento,defesa,1,1,passiva-defesa,-,-
 racial-draconato-de-cobre|draconato-de-cobre|Draconato de Cobre — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-draconato-de-cobre,defesa,1,1,racial-draconato-de-cobre,1,-
 racial-crepuscular-de-chifres|crepuscular-de-chifres|Crepuscular de Chifres — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-crepuscular-de-chifres,ataque,1,1,racial-crepuscular-de-chifres,1,-
-racial-crepuscular-de-cauda|crepuscular-de-cauda|Crepuscular de Cauda — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-crepuscular-de-cauda|crepuscular-de-cauda|Crepuscular de Cauda — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-crepuscular-de-cauda,percepcao,1,1,passiva-percepcao,-,-
 racial-luminar-do-alvorecer|luminar-do-alvorecer|Luminar do Alvorecer — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-luminar-do-alvorecer,defesa,1,1,passiva-defesa,-,-
 racial-luminar-do-zenite|luminar-do-zenite|Luminar do Zênite — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-luminar-do-zenite,defesa,1,1,racial-luminar-do-zenite,1,-
 racial-altaneiro-das-neves|altaneiro-das-neves|Altaneiro das Neves — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-altaneiro-das-neves,ataque,1,1,racial-altaneiro-das-neves,1,-
-racial-altaneiro-dos-penhascos|altaneiro-dos-penhascos|Altaneiro dos Penhascos — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-altaneiro-dos-penhascos|altaneiro-dos-penhascos|Altaneiro dos Penhascos — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-altaneiro-dos-penhascos,percepcao,1,1,passiva-percepcao,-,-
 racial-felideo-das-selvas|felideo-das-selvas|Felídeo das Selvas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-felideo-das-selvas,defesa,1,1,passiva-defesa,-,-
 racial-felideo-das-dunas|felideo-das-dunas|Felídeo das Dunas — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-felideo-das-dunas,defesa,1,1,racial-felideo-das-dunas,1,-
 racial-corvideo-dos-telhados|corvideo-dos-telhados|Corvídeo dos Telhados — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-corvideo-dos-telhados,ataque,1,1,racial-corvideo-dos-telhados,1,-
-racial-corvideo-das-ruinas|corvideo-das-ruinas|Corvídeo das Ruínas — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-corvideo-das-ruinas|corvideo-das-ruinas|Corvídeo das Ruínas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-corvideo-das-ruinas,percepcao,1,1,passiva-percepcao,-,-
 racial-tartarino-dos-recifes|tartarino-dos-recifes|Tartarino dos Recifes — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-tartarino-dos-recifes,defesa,1,1,passiva-defesa,-,-
 racial-tartarino-das-ilhas|tartarino-das-ilhas|Tartarino das Ilhas — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-tartarino-das-ilhas,defesa,1,1,racial-tartarino-das-ilhas,1,-
 racial-abissal-das-enseadas|abissal-das-enseadas|Abissal das Enseadas — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-abissal-das-enseadas,ataque,1,1,racial-abissal-das-enseadas,1,-
-racial-abissal-das-profundezas|abissal-das-profundezas|Abissal das Profundezas — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-abissal-das-profundezas|abissal-das-profundezas|Abissal das Profundezas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-abissal-das-profundezas,percepcao,1,1,passiva-percepcao,-,-
 racial-silvano-dos-festivais|silvano-dos-festivais|Silvano dos Festivais — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-silvano-dos-festivais,defesa,1,1,passiva-defesa,-,-
 racial-silvano-dos-espinheiros|silvano-dos-espinheiros|Silvano dos Espinheiros — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-silvano-dos-espinheiros,defesa,1,1,racial-silvano-dos-espinheiros,1,-
 racial-centauro-das-pradarias|centauro-das-pradarias|Centauro das Pradarias — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-centauro-das-pradarias,ataque,1,1,racial-centauro-das-pradarias,1,-
-racial-centauro-das-florestas|centauro-das-florestas|Centauro das Florestas — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-centauro-das-florestas|centauro-das-florestas|Centauro das Florestas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-centauro-das-florestas,percepcao,1,1,passiva-percepcao,-,-
 racial-labirintico-dos-arquivos|labirintico-dos-arquivos|Labiríntico dos Arquivos — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-labirintico-dos-arquivos,defesa,1,1,passiva-defesa,-,-
 racial-labirintico-das-fortalezas|labirintico-das-fortalezas|Labiríntico das Fortalezas — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-labirintico-das-fortalezas,defesa,1,1,racial-labirintico-das-fortalezas,1,-
 racial-goblin-das-sucatas|goblin-das-sucatas|Goblin das Sucatas — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-goblin-das-sucatas,ataque,1,1,racial-goblin-das-sucatas,1,-
-racial-goblin-dos-pantanos|goblin-dos-pantanos|Goblin dos Pântanos — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-goblin-dos-pantanos|goblin-dos-pantanos|Goblin dos Pântanos — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-goblin-dos-pantanos,percepcao,1,1,passiva-percepcao,-,-
 racial-legionario-dos-estandartes|legionario-dos-estandartes|Legionário dos Estandartes — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-legionario-dos-estandartes,defesa,1,1,passiva-defesa,-,-
 racial-legionario-das-cidadelas|legionario-das-cidadelas|Legionário das Cidadelas — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-legionario-das-cidadelas,defesa,1,1,racial-legionario-das-cidadelas,1,-
 racial-ursino-da-sombra|ursino-da-sombra|Ursino da Sombra — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-ursino-da-sombra,ataque,1,1,racial-ursino-da-sombra,1,-
-racial-ursino-das-colinas|ursino-das-colinas|Ursino das Colinas — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-ursino-das-colinas|ursino-das-colinas|Ursino das Colinas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-ursino-das-colinas,percepcao,1,1,passiva-percepcao,-,-
 racial-escamado-das-minas|escamado-das-minas|Escamado das Minas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-escamado-das-minas,defesa,1,1,passiva-defesa,-,-
 racial-escamado-das-ruinas|escamado-das-ruinas|Escamado das Ruínas — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-escamado-das-ruinas,defesa,1,1,racial-escamado-das-ruinas,1,-
 racial-escamado-dos-mangues|escamado-dos-mangues|Escamado dos Mangues — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-escamado-dos-mangues,ataque,1,1,racial-escamado-dos-mangues,1,-
-racial-escamado-do-solar|escamado-do-solar|Escamado do Solar — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-escamado-do-solar|escamado-do-solar|Escamado do Solar — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-escamado-do-solar,percepcao,1,1,passiva-percepcao,-,-
 racial-ratoide-dos-esgotos|ratoide-dos-esgotos|Ratoide dos Esgotos — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-ratoide-dos-esgotos,defesa,1,1,passiva-defesa,-,-
 racial-ratoide-dos-mercados|ratoide-dos-mercados|Ratoide dos Mercados — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-ratoide-dos-mercados,defesa,1,1,racial-ratoide-dos-mercados,1,-
 racial-homem-corvo-das-torres|homem-corvo-das-torres|Corvário das Torres — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-corvo-das-torres,ataque,1,1,racial-homem-corvo-das-torres,1,-
-racial-homem-raposa-dos-vales|homem-raposa-dos-vales|Vulpino dos Vales — Dom Inato|SUBRACE|UTILITY|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|-
+racial-homem-raposa-dos-vales|homem-raposa-dos-vales|Vulpino dos Vales — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-homem-raposa-dos-vales,percepcao,1,1,passiva-percepcao,-,-
 maldito-vampiro-1-1|maldito-vampiro-1|Linhagem Sanguínea — Técnica Inicial|CURSED_CLASS|OFFENSE|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|SELF|fx-maldito-vampiro-1-1,ataque,1,1,skill-maldito-vampiro-1-1,1,-
 maldito-vampiro-1-2|maldito-vampiro-1|Linhagem Sanguínea — Guarda Especializada|CURSED_CLASS|DEFENSE|-|-|false|-|5|maldito-vampiro-1-1|2|1|false|MODIFIER|0|-|1|SELF|fx-maldito-vampiro-1-2,defesa,2,1,skill-maldito-vampiro-1-2,1,-
 maldito-vampiro-1-3|maldito-vampiro-1|Linhagem Sanguínea — Impulso de Poder|CURSED_CLASS|BUFF|-|-|false|-|10|maldito-vampiro-1-2|3|1|false|MODIFIER|0|-|1|SELF|fx-maldito-vampiro-1-3,ataque,3,1,skill-maldito-vampiro-1-3,2,-
