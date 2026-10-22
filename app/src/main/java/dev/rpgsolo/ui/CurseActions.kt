@@ -51,34 +51,46 @@ class CurseActions(
      * If a curse declares resistance, caller must provide the result of the package's real
      * 'resistir' test. true means resisted and no curse is applied; null is rejected.
      */
-    fun apply(
-        targetId: String,
-        curseId: String,
-        sourceId: String,
-        resistanceSucceeded: Boolean? = null
-    ): String? = try {
+    fun apply(targetId: String, curseId: String, sourceId: String): String? = try {
         val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
-        val curse = catalog.firstOrNull { it.id == curseId } ?: throw IllegalArgumentException("maldição não existe: $curseId")
-        val target = session().state.entities[targetId] ?: throw IllegalArgumentException("alvo inexistente: $targetId")
-        require(pkg.checkChoices(target.stats, skills = target.skills).any { it.id == curse.resistanceCheckId } || curse.resistanceCheckId == null) {
-            "o pacote ativo não define o teste de resistência '${curse.resistanceCheckId}'"
-        }
-        if (curse.resistanceCheckId != null && resistanceSucceeded == null) {
-            return "resolva o teste '${curse.resistanceCheckId}' contra dificuldade ${curse.resistanceDifficulty} antes de aplicar a maldição"
-        }
-        if (resistanceSucceeded == true) return "o alvo resistiu à maldição"
-        when (val result = session().execute(
-            ApplyCurse(
-                targetId = targetId,
-                curseId = curse.id,
-                sourceId = sourceId,
-                durationRounds = curse.durationRounds,
-                requiresResistance = curse.resistanceCheckId != null,
-                resistanceSucceeded = resistanceSucceeded
-            )
-        )) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> { onChanged(); null }
-            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        session().atomically {
+            val curse = catalog.firstOrNull { it.id == curseId } ?: throw IllegalArgumentException("maldição não existe: $curseId")
+            val target = session().state.entities[targetId] ?: throw IllegalArgumentException("alvo inexistente: $targetId")
+            require(target.alive) { "não é possível amaldiçoar uma entidade morta" }
+            require(sourceId.isNotBlank()) { "a maldição precisa identificar sua origem" }
+            require(curse.id !in target.appliedCurses) { "esta maldição já está aplicada" }
+            var resistanceSummary = ""
+            var resistanceSucceeded: Boolean? = null
+            if (curse.resistanceCheckId != null) {
+                val difficulty = requireNotNull(curse.resistanceDifficulty)
+                val base = pkg.check(curse.resistanceCheckId, target.stats, difficulty, target.skills)
+                val adjusted = base.copy(
+                    modifier = base.modifier + pkg.traitBonus(target.traits, curse.resistanceCheckId) +
+                        (base.stat?.let { pkg.traitBonus(target.traits, it) } ?: 0)
+                )
+                val result = session().check(adjusted)
+                resistanceSucceeded = result.outcome.isSuccess
+                resistanceSummary = "Teste ${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}; dificuldade ${result.spec.difficulty}. "
+                if (resistanceSucceeded == true) {
+                    return@atomically "O alvo resistiu à maldição. $resistanceSummary"
+                }
+            }
+            when (val result = session().execute(
+                ApplyCurse(
+                    targetId = targetId,
+                    curseId = curse.id,
+                    sourceId = sourceId,
+                    durationRounds = curse.durationRounds,
+                    requiresResistance = curse.resistanceCheckId != null,
+                    resistanceSucceeded = resistanceSucceeded
+                )
+            )) {
+                is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                    onChanged()
+                    "$resistanceSummary Maldição '${curse.name}' aplicada."
+                }
+                is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+            }
         }
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
