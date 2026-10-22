@@ -60,6 +60,17 @@ class SkillTreeCatalogTest {
         assertEquals(dev.rpgsolo.engine.SkillActionKind.REVIVE, capstones.single { it.treeId == "sacerdote" }.actionKind)
     }
 
+    @Test fun culminanciasDeProfissaoSaoUnicasENaoForcamTodoOficioACombater() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val capstones = result.skills.filter { it.origin == SkillOrigin.PROFESSION && it.scrollRank == 7 }
+        assertEquals(103, capstones.size)
+        assertEquals(capstones.size, capstones.map { it.name }.distinct().size)
+        assertTrue(capstones.none { it.name.startsWith("Técnica Suprema de") })
+        assertTrue("ofícios não combatentes precisam de culminâncias passivas", capstones.count { it.category == dev.rpgsolo.engine.SkillCategory.PASSIVE } >= 90)
+        assertTrue("profissões de combate devem continuar usando ações ofensivas tipadas", capstones.any { it.actionKind == dev.rpgsolo.engine.SkillActionKind.POWER_STRIKE })
+    }
+
     @Test fun raçasESubraçasPossuemHabilidadeBasicaGratuita() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.valid)
