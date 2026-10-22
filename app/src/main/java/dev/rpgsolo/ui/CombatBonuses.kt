@@ -49,6 +49,40 @@ class CombatBonuses(
             .sumOf { it.second }
     }
 
+    /** Efeitos de passivas, buffs ativos e maldições como bônus externos para o mesmo pipeline de testes do pacote. */
+    fun externalSkillAndCurseBonuses(entityId: String, scopes: Set<String>): List<dev.rpgsolo.rules.ExternalBonus> {
+        if (scopes.isEmpty()) return emptyList()
+        val state = session().state
+        val entity = state.entities[entityId] ?: return emptyList()
+        val passive = scopes.flatMap { scope ->
+            dev.rpgsolo.engine.SkillTreeModifierProvider(skillTreeDefinitions).modifiers(state, entity, scope)
+        }.map { modifier ->
+            dev.rpgsolo.rules.ExternalBonus(modifier.target, modifier.value, modifier.label, modifier.sourceId)
+        }
+        val active = state.activeEffects[entityId].orEmpty().filter { it.target in scopes }.mapIndexed { index, effect ->
+            dev.rpgsolo.rules.ExternalBonus(
+                effect.target, effect.value, effect.label,
+                "${effect.sourceId}:${effect.target}:$index"
+            )
+        }
+        val definitions = curseDefinitions.associateBy { it.id }
+        val curseEffects = entity.appliedCurses.values.flatMap { applied ->
+            val curse = definitions[applied.curseId] ?: return@flatMap emptyList()
+            curse.effects.filter { it.target in scopes }.map { curse to it }
+        }.groupBy { (curse, effect) -> "${effect.target}:${effect.stackingGroup}" }
+            .mapNotNull { (groupId, group) ->
+                val (curse, effect) = group.maxWithOrNull(
+                    compareBy<Pair<dev.rpgsolo.rules.CurseDefinition, dev.rpgsolo.engine.SkillEffectSpec>>(
+                        { kotlin.math.abs(it.second.baseValue) }, { it.second.baseValue }
+                    )
+                ) ?: return@mapNotNull null
+                dev.rpgsolo.rules.ExternalBonus(
+                    effect.target, effect.baseValue, "Maldição: ${curse.name}", "curse-group:$groupId"
+                )
+            }
+        return dev.rpgsolo.rules.distinctExternalBonuses(passive + active + curseEffects)
+    }
+
     /** Bônus passivos da árvore + buffs temporários já validados pelo motor. */
     fun skillTreeAndActiveBonus(entityId: String, scope: String): Int {
         val state = session().state
@@ -56,7 +90,7 @@ class CombatBonuses(
         val passive = dev.rpgsolo.engine.SkillTreeModifierProvider(skillTreeDefinitions)
             .modifiers(state, entity, scope).sumOf { it.value }
         val active = state.activeEffects[entityId].orEmpty().filter { it.target == scope }.sumOf { it.value }
-        return passive + active + appliedCurseBonus(entityId, scope)
+        return externalSkillAndCurseBonuses(entityId, setOf(scope)).sumOf { it.bonus }
     }
     fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> = catalogBonuses(pkg)
 
