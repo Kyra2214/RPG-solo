@@ -94,6 +94,9 @@ class SkillTreeCatalogTest {
         assertTrue(capstones.none { it.name.startsWith("Técnica Suprema de") })
         assertTrue("ofícios não combatentes precisam de culminâncias passivas", capstones.count { it.category == dev.rpgsolo.engine.SkillCategory.PASSIVE } >= 90)
         assertTrue("profissões de combate devem continuar usando ações ofensivas tipadas", capstones.any { it.actionKind == dev.rpgsolo.engine.SkillActionKind.POWER_STRIKE })
+        val ferreiro = result.skills.filter { it.treeId == "ferreiro" }.sortedBy { it.scrollRank }
+        assertEquals((1..7).toList(), ferreiro.map { it.effects.single().baseValue })
+        assertEquals(1, ferreiro.map { it.effects.single().stackingGroup }.distinct().size)
     }
 
     @Test fun raçasESubraçasPossuemHabilidadeBasicaGratuita() {
