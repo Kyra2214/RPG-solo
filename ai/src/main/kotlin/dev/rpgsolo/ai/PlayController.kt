@@ -3,6 +3,8 @@ package dev.rpgsolo.ai
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CheckResult
 import dev.rpgsolo.engine.CheckSpec
+import dev.rpgsolo.engine.ClashReport
+import dev.rpgsolo.engine.ClashRecorded
 import dev.rpgsolo.engine.FortuneMode
 import dev.rpgsolo.engine.successChance
 import dev.rpgsolo.engine.Outcome
@@ -101,6 +103,12 @@ class PlayController(
 
     /** Linha do tempo derivada do log persistido; segredos e estado privado de NPC não são incluídos. */
     fun automaticTimeline() = dev.rpgsolo.engine.automaticTimeline(session.events, playerId, session.state)
+
+    /** Cartões derivados somente dos eventos persistidos; a UI nunca recalcula um confronto. */
+    fun clashReports(): List<ClashReport> = session.events
+        .filterIsInstance<ClashRecorded>()
+        .takeLast(20)
+        .map(ClashReport::of)
 
     fun isRollRevealed(index: Int): Boolean = synchronized(chat) { index in revealedRolls }
 

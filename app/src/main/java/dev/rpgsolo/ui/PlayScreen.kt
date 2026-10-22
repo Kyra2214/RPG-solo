@@ -125,6 +125,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     val lines = remember(version) { c.lines }
     val panel = remember(version) { c.panel() }
     val suggestions = remember(version) { c.suggestions() }
+    val clashes = remember(version) { c.clashReports() }
     // Teste pedido pelo mestre no meio da história: o jogo espera o jogador rolar.
     val pendingCheck = remember(version) { c.pending()?.label }
     val fortuneSpendOption = remember(version) { c.pendingFortuneSpendOption() }
@@ -245,6 +246,9 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                     revealed = c.isRollRevealed(iv.index),
                     onRevealed = { c.revealRoll(iv.index); version++ }
                 )
+            }
+            itemsIndexed(clashes, key = { index, _ -> "clash-$index" }) { _, report ->
+                ClashCard(report)
             }
             if (busy && streamingText.isNotBlank()) {
                 item(key = "streaming-narration") {
