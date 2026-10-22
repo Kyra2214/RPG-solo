@@ -3,6 +3,7 @@ package dev.rpgsolo.rules
 import dev.rpgsolo.engine.ElementPath
 import dev.rpgsolo.engine.SkillCategory
 import dev.rpgsolo.engine.SkillEffectSpec
+import dev.rpgsolo.engine.SkillEffectRecipient
 import dev.rpgsolo.engine.SkillOrigin
 import dev.rpgsolo.engine.SkillTreeSkill
 
@@ -22,7 +23,7 @@ data class SkillTreeCatalogResult(
  * from the rules package's attack/damage files so the existing combat formula is not redefined.
  *
  * Columns:
- * id|treeId|name|origin|category|element|requiredElement|affinityBound|weaponTags|level|prerequisites|scrollRank|unlockCost|freeBase|effects
+ * id|treeId|name|origin|category|element|requiredElement|affinityBound|weaponTags|level|prerequisites|scrollRank|unlockCost|freeBase|recipient|effects
  *
  * Effects are semicolon-delimited tuples:
  * id,target,baseValue,perLevel,stackingGroup,durationRounds,conditionId
@@ -39,8 +40,8 @@ object SkillTreeCatalogLoader {
             if (line.isEmpty() || line.startsWith("#")) return@forEachIndexed
             val fields = line.split("|").map(String::trim)
             val lineNo = index + 1
-            if (fields.size != 15) {
-                errors += "habilidades-arvore linha $lineNo: esperado 15 campos, recebido \${fields.size}"
+            if (fields.size != 16) {
+                errors += "habilidades-arvore linha $lineNo: esperado 16 campos, recebido \${fields.size}"
                 return@forEachIndexed
             }
             try {
@@ -63,7 +64,8 @@ object SkillTreeCatalogLoader {
                 val rank = opt(fields[11])?.toInt()?.also { require(it in 1..7) { "posição de pergaminho fora de 1..7" } }
                 val unlockCost = fields[12].toInt().also { require(it >= 0) { "custo de desbloqueio negativo" } }
                 val freeBase = fields[13].toBooleanStrict()
-                val effects = opt(fields[14])?.split(";")?.map { rawEffect ->
+                val recipient = SkillEffectRecipient.valueOf(fields[14].uppercase())
+                val effects = opt(fields[15])?.split(";")?.map { rawEffect ->
                     val parts = rawEffect.split(",").map(String::trim)
                     require(parts.size == 7) { "efeito '$rawEffect' precisa de 7 partes" }
                     SkillEffectSpec(
@@ -73,7 +75,8 @@ object SkillTreeCatalogLoader {
                         parts[3].toInt(),
                         id(parts[4], "grupo de acúmulo"),
                         opt(parts[5])?.toInt(),
-                        opt(parts[6])
+                        opt(parts[6]),
+                        recipient
                     )
                 }.orEmpty()
                 skills += SkillTreeSkill(
