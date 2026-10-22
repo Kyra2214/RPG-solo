@@ -74,7 +74,11 @@ class CurseActions(
             require(curse.id !in target.appliedCurses) { "esta maldição já está aplicada" }
             val combat = session().state.combat
             if (combat == null) require(curse.durationRounds == null) { "maldições com duração em rodadas só podem ser lançadas durante combate" }
-            val sourceEntityId = sourceId.takeIf { it.startsWith("personagem:") }?.removePrefix("personagem:")
+            val sourceEntityId = when {
+                sourceId.startsWith("personagem:") -> sourceId.removePrefix("personagem:")
+                sourceId.startsWith("criatura:") -> sourceId.removePrefix("criatura:")
+                else -> null
+            }
             if (combat != null) {
                 require(targetId in combat.order) { "o alvo está fora do combate" }
                 require(sourceEntityId != null && sourceEntityId in session().state.entities) {
