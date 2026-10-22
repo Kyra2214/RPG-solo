@@ -126,7 +126,11 @@ class SkillTreeActions(
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
-    fun activate(skillId: String): String? = try {
+    fun targets(): List<Pair<String, String>> =
+        session().state.entities.values.filter { it.id != playerId() && it.alive && !it.downed }
+            .map { it.id to it.name }.sortedBy { it.second }
+
+    fun activate(skillId: String, targetId: String? = null): String? = try {
         val skill = requireSkill(skillId)
         require(skill.treeId in selectedTreeIds()) { "esta árvore não pertence às escolhas atuais do personagem" }
         require(skill.category != SkillCategory.PASSIVE) { "habilidades passivas são aplicadas automaticamente" }
@@ -136,18 +140,23 @@ class SkillTreeActions(
         require(level > 0) { "habilidade ainda não foi desbloqueada" }
         val validation = SkillTreeProgression.validate(skill, context(hero.skillTreeLevels))
         require(validation.allowed) { validation.reasons.joinToString("; ") }
-        val durations = skill.effects.mapNotNull { it.durationRounds }.distinct()
-        require(durations.size <= 1) { "os efeitos da habilidade exigem durações incompatíveis" }
-        require(skill.effects.all { it.conditionId == null }) { "esta habilidade exige uma ação especial ainda não suportada por esta ativação" }
-        val spec = AbilitySpec(
-            id = skill.id, name = skill.name, cost = 0, trigger = AbilityTrigger.MANUAL,
-            bonuses = skill.effects.map { AbilityBonus(it.target, it.valueAt(level)) },
-            fixedRounds = durations.singleOrNull()
-        )
-        when (val result = session().activateAbility(playerId(), spec, AbilityTrigger.MANUAL)) {
-            is AbilityResult.Activated -> { onChanged(); null }
-            is AbilityResult.Rejected -> result.reason
+        val selfEffects = skill.effects.filter { it.recipient == SkillEffectRecipient.SELF }.map { effect ->
+            ActiveEffect("habilidade:\${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
         }
+        val targetSpecs = skill.effects.filter { it.recipient == SkillEffectRecipient.TARGET }
+        if (targetSpecs.isNotEmpty()) {
+            require(targetId != null) { "selecione um alvo para \${skill.name}" }
+            require(targetId in targets().map { it.first }) { "alvo inválido ou indisponível" }
+        }
+        val targetEffects = targetSpecs.map { effect ->
+            ActiveEffect("habilidade:\${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
+        }
+        val commands = buildList<Command> {
+            if (selfEffects.isNotEmpty()) add(ActivateAbility(playerId(), skill.id, AbilityTrigger.MANUAL, AbilityTrigger.MANUAL, selfEffects))
+            if (targetEffects.isNotEmpty()) add(ApplyTargetSkillEffects(playerId(), requireNotNull(targetId), skill.id, targetEffects))
+        }
+        require(commands.isNotEmpty()) { "habilidade sem efeito ativável" }
+        execute(commands)
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
