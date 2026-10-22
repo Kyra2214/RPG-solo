@@ -54,6 +54,22 @@ class SkillTreeActions(
         }
     }
 
+    /** Concede automaticamente todas as habilidades básicas gratuitas das origens selecionadas. */
+    fun grantSelectedFreeBaseSkills(): String? = try {
+        val hero = requireNotNull(session().state.entities[playerId()]) { "personagem inexistente" }
+        val pending = definitions.filter {
+            it.freeBaseSkill && it.treeId in selectedTreeIds() && it.id !in hero.skillTreeLevels
+        }
+        if (pending.isEmpty()) return null
+        val context = context(hero.skillTreeLevels)
+        pending.forEach { skill ->
+            val validation = SkillTreeProgression.validate(skill, context)
+            require(validation.allowed) { validation.reasons.joinToString("; ") }
+        }
+        execute(pending.map { ProgressSkillTree(playerId(), it.id, 0, freeBase = true) })
+    } catch (e: IllegalArgumentException) { e.message }
+      catch (e: IllegalStateException) { e.message }
+
     fun grantFreeBaseSkill(skillId: String): String? = try {
         val skill = requireSkill(skillId)
         require(skill.freeBaseSkill && skill.origin in setOf(SkillOrigin.RACE, SkillOrigin.SUBRACE, SkillOrigin.CURSED_CLASS)) {
