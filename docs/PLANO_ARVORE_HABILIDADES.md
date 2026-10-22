@@ -149,3 +149,10 @@ Implementações adicionadas nesta branch:
 - Foram adicionados testes para a contagem por nível e para o limite de quatro classes. A CI dos commits que contêm essas correções ainda precisa concluir; o resultado verde anterior não valida automaticamente estes novos commits.
 - O catálogo atual de maldições aplicadas contém 100 registros (não 20). O carregamento, teste de resistência, aplicação, remoção e expiração têm caminhos de código e UI; ainda falta uma auditoria específica de escopos mecânicos e de persistência salvar/reabrir para confirmar todos os casos de ponta a ponta.
 - O plano continua aberto: não declarar as 17 fases concluídas até validar os efeitos de cada habilidade final, os grupos de acúmulo e a execução real das regras para jogador e IA.
+
+
+### Testes de ciclo de vida acrescentados
+
+- O teste de motor agora verifica que a maldição é recusada quando a resistência ainda não foi resolvida ou quando o alvo resiste; uma falha aplica a maldição.
+- O teste percorre duas viradas completas de combate para confirmar decremento e expiração, e compara o estado final com o replay do log.
+- Outro teste cobre remoção com motivo explícito e replay. A CI destes novos testes ainda está pendente no commit mais recente.
