@@ -1637,7 +1637,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             element = { affinity },
             weaponTags = { weaponTags },
             questCompleted = { questId -> quests.get(questId)?.status == dev.rpgsolo.engine.QuestStatus.DONE },
-            multiHitAction = { targetId, hitCount, damageBonus -> combatActions.attack(targetId, hitCount, damageBonus) },
+            multiHitAction = { targetId, hitCount, damageBonus, elementalScope -> combatActions.attack(targetId, hitCount, damageBonus, elementalScope) },
             onChanged = { campaignVersion++ }
         )
     }
