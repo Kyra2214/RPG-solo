@@ -67,6 +67,19 @@ class SkillTreeProgressionTest {
         assertTrue(runCatching { HybridClassRules.socialPenalty(5) }.isFailure)
     }
 
+    @Test fun penalidadeHibridaCobreEscoposSociaisDasPericiasECatalogo() {
+        assertTrue(HybridClassRules.socialPenaltyScopes.containsAll(
+            setOf(
+                "persuasao", "intimidacao", "lideranca",
+                "atuacao", "enganacao", "diplomacia",
+                "argumentacao", "mediacao", "comerciante"
+            )
+        ))
+        assertTrue("penalidade social não deve contaminar escopos de combate", setOf(
+            "ataque", "dano", "defesa", "resistencia_dano", "velocidade", "precisao"
+        ).none { it in HybridClassRules.socialPenaltyScopes })
+    }
+
     @Test fun classesSecundariasSoContamQuandoDesbloqueadasPeloNivel() {
         val classes = listOf("guerreiro", "mago", "ladino", "clerigo")
         assertEquals(1, HybridClassRules.unlockedClassCount(classes, 1))
