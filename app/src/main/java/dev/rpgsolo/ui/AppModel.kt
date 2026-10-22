@@ -40,7 +40,6 @@ import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.ChapterBook
 import dev.rpgsolo.engine.Ficha
 import dev.rpgsolo.engine.chapterClocks
-import dev.rpgsolo.engine.travelClocks
 import dev.rpgsolo.engine.Quest
 import dev.rpgsolo.engine.QuestLog
 import dev.rpgsolo.engine.journal
@@ -705,14 +704,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }.sortedWith(compareByDescending<PlaceView> { it.current }.thenBy { it.name })
     }
 
-    /** A viagem também faz o tempo passar: relógios com `moveTick` avançam pelo motor, no mesmo lote do deslocamento. */
+    /** A viagem e o avanço dos relógios `moveTick` são validados atomicamente pelo motor. */
     fun moveToPlace(id: String): String? = when (
-        val result = session.executeAll(
-            listOf<dev.rpgsolo.engine.Command>(dev.rpgsolo.engine.MoveToPlace(id)) +
-                session.state.travelClocks().map {
-                    dev.rpgsolo.engine.AdvanceClock(it.id, minOf(it.moveTick, it.segments - it.filled))
-                }
-        )
+        val result = session.execute(dev.rpgsolo.engine.MoveToPlace(id))
     ) {
         is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
