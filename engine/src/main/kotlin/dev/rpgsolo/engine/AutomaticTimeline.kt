@@ -85,6 +85,15 @@ fun automaticTimeline(
             } else if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "consequência", "Seu personagem morreu.")
             } else null
+            is SurvivalFailed -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "sobrevivência", "Você falhou em um teste de sobrevivência e ficou mais perto de uma consequência grave.")
+            } else null
+            is TraitUseSpent -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "habilidade", "Você gastou um uso de uma habilidade limitada.")
+            } else null
+            is TraitUsesReset -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "habilidade", "Os usos limitados de suas habilidades foram recuperados.")
+            } else null
             is KnowledgeGained ->
                 AutomaticTimelineEntry(index, "descoberta",
                     if (event.believed) "Você passou a acreditar: ${event.text}" else "Você descobriu: ${event.text}")
