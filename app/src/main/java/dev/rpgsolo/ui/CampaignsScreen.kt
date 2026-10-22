@@ -274,11 +274,14 @@ fun CampaignsScreen(model: AppModel) {
             }
         }
         SectionTitle("Modo de fidelidade das fontes")
-        Muted("Define como a campanha usa documentos-fonte quando eles estiverem vinculados. A escolha fica registrada no histórico da campanha.")
+        Muted(
+            "Define como a campanha usa documentos-fonte quando eles estiverem vinculados. " +
+                "A escolha fica registrada no histórico da campanha.",
+        )
         listOf(
             dev.rpgsolo.engine.SourceMode.FAITHFUL to ("História fiel" to "Preserve os fatos centrais do documento."),
             dev.rpgsolo.engine.SourceMode.ALTERNATE to ("História alternativa" to "Permita divergências causadas pelas ações do jogador."),
-            dev.rpgsolo.engine.SourceMode.INSPIRED to ("Universo inspirado" to "Use o documento como inspiração, sem exigir fidelidade ao enredo.")
+            dev.rpgsolo.engine.SourceMode.INSPIRED to ("Universo inspirado" to "Use o documento como inspiração, sem exigir fidelidade ao enredo."),
         ).forEach { (mode, labels) ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
@@ -290,7 +293,7 @@ fun CampaignsScreen(model: AppModel) {
                                 campaignStatus = it ?: "Modo ${labels.first} registrado na campanha."
                             }
                         }
-                    }
+                    },
                 )
                 Column(modifier = Modifier.weight(1f)) {
                     Text(labels.first, style = MaterialTheme.typography.bodyMedium)
