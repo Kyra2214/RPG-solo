@@ -25,6 +25,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,7 +66,7 @@ fun RpgSoloApp() {
                         NavigationBarItem(
                             selected = tab == selected,
                             onClick = { selectedName = tab.name },
-                            icon = { Text(tab.icon, fontSize = 20.sp) },
+                            icon = { Text(tab.icon, modifier = Modifier.semantics { contentDescription = tab.label }, fontSize = 20.sp) },
                             label = { Text(tab.label, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedTextColor = MaterialTheme.colorScheme.primary,

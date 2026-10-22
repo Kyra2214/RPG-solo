@@ -32,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.rules.CharacterDraft
 import dev.rpgsolo.rules.FichaBuild
@@ -276,9 +278,9 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             val v = draft.stats()[st.id] ?: st.default
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(st.name, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                OutlinedButton(enabled = v > st.min, onClick = { draft.setStat(st.id, v - 1); version++ }) { Text("−") }
+                OutlinedButton(enabled = v > st.min, onClick = { draft.setStat(st.id, v - 1); version++ }, modifier = Modifier.semantics { contentDescription = "Diminuir ${st.name}" }) { Text("−") }
                 Text(v.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
-                OutlinedButton(enabled = v < st.max, onClick = { draft.setStat(st.id, v + 1); version++ }) { Text("+") }
+                OutlinedButton(enabled = v < st.max, onClick = { draft.setStat(st.id, v + 1); version++ }, modifier = Modifier.semantics { contentDescription = "Aumentar ${st.name}" }) { Text("+") }
             }
         }
     }
@@ -295,9 +297,9 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                         Text(skill.name, style = MaterialTheme.typography.titleSmall)
                         Muted(skill.description)
                     }
-                    OutlinedButton(enabled = value > 0, onClick = { draft.setSkill(skill.id, value - 1); version++ }) { Text("−") }
+                    OutlinedButton(enabled = value > 0, onClick = { draft.setSkill(skill.id, value - 1); version++ }, modifier = Modifier.semantics { contentDescription = "Diminuir ${skill.name}" }) { Text("−") }
                     Text(value.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
-                    OutlinedButton(enabled = value < 5 && draft.pointsLeft() > 0, onClick = { draft.setSkill(skill.id, value + 1); version++ }) { Text("+") }
+                    OutlinedButton(enabled = value < 5 && draft.pointsLeft() > 0, onClick = { draft.setSkill(skill.id, value + 1); version++ }, modifier = Modifier.semantics { contentDescription = "Aumentar ${skill.name}" }) { Text("+") }
                 }
             }
         }

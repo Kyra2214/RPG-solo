@@ -1,3 +1,10 @@
+## 2026-10-22 — U-01: rótulos acessíveis na criação e navegação (não validado)
+
+- `app/CharactersScreen.kt`: botões `+` e `−` de atributos e perícias agora expõem a ação e o nome do campo ao TalkBack.
+- `app/RpgSoloApp.kt`: ícones emoji das seis abas passaram a expor o rótulo textual da aba como descrição semântica.
+- `PLANO_RPG_SOLO.md`: registrada a primeira entrega de U-01; revisão completa de acessibilidade permanece pendente.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — I-06: ciclo de cena e turnos no prompt do mestre (não validado)
 
 - `ai/Master.kt`: adicionada a regra 17 ao prompt fixo para limitar cada resposta a um momento significativo, terminar com pergunta direta ao jogador e impedir que a IA escolha ações do jogador ou antecipe a resolução de turnos de NPC.
