@@ -140,13 +140,20 @@ class SkillTreeActions(
         require(skill.treeId in selectedTreeIds()) { "esta árvore não pertence às escolhas atuais do personagem" }
         require(skill.category != SkillCategory.PASSIVE) { "habilidades passivas são aplicadas automaticamente" }
         val hero = requireNotNull(session().state.entities[playerId()]) { "personagem inexistente" }
+        require(hero.alive && !hero.downed) { "personagem não pode agir neste estado" }
+        val level = hero.skillTreeLevels[skill.id] ?: 0
+        require(level > 0) { "habilidade ainda não foi desbloqueada" }
+        val validation = SkillTreeProgression.validate(skill, context(hero.skillTreeLevels))
+        require(validation.allowed) { validation.reasons.joinToString("; ") }
+        val combat = session().state.combat
+        if (combat != null) require(combat.current == playerId()) { "não é o turno do jogador" }
         if (skill.actionKind == SkillActionKind.REVIVE) {
-            require(targetId != null) { "selecione quem será ressuscitado" }
-            require(targetId in revivableTargets().map { it.first }) { "o alvo não está morto ou não pode ser ressuscitado" }
+            val reviveTargetId = requireNotNull(targetId) { "selecione quem será ressuscitado" }
+            require(reviveTargetId in revivableTargets().map { it.first }) { "o alvo não está morto ou não pode ser ressuscitado" }
             val resource = requireNotNull(skill.actionResource) { "a habilidade não define o recurso de custo" }
             val commands = buildList<Command> {
                 if (skill.actionCost > 0) add(SpendResource(playerId(), resource, skill.actionCost))
-                add(Revive(targetId, "${skill.name}"))
+                add(Revive(reviveTargetId, skill.name))
             }
             return execute(commands)
         }
@@ -154,20 +161,20 @@ class SkillTreeActions(
             return "multiataque ainda precisa ser integrado ao resolvedor de ataques do motor"
         }
         require(skill.effects.isNotEmpty()) { "esta habilidade ainda não tem efeito mecânico executável" }
-        val level = hero.skillTreeLevels[skill.id] ?: 0
-        require(level > 0) { "habilidade ainda não foi desbloqueada" }
-        val validation = SkillTreeProgression.validate(skill, context(hero.skillTreeLevels))
-        require(validation.allowed) { validation.reasons.joinToString("; ") }
+        require(combat != null || skill.effects.none { it.durationRounds != null }) {
+            "habilidades com duração em rodadas só podem ser ativadas durante combate"
+        }
         val selfEffects = skill.effects.filter { it.recipient == SkillEffectRecipient.SELF }.map { effect ->
-            ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
+            ActiveEffect("habilidade:\${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
         }
         val targetSpecs = skill.effects.filter { it.recipient == SkillEffectRecipient.TARGET }
         if (targetSpecs.isNotEmpty()) {
-            require(targetId != null) { "selecione um alvo para ${skill.name}" }
+            require(targetId != null) { "selecione um alvo para \${skill.name}" }
             require(targetId in targets().map { it.first }) { "alvo inválido ou indisponível" }
+            if (combat != null) require(targetId in combat.order) { "alvo fora do combate" }
         }
         val targetEffects = targetSpecs.map { effect ->
-            ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
+            ActiveEffect("habilidade:\${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
         }
         val commands = buildList<Command> {
             if (selfEffects.isNotEmpty()) add(ActivateAbility(playerId(), skill.id, AbilityTrigger.MANUAL, AbilityTrigger.MANUAL, selfEffects))
