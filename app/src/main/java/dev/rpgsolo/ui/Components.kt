@@ -26,16 +26,22 @@ import androidx.compose.ui.unit.dp
 
 /** Tela rolável padrão: margens e espaçamento iguais em todas as abas. */
 @Composable
-fun ScreenColumn(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+fun ScreenColumn(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Column(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
-        content = content
+        content = content,
     )
 }
 
 @Composable
-fun SectionTitle(text: String, hint: String? = null) {
+fun SectionTitle(
+    text: String,
+    hint: String? = null,
+) {
     Column(Modifier.fillMaxWidth().padding(top = 4.dp)) {
         Text(text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         if (hint != null) Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -44,12 +50,16 @@ fun SectionTitle(text: String, hint: String? = null) {
 
 /** Cartão padrão: fundo elevado, borda fina e, se quiser, uma faixa de cor à esquerda. */
 @Composable
-fun AppCard(modifier: Modifier = Modifier, accent: Color? = null, content: @Composable ColumnScope.() -> Unit) {
+fun AppCard(
+    modifier: Modifier = Modifier,
+    accent: Color? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Surface(
         modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceContainer,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Row(Modifier.height(IntrinsicSize.Min)) {
             if (accent != null) Column(Modifier.width(4.dp).fillMaxHeight().background(accent)) {}
@@ -60,7 +70,10 @@ fun AppCard(modifier: Modifier = Modifier, accent: Color? = null, content: @Comp
 
 /** Etiqueta pequena (condição, estado, resultado). */
 @Composable
-fun Pill(text: String, color: Color = MaterialTheme.colorScheme.primary) {
+fun Pill(
+    text: String,
+    color: Color = MaterialTheme.colorScheme.primary,
+) {
     Surface(shape = CircleShape, color = color.copy(alpha = 0.16f), border = BorderStroke(1.dp, color.copy(alpha = 0.5f))) {
         Text(text, Modifier.padding(horizontal = 10.dp, vertical = 4.dp), style = MaterialTheme.typography.labelMedium, color = color)
     }

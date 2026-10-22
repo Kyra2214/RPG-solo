@@ -15,19 +15,25 @@ class SkillModifierProvider(private val traits: Collection<TraitDef>) : Modifier
 
     constructor(pkg: RulePackage) : this(pkg.data.traits)
 
-    override fun modifiers(state: GameState, entity: Entity, target: String): List<Modifier> {
+    override fun modifiers(
+        state: GameState,
+        entity: Entity,
+        target: String,
+    ): List<Modifier> {
         val equipped = state.equipped[entity.id]?.values?.toSet().orEmpty()
         val owned = skills.filter { (entity.skills[it.id] ?: 0) > 0 }
-        val conditional = owned.flatMap { skill ->
-            skill.conditionalBonuses
-                .filter { it.scope == target && it.itemId in equipped }
-                .map { Modifier("pericia:${skill.id}:${it.itemId}", "${skill.name} (${it.itemId} equipado)", target, it.bonus) }
-        }
-        val level2 = traits.filter { it.type == "pericia" && it.id in entity.masteredSkills && (entity.skills[it.id] ?: 0) > 0 }
-            .flatMap { skill ->
-                skill.level2Bonuses.filter { it.scope == target }
-                    .map { Modifier("pericia:${skill.id}:nivel2", "${skill.name} (nível 2)", target, it.bonus) }
+        val conditional =
+            owned.flatMap { skill ->
+                skill.conditionalBonuses
+                    .filter { it.scope == target && it.itemId in equipped }
+                    .map { Modifier("pericia:${skill.id}:${it.itemId}", "${skill.name} (${it.itemId} equipado)", target, it.bonus) }
             }
+        val level2 =
+            traits.filter { it.type == "pericia" && it.id in entity.masteredSkills && (entity.skills[it.id] ?: 0) > 0 }
+                .flatMap { skill ->
+                    skill.level2Bonuses.filter { it.scope == target }
+                        .map { Modifier("pericia:${skill.id}:nivel2", "${skill.name} (nível 2)", target, it.bonus) }
+                }
         return conditional + level2
     }
 }

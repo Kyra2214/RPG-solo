@@ -23,7 +23,7 @@ data class StoredProviderSettings(
     val inputPricePerMillion: Double = 0.0,
     val outputPricePerMillion: Double = 0.0,
     val cacheReadPricePerMillion: Double = 0.0,
-    val cacheCreationPricePerMillion: Double = 0.0
+    val cacheCreationPricePerMillion: Double = 0.0,
 )
 
 class SecureSettings(context: Context) {
@@ -42,14 +42,15 @@ class SecureSettings(context: Context) {
             cheapModel = preferences.getString("cheap_model", "").orEmpty(),
             premiumModel = preferences.getString("premium_model", "").orEmpty(),
             apiKey = apiKey,
-            cacheSystemPrompt = preferences.getBoolean(
-                "cache_system_prompt",
-                endpoint.startsWith("https://api.anthropic.com/")
-            ),
+            cacheSystemPrompt =
+                preferences.getBoolean(
+                    "cache_system_prompt",
+                    endpoint.startsWith("https://api.anthropic.com/"),
+                ),
             inputPricePerMillion = preferences.getString("price_input_per_million", "0")?.toDoubleOrNull() ?: 0.0,
             outputPricePerMillion = preferences.getString("price_output_per_million", "0")?.toDoubleOrNull() ?: 0.0,
             cacheReadPricePerMillion = preferences.getString("price_cache_read_per_million", "0")?.toDoubleOrNull() ?: 0.0,
-            cacheCreationPricePerMillion = preferences.getString("price_cache_creation_per_million", "0")?.toDoubleOrNull() ?: 0.0
+            cacheCreationPricePerMillion = preferences.getString("price_cache_creation_per_million", "0")?.toDoubleOrNull() ?: 0.0,
         )
     }
 
@@ -78,11 +79,11 @@ class SecureSettings(context: Context) {
             generator.init(
                 KeyGenParameterSpec.Builder(
                     KEY_ALIAS,
-                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
                 )
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .build()
+                    .build(),
             )
             generator.generateKey()
         }
@@ -97,19 +98,20 @@ class SecureSettings(context: Context) {
         return "$iv:$body"
     }
 
-    private fun decrypt(value: String): String? = try {
-        val parts = value.split(':', limit = 2)
-        require(parts.size == 2)
-        val cipher = Cipher.getInstance(TRANSFORMATION)
-        cipher.init(
-            Cipher.DECRYPT_MODE,
-            secretKey(),
-            GCMParameterSpec(128, Base64.decode(parts[0], Base64.NO_WRAP))
-        )
-        String(cipher.doFinal(Base64.decode(parts[1], Base64.NO_WRAP)), StandardCharsets.UTF_8)
-    } catch (_: Exception) {
-        null
-    }
+    private fun decrypt(value: String): String? =
+        try {
+            val parts = value.split(':', limit = 2)
+            require(parts.size == 2)
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                secretKey(),
+                GCMParameterSpec(128, Base64.decode(parts[0], Base64.NO_WRAP)),
+            )
+            String(cipher.doFinal(Base64.decode(parts[1], Base64.NO_WRAP)), StandardCharsets.UTF_8)
+        } catch (_: Exception) {
+            null
+        }
 
     private companion object {
         const val KEY_ALIAS = "rpgsolo_provider_key_v1"

@@ -13,7 +13,7 @@ data class SystemRef(val systemId: String, val editionId: String)
 
 /** Regras adicionais nunca são "oficiais": só existe a origem ADAPTACAO (plano 4.4.1 / 11.1.9). */
 @Serializable
-enum class RuleOrigin { ADAPTACAO }
+enum class RuleOrigin { ADAPTACAO, }
 
 /** Identidade mecânica do personagem. Reutilizável entre campanhas e sem referência a cenário. */
 @Serializable
@@ -36,12 +36,22 @@ data class Ficha(
      * serializadas como JSON versionável. Não são bônus nem traços mecânicos.
      * Campo vazio mantém compatibilidade com fichas antigas.
      */
-    val editorialChoicesJson: String = ""
+    val editorialChoicesJson: String = "",
+    /** História pessoal aprovada pelo jogador; texto narrativo, nunca regra executável. */
+    val approvedLore: String = "",
+    /** Referência persistida do retrato gerado; não é inventário nem altera a ficha mecânica. */
+    val portraitRef: String = "",
 ) {
     fun toEntity(kind: EntityKind = EntityKind.PLAYER): Entity =
         Entity(
-            id = id, name = name, kind = kind, stats = stats, resources = resources,
-            skills = skills, concept = concept, traits = traits
+            id = id,
+            name = name,
+            kind = kind,
+            stats = stats,
+            resources = resources,
+            skills = skills,
+            concept = concept,
+            traits = traits,
         )
 }
 
@@ -55,7 +65,7 @@ data class CampaignStyle(
     val difficultyId: String? = null,
     val difficultyParams: Map<String, Double> = emptyMap(),
     val progressionId: String? = null,
-    val contentLimits: List<String> = emptyList()
+    val contentLimits: List<String> = emptyList(),
 )
 
 /** Universo ficcional. Referencia a campanha, nunca a ficha. */
@@ -68,7 +78,7 @@ data class Ambientacao(
     val technology: String = "",
     val organizations: List<String> = emptyList(),
     val conflicts: List<String> = emptyList(),
-    val fictionalGear: List<String> = emptyList()
+    val fictionalGear: List<String> = emptyList(),
 )
 
 /** Adaptação explícita para algo que o sistema não cobre. */
@@ -81,7 +91,7 @@ data class RegraAdicional(
     val effects: Map<String, Int> = emptyMap(),
     val limit: String = "",
     val origin: RuleOrigin = RuleOrigin.ADAPTACAO,
-    val approved: Boolean = false
+    val approved: Boolean = false,
 )
 
 /** Estado da aventura: liga ficha, sistema, ambientação e regras adicionais. */
@@ -91,7 +101,7 @@ data class Campanha(
     val system: SystemRef,
     val ambientacao: Ambientacao,
     val additionalRules: List<RegraAdicional> = emptyList(),
-    val style: CampaignStyle = CampaignStyle()
+    val style: CampaignStyle = CampaignStyle(),
 ) {
     /** Troca o cenário sem tocar na ficha (9.4.4). */
     fun withAmbientacao(a: Ambientacao): Campanha = copy(ambientacao = a.copy(campaignId = id))

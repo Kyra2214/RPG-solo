@@ -1,7 +1,7 @@
 package dev.rpgsolo.ai
 
-import dev.rpgsolo.rules.CatalogLoader
 import dev.rpgsolo.rules.Catalog
+import dev.rpgsolo.rules.CatalogLoader
 import dev.rpgsolo.rules.Compatibility
 import dev.rpgsolo.rules.LoadResult
 import org.junit.Assert.assertEquals
@@ -14,11 +14,13 @@ class CampaignInterpreterTest {
         CampaignInterpreterTest::class.java.classLoader!!.getResourceAsStream("catalog/$name")!!.bufferedReader().readText()
 
     // Sistema próprio embutido + sistemas fictícios de teste (uma família com duas edições e outra com uma).
-    private val sistemas: String = res("sistemas.txt") + "\n" + """
-        alfa-1|alfa|Sistema Alfa|1|generico|PENDENTE|PENDENTE|teste
-        alfa-2|alfa|Sistema Alfa|2|generico|PENDENTE|PENDENTE|teste
-        beta-1|beta|Sistema Beta|1|generico|PENDENTE|PENDENTE|teste
-    """.trimIndent()
+    private val sistemas: String =
+        res("sistemas.txt") + "\n" +
+            """
+            alfa-1|alfa|Sistema Alfa|1|generico|PENDENTE|PENDENTE|teste
+            alfa-2|alfa|Sistema Alfa|2|generico|PENDENTE|PENDENTE|teste
+            beta-1|beta|Sistema Beta|1|generico|PENDENTE|PENDENTE|teste
+            """.trimIndent()
 
     private fun catalog(compat: String = res("compat.txt")): Catalog =
         (CatalogLoader.load(res("estilos.txt"), sistemas, compat) as LoadResult.Success).catalog
@@ -69,9 +71,12 @@ class CampaignInterpreterTest {
 
     @Test fun idsInventadosSaoIgnoradosEAmbientacaoLivreFicaGuardada() {
         val c = catalog()
-        val i = interp("""{"system":"alfa","edition":"alfa-2","difficulty":"difficulty.normal",
+        val i =
+            interp(
+                """{"system":"alfa","edition":"alfa-2","difficulty":"difficulty.normal",
             "settings":["setting.inventado","setting.cyberpunk"],"tones":["setting.cyberpunk"],
-            "custom_setting":"cyberpunk com mineração em asteroides"}""")
+            "custom_setting":"cyberpunk com mineração em asteroides"}""",
+            )
         val r = i.interpret("x", c) as Interpretation.Ready
         assertEquals(listOf("setting.cyberpunk"), r.config.settingIds)
         assertTrue("setting.inventado" in r.draft.ignored)
@@ -85,14 +90,18 @@ class CampaignInterpreterTest {
         val ask = interp("""{"system":"sistema-fantasma","difficulty":"difficulty.normal"}""").interpret("x", c) as Interpretation.Ask
         assertEquals(DraftField.SYSTEM, ask.field)
         // edição de outra família é descartada, o motor pergunta a edição certa
-        val ask2 = interp("""{"system":"alfa","edition":"beta-1","difficulty":"difficulty.normal"}""").interpret("x", c) as Interpretation.Ask
+        val ask2 =
+            interp(
+                """{"system":"alfa","edition":"beta-1","difficulty":"difficulty.normal"}""",
+            ).interpret("x", c) as Interpretation.Ask
         assertEquals(DraftField.EDITION, ask2.field)
     }
 
     @Test fun combinacaoBloqueadaImpedeIniciar() {
         val c = catalog("beta-1|setting.cyberpunk|BLOCKED|teste de bloqueio")
-        val r = interp("""{"system":"beta","edition":"beta-1","settings":["setting.cyberpunk"],"difficulty":"difficulty.normal"}""")
-            .interpret("x", c)
+        val r =
+            interp("""{"system":"beta","edition":"beta-1","settings":["setting.cyberpunk"],"difficulty":"difficulty.normal"}""")
+                .interpret("x", c)
         assertTrue(r is Interpretation.Invalid)
         assertTrue((r as Interpretation.Invalid).errors.any { "bloqueada" in it })
     }
@@ -107,10 +116,13 @@ class CampaignInterpreterTest {
     @Test fun trocarDeSistemaLimpaAEdicaoAnterior() {
         val c = catalog()
         val i = CampaignInterpreter(ScriptedProvider(emptyList()))
-        val ask = Interpretation.Ask(
-            DraftField.SYSTEM, "?", listOf(Interpretation.Option("alfa", "Alfa")),
-            CampaignDraft("x", systemFamily = null, editionId = "beta-1", difficultyId = "difficulty.normal")
-        )
+        val ask =
+            Interpretation.Ask(
+                DraftField.SYSTEM,
+                "?",
+                listOf(Interpretation.Option("alfa", "Alfa")),
+                CampaignDraft("x", systemFamily = null, editionId = "beta-1", difficultyId = "difficulty.normal"),
+            )
         val r = i.answer(ask, "alfa", c)
         assertTrue(r is Interpretation.Ask && r.field == DraftField.EDITION)
     }

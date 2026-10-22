@@ -9,8 +9,17 @@ import org.junit.Test
 
 /** MU-08.2: confronto ataque × defesa, crítico, ignorar defesa, registro no log, paridade e exceções. */
 class UnifiedCombatTest {
-    private fun bd(target: String, base: Int, vararg mods: Modifier) = ModifierAggregator.aggregate(target, base, mods.toList())
-    private fun mod(source: String, target: String, value: Int) = Modifier(source, source, target, value)
+    private fun bd(
+        target: String,
+        base: Int,
+        vararg mods: Modifier,
+    ) = ModifierAggregator.aggregate(target, base, mods.toList())
+
+    private fun mod(
+        source: String,
+        target: String,
+        value: Int,
+    ) = Modifier(source, source, target, value)
 
     @Test fun danoEhAtaqueMenosDefesaSemMinimo() {
         assertEquals(6, UnifiedCombat.damageOf(10, 4))
@@ -102,7 +111,14 @@ class UnifiedCombatTest {
 
     @Test fun ignorarDefesaSemGarantiaSoAcertaNoLimiar() {
         repeat(100) { seed ->
-            val r = UnifiedCombat.resolve(bd("attack", 10), bd("defense", 8), Dice(seed.toLong()), canCrit = false, ignoreDefense = IgnoreDefenseSpec())
+            val r =
+                UnifiedCombat.resolve(
+                    bd("attack", 10),
+                    bd("defense", 8),
+                    Dice(seed.toLong()),
+                    canCrit = false,
+                    ignoreDefense = IgnoreDefenseSpec(),
+                )
             val face = r.ignore!!.roll!!.total
             assertTrue(face in 1..10)
             assertEquals(face >= 10, r.ignoredDefense)
@@ -116,22 +132,33 @@ class UnifiedCombatTest {
     }
 
     // ---- no motor (estado, log e paridade) ----
-    private fun fighter(id: String, kind: EntityKind, attack: Int = 5, defense: Int = 2, hp: Int = 30) =
-        Entity(id, id, kind, stats = mapOf("attack" to attack, "defense" to defense), resources = mapOf("hp" to Resource(hp, hp)))
+    private fun fighter(
+        id: String,
+        kind: EntityKind,
+        attack: Int = 5,
+        defense: Int = 2,
+        hp: Int = 30,
+    ) = Entity(id, id, kind, stats = mapOf("attack" to attack, "defense" to defense), resources = mapOf("hp" to Resource(hp, hp)))
 
     private fun duel(seed: Long = 7): GameEngine {
         val e = GameEngine(seed)
-        assertTrue(e.executeAll(listOf(
-            CreateEntity(fighter("hero", EntityKind.PLAYER)),
-            CreateEntity(fighter("orc", EntityKind.NPC)),
-            CreateEntity(fighter("elfo", EntityKind.NPC))
-        )) is ExecResult.Accepted)
+        assertTrue(
+            e.executeAll(
+                listOf(
+                    CreateEntity(fighter("hero", EntityKind.PLAYER)),
+                    CreateEntity(fighter("orc", EntityKind.NPC)),
+                    CreateEntity(fighter("elfo", EntityKind.NPC)),
+                ),
+            ) is ExecResult.Accepted,
+        )
         assertTrue(e.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
         return e
     }
 
-    private fun spec(attacker: String, target: String) =
-        UnifiedAttackSpec(attacker, target, bd("attack", 10), bd("defense", 3))
+    private fun spec(
+        attacker: String,
+        target: String,
+    ) = UnifiedAttackSpec(attacker, target, bd("attack", 10), bd("defense", 3))
 
     @Test fun ataqueUnificadoGravaConfrontoEAplicaODano() {
         val e = duel()
@@ -155,8 +182,10 @@ class UnifiedCombatTest {
     }
 
     @Test fun mesmaSeedGeraOMesmoConfrontoNoLog() {
-        val a = duel(21); val b = duel(21)
-        a.unifiedAttack(spec("hero", "orc")); b.unifiedAttack(spec("hero", "orc"))
+        val a = duel(21)
+        val b = duel(21)
+        a.unifiedAttack(spec("hero", "orc"))
+        b.unifiedAttack(spec("hero", "orc"))
         assertEquals(a.events.filterIsInstance<ClashRecorded>(), b.events.filterIsInstance<ClashRecorded>())
     }
 
@@ -176,10 +205,17 @@ class UnifiedCombatTest {
 
     @Test fun fontesDiferentesAcumulamNoAtaqueEmotivoApareceNoDetalhamento() {
         val e = duel()
-        val providers = listOf(
-            ModifierProvider { _, _, t -> if (t == "attack") listOf(mod("arma", "attack", 1)) else emptyList() },
-            ModifierProvider { _, _, t -> if (t == "attack") listOf(mod("bencao", "attack", 1), mod("arma", "attack", 1)) else emptyList() }
-        )
+        val providers =
+            listOf(
+                ModifierProvider { _, _, t -> if (t == "attack") listOf(mod("arma", "attack", 1)) else emptyList() },
+                ModifierProvider {
+                        _,
+                        _,
+                        t,
+                    ->
+                    if (t == "attack") listOf(mod("bencao", "attack", 1), mod("arma", "attack", 1)) else emptyList()
+                },
+            )
         e.unifiedAttackBetween("hero", "orc", providers)
         val recorded = e.events.filterIsInstance<ClashRecorded>().single()
         assertEquals(7, recorded.attackValue)
@@ -189,9 +225,10 @@ class UnifiedCombatTest {
     }
 
     // ---- exceções mecânicas ----
-    private fun stateWith(vararg ids: String) = GameEngine(1).also {
-        it.executeAll(ids.map { id -> CreateEntity(fighter(id, EntityKind.NPC)) })
-    }.state
+    private fun stateWith(vararg ids: String) =
+        GameEngine(1).also {
+            it.executeAll(ids.map { id -> CreateEntity(fighter(id, EntityKind.NPC)) })
+        }.state
 
     @Test fun excecaoValidaEntraNoAgregadorComOrigemEstavel() {
         val state = stateWith("boss", "hero")
@@ -212,7 +249,12 @@ class UnifiedCombatTest {
         assertEquals(1, ExceptionRegistry(listOf(MechanicalException("a", "boss", " ", effect))).validate(state).size)
         assertEquals(1, ExceptionRegistry(listOf(MechanicalException("a", "fantasma", "d", effect))).validate(state).size)
         assertEquals(1, ExceptionRegistry(listOf(MechanicalException("a", "boss", "d"))).validate(state).size)
-        assertEquals(1, ExceptionRegistry(listOf(MechanicalException("a", "boss", "d", effect), MechanicalException("a", "boss", "d", effect))).validate(state).size)
+        assertEquals(
+            1,
+            ExceptionRegistry(
+                listOf(MechanicalException("a", "boss", "d", effect), MechanicalException("a", "boss", "d", effect)),
+            ).validate(state).size,
+        )
         assertEquals(1, ExceptionRegistry(listOf(MechanicalException("", "boss", "d", effect))).validate(state).size)
     }
 }

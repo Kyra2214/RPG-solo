@@ -18,19 +18,23 @@ object ResumeBriefing {
         quests: List<Quest>,
         timeline: List<Pair<Int, String>>,
         chapterSummaries: List<String>,
-        maxTimeline: Int = 8
+        maxTimeline: Int = 8,
     ): String? {
         val active = quests.filter { it.status == QuestStatus.ACTIVE }
-        val activeText = active.takeIf { it.isNotEmpty() }?.let { list ->
-            "Missões em andamento:\n" + list.joinToString("\n") { q ->
-                val pending = q.objectives.filterNot { it.done }.map { it.text }
-                "- ${q.title}" + if (pending.isEmpty()) "" else " (falta: ${pending.joinToString("; ")})"
+        val activeText =
+            active.takeIf { it.isNotEmpty() }?.let { list ->
+                "Missões em andamento:\n" +
+                    list.joinToString("\n") { q ->
+                        val pending = q.objectives.filterNot { it.done }.map { it.text }
+                        "- ${q.title}" + if (pending.isEmpty()) "" else " (falta: ${pending.joinToString("; ")})"
+                    }
             }
-        }
-        val chaptersText = chapterSummaries.takeLast(3).takeIf { it.isNotEmpty() }
-            ?.let { "Capítulos anteriores:\n" + it.joinToString("\n") }
-        val recentText = timeline.takeLast(maxTimeline).takeIf { it.isNotEmpty() }
-            ?.let { "Acontecimentos mais recentes:\n" + it.joinToString("\n") { (_, text) -> "- $text" } }
+        val chaptersText =
+            chapterSummaries.takeLast(3).takeIf { it.isNotEmpty() }
+                ?.let { "Capítulos anteriores:\n" + it.joinToString("\n") }
+        val recentText =
+            timeline.takeLast(maxTimeline).takeIf { it.isNotEmpty() }
+                ?.let { "Acontecimentos mais recentes:\n" + it.joinToString("\n") { (_, text) -> "- $text" } }
         val sections = listOfNotNull(activeText, chaptersText, recentText)
         if (sections.isEmpty()) return null
         return (listOf(HEADER) + sections).joinToString("\n")

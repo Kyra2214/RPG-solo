@@ -1,5 +1,7 @@
 package dev.rpgsolo.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme
@@ -11,44 +13,55 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import dev.rpgsolo.R
+import dev.rpgsolo.rules.SystemModels
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.compose.ui.unit.dp
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import dev.rpgsolo.rules.SystemModels
 
 /** Aba Sistemas: pacotes instalados (edição e versão) e importação de pacotes de regras no formato do app. */
 @Composable
 fun SystemsScreen(model: AppModel) {
     val c = model.content
     val packageVersion = model.packageVersion
-    @Suppress("UNUSED_VARIABLE") val observePackageVersion = packageVersion
+
+    @Suppress("UNUSED_VARIABLE")
+    val observePackageVersion = packageVersion
     var importStatus by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
-    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { selected ->
-        if (selected != null) {
-            importStatus = "Importando…"
-            scope.launch {
-                importStatus = try {
-                    withContext(Dispatchers.IO) { model.importPackage(selected) }
-                } catch (e: Exception) {
-                    e.message ?: "Falha ao importar o pacote."
+    val importingText = stringResource(R.string.systems_importing)
+    val importFailureText = stringResource(R.string.systems_import_failure)
+    val importer =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { selected ->
+            if (selected != null) {
+                importStatus = importingText
+                scope.launch {
+                    importStatus =
+                        try {
+                            withContext(Dispatchers.IO) { model.importPackage(selected) }
+                        } catch (e: Exception) {
+                            e.message ?: importFailureText
+                        }
                 }
             }
         }
-    }
     val models = SystemModels.list(c.registry, c.catalog)
     ScreenColumn {
-        SectionTitle("Importar pacote de regras", "Selecione um ZIP contendo manifest.txt e os arquivos .txt do pacote.")
+        SectionTitle(stringResource(R.string.systems_import_title), stringResource(R.string.systems_import_help))
         TextButton(onClick = { importer.launch(arrayOf("application/zip", "application/octet-stream")) }) {
-            Text("Importar ZIP")
+            Text(stringResource(R.string.systems_import_zip))
         }
-        importStatus?.let { Text(it, color = if (it.startsWith("Pacote ") && !it.startsWith("Pacote recusado")) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) }
-        SectionTitle("Sistemas instalados")
+        importStatus?.let {
+            Text(
+                it,
+                color = if (it.startsWith("Pacote ") && !it.startsWith("Pacote recusado")) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
+            )
+        }
+        SectionTitle(stringResource(R.string.systems_installed_title))
         c.errors.forEach { ErrorText(it) }
-        if (models.isEmpty()) AppCard { Text("Nenhum pacote de regras instalado.") }
+        if (models.isEmpty()) AppCard { Text(stringResource(R.string.systems_empty)) }
         models.forEach { m ->
             val manifest = c.registry.get(m.packageId)!!.manifest
             AppCard(accent = MaterialTheme.colorScheme.primary) {
@@ -56,11 +69,16 @@ fun SystemsScreen(model: AppModel) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Pill("v${manifest.version}")
                     Pill(manifest.kind.name, MaterialTheme.colorScheme.secondary)
-                    if (model.activePackageId() == manifest.id) Pill("Ativo nesta campanha", MaterialTheme.colorScheme.tertiary)
+                    if (model.activePackageId() == manifest.id) {
+                        Pill(
+                            stringResource(R.string.systems_active),
+                            MaterialTheme.colorScheme.tertiary,
+                        )
+                    }
                 }
-                Muted("Pacote ${manifest.id}")
-                Muted("Origem: ${manifest.source} · Licença: ${manifest.license}")
-                Muted("Estado da licença: ${manifest.licenseStatus.name}")
+                Muted(stringResource(R.string.systems_package_id, manifest.id))
+                Muted(stringResource(R.string.systems_origin_license, manifest.source, manifest.license))
+                Muted(stringResource(R.string.systems_license_status, manifest.licenseStatus.name))
             }
         }
     }

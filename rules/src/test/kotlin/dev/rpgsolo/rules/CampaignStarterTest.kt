@@ -16,16 +16,24 @@ import java.io.File
 class CampaignStarterTest {
     private fun res(name: String) = listOf("src/main/resources/$name", "rules/src/main/resources/$name").map(::File).first { it.exists() }
 
-    private fun catalog() = (CatalogLoader.load(
-        res("catalog/estilos.txt").readText(), res("catalog/sistemas.txt").readText(), res("catalog/compat.txt").readText()
-    ) as LoadResult.Success).catalog
+    private fun catalog() =
+        (
+            CatalogLoader.load(
+                res("catalog/estilos.txt").readText(),
+                res("catalog/sistemas.txt").readText(),
+                res("catalog/compat.txt").readText(),
+            ) as LoadResult.Success
+        ).catalog
 
     // Catálogo embutido + uma edição fictícia sem pacote instalado (para o caso "sem pacote").
-    private fun catalogComEdicaoSemPacote() = (CatalogLoader.load(
-        res("catalog/estilos.txt").readText(),
-        res("catalog/sistemas.txt").readText() + "\nsistema-sem-pacote|semPacote|Sistema sem pacote|v1|generico|PENDENTE|PENDENTE|teste\n",
-        res("catalog/compat.txt").readText()
-    ) as LoadResult.Success).catalog
+    private fun catalogComEdicaoSemPacote() =
+        (
+            CatalogLoader.load(
+                res("catalog/estilos.txt").readText(),
+                res("catalog/sistemas.txt").readText() + "\nsistema-sem-pacote|semPacote|Sistema sem pacote|v1|generico|PENDENTE|PENDENTE|teste\n",
+                res("catalog/compat.txt").readText(),
+            ) as LoadResult.Success
+        ).catalog
 
     private fun registry(cat: Catalog): PackageRegistry {
         val r = PackageRegistry(cat)
@@ -37,15 +45,25 @@ class CampaignStarterTest {
     }
 
     private val diff = DifficultySetting("difficulty.normal")
-    private fun config(system: String, edition: String) =
-        CampaignConfig(system, edition, settingIds = listOf("setting.cyberpunk"), toneIds = listOf("tone.sombrio"), difficulty = diff)
 
-    private fun ready(cat: Catalog, system: String, edition: String): Pair<CampaignConfig, ConfigResult.Ready> {
+    private fun config(
+        system: String,
+        edition: String,
+    ) = CampaignConfig(system, edition, settingIds = listOf("setting.cyberpunk"), toneIds = listOf("tone.sombrio"), difficulty = diff)
+
+    private fun ready(
+        cat: Catalog,
+        system: String,
+        edition: String,
+    ): Pair<CampaignConfig, ConfigResult.Ready> {
         val c = config(system, edition)
         return c to (resolveConfig(cat, c) as ConfigResult.Ready)
     }
 
-    private fun fichaPadrao(cat: Catalog, reg: PackageRegistry): Ficha {
+    private fun fichaPadrao(
+        cat: Catalog,
+        reg: PackageRegistry,
+    ): Ficha {
         val p = packageFor(reg)
         val b = p.buildFicha("pj1", "Brokk", "anão minerador", p.data.stats.associate { it.id to it.default }, emptyList())
         return (b as FichaBuild.Created).ficha
@@ -60,7 +78,9 @@ class CampaignStarterTest {
     }
 
     @Test fun iniciaCampanhaComFichaPacoteEAmbientacao() {
-        val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
+        val cat = catalog()
+        val reg = registry(cat)
+        val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, fichaPadrao(cat, reg), "c1", "Minas de neon", 7L) as StartResult.Started
         assertNotNull(r.pkg)
@@ -75,14 +95,25 @@ class CampaignStarterTest {
     }
 
     @Test fun ambientacaoLivreTemPrioridadeSobreOCatalogo() {
-        val cat = catalog(); val reg = registry(cat)
+        val cat = catalog()
+        val reg = registry(cat)
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
-        val r = CampaignStarter.start(InMemoryEventStore(), reg, cat, rd, cfg, fichaPadrao(cat, reg), "c1", "X", 1L, "cyberpunk com mineração em asteroides")
+        val r =
+            CampaignStarter.start(
+                InMemoryEventStore(), reg, cat, rd, cfg,
+                fichaPadrao(
+                    cat,
+                    reg,
+                ),
+                "c1", "X", 1L, "cyberpunk com mineração em asteroides",
+            )
         assertEquals("cyberpunk com mineração em asteroides", (r as StartResult.Started).campanha.ambientacao.name)
     }
 
     @Test fun fichaDeOutraEdicaoNaoEntraEmSilencio() {
-        val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
+        val cat = catalog()
+        val reg = registry(cat)
+        val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val estranha = Ficha("pj2", "Intruso", SystemRef("externo", "externo-1"), stats = mapOf("forca" to 3))
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, estranha, "c1", "X", 1L) as StartResult.Refused
@@ -91,7 +122,9 @@ class CampaignStarterTest {
     }
 
     @Test fun fichaInvalidaPeloPacoteERecusada() {
-        val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
+        val cat = catalog()
+        val reg = registry(cat)
+        val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val ruim = fichaPadrao(cat, reg).copy(stats = mapOf("inexistente" to 99), traits = listOf("tracoInexistente"))
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, ruim, "c1", "X", 1L)
@@ -100,7 +133,9 @@ class CampaignStarterTest {
     }
 
     @Test fun fichaComPreRequisitoDePericiaPendenteERecusadaAntesDeCriarCampanha() {
-        val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
+        val cat = catalog()
+        val reg = registry(cat)
+        val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val ficha = fichaPadrao(cat, reg).copy(skills = mapOf("olhar-atento" to 2))
         val result = CampaignStarter.start(store, reg, cat, rd, cfg, ficha, "c1", "X", 1L)
@@ -110,7 +145,9 @@ class CampaignStarterTest {
     }
 
     @Test fun semPacoteIniciaMasAvisaQueNaoHaValidacao() {
-        val cat = catalogComEdicaoSemPacote(); val reg = registry(cat); val store = InMemoryEventStore()
+        val cat = catalogComEdicaoSemPacote()
+        val reg = registry(cat)
+        val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "semPacote", "sistema-sem-pacote")
         val livre = Ficha("pj3", "Livre", SystemRef("semPacote", "sistema-sem-pacote"), stats = mapOf("forca" to 2))
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, livre, "c1", "X", 1L) as StartResult.Started
@@ -120,7 +157,9 @@ class CampaignStarterTest {
     }
 
     @Test fun nomeVazioEIdRepetidoSaoRecusados() {
-        val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
+        val cat = catalog()
+        val reg = registry(cat)
+        val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val f = fichaPadrao(cat, reg)
         assertTrue(CampaignStarter.start(store, reg, cat, rd, cfg, f, "c1", "  ", 1L) is StartResult.Refused)

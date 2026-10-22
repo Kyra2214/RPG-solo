@@ -1,3 +1,108 @@
+## 2026-10-22 — U-02: strings do cartão de conflito (não validado)
+
+- `app/ClashCard.kt`: rótulos de defesa ignorada, acerto crítico e dano final passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados placeholders para o dano final exibido.
+- `PLANO_RPG_SOLO.md`: registrada a sétima fatia; as demais telas ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings da criação de campanha (não validado)
+
+- `app/NewCampaignSection.kt`: título, formulário auxiliar, campos, estados do fluxo, avisos e ações passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados placeholders para edição, personagem, notas, termos ignorados e mensagens de erro.
+- `PLANO_RPG_SOLO.md`: registrada a sexta fatia; as demais telas ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings da aba Regras (não validado)
+
+- `app/RulesScreen.kt`: estado vazio, busca, tutorial e aviso de regras incertas passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados placeholders para títulos numerados e notas de regras.
+- `PLANO_RPG_SOLO.md`: registrada a quinta fatia; as demais telas ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings da aba Sistemas (não validado)
+
+- `app/SystemsScreen.kt`: títulos, instruções, importação e metadados exibidos dos pacotes passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados textos estáticos e placeholders de origem, licença e estado do pacote.
+- `PLANO_RPG_SOLO.md`: registrada a quarta fatia; as demais telas ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings restantes da Configuração (não validado)
+
+- `app/ConfigScreen.kt`: preferências de geração, limites de conteúdo, preços, estimativas e privacidade agora usam `strings.xml`, incluindo placeholders e rótulos das opções.
+- `app/src/main/res/values/strings.xml`: catálogo ampliado para cobrir todos os textos visíveis da tela de Configuração.
+- `PLANO_RPG_SOLO.md`: registrada a terceira fatia; as demais telas do app ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings do provedor e acessibilidade (não validado)
+
+- `app/ConfigScreen.kt`: títulos, campos, avisos, ações do provedor e o bloco de acessibilidade passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados os textos correspondentes, incluindo placeholders para estado de conexão, chave mascarada e escala de fonte.
+- `PLANO_RPG_SOLO.md`: U-02 atualizado como segunda fatia; preferências narrativas, limites de conteúdo, preços e privacidade permanecem para etapas posteriores.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings da navegação principal (não validado)
+
+- `app/src/main/res/values/strings.xml`: criado o primeiro catálogo de textos do app.
+- `app/RpgSoloApp.kt`: rótulos e títulos das seis abas, marca do app, carregamento, erro de inicialização e descrição semântica da navegação passaram a usar recursos Android, preservando o comportamento existente.
+- `PLANO_RPG_SOLO.md`: registrada a primeira fatia de U-02; os demais textos fixos permanecem pendentes.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-01: rótulos acessíveis na criação e navegação (não validado)
+
+- `app/CharactersScreen.kt`: botões `+` e `−` de atributos e perícias agora expõem a ação e o nome do campo ao TalkBack.
+- `app/RpgSoloApp.kt`: ícones emoji das seis abas passaram a expor o rótulo textual da aba como descrição semântica.
+- `PLANO_RPG_SOLO.md`: registrada a primeira entrega de U-01; revisão completa de acessibilidade permanece pendente.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — I-06: ciclo de cena e turnos no prompt do mestre (não validado)
+
+- `ai/Master.kt`: adicionada a regra 17 ao prompt fixo para limitar cada resposta a um momento significativo, terminar com pergunta direta ao jogador e impedir que a IA escolha ações do jogador ou antecipe a resolução de turnos de NPC.
+- `PLANO_RPG_SOLO.md`: I-06 marcado como implementado em código, mantendo a validação executada pendente.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — F3: sorte/destino no sistema próprio (não validado)
+
+- `rules/src/main/resources/packages/sistema-proprio/criacao.txt`: o pacote próprio agora declara 1 PA como recurso global de sorte/destino, com custo 1 e as formas `REROLL+ADD_FACE`.
+- `PLANO_RPG_SOLO.md` e `README.md`: documentado que a configuração global habilita o painel de sorte para testes sem configuração específica.
+- **Validação:** nenhum teste, build, lint ou CI executado, conforme a instrução de implementar código sem disparar validações.
+
+## 2026-10-22 — Combate unificado, privacidade narrativa e memória longa
+
+- `engine/MemoryRollup.kt`, `engine/Commands.kt` e `engine/Events.kt`: resumo rolante de memórias persistido por evento quando o limite é excedido (`bbc4261`).
+- `engine/Commands.kt`: pistas públicas e intermediárias de relógios recusam números, IDs, nomes internos e metadados mecânicos (`21704f1`).
+- `ai/PlayController.kt`, `app/PlayScreen.kt` e `app/ClashCard.kt`: confrontos persistidos são listados na tela sem recalcular valores (`f4cf65f`); os cartões exibem nomes públicos em vez de IDs internos (`4ee497c`).
+- `app/CombatActions.kt`, `app/AppModel.kt` e `app/PlayScreen.kt`: ataque manual usa `unifiedAttackBetween`, grava `ClashRecorded` e avança o turno (`ec598af`).
+- `app/CombatActions.kt`: turnos de NPC usam o mesmo pipeline unificado do jogador (`f01c173`); a ação escolhe atacante/alvo, mas o motor decide rolagens, defesa e dano.
+- `engine/AutomaticTimeline.kt`: projeção pública neutraliza dano, XP, nível, quantidades de itens, recuperação numérica e dano periódico de condições.
+- **Validação:** nenhuma alteração acima foi compilada, testada, submetida ao CI ou validada em aparelho, conforme a instrução de seguir code-first sem disparar testes/CI.
+- **Auditoria de documentação:** a leitura de `engine/Commands.kt` confirmou que `NextTurn` já emite `EffectsRoundEnded` ao fechar a rodada; a lacuna correspondente foi removida do plano sem duplicar implementação.
+
+## 2026-10-22 — Contexto privado, timeline e consistência de relógios
+
+- `ai/PowerMenu.kt`: valida o par efeito/alvo novamente no ponto de execução, além das validações do parser e da herança de pacotes.
+- `engine/AutomaticTimeline.kt`: registra progressão, recursos recuperados, usos limitados, falhas de sobrevivência e mudanças de relação em linguagem neutra; oculta IDs internos de itens, espaços, condições, magias, habilidades e perícias. Promessas de NPC ficam fora da timeline até o log conseguir provar que o personagem presenciou o evento.
+- `engine/AutomaticTimeline.kt`: remove ramificações duplicadas de XP, nível, alocação, magias e habilidades; registra pistas públicas quando o relógio cruza a metade ou conclui.
+- `ai/GameLoop.kt`, `ai/Master.kt` e `engine/AutomaticTimeline.kt`: se um único avanço cruza a metade e completa o relógio, preserva a pista intermediária junto da conclusão; consequências não são repetidas em narrações posteriores.
+- `engine/Npc.kt` e `app/ui/AppModel.kt`: o contexto privado do mestre inclui motivações e relações de NPCs, ordenadas de forma determinística; não são expostas na interface do jogador.
+- `ai/GameLoop.kt`, `ai/CheckMenu.kt` e `ai/Master.kt`: rolagens com tabela respeitam imunidades a condições declaradas no pacote; uma nota mecânica privada acompanha a jogada e permanece disponível ao regenerar a narração.
+- **Pendente:** avanço automático de agendas por outros eventos narrativos e ligação das agendas a gatilhos narrativos persistidos.
+- **Validação:** nenhum teste, build, lint ou CI executado; tudo permanece adiado para a etapa final.
+
+## 2026-10-22 — Continuação code-first: testes avançados e sorte global (não validado)
+
+- `ai/PowerMenu.kt`: adicionada validação defensiva no ponto de execução para recusar poder cuja combinação efeito/alvo seja incompatível com o motor, mesmo se uma definição incoerente escapar das validações do pacote. Não foram executados testes/build/CI.
+
+- `ai/GameLoop.kt`: testes opostos preservam as alternativas descartadas pela política de fortuna de ambos os participantes; testes em grupo preservam as alternativas descartadas de todos os integrantes no registro da jogada, para que a interface possa exibi-las sem alterar o resultado escolhido.
+- `ai/CheckMenu.kt`: a sorte/destino pós-rolagem pode ser configurada uma única vez no pacote com `recurso_sorte`, `custo_sorte` e `formas_sorte`; configurações específicas de um teste têm prioridade.
+- `rules/PackageParser.kt` e `rules/RulePackage.kt`: validação do conjunto de propriedades globais, custo positivo, formas permitidas e existência do recurso, inclusive após herança de pacotes.
+- `docs/PLANO_DESENVOLVIMENTO.md`: corrigida a descrição do fluxo narrativo de testes opostos/em grupo e registrada a configuração global de sorte.
+- `docs/pacotes/FORMATO_PACOTE.md`: documentadas as três chaves globais e a prioridade da configuração específica por teste.
+- `engine/AutomaticTimeline.kt`: a timeline passa a registrar alterações de inventário/equipamento, evolução da árvore e distribuição inicial. Eventos de aplicação/remoção de maldições ficam fora da projeção para não revelar efeitos ocultos. Os registros de combate agora incluem o dano efetivamente causado quando o personagem participa do confronto. Também registra o dano periódico de condições que afetam o personagem.
+- `engine/Commands.kt`: uma viagem válida agora avança os relógios com `moveTick` no mesmo lote de eventos; relógios já completos são ignorados e o preenchimento é limitado ao total de casas. `app/ui/AppModel.kt` delega o deslocamento ao motor sem enviar avanços duplicados.
+- `ai/Master.kt`: o contexto instrui o mestre a narrar a consequência de um relógio apenas quando ele conclui desde a última narração, sem repeti-la em turnos posteriores. O `GameLoop` identifica também a transição exata que cruza a metade, para não repetir a pista intermediária em cada avanço.
+- `rules/PackageParser.kt` e `rules/RulePackage.kt`: alvos de poderes são compatíveis com o motor: cura e remoção de condição só em si mesmo; dano e aplicação de condição só em inimigo. A validação ocorre também após herança. O formato de pacote documenta as mesmas restrições.
+- **Validação:** nenhum teste, build, lint ou CI executado, conforme a prioridade definida. Não declarar compilação ou integração confirmadas até a etapa final.
+
 ## 2026-10-22 — Árvores de habilidades e maldições: revisão de conteúdo (ainda não validada)
 
 - `rules/.../habilidades-arvore.txt`: revisadas as seis primeiras habilidades das 50 árvores de classe e das 103 árvores de profissão; as culminâncias das 103 profissões receberam nomes e efeitos por ofício. Foram adicionados testes de catálogo para distinção de nomes, categorias, afinidade e progressão.

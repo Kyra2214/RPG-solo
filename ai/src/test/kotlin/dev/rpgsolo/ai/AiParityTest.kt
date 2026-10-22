@@ -17,15 +17,19 @@ import org.junit.Test
 /** MU-08.3: em combate a IA propõe só intenção; jogador e NPC recebem o mesmo tratamento do motor. */
 class AiParityTest {
     private val store = InMemoryEventStore()
-    private val session = CampaignSession.create(store, CampaignRecord("c1", "Teste", 1L, EngineConfig())).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6)))),
-            CreateEntity(Entity("elfo", "Elfo", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6))))
-        ))
-        it.execute(StartCombat(listOf("hero", "orc")))
-    }
+    private val session =
+        CampaignSession.create(store, CampaignRecord("c1", "Teste", 1L, EngineConfig())).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))),
+                    CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6)))),
+                    CreateEntity(Entity("elfo", "Elfo", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6)))),
+                ),
+            )
+            it.execute(StartCombat(listOf("hero", "orc")))
+        }
     private val request = AiRequest(listOf(AiMessage(Role.USER, "ataco")))
+
     private fun hp(id: String) = session.state.entities.getValue(id).resources.getValue("hp").current
 
     private fun proposal(json: String) = """{"narrative":"x","proposals":[$json]}"""
@@ -39,11 +43,12 @@ class AiParityTest {
         assertTrue(ai.requests[1].messages.last().content.contains("só mudam por ações do motor"))
     }
 
-    @Test fun danoDaIaEmNpcEmCombateERecusado() =
-        assertRefusedInCombat("""{"type":"damage","entityId":"orc","resource":"hp","amount":3}""")
+    @Test fun danoDaIaEmNpcEmCombateERecusado() = assertRefusedInCombat("""{"type":"damage","entityId":"orc","resource":"hp","amount":3}""")
 
     @Test fun danoDaIaNoJogadorEmCombateERecusado() =
-        assertRefusedInCombat("""{"type":"damage","entityId":"hero","resource":"hp","amount":3}""")
+        assertRefusedInCombat(
+            """{"type":"damage","entityId":"hero","resource":"hp","amount":3}""",
+        )
 
     @Test fun curaDaIaNosDoisLadosEmCombateERecusada() {
         assertRefusedInCombat("""{"type":"heal","entityId":"orc","resource":"hp","amount":2}""")

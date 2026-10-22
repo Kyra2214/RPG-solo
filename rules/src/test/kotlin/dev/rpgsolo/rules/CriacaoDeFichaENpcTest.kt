@@ -9,7 +9,10 @@ import java.io.File
 
 class CriacaoDeFichaENpcTest {
     private fun registry(): PackageRegistry {
-        val dir = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico").map(::File).first { it.exists() }
+        val dir =
+            listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico").map(::File).first {
+                it.exists()
+            }
         val files = dir.listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }
         val r = PackageRegistry()
         assertTrue(r.install(files) is InstallResult.Success)
@@ -44,7 +47,8 @@ class CriacaoDeFichaENpcTest {
 
     @Test fun pontosAcabamEOTracoSaiDaLista() {
         val d = CharacterDraft(pkg(), "f1")
-        d.setStat("forca", 5); d.setStat("agilidade", 3)
+        d.setStat("forca", 5)
+        d.setStat("agilidade", 3)
         assertTrue(d.pointsLeft() <= 0)
         assertTrue(d.allowedTraits().none { it.cost > 0 })
     }
@@ -70,8 +74,15 @@ class CriacaoDeFichaENpcTest {
 
     // ---- NPC: ficha privada e validada pelo motor ----
     @Test fun npcValidoFicaPrivadoEOJogadorSoVeIdentidade() {
-        val p = NpcProposal("n1", "Vael", "vilão arqueiro élfico", mapOf("forca" to 2, "agilidade" to 3, "mente" to 0),
-            listOf("lutador"), ruleSource = RuleSource.PESQUISA_NA_REDE)
+        val p =
+            NpcProposal(
+                "n1",
+                "Vael",
+                "vilão arqueiro élfico",
+                mapOf("forca" to 2, "agilidade" to 3, "mente" to 0),
+                listOf("lutador"),
+                ruleSource = RuleSource.PESQUISA_NA_REDE,
+            )
         val sheet = (NpcFactory.create(p, pkg()) as NpcResult.Created).sheet
         assertTrue(sheet.validated && sheet.isPrivate)
         assertEquals("Vael" to "vilão arqueiro élfico", sheet.playerView())
@@ -86,8 +97,16 @@ class CriacaoDeFichaENpcTest {
     }
 
     @Test fun npcSemPacoteEhAceitoMasMarcadoNaoValidado() {
-        val p = NpcProposal("n3", "Vael", "arqueiro élfico", mapOf("des" to 18), listOf("Tiro Preciso"),
-            resources = mapOf("pv" to 22), ruleSource = RuleSource.IA_NAO_VERIFICADA)
+        val p =
+            NpcProposal(
+                "n3",
+                "Vael",
+                "arqueiro élfico",
+                mapOf("des" to 18),
+                listOf("Tiro Preciso"),
+                resources = mapOf("pv" to 22),
+                ruleSource = RuleSource.IA_NAO_VERIFICADA,
+            )
         assertTrue(NpcFactory.create(p, null) is NpcResult.Rejected) // precisa saber o sistema
         val sheet = (NpcFactory.create(p, null, SystemRef("externo", "externo-1")) as NpcResult.Created).sheet
         assertFalse(sheet.validated)

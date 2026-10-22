@@ -1,18 +1,17 @@
 package dev.rpgsolo.ui
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,9 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import dev.rpgsolo.R
 import dev.rpgsolo.ai.ProviderKind
 import dev.rpgsolo.ai.maskKey
 import kotlinx.coroutines.launch
@@ -39,7 +40,9 @@ fun ConfigScreen(model: AppModel) {
     var key by remember { mutableStateOf(stored?.apiKey.orEmpty()) }
     var cheapModel by remember { mutableStateOf(stored?.cheapModel.orEmpty()) }
     var premiumModel by remember { mutableStateOf(stored?.premiumModel.orEmpty()) }
-    var cacheSystemPrompt by remember { mutableStateOf(stored?.cacheSystemPrompt ?: (stored?.endpoint ?: endpoint).startsWith("https://api.anthropic.com/")) }
+    var cacheSystemPrompt by remember {
+        mutableStateOf(stored?.cacheSystemPrompt ?: (stored?.endpoint ?: endpoint).startsWith("https://api.anthropic.com/"))
+    }
     var inputPrice by remember { mutableStateOf(stored?.inputPricePerMillion?.takeIf { it > 0.0 }?.toString().orEmpty()) }
     var outputPrice by remember { mutableStateOf(stored?.outputPricePerMillion?.takeIf { it > 0.0 }?.toString().orEmpty()) }
     var cacheReadPrice by remember { mutableStateOf(stored?.cacheReadPricePerMillion?.takeIf { it > 0.0 }?.toString().orEmpty()) }
@@ -53,32 +56,45 @@ fun ConfigScreen(model: AppModel) {
     var testing by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<ConnectionTestResult?>(null) }
     val scope = rememberCoroutineScope()
+    val configPriceError = stringResource(R.string.config_price_error)
     ScreenColumn {
-        SectionTitle("Provedor de IA", "Quem faz o papel de mestre. O motor continua sendo quem rola os dados.")
+        SectionTitle(stringResource(R.string.config_provider_title), stringResource(R.string.config_provider_supporting))
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ProviderKind.values().forEach { k ->
                 FilterChip(selected = kind == k, onClick = { kind = k }, label = { Text(k.label) })
             }
         }
-        OutlinedTextField(endpoint, { endpoint = it }, Modifier.fillMaxWidth(), label = { Text("Endpoint (https)") }, singleLine = true)
+        OutlinedTextField(endpoint, {
+            endpoint = it
+        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_endpoint_label)) }, singleLine = true)
         if (endpoint.trim().startsWith("http://", ignoreCase = true)) {
-            ErrorText("Endpoint http:// não é aceito: a chave de API e o texto das jogadas trafegariam sem criptografia. Use https://.")
+            ErrorText(stringResource(R.string.config_http_error))
         }
-        OutlinedTextField(modelName, { modelName = it }, Modifier.fillMaxWidth(), label = { Text("Modelo") }, singleLine = true)
-        OutlinedTextField(cheapModel, { cheapModel = it }, Modifier.fillMaxWidth(), label = { Text("Modelo barato (opcional): classifica e resume") }, singleLine = true)
-        OutlinedTextField(premiumModel, { premiumModel = it }, Modifier.fillMaxWidth(), label = { Text("Modelo melhor (opcional): só momentos importantes") }, singleLine = true)
+        OutlinedTextField(modelName, {
+            modelName = it
+        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_model_label)) }, singleLine = true)
+        OutlinedTextField(cheapModel, {
+            cheapModel = it
+        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_cheap_model_label)) }, singleLine = true)
+        OutlinedTextField(premiumModel, {
+            premiumModel = it
+        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_premium_model_label)) }, singleLine = true)
         OutlinedTextField(
-            key, { key = it }, Modifier.fillMaxWidth(), label = { Text("Chave de API") }, singleLine = true,
+            key,
+            { key = it },
+            Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.config_api_key_label)) },
+            singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         )
         if (kind == ProviderKind.ANTHROPIC) {
             FilterChip(
                 selected = cacheSystemPrompt,
                 onClick = { cacheSystemPrompt = !cacheSystemPrompt },
-                label = { Text(if (cacheSystemPrompt) "Cache de prompt ativado" else "Cache de prompt desativado") }
+                label = { Text(stringResource(if (cacheSystemPrompt) R.string.config_cache_enabled else R.string.config_cache_disabled)) },
             )
-            Muted("No endpoint oficial Anthropic, o cache reduz a repetição do prefixo system. Proxies compatíveis podem não suportar o recurso; desative se a conexão falhar.")
+            Muted(stringResource(R.string.config_cache_help))
         }
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -87,14 +103,15 @@ fun ConfigScreen(model: AppModel) {
                 testing = true
                 testResult = null
                 scope.launch {
-                    val result = cancellableIo {
-                        model.testConnection(kind, endpoint, modelName, key, cacheSystemPrompt)
-                    }
+                    val result =
+                        cancellableIo {
+                            model.testConnection(kind, endpoint, modelName, key, cacheSystemPrompt)
+                        }
                     testResult = result
                     testing = false
                 }
-            }
-        ) { Text(if (testing) "Testando conexão…" else "Testar conexão") }
+            },
+        ) { Text(stringResource(if (testing) R.string.config_testing_connection else R.string.config_test_connection)) }
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             fun parsePrice(value: String): Double? =
                 if (value.isBlank()) null else value.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
@@ -103,23 +120,25 @@ fun ConfigScreen(model: AppModel) {
             val cacheRead = parsePrice(cacheReadPrice)
             val cacheCreation = parsePrice(cacheCreationPrice)
             if ((!inputPrice.isBlank() && input == null) || (!outputPrice.isBlank() && output == null) ||
-                (!cacheReadPrice.isBlank() && cacheRead == null) || (!cacheCreationPrice.isBlank() && cacheCreation == null)) {
-                priceError = "Use preços numéricos não negativos por milhão de tokens."
+                (!cacheReadPrice.isBlank() && cacheRead == null) || (!cacheCreationPrice.isBlank() && cacheCreation == null)
+            ) {
+                priceError = configPriceError
                 saved = false
             } else {
                 priceError = null
                 val baseInput = input ?: 0.0
-                saved = model.applySettings(
-                    kind, endpoint, modelName, key, cheapModel, premiumModel, cacheSystemPrompt,
-                    baseInput, output ?: 0.0, cacheRead ?: baseInput, cacheCreation ?: baseInput
-                )
+                saved =
+                    model.applySettings(
+                        kind, endpoint, modelName, key, cheapModel, premiumModel, cacheSystemPrompt,
+                        baseInput, output ?: 0.0, cacheRead ?: baseInput, cacheCreation ?: baseInput,
+                    )
             }
-        }) { Text("Salvar e usar") }
+        }) { Text(stringResource(R.string.config_save_and_use)) }
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             model.forgetProvider()
             key = ""
             saved = false
-        }) { Text("Esquecer chave e desativar provedor") }
+        }) { Text(stringResource(R.string.config_forget_provider)) }
         model.configError?.let { ErrorText(it) }
         testResult?.let { result ->
             if (result.success) {
@@ -128,100 +147,142 @@ fun ConfigScreen(model: AppModel) {
                 ErrorText(result.message)
             }
         }
-        if (saved && model.configError == null) AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text("Provedor ativo. Chave: ${maskKey(key)}") }
+        if (saved && model.configError == null) {
+            AppCard(accent = MaterialTheme.colorScheme.tertiary) {
+                Text(stringResource(R.string.config_provider_active, maskKey(key)))
+            }
+        }
         AppCard {
-            Text("Acessibilidade", style = MaterialTheme.typography.titleSmall)
-            Text("Tamanho global da fonte: ${(model.fontScale * 100).toInt()}%")
+            Text(stringResource(R.string.config_accessibility_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.config_font_scale, (model.fontScale * 100).toInt()))
             Slider(
                 value = model.fontScale,
                 onValueChange = model::setFontScale,
                 valueRange = 0.85f..1.4f,
-                steps = 10
+                steps = 10,
             )
-            Muted("Ajuste o texto de toda a interface; a preferência fica salva no aparelho.")
+            Muted(stringResource(R.string.config_font_scale_help))
         }
         AppCard {
-            Text("Preferências de geração", style = MaterialTheme.typography.titleSmall)
-            Text("Extensão da narração")
+            Text(stringResource(R.string.config_generation_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.config_narration_length))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("curta", "equilibrada", "detalhada").forEach { option ->
+                listOf(
+                    "curta" to R.string.config_length_short,
+                    "equilibrada" to R.string.config_length_balanced,
+                    "detalhada" to R.string.config_length_detailed,
+                ).forEach {
+                        (option, labelRes) ->
                     FilterChip(
                         selected = narrationLength == option,
                         onClick = {
                             narrationLength = option
                             model.setNarrationPreferences(narrationLength, narrationStyle)
                         },
-                        label = { Text(option.replaceFirstChar { it.uppercase() }) }
+                        label = { Text(stringResource(labelRes)) },
                     )
                 }
             }
-            Text("Estilo")
+            Text(stringResource(R.string.config_style))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("cinematográfica", "literária", "direta").forEach { option ->
+                listOf(
+                    "cinematográfica" to R.string.config_style_cinematic,
+                    "literária" to R.string.config_style_literary,
+                    "direta" to R.string.config_style_direct,
+                ).forEach {
+                        (option, labelRes) ->
                     FilterChip(
                         selected = narrationStyle == option,
                         onClick = {
                             narrationStyle = option
                             model.setNarrationPreferences(narrationLength, narrationStyle)
                         },
-                        label = { Text(option.replaceFirstChar { it.uppercase() }) }
+                        label = { Text(stringResource(labelRes)) },
                     )
                 }
             }
-            Text("Tamanho de capítulo")
+            Text(stringResource(R.string.config_chapter_size))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(100, 200, 300, 500, 1000).forEach { limit ->
                     FilterChip(
                         selected = model.chapterEventLimit == limit,
                         onClick = { model.setChapterEventLimit(limit) },
-                        label = { Text("$limit eventos") }
+                        label = { Text(stringResource(R.string.config_chapter_events, limit)) },
                     )
                 }
             }
-            Muted("Ao atingir esse número de eventos confirmados, o app gera um resumo e abre o próximo capítulo automaticamente.")
-            Text("Linhas vermelhas — não incluir")
+            Muted(stringResource(R.string.config_chapter_help))
+            Text(stringResource(R.string.config_red_lines))
             OutlinedTextField(
                 value = contentLines,
-                onValueChange = { contentLines = it; model.setContentBoundaries(contentLines, contentVeils) },
+                onValueChange = {
+                    contentLines = it
+                    model.setContentBoundaries(contentLines, contentVeils)
+                },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Temas proibidos (um por linha)") },
+                label = { Text(stringResource(R.string.config_forbidden_topics)) },
                 minLines = 2,
-                maxLines = 5
+                maxLines = 5,
             )
-            Text("Véus — mencionar sem detalhar")
+            Text(stringResource(R.string.config_veils))
             OutlinedTextField(
                 value = contentVeils,
-                onValueChange = { contentVeils = it; model.setContentBoundaries(contentLines, contentVeils) },
+                onValueChange = {
+                    contentVeils = it
+                    model.setContentBoundaries(contentLines, contentVeils)
+                },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Temas a resumir ou cortar (um por linha)") },
+                label = { Text(stringResource(R.string.config_veiled_topics)) },
                 minLines = 2,
-                maxLines = 5
+                maxLines = 5,
             )
-            Muted("Limites são enviados ao mestre a cada jogada e não alteram os resultados do motor nem as regras do sistema.")
+            Muted(stringResource(R.string.config_content_help))
         }
         AppCard {
-            Text("Preços do modelo", style = MaterialTheme.typography.titleSmall)
-            Muted("Informe o preço por 1 milhão de tokens conforme a tabela atual do provedor. Campos de cache vazios usam o preço normal de entrada para evitar estimativa zero.")
-            OutlinedTextField(inputPrice, { inputPrice = it }, Modifier.fillMaxWidth(), label = { Text("Entrada normal / 1M") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            OutlinedTextField(outputPrice, { outputPrice = it }, Modifier.fillMaxWidth(), label = { Text("Saída / 1M") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            OutlinedTextField(cacheReadPrice, { cacheReadPrice = it }, Modifier.fillMaxWidth(), label = { Text("Leitura de cache / 1M (opcional)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            OutlinedTextField(cacheCreationPrice, { cacheCreationPrice = it }, Modifier.fillMaxWidth(), label = { Text("Criação de cache / 1M (opcional)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            Text(stringResource(R.string.config_prices_title), style = MaterialTheme.typography.titleSmall)
+            Muted(stringResource(R.string.config_prices_help))
+            OutlinedTextField(inputPrice, {
+                inputPrice = it
+            }, Modifier.fillMaxWidth(), label = {
+                Text(stringResource(R.string.config_input_price))
+            }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(outputPrice, {
+                outputPrice = it
+            }, Modifier.fillMaxWidth(), label = {
+                Text(stringResource(R.string.config_output_price))
+            }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(cacheReadPrice, {
+                cacheReadPrice = it
+            }, Modifier.fillMaxWidth(), label = {
+                Text(stringResource(R.string.config_cache_read_price))
+            }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(cacheCreationPrice, {
+                cacheCreationPrice = it
+            }, Modifier.fillMaxWidth(), label = {
+                Text(stringResource(R.string.config_cache_creation_price))
+            }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
             priceError?.let { ErrorText(it) }
             val input = inputPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: 0.0
             val output = outputPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: 0.0
             val cacheRead = cacheReadPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: input
             val cacheCreation = cacheCreationPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: input
             if (inputPrice.isBlank() || outputPrice.isBlank()) {
-                Muted("Informe os preços de entrada e saída para calcular o custo. A moeda usada será a mesma da tabela que você informar.")
+                Muted(stringResource(R.string.config_cost_missing_prices))
             } else {
-                Text("Custo estimado nesta sessão (moeda informada): " + "%.6f".format(model.usage.estimateCost(input, output, cacheRead, cacheCreation)), style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    stringResource(
+                        R.string.config_cost_estimate,
+                        "%.6f".format(model.usage.estimateCost(input, output, cacheRead, cacheCreation)),
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
         AppCard {
-            Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
-            Muted("A chave é cifrada pelo Android Keystore e não entra em backups nem logs. A jogada que você escreve é enviada ao provedor escolhido.")
-            Muted("Uso estimado nesta sessão: ${model.usage.calls} chamadas, ${model.usage.inputTokens} tokens de entrada, ${model.usage.outputTokens} de saída.")
-            Muted("Cache do provedor: ${model.usage.cacheReadInputTokens} tokens reutilizados e ${model.usage.cacheCreationInputTokens} tokens gravados.")
+            Text(stringResource(R.string.config_privacy_title), style = MaterialTheme.typography.titleSmall)
+            Muted(stringResource(R.string.config_privacy_key))
+            Muted(stringResource(R.string.config_usage, model.usage.calls, model.usage.inputTokens, model.usage.outputTokens))
+            Muted(stringResource(R.string.config_cache_usage, model.usage.cacheReadInputTokens, model.usage.cacheCreationInputTokens))
         }
     }
 }

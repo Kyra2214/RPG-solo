@@ -4,14 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PlaceMapTest {
-    private fun map() = PlaceMap().apply {
-        add(Place("vila", "Vila", "Casas de pedra."))
-        add(Place("mina", "Mina", "Escura.", secret = "tem um cofre"))
-        add(Place("poco", "Poço"))
-        add(Place("torre", "Torre"))
-        connect("vila", "mina"); connect("mina", "poco"); connect("vila", "torre")
-        discover("vila"); discover("mina"); discover("poco")
-    }
+    private fun map() =
+        PlaceMap().apply {
+            add(Place("vila", "Vila", "Casas de pedra."))
+            add(Place("mina", "Mina", "Escura.", secret = "tem um cofre"))
+            add(Place("poco", "Poço"))
+            add(Place("torre", "Torre"))
+            connect("vila", "mina")
+            connect("mina", "poco")
+            connect("vila", "torre")
+            discover("vila")
+            discover("mina")
+            discover("poco")
+        }
 
     @Test fun jogadorVeSoODescoberto() {
         val v = map().playerView("vila")

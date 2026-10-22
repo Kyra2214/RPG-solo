@@ -9,14 +9,14 @@ import dev.rpgsolo.engine.Entity
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.InMemoryEventStore
 import dev.rpgsolo.engine.Resource
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 
 /** R-01: jogadas concorrentes sobre a mesma sessão são serializadas e leituras da interface não esperam o turno. */
 class ConcurrentTurnsTest {
@@ -40,15 +40,21 @@ class ConcurrentTurnsTest {
         }
     }
 
-    private fun session() = CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 9L, EngineConfig(deathResource = "pv"))).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(6, 6))))
-        ))
-    }
+    private fun session() =
+        CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 9L, EngineConfig(deathResource = "pv"))).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))),
+                    CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(6, 6)))),
+                ),
+            )
+        }
 
-    private fun controller(s: CampaignSession, p: AiProvider, loop: GameLoop = GameLoop(p)) =
-        PlayController(s, loop, "hero", "pv", { CheckSpec("ataque", 1, 20, 2, 10) })
+    private fun controller(
+        s: CampaignSession,
+        p: AiProvider,
+        loop: GameLoop = GameLoop(p),
+    ) = PlayController(s, loop, "hero", "pv", { CheckSpec("ataque", 1, 20, 2, 10) })
 
     @Test fun duasJogadasConcorrentesSaoSerializadasEMantemLogEChatCoerentes() {
         val s = session()
@@ -59,16 +65,17 @@ class ConcurrentTurnsTest {
         val errors = ConcurrentLinkedQueue<Throwable>()
         val results = ConcurrentLinkedQueue<PlayResult>()
         val start = CountDownLatch(1)
-        val threads = (1..2).map { n ->
-            thread {
-                try {
-                    start.await()
-                    results += c.submit("ataco o orc $n")
-                } catch (e: Throwable) {
-                    errors += e
+        val threads =
+            (1..2).map { n ->
+                thread {
+                    try {
+                        start.await()
+                        results += c.submit("ataco o orc $n")
+                    } catch (e: Throwable) {
+                        errors += e
+                    }
                 }
             }
-        }
         start.countDown()
         threads.forEach { it.join(30_000) }
         assertTrue("thread presa", threads.none { it.isAlive })
@@ -94,27 +101,29 @@ class ConcurrentTurnsTest {
         val release = CountDownLatch(1)
         val c = controller(s, SlowProvider(entered, release))
         val errors = ConcurrentLinkedQueue<Throwable>()
-        val worker = thread {
-            try {
-                c.submit("ataco o orc")
-            } catch (e: Throwable) {
-                errors += e
+        val worker =
+            thread {
+                try {
+                    c.submit("ataco o orc")
+                } catch (e: Throwable) {
+                    errors += e
+                }
             }
-        }
         assertTrue(entered.await(10, TimeUnit.SECONDS))
-        val reader = thread {
-            try {
-                assertTrue(c.busy)
-                c.lines
-                c.isRollRevealed(0)
-                c.revealRoll(0)
-                c.suggestions()
-                c.pending()
-                c.panel()
-            } catch (e: Throwable) {
-                errors += e
+        val reader =
+            thread {
+                try {
+                    assertTrue(c.busy)
+                    c.lines
+                    c.isRollRevealed(0)
+                    c.revealRoll(0)
+                    c.suggestions()
+                    c.pending()
+                    c.panel()
+                } catch (e: Throwable) {
+                    errors += e
+                }
             }
-        }
         reader.join(5_000)
         val readerFinished = !reader.isAlive
         release.countDown()

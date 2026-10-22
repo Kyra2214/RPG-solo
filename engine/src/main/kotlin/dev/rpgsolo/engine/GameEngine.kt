@@ -2,6 +2,7 @@ package dev.rpgsolo.engine
 
 sealed interface ExecResult {
     data class Accepted(val events: List<Event>) : ExecResult
+
     /** Nada foi alterado. [commandIndex] indica qual comando do lote falhou. */
     data class Rejected(val reason: String, val commandIndex: Int = 0) : ExecResult
 }
@@ -15,7 +16,7 @@ class GameEngine private constructor(
     val config: EngineConfig,
     private val dice: Dice,
     private val log: MutableList<Event>,
-    state: GameState
+    state: GameState,
 ) {
     constructor(seed: Long, config: EngineConfig = EngineConfig()) :
         this(seed, config, Dice(seed), mutableListOf(), GameState())
@@ -50,7 +51,7 @@ class GameEngine private constructor(
         if (original.fortuneMode != FortuneMode.NORMAL) {
             return checkWithFortune(
                 original.copy(fortuneMode = FortuneMode.NORMAL),
-                original.fortuneMode
+                original.fortuneMode,
             ).chosen
         }
         val spec = original.resolvedPool()
@@ -69,10 +70,12 @@ class GameEngine private constructor(
         if (combat.current != spec.attackerId) {
             return AttackResult.Rejected("não é o turno de ${spec.attackerId}")
         }
-        val attacker = state.entities[spec.attackerId]
-            ?: return AttackResult.Rejected("entidade inexistente: ${spec.attackerId}")
-        val target = state.entities[spec.targetId]
-            ?: return AttackResult.Rejected("entidade inexistente: ${spec.targetId}")
+        val attacker =
+            state.entities[spec.attackerId]
+                ?: return AttackResult.Rejected("entidade inexistente: ${spec.attackerId}")
+        val target =
+            state.entities[spec.targetId]
+                ?: return AttackResult.Rejected("entidade inexistente: ${spec.targetId}")
         if (attacker.id == target.id) return AttackResult.Rejected("ataque contra si mesmo")
         if (!attacker.alive) return AttackResult.Rejected("${attacker.name} está morto")
         if (attacker.downed) return AttackResult.Rejected("${attacker.name} está caído")
@@ -86,36 +89,45 @@ class GameEngine private constructor(
         val defending = target.id in combat.defending
         val stanceBonus = if (defending) config.defendBonus else 0
         val targetDefenseModifier = (target.stats[spec.defenseStat] ?: 0) + spec.defenseBonus + stanceBonus
-        val defense = maxOf(0, when (spec.attackComparison) {
-            Comparison.ROLL_OVER -> spec.defenseDefault + targetDefenseModifier
-            Comparison.ROLL_UNDER -> spec.defenseDefault + attackModifier - targetDefenseModifier
-            Comparison.POINTS -> spec.defenseDefault + targetDefenseModifier
-        })
+        val defense =
+            maxOf(
+                0,
+                when (spec.attackComparison) {
+                    Comparison.ROLL_OVER -> spec.defenseDefault + targetDefenseModifier
+                    Comparison.ROLL_UNDER -> spec.defenseDefault + attackModifier - targetDefenseModifier
+                    Comparison.POINTS -> spec.defenseDefault + targetDefenseModifier
+                },
+            )
         val mark = mark()
-        val roll = when (spec.attackComparison) {
-            Comparison.POINTS, Comparison.ROLL_UNDER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides)
-            Comparison.ROLL_OVER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides, attackModifier)
-        }
-        recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
-        val hit = when (spec.attackComparison) {
-            Comparison.ROLL_OVER -> roll.total >= defense
-            Comparison.ROLL_UNDER -> roll.total <= defense
-            Comparison.POINTS -> {
-                val faces = pointFaces(attackModifier - targetDefenseModifier, spec.attackDiceSides)
-                val lowestSuccess = spec.attackDiceSides + 1 - faces
-                roll.dice.single() >= lowestSuccess
+        val roll =
+            when (spec.attackComparison) {
+                Comparison.POINTS, Comparison.ROLL_UNDER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides)
+                Comparison.ROLL_OVER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides, attackModifier)
             }
-        }
+        recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
+        val hit =
+            when (spec.attackComparison) {
+                Comparison.ROLL_OVER -> roll.total >= defense
+                Comparison.ROLL_UNDER -> roll.total <= defense
+                Comparison.POINTS -> {
+                    val faces = pointFaces(attackModifier - targetDefenseModifier, spec.attackDiceSides)
+                    val lowestSuccess = spec.attackDiceSides + 1 - faces
+                    roll.dice.single() >= lowestSuccess
+                }
+            }
         var damageRoll: RollResult? = null
         var resolvedDamage = 0
         if (hit) {
-            damageRoll = if (spec.damageDiceCount > 0) {
-                dice.roll(
-                    spec.damageDiceCount,
-                    spec.damageDiceSides,
-                    (spec.damageStat?.let { attacker.stats[it] } ?: 0) + spec.damageBonus
-                ).also { recordRoll("dano:${spec.attackerId}->${spec.targetId}", it) }
-            } else null
+            damageRoll =
+                if (spec.damageDiceCount > 0) {
+                    dice.roll(
+                        spec.damageDiceCount,
+                        spec.damageDiceSides,
+                        (spec.damageStat?.let { attacker.stats[it] } ?: 0) + spec.damageBonus,
+                    ).also { recordRoll("dano:${spec.attackerId}->${spec.targetId}", it) }
+                } else {
+                    null
+                }
             val rolledDamage = (damageRoll?.total ?: spec.damage) + if (damageRoll == null) spec.damageBonus else 0
             resolvedDamage = maxOf(0, rolledDamage - spec.damageReduction)
         }
@@ -149,18 +161,31 @@ class GameEngine private constructor(
         if (attacker.downed) return UnifiedAttackResult.Rejected("${attacker.name} está caído")
         if (!target.alive) return UnifiedAttackResult.Rejected("${target.name} está morto")
         if (spec.targetId !in combat.order) return UnifiedAttackResult.Rejected("alvo fora do combate")
-        if (target.resources[spec.damageResource] == null) return UnifiedAttackResult.Rejected("recurso inexistente: ${spec.damageResource}")
+        if (target.resources[spec.damageResource] == null) {
+            return UnifiedAttackResult.Rejected(
+                "recurso inexistente: ${spec.damageResource}",
+            )
+        }
 
         val mark = mark()
-        val clash = UnifiedCombat.resolve(
-            spec.attack, spec.defense, dice, spec.critModifiers, spec.guaranteedCrit, spec.canCrit, spec.ignoreDefense
-        )
+        val clash =
+            UnifiedCombat.resolve(
+                spec.attack,
+                spec.defense,
+                dice,
+                spec.critModifiers,
+                spec.guaranteedCrit,
+                spec.canCrit,
+                spec.ignoreDefense,
+            )
         val label = "${spec.attackerId}->${spec.targetId}"
         clash.crit?.roll?.let { recordRoll("critico:$label", it) }
         clash.ignore?.roll?.let { recordRoll("ignora-defesa:$label", it) }
         clash.attackRoll?.let { recordRoll("ataque:$label", it) }
         clash.defenseRoll?.let { recordRoll("defesa:$label", it) }
-        fun sources(b: EffectiveBreakdown) = listOf("base ${b.base}") + b.applied.map { "${it.label} ${if (it.value >= 0) "+" else ""}${it.value}" }
+
+        fun sources(b: EffectiveBreakdown) =
+            listOf("base ${b.base}") + b.applied.map { "${it.label} ${if (it.value >= 0) "+" else ""}${it.value}" }
         recordEvent(
             ClashRecorded(
                 spec.attackerId, spec.targetId,
@@ -171,8 +196,8 @@ class GameEngine private constructor(
                 (spec.attack.rejected + spec.defense.rejected).map { "${it.modifier.label}: ${it.reason}" },
                 clash.attackRoll?.dice.orEmpty(), clash.defenseRoll?.dice.orEmpty(),
                 clash.crit?.threshold, clash.crit?.roll?.total, clash.crit?.guaranteed == true,
-                clash.ignore?.threshold, clash.ignore?.roll?.total, clash.ignore?.guaranteed == true
-            )
+                clash.ignore?.threshold, clash.ignore?.roll?.total, clash.ignore?.guaranteed == true,
+            ),
         )
         recordEvent(AttackResolved(spec.attackerId, spec.targetId, clash.defenseTotal, clash.damage > 0, clash.damage))
         if (clash.damage > 0) {
@@ -191,21 +216,33 @@ class GameEngine private constructor(
      * MU-05.1: concede o XP de uma missão concluída ao personagem, uma única vez. A recompensa é proposta pelo
      * mestre ou pelo jogador, mas o motor exige missão DONE, valor positivo e dentro do teto do nível do alvo.
      */
-    fun awardQuestXp(quests: QuestLog, questId: String, entityId: String): ExecResult {
+    fun awardQuestXp(
+        quests: QuestLog,
+        questId: String,
+        entityId: String,
+    ): ExecResult {
         val quest = quests.get(questId) ?: return ExecResult.Rejected("missão inexistente: $questId")
         if (quest.status != QuestStatus.DONE) return ExecResult.Rejected("a missão não foi concluída")
         if (quest.rewarded) return ExecResult.Rejected("a recompensa desta missão já foi concedida")
         if (quest.xpReward <= 0) return ExecResult.Rejected("a missão não tem recompensa de XP")
         val entity = state.entities[entityId] ?: return ExecResult.Rejected("entidade inexistente: $entityId")
         val cap = config.maxQuestXp(entity.level)
-        if (quest.xpReward > cap) return ExecResult.Rejected("XP da missão (${quest.xpReward}) acima do teto do nível ${entity.level}: $cap")
+        if (quest.xpReward > cap) {
+            return ExecResult.Rejected(
+                "XP da missão (${quest.xpReward}) acima do teto do nível ${entity.level}: $cap",
+            )
+        }
         val result = execute(GainXp(entityId, quest.xpReward))
         if (result is ExecResult.Accepted) quests.markRewarded(questId)
         return result
     }
 
     /** MU-07.3: concede a magia de [Quest.spellRewardId] ao concluir a missão, uma única vez e se houver slot livre. */
-    fun awardQuestSpell(quests: QuestLog, questId: String, entityId: String): ExecResult {
+    fun awardQuestSpell(
+        quests: QuestLog,
+        questId: String,
+        entityId: String,
+    ): ExecResult {
         val quest = quests.get(questId) ?: return ExecResult.Rejected("missão inexistente: $questId")
         if (quest.status != QuestStatus.DONE) return ExecResult.Rejected("a missão não foi concluída")
         val spellId = quest.spellRewardId ?: return ExecResult.Rejected("a missão não concede magia")
@@ -220,7 +257,11 @@ class GameEngine private constructor(
         state.entities[entityId]?.let { SpellSlots(config.spellSlotsFor(it.level), it.spells.size) }
 
     /** MU-06.2: libera o nível 2 de [Quest.masterySkillId] ao concluir a missão, uma única vez. */
-    fun awardQuestMastery(quests: QuestLog, questId: String, entityId: String): ExecResult {
+    fun awardQuestMastery(
+        quests: QuestLog,
+        questId: String,
+        entityId: String,
+    ): ExecResult {
         val quest = quests.get(questId) ?: return ExecResult.Rejected("missão inexistente: $questId")
         if (quest.status != QuestStatus.DONE) return ExecResult.Rejected("a missão não foi concluída")
         val skillId = quest.masterySkillId ?: return ExecResult.Rejected("a missão não libera nível 2 de perícia")
@@ -243,21 +284,24 @@ class GameEngine private constructor(
         guaranteedCrit: Boolean = false,
         canCrit: Boolean = true,
         ignoreDefense: IgnoreDefenseSpec? = null,
-        damageResource: String = "hp"
+        damageResource: String = "hp",
     ): UnifiedAttackResult {
-        val attack = CombatantValues.breakdown(state, attackerId, attackStat, providers)
-            ?: return UnifiedAttackResult.Rejected("entidade inexistente: $attackerId")
-        val defense = CombatantValues.breakdown(state, targetId, defenseStat, providers)
-            ?: return UnifiedAttackResult.Rejected("entidade inexistente: $targetId")
-        val ignore = ignoreDefense?.let {
-            it.copy(modifiers = it.modifiers + CombatantValues.modifiers(state, attackerId, UnifiedCombat.IGNORE_TARGET, providers))
-        }
+        val attack =
+            CombatantValues.breakdown(state, attackerId, attackStat, providers)
+                ?: return UnifiedAttackResult.Rejected("entidade inexistente: $attackerId")
+        val defense =
+            CombatantValues.breakdown(state, targetId, defenseStat, providers)
+                ?: return UnifiedAttackResult.Rejected("entidade inexistente: $targetId")
+        val ignore =
+            ignoreDefense?.let {
+                it.copy(modifiers = it.modifiers + CombatantValues.modifiers(state, attackerId, UnifiedCombat.IGNORE_TARGET, providers))
+            }
         return unifiedAttack(
             UnifiedAttackSpec(
                 attackerId, targetId, attack, defense,
                 CombatantValues.modifiers(state, attackerId, UnifiedCombat.CRIT_TARGET, providers),
-                guaranteedCrit, canCrit, ignore, damageResource
-            )
+                guaranteedCrit, canCrit, ignore, damageResource,
+            ),
         )
     }
 
@@ -283,7 +327,11 @@ class GameEngine private constructor(
                 if (targetId == spec.userId) return PowerResult.Rejected("este poder exige um alvo diferente do usuário")
         }
         val mark = mark()
-        fun fail(reason: String): PowerResult { rollbackTo(mark); return PowerResult.Rejected(reason) }
+
+        fun fail(reason: String): PowerResult {
+            rollbackTo(mark)
+            return PowerResult.Rejected(reason)
+        }
         if (spec.cost > 0) {
             val spent = execute(SpendResource(spec.userId, spec.resource, spec.cost))
             if (spent is ExecResult.Rejected) return fail(spent.reason)
@@ -294,24 +342,33 @@ class GameEngine private constructor(
         var delta = 0
         if (applies) {
             val before = state.entities[targetId]?.resources
-            val command: Command = when (val effect = spec.effect) {
-                is PowerEffect.Cure -> Heal(targetId, effect.resource, effect.amount)
-                is PowerEffect.Strike -> {
-                    val roll = dice.roll(effect.diceCount, effect.diceSides, effect.bonus)
-                    recordRoll("poder:${spec.powerId}->$targetId", roll)
-                    damageRoll = roll
-                    Damage(targetId, effect.resource, maxOf(0, roll.total - effect.reduction))
+            val command: Command =
+                when (val effect = spec.effect) {
+                    is PowerEffect.Cure -> Heal(targetId, effect.resource, effect.amount)
+                    is PowerEffect.Strike -> {
+                        val roll = dice.roll(effect.diceCount, effect.diceSides, effect.bonus)
+                        recordRoll("poder:${spec.powerId}->$targetId", roll)
+                        damageRoll = roll
+                        Damage(targetId, effect.resource, maxOf(0, roll.total - effect.reduction))
+                    }
+                    is PowerEffect.Inflict ->
+                        AddCondition(
+                            targetId,
+                            effect.condition,
+                            effect.durationRounds,
+                            effect.damagePerRound,
+                            effect.damageResource,
+                        )
+                    is PowerEffect.Cleanse -> RemoveCondition(targetId, effect.condition)
                 }
-                is PowerEffect.Inflict -> AddCondition(targetId, effect.condition, effect.durationRounds, effect.damagePerRound, effect.damageResource)
-                is PowerEffect.Cleanse -> RemoveCondition(targetId, effect.condition)
-            }
             val applied = execute(command)
             if (applied is ExecResult.Rejected) return fail(applied.reason)
-            val resourceName = when (val effect = spec.effect) {
-                is PowerEffect.Cure -> effect.resource
-                is PowerEffect.Strike -> effect.resource
-                else -> null
-            }
+            val resourceName =
+                when (val effect = spec.effect) {
+                    is PowerEffect.Cure -> effect.resource
+                    is PowerEffect.Strike -> effect.resource
+                    else -> null
+                }
             if (resourceName != null) {
                 delta = (state.entities[targetId]?.resources?.get(resourceName)?.current ?: 0) -
                     (before?.get(resourceName)?.current ?: 0)
@@ -327,7 +384,10 @@ class GameEngine private constructor(
         return rolled
     }
 
-    private fun recordRoll(label: String, roll: RollResult) {
+    private fun recordRoll(
+        label: String,
+        roll: RollResult,
+    ) {
         val ev = RollRecorded(label, roll.expression, roll.dice, roll.modifier, roll.total)
         recordEvent(ev)
     }
@@ -349,23 +409,30 @@ class GameEngine private constructor(
         diceCount: Int = 1,
         diceSides: Int = 20,
         statKey: String? = null,
-        highestFirst: Boolean = true
+        highestFirst: Boolean = true,
     ): ExecResult {
         ids.firstOrNull { !state.entities.containsKey(it) }
             ?.let { return ExecResult.Rejected("entidade inexistente: $it") }
         val m = mark()
-        val totals = ids.map { id ->
-            val mod = statKey?.let { state.entities.getValue(id).stats[it] } ?: 0
-            val roll = dice.roll(diceCount, diceSides, mod)
-            recordRoll("iniciativa:$id", roll)
-            id to roll.total
-        }
-        val order = totals
-            .sortedWith(
-                (if (highestFirst) compareByDescending<Pair<String, Int>> { it.second }
-                else compareBy<Pair<String, Int>> { it.second }).thenBy { it.first }
-            )
-            .map { it.first }
+        val totals =
+            ids.map { id ->
+                val mod = statKey?.let { state.entities.getValue(id).stats[it] } ?: 0
+                val roll = dice.roll(diceCount, diceSides, mod)
+                recordRoll("iniciativa:$id", roll)
+                id to roll.total
+            }
+        val order =
+            totals
+                .sortedWith(
+                    (
+                        if (highestFirst) {
+                            compareByDescending<Pair<String, Int>> { it.second }
+                        } else {
+                            compareBy<Pair<String, Int>> { it.second }
+                        }
+                    ).thenBy { it.first },
+                )
+                .map { it.first }
         val result = execute(StartCombat(order))
         if (result is ExecResult.Rejected) rollbackTo(m)
         return result
@@ -384,12 +451,20 @@ class GameEngine private constructor(
 
     companion object {
         /** Retoma uma campanha a partir do log salvo (Fase 3). */
-        fun restore(seed: Long, config: EngineConfig, events: List<Event>, snapshot: GameState? = null): GameEngine {
+        fun restore(
+            seed: Long,
+            config: EngineConfig,
+            events: List<Event>,
+            snapshot: GameState? = null,
+        ): GameEngine {
             val dice = Dice(seed, events.count { it is RollRecorded }.toLong())
             // M-08.3: um snapshot válido (eventCount dentro do log) evita refazer o início; só a cauda é aplicada.
-            val state = if (snapshot != null && snapshot.eventCount in 0..events.size) {
-                replay(events.subList(snapshot.eventCount, events.size), snapshot)
-            } else replay(events)
+            val state =
+                if (snapshot != null && snapshot.eventCount in 0..events.size) {
+                    replay(events.subList(snapshot.eventCount, events.size), snapshot)
+                } else {
+                    replay(events)
+                }
             return GameEngine(seed, config, dice, events.toMutableList(), state)
         }
     }
@@ -463,7 +538,8 @@ fun validateState(state: GameState): List<String> {
         if (value !in -100..100) problems += "relação fora do intervalo: $key"
         val ids = key.split('\u0000', limit = 2)
         if (ids.size != 2 || ids.any { it.isBlank() } ||
-            ids.size == 2 && (ids[0] !in state.entities || ids[1] !in state.entities)) {
+            ids.size == 2 && (ids[0] !in state.entities || ids[1] !in state.entities)
+        ) {
             problems += "relação aponta para entidade inexistente: $key"
         }
     }
@@ -482,7 +558,10 @@ fun validateState(state: GameState): List<String> {
 }
 
 /** Relação de [fromId] com [toId]; 0 se nunca mudou. */
-fun GameState.relation(fromId: String, toId: String): Int = relations[relationKey(fromId, toId)] ?: 0
+fun GameState.relation(
+    fromId: String,
+    toId: String,
+): Int = relations[relationKey(fromId, toId)] ?: 0
 
 /** Relógios que já se completaram (a IA deve narrar a consequência; quem completa é o motor). */
 fun GameState.fullClocks(): List<Clock> = clocks.values.filter { it.full }

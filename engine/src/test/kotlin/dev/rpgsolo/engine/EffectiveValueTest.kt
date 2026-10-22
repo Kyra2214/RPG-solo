@@ -56,8 +56,14 @@ class EffectiveValueTest {
         assertEquals(second, d2.roll(1, 6))
     }
 
-    private fun mod(source: String, target: String, value: Int, rounds: Int? = null, uses: Int? = null, stackable: Boolean = false) =
-        Modifier(source, source, target, value, rounds, uses, stackable)
+    private fun mod(
+        source: String,
+        target: String,
+        value: Int,
+        rounds: Int? = null,
+        uses: Int? = null,
+        stackable: Boolean = false,
+    ) = Modifier(source, source, target, value, rounds, uses, stackable)
 
     @Test fun agregadorSomaFontesDiferentes() {
         val b = ModifierAggregator.aggregate("attack", 5, listOf(mod("a", "attack", 1), mod("b", "attack", 1), mod("c", "defense", 9)))
@@ -73,12 +79,22 @@ class EffectiveValueTest {
     }
 
     @Test fun agregadorAceitaRepeticaoSoSeEmpilhavel() {
-        val b = ModifierAggregator.aggregate("attack", 5, listOf(mod("a", "attack", 1, stackable = true), mod("a", "attack", 1, stackable = true)))
+        val b =
+            ModifierAggregator.aggregate(
+                "attack",
+                5,
+                listOf(mod("a", "attack", 1, stackable = true), mod("a", "attack", 1, stackable = true)),
+            )
         assertEquals(7, b.value)
     }
 
     @Test fun agregadorExcluiExpirados() {
-        val b = ModifierAggregator.aggregate("attack", 5, listOf(mod("a", "attack", 3, rounds = 0), mod("b", "attack", 3, uses = 0), mod("c", "attack", 1, rounds = 2)))
+        val b =
+            ModifierAggregator.aggregate(
+                "attack",
+                5,
+                listOf(mod("a", "attack", 3, rounds = 0), mod("b", "attack", 3, uses = 0), mod("c", "attack", 1, rounds = 2)),
+            )
         assertEquals(6, b.value)
         assertEquals(2, b.rejected.count { it.reason == RejectReason.EXPIRED })
     }

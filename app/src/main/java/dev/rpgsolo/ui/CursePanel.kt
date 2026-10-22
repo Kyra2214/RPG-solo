@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 fun CursePanel(
     model: AppModel,
     enabled: Boolean,
-    act: (block: () -> String?, onResult: (String?) -> Unit) -> Unit
+    act: (block: () -> String?, onResult: (String?) -> Unit) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var version by remember { mutableIntStateOf(0) }
@@ -37,7 +37,11 @@ fun CursePanel(
     val curses = remember(version) { actions.all() }
     val targets = remember(version, model.campaignVersion) { actions.targets() }
     val sources = remember(version, model.campaignVersion) { actions.sources() }
-    val targetId = selectedTargetId ?: actions.defaultTargetId().takeIf { id -> targets.any { it.first == id } } ?: targets.firstOrNull()?.first
+    val targetId =
+        selectedTargetId ?: actions.defaultTargetId().takeIf {
+                id ->
+            targets.any { it.first == id }
+        } ?: targets.firstOrNull()?.first
     val selectedCurse = curses.firstOrNull { it.id == selectedCurseId } ?: curses.firstOrNull()
     val active = targetId?.let(actions::applied).orEmpty()
 
@@ -55,9 +59,12 @@ fun CursePanel(
                     sources.forEach { (id, name) ->
                         FilterChip(
                             selected = (selectedSourceId ?: actions.defaultTargetId()) == id,
-                            onClick = { selectedSourceId = id; sourceIdText = "personagem:$id" },
+                            onClick = {
+                                selectedSourceId = id
+                                sourceIdText = "personagem:$id"
+                            },
                             label = { Text(name) },
-                            enabled = enabled
+                            enabled = enabled,
                         )
                     }
                 }
@@ -66,7 +73,7 @@ fun CursePanel(
                     onValueChange = { sourceIdText = it.trim() },
                     label = { Text("Origem (personagem:id, criatura:id, artefato:id ou ritual:id)") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Text("Alvo", style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -75,7 +82,7 @@ fun CursePanel(
                             selected = targetId == id,
                             onClick = { selectedTargetId = id },
                             label = { Text(name) },
-                            enabled = enabled
+                            enabled = enabled,
                         )
                     }
                 }
@@ -86,27 +93,39 @@ fun CursePanel(
                             selected = selectedCurse.id == curse.id,
                             onClick = { selectedCurseId = curse.id },
                             label = { Text(curse.name) },
-                            enabled = enabled
+                            enabled = enabled,
                         )
                     }
                 }
                 Muted(selectedCurse.description)
-                Muted("Origem: ${selectedCurse.sourceType}. Duração: ${selectedCurse.durationRounds?.let { "${it} rodadas" } ?: "até ser removida"}.")
+                Muted(
+                    "Origem: ${selectedCurse.sourceType}. Duração: ${selectedCurse.durationRounds?.let { "$it rodadas" } ?: "até ser removida"}.",
+                )
                 selectedCurse.effects.forEach { effect ->
                     Muted("${effect.target}: ${if (effect.baseValue > 0) "+" else ""}${effect.baseValue} (${effect.stackingGroup})")
                 }
                 if (selectedCurse.resistanceCheckId != null) {
-                    Muted("Exige teste '${selectedCurse.resistanceCheckId}' contra dificuldade ${selectedCurse.resistanceDifficulty}. O motor rola o teste automaticamente e só aplica a maldição se o alvo não resistir.")
+                    Muted(
+                        "Exige teste '${selectedCurse.resistanceCheckId}' contra dificuldade ${selectedCurse.resistanceDifficulty}. O motor rola o teste automaticamente e só aplica a maldição se o alvo não resistir.",
+                    )
                 }
                 Button(
                     enabled = enabled && targetId != null && (selectedCurse.durationRounds == null || model.hasActiveCombat()),
                     onClick = {
-                        act({ actions.apply(requireNotNull(targetId), selectedCurse.id, sourceIdText.ifBlank { "personagem:" + (selectedSourceId ?: actions.defaultTargetId()) }) }) { result ->
+                        act({
+                            actions.apply(
+                                requireNotNull(targetId),
+                                selectedCurse.id,
+                                sourceIdText.ifBlank {
+                                    "personagem:" + (selectedSourceId ?: actions.defaultTargetId())
+                                },
+                            )
+                        }) { result ->
                             message = result ?: "Maldição aplicada."
                             version++
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) { Text("Aplicar maldição") }
 
                 Text("Maldições ativas no alvo", style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
@@ -114,7 +133,7 @@ fun CursePanel(
                 active.forEach { applied ->
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(applied.curse.name, style = androidx.compose.material3.MaterialTheme.typography.bodyMedium)
-                        Muted("Origem: ${applied.sourceId}; duração: ${applied.remainingRounds?.let { "${it} rodadas" } ?: "permanente"}.")
+                        Muted("Origem: ${applied.sourceId}; duração: ${applied.remainingRounds?.let { "$it rodadas" } ?: "permanente"}.")
                         val method = applied.curse.removalMethods.firstOrNull()
                         if (method != null) {
                             OutlinedButton(
@@ -124,7 +143,7 @@ fun CursePanel(
                                         message = result ?: "Maldição removida por: $method."
                                         version++
                                     }
-                                }
+                                },
                             ) { Text("Remover: $method") }
                         }
                     }

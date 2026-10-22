@@ -12,7 +12,11 @@ object PdfText {
     const val MAX_STREAM_BYTES = 20 * 1024 * 1024
 
     private val win1252 = charset("windows-1252")
-    private val tok = Regex("\\((?:\\\\.|[^\\\\()])*\\)|<[0-9A-Fa-f\\s]*>|\\[|\\]|-?\\d+\\.?\\d*|T\\*|TD|Td|TJ|Tj|ET|BT|'|\"", RegexOption.DOT_MATCHES_ALL)
+    private val tok =
+        Regex(
+            "\\((?:\\\\.|[^\\\\()])*\\)|<[0-9A-Fa-f\\s]*>|\\[|\\]|-?\\d+\\.?\\d*|T\\*|TD|Td|TJ|Tj|ET|BT|'|\"",
+            RegexOption.DOT_MATCHES_ALL,
+        )
 
     fun extract(bytes: ByteArray): String? {
         if (bytes.size < 8 || String(bytes, 0, 5, Charsets.ISO_8859_1) != "%PDF-") return null
@@ -23,20 +27,28 @@ object PdfText {
         while (true) {
             val s = raw.indexOf("stream", pos)
             if (s < 0) break
-            if (s >= 3 && raw.startsWith("end", s - 3)) { pos = s + 6; continue }
+            if (s >= 3 && raw.startsWith("end", s - 3)) {
+                pos = s + 6
+                continue
+            }
             var start = s + 6
-            if (raw.startsWith("\r\n", start)) start += 2 else if (start < raw.length && (raw[start] == '\n' || raw[start] == '\r')) start += 1
+            if (raw.startsWith("\r\n", start)) {
+                start += 2
+            } else if (start < raw.length && (raw[start] == '\n' || raw[start] == '\r')) {
+                start += 1
+            }
             val end = raw.indexOf("endstream", start)
             if (end < 0) break
             pos = end + 9
             val dict = raw.substring(maxOf(0, raw.lastIndexOf("<<", s).let { if (it < 0) s else it }), s)
             if (dict.contains("/Image") || dict.contains("/FontFile") || dict.contains("/XRef") || dict.contains("/ObjStm")) continue
             val data = bytes.copyOfRange(start, end)
-            val content = when {
-                dict.contains("FlateDecode") -> inflate(data) ?: continue
-                dict.contains("/Filter") -> continue
-                else -> data
-            }
+            val content =
+                when {
+                    dict.contains("FlateDecode") -> inflate(data) ?: continue
+                    dict.contains("/Filter") -> continue
+                    else -> data
+                }
             val text = String(content, Charsets.ISO_8859_1)
             if (!text.contains("BT")) continue
             textOf(text, lines)
@@ -46,10 +58,14 @@ object PdfText {
         return if (letters < 20 || letters * 2 < result.length / 2) null else result
     }
 
-    private fun textOf(c: String, out: MutableList<String>) {
+    private fun textOf(
+        c: String,
+        out: MutableList<String>,
+    ) {
         val line = StringBuilder()
         val pending = ArrayList<String>()
         var inArray = false
+
         fun flushLine() {
             val t = line.toString().trim()
             if (t.isNotEmpty()) out.add(t)
@@ -67,7 +83,10 @@ object PdfText {
                     pending.forEach { line.append(it) }
                     pending.clear()
                 }
-                v == "Td" || v == "TD" || v == "T*" || v == "ET" -> { pending.clear(); flushLine() }
+                v == "Td" || v == "TD" || v == "T*" || v == "ET" -> {
+                    pending.clear()
+                    flushLine()
+                }
                 v == "BT" -> pending.clear()
                 else -> {
                     val n = v.toDoubleOrNull()
@@ -84,24 +103,53 @@ object PdfText {
         var i = 0
         while (i < s.length) {
             val ch = s[i]
-            if (ch != '\\') { b.write(ch.code and 0xFF); i++; continue }
+            if (ch != '\\') {
+                b.write(ch.code and 0xFF)
+                i++
+                continue
+            }
             i++
             if (i >= s.length) break
             when (val e = s[i]) {
-                'n' -> { b.write(10); i++ }
-                'r' -> { b.write(13); i++ }
-                't' -> { b.write(9); i++ }
-                'b' -> { b.write(8); i++ }
-                'f' -> { b.write(12); i++ }
+                'n' -> {
+                    b.write(10)
+                    i++
+                }
+                'r' -> {
+                    b.write(13)
+                    i++
+                }
+                't' -> {
+                    b.write(9)
+                    i++
+                }
+                'b' -> {
+                    b.write(8)
+                    i++
+                }
+                'f' -> {
+                    b.write(12)
+                    i++
+                }
                 '\n' -> i++
-                '\r' -> { i++; if (i < s.length && s[i] == '\n') i++ }
+                '\r' -> {
+                    i++
+                    if (i < s.length && s[i] == '\n') i++
+                }
                 in '0'..'7' -> {
                     var n = 0
                     var k = 0
-                    while (k < 3 && i < s.length && s[i] in '0'..'7') { n = n * 8 + (s[i] - '0'); i++; k++ }
+                    while (k < 3 && i < s.length && s[i] in '0'..'7') {
+                        n = n * 8 + (s[i] - '0')
+                        i++
+                        k++
+                    }
                     b.write(n and 0xFF)
                 }
-                else -> { b.write(e.code and 0xFF); i++ }
+                else -> {
+                    b.write(e.code and 0xFF)
+                    i++
+                }
             }
         }
         return decodeBytes(b.toByteArray())

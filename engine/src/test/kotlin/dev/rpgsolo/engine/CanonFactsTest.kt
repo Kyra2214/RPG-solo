@@ -4,8 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CanonFactsTest {
-    private fun f(id: String = "f1", st: FactStatus = FactStatus.ORIGINAL, src: String? = "s1", ch: String? = "s1#0") =
-        CanonFact(id, "c1", "O rei morreu.", st, src, ch)
+    private fun f(
+        id: String = "f1",
+        st: FactStatus = FactStatus.ORIGINAL,
+        src: String? = "s1",
+        ch: String? = "s1#0",
+    ) = CanonFact(id, "c1", "O rei morreu.", st, src, ch)
 
     @Test fun validaOrigemPorStatus() {
         val e = CanonFacts()

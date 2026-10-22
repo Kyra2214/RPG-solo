@@ -6,11 +6,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CheckTest {
-    private fun spec(diff: Int, cmp: Comparison = Comparison.ROLL_OVER, partial: Int? = null,
-                     cs: IntRange? = null, cf: IntRange? = null) =
-        CheckSpec("t", 1, 20, 0, diff, cmp, partial, cs, cf)
+    private fun spec(
+        diff: Int,
+        cmp: Comparison = Comparison.ROLL_OVER,
+        partial: Int? = null,
+        cs: IntRange? = null,
+        cf: IntRange? = null,
+    ) = CheckSpec("t", 1, 20, 0, diff, cmp, partial, cs, cf)
 
-    private fun roll(vararg dice: Int, mod: Int = 0) = RollResult("x", dice.toList(), mod)
+    private fun roll(
+        vararg dice: Int,
+        mod: Int = 0,
+    ) = RollResult("x", dice.toList(), mod)
 
     @Test fun rollOverSucessoEFalha() {
         assertEquals(Outcome.SUCCESS, resolveCheck(spec(10), roll(10)).outcome)
@@ -60,10 +67,20 @@ class CheckTest {
 }
 
 class PointCheckTest {
-    private fun pool(points: Int, sides: Int = 6) = CheckSpec("esquiva", 1, sides, points, 0, Comparison.POINTS)
-    private fun roll(face: Int, sides: Int = 6) = RollResult("1d$sides", listOf(face), 0)
-    private fun wins(points: Int, sides: Int = 6) =
-        (1..sides).filter { resolveCheck(pool(points, sides), roll(it, sides)).outcome.isSuccess }
+    private fun pool(
+        points: Int,
+        sides: Int = 6,
+    ) = CheckSpec("esquiva", 1, sides, points, 0, Comparison.POINTS)
+
+    private fun roll(
+        face: Int,
+        sides: Int = 6,
+    ) = RollResult("1d$sides", listOf(face), 0)
+
+    private fun wins(
+        points: Int,
+        sides: Int = 6,
+    ) = (1..sides).filter { resolveCheck(pool(points, sides), roll(it, sides)).outcome.isSuccess }
 
     @Test fun semPontosSoAcertaComAFaceMaisAlta() {
         assertEquals(listOf(6), wins(0))
@@ -94,8 +111,10 @@ class PointCheckTest {
 
     @Test fun cartaoMostraODadoSemModificadorEADificuldadeDaFace() {
         val r = resolveCheck(pool(2, 8), roll(7, 8))
-        assertEquals(1, r.spec.diceCount); assertEquals(8, r.spec.diceSides)
-        assertEquals(0, r.spec.modifier); assertEquals(7, r.spec.difficulty)
+        assertEquals(1, r.spec.diceCount)
+        assertEquals(8, r.spec.diceSides)
+        assertEquals(0, r.spec.modifier)
+        assertEquals(7, r.spec.difficulty)
         assertEquals(Comparison.ROLL_OVER, r.spec.comparison)
         assertTrue(r.spec.label.contains("d8") && r.spec.label.contains("7–8"))
         assertTrue(r.outcome.isSuccess)

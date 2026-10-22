@@ -15,7 +15,10 @@ class SessionConcurrencyTest {
     private fun newSession(store: EventStore = InMemoryEventStore()): Pair<CampaignSession, EventStore> =
         CampaignSession.create(store, rec) to store
 
-    private fun runAll(threads: List<Thread>, errors: ConcurrentLinkedQueue<Throwable>) {
+    private fun runAll(
+        threads: List<Thread>,
+        errors: ConcurrentLinkedQueue<Throwable>,
+    ) {
         threads.forEach { it.join(30_000) }
         assertTrue("alguma thread não terminou", threads.none { it.isAlive })
         assertTrue("erros nas threads: ${errors.map { it.toString() }}", errors.isEmpty())
@@ -26,19 +29,20 @@ class SessionConcurrencyTest {
         val errors = ConcurrentLinkedQueue<Throwable>()
         val workers = 8
         val rounds = 40
-        val threads = (0 until workers).map { t ->
-            thread(start = false) {
-                try {
-                    repeat(rounds) { i ->
-                        val r = session.execute(RecordFact("k-$t-$i", "v"))
-                        check(r is ExecResult.Accepted) { "recusado: $r" }
-                        session.check(CheckSpec("teste-$t-$i", 1, 20, difficulty = 10))
+        val threads =
+            (0 until workers).map { t ->
+                thread(start = false) {
+                    try {
+                        repeat(rounds) { i ->
+                            val r = session.execute(RecordFact("k-$t-$i", "v"))
+                            check(r is ExecResult.Accepted) { "recusado: $r" }
+                            session.check(CheckSpec("teste-$t-$i", 1, 20, difficulty = 10))
+                        }
+                    } catch (e: Throwable) {
+                        errors += e
                     }
-                } catch (e: Throwable) {
-                    errors += e
                 }
             }
-        }
         threads.forEach { it.start() }
         runAll(threads, errors)
 
@@ -52,27 +56,29 @@ class SessionConcurrencyTest {
         val (session, _) = newSession()
         val errors = ConcurrentLinkedQueue<Throwable>()
         val stop = java.util.concurrent.atomic.AtomicBoolean(false)
-        val reader = thread(start = false) {
-            try {
-                while (!stop.get()) {
-                    val n = session.eventCount
-                    val snapshot = session.events
-                    check(snapshot.size >= n) { "cópia menor que a contagem anterior" }
-                    session.state.facts.size
-                }
-            } catch (e: Throwable) {
-                errors += e
-            }
-        }
-        val writers = (0 until 4).map { t ->
+        val reader =
             thread(start = false) {
                 try {
-                    repeat(60) { i -> session.execute(RecordFact("w-$t-$i", "v")) }
+                    while (!stop.get()) {
+                        val n = session.eventCount
+                        val snapshot = session.events
+                        check(snapshot.size >= n) { "cópia menor que a contagem anterior" }
+                        session.state.facts.size
+                    }
                 } catch (e: Throwable) {
                     errors += e
                 }
             }
-        }
+        val writers =
+            (0 until 4).map { t ->
+                thread(start = false) {
+                    try {
+                        repeat(60) { i -> session.execute(RecordFact("w-$t-$i", "v")) }
+                    } catch (e: Throwable) {
+                        errors += e
+                    }
+                }
+            }
         reader.start()
         writers.forEach { it.start() }
         writers.forEach { it.join(30_000) }
@@ -87,28 +93,31 @@ class SessionConcurrencyTest {
         val errors = ConcurrentLinkedQueue<Throwable>()
         val insideTransaction = CountDownLatch(1)
 
-        val tx = thread(start = false) {
-            try {
-                session.atomically {
-                    val mark = session.mark()
-                    session.execute(RecordFact("transitorio", "1"))
-                    insideTransaction.countDown()
-                    Thread.sleep(150) // dá tempo da outra thread tentar gravar
-                    session.rollbackTo(mark)
+        val tx =
+            thread(start = false) {
+                try {
+                    session.atomically {
+                        val mark = session.mark()
+                        session.execute(RecordFact("transitorio", "1"))
+                        insideTransaction.countDown()
+                        Thread.sleep(150) // dá tempo da outra thread tentar gravar
+                        session.rollbackTo(mark)
+                    }
+                } catch (e: Throwable) {
+                    errors += e
                 }
-            } catch (e: Throwable) {
-                errors += e
             }
-        }
-        val other = thread(start = false) {
-            try {
-                check(insideTransaction.await(10, TimeUnit.SECONDS)) { "transação não começou" }
-                session.execute(RecordFact("de-outra-thread", "1"))
-            } catch (e: Throwable) {
-                errors += e
+        val other =
+            thread(start = false) {
+                try {
+                    check(insideTransaction.await(10, TimeUnit.SECONDS)) { "transação não começou" }
+                    session.execute(RecordFact("de-outra-thread", "1"))
+                } catch (e: Throwable) {
+                    errors += e
+                }
             }
-        }
-        tx.start(); other.start()
+        tx.start()
+        other.start()
         runAll(listOf(tx, other), errors)
 
         assertEquals(mapOf("de-outra-thread" to "1"), session.state.facts)
@@ -121,27 +130,34 @@ class SessionConcurrencyTest {
         val (session, store) = newSession()
         session.execute(CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pa" to Resource(50, 50)))))
         val errors = ConcurrentLinkedQueue<Throwable>()
-        val spenders = (0 until 4).map {
+        val spenders =
+            (0 until 4).map {
+                thread(start = false) {
+                    try {
+                        repeat(10) {
+                            val r =
+                                session.checkWithFortuneSpendingResource(
+                                    "hero",
+                                    "pa",
+                                    1,
+                                    CheckSpec("sorte", 1, 20, difficulty = 10),
+                                    FortuneMode.ADVANTAGE,
+                                )
+                            check(r is FortuneSpendResult.Resolved) { "recusado: $r" }
+                        }
+                    } catch (e: Throwable) {
+                        errors += e
+                    }
+                }
+            }
+        val noise =
             thread(start = false) {
                 try {
-                    repeat(10) {
-                        val r = session.checkWithFortuneSpendingResource(
-                            "hero", "pa", 1, CheckSpec("sorte", 1, 20, difficulty = 10), FortuneMode.ADVANTAGE
-                        )
-                        check(r is FortuneSpendResult.Resolved) { "recusado: $r" }
-                    }
+                    repeat(40) { i -> session.execute(RecordFact("ruido-$i", "v")) }
                 } catch (e: Throwable) {
                     errors += e
                 }
             }
-        }
-        val noise = thread(start = false) {
-            try {
-                repeat(40) { i -> session.execute(RecordFact("ruido-$i", "v")) }
-            } catch (e: Throwable) {
-                errors += e
-            }
-        }
         (spenders + noise).forEach { it.start() }
         runAll(spenders + noise, errors)
 

@@ -1,9 +1,8 @@
 package dev.rpgsolo.rules
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
@@ -13,23 +12,27 @@ class CatalogTest {
         val f = listOf("src/main/resources/catalog/$name", "rules/src/main/resources/catalog/$name").map(::File).first { it.exists() }
         return f.readText()
     }
+
     private fun real(): Catalog =
         (CatalogLoader.load(res("estilos.txt"), res("sistemas.txt"), res("compat.txt")) as LoadResult.Success).catalog
 
-    private val smallStyles = """
+    private val smallStyles =
+        """
         setting.cyberpunk|setting|scifi|Cyberpunk
         setting.wuxia|setting|cultivo|Wuxia
         difficulty.hard|difficulty|dificuldade|Hard
         difficulty.facil|difficulty|dificuldade|Fácil
         tone.sombrio|tone|tom|Sombrio
-    """.trimIndent()
-    private val smallSystems = """
+        """.trimIndent()
+    private val smallSystems =
+        """
         a-1|famA|Sistema A|ed1|x|PENDENTE|PENDENTE|n
         a-2|famA|Sistema A|ed2|x|PENDENTE|PENDENTE|n
         b-1|famB|Sistema B|unica|x|PESQUISADO_PARCIAL|VERIFICADA|n
-    """.trimIndent()
-    private fun small(compat: String = "") =
-        (CatalogLoader.load(smallStyles, smallSystems, compat) as LoadResult.Success).catalog
+        """.trimIndent()
+
+    private fun small(compat: String = "") = (CatalogLoader.load(smallStyles, smallSystems, compat) as LoadResult.Success).catalog
+
     private val hard = DifficultySetting("difficulty.hard")
 
     @Test fun catalogoRealCarregaSemProblemas() {
@@ -38,8 +41,12 @@ class CatalogTest {
 
     @Test fun contagensPorDimensaoBatemComODocumento() {
         val byDim = real().entries.groupingBy { it.dimension }.eachCount()
-        assertEquals(85, byDim["setting"]); assertEquals(24, byDim["structure"]); assertEquals(14, byDim["philosophy"])
-        assertEquals(13, byDim["tone"]); assertEquals(5, byDim["difficulty"]); assertEquals(12, byDim["progression"])
+        assertEquals(85, byDim["setting"])
+        assertEquals(24, byDim["structure"])
+        assertEquals(14, byDim["philosophy"])
+        assertEquals(13, byDim["tone"])
+        assertEquals(5, byDim["difficulty"])
+        assertEquals(12, byDim["progression"])
         assertEquals(153, real().entries.size)
     }
 
@@ -50,7 +57,9 @@ class CatalogTest {
 
     @Test fun wuxiaXianxiaXuanhuanSaoEntradasSeparadas() {
         val c = real()
-        assertNotNull(c.entry("setting.wuxia")); assertNotNull(c.entry("setting.xianxia")); assertNotNull(c.entry("setting.xuanhuan"))
+        assertNotNull(c.entry("setting.wuxia"))
+        assertNotNull(c.entry("setting.xianxia"))
+        assertNotNull(c.entry("setting.xuanhuan"))
     }
 
     @Test fun catalogoEmbutidoTemSoOSistemaProprio() {
@@ -110,7 +119,11 @@ class CatalogTest {
     }
 
     @Test fun combinacaoNaoVerificadaAvisaOJogador() {
-        val r = resolveConfig(small(), CampaignConfig("famB", settingIds = listOf("setting.cyberpunk"), difficulty = hard)) as ConfigResult.Ready
+        val r =
+            resolveConfig(
+                small(),
+                CampaignConfig("famB", settingIds = listOf("setting.cyberpunk"), difficulty = hard),
+            ) as ConfigResult.Ready
         assertEquals(Compatibility.UNVERIFIED, r.compatibility)
         assertTrue(r.notes.any { it.contains("não foi verificada") })
     }
@@ -152,8 +165,13 @@ class CatalogTest {
     @Test fun exemploAnaoMineradorCyberpunkExigeEdicaoEAvisa() {
         // Estilos reais do app com sistemas fictícios de teste: família com duas edições exige escolha.
         val c = (CatalogLoader.load(res("estilos.txt"), smallSystems, "") as LoadResult.Success).catalog
-        val semEdicao = CampaignConfig("famA", settingIds = listOf("setting.cyberpunk"),
-            structureIds = listOf("structure.combate-tatico"), difficulty = DifficultySetting("difficulty.dificil-hard"))
+        val semEdicao =
+            CampaignConfig(
+                "famA",
+                settingIds = listOf("setting.cyberpunk"),
+                structureIds = listOf("structure.combate-tatico"),
+                difficulty = DifficultySetting("difficulty.dificil-hard"),
+            )
         assertTrue(resolveConfig(c, semEdicao) is ConfigResult.NeedsQuestion)
         val r = resolveConfig(c, semEdicao.copy(editionId = "a-1")) as ConfigResult.Ready
         assertEquals("a-1", r.edition.id)

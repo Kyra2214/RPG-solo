@@ -20,7 +20,7 @@ data class AttackSpec(
     /** Se > 0, o dano é rolado pelo motor usando o dado definido no pacote. */
     val damageDiceCount: Int = 0,
     val damageDiceSides: Int = 0,
-    val damageStat: String? = null
+    val damageStat: String? = null,
 ) {
     init {
         require(attackerId.isNotBlank()) { "atacante vazio" }
@@ -48,7 +48,7 @@ sealed interface AttackResult {
         val defense: Int,
         val damage: Int,
         val events: List<Event>,
-        val damageRoll: RollResult? = null
+        val damageRoll: RollResult? = null,
     ) : AttackResult
 
     data class Rejected(val reason: String) : AttackResult

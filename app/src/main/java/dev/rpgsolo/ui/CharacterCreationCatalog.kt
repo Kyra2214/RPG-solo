@@ -1,7 +1,7 @@
 package dev.rpgsolo.ui
 
-import org.json.JSONObject
 import dev.rpgsolo.rules.RulePackage
+import org.json.JSONObject
 
 /** Efeito tipado declarado no catálogo. Declarar não significa aplicar ao motor. */
 data class CharacterCatalogEffect(
@@ -9,7 +9,7 @@ data class CharacterCatalogEffect(
     val bonus: Int,
     val source: String = "entry",
     /** Caminho estável até a declaração no JSON; não depende do texto de lore. */
-    val effectId: String = ""
+    val effectId: String = "",
 )
 
 /** Entrada editorial do catálogo de criação; efeitos mecânicos só vêm do motor de regras. */
@@ -24,7 +24,7 @@ data class CharacterCatalogEntry(
     val hybridRaceIds: List<String> = emptyList(),
     val benefits: List<String> = emptyList(),
     val drawbacks: List<String> = emptyList(),
-    val mechanicalEffects: List<CharacterCatalogEffect> = emptyList()
+    val mechanicalEffects: List<CharacterCatalogEffect> = emptyList(),
 )
 
 data class CharacterChoices(
@@ -36,19 +36,20 @@ data class CharacterChoices(
     val hybridId: String = "",
     val elementalAffinity: String = "",
     val cursedClassBranchId: String = "",
-    val additionalClassIds: List<String> = emptyList()
+    val additionalClassIds: List<String> = emptyList(),
 ) {
-    fun toJson(): String = JSONObject()
-        .put("raceId", raceId)
-        .put("subraceId", subraceId)
-        .put("classId", classId)
-        .put("professionId", professionId)
-        .put("hybridId", hybridId)
-        .put("elementalAffinity", elementalAffinity)
-        .put("cursedClassBranchId", cursedClassBranchId)
-        .put("additionalClassIds", org.json.JSONArray(additionalClassIds))
-        .put("curseIds", org.json.JSONArray(curseIds))
-        .toString()
+    fun toJson(): String =
+        JSONObject()
+            .put("raceId", raceId)
+            .put("subraceId", subraceId)
+            .put("classId", classId)
+            .put("professionId", professionId)
+            .put("hybridId", hybridId)
+            .put("elementalAffinity", elementalAffinity)
+            .put("cursedClassBranchId", cursedClassBranchId)
+            .put("additionalClassIds", org.json.JSONArray(additionalClassIds))
+            .put("curseIds", org.json.JSONArray(curseIds))
+            .toString()
 
     companion object {
         fun fromJson(raw: String?): CharacterChoices {
@@ -64,8 +65,12 @@ data class CharacterChoices(
                     hybridId = obj.optString("hybridId"),
                     elementalAffinity = obj.optString("elementalAffinity"),
                     cursedClassBranchId = obj.optString("cursedClassBranchId"),
-                    additionalClassIds = (0 until (obj.optJSONArray("additionalClassIds")?.length() ?: 0)).mapNotNull { obj.optJSONArray("additionalClassIds")?.optString(it)?.takeIf(String::isNotBlank) },
-                    curseIds = emptyList() // migração: conceitos antigos da Classe de Malditos não são maldições lançadas
+                    additionalClassIds =
+                        (0 until (obj.optJSONArray("additionalClassIds")?.length() ?: 0)).mapNotNull {
+                            obj.optJSONArray("additionalClassIds")?.optString(it)?.takeIf(String::isNotBlank)
+                        },
+                    // Migração: conceitos antigos da Classe de Malditos não são maldições lançadas.
+                    curseIds = emptyList(),
                 )
             }.getOrDefault(CharacterChoices())
         }
@@ -85,7 +90,7 @@ object CharacterCreationCatalog {
     private fun parseEffects(
         array: org.json.JSONArray?,
         source: String,
-        stablePath: String
+        stablePath: String,
     ): List<CharacterCatalogEffect> {
         if (array == null) return emptyList()
         return (0 until array.length()).mapNotNull { index ->
@@ -93,12 +98,16 @@ object CharacterCreationCatalog {
             val scope = effect.optString("scope").trim()
             val rawBonus = effect.opt("bonus")
             val bonus = if (rawBonus is Number && rawBonus.toDouble().isFinite() && rawBonus.toDouble() % 1.0 == 0.0) rawBonus.toInt() else null
-            if (scope.isBlank() || bonus == null) null else CharacterCatalogEffect(
-                scope = scope,
-                bonus = bonus,
-                source = source,
-                effectId = "$stablePath#$index"
-            )
+            if (scope.isBlank() || bonus == null) {
+                null
+            } else {
+                CharacterCatalogEffect(
+                    scope = scope,
+                    bonus = bonus,
+                    source = source,
+                    effectId = "$stablePath#$index",
+                )
+            }
         }
     }
 
@@ -115,33 +124,52 @@ object CharacterCreationCatalog {
                 lore = item.optString("lore"),
                 benefit = item.optJSONArray("benefits")?.optJSONObject(0)?.optString("description").orEmpty(),
                 drawback = item.optJSONArray("drawbacks")?.optJSONObject(0)?.optString("description").orEmpty(),
-                hybridRaceIds = item.optJSONArray("raceIds")?.let { arr -> (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() } }.orEmpty(),
-                benefits = item.optJSONArray("benefits")?.let { arr ->
-                    (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.optString("description")?.takeIf { text -> text.isNotBlank() } }
-                }.orEmpty(),
-                drawbacks = item.optJSONArray("drawbacks")?.let { arr ->
-                    (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.optString("description")?.takeIf { text -> text.isNotBlank() } }
-                }.orEmpty(),
-                mechanicalEffects = parseEffects(
-                    item.optJSONArray("mechanicalEffects"),
-                    "entrada:" + id,
-                    "$key/$id/mechanicalEffects"
-                ).toMutableList().apply {
-                    listOf("benefits", "drawbacks").forEach { field ->
-                        val details = item.optJSONArray(field)
-                        if (details != null) {
-                            for (detailIndex in 0 until details.length()) {
-                                val detail = details.optJSONObject(detailIndex) ?: continue
-                                val description = detail.optString("description", field).takeIf { it.isNotBlank() } ?: field
-                                addAll(parseEffects(
-                                    detail.optJSONArray("mechanicalEffects"),
-                                    "$field:" + id + ": $description",
-                                    "$key/$id/$field/$detailIndex/mechanicalEffects"
-                                ))
+                hybridRaceIds =
+                    item.optJSONArray("raceIds")?.let {
+                            arr ->
+                        (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() }
+                    }.orEmpty(),
+                benefits =
+                    item.optJSONArray("benefits")?.let { arr ->
+                        (0 until arr.length()).mapNotNull {
+                            arr.optJSONObject(it)?.optString("description")?.takeIf {
+                                    text ->
+                                text.isNotBlank()
                             }
                         }
-                    }
-                }
+                    }.orEmpty(),
+                drawbacks =
+                    item.optJSONArray("drawbacks")?.let { arr ->
+                        (0 until arr.length()).mapNotNull {
+                            arr.optJSONObject(it)?.optString("description")?.takeIf {
+                                    text ->
+                                text.isNotBlank()
+                            }
+                        }
+                    }.orEmpty(),
+                mechanicalEffects =
+                    parseEffects(
+                        item.optJSONArray("mechanicalEffects"),
+                        "entrada:" + id,
+                        "$key/$id/mechanicalEffects",
+                    ).toMutableList().apply {
+                        listOf("benefits", "drawbacks").forEach { field ->
+                            val details = item.optJSONArray(field)
+                            if (details != null) {
+                                for (detailIndex in 0 until details.length()) {
+                                    val detail = details.optJSONObject(detailIndex) ?: continue
+                                    val description = detail.optString("description", field).takeIf { it.isNotBlank() } ?: field
+                                    addAll(
+                                        parseEffects(
+                                            detail.optJSONArray("mechanicalEffects"),
+                                            "$field:" + id + ": $description",
+                                            "$key/$id/$field/$detailIndex/mechanicalEffects",
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    },
             )
         }
     }
@@ -154,18 +182,23 @@ object CharacterCreationCatalog {
     val curses: List<CharacterCatalogEntry> get() = entries("curses")
     val cursedClassConcepts: List<CharacterCatalogEntry> get() = entries("cursedClassConcepts")
     val cursedClassBranches: List<CharacterCatalogEntry> by lazy {
-        val raw = CharacterCreationCatalog::class.java.classLoader
-            ?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")
-            ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+        val raw =
+            CharacterCreationCatalog::class.java.classLoader
+                ?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")
+                ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
         val loaded = dev.rpgsolo.rules.SkillTreeCatalogLoader.load(raw)
-        if (!loaded.valid) emptyList() else loaded.skills
-            .filter { it.origin == dev.rpgsolo.engine.SkillOrigin.CURSED_CLASS }
-            .groupBy { it.treeId }
-            .map { (id, skills) ->
-                val first = skills.firstOrNull { it.scrollRank == 1 }?.name.orEmpty().substringBefore(" — ")
-                CharacterCatalogEntry(id, first.ifBlank { id }, "Vertente da Classe de Malditos: ${first.ifBlank { id }}")
-            }
-            .sortedBy { it.name }
+        if (!loaded.valid) {
+            emptyList()
+        } else {
+            loaded.skills
+                .filter { it.origin == dev.rpgsolo.engine.SkillOrigin.CURSED_CLASS }
+                .groupBy { it.treeId }
+                .map { (id, skills) ->
+                    val first = skills.firstOrNull { it.scrollRank == 1 }?.name.orEmpty().substringBefore(" — ")
+                    CharacterCatalogEntry(id, first.ifBlank { id }, "Vertente da Classe de Malditos: ${first.ifBlank { id }}")
+                }
+                .sortedBy { it.name }
+        }
     }
 
     fun find(id: String): CharacterCatalogEntry? =
@@ -177,14 +210,15 @@ object CharacterCreationCatalog {
      * a política de acúmulo deve ser aplicada pelo resolvedor mecânico, não pelo catálogo.
      */
     fun selectedEffects(choices: CharacterChoices): List<CharacterCatalogEffect> {
-        val selectedIds = listOf(
-            choices.raceId,
-            choices.subraceId,
-            choices.hybridId,
-            choices.cursedClassBranchId,
-            choices.classId,
-            choices.professionId
-        ) + choices.additionalClassIds
+        val selectedIds =
+            listOf(
+                choices.raceId,
+                choices.subraceId,
+                choices.hybridId,
+                choices.cursedClassBranchId,
+                choices.classId,
+                choices.professionId,
+            ) + choices.additionalClassIds
         return selectedIds
             .filter { it.isNotBlank() }
             .distinct()
@@ -193,7 +227,7 @@ object CharacterCreationCatalog {
                 entry.mechanicalEffects.map { effect ->
                     effect.copy(
                         source = entry.id + "/" + effect.source,
-                        effectId = effect.effectId
+                        effectId = effect.effectId,
                     )
                 }
             }
@@ -204,25 +238,55 @@ object CharacterCreationCatalog {
         val errors = validationErrors().toMutableList()
         if (choices.raceId.isNotBlank() && races.none { it.id == choices.raceId }) errors += "Raça selecionada não existe no catálogo"
         val subrace = choices.subraceId.takeIf { it.isNotBlank() }?.let { id -> subraces.firstOrNull { it.id == id } }
-        if (choices.subraceId.isNotBlank() && subrace == null) errors += "Sub-raça selecionada não existe no catálogo"
-        else if (subrace != null && subrace.parentRaceId != choices.raceId) errors += "A sub-raça não pertence à raça selecionada"
+        if (choices.subraceId.isNotBlank() && subrace == null) {
+            errors += "Sub-raça selecionada não existe no catálogo"
+        } else if (subrace != null && subrace.parentRaceId != choices.raceId) {
+            errors += "A sub-raça não pertence à raça selecionada"
+        }
         if (choices.hybridId.isNotBlank() && hybrids.none { it.id == choices.hybridId }) errors += "Híbrido selecionado não existe no catálogo"
         if (choices.hybridId.isNotBlank() && (choices.raceId.isNotBlank() || choices.subraceId.isNotBlank())) errors += "Escolha raça/sub-raça ou híbrido, não ambos"
         if (choices.classId.isNotBlank() && classes.none { it.id == choices.classId }) errors += "Classe selecionada não existe no catálogo"
-        if (choices.professionId.isNotBlank() && professions.none { it.id == choices.professionId }) errors += "Profissão selecionada não existe no catálogo"
+        if (choices.professionId.isNotBlank() &&
+            professions.none {
+                it.id == choices.professionId
+            }
+        ) {
+            errors += "Profissão selecionada não existe no catálogo"
+        }
         if (choices.elementalAffinity.isNotBlank() && choices.elementalAffinity !in setOf("WATER", "FIRE", "WIND", "EARTH", "METAL", "YIN", "YANG")) errors += "Afinidade elemental inválida"
-        if (choices.cursedClassBranchId.isNotBlank() && cursedClassBranches.none { it.id == choices.cursedClassBranchId }) errors += "Vertente da Classe de Malditos inválida"
+        if (choices.cursedClassBranchId.isNotBlank() &&
+            cursedClassBranches.none {
+                it.id == choices.cursedClassBranchId
+            }
+        ) {
+            errors += "Vertente da Classe de Malditos inválida"
+        }
         if (choices.additionalClassIds.size > 3) errors += "Um híbrido pode combinar no máximo quatro classes no total"
         if (choices.additionalClassIds.distinct().size != choices.additionalClassIds.size) errors += "Classes adicionais repetidas"
-        if (choices.additionalClassIds.any { classes.none { entry -> entry.id == it } }) errors += "Uma classe adicional não existe no catálogo"
+        if (choices.additionalClassIds.any {
+                classes.none {
+                        entry ->
+                    entry.id == it
+                }
+            }
+        ) {
+            errors += "Uma classe adicional não existe no catálogo"
+        }
         if (choices.classId.isBlank() && choices.additionalClassIds.isNotEmpty()) errors += "Escolha uma classe principal antes de adicionar classes híbridas"
         if (choices.classId in choices.additionalClassIds) errors += "A classe principal não pode ser repetida nas classes adicionais"
-        choices.curseIds.distinct().filter { id -> curses.none { it.id == id } }.forEach { errors += "Maldição selecionada não existe no catálogo: $it" }
+        choices.curseIds.distinct().filter {
+                id ->
+            curses.none { it.id == id }
+        }.forEach { errors += "Maldição selecionada não existe no catálogo: $it" }
         if (choices.curseIds.size != choices.curseIds.distinct().size) errors += "Há maldições duplicadas na seleção"
         return errors.distinct()
     }
 
-    private fun validateEffects(array: org.json.JSONArray, location: String, errors: MutableList<String>) {
+    private fun validateEffects(
+        array: org.json.JSONArray,
+        location: String,
+        errors: MutableList<String>,
+    ) {
         val seen = mutableSetOf<String>()
         for (index in 0 until array.length()) {
             val effect = array.optJSONObject(index)
@@ -246,14 +310,18 @@ object CharacterCreationCatalog {
      * Confere escopos tipados declarados contra o pacote realmente selecionado.
      * Isto só valida compatibilidade; não aplica os efeitos ao motor.
      */
-    fun validateEffectScopes(pkg: RulePackage, choices: CharacterChoices): List<String> {
+    fun validateEffectScopes(
+        pkg: RulePackage,
+        choices: CharacterChoices,
+    ): List<String> {
         val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds
         // O resolvedor de testes só consome escopos de atributo, teste, perícia e combate.
         // Um ID de vantagem/poder não é, por si só, um escopo executável.
-        val validScopes = pkg.data.stats.map { it.id }.toSet() +
-            pkg.data.checks.map { it.id } +
-            pkg.data.traits.filter { it.type == "pericia" }.map { it.id } +
-            setOf("ataque", "dano", "defesa", "resistencia_dano")
+        val validScopes =
+            pkg.data.stats.map { it.id }.toSet() +
+                pkg.data.checks.map { it.id } +
+                pkg.data.traits.filter { it.type == "pericia" }.map { it.id } +
+                setOf("ataque", "dano", "defesa", "resistencia_dano")
         return selectedIds.filter { it.isNotBlank() }.distinct()
             .mapNotNull(::find)
             .flatMap { entry ->
@@ -329,7 +397,11 @@ object CharacterCreationCatalog {
                                         if (nested == null) {
                                             errors += "mechanicalEffects de $field[$effectIndex] da entrada ${id ?: index} deve ser uma lista"
                                         } else {
-                                            validateEffects(nested, "mechanicalEffects de $field[$effectIndex] da entrada ${id ?: index}", errors)
+                                            validateEffects(
+                                                nested,
+                                                "mechanicalEffects de $field[$effectIndex] da entrada ${id ?: index}",
+                                                errors,
+                                            )
                                         }
                                     }
                                 }
@@ -352,23 +424,28 @@ object CharacterCreationCatalog {
         }
         rawEntries["hybrids"].orEmpty().forEach { item ->
             val id = item.optString("id", "(sem ID)")
-            val ids = item.optJSONArray("raceIds")?.let { arr ->
-                (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() && it != "null" }
-            }.orEmpty()
-            if (ids.size != 2 || ids.toSet().size != 2) errors += "Híbrido $id precisa referenciar duas raças distintas"
-            else if (ids.any { it !in raceIds }) errors += "Híbrido $id referencia raça inexistente"
+            val ids =
+                item.optJSONArray("raceIds")?.let { arr ->
+                    (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() && it != "null" }
+                }.orEmpty()
+            if (ids.size != 2 || ids.toSet().size != 2) {
+                errors += "Híbrido $id precisa referenciar duas raças distintas"
+            } else if (ids.any { it !in raceIds }) {
+                errors += "Híbrido $id referencia raça inexistente"
+            }
         }
 
         // Detecta divergência entre o documento bruto e as opções efetivamente carregadas.
         val expectedByCategory = rawEntries.mapValues { (_, entries) -> entries.size }
-        val loadedByCategory = mapOf(
-            "races" to races.size,
-            "subraces" to subraces.size,
-            "hybrids" to hybrids.size,
-            "classes" to classes.size,
-            "professions" to professions.size,
-            "curses" to curses.size
-        )
+        val loadedByCategory =
+            mapOf(
+                "races" to races.size,
+                "subraces" to subraces.size,
+                "hybrids" to hybrids.size,
+                "classes" to classes.size,
+                "professions" to professions.size,
+                "curses" to curses.size,
+            )
         expectedByCategory.forEach { (key, expected) ->
             val loaded = loadedByCategory[key] ?: 0
             if (loaded != expected) errors += "Categoria $key: $expected entradas no arquivo, mas $loaded carregadas"

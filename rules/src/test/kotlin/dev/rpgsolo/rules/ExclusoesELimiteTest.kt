@@ -7,12 +7,16 @@ import java.io.File
 /** Formato: `not:id` nos requisitos e `limite_desvantagens` em criacao.txt (usa só o pacote de teste). */
 class ExclusoesELimiteTest {
     private fun base(): MutableMap<String, String> {
-        val dir = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
-            .map(::File).first { it.exists() }
+        val dir =
+            listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
+                .map(::File).first { it.exists() }
         return dir.listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }.toMutableMap()
     }
 
-    private fun pkg(tracos: String, criacao: String): RulePackage {
+    private fun pkg(
+        tracos: String,
+        criacao: String,
+    ): RulePackage {
         val f = base()
         f["tracos.txt"] = tracos
         f["criacao.txt"] = criacao
@@ -22,12 +26,13 @@ class ExclusoesELimiteTest {
         return (r as InstallResult.Success).pkg
     }
 
-    private val tracos = """
+    private val tracos =
+        """
         agil|vantagem|Ágil|1|not:lento|Rápido.
         lento|desvantagem|Lento|-1|not:agil|Devagar.
         manco|desvantagem|Manco|-1||Perna ruim.
         surdo|desvantagem|Surdo|-1||Não ouve.
-    """.trimIndent()
+        """.trimIndent()
 
     @Test fun exclusaoVale() {
         val p = pkg(tracos, "pontos|8\ncusto_atributo|1\n")
