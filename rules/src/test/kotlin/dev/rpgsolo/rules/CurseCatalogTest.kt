@@ -6,7 +6,7 @@ import org.junit.Test
 
 class CurseCatalogTest {
     private fun catalogText(): String =
-        requireNotNull(javaClass.classLoader?.getResourceAsStream("packages/sistema-proprio/maldicoes-lancadas.txt")) {
+        requireNotNull(javaClass.classLoader?.getResourceAsStream("catalogs/sistema-proprio/maldicoes-lancadas.txt")) {
             "catálogo de maldições lançadas não encontrado nos recursos de teste"
         }.bufferedReader(Charsets.UTF_8).use { it.readText() }
 
