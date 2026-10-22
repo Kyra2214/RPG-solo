@@ -1560,6 +1560,29 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return StatPointsState(player.statPoints, player.abilityPoints, stats)
     }
 
+    /** Ações da árvore vinculadas às escolhas salvas na ficha ativa. */
+    fun skillTreeActions(): SkillTreeActions {
+        val choices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
+        val selected = listOf(
+            choices.raceId, choices.subraceId, choices.classId, choices.professionId, choices.hybridId
+        ).filter { it.isNotBlank() }.toSet()
+        val affinity = runCatching {
+            if (choices.elementalAffinity.isBlank()) dev.rpgsolo.engine.ElementPath.NONE
+            else dev.rpgsolo.engine.ElementPath.valueOf(choices.elementalAffinity)
+        }.getOrDefault(dev.rpgsolo.engine.ElementPath.NONE)
+        val equippedIds = session.state.equipped[playerId].orEmpty().values
+        val weaponTags = equippedIds.flatMap { id -> listOf(id, id.substringBefore('-')) }.toSet()
+        return SkillTreeActions(
+            session = { session },
+            activePackage = { activePackage },
+            playerId = { playerId },
+            selectedTreeIds = { selected },
+            element = { affinity },
+            weaponTags = { weaponTags },
+            onChanged = { campaignVersion++ }
+        )
+    }
+
     /** MU-05.3: gasta um ponto de status em um atributo; o motor valida saldo e atributo. */
     fun increaseStatPoint(statId: String): String? =
         when (val result = session.execute(dev.rpgsolo.engine.AllocateStatPoints(playerId, mapOf(statId to 1)))) {
