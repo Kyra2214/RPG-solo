@@ -92,6 +92,22 @@ data class SkillTreeCharacterContext(
 data class SkillTreeValidation(val allowed: Boolean, val reasons: List<String>)
 
 /** Economia fixa definida pelo usuário. Todos os preços canônicos são armazenados em prata. */
+/**
+ * Consequência mecânica fixa para personagens que misturam classes: a aparência fica mais
+ * monstruosa e prejudica testes sociais de tato/convencimento conforme aumenta a mistura.
+ */
+object HybridClassRules {
+    val socialPenaltyScopes: Set<String> = setOf(
+        "persuasao", "diplomacia", "negociacao", "lideranca",
+        "atuacao", "enganacao", "etiqueta", "carisma", "convencimento"
+    )
+
+    fun socialPenalty(classCount: Int): Int {
+        require(classCount in 0..4) { "personagem híbrido pode combinar no máximo quatro classes" }
+        return -(classCount - 1).coerceAtLeast(0)
+    }
+}
+
 object SkillTreeEconomy {
     const val SILVER_PER_GOLD = 100L
     const val RESET_PRICE_SILVER = 25_000L
