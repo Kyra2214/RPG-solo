@@ -6,7 +6,7 @@ classe-arqueiro-3|arqueiro|Arqueiro — Foco de Precisão|CLASS|BUFF|-|-|false|-
 classe-arqueiro-4|arqueiro|Arqueiro — Olho do Atirador|CLASS|PASSIVE|-|-|false|-|4|classe-arqueiro-3|4|1|false|MODIFIER|0|-|1|SELF|fx-classe-arqueiro-4,precisao,3,1,passiva-precisao,-,-
 classe-arqueiro-5|arqueiro|Arqueiro — Tiro de Supressão|CLASS|CONTROL|-|-|false|-|5|classe-arqueiro-4|5|1|false|MODIFIER|0|-|1|TARGET|fx-classe-arqueiro-5,defesa,-4,-1,skill-classe-arqueiro-5,1,-
 classe-arqueiro-6|arqueiro|Arqueiro — Mira Perfeita|CLASS|SUPPORT|-|-|false|-|6|classe-arqueiro-5|6|1|false|MODIFIER|0|-|1|SELF|fx-classe-arqueiro-6,precisao,4,1,skill-classe-arqueiro-6,2,-
-classe-arqueiro-7|arqueiro|Disparo Apocalíptico|CLASS|OFFENSE|-|-|true|-|7|classe-arqueiro-6|7|1|false|POWER_STRIKE|0|-|1|SELF|fx-classe-arqueiro-7,dano,7,2,skill-classe-arqueiro-7,-,-
+classe-arqueiro-7|arqueiro|Disparo Apocalíptico|CLASS|OFFENSE|-|-|false|-|7|classe-arqueiro-6|7|1|false|POWER_STRIKE|0|-|1|SELF|fx-classe-arqueiro-7,dano,7,2,skill-classe-arqueiro-7,-,-
 classe-guerreiro-1|guerreiro|Guerreiro — Golpe de Abertura|CLASS|OFFENSE|-|-|false|-|1|-|1|1|false|POWER_STRIKE|0|-|1|SELF|fx-classe-guerreiro-1,dano,2,1,skill-classe-guerreiro-1,-,-
 classe-guerreiro-2|guerreiro|Guerreiro — Guarda Especializada|CLASS|DEFENSE|-|-|false|-|2|classe-guerreiro-1|2|1|false|MODIFIER|0|-|1|SELF|fx-classe-guerreiro-2,defesa,2,1,skill-classe-guerreiro-2,1,-
 classe-guerreiro-3|guerreiro|Guerreiro — Impulso de Poder|CLASS|BUFF|-|-|false|-|3|classe-guerreiro-2|3|1|false|MODIFIER|0|-|1|SELF|fx-classe-guerreiro-3,ataque,3,1,skill-classe-guerreiro-3,2,-
