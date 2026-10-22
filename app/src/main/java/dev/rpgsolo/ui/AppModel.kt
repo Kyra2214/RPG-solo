@@ -36,8 +36,8 @@ import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.SourceDocumentStore
 import dev.rpgsolo.engine.advanceClocksAfterChapterClosure
-import dev.rpgsolo.engine.advanceClocksAfterQuestClosure
 import dev.rpgsolo.engine.CampaignRecord
+import dev.rpgsolo.engine.advanceClocksAfterQuestClosure
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CanonFacts
 import dev.rpgsolo.engine.ChapterBook
@@ -46,8 +46,8 @@ import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Ficha
-import dev.rpgsolo.engine.journal
 import dev.rpgsolo.engine.PipelineState
+import dev.rpgsolo.engine.journal
 import dev.rpgsolo.engine.Quest
 import dev.rpgsolo.engine.QuestLog
 import dev.rpgsolo.engine.Resource
@@ -60,11 +60,10 @@ import dev.rpgsolo.engine.SpellSlots
 import dev.rpgsolo.rules.CampaignStarter
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.StartResult
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
 
@@ -765,23 +764,25 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         bytes: ByteArray,
     ): SourceDocumentImportOutcome =
         try {
-        val current = store.sourceLibrary()
-        val (updated, entry) = current.addImport(fileName, bytes, System.currentTimeMillis())
-        val alreadyRegistered = current.get(entry.id) != null
-        if (entry.status == SourceStatus.READY) {
-            sourceDocuments.save(entry.id, bytes, entry.sha256)
-        }
-        try {
-            store.saveSourceLibrary(updated)
+            val current = store.sourceLibrary()
+            val (updated, entry) = current.addImport(fileName, bytes, System.currentTimeMillis())
+            val alreadyRegistered = current.get(entry.id) != null
+            if (entry.status == SourceStatus.READY) {
+                sourceDocuments.save(entry.id, bytes, entry.sha256)
+            }
+            try {
+                store.saveSourceLibrary(updated)
+            } catch (e: Exception) {
+                if (!alreadyRegistered && entry.status == SourceStatus.READY) {
+                    sourceDocuments.delete(entry.id)
+                }
+                throw e
+            }
+            sourceLibraryVersion++
+            SourceDocumentImportOutcome(entry)
         } catch (e: Exception) {
-            if (!alreadyRegistered && entry.status == SourceStatus.READY) sourceDocuments.delete(entry.id)
-            throw e
+            SourceDocumentImportOutcome(null, e.message ?: "falha ao importar documento-fonte")
         }
-        sourceLibraryVersion++
-        SourceDocumentImportOutcome(entry)
-    } catch (e: Exception) {
-        SourceDocumentImportOutcome(null, e.message ?: "falha ao importar documento-fonte")
-    }
 
     /** Lê somente fonte pronta e verifica tamanho e SHA-256 antes de devolver os bytes; executar em IO. */
     fun sourceDocumentBytes(sourceId: String): ByteArray? {
