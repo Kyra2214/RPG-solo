@@ -107,7 +107,8 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var professionId by remember(key) { mutableStateOf("") }
     var hybridId by remember(key) { mutableStateOf("") }
     var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
-    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId)
+    var elementalAffinity by remember(key) { mutableStateOf("") }
+    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity)
     val choiceErrors = (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct()
     @Suppress("UNUSED_EXPRESSION") version
 
@@ -187,6 +188,12 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         }
     }
     CatalogPicker("Classe", CharacterCreationCatalog.classes, classId, { classId = it; version++ }, allowNone = true)
+    SectionTitle("Afinidade elemental", "Opcional para técnicas físicas; habilidades mágicas exigem compatibilidade com a afinidade escolhida.")
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf("WATER" to "Água", "FIRE" to "Fogo", "WIND" to "Vento", "EARTH" to "Terra", "METAL" to "Metal", "YIN" to "Yin", "YANG" to "Yang").forEach { (id, label) ->
+            FilterChip(selected = elementalAffinity == id, onClick = { elementalAffinity = if (elementalAffinity == id) "" else id; version++ }, label = { Text(label) })
+        }
+    }
     CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, { professionId = it; version++ }, allowNone = true)
 
     SectionTitle("Maldições", "Podem trazer benefícios e custos narrativos. Os efeitos ainda não são aplicados pelo motor.")
