@@ -68,6 +68,9 @@ object CurseCatalogLoader {
                 }.orEmpty()
                 require(effects.size >= 2) { "maldição precisa declarar benefício e contrapartida em efeitos tipados" }
                 require(effects.any { it.baseValue > 0 } && effects.any { it.baseValue < 0 }) { "maldição precisa de pelo menos um benefício e uma desvantagem mecânica" }
+                require(effects.all { it.durationRounds == duration }) {
+                    "duração dos efeitos deve coincidir com a duração da maldição"
+                }
                 curses += CurseDefinition(fields[0], fields[1], fields[2], fields[3], resistanceId, difficulty, duration, removal, effects)
             } catch (e: Exception) {
                 errors += "maldições linha $lineNo: ${e.message ?: "formato inválido"}"
