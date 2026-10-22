@@ -48,6 +48,13 @@ data class ProgressSkillTree(
     val pointCost: Int,
     val freeBase: Boolean = false
 ) : Command
+/** Aplica efeitos de uma habilidade desbloqueada a outro alvo, validando ambos no motor. */
+data class ApplyTargetSkillEffects(
+    val actorId: String,
+    val targetId: String,
+    val skillId: String,
+    val effects: List<ActiveEffect>
+) : Command
 /** Reseta investimentos da árvore sem criar pontos extras. */
 data class ResetSkillTreeProgress(val entityId: String) : Command
 /** MU-06.3: ativa uma habilidade aprendida; [effects] já trazem a duração (fixa ou sorteada). */
@@ -459,6 +466,20 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val next = try { SkillTreeProgression.nextLevel(currentLevel) }
                 catch (e: IllegalArgumentException) { return no(e.message ?: "nível de habilidade inválido") }
             return Decision.Ok(listOf(SkillTreeProgressed(ent.id, cmd.skillId, next, cmd.pointCost, cmd.freeBase)))
+        }
+
+        is ApplyTargetSkillEffects -> {
+            val actor = entity(cmd.actorId) ?: return no("usuário inexistente: ${cmd.actorId}")
+            val target = entity(cmd.targetId) ?: return no("alvo inexistente: ${cmd.targetId}")
+            if (!actor.alive || actor.downed) return no("usuário da habilidade está fora de combate")
+            if (!target.alive || target.downed) return no("alvo está fora de combate")
+            if (actor.id == target.id) return no("efeito de alvo não pode apontar para o próprio usuário")
+            if ((actor.skillTreeLevels[cmd.skillId] ?: 0) <= 0 && cmd.skillId !in actor.abilities) return no("habilidade não aprendida: ${cmd.skillId}")
+            if (cmd.effects.isEmpty()) return no("habilidade sem efeitos para o alvo")
+            if (cmd.effects.any { it.remainingRounds <= 0 || it.target.isBlank() || it.value == 0 || !it.sourceId.startsWith("habilidade:") }) {
+                return no("efeito de alvo inválido")
+            }
+            return Decision.Ok(listOf(TargetSkillEffectsApplied(actor.id, target.id, cmd.skillId, cmd.effects)))
         }
 
         is ResetSkillTreeProgress -> {
