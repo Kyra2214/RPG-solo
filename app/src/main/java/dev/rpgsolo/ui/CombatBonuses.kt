@@ -49,6 +49,40 @@ class CombatBonuses(
             .sumOf { it.second }
     }
 
+    /** Melhor golpe ativo desbloqueado por um NPC; usa os mesmos requisitos e níveis da árvore do jogador. */
+    fun bestAvailableAttackSkill(entityId: String): Pair<dev.rpgsolo.engine.SkillTreeSkill, Int>? {
+        val entity = session().state.entities[entityId] ?: return null
+        val element = entity.skillTreeElement.takeIf { it.isNotBlank() }?.let {
+            runCatching { dev.rpgsolo.engine.ElementPath.valueOf(it) }.getOrDefault(dev.rpgsolo.engine.ElementPath.NONE)
+        } ?: dev.rpgsolo.engine.ElementPath.NONE
+        return entity.skillTreeLevels.mapNotNull { (skillId, level) ->
+            val raw = skillTreeDefinitions.firstOrNull { it.id == skillId } ?: return@mapNotNull null
+            if (level <= 0 || raw.category != dev.rpgsolo.engine.SkillCategory.OFFENSE ||
+                raw.actionKind !in setOf(dev.rpgsolo.engine.SkillActionKind.POWER_STRIKE, dev.rpgsolo.engine.SkillActionKind.MULTI_HIT)
+            ) return@mapNotNull null
+            if (entity.skillTreeTreeIds.isNotEmpty() && raw.treeId !in entity.skillTreeTreeIds) return@mapNotNull null
+            val slotLevel = when (entity.skillTreeClassOrder.indexOf(raw.treeId)) {
+                0 -> 1
+                1 -> 10
+                2 -> 20
+                3 -> 30
+                else -> 1
+            }
+            val skill = raw.copy(
+                requiredCharacterLevel = maxOf(raw.requiredCharacterLevel, if (raw.origin == dev.rpgsolo.engine.SkillOrigin.CLASS) slotLevel else 1),
+                element = if (raw.affinityBound && element != dev.rpgsolo.engine.ElementPath.NONE) element else raw.element
+            )
+            val context = dev.rpgsolo.engine.SkillTreeCharacterContext(entity.level, element, emptySet(), entity.skillTreeLevels)
+            val valid = dev.rpgsolo.engine.SkillTreeProgression.validate(skill, context)
+            if (!valid.allowed) return@mapNotNull null
+            skill to level
+        }.maxWithOrNull(compareBy<Pair<dev.rpgsolo.engine.SkillTreeSkill, Int>>(
+            { it.first.scrollRank ?: 0 },
+            { it.first.effects.maxOfOrNull { effect -> kotlin.math.abs(effect.valueAt(it.second)) } ?: 0 },
+            { it.second }
+        ))
+    }
+
     /** Efeitos de passivas, buffs ativos e maldições como bônus externos para o mesmo pipeline de testes do pacote. */
     fun externalSkillAndCurseBonuses(entityId: String, scopes: Set<String>): List<dev.rpgsolo.rules.ExternalBonus> {
         if (scopes.isEmpty()) return emptyList()
