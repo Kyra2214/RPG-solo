@@ -1,6 +1,8 @@
 package dev.rpgsolo.engine
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.text.Normalizer
 import kotlin.math.ln
 
@@ -127,7 +129,15 @@ data class PipelineState(
 
 /** DC-03: importada → em trechos → indexada, em lotes e retomável. */
 object SourcePipeline {
+    private val JSON = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
     fun start(sourceId: String) = PipelineState(sourceId)
+
+    /** Representação persistível da etapa, trechos, progresso e falha atual. */
+    fun encode(state: PipelineState): String = JSON.encodeToString(state)
+
+    /** Decodifica estados salvos por versões anteriores sem falhar por campos adicionais. */
+    fun decode(json: String): PipelineState = JSON.decodeFromString(json)
 
     /** Reconstrói o índice em memória com o que a pipeline já indexou. */
     fun resume(state: PipelineState): SourceIndex =

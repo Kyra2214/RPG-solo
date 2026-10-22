@@ -1,3 +1,11 @@
+## 2026-10-22 — DC-03: persistência do progresso de indexação (não validado)
+
+- `engine/SourceIndex.kt`: adicionadas funções de serialização para `PipelineState`.
+- `data`: tabela `fonte_pipeline` e migração explícita 8→9; estados por fonte são lidos e gravados no Room.
+- `app/AppModel.kt`: APIs para persistir/restaurar estados e reconstruir o índice por campanha a partir de trechos já indexados.
+- Os bytes originais ainda não persistem; estado anterior à geração dos trechos requer nova importação. Sem tela de progresso.
+- **Validação:** nenhum teste, build, lint ou CI executado; schema Room v9 não gerado nesta etapa.
+
 ## 2026-10-22 — DC-02: persistência da biblioteca de fontes (não validado)
 
 - `data`: novas tabelas Room `fontes` e `fonte_vinculos`, com migração explícita 7→8; apagar campanha remove só vínculos por FK e duplicar campanha copia seus vínculos.

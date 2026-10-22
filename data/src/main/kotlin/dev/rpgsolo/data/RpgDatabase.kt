@@ -13,17 +13,19 @@ import dev.rpgsolo.engine.SourceEntry
 import dev.rpgsolo.engine.SourceLibrary
 import dev.rpgsolo.engine.SourceLink
 import dev.rpgsolo.engine.SourceStatus
+import dev.rpgsolo.engine.PipelineState
+import dev.rpgsolo.engine.SourcePipeline
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
 /**
- * Versão 8. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
+ * Versão 9. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
  * os esquemas exportados ficam em `data/schemas/` (3.1.2). Nunca use fallbackToDestructiveMigration:
  * apagaria as campanhas do jogador.
  */
 @Database(
-    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class],
+    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class, FontePipelineRow::class],
     version = RpgDatabase.VERSION,
     exportSchema = true
 )
@@ -37,10 +39,11 @@ abstract class RpgDatabase : RoomDatabase() {
     abstract fun snapshots(): SnapshotDao
     abstract fun linhaTempo(): LinhaTempoDao
     abstract fun fontes(): FonteDao
+    abstract fun fontePipeline(): FontePipelineDao
 
     companion object {
         /** Versão atual do esquema; a mesma da anotação [Database]. */
-        const val VERSION = 8
+        const val VERSION = 9
 
         val MIGRATIONS = arrayOf(
             object : androidx.room.migration.Migration(1, 2) {
@@ -118,6 +121,11 @@ abstract class RpgDatabase : RoomDatabase() {
                     db.execSQL("CREATE TABLE IF NOT EXISTS `fontes` (`id` TEXT NOT NULL, `fileName` TEXT NOT NULL, `format` TEXT, `title` TEXT NOT NULL, `sha256` TEXT NOT NULL, `byteSize` INTEGER NOT NULL, `status` TEXT NOT NULL, `error` TEXT, `importedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
                     db.execSQL("CREATE TABLE IF NOT EXISTS `fonte_vinculos` (`campaignId` TEXT NOT NULL, `sourceId` TEXT NOT NULL, `sha256` TEXT NOT NULL, `fileName` TEXT NOT NULL, `linkedAt` INTEGER NOT NULL, PRIMARY KEY(`campaignId`, `sourceId`), FOREIGN KEY(`campaignId`) REFERENCES `campanhas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                     db.execSQL("CREATE INDEX IF NOT EXISTS `index_fonte_vinculos_campaignId` ON `fonte_vinculos` (`campaignId`)")
+                }
+            },
+            object : androidx.room.migration.Migration(8, 9) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("CREATE TABLE IF NOT EXISTS `fonte_pipeline` (`sourceId` TEXT NOT NULL, `stateJson` TEXT NOT NULL, PRIMARY KEY(`sourceId`), FOREIGN KEY(`sourceId`) REFERENCES `fontes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 }
             }
         )
@@ -336,7 +344,8 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
         db.runInTransaction {
             val dao = db.fontes()
             dao.apagarVinculos()
-            dao.apagarFontes()
+            val retainedIds = library.entries.map { it.id }.toSet()
+            dao.listarFontes().filterNot { it.id in retainedIds }.forEach { dao.apagarFonte(it.id) }
             if (library.entries.isNotEmpty()) {
                 dao.salvarFontes(library.entries.map { entry ->
                     FonteRow(
@@ -350,6 +359,34 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
                     FonteVinculoRow(link.campaignId, link.sourceId, link.sha256, link.fileName, link.linkedAt)
                 })
             }
+        }
+    }
+
+    /** Estados de pipeline persistidos, usados para retomar importação/indexação depois de reabrir o app. */
+    fun sourcePipelineStates(): List<PipelineState> = io {
+        db.fontePipeline().listar().map { row ->
+            try {
+                SourcePipeline.decode(row.stateJson)
+            } catch (e: Exception) {
+                throw IllegalStateException("estado de indexação da fonte ${row.sourceId} ilegível", e)
+            }
+        }
+    }
+
+    fun sourcePipelineState(sourceId: String): PipelineState? = io {
+        db.fontePipeline().buscar(sourceId)?.let { row ->
+            try {
+                SourcePipeline.decode(row.stateJson)
+            } catch (e: Exception) {
+                throw IllegalStateException("estado de indexação da fonte ${row.sourceId} ilegível", e)
+            }
+        }
+    }
+
+    fun saveSourcePipelineState(state: PipelineState) = io {
+        db.runInTransaction {
+            require(db.fontes().listarFontes().any { it.id == state.sourceId }) { "fonte não encontrada: ${state.sourceId}" }
+            db.fontePipeline().salvar(FontePipelineRow(state.sourceId, SourcePipeline.encode(state)))
         }
     }
 

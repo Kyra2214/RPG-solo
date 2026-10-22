@@ -122,3 +122,10 @@ data class FonteVinculoRow(
     val fileName: String,
     val linkedAt: Long
 )
+
+/** Estado retomável da indexação (DC-03), serializado para aceitar evolução do modelo. */
+@Entity(
+    tableName = "fonte_pipeline",
+    foreignKeys = [ForeignKey(entity = FonteRow::class, parentColumns = ["id"], childColumns = ["sourceId"], onDelete = ForeignKey.CASCADE)]
+)
+data class FontePipelineRow(@androidx.room.PrimaryKey val sourceId: String, val stateJson: String)

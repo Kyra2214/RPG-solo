@@ -54,6 +54,7 @@ import dev.rpgsolo.engine.SpellSlots
 import dev.rpgsolo.engine.CanonFacts
 import dev.rpgsolo.engine.SourceIndex
 import dev.rpgsolo.engine.SourceLibrary
+import dev.rpgsolo.engine.PipelineState
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.CampanhaMetaRow
@@ -627,6 +628,30 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         null
     } catch (e: Exception) {
         e.message ?: "falha ao salvar a biblioteca de fontes"
+    }
+
+    /** DC-03: estados e progresso da indexação persistidos no Room. */
+    fun sourcePipelineStates(): List<PipelineState> = store.sourcePipelineStates()
+
+    fun saveSourcePipelineState(state: PipelineState): String? = try {
+        store.saveSourcePipelineState(state)
+        sourceLibraryVersion++
+        null
+    } catch (e: Exception) {
+        e.message ?: "falha ao salvar o progresso de indexação"
+    }
+
+    /** Reconstrói o índice apenas das fontes prontas vinculadas à campanha e dos trechos já indexados. */
+    fun sourceIndexForCampaign(campaignId: String): SourceIndex {
+        val library = store.sourceLibrary()
+        val linkedIds = library.forCampaign(campaignId).map { it.sourceId }.toSet()
+        val readyIds = library.entries.filter { it.id in linkedIds && it.status == dev.rpgsolo.engine.SourceStatus.READY }
+            .map { it.id }.toSet()
+        return SourceIndex().also { index ->
+            store.sourcePipelineStates().filter { it.sourceId in readyIds }.forEach { state ->
+                index.addAll(state.chunks.take(state.indexedCount))
+            }
+        }
     }
 
     /** DC-05.2: modo de fidelidade documental da campanha ativa, derivado do log do motor. */
