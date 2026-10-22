@@ -38,7 +38,7 @@ class SkillTreeActions(
     private val element: () -> ElementPath,
     private val weaponTags: () -> Set<String>,
     private val questCompleted: (questId: String) -> Boolean,
-    private val multiHitAction: (targetId: String, hitCount: Int, damageBonus: Int) -> String?,
+    private val multiHitAction: (targetId: String, hitCount: Int, damageBonus: Int, elementalResistanceScope: String?) -> String?,
     private val onChanged: () -> Unit
 ) {
     private val definitions: List<SkillTreeSkill> by lazy {
@@ -204,7 +204,18 @@ class SkillTreeActions(
             require(selectedTarget in targets().map { it.first } && selectedTarget in combat.order) { "alvo fora do combate" }
             require(skill.actionCost == 0) { "ataque especial com custo de recurso ainda não foi configurado" }
             val bonus = skill.effects.firstOrNull { it.target == "dano" }?.valueAt(level) ?: 0
-            return multiHitAction(selectedTarget, skill.hitCount, bonus)
+            val elementalScope = if (skill.affinityBound) when (skill.element) {
+                ElementPath.WATER -> "agua"
+                ElementPath.FIRE -> "fogo"
+                ElementPath.WIND -> "vento"
+                ElementPath.EARTH -> "terra"
+                ElementPath.METAL -> "metal"
+                ElementPath.YIN -> "yin"
+                ElementPath.YANG -> "yang"
+                ElementPath.NONE -> null
+            } else null
+            val result = multiHitAction(selectedTarget, skill.hitCount, bonus, elementalScope)
+            return if (elementalScope != null) "Ataque elemental de ${elementLabel(skill.element)}. ${result.orEmpty()}" else result
         }
         require(skill.effects.isNotEmpty()) { "esta habilidade ainda não tem efeito mecânico executável" }
         require(combat != null || skill.effects.none { it.durationRounds != null }) {
