@@ -453,7 +453,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
         is ActivateAbility -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
             if (!ent.alive) return no("${ent.name} está morto")
-            if (cmd.abilityId !in ent.abilities) return no("habilidade não aprendida: ${cmd.abilityId}")
+            if (cmd.abilityId !in ent.abilities && (ent.skillTreeLevels[cmd.abilityId] ?: 0) <= 0) return no("habilidade não aprendida: ${cmd.abilityId}")
             if (cmd.declaredTrigger != cmd.trigger) return no("gatilho incorreto para ${cmd.abilityId}: exige ${cmd.declaredTrigger}")
             if (cmd.effects.isEmpty()) return no("habilidade sem bônus")
             if (cmd.effects.any { it.remainingRounds <= 0 || it.target.isBlank() || it.value == 0 }) return no("efeito de habilidade inválido")
