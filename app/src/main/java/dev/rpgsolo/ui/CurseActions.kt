@@ -79,6 +79,7 @@ class CurseActions(
                 sourceId.startsWith("criatura:") -> sourceId.removePrefix("criatura:")
                 else -> null
             }
+            if (sourceEntityId != null) require(sourceEntityId in session().state.entities) { "a origem da maldição não existe" }
             if (combat != null) {
                 require(targetId in combat.order) { "o alvo está fora do combate" }
                 require(sourceEntityId != null && sourceEntityId in session().state.entities) {
