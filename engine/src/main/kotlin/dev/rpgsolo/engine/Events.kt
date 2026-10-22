@@ -58,6 +58,13 @@ data class SkillTreeProgressed(
     val pointsSpent: Int,
     val freeBase: Boolean
 ) : Event
+/** Distribuição inicial única de 12 pontos entre atributos e pontos de habilidade. */
+@Serializable
+data class InitialBuildAllocated(
+    val entityId: String,
+    val statIncreases: Map<String, Int>,
+    val skillPointsGranted: Int
+) : Event
 /** Reset de árvore: devolve exatamente os pontos investidos e mantém habilidades básicas no nível 1. */
 @Serializable
 data class SkillTreeProgressReset(val entityId: String, val pointsRefunded: Int) : Event
@@ -253,6 +260,14 @@ fun GameState.apply(e: Event): GameState {
                     (e.skillId to ((current.skillTreeInvestments[e.skillId] ?: 0) + e.pointsSpent)),
                 freeSkillIds = if (e.freeBase) current.freeSkillIds + e.skillId else current.freeSkillIds,
                 abilityPoints = current.abilityPoints - e.pointsSpent
+            )))
+        }
+        is InitialBuildAllocated -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (current.id to current.copy(
+                stats = current.stats + e.statIncreases.mapValues { (key, increase) -> (current.stats[key] ?: 0) + increase },
+                abilityPoints = current.abilityPoints + e.skillPointsGranted,
+                initialBuildAllocated = true
             )))
         }
         is SkillTreeProgressReset -> {
