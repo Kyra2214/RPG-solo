@@ -117,12 +117,23 @@ class CombatBonuses(
         val catalog = if (entityId == playerId()) {
             activePackage()?.let { selectedCatalogBonuses(it) }.orEmpty().filter { it.scope in scopes }
         } else emptyList()
+        val hybridPenalty = dev.rpgsolo.engine.HybridClassRules.socialPenalty(entity.skillTreeClassOrder.size)
+        val hybridAppearance = if (hybridPenalty == 0) emptyList() else scopes
+            .filter { it in dev.rpgsolo.engine.HybridClassRules.socialPenaltyScopes }
+            .map { scope ->
+                dev.rpgsolo.rules.ExternalBonus(
+                    scope,
+                    hybridPenalty,
+                    "aparência híbrida (${entity.skillTreeClassOrder.size} classes)",
+                    "hybrid-appearance:$entityId:$scope"
+                )
+            }
         val passiveAndCatalog = (passive + catalog)
             .groupBy { it.scope to (it.bonus > 0) }
             .mapNotNull { (_, group) ->
                 group.maxWithOrNull(compareBy<dev.rpgsolo.rules.ExternalBonus>({ kotlin.math.abs(it.bonus) }, { it.bonus }))
             }
-        return dev.rpgsolo.rules.distinctExternalBonuses(passiveAndCatalog + active + curseEffects)
+        return dev.rpgsolo.rules.distinctExternalBonuses(passiveAndCatalog + active + curseEffects + hybridAppearance)
     }
 
     /** Bônus passivos da árvore + buffs temporários já validados pelo motor. */
