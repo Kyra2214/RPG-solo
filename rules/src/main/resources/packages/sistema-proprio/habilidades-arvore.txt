@@ -6,7 +6,7 @@ classe-arqueiro-3|arqueiro|Arqueiro — Impulso de Poder|CLASS|BUFF|-|-|true|-|3
 classe-arqueiro-4|arqueiro|Arqueiro — Aptidão Permanente|CLASS|PASSIVE|-|-|false|-|4|classe-arqueiro-3|4|1|false|MODIFIER|0|-|1|SELF|fx-classe-arqueiro-4,defesa,1,1,passiva-defesa,-,-
 classe-arqueiro-5|arqueiro|Arqueiro — Controle Tático|CLASS|CONTROL|-|-|false|-|5|classe-arqueiro-4|5|1|false|MODIFIER|0|-|1|TARGET|fx-classe-arqueiro-5,defesa,-2,-1,skill-classe-arqueiro-5,1,-
 classe-arqueiro-6|arqueiro|Arqueiro — Apoio Avançado|CLASS|SUPPORT|-|-|false|-|6|classe-arqueiro-5|6|1|false|MODIFIER|0|-|1|SELF|fx-classe-arqueiro-6,resistencia_dano,2,1,skill-classe-arqueiro-6,2,-
-classe-arqueiro-7|arqueiro|Disparo Apocalíptico|CLASS|OFFENSE|-|-|true|-|7|classe-arqueiro-6|7|1|false|MODIFIER|0|-|1|SELF|fx-classe-arqueiro-7,ataque,7,2,skill-classe-arqueiro-7,1,-
+classe-arqueiro-7|arqueiro|Disparo Apocalíptico|CLASS|OFFENSE|-|-|true|-|7|classe-arqueiro-6|7|1|false|MODIFIER|0|-|1|SELF|fx-classe-arqueiro-7,dano,7,2,skill-classe-arqueiro-7,1,-
 classe-guerreiro-1|guerreiro|Guerreiro — Técnica Inicial|CLASS|OFFENSE|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|SELF|fx-classe-guerreiro-1,ataque,1,1,skill-classe-guerreiro-1,1,-
 classe-guerreiro-2|guerreiro|Guerreiro — Guarda Especializada|CLASS|DEFENSE|-|-|false|-|2|classe-guerreiro-1|2|1|false|MODIFIER|0|-|1|SELF|fx-classe-guerreiro-2,defesa,2,1,skill-classe-guerreiro-2,1,-
 classe-guerreiro-3|guerreiro|Guerreiro — Impulso de Poder|CLASS|BUFF|-|-|false|-|3|classe-guerreiro-2|3|1|false|MODIFIER|0|-|1|SELF|fx-classe-guerreiro-3,ataque,2,1,skill-classe-guerreiro-3,2,-
@@ -69,7 +69,7 @@ classe-sacerdote-3|sacerdote|Sacerdote — Impulso de Poder|CLASS|BUFF|-|-|true|
 classe-sacerdote-4|sacerdote|Sacerdote — Aptidão Permanente|CLASS|PASSIVE|-|-|false|-|4|classe-sacerdote-3|4|1|false|MODIFIER|0|-|1|SELF|fx-classe-sacerdote-4,defesa,1,1,passiva-defesa,-,-
 classe-sacerdote-5|sacerdote|Sacerdote — Controle Tático|CLASS|CONTROL|-|-|false|-|5|classe-sacerdote-4|5|1|false|MODIFIER|0|-|1|TARGET|fx-classe-sacerdote-5,defesa,-2,-1,skill-classe-sacerdote-5,1,-
 classe-sacerdote-6|sacerdote|Sacerdote — Apoio Avançado|CLASS|SUPPORT|-|-|false|-|6|classe-sacerdote-5|6|1|false|MODIFIER|0|-|1|SELF|fx-classe-sacerdote-6,resistencia_dano,2,1,skill-classe-sacerdote-6,2,-
-classe-sacerdote-7|sacerdote|Ressurreição Suprema|CLASS|OFFENSE|-|-|true|-|7|classe-sacerdote-6|7|1|false|REVIVE|10|pm|1|SELF|-
+classe-sacerdote-7|sacerdote|Ressurreição Suprema de Yang|CLASS|OFFENSE|-|YANG|false|-|7|classe-sacerdote-6|7|1|false|REVIVE|10|pm|1|SELF|-
 classe-druida-1|druida|Druida — Técnica Inicial|CLASS|OFFENSE|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|SELF|fx-classe-druida-1,ataque,1,1,skill-classe-druida-1,1,-
 classe-druida-2|druida|Druida — Guarda Especializada|CLASS|DEFENSE|-|-|false|-|2|classe-druida-1|2|1|false|MODIFIER|0|-|1|SELF|fx-classe-druida-2,defesa,2,1,skill-classe-druida-2,1,-
 classe-druida-3|druida|Druida — Impulso de Poder|CLASS|BUFF|-|-|true|-|3|classe-druida-2|3|1|false|MODIFIER|0|-|1|SELF|fx-classe-druida-3,ataque,2,1,skill-classe-druida-3,2,-
@@ -321,7 +321,7 @@ classe-espadachim-3|espadachim|Espadachim — Impulso de Poder|CLASS|BUFF|-|-|fa
 classe-espadachim-4|espadachim|Espadachim — Aptidão Permanente|CLASS|PASSIVE|-|-|false|-|4|classe-espadachim-3|4|1|false|MODIFIER|0|-|1|SELF|fx-classe-espadachim-4,defesa,1,1,passiva-defesa,-,-
 classe-espadachim-5|espadachim|Espadachim — Controle Tático|CLASS|CONTROL|-|-|false|-|5|classe-espadachim-4|5|1|false|MODIFIER|0|-|1|TARGET|fx-classe-espadachim-5,defesa,-2,-1,skill-classe-espadachim-5,1,-
 classe-espadachim-6|espadachim|Espadachim — Apoio Avançado|CLASS|SUPPORT|-|-|false|-|6|classe-espadachim-5|6|1|false|MODIFIER|0|-|1|SELF|fx-classe-espadachim-6,resistencia_dano,2,1,skill-classe-espadachim-6,2,-
-classe-espadachim-7|espadachim|Dança das Mil Lâminas|CLASS|OFFENSE|-|-|false|-|7|classe-espadachim-6|7|1|false|MODIFIER|0|-|1|SELF|fx-classe-espadachim-7,ataque,7,2,skill-classe-espadachim-7,1,-
+classe-espadachim-7|espadachim|Dança das Mil Lâminas|CLASS|OFFENSE|-|-|false|-|7|classe-espadachim-6|7|1|false|MULTI_HIT|0|-|5|SELF|fx-classe-espadachim-7,dano,7,2,skill-classe-espadachim-7,-,-
 classe-lanceiro-1|lanceiro|Lanceiro — Técnica Inicial|CLASS|OFFENSE|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|SELF|fx-classe-lanceiro-1,ataque,1,1,skill-classe-lanceiro-1,1,-
 classe-lanceiro-2|lanceiro|Lanceiro — Guarda Especializada|CLASS|DEFENSE|-|-|false|-|2|classe-lanceiro-1|2|1|false|MODIFIER|0|-|1|SELF|fx-classe-lanceiro-2,defesa,2,1,skill-classe-lanceiro-2,1,-
 classe-lanceiro-3|lanceiro|Lanceiro — Impulso de Poder|CLASS|BUFF|-|-|false|-|3|classe-lanceiro-2|3|1|false|MODIFIER|0|-|1|SELF|fx-classe-lanceiro-3,ataque,2,1,skill-classe-lanceiro-3,2,-
