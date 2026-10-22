@@ -1,3 +1,10 @@
+## 2026-10-22 — DC-01.4: persistência dos documentos originais (não validado)
+
+- `data/SourceDocumentStore.kt`: gravação atômica em armazenamento privado e leitura com conferência de tamanho e SHA-256.
+- `app/AppModel.kt`: importação liga o documento original à entrada da biblioteca, evita duplicação por hash e expõe leitura verificada.
+- Os bytes não entram no Room nem no log/backup da campanha; arquivos com importação inválida mantêm somente o estado `FAILED` e o motivo.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — DC-04: persistência de fatos canônicos (não validado)
 
 - `data`: tabela `fatos_canonicos` e migração Room explícita 9→10; os fatos são removidos junto com a campanha e copiados ao duplicá-la.

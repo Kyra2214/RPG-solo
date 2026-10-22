@@ -55,14 +55,18 @@ import dev.rpgsolo.engine.CanonFacts
 import dev.rpgsolo.engine.SourceIndex
 import dev.rpgsolo.engine.SourceLibrary
 import dev.rpgsolo.engine.PipelineState
+import dev.rpgsolo.engine.SourceEntry
+import dev.rpgsolo.engine.SourceStatus
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.CampanhaMetaRow
 import dev.rpgsolo.data.FichaRow
+import dev.rpgsolo.data.SourceDocumentStore
 import dev.rpgsolo.rules.CampaignStarter
 import dev.rpgsolo.ai.SourceContext
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
+data class SourceDocumentImportOutcome(val entry: SourceEntry?, val error: String? = null)
 data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true, val condition: String = "")
 data class PlaceView(val id: String, val name: String, val description: String, val current: Boolean, val exits: List<Pair<String, String>>)
 data class RelationshipView(val npcName: String, val attitude: String)
@@ -110,6 +114,7 @@ private data class CampaignSourceContext(
  * A configuração do provedor é restaurada e a chave fica cifrada pelo Android Keystore.
  */
 class AppModel(application: Application) : AndroidViewModel(application) {
+    private val sourceDocuments = SourceDocumentStore(File(application.filesDir, "source-documents"))
     val usage = UsageTracker()
     val content: Content = BundledContent.load(application)
     private val secureSettings = SecureSettings(application)
@@ -630,9 +635,39 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** DC-02: biblioteca persistida no Room; o texto dos arquivos não é mantido nesta estrutura. */
     fun sourceLibrary(): SourceLibrary = store.sourceLibrary()
 
-    /** Grava a biblioteca e os vínculos como uma unidade transacional. Chamar fora da thread principal. */
+    /** Importa metadados e guarda bytes originais. Executar fora da thread principal. */
+    fun importSourceDocument(fileName: String, bytes: ByteArray): SourceDocumentImportOutcome = try {
+        val current = store.sourceLibrary()
+        val (updated, entry) = current.addImport(fileName, bytes, System.currentTimeMillis())
+        val alreadyRegistered = current.get(entry.id) != null
+        if (entry.status == SourceStatus.READY) {
+            sourceDocuments.save(entry.id, bytes, entry.sha256)
+        }
+        try {
+            store.saveSourceLibrary(updated)
+        } catch (e: Exception) {
+            if (!alreadyRegistered && entry.status == SourceStatus.READY) sourceDocuments.delete(entry.id)
+            throw e
+        }
+        sourceLibraryVersion++
+        SourceDocumentImportOutcome(entry)
+    } catch (e: Exception) {
+        SourceDocumentImportOutcome(null, e.message ?: "falha ao importar documento-fonte")
+    }
+
+    /** Lê somente fonte pronta e verifica tamanho e SHA-256 antes de devolver os bytes; executar em IO. */
+    fun sourceDocumentBytes(sourceId: String): ByteArray? {
+        val entry = store.sourceLibrary().get(sourceId) ?: return null
+        if (entry.status != SourceStatus.READY) return null
+        return sourceDocuments.read(entry.id, entry.sha256, entry.byteSize)
+    }
+
+    /** Grava a biblioteca e os vínculos como uma unidade transacional. */
     fun saveSourceLibrary(library: SourceLibrary): String? = try {
+        val previousIds = store.sourceLibrary().entries.map { it.id }.toSet()
         store.saveSourceLibrary(library)
+        val retainedIds = library.entries.map { it.id }.toSet()
+        (previousIds - retainedIds).forEach { sourceDocuments.delete(it) }
         sourceLibraryVersion++
         null
     } catch (e: Exception) {
