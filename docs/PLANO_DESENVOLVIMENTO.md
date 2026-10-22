@@ -384,7 +384,7 @@ O app é guiado pela **ficha** e pelo **sistema de regras**, não por um cenári
 - 9.5.2 Teste: o capítulo seguinte começa no estado correto
 - 9.5.3 Teste: promessa feita é lembrada, item consumido não volta
 
-**Status do código (22/10/2026):** a criação incremental por descrição livre, o formulário auxiliar, revisão de compatibilidade, capítulos com resumo, tamanho configurável, missões/objetivos, linha do tempo manual, mapa de locais descobertos e persistência de ambientação/configuração estão conectados ao app. O fechamento automático de capítulo é acionado após jogadas no chat. A timeline automática também registra inventário, equipamento, progressão, condições, pistas públicas de relógios, viagens e promessas feitas/cumpridas. **Pendente:** cobrir outros eventos narrativamente importantes na linha do tempo e concluir a tipagem mecânica de equipamentos ficcionais por pacote/adaptação.
+**Status do código (22/10/2026):** a criação incremental por descrição livre, o formulário auxiliar, revisão de compatibilidade, capítulos com resumo, tamanho configurável, missões/objetivos, linha do tempo manual, mapa de locais descobertos e persistência de ambientação/configuração estão conectados ao app. O fechamento automático de capítulo é acionado após jogadas no chat. A timeline automática também registra inventário, equipamento, progressão, condições, pistas públicas de relógios, viagens, promessas feitas/cumpridas e mudanças de relação em linguagem neutra, sem valores numéricos. **Pendente:** cobrir outros eventos narrativamente importantes na linha do tempo e concluir a tipagem mecânica de equipamentos ficcionais por pacote/adaptação.
 
 ---
 
