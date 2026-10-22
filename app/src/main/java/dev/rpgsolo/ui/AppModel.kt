@@ -1314,8 +1314,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             playerTraits = { activeFicha?.traits.orEmpty() },
             additionalBonus = { scope -> approvedRuleBonus(scope) },
             externalBonuses = { scopes ->
-                val packageBonuses = activePackage?.let { pkg -> selectedCatalogBonuses(pkg).filter { it.scope in scopes } }.orEmpty()
-                packageBonuses + bonuses.externalSkillAndCurseBonuses(playerId, scopes.toSet())
+                bonuses.externalSkillAndCurseBonuses(playerId, scopes.toSet())
             },
             additionalBonusSources = { scopes -> approvedRuleEffects(scopes) }
         )
