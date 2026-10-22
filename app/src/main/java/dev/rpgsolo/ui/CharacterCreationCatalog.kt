@@ -33,7 +33,8 @@ data class CharacterChoices(
     val classId: String = "",
     val professionId: String = "",
     val curseIds: List<String> = emptyList(),
-    val hybridId: String = ""
+    val hybridId: String = "",
+    val elementalAffinity: String = ""
 ) {
     fun toJson(): String = JSONObject()
         .put("raceId", raceId)
@@ -41,6 +42,7 @@ data class CharacterChoices(
         .put("classId", classId)
         .put("professionId", professionId)
         .put("hybridId", hybridId)
+        .put("elementalAffinity", elementalAffinity)
         .put("curseIds", org.json.JSONArray(curseIds))
         .toString()
 
@@ -56,6 +58,7 @@ data class CharacterChoices(
                     classId = obj.optString("classId"),
                     professionId = obj.optString("professionId"),
                     hybridId = obj.optString("hybridId"),
+                    elementalAffinity = obj.optString("elementalAffinity"),
                     curseIds = (0 until (curses?.length() ?: 0)).map { curses!!.optString(it) }.filter { it.isNotBlank() }
                 )
             }.getOrDefault(CharacterChoices())
@@ -185,6 +188,7 @@ object CharacterCreationCatalog {
         if (choices.hybridId.isNotBlank() && (choices.raceId.isNotBlank() || choices.subraceId.isNotBlank())) errors += "Escolha raça/sub-raça ou híbrido, não ambos"
         if (choices.classId.isNotBlank() && classes.none { it.id == choices.classId }) errors += "Classe selecionada não existe no catálogo"
         if (choices.professionId.isNotBlank() && professions.none { it.id == choices.professionId }) errors += "Profissão selecionada não existe no catálogo"
+        if (choices.elementalAffinity.isNotBlank() && choices.elementalAffinity !in setOf("WATER", "FIRE", "WIND", "EARTH", "METAL", "YIN", "YANG")) errors += "Afinidade elemental inválida"
         choices.curseIds.distinct().filter { id -> curses.none { it.id == id } }.forEach { errors += "Maldição selecionada não existe no catálogo: $it" }
         if (choices.curseIds.size != choices.curseIds.distinct().size) errors += "Há maldições duplicadas na seleção"
         return errors.distinct()
