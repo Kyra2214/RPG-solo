@@ -429,7 +429,7 @@ class GameLoop(
                 if (session.state.conditions[player.id]?.contains(condition) == true) continue
                 if (menu?.isImmune(player.id, condition, player.traits) == true) {
                     val name = menu.conditionName(condition) ?: condition
-                    mechanicalNotes += "A condição $name foi bloqueada pela imunidade de $\{player.name}; não a aplique nem descreva como instalada."
+                    mechanicalNotes += "A condição $name foi bloqueada pela imunidade de ${player.name}; não a aplique nem descreva como instalada."
                     continue
                 }
                 val configured = menu?.conditionCommand(player.id, condition)
