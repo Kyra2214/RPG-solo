@@ -48,6 +48,7 @@ import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
+import dev.rpgsolo.engine.SetSkillTreeLoadout
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SpellSlots
@@ -1502,6 +1503,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         activeFichaId = started.campanha.fichaId
         activeSystemId = started.campanha.system.systemId
         activeEditionId = started.campanha.system.editionId
+        val loadoutChoices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
+        val loadoutClassOrder = (listOf(loadoutChoices.classId).filter { it.isNotBlank() } + loadoutChoices.additionalClassIds).distinct()
+        val loadoutTreeIds = (listOf(
+            loadoutChoices.raceId, loadoutChoices.subraceId, loadoutChoices.hybridId,
+            loadoutChoices.classId, loadoutChoices.professionId, loadoutChoices.cursedClassBranchId
+        ) + loadoutChoices.additionalClassIds).filter { it.isNotBlank() }.toSet()
+        when (val loadoutResult = session.execute(SetSkillTreeLoadout(
+            playerId, loadoutTreeIds, loadoutClassOrder, loadoutChoices.elementalAffinity
+        ))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+            is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "loadout de habilidades inválido: ${loadoutResult.reason}"
+        }
         runCatching { skillTreeActions().grantSelectedFreeBaseSkills() }
             .onFailure { configError = "falha ao conceder habilidades básicas: ${it.message}" }
             .getOrNull()?.let { configError = "habilidades básicas não concedidas: $it" }
@@ -1649,9 +1662,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             session = { session },
             activePackage = { activePackage },
             playerId = { playerId },
-            selectedTreeIds = { selected },
+            selectedTreeIds = {
+                session.state.entities[playerId]?.skillTreeTreeIds?.takeIf { it.isNotEmpty() } ?: selected
+            },
             classTreeUnlockLevel = { treeId ->
-                when (orderedClasses.indexOf(treeId)) {
+                val classOrder = session.state.entities[playerId]?.skillTreeClassOrder?.takeIf { it.isNotEmpty() } ?: orderedClasses
+                when (classOrder.indexOf(treeId)) {
                     0 -> 1
                     1 -> 10
                     2 -> 20
@@ -1659,7 +1675,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     else -> 1
                 }
             },
-            element = { affinity },
+            element = {
+                val savedElement = session.state.entities[playerId]?.skillTreeElement.orEmpty()
+                if (savedElement.isBlank()) affinity else runCatching { dev.rpgsolo.engine.ElementPath.valueOf(savedElement) }.getOrDefault(affinity)
+            },
             weaponTags = { weaponTags },
             questCompleted = { questId -> quests.get(questId)?.status == dev.rpgsolo.engine.QuestStatus.DONE },
             multiHitAction = { targetId, hitCount, damageBonus, elementalScope -> combatActions.attack(targetId, hitCount, damageBonus, elementalScope) },
