@@ -36,10 +36,13 @@ class CurseActions(
     fun defaultTargetId(): String = playerId()
     fun defaultSourceId(): String = "personagem:" + playerId()
 
-    fun targets(): List<Pair<String, String>> = session().state.entities.values
-        .filter { it.alive }
-        .map { it.id to (if (it.id == playerId()) "Você" else it.name) }
-        .sortedBy { it.second }
+    fun targets(): List<Pair<String, String>> {
+        val state = session().state
+        val combatOrder = state.combat?.order
+        return state.entities.values.filter { it.alive && (combatOrder == null || it.id in combatOrder) }
+            .map { it.id to (if (it.id == playerId()) "Você" else it.name) }
+            .sortedBy { it.second }
+    }
 
     fun applied(targetId: String): List<AppliedCurseView> {
         val entity = session().state.entities[targetId] ?: return emptyList()
@@ -64,6 +67,7 @@ class CurseActions(
             val combat = session().state.combat
             val sourceEntityId = sourceId.takeIf { it.startsWith("personagem:") }?.removePrefix("personagem:")
             if (combat != null) {
+                require(targetId in combat.order) { "o alvo está fora do combate" }
                 require(sourceEntityId != null && sourceEntityId in session().state.entities) {
                     "durante o combate, a origem da maldição precisa ser um personagem na iniciativa"
                 }
@@ -118,6 +122,7 @@ class CurseActions(
 
     fun remove(targetId: String, curseId: String, method: String): String? = try {
         val curse = catalog.firstOrNull { it.id == curseId } ?: throw IllegalArgumentException("maldição não existe: $curseId")
+        require(session().state.combat == null) { "a remoção por ritual, item ou missão precisa ocorrer fora de combate" }
         require(method in curse.removalMethods) { "método de remoção não é válido para esta maldição" }
         when (val result = session().execute(RemoveCurse(targetId, curseId, method))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> { onChanged(); null }
