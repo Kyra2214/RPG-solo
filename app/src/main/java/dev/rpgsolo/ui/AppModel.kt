@@ -185,14 +185,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val loadoutIds = storedLoadout?.skillTreeTreeIds.orEmpty()
         val classOrder = storedLoadout?.skillTreeClassOrder.orEmpty()
         val choices = if (loadoutIds.isEmpty()) editorialChoices else editorialChoices.copy(
-            raceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.races.any { it.id == id } } ?: editorialChoices.raceId,
-            subraceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.subraces.any { it.id == id } } ?: editorialChoices.subraceId,
-            classId = classOrder.firstOrNull() ?: editorialChoices.classId,
-            professionId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.professions.any { it.id == id } } ?: editorialChoices.professionId,
-            hybridId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.hybrids.any { it.id == id } } ?: editorialChoices.hybridId,
-            cursedClassBranchId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.cursedClassBranches.any { it.id == id } } ?: editorialChoices.cursedClassBranchId,
+            raceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.races.any { it.id == id } }.orEmpty(),
+            subraceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.subraces.any { it.id == id } }.orEmpty(),
+            classId = classOrder.firstOrNull().orEmpty(),
+            professionId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.professions.any { it.id == id } }.orEmpty(),
+            hybridId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.hybrids.any { it.id == id } }.orEmpty(),
+            cursedClassBranchId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.cursedClassBranches.any { it.id == id } }.orEmpty(),
             additionalClassIds = classOrder.drop(1),
-            elementalAffinity = storedLoadout?.skillTreeElement?.takeIf { it.isNotBlank() } ?: editorialChoices.elementalAffinity
+            elementalAffinity = storedLoadout?.skillTreeElement.orEmpty()
         )
         val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds
         val selected = selectedIds.filter { it.isNotBlank() }.distinct().mapNotNull(CharacterCreationCatalog::find)
