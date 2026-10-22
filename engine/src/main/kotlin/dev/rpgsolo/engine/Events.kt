@@ -49,6 +49,18 @@ data class SpellLearned(val entityId: String, val spellId: String) : Event
 /** MU-06.3: habilidade aprendida. */
 @Serializable
 data class AbilityLearned(val entityId: String, val abilityId: String, val cost: Int) : Event
+/** Evolução da árvore; registra investimento real e origem gratuita. */
+@Serializable
+data class SkillTreeProgressed(
+    val entityId: String,
+    val skillId: String,
+    val newLevel: Int,
+    val pointsSpent: Int,
+    val freeBase: Boolean
+) : Event
+/** Reset de árvore: devolve exatamente os pontos investidos e mantém habilidades básicas no nível 1. */
+@Serializable
+data class SkillTreeProgressReset(val entityId: String, val pointsRefunded: Int) : Event
 /** MU-06.3: habilidade ativada; substitui os efeitos anteriores da mesma habilidade. */
 @Serializable
 data class AbilityActivated(val entityId: String, val abilityId: String, val effects: List<ActiveEffect>) : Event
@@ -231,6 +243,24 @@ fun GameState.apply(e: Event): GameState {
             copy(entities = entities + (e.entityId to current.copy(
                 abilities = current.abilities + e.abilityId,
                 abilityPoints = current.abilityPoints - e.cost
+            )))
+        }
+        is SkillTreeProgressed -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (current.id to current.copy(
+                skillTreeLevels = current.skillTreeLevels + (e.skillId to e.newLevel),
+                skillTreeInvestments = current.skillTreeInvestments +
+                    (e.skillId to ((current.skillTreeInvestments[e.skillId] ?: 0) + e.pointsSpent)),
+                freeSkillIds = if (e.freeBase) current.freeSkillIds + e.skillId else current.freeSkillIds,
+                abilityPoints = current.abilityPoints - e.pointsSpent
+            )))
+        }
+        is SkillTreeProgressReset -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (current.id to current.copy(
+                skillTreeLevels = current.freeSkillIds.associateWith { 1 },
+                skillTreeInvestments = emptyMap(),
+                abilityPoints = current.abilityPoints + e.pointsRefunded
             )))
         }
         is AbilityActivated -> {
