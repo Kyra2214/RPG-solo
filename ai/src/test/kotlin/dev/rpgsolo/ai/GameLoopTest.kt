@@ -71,6 +71,35 @@ class GameLoopTest {
         assertTrue(s.mark() >= result.record.markAfterRoll) // ambas as rolagens persistidas antes da narração
     }
 
+    @Test fun bonusDePericiaContextualEntraNoTesteAvancadoDoJogador() {
+        val s = session()
+        val loop = GameLoop(
+            ScriptedProvider(emptyList()),
+            externalBonuses = { scopes ->
+                scopes.filter { it == "criptoanalise" }.map {
+                    dev.rpgsolo.rules.ExternalBonus(
+                        scope = it,
+                        bonus = 3,
+                        source = "Especialista em Criptoanálise",
+                        sourceId = "profession-skill-criptoanalise"
+                    )
+                }
+            }
+        )
+
+        val adjusted = loop.prepareAdvancedCheck(
+            session = s,
+            spec = teste.copy(modifier = 0),
+            entityId = "hero",
+            skill = "criptoanalise"
+        )
+
+        assertTrue("teste avançado do jogador deve ser preparado", adjusted != null)
+        assertEquals(3, adjusted!!.modifier)
+        assertTrue(adjusted.label.contains("Especialista em Criptoanálise"))
+        assertTrue(adjusted.label.contains("criptoanalise +3"))
+    }
+
     @Test fun testeInvalidoFalhaSemDeixarRolagemNoLog() {
         val s = session()
         val before = s.mark()
