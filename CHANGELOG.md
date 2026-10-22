@@ -1,3 +1,5 @@
+- `engine/AutomaticTimeline.kt`: promessas feitas por NPCs e promessas cumpridas agora aparecem na timeline do jogador, usando o nome público do NPC e o texto da promessa; não expõe dossiês ou segredos privados.
+
 ## 2026-10-22 — Contexto privado de NPCs
 
 - `engine/Npc.kt`: `DossierBook.contextFor` inclui motivações e relações do dossiê privado junto de personalidade e objetivos. As relações são ordenadas por ID para manter a composição do contexto determinística; esses dados seguem restritos ao contexto do mestre e não são expostos na interface do jogador.
