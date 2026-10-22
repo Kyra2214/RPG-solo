@@ -150,6 +150,34 @@ class SkillTreeCatalogTest {
         }
     }
 
+    @Test fun habilidadesPassivasDeProfissaoMantemEscopoEGrupoAteACulminancia() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val passiveProfessionTrees = result.skills
+            .filter { it.origin == SkillOrigin.PROFESSION && it.scrollRank != null }
+            .groupBy { it.treeId }
+            .filterValues { skills ->
+                skills.size == 7 &&
+                    skills.mapNotNull { it.scrollRank }.sorted() == (1..7).toList() &&
+                    skills.all { it.category == dev.rpgsolo.engine.SkillCategory.PASSIVE }
+            }
+
+        assertTrue("esperadas árvores profissionais passivas", passiveProfessionTrees.isNotEmpty())
+        passiveProfessionTrees.forEach { (treeId, skills) ->
+            val baseline = skills.single { it.scrollRank == 1 }.effects
+                .map { it.target to it.stackingGroup }.sortedBy { "${it.first}|${it.second}" }
+            (2..7).forEach { rank ->
+                val current = skills.single { it.scrollRank == rank }.effects
+                    .map { it.target to it.stackingGroup }.sortedBy { "${it.first}|${it.second}" }
+                assertEquals(
+                    "árvore $treeId, rank $rank deve continuar evoluindo o mesmo efeito passivo",
+                    baseline,
+                    current
+                )
+            }
+        }
+    }
+
     @Test fun nenhumaHabilidadeDeClasseTemAutoDependencia() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.valid)
