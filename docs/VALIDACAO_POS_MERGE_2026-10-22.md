@@ -39,6 +39,12 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 - Catálogo de maldições: 100 registros, 200 efeitos, nenhuma linha malformada, nenhum efeito com progressão por nível (perLevel diferente de zero) e nenhum grupo que misture efeitos positivos e negativos para o mesmo alvo. As durações são permanentes (45) ou temporárias de 3–6 rodadas (55), e a UI exige combate para aplicar as temporárias.
 - A revisão dos sete pares de culminância deve confirmar duração, alvo, uso real e valor narrativo/mecânico; não será feita normalização automática que possa apagar distinções de suporte/controle.
 
+## Integridade da progressão — auditoria de pré-requisitos
+
+- Auditoria estática dos 1.507 registros: IDs únicos; todas as 1.170 referências de pré-requisito apontam para habilidade existente; nenhum pré-requisito cruza para outra árvore; nenhum requisito forma ciclo; nenhum nível de personagem exigido regressa em relação ao pré-requisito.
+- As árvores de classe, profissão e classe amaldiçoada mantêm ranks 1–7 completos; as 100 árvores de raça/sub-raça têm uma habilidade básica gratuita cada. Nenhuma habilidade marcada como gratuita exige custo de desbloqueio nem pertence a origem não permitida.
+- Adicionado teste de regressão para existência, pertença à mesma árvore, coerência de nível e ausência de ciclos na cadeia de pré-requisitos. Teste ainda não executado; CI continua deliberadamente adiada até o fim da fase.
+
 ## Integridade das ações e paridade IA/jogador
 
 1. `ProgressSkillTree` no motor valida saldo/custo/progressão, mas não recebe o catálogo canônico; árvore, afinidade e pré-requisitos são validados em `SkillTreeActions`.
