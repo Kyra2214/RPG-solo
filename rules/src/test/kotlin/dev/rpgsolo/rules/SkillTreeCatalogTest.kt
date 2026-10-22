@@ -41,6 +41,25 @@ class SkillTreeCatalogTest {
         }
     }
 
+    @Test fun habilidadesSupremasDeClasseSaoUnicasETipadas() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val capstones = result.skills.filter { it.origin == SkillOrigin.CLASS && it.scrollRank == 7 }
+        assertEquals(50, capstones.size)
+        assertEquals(capstones.size, capstones.map { it.name }.distinct().size)
+        assertTrue(capstones.none { it.name.startsWith("Técnica Suprema de") })
+        assertTrue(capstones.map { it.actionKind }.toSet().containsAll(
+            setOf(
+                dev.rpgsolo.engine.SkillActionKind.POWER_STRIKE,
+                dev.rpgsolo.engine.SkillActionKind.MULTI_HIT,
+                dev.rpgsolo.engine.SkillActionKind.MODIFIER,
+                dev.rpgsolo.engine.SkillActionKind.REVIVE
+            )
+        ))
+        assertEquals(5, capstones.single { it.treeId == "espadachim" }.hitCount)
+        assertEquals(dev.rpgsolo.engine.SkillActionKind.REVIVE, capstones.single { it.treeId == "sacerdote" }.actionKind)
+    }
+
     @Test fun raçasESubraçasPossuemHabilidadeBasicaGratuita() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.valid)
