@@ -133,15 +133,11 @@ class SkillTreeActions(
         require(skill.treeId in selectedTreeIds()) { "esta árvore não pertence às escolhas atuais do personagem" }
         require(!skill.freeBaseSkill && skill.scrollRank != null) { "esta habilidade não usa pergaminho" }
         require(session().state.combat == null) { "não é possível resgatar pergaminhos durante o combate" }
-        val wallet = session().state.inventory[playerId()].orEmpty()
+        val hero = requireNotNull(session().state.entities[playerId()]) { "personagem inexistente" }
         val scrollId = scrollItemId(skill.id)
-        require((wallet[scrollId] ?: 0) == 0) { "o pergaminho desta habilidade já está no inventário" }
-        val claimId = "recompensa-pergaminho-$questId-${skill.id}"
-        require((wallet[claimId] ?: 0) == 0) { "esta missão já foi usada para resgatar esse pergaminho" }
-        execute(listOf(
-            AddItem(playerId(), scrollId, 1),
-            AddItem(playerId(), claimId, 1)
-        ))
+        require("${questId}:${skill.id}" !in hero.claimedQuestRewards) { "esta missão já foi usada para resgatar esse pergaminho" }
+        require((session().state.inventory[playerId()]?.get(scrollId) ?: 0) == 0) { "o pergaminho desta habilidade já está no inventário" }
+        execute(listOf(ClaimQuestScroll(playerId(), questId, skill.id, scrollId)))
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
