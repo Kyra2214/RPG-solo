@@ -19,6 +19,13 @@ class SkillTreeCatalogTest {
         assertEquals(result.skills.size, result.skills.map { it.id }.distinct().size)
     }
 
+    @Test fun parserRejeitaEfeitoDirecionadoSemDuracaoOuEscopoDeCombate() {
+        val missingDuration = "bad-skill|tree|Skill|CLASS|CONTROL|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|TARGET|fx,defesa,-1,0,group,-,-"
+        val unsupportedScope = "bad-skill|tree|Skill|CLASS|CONTROL|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|TARGET|fx,escopo-inventado,-1,0,group,2,-"
+        assertFalse(SkillTreeCatalogLoader.load(missingDuration).valid)
+        assertFalse(SkillTreeCatalogLoader.load(unsupportedScope).valid)
+    }
+
     @Test fun classesProfissoesEClassesAmaldicoadasTemSeteHabilidadesCada() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
