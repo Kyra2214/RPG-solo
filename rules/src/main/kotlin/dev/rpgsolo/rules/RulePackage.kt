@@ -588,6 +588,7 @@ object PackageValidator {
                     if (d.damage.none { it.id == power.param }) p += "poder ${power.id}: perfil de dano inexistente ${power.param}"
                 }
                 PowerEffectKind.APPLY_CONDITION -> {
+                    if (power.target != PowerTarget.ENEMY) p += "poder ${power.id}: condicao só pode ter alvo inimigo"
                     if (d.conditions.none { it.id == power.param }) p += "poder ${power.id}: condição inexistente ${power.param}"
                 }
                 PowerEffectKind.REMOVE_CONDITION -> {
