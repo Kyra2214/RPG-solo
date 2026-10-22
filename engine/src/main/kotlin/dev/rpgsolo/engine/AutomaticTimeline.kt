@@ -21,7 +21,7 @@ fun automaticTimeline(
     val result = mutableListOf<AutomaticTimelineEntry>()
     var combatIncludesPlayer = false
     var combatants = emptySet<String>()
-    // A pista só é publicada na transição de incompleto para completo.
+    // Pistas são publicadas somente na transição que cruza a metade ou completa o relógio.
     // Guardar o preenchimento visto no replay evita duplicação se um evento
     // posterior reportar novamente um relógio já cheio.
     val clockFills = mutableMapOf<String, Int>()
