@@ -60,10 +60,7 @@ class CurseActions(
         }.sortedBy { it.curse.name }
     }
 
-    /**
-     * If a curse declares resistance, caller must provide the result of the package's real
-     * 'resistir' test. true means resisted and no curse is applied; null is rejected.
-     */
+    /** Resolve o teste real de resistência do pacote e aplica a maldição somente se o alvo falhar. */
     fun apply(targetId: String, curseId: String, sourceId: String): String? = try {
         val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
         session().atomically {
@@ -100,6 +97,7 @@ class CurseActions(
                     additionalBonuses = checkBonuses(targetId, setOf(curse.resistanceCheckId, base.stat ?: "").filter { it.isNotBlank() }.toSet())
                 )
                 val result = session().check(adjusted)
+                onChanged()
                 resistanceSucceeded = result.outcome.isSuccess
                 resistanceSummary = "Teste ${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}; dificuldade ${result.spec.difficulty}. "
                 if (resistanceSucceeded == true) {
