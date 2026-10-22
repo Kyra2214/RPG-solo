@@ -67,7 +67,9 @@ data class Entity(
     /** Marca a distribuição única dos 12 pontos iniciais do novo sistema. */
     val initialBuildAllocated: Boolean = false,
     /** Maldições aplicadas durante a aventura, distintas da identidade Classe de Malditos. */
-    val appliedCurses: Map<String, AppliedCurseState> = emptyMap()
+    val appliedCurses: Map<String, AppliedCurseState> = emptyMap(),
+    /** Recompensas de pergaminhos já resgatadas, para impedir duplicação por missão. */
+    val claimedQuestRewards: Set<String> = emptySet()
 )
 
 /** MU-07.2: slots de magia de uma entidade: [total] pelos níveis-chave alcançados, [used] por magias aprendidas. */
