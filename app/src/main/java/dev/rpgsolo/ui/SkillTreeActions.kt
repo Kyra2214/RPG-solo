@@ -218,8 +218,8 @@ class SkillTreeActions(
             return if (elementalScope != null) "Ataque elemental de ${elementLabel(skill.element)}. ${result.orEmpty()}" else result
         }
         require(skill.effects.isNotEmpty()) { "esta habilidade ainda não tem efeito mecânico executável" }
-        require(combat != null || skill.effects.none { it.durationRounds != null }) {
-            "habilidades com duração em rodadas só podem ser ativadas durante combate"
+        require(combat != null) {
+            "habilidades com efeitos ativos só podem ser ativadas durante combate"
         }
         val selfEffects = skill.effects.filter { it.recipient == SkillEffectRecipient.SELF }.map { effect ->
             ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
