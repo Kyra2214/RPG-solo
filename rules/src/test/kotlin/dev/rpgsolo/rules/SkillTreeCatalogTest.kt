@@ -66,6 +66,23 @@ class SkillTreeCatalogTest {
         })
     }
 
+    @Test fun habilidadesOfensivasDeClasseAmaldicoadasExecutamAtaqueReal() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val cursedStarters = result.skills.filter {
+            it.origin == SkillOrigin.CURSED_CLASS &&
+                it.scrollRank == 1 &&
+                it.category == dev.rpgsolo.engine.SkillCategory.OFFENSE
+        }
+        assertTrue("esperadas habilidades ofensivas iniciais de Classe de Malditos", cursedStarters.size >= 40)
+        assertTrue("toda habilidade ofensiva inicial amaldiçoada deve executar golpe, não apenas buff", cursedStarters.all {
+            it.actionKind in setOf(
+                dev.rpgsolo.engine.SkillActionKind.POWER_STRIKE,
+                dev.rpgsolo.engine.SkillActionKind.MULTI_HIT
+            ) && it.effects.any { effect -> effect.target == "dano" }
+        })
+    }
+
     @Test fun habilidadesSupremasDeClasseSaoUnicasETipadas() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
