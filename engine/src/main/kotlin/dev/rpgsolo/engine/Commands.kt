@@ -502,6 +502,9 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (!target.alive || target.downed) return no("alvo está fora de combate")
             if (actor.id == target.id) return no("efeito de alvo não pode apontar para o próprio usuário")
             if ((actor.skillTreeLevels[cmd.skillId] ?: 0) <= 0 && cmd.skillId !in actor.abilities) return no("habilidade não aprendida: ${cmd.skillId}")
+            val combat = state.combat ?: return no("efeitos ativos de habilidade exigem combate")
+            if (combat.current != actor.id) return no("não é o turno de quem usa a habilidade")
+            if (actor.id !in combat.order || target.id !in combat.order) return no("usuário e alvo precisam participar do combate")
             if (cmd.effects.isEmpty()) return no("habilidade sem efeitos para o alvo")
             if (cmd.effects.any { it.remainingRounds <= 0 || it.target.isBlank() || it.value == 0 || !it.sourceId.startsWith("habilidade:") }) {
                 return no("efeito de alvo inválido")
