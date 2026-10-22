@@ -42,7 +42,7 @@ object SkillTreeCatalogLoader {
             val fields = line.split("|").map(String::trim)
             val lineNo = index + 1
             if (fields.size != 20) {
-                errors += "habilidades-arvore linha $lineNo: esperado 20 campos, recebido \${fields.size}"
+                errors += "habilidades-arvore linha $lineNo: esperado 20 campos, recebido ${fields.size}"
                 return@forEachIndexed
             }
             try {
@@ -106,7 +106,7 @@ object SkillTreeCatalogLoader {
                     freeBaseSkill = freeBase
                 )
             } catch (e: Exception) {
-                errors += "habilidades-arvore linha $lineNo: \${e.message ?: "formato inválido"}"
+                errors += "habilidades-arvore linha $lineNo: ${e.message ?: "formato inválido"}"
             }
         }
 
@@ -116,9 +116,9 @@ object SkillTreeCatalogLoader {
             if (ranks.size != ranks.distinct().size) errors += "árvore $treeId tem posições de pergaminho duplicadas"
             if (ranks.isNotEmpty() && ranks.sorted() != ranks) errors += "árvore $treeId deve declarar posições de pergaminho em ordem"
             entries.filter { it.freeBaseSkill && it.origin !in setOf(SkillOrigin.RACE, SkillOrigin.SUBRACE, SkillOrigin.CURSED_CLASS) }
-                .forEach { errors += "habilidade básica gratuita \${it.id} tem origem inválida" }
+                .forEach { errors += "habilidade básica gratuita ${it.id} tem origem inválida" }
             entries.filter { it.prerequisiteSkillIds.any { req -> entries.none { candidate -> candidate.id == req } } }
-                .forEach { errors += "pré-requisito ausente na árvore $treeId: \${it.id}" }
+                .forEach { errors += "pré-requisito ausente na árvore $treeId: ${it.id}" }
         }
         return SkillTreeCatalogResult(skills, errors.distinct())
     }
