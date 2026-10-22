@@ -1,3 +1,9 @@
+## 2026-10-22 — atualização documental do estado do projeto
+
+- `README.md`, `PLANO_RPG_SOLO.md` e `docs/VALIDACAO_CI.md` sincronizados com as entregas até DC-01.4, Room v10, lacunas de interface/backup e estado não validado da branch.
+- Corrigido também o status M-02 do catálogo para refletir as declarações de efeitos já registradas no plano e no histórico.
+- **Validação:** alteração apenas documental; nenhum teste, build ou CI executado.
+
 ## 2026-10-22 — DC-01.4: persistência dos documentos originais (não validado)
 
 - `data/SourceDocumentStore.kt`: gravação atômica em armazenamento privado e leitura com conferência de tamanho e SHA-256.

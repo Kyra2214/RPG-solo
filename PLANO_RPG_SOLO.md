@@ -1,10 +1,10 @@
 # RPG Solo — Plano único
 
-**Progresso geral (ASSUMINDO: fases 1–14 do quadro da seção 2, ✅ = 1, 🟡 = 0,5, ⬜ = 0; 4B cancelada fora da conta):** ≈ 79% (11 de 14). Fase 14 concluída em código (DC-01 a DC-08;  fase ainda ⬜ na conta até concluir). Fase 14 🟡: sem execução de testes). Fases 12 e 13 concluídas em código (🟡: sem execução de testes) (MU-01 concluído; MU-02 concluído; MU-03 e MU-04 concluídos; MU-05, MU-06 e MU-07 concluídos; MU-08.1, MU-08.2 e MU-08.3 concluídos; MU-08.4 concluído; fase 🟡 até a suíte rodar com Gradle/Android SDK). Caiu de 73% só porque entraram as fases 12 a 14; nada regrediu.
+**Progresso geral:** a estimativa anterior de ≈79% não foi recalculada nesta atualização. As Fases 12–14 permanecem 🟡: há código implementado, mas falta validação automatizada. A Fase 14 tem importação, biblioteca, pipeline, fatos e contexto em código; ainda faltam interface completa, consentimento Q-09 e orquestração/retomada automática. A Fase 12 segue com as lacunas mecânicas listadas em 3.7; a Fase 13 ainda requer teste instrumentado de migrações.
 
 Este é o único plano do projeto (substituiu `docs/PLANO_DESENVOLVIMENTO.md` e `PLANO_MELHORIAS_RPG_SOLO.md`, já removidos). O `docs/PLANO_RACAS_E_SUBRACAS.md` continua existindo como plano de **conteúdo** do catálogo de personagem; este arquivo só aponta para ele.
 
-**Base desta revisão:** código do commit `62a3e8a` (merge do PR #2 em `main`), lido por inspeção estática. Nada foi compilado ou executado por quem escreveu este plano. Onde o texto diz "implementado", significa "existe no código", não "validado em aparelho".
+**Base de código desta revisão:** branch `feature/dc-05-1-source-context-app`, código até o commit `1477dad` (DC-01.4), lido por inspeção estática em 22/10/2026. Nada foi compilado ou executado depois das entregas DC-01 a DC-05; o resumo quantitativo e os estados detalhados abaixo distinguem código existente de validação aprovada.
 
 Legenda de estado: ✅ no código · 🟡 parcial · ⬜ pendente · ❌ cancelado.
 Prioridade: 🔴 pode corromper estado, travar a UI ou criar risco legal · 🟠 muda a experiência de jogo · 🟡 melhora · 🟢 acabamento.
@@ -25,7 +25,7 @@ Aplicativo Android nativo (Kotlin + Jetpack Compose) para jogar RPG solo com um 
 | Módulos | `app` (Compose), `engine` (Kotlin puro), `rules` (pacotes e catálogo), `ai` (provedores e loop), `data` (Room) |
 | Estado | Log de eventos append-only; estado = soma dos eventos; rolagens reproduzíveis por seed; rollback |
 | Regras | Pacotes de dados (`.txt` + JSON) lidos pelo motor, sem código por sistema; herança entre pacotes |
-| Banco | Room, versão 7, migrações explícitas, sem `fallbackToDestructiveMigration` |
+| Banco | Room, versão 10, migrações explícitas, sem `fallbackToDestructiveMigration`; schema v10 ainda não exportado por build |
 | IA | HTTPS direto, provedor trocável (OpenAI-compatível e Anthropic), SSE, chave do usuário no Android Keystore |
 | Backup | JSON local por seletor de arquivo (SAF) ou texto; nunca inclui a chave; `allowBackup="false"` |
 | Offline | Tudo funciona offline, menos a narração |
@@ -37,18 +37,18 @@ Ficha → Sistema/edição → Ambientação → Regras adicionais → Campanha.
 
 ---
 
-## 2. Estado atual (commit `62a3e8a`)
+## 2. Estado atual (código até `1477dad`; métricas estáticas em 22/10/2026)
 
 ### Tamanho e conteúdo
 
 | Item | Valor |
 |---|---|
-| Kotlin | cerca de 19,5 mil linhas; maior arquivo: `AppModel.kt`, 1.817 linhas e 94 funções |
-| Testes escritos | 44 arquivos, cerca de 472 `@Test` (ai 17, engine 13, rules 13, app 1 de instrumentação, data 0); não executados depois da limpeza de conteúdo de terceiros |
+| Kotlin | 29.438 linhas nos módulos `app`, `engine`, `ai`, `data` e `rules`; `AppModel.kt` tem 2.013 linhas |
+| Testes escritos | 64 arquivos sob `src/test` e 621 ocorrências de `@Test` nos diretórios de teste; não executados após as entregas recentes |
 | Sistema próprio, traços | 438 entradas: 219 vantagens, 197 desvantagens, 16 perícias, 6 poderes (o arquivo tem 513 linhas, contando comentários e linhas vazias) |
 | Sistema próprio, itens | 20 (4 originais + 11 armas e armaduras de M-03.1 + 4 consumíveis de M-03.2 + a moeda de M-03.3) |
 | Sistema próprio, dano | 1 perfil (`golpe`, 1d6) e 4 perfis de perigo (`perigos.txt`) |
-| Catálogo editorial | 50 raças, 50 sub-raças, 50 classes, 103 profissões, 100 maldições, 20 híbridos; **nenhuma entrada com efeito mecânico declarado** |
+| Catálogo editorial | 50 raças, 50 sub-raças, 50 classes, 103 profissões e 20 híbridos declaram bônus +1 em perícia; 4 de 100 maldições declaram +1 em Intimidação. M-02 está concluído em código, ainda não validado por testes/CI |
 | Catálogo de sistemas | só o sistema próprio (`sistemas.txt` com 1 linha; `compat.txt` sem regras) |
 
 ### Fases do plano original
@@ -58,7 +58,7 @@ Ficha → Sistema/edição → Ambientação → Regras adicionais → Campanha.
 | 1 | Fundação (módulos, navegação, tema) | ✅ | Sem Hilt/Koin; `AppModel` é um `AndroidViewModel` |
 | 2 | Motor determinístico | ✅ | Comandos/eventos, rollback, dados explosivos, vantagem/desvantagem, testes opostos e em grupo, pagamento de fortuna por recurso |
 | 2.3 | Combate | ✅ | Iniciativa, ataque, dano, defesa, fuga, turno de NPC, condições com duração, XP |
-| 3 | Persistência | 🟡 | Room v5: campanhas, eventos, fichas, metadados, capítulos, missões e snapshots em tabelas (auditoria CP-01.1). Linha do tempo segue em JSON derivado do log; sem estado/datas da campanha |
+| 3 | Persistência | 🟡 | Room v10: campanhas, eventos, fichas, metadados, capítulos, missões, snapshots, linha do tempo, fontes, pipeline e fatos canônicos; documentos-fonte em arquivos privados. Migrações ainda sem teste instrumentado |
 | 4 | Pacotes de regras | ✅ | Parser, validador, herança, importação ZIP (limite 20 MiB), restauração |
 | 4A | Catálogo de estilos e compatibilidade | ✅ | Catálogo de sistemas reduzido ao próprio; 4A.5 (licenças e fontes) ❌ cancelado |
 | 4B | Links de consulta e PDF | ❌ | Removidos do código e dos recursos |
@@ -71,7 +71,7 @@ Ficha → Sistema/edição → Ambientação → Regras adicionais → Campanha.
 | 11 | Continuidade e acabamento | ⬜ | Bateria de contradições, desempenho em aparelho, assinatura do APK |
 | 12 | Motor unificado, progressão e combate | 🟡 | Ver 3.7. Valor efetivo, rolagens, ataque/defesa/crítico, paridade jogador e IA, níveis, perícias, habilidades, ouro/prata, magias |
 | 13 | Campanhas persistentes e exportação em PDF | 🟡 | Ver 3.8. CP-01 a CP-05 concluídos em código; testes não executados, migrações sem teste instrumentado |
-| 14 | Biblioteca de fontes e RPG baseado em documentos | 🟡 | Ver 3.9. DC-01 a DC-08 concluídos em código; testes escritos e não executados; sem tela, sem Room e sem ligação no `AppModel` |
+| 14 | Biblioteca de fontes e RPG baseado em documentos | 🟡 | Ver 3.9. DC-01 a DC-05 têm implementação em código e persistência Room/arquivos privados; sem interface completa, consentimento Q-09 ou retomada automática da pipeline; testes não executados |
 
 ### Validação
 
@@ -79,9 +79,9 @@ Ficha → Sistema/edição → Ambientação → Regras adicionais → Campanha.
 
 - O workflow `.github/workflows/android-ci.yml` roda `./gradlew test` e `:app:assembleDebug`, e executa um E2E em emulador com `continue-on-error`.
 - Na branch `feature/racas-subracas`, a execução #169 (commit `44d8215`) terminou com sucesso e publicou o APK de debug. Antes dela, as execuções #146 a #168 mostram uma sequência de falhas e cancelamentos por erros de compilação e de teste, depois corrigidos.
-- A execução #170 (merge em `main`, commit `62a3e8a`) estava em andamento quando foi consultada.
-- `docs/VALIDACAO_CI.md` agora traz o estado atual e uma tabela por módulo a preencher; o período sem runner ficou como histórico.
-- README e CHANGELOG dizem que build, testes e CI não foram executados **depois** das últimas alterações (R-01, R-02, R-05); o último CI verde registrado é o de 19/10 (`85b58ce`).
+- A observação antiga de que a execução #170 estava em andamento é histórica e não comprova o estado da branch atual.
+- `docs/VALIDACAO_CI.md` registra o último CI verde e mantém pendentes os resultados por módulo para o código atual.
+- O último CI verde registrado continua sendo o de 19/10 (`85b58ce`). As entregas posteriores (incluindo DC-01 a DC-05) foram publicadas com `[skip ci]` por solicitação do proprietário; não há build/teste/CI após elas.
 
 **A fazer quando o proprietário decidir:** colar aqui o resultado por módulo (engine, rules, ai, data, app), o resultado do E2E e a data/commit de cada um.
 
@@ -192,7 +192,7 @@ Removidos `packages-import/3det-victory/`, os links de consulta (`fontes.txt`, `
 
 ### 3.6 Conteúdo (ver `PLANO_RACAS_E_SUBRACAS.md`)
 
-- **C-01:** metas de 50+ por categoria já estão atingidas em raças, sub-raças, classes e profissões. O trabalho restante é dar efeitos reais (M-02) e revisar lore.
+- **C-01:** metas de 50+ por categoria já estão atingidas em raças, sub-raças, classes e profissões. M-02 já declara efeitos mecânicos para raças, sub-raças, classes, profissões, híbridos e parte das maldições; falta revisar lore e validar por testes/CI.
 - **C-02:** sugestões automáticas de substituição para referências antigas na importação de fichas.
 - **C-03 (✅):** `DocumentIndex` e `PdfTextExtractor` removidos.
 - **C-04:** fórmulas de PA, PM e PV marcadas como rascunho em `incerto.txt`; fechar ou manter o aviso.
