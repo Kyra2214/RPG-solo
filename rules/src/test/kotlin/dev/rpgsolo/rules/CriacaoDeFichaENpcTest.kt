@@ -18,12 +18,8 @@ class CriacaoDeFichaENpcTest {
 
     private fun pkg() = registry().get("teste-basico")!!
 
-    private fun docs() = DocumentIndex().also {
-        it.add(ImportedDocument("meu", "Meu livro", null, listOf("O arqueiro élfico tem pontaria precisa e ataca de longe com arco longo e bônus de furtividade.")))
-    }
-
-    // ---- criação de ficha guiada, sem PDF ----
-    @Test fun criaFichaPeloModeloSemNenhumPdf() {
+    // ---- criação de ficha guiada pelo pacote ----
+    @Test fun criaFichaPeloModelo() {
         val d = CharacterDraft(pkg(), "f1")
         assertTrue(d.loadExample("guerreiro"))
         d.name = "Brokk"
@@ -53,11 +49,9 @@ class CriacaoDeFichaENpcTest {
         assertTrue(d.allowedTraits().none { it.cost > 0 })
     }
 
-    @Test fun dicasFuncionamSemPdfEComPdf() {
+    @Test fun dicasVemDoPacote() {
         val d = CharacterDraft(pkg(), "f1")
         assertTrue(d.hints("lutador").all { it.source == RuleHint.Source.PACOTE })
-        val com = d.hints("arqueiro pontaria", docs())
-        assertTrue(com.any { it.source == RuleHint.Source.PDF_DO_USUARIO && it.page == 1 })
     }
 
     @Test fun abaDeCriacaoListaOsModelosComSuasFichas() {
@@ -67,10 +61,9 @@ class CriacaoDeFichaENpcTest {
     }
 
     // ---- NPC: consulta em cadeia ----
-    @Test fun consultaVaiDoPacoteAoPdfEDepoisARede() {
-        assertEquals(RuleSource.PACOTE, RuleLookupChain.lookup("lutador", pkg(), null).source)
-        assertEquals(RuleSource.PDF_DO_USUARIO, RuleLookupChain.lookup("arqueiro elfico", pkg(), docs()).source)
-        val web = RuleLookupChain.lookup("arqueiro elfico", pkg(), null)
+    @Test fun consultaVaiDoPacoteEDepoisARede() {
+        assertEquals(RuleSource.PACOTE, RuleLookupChain.lookup("lutador", pkg()).source)
+        val web = RuleLookupChain.lookup("arqueiro elfico", pkg())
         assertEquals(RuleSource.PESQUISA_NA_REDE, web.source)
         assertTrue(web.needsWebSearch)
     }
@@ -94,9 +87,9 @@ class CriacaoDeFichaENpcTest {
 
     @Test fun npcSemPacoteEhAceitoMasMarcadoNaoValidado() {
         val p = NpcProposal("n3", "Vael", "arqueiro élfico", mapOf("des" to 18), listOf("Tiro Preciso"),
-            resources = mapOf("pv" to 22), ruleSource = RuleSource.PDF_DO_USUARIO)
+            resources = mapOf("pv" to 22), ruleSource = RuleSource.IA_NAO_VERIFICADA)
         assertTrue(NpcFactory.create(p, null) is NpcResult.Rejected) // precisa saber o sistema
-        val sheet = (NpcFactory.create(p, null, SystemRef("dnd", "dnd-5-2-srd")) as NpcResult.Created).sheet
+        val sheet = (NpcFactory.create(p, null, SystemRef("externo", "externo-1")) as NpcResult.Created).sheet
         assertFalse(sheet.validated)
         assertEquals(22, sheet.ficha.resources.getValue("pv").max)
         assertTrue(sheet.warnings.isNotEmpty())

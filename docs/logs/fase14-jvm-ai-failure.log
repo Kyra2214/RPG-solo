@@ -1,0 +1,57 @@
+> Task :engine:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :engine:compileKotlin
+> Task :engine:compileJava NO-SOURCE
+> Task :engine:processResources NO-SOURCE
+> Task :engine:classes UP-TO-DATE
+> Task :engine:jar
+> Task :engine:compileTestKotlin
+> Task :engine:compileTestJava NO-SOURCE
+> Task :engine:processTestResources NO-SOURCE
+> Task :engine:testClasses UP-TO-DATE
+> Task :engine:test
+> Task :rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :rules:compileKotlin
+> Task :rules:compileJava NO-SOURCE
+> Task :rules:processResources
+> Task :rules:classes
+> Task :rules:jar
+> Task :rules:compileTestKotlin
+> Task :rules:compileTestJava NO-SOURCE
+> Task :rules:processTestResources
+> Task :rules:testClasses
+> Task :rules:test
+> Task :ai:checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+> Task :ai:compileKotlin
+w: file:///tmp/rpgsolo-fase14-build/ai/src/main/kotlin/dev/rpgsolo/ai/Http.kt:88:24 'constructor(p0: String!): URL' is deprecated. Deprecated in Java.
+w: file:///tmp/rpgsolo-fase14-build/ai/src/main/kotlin/dev/rpgsolo/ai/Http.kt:117:24 'constructor(p0: String!): URL' is deprecated. Deprecated in Java.
+
+> Task :ai:compileJava NO-SOURCE
+> Task :ai:processResources NO-SOURCE
+> Task :ai:classes UP-TO-DATE
+> Task :ai:jar
+> Task :ai:compileTestKotlin
+> Task :ai:compileTestJava NO-SOURCE
+> Task :ai:processTestResources NO-SOURCE
+> Task :ai:testClasses UP-TO-DATE
+
+> Task :ai:test FAILED
+
+SourceFidelityTest > textoDoDocumentoNaoImitaMarcadorNemCabecalho FAILED
+    java.lang.AssertionError at SourceFidelityTest.kt:41
+
+193 tests completed, 1 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':ai:test'.
+> There were failing tests. See the report at: file:///tmp/rpgsolo-fase14-build/ai/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+BUILD FAILED in 15s
+14 actionable tasks: 14 executed
+
+GRADLE_EXIT_CODE=

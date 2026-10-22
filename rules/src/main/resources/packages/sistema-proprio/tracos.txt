@@ -145,13 +145,13 @@ contrato-justo|vantagem|Contrato justo|0|poder>=1;trait:so-por-dinheiro|Mercená
 so-por-dinheiro|desvantagem|Só por dinheiro|0||Mercenário: Custa a ajudar de graça e a confiar em ideais.
 # --- Desvantagens gerais (qualquer personagem pode pegar) ---
 atrapalhado|desvantagem|Atrapalhado|0||Esbarra, derruba e quebra coisas. Em falha crítica numa ação física, causa um estrago ou acidente na cena.
-desatento|desvantagem|Desatento|0|not:sentidos-agucados;not:olhar-atento|-1 em testes para notar detalhes e é o primeiro a ser surpreendido por emboscadas.
+desatento|desvantagem|Desatento|0|not:sentidos-agucados;not:olhar-atento|-1 em testes para notar detalhes e é o primeiro a ser surpreendido por emboscadas.|percepcao:-1
 ma-visao|desvantagem|Má visão|0|not:sentidos-agucados|-2 em testes que dependem de enxergar longe (pontaria, vigiar, reconhecer rostos); sem óculos ou lente, -3.
 audicao-ruim|desvantagem|Audição ruim|0||-2 em testes de ouvir e para perceber algo vindo pelas costas.
 azarado|desvantagem|Azarado|0|not:sortudo|Uma vez por sessão, o mestre pode transformar um sucesso comum seu em falha.
 esquecido|desvantagem|Esquecido|0||Esquece nomes, senhas e instruções. O mestre pode pedir teste de Habilidade (fácil) para lembrar o que ouviu na cena anterior.
 gago|desvantagem|Gago|0||-1 em testes sociais sob pressão e em ordens ou feitiços falados em voz alta.
-preguicoso|desvantagem|Preguiçoso|0||Foge do esforço: -1 em Atletismo e em trabalhos longos, e demora a agir quando não há perigo imediato.
+preguicoso|desvantagem|Preguiçoso|0||Foge do esforço: -1 em Atletismo e em trabalhos longos, e demora a agir quando não há perigo imediato.|atletismo:-1
 guloso|desvantagem|Guloso|0||Precisa comer bem: sem uma refeição decente no dia, -1 em tudo. Comida ruim ou racionada o deixa de mau humor.
 ganancioso|desvantagem|Ganancioso|0||Não resiste a dinheiro e tesouro: precisa de teste de Habilidade (média) para largar uma oferta lucrativa.
 mentiroso-compulsivo|desvantagem|Mentiroso compulsivo|0||Exagera e inventa sem necessidade. Depois de ser pego numa mentira, -2 para ser levado a sério naquela cena.
@@ -218,7 +218,7 @@ escudo-vivo|vantagem|Escudo vivo|0|resistencia>=2;trait:dever-de-proteger|Guardi
 postura-firme|vantagem|Postura firme|0|resistencia>=2|Guardião: Golpes comuns não o derrubam nem o empurram contra a vontade.
 grito-de-guarda|vantagem|Grito de guarda|0|poder>=1|Guardião: Uma vez por luta, provoca os inimigos: eles preferem atacá-lo.
 dever-de-proteger|desvantagem|Dever de proteger|0||Guardião: Não abandona quem protege; recusa fugir enquanto houver aliado em perigo.
-peso-da-armadura|desvantagem|Peso da armadura|0||Guardião: Armadura pesada atrapalha: -1 em Furtividade e para nadar, e cansa em marchas longas.
+peso-da-armadura|desvantagem|Peso da armadura|0||Guardião: Armadura pesada atrapalha: -1 em Furtividade e para nadar, e cansa em marchas longas.|furtividade:-1
 # --- Ilusionista ---
 miragem|vantagem|Miragem|0|habilidade>=2;trait:fama-de-trapaceiro|Ilusionista: Cria uma imagem falsa convincente por uma cena (gasta 1 PM).
 disfarce-instantaneo|vantagem|Disfarce instantâneo|0|habilidade>=2|Ilusionista: Muda a própria aparência por uma cena; +2 para se passar por outra pessoa.
@@ -291,9 +291,9 @@ desajeitado-em-terra|desvantagem|Desajeitado em terra|0||Sereia ou tritão: Em t
 # --- Minotauro ---
 chifres-de-guerra|vantagem|Chifres de guerra|0|poder>=2|Minotauro: Ataca com os chifres como arma natural e tem +1 contra portas, muros e barreiras.
 vigor-de-touro|vantagem|Vigor de touro|0|resistencia>=2|Minotauro: Recupera 1d6 PV ao fim de cada luta vencida.
-grande-demais|desvantagem|Grande demais|0||Minotauro: Portas, túneis e montarias comuns não o comportam: -2 em Furtividade e em espaços apertados.
+grande-demais|desvantagem|Grande demais|0||Minotauro: Portas, túneis e montarias comuns não o comportam: -2 em Furtividade e em espaços apertados.|furtividade:-2
 # --- Meio-demônio ---
-olhos-de-brasa|vantagem|Olhos de brasa|0|habilidade>=1|Meio-demônio: Vê no escuro e sente mentiras ditas em sua presença (+1 para perceber).
+olhos-de-brasa|vantagem|Olhos de brasa|0|habilidade>=1|Meio-demônio: Vê no escuro e sente mentiras ditas em sua presença (+1 para perceber).|percepcao:+1
 pele-infernal|vantagem|Pele infernal|0|resistencia>=1|Meio-demônio: Imune a fogo comum e +2 para resistir a calor e chamas.
 voz-do-sangue|desvantagem|Voz do sangue|0||Meio-demônio: Uma vez por sessão, a herança infernal o tenta: o mestre propõe uma oferta difícil de recusar.
 # --- Anjo caído ---

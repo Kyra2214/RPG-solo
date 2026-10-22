@@ -1,3 +1,0 @@
-pontos|10
-custo_atributo|1
-limite_desvantagens|2

@@ -32,11 +32,6 @@ class AnaoCyberpunkPorPacoteTest {
             val r = reg.install(files(d))
             assertTrue("$n: ${(r as? InstallResult.Failure)?.errors}", r is InstallResult.Success)
         }
-        // Pacote importado pelo usuário (fica fora do repositório): só entra se a pasta existir.
-        dir("packages-import/3det-victory")?.let {
-            val r = reg.install(files(it))
-            assertTrue("3det: ${(r as? InstallResult.Failure)?.errors}", r is InstallResult.Success)
-        }
         return reg.installed().map { reg.get(it.id)!! }
     }
 

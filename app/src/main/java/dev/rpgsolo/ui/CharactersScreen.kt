@@ -23,10 +23,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
@@ -36,7 +39,7 @@ import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.TraitDef
 
 /**
- * Aba Personagens (10.2 e 5.0): criação guiada pelo pacote, com links só de consulta, com validação do motor e biblioteca de fichas.
+ * Aba Personagens (10.2 e 5.0): criação guiada pelo pacote, com validação do motor e biblioteca de fichas.
  * Fluxo: arquétipo (ou ficha pronta) → atributos → cardápio do arquétipo → ajuste fino → criar.
  */
 @Composable
@@ -60,23 +63,6 @@ fun CharactersScreen(model: AppModel) {
             }
         }
         Creator(model, pkg, selected!!)
-        ConsultLinks(model)
-    }
-}
-
-/** Links de consulta (3DeT, D&D...) para o jogador olhar as regras oficiais ao criar o personagem. Só abre o navegador. */
-@Composable
-private fun ConsultLinks(model: AppModel) {
-    val links = model.content.sources?.links.orEmpty()
-    if (links.isEmpty()) return
-    val uri = LocalUriHandler.current
-    SectionTitle("Consultar regras oficiais", "Só para consulta: abre no navegador. As regras do jogo são as do pacote acima.")
-    AppCard {
-        links.forEach { link ->
-            TextButton(onClick = { uri.openUri(link.url) }) {
-                Text(link.title + if (link.verified) "" else " (link não verificado)")
-            }
-        }
     }
 }
 
@@ -84,11 +70,36 @@ private fun ConsultLinks(model: AppModel) {
 private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     // Um rascunho por pacote. Depois de salvar, gira o ID para que a próxima criação
     // não sobrescreva a ficha recém-criada.
+<<<<<<< HEAD
     var draftId by remember(key) { mutableStateOf(model.newFichaId()) }
+=======
+    var draftId by remember(key) { mutableStateOf(model.draftFichaId()) }
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     val draft = remember(key, draftId) { CharacterDraft(pkg, draftId) }
     var version by remember(key) { mutableIntStateOf(0) }
     var message by remember(key) { mutableStateOf<String?>(null) }
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
+<<<<<<< HEAD
+=======
+    val scope = rememberCoroutineScope()
+    var dbBusy by remember(key) { mutableStateOf(false) }
+    /** Gravações no banco rodam em IO e desabilitam os botões enquanto duram (R-02). */
+    fun io(work: () -> String?, done: (String?) -> Unit) {
+        if (dbBusy) return
+        dbBusy = true
+        scope.launch {
+            val result = try {
+                withContext(Dispatchers.IO) { work() }
+            } catch (e: Exception) {
+                e.message ?: "A ação falhou inesperadamente."
+            } finally {
+                dbBusy = false
+            }
+            done(result)
+            version++
+        }
+    }
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     var fichaImportText by remember(key) { mutableStateOf("") }
     var expandedFichaId by remember(key) { mutableStateOf<String?>(null) }
     var editingChoicesFichaId by remember(key) { mutableStateOf<String?>(null) }
@@ -200,15 +211,27 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                 if (entry.summary.isNotBlank()) Muted(entry.summary)
                 if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted("Lore: " + entry.lore)
                 if (entry.benefits.isNotEmpty()) {
+<<<<<<< HEAD
                     entry.benefits.forEach { Muted("Benefício descrito (não aplicado): " + it) }
                 } else if (entry.benefit.isNotBlank()) {
                     Muted("Benefício descrito (não aplicado): " + entry.benefit)
+=======
+                    entry.benefits.forEach { Muted("Benefício descrito (sem efeito automático, salvo o efeito listado abaixo): " + it) }
+                } else if (entry.benefit.isNotBlank()) {
+                    Muted("Benefício descrito (sem efeito automático, salvo o efeito listado abaixo): " + entry.benefit)
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 }
                 if (entry.drawbacks.isNotEmpty()) {
                     entry.drawbacks.forEach { Muted("Custo descrito (não aplicado): " + it) }
                 } else if (entry.drawback.isNotBlank()) {
                     Muted("Custo descrito (não aplicado): " + entry.drawback)
                 }
+<<<<<<< HEAD
+=======
+                entry.mechanicalEffects.forEach {
+                    Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                }
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
             }
         }
     }
@@ -218,11 +241,19 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             Text("Editando escolhas de ${model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId}", style = MaterialTheme.typography.titleSmall)
             Muted("Esta ação altera somente os metadados editoriais; não recalcula nem inventa bônus mecânicos.")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+<<<<<<< HEAD
                 Button(enabled = choiceErrors.isEmpty(), onClick = {
                     model.saveCharacterChoices(fichaId, choices)
                     editingChoicesFichaId = null
                     libraryMessage = "Escolhas da ficha atualizadas."
                     version++
+=======
+                Button(enabled = choiceErrors.isEmpty() && !dbBusy, onClick = {
+                    io({ model.saveCharacterChoices(fichaId, choices); null }) {
+                        editingChoicesFichaId = null
+                        libraryMessage = "Escolhas da ficha atualizadas."
+                    }
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 }) { Text("Salvar escolhas") }
                 TextButton(onClick = { editingChoicesFichaId = null }) { Text("Cancelar") }
             }
@@ -347,6 +378,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     }
 
     // ---------- 9. Criar ----------
+<<<<<<< HEAD
     Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null && choiceErrors.isEmpty(), onClick = {
         message = when (val b = draft.build()) {
             is FichaBuild.Created -> {
@@ -357,8 +389,26 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                 "Ficha de $createdName criada e salva."
             }
             is FichaBuild.Invalid -> b.errors.joinToString("; ")
+=======
+    Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null && choiceErrors.isEmpty() && !dbBusy, onClick = {
+        when (val b = draft.build()) {
+            is FichaBuild.Created -> {
+                var newId = draftId
+                io({
+                    model.saveFicha(b.ficha)
+                    model.saveCharacterChoices(b.ficha.id, choices)
+                    newId = model.newFichaId()
+                    null
+                }) { failure ->
+                    if (failure == null) {
+                        draftId = newId
+                        message = "Ficha de ${b.ficha.name} criada e salva."
+                    } else message = failure
+                }
+            }
+            is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
         }
-        version++
     }) { Text("Criar ficha") }
     message?.let { Muted(it) }
 
@@ -375,10 +425,20 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         )
         Button(
             modifier = Modifier.fillMaxWidth(),
+<<<<<<< HEAD
             onClick = {
                 libraryMessage = model.importFicha(fichaImportText)
                 if (libraryMessage?.startsWith("Ficha ") == true && libraryMessage?.contains("importada") == true) fichaImportText = ""
                 version++
+=======
+            enabled = !dbBusy,
+            onClick = {
+                val raw = fichaImportText
+                io({ model.importFicha(raw) }) {
+                    libraryMessage = it
+                    if (it?.startsWith("Ficha ") == true && it.orEmpty().contains("importada")) fichaImportText = ""
+                }
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
             }
         ) { Text("Importar ficha") }
     }
@@ -404,7 +464,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                     if (f.skills.isNotEmpty()) Muted("Perícias: " + f.skills.entries.joinToString(", ") { (id, value) ->
                         "${fichaPkg?.trait(id)?.name ?: id}: $value"
                     })
-                    if (f.traits.isNotEmpty()) Muted("Traços: " + f.traits.joinToString(", ") { id -> fichaPkg?.trait(id)?.name ?: id })
+                    if (f.traits.isNotEmpty()) Muted("Traços: " + f.traits.joinToString(", ") { id -> fichaPkg?.trait(id)?.let { traitTag(it) } ?: id })
                     if (f.resources.isNotEmpty()) Muted("Recursos: " + f.resources.entries.joinToString(", ") { (id, resource) ->
                         "${id}: ${resource.current}/${resource.max}"
                     })
@@ -423,8 +483,13 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                         message = null
                         version++
                     }) { Text("Editar escolhas") }
+<<<<<<< HEAD
                     TextButton(onClick = { libraryMessage = model.duplicateFicha(f.id) ?: "Ficha duplicada." }) { Text("Duplicar") }
                     TextButton(onClick = { libraryMessage = model.archiveFicha(f.id, true) ?: "Ficha arquivada." }) { Text("Arquivar") }
+=======
+                    TextButton(enabled = !dbBusy, onClick = { io({ model.duplicateFicha(f.id) }) { libraryMessage = it ?: "Ficha duplicada." } }) { Text("Duplicar") }
+                    TextButton(enabled = !dbBusy, onClick = { io({ model.archiveFicha(f.id, true) }) { libraryMessage = it ?: "Ficha arquivada." } }) { Text("Arquivar") }
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                     TextButton(onClick = {
                         val raw = model.exportFicha(f.id)
                         if (raw != null) {
@@ -442,13 +507,20 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             AppCard {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    TextButton(onClick = { libraryMessage = model.archiveFicha(f.id, false) ?: "Ficha restaurada." }) { Text("Restaurar") }
-                    TextButton(onClick = { libraryMessage = model.deleteFicha(f.id) ?: "Ficha excluída." }) { Text("Excluir") }
+                    TextButton(enabled = !dbBusy, onClick = { io({ model.archiveFicha(f.id, false) }) { libraryMessage = it ?: "Ficha restaurada." } }) { Text("Restaurar") }
+                    TextButton(enabled = !dbBusy, onClick = { io({ model.deleteFicha(f.id) }) { libraryMessage = it ?: "Ficha excluída." } }) { Text("Excluir") }
                 }
             }
         }
     }
     libraryMessage?.let { Muted(it) }
+}
+
+/** M-01.8: nome do traço com a marcação do que o motor aplica ("efeito: ...") ou "narrativo" (só vantagem/desvantagem). */
+private fun traitTag(t: TraitDef): String = when {
+    t.bonuses.isNotEmpty() -> t.name + " [efeito: " + t.bonuses.joinToString("; ") { "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}" } + "]"
+    t.type == "vantagem" || t.type == "desvantagem" -> t.name + " [narrativo]"
+    else -> t.name
 }
 
 @Composable
@@ -470,6 +542,11 @@ private fun TraitRow(t: TraitDef, chosen: Boolean, onToggle: () -> Unit) {
                     Text(t.name, style = MaterialTheme.typography.titleSmall)
                     Pill(label, color)
                     if (t.cost != 0) Pill("custo ${t.cost}", MaterialTheme.colorScheme.outline)
+                    // M-01: distingue o que o motor aplica do que é só texto para o mestre e o jogador.
+                    if (t.bonuses.isNotEmpty()) Pill(
+                        "efeito: " + t.bonuses.joinToString("; ") { "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}" },
+                        MaterialTheme.colorScheme.primary
+                    ) else if (t.type == "vantagem" || t.type == "desvantagem") Pill("narrativo", MaterialTheme.colorScheme.outline)
                 }
                 Muted(t.description)
             }
@@ -514,7 +591,11 @@ private fun CatalogPicker(
                 entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
                 entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
                 entry.mechanicalEffects.forEach {
+<<<<<<< HEAD
                     Muted("Efeito tipado (${it.source}), ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+=======
+                    Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 }
             }
         }
@@ -554,7 +635,11 @@ private fun CatalogMultiPicker(
                 entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
                 entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
                 entry.mechanicalEffects.forEach {
+<<<<<<< HEAD
                     Muted("Efeito tipado (${it.source}), ainda não aplicado pelo motor: ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+=======
+                    Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 }
             }
         }

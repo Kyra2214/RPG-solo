@@ -88,7 +88,7 @@ class PackageRegistry(private val catalog: Catalog? = null) {
         val ed = c.system(m.edition)
         if (ed == null) p += "edição ${m.edition} não existe no catálogo"
         else if (ed.family != m.system) p += "edição ${m.edition} é da família ${ed.family}, não ${m.system}"
-        // Licença é só informação (licenca_status): não bloqueia. O app usa PDFs como guia e o usuário traz os dele.
+        // Licença é só informação (licenca_status): não bloqueia. O conteúdo do pacote é de quem o criou ou importou.
         return p
     }
 
@@ -113,7 +113,13 @@ class PackageRegistry(private val catalog: Catalog? = null) {
 
     /** Filho sobrescreve o pai por id. Remover entradas do pai não é suportado. */
     private fun merge(b: PackageData, c: PackageData) = PackageData(
-        manifest = c.manifest.copy(deathResource = c.manifest.deathResource ?: b.manifest.deathResource),
+        manifest = c.manifest.copy(
+            deathResource = c.manifest.deathResource ?: b.manifest.deathResource,
+            deathMode = c.manifest.deathMode ?: b.manifest.deathMode,
+            survivalCheck = c.manifest.survivalCheck ?: b.manifest.survivalCheck,
+            survivalDifficulty = c.manifest.survivalDifficulty ?: b.manifest.survivalDifficulty,
+            survivalFailures = c.manifest.survivalFailures ?: b.manifest.survivalFailures
+        ),
         stats = byId(b.stats, c.stats) { it.id },
         resources = byId(b.resources, c.resources) { it.id },
         traits = byId(b.traits, c.traits) { it.id },
@@ -128,7 +134,9 @@ class PackageRegistry(private val catalog: Catalog? = null) {
         tutorial = byId(b.tutorial, c.tutorial) { it.order.toString() }.sortedBy { it.order },
         examples = byId(b.examples, c.examples) { it.id },
         archetypes = byId(b.archetypes, c.archetypes) { it.id },
-        archetypeOptions = byId(b.archetypeOptions, c.archetypeOptions) { it.archetype }
+        archetypeOptions = byId(b.archetypeOptions, c.archetypeOptions) { it.archetype },
+        powers = byId(b.powers, c.powers) { it.id },
+        hazards = byId(b.hazards, c.hazards) { it.id }
     )
 
     companion object {

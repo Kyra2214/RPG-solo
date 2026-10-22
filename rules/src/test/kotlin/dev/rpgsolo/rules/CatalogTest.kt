@@ -53,11 +53,17 @@ class CatalogTest {
         assertNotNull(c.entry("setting.wuxia")); assertNotNull(c.entry("setting.xianxia")); assertNotNull(c.entry("setting.xuanhuan"))
     }
 
-    @Test fun familiasDeSistemaSaoSeparadas() {
+    @Test fun catalogoEmbutidoTemSoOSistemaProprio() {
         val c = real()
-        assertTrue(c.families().containsAll(setOf("3det", "tormenta", "dnd", "pathfinder")))
-        assertTrue(c.editionsOf("3det").none { it.family != "3det" })
-        assertEquals(setOf("3det-alpha", "3det-victory"), c.editionsOf("3det").map { it.id }.toSet())
+        assertEquals(setOf("proprio"), c.families())
+        assertEquals(listOf("sistema-proprio"), c.systems.map { it.id })
+    }
+
+    @Test fun familiasDeSistemaSaoSeparadas() {
+        val c = small()
+        assertTrue(c.families().containsAll(setOf("famA", "famB")))
+        assertTrue(c.editionsOf("famA").none { it.family != "famA" })
+        assertEquals(setOf("a-1", "a-2"), c.editionsOf("famA").map { it.id }.toSet())
     }
 
     @Test fun naoHaStatusVerificadoSemNotaDeEvidencia() {
@@ -67,7 +73,7 @@ class CatalogTest {
     }
 
     @Test fun combinacaoSemRegraEhNaoVerificada() {
-        assertEquals(Compatibility.UNVERIFIED, real().compatibility("3det-alpha", "setting.cyberpunk").status)
+        assertEquals(Compatibility.UNVERIFIED, small().compatibility("a-1", "setting.cyberpunk").status)
     }
 
     @Test fun referenciaInvalidaFazACargaFalharSemEfeito() {
@@ -143,20 +149,15 @@ class CatalogTest {
         assertTrue(resolveConfig(small(), c) is ConfigResult.Ready)
     }
 
-    @Test fun exemploAnaoMineradorCyberpunk3detExigeEdicaoEAvisa() {
-        val c = real()
-        val semEdicao = CampaignConfig("3det", settingIds = listOf("setting.cyberpunk"),
+    @Test fun exemploAnaoMineradorCyberpunkExigeEdicaoEAvisa() {
+        // Estilos reais do app com sistemas fictícios de teste: família com duas edições exige escolha.
+        val c = (CatalogLoader.load(res("estilos.txt"), smallSystems, "") as LoadResult.Success).catalog
+        val semEdicao = CampaignConfig("famA", settingIds = listOf("setting.cyberpunk"),
             structureIds = listOf("structure.combate-tatico"), difficulty = DifficultySetting("difficulty.dificil-hard"))
         assertTrue(resolveConfig(c, semEdicao) is ConfigResult.NeedsQuestion)
-        val r = resolveConfig(c, semEdicao.copy(editionId = "3det-alpha")) as ConfigResult.Ready
-        assertEquals("3det-alpha", r.edition.id)
+        val r = resolveConfig(c, semEdicao.copy(editionId = "a-1")) as ConfigResult.Ready
+        assertEquals("a-1", r.edition.id)
         assertEquals(Compatibility.UNVERIFIED, r.compatibility)
         assertTrue(r.notes.isNotEmpty())
-    }
-
-    @Test fun tormenta20NaoCompartilhaEdicoesCom3det() {
-        val c = real()
-        val r = resolveConfig(c, CampaignConfig("tormenta", editionId = "3det-alpha", difficulty = DifficultySetting("difficulty.normal")))
-        assertTrue(r is ConfigResult.Invalid)
     }
 }

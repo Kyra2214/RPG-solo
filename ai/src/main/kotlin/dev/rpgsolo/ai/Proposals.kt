@@ -13,6 +13,7 @@ import dev.rpgsolo.engine.Heal
 import dev.rpgsolo.engine.KeepPromise
 import dev.rpgsolo.engine.LearnKnowledge
 import dev.rpgsolo.engine.MakePromise
+import dev.rpgsolo.engine.NoteMemory
 import dev.rpgsolo.engine.RecordFact
 import dev.rpgsolo.engine.RemoveCondition
 import dev.rpgsolo.engine.Revive
@@ -49,8 +50,15 @@ data class TurnOutput(
     /** NPC proposto pela IA; a ficha só é criada após validação pelo pacote ativo. */
     val npcProposal: NpcProposal? = null,
     /** Quando true, cria o NPC validado e inicia combate com iniciativa rolada pelo motor. */
-    val requestCombat: Boolean = false
+    val requestCombat: Boolean = false,
+    /** Poder do pacote que o personagem do jogador usa nesta jogada; custo, teste e efeito são do motor. */
+    val powerRequest: PowerRequest? = null,
+    /** I-01: o NPC veio de `request_npc` (pedido isolado), não de `create_npc` junto a outras propostas. */
+    val requestNpc: Boolean = false
 )
+
+/** Pedido da IA para o personagem do jogador usar um poder do pacote ([powerId]); [targetId] só para poderes ofensivos. */
+data class PowerRequest(val powerId: String, val targetId: String? = null)
 
 sealed interface ParseResult {
     data class Ok(val output: TurnOutput) : ParseResult
@@ -63,21 +71,25 @@ object ProposalSchema {
         Responda SOMENTE com um objeto JSON, sem texto fora dele:
         {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}, "personality":"...", "goals":[], "motivations":[], "relations":{}, "secrets":[{"id":"...", "text":"...", "falseInfo":false}]}, "request_combat": false}
         "create_npc" é opcional: quando criar um NPC relevante, proponha nome, conceito, atributos, traços e perícias. O pacote valida tudo; não invente ids nem regras. Não inclua create_npc ao pedir teste/rolagem.
+        "request_npc" é opcional e usa os mesmos campos de create_npc, mais "id" (opcional, slug minúsculo com letras, números e hífen, 2 a 40 caracteres, ainda não usado) para você citar o NPC depois. Use quando a cena introduz um NPC relevante sem iniciar luta; o pacote valida a ficha e o motor cria o NPC. Envie sozinho, sem create_npc, proposals, request_combat, request_power, request_check ou request_roll.
         "request_combat" é opcional e booleano. Use true somente quando a cena realmente iniciar uma luta; nesse caso, envie também create_npc com um único adversário e deixe proposals, request_check e request_roll vazios/ausentes. O app valida a ficha pelo pacote, cria o NPC e o motor rola a iniciativa. Não use request_combat para ameaças ainda não hostis.
+        "request_power" é opcional: {"power":"id-do-poder","target":"id-do-npc opcional"}. Use somente quando o jogador declarar que o personagem usa um dos poderes listados no contexto; o app valida traço, recurso e alvo, e o motor gasta o custo, rola o teste e aplica o efeito. Descreva só a tentativa; não invente o resultado nem números. Envie sozinho, sem proposals, create_npc, request_combat, request_check ou request_roll.
         "suggestions" é opcional: no máximo ${ProposalParser.MAX_SUGGESTIONS} ideias curtas do que o personagem poderia fazer; o jogador pode ignorá-las.
         "proposals" é a lista (pode ser vazia) de mudanças que você PROPÕE. O motor valida cada uma e pode recusar.
         Você nunca rola dados nem decide o resultado de testes: o motor já decidiu; você só descreve.
+        Durante um combate não use damage, heal, spend_resource, add_condition nem remove_condition em quem está lutando: ataques, defesa, crítico e dano são calculados pelo motor com as mesmas regras para o jogador e para os NPCs. Você escolhe a ação e o alvo e narra o resultado que o motor devolver; nunca informe números de dano, rolagem ou acerto.
         Tipos permitidos (campos entre parênteses):
         damage(entityId, resource, amount) · heal(entityId, resource, amount) · spend_resource(entityId, resource, cost)
         add_item(ownerId, itemId, qty) · consume_item(ownerId, itemId, qty) · gain_xp(entityId, amount)
-        revive(entityId, reason) · record_fact(key, value) · learn(key, text, source, believed)
+        revive(entityId, reason) · record_fact(key, value) · record_memory(subjectId, text: nota curta sobre um NPC ou lugar) · learn(key, text, source, believed)
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
-        change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments, publicClue opcional) · advance_clock(id, by)
-        Em create_clock, publicClue é opcional e só aparece ao jogador quando o relógio completa. Use apenas consequência/pista pública; nunca coloque nela o nome interno do relógio, a contagem ou segredo privado.
+        change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments, publicClue opcional, midClue opcional, consequence opcional, restTick opcional, moveTick opcional, chapterTick opcional) · advance_clock(id, by)
+        Em create_clock, publicClue é opcional e só aparece ao jogador quando o relógio completa. Use apenas consequência/pista pública; nunca coloque nela o nome interno do relógio, a contagem ou segredo privado. restTick (inteiro, opcional, padrão 0) é quantas casas o relógio avança sozinho a cada descanso do jogador, para ameaças que crescem com o tempo; o motor aplica o avanço sem você propor. moveTick (inteiro, opcional, padrão 0) é o mesmo para cada viagem do jogador a outro local; chapterTick, a cada capítulo encerrado. midClue (opcional) é uma pista pública curta, só de mundo, revelada quando o relógio chega à metade das casas; as mesmas restrições de publicClue valem. consequence (opcional) é uma nota PRIVADA para você: o que acontece no mundo quando o relógio completar; o jogador nunca a vê.
         propose_rule(id, name, description, effects, limit): adaptação explícita, nunca regra oficial; fica pendente até aprovação do jogador.
         add_place(id, name, description, secret) · connect_places(fromId, toId) · discover_place(id); não use move_to_place, pois só o jogador se desloca.
         Se ainda não houver local conhecido, crie o ponto inicial e descubra-o; segredos de local só são revelados pelo motor após teste apropriado.
         Campo opcional "request_roll" (regra 9), uma entrada para CADA face: {"sides": 6, "label": "Onde a flecha acerta", "table": {"1": {"text": "raspa no ombro", "damage": 1}, "2": {...}, "4": {"text": "fura a coxa", "damage": 4, "conditions": ["sangramento"]}, "6": {"text": "atinge perto do coração", "damage": 6}}}
+        "hazard" (opcional em cada face, no lugar de damage) é o id de um perfil de perigo listado no contexto (leve, médio, grave, mortal...): o motor calcula o dano pela vida máxima do personagem.
         "conditions" (opcional em cada face) é uma lista de ids de condição do sistema que o motor aplica ao personagem junto com o dano.
         Só um pedido por resposta: request_check OU request_roll.
         Campo opcional "request_check": {"check":"id","difficulty":"id opcional","onSuccess":"...","onFailure":"...","skill":"escopo de bônus opcional"}. Para disputa, inclua "opposed":{"entityId":"id-do-npc","check":"id-do-teste-do-npc","difficulty":"id-opcional","label":"nome opcional"}; o jogador é o desafiante e o NPC é o defensor (empate favorece o defensor). Para tarefa cooperativa, inclua "group":{"participantIds":["player","id-npc-1","id-npc-2"],"requiredSuccesses":2,"onSuccess":"...","onFailure":"..."}. "participantIds" deve conter "player" exatamente uma vez e apenas IDs de NPCs vivos presentes na cena, sem repetições; "requiredSuccesses" deve ser de 1 até o total de participantes. Use "group" só quando todos estiverem colaborando no mesmo objetivo, não para uma disputa entre lados. Escolha check/difficulty válidos para cada teste. Não combine opposed/group com revelação de segredo; nunca envie proposals ou outro pedido junto ao request_check. O motor resolve os resultados e só revela a consequência escolhida.
@@ -85,7 +97,7 @@ object ProposalSchema {
 
     val TYPES = listOf(
         "damage", "heal", "spend_resource", "add_item", "consume_item", "gain_xp", "revive",
-        "record_fact", "learn", "make_promise", "keep_promise", "add_condition", "remove_condition",
+        "record_fact", "record_memory", "learn", "make_promise", "keep_promise", "add_condition", "remove_condition",
         "change_relation", "create_clock", "advance_clock", "propose_rule",
         "add_place", "connect_places", "discover_place"
     )
@@ -95,6 +107,7 @@ private class Bad(message: String) : Exception(message)
 
 object ProposalParser {
     const val MAX_SUGGESTIONS = 3
+    private val NPC_ID = Regex("^[a-z0-9][a-z0-9-]{1,39}$")
 
     /**
      * Lê a resposta da IA. Aceita JSON puro ou dentro de cerca de código. Erros claros e em lista, para a IA
@@ -173,6 +186,16 @@ object ProposalParser {
                 catch (e: Bad) { errors += "create_npc: ${e.message}"; null }
             else -> { errors += "'create_npc' deve ser um objeto"; null }
         }
+        val requestedNpc = when (val rawReq = obj["request_npc"]) {
+            null, is JsonNull -> null
+            is JsonObject -> try { toNpcProposal(rawReq) }
+                catch (e: Bad) { errors += "request_npc: ${e.message}"; null }
+            else -> { errors += "'request_npc' deve ser um objeto"; null }
+        }
+        if (requestedNpc != null && npcProposal != null) errors += "use create_npc ou request_npc, não os dois"
+        if (requestedNpc != null && (commands.isNotEmpty() || checkRequest != null || rollRequest != null)) {
+            errors += "request_npc deve vir sozinho, sem proposals nem pedidos de rolagem"
+        }
         val requestCombat = when (val rawCombat = obj["request_combat"]) {
             null, is JsonNull -> false
             is JsonPrimitive -> rawCombat.booleanOrNull ?: run {
@@ -184,6 +207,31 @@ object ProposalParser {
                 false
             }
         }
+        val powerRequest = when (val rawPower = obj["request_power"]) {
+            null, is JsonNull -> null
+            is JsonObject -> {
+                val id = rawPower.str("power")?.trim()?.takeIf { it.isNotEmpty() }
+                val rawTarget = rawPower["target"]
+                val target = when (rawTarget) {
+                    null, is JsonNull -> null
+                    is JsonPrimitive -> rawTarget.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    else -> null
+                }
+                if (id == null) errors += "request_power: campo 'power' ausente ou vazio"
+                if (rawTarget != null && rawTarget !is JsonNull && target == null) errors += "request_power: 'target' deve ser um id em texto"
+                id?.let { PowerRequest(it, target) }
+            }
+            else -> {
+                errors += "'request_power' deve ser um objeto"
+                null
+            }
+        }
+        if (powerRequest != null && (commands.isNotEmpty() || checkRequest != null || rollRequest != null || npcProposal != null || requestedNpc != null || requestCombat)) {
+            errors += "request_power deve vir sozinho, sem proposals, create_npc, request_npc, request_combat nem pedidos de rolagem"
+        }
+        if (requestedNpc != null && requestCombat) {
+            errors += "request_npc não inicia combate; para lutar use create_npc com request_combat"
+        }
         if (npcProposal != null && (checkRequest != null || rollRequest != null)) {
             errors += "não combine create_npc com request_check/request_roll; crie o NPC em outra jogada"
         }
@@ -194,7 +242,7 @@ object ProposalParser {
             errors += "request_combat deve vir sozinho, sem proposals nem pedidos de rolagem"
         }
         return if (errors.isEmpty()) ParseResult.Ok(
-            TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal, requestCombat)
+            TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal ?: requestedNpc, requestCombat, powerRequest, requestedNpc != null)
         ) else ParseResult.Invalid(errors)
     }
 
@@ -271,8 +319,16 @@ object ProposalParser {
         val dossier = if (personality.isBlank() && goals.isEmpty() && motivations.isEmpty() && relations.isEmpty() && secrets.isEmpty()) {
             null
         } else NpcDossier("pending", personality, goals, motivations, relations, secrets)
+        val rawId = o["id"]
+        val customId = when (rawId) {
+            null, is JsonNull -> null
+            is JsonPrimitive -> rawId.takeIf { it.isString }?.content?.trim()
+                ?.takeIf { NPC_ID.matches(it) }
+                ?: throw Bad("campo 'id' deve ser um slug minúsculo (letras, números e hífen, 2 a 40 caracteres)")
+            else -> throw Bad("campo 'id' deve ser texto")
+        }
         return NpcProposal(
-            id = "pending",
+            id = customId ?: "pending",
             name = requiredText("name"),
             concept = o.str("concept")?.trim().orEmpty(),
             stats = stats,
@@ -303,7 +359,10 @@ object ProposalParser {
                 }.distinct()
                 else -> throw Bad("table[$key]: 'conditions' deve ser uma lista de ids em texto")
             }
-            table[face] = RollEntry(text, damage, conditions)
+            val hazard = if (!e.containsKey("hazard") || e["hazard"] is JsonNull) null
+                else slug(e.str("hazard")?.takeIf { it.isNotBlank() } ?: throw Bad("table[$key]: 'hazard' deve ser o id do perfil em texto"))
+            if (hazard != null && damage > 0) throw Bad("table[$key]: use 'hazard' ou 'damage', não ambos")
+            table[face] = RollEntry(text, damage, conditions, hazard)
         }
         val missing = (1..sides).filter { it !in table }
         if (missing.isNotEmpty() || table.keys.any { it !in 1..sides }) {
@@ -414,13 +473,14 @@ object ProposalParser {
             "gain_xp" -> GainXp(s("entityId"), n("amount"))
             "revive" -> Revive(s("entityId"), s("reason"))
             "record_fact" -> RecordFact(s("key"), o.str("value") ?: throw Bad("record_fact: campo 'value' ausente"))
+            "record_memory" -> NoteMemory(s("subjectId"), s("text"))
             "learn" -> LearnKnowledge(s("key"), s("text"), s("source"), o.bool("believed") ?: false)
             "make_promise" -> MakePromise(s("id"), s("npcId"), s("text"))
             "keep_promise" -> KeepPromise(s("id"))
             "add_condition" -> AddCondition(s("entityId"), s("condition"))
             "remove_condition" -> RemoveCondition(s("entityId"), s("condition"))
             "change_relation" -> ChangeRelation(s("fromId"), s("toId"), n("delta"), s("reason"))
-            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"), o.str("publicClue")?.trim().orEmpty())
+            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"), o.str("publicClue")?.trim().orEmpty(), nOr("restTick", 0), nOr("moveTick", 0), nOr("chapterTick", 0), o.str("midClue")?.trim().orEmpty(), o.str("consequence")?.trim().orEmpty())
             "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
             "add_place" -> AddPlace(
                 Place(

@@ -25,9 +25,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.ai.ProviderKind
 import dev.rpgsolo.ai.maskKey
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Aba Config (10.6.1/10.6.4): provedor, endpoint, modelo, chave mascarada e uso estimado. */
 @Composable
@@ -63,6 +61,9 @@ fun ConfigScreen(model: AppModel) {
             }
         }
         OutlinedTextField(endpoint, { endpoint = it }, Modifier.fillMaxWidth(), label = { Text("Endpoint (https)") }, singleLine = true)
+        if (endpoint.trim().startsWith("http://", ignoreCase = true)) {
+            ErrorText("Endpoint http:// não é aceito: a chave de API e o texto das jogadas trafegariam sem criptografia. Use https://.")
+        }
         OutlinedTextField(modelName, { modelName = it }, Modifier.fillMaxWidth(), label = { Text("Modelo") }, singleLine = true)
         OutlinedTextField(cheapModel, { cheapModel = it }, Modifier.fillMaxWidth(), label = { Text("Modelo barato (opcional): classifica e resume") }, singleLine = true)
         OutlinedTextField(premiumModel, { premiumModel = it }, Modifier.fillMaxWidth(), label = { Text("Modelo melhor (opcional): só momentos importantes") }, singleLine = true)
@@ -86,7 +87,7 @@ fun ConfigScreen(model: AppModel) {
                 testing = true
                 testResult = null
                 scope.launch {
-                    val result = withContext(Dispatchers.IO) {
+                    val result = cancellableIo {
                         model.testConnection(kind, endpoint, modelName, key, cacheSystemPrompt)
                     }
                     testResult = result

@@ -1,9 +1,11 @@
 package dev.rpgsolo.ai
 
+import dev.rpgsolo.engine.AdvanceClock
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.Command
 import dev.rpgsolo.engine.ExecResult
 import dev.rpgsolo.engine.Heal
+import dev.rpgsolo.engine.ResetTraitUses
 import java.text.Normalizer
 
 enum class LocalAction { SHEET, INVENTORY, REST }
@@ -86,9 +88,26 @@ object LocalActions {
             val r = me.resources[res] ?: return@mapNotNull null
             if (r.current < r.max) Heal(playerId, res, r.max - r.current) else null
         }
-        if (heals.isEmpty()) return LocalResult.Done("Você já está descansado.")
-        return when (val r = session.executeAll(heals)) {
-            is ExecResult.Accepted -> LocalResult.Done("Você descansa e recupera as forças.", changedState = true)
+        // M-07: o tempo passa no descanso; relógios com restTick avançam pelo motor, sem passar pela IA.
+        val ticks = state.clocks.values.filter { it.restTick > 0 && !it.full }
+        val advances: List<Command> = ticks.map { AdvanceClock(it.id, minOf(it.restTick, it.segments - it.filled)) }
+        // M-01: o descanso devolve os usos gastos de traços com usos limitados.
+        val resets: List<Command> = if (state.traitUses[playerId].orEmpty().isNotEmpty()) listOf(ResetTraitUses(playerId)) else emptyList()
+        if (heals.isEmpty() && advances.isEmpty() && resets.isEmpty()) return LocalResult.Done("Você já está descansado.")
+        return when (val r = session.executeAll(heals + advances + resets)) {
+            is ExecResult.Accepted -> {
+                // Só a pista pública de quem completou aparece; nome interno e contagem nunca.
+                val clues = ticks.mapNotNull {
+                    val now = minOf(it.segments, it.filled + it.restTick)
+                    when {
+                        now >= it.segments -> it.publicClue.takeIf { c -> c.isNotBlank() }
+                        it.filled < it.midpoint && now >= it.midpoint -> it.midClue.takeIf { c -> c.isNotBlank() }
+                        else -> null
+                    }
+                }
+                val base = if (heals.isEmpty()) "Você descansa; o tempo passa." else "Você descansa e recupera as forças."
+                LocalResult.Done((listOf(base) + clues).joinToString("\n"), changedState = true)
+            }
             is ExecResult.Rejected -> LocalResult.Refused(r.reason)
         }
     }

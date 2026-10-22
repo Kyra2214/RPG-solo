@@ -6,7 +6,7 @@ data class CatalogEntry(val id: String, val dimension: String, val category: Str
 enum class ResearchStatus { PESQUISADO_PARCIAL, PENDENTE }
 enum class LicenseStatus { VERIFICADA, INDICADA, PENDENTE }
 
-/** Uma edição de um sistema. Famílias diferentes (ex.: 3det e tormenta) nunca compartilham nada automaticamente. */
+/** Uma edição de um sistema. Famílias diferentes (ex.: duas famílias distintas) nunca compartilham nada automaticamente. */
 data class SystemEdition(
     val id: String,
     val family: String,

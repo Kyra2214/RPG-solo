@@ -1,13 +1,13 @@
 package dev.rpgsolo.rules
 
 
-/** Dica de regra para a criação: vem do pacote do sistema e, se o usuário inseriu PDFs, também deles. PDF é só um extra. */
-data class RuleHint(val source: Source, val title: String, val text: String, val page: Int? = null) {
-    enum class Source { PACOTE, PDF_DO_USUARIO }
+/** Dica de regra para a criação: vem do pacote do sistema instalado. */
+data class RuleHint(val source: Source, val title: String, val text: String) {
+    enum class Source { PACOTE }
 }
 
 /**
- * Rascunho de ficha guiado pelo pacote do sistema escolhido. Funciona sem nenhum PDF.
+ * Rascunho de ficha guiado pelo pacote do sistema escolhido.
  * O pacote valida tudo (pontos, requisitos, exclusões, limites); o rascunho só organiza as escolhas.
  */
 class CharacterDraft(val pkg: RulePackage, val id: String) {
@@ -71,13 +71,9 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
         return pkg.validateCharacter(stats, traits.toList() + traitId, checkBalance = false, skills = skills.toMap()).errors
     }
 
-    /** Busca regras para ajudar. Sem `docs` (sem PDF), usa só o pacote. Nunca exige PDF. */
-    fun hints(query: String, docs: DocumentIndex? = null, limit: Int = 5): List<RuleHint> {
-        val fromPkg = pkg.search(query, limit).map { RuleHint(RuleHint.Source.PACOTE, it.title, it.text) }
-        val fromPdf = docs?.search(query, limit, pkg.manifest.edition).orEmpty()
-            .map { RuleHint(RuleHint.Source.PDF_DO_USUARIO, it.title, it.text, it.page) }
-        return (fromPkg + fromPdf).take(limit * 2)
-    }
+    /** Busca regras do pacote para ajudar na criação. */
+    fun hints(query: String, limit: Int = 5): List<RuleHint> =
+        pkg.search(query, limit).map { RuleHint(RuleHint.Source.PACOTE, it.title, it.text) }
 
     fun build(): FichaBuild {
         if (name.isBlank()) return FichaBuild.Invalid(listOf("dê um nome ao personagem"))

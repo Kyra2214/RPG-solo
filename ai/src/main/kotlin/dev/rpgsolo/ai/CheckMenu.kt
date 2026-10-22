@@ -63,7 +63,13 @@ data class CheckRequest(
  * O que uma face do dado significa: [text] é nota PRIVADA do mestre; [damage] é aplicado pelo motor (0 = não fere);
  * [conditions] são status (ids do pacote, ex.: "sangramento") que o motor também aplica ao personagem.
  */
-data class RollEntry(val text: String, val damage: Int = 0, val conditions: List<String> = emptyList())
+data class RollEntry(
+    val text: String,
+    val damage: Int = 0,
+    val conditions: List<String> = emptyList(),
+    /** M-03.6: id de perfil de perigo do pacote; o motor calcula o dano. Exclusivo com [damage] > 0. */
+    val hazard: String? = null
+)
 
 /**
  * Rolagem com tabela pedida pelo mestre (ex.: d6 para saber onde a flecha acerta: 1 = raspa no ombro, 6 = perto do coração).
@@ -80,6 +86,8 @@ sealed interface Pending {
     /** O que o motor vai rolar. Em [PendingRoll] é só o vaso dos dados: dificuldade e resultado não valem. */
     val spec: CheckSpec
 }
+
+data class LuckOption(val resource: String, val cost: Int, val kinds: Set<dev.rpgsolo.engine.LuckKind>)
 
 data class PendingCheck(
     val request: CheckRequest,
@@ -106,6 +114,14 @@ class CheckMenu(private val pkg: RulePackage) {
 
     /** Recurso de saúde do pacote (o que mata ao chegar a 0). null = o sistema não tem. */
     fun healthResource(): String? = pkg.manifest.deathResource
+
+    /** Sorte/destino gasto depois de rolar (F3): recurso, custo e formas vêm só do pacote. null = o teste não oferece. */
+    fun luckOption(checkId: String?): LuckOption? {
+        val check = checks.firstOrNull { it.id == checkId } ?: return null
+        val resource = check.luckResource ?: return null
+        if (check.luckCost <= 0 || check.luckKinds.isEmpty()) return null
+        return LuckOption(resource, check.luckCost, check.luckKinds)
+    }
 
     /** Custo opcional por teste para o jogador escolher gastar recurso ao rolar com fortuna. */
     fun fortuneSpendOption(checkId: String): FortuneSpendOption? {
@@ -182,6 +198,10 @@ class CheckMenu(private val pkg: RulePackage) {
             damageResource = definition.damageResource
         )
     }
+
+    /** M-01.7: o alvo tem traço de imunidade à condição (definido pelo pacote). */
+    fun isImmune(entityId: String, conditionId: String, traitIds: Collection<String>): Boolean =
+        pkg.isImmuneToCondition(traitIds, conditionId)
 
     /** Mensagem de erro (para a IA corrigir) ou null se o pedido é válido. */
     fun validate(req: CheckRequest): String? {
@@ -305,6 +325,16 @@ class CheckMenu(private val pkg: RulePackage) {
             val allowed = if (known.isEmpty()) "este sistema não define condições, então use conditions vazio" else "use só estas: ${known.joinToString(", ")}"
             return "condição desconhecida: ${unknown.joinToString(", ")} ($allowed)"
         }
+        val hazards = pkg.data.hazards.map { it.id }
+        val usedHazards = req.table.values.mapNotNull { it.hazard }.distinct()
+        if (usedHazards.isNotEmpty()) {
+            val unknownHazards = usedHazards.filter { it !in hazards }
+            if (unknownHazards.isNotEmpty()) {
+                val allowed = if (hazards.isEmpty()) "este sistema não define perfis de perigo, então use damage" else "use só estes: ${hazards.joinToString(", ")}"
+                return "perfil de perigo desconhecido: ${unknownHazards.joinToString(", ")} ($allowed)"
+            }
+            if (healthResource() == null) return "este sistema não tem recurso de saúde, então a rolagem não pode causar dano (não use hazard)"
+        }
         val maxDamage = req.table.values.maxOf { it.damage }
         if (maxDamage <= 0) return null
         val resource = healthResource()
@@ -313,6 +343,13 @@ class CheckMenu(private val pkg: RulePackage) {
         val max = player.resources[resource]?.max ?: return "o personagem não tem o recurso '$resource'"
         if (maxDamage > max) return "dano $maxDamage passa da vida máxima do personagem ($max); use no máximo $max"
         return null
+    }
+
+    /** Dano que o motor aplica por esta face: o perfil de perigo (do pacote, sobre a vida máxima de [playerId]) ou o `damage` direto. */
+    fun rollDamage(entry: RollEntry, state: GameState, playerId: String): Int {
+        val hazard = entry.hazard ?: return entry.damage
+        val max = healthResource()?.let { state.entities[playerId]?.resources?.get(it)?.max } ?: return 0
+        return pkg.hazardDamage(hazard, max) ?: 0
     }
 
     /** Aplica ao teste, na hora de rolar, o Ganho/Perda das condições ativas e os bônus dos traços do jogador. */
@@ -357,8 +394,15 @@ class CheckMenu(private val pkg: RulePackage) {
         parts += buildString {
             append("Rolagem com tabela (request_roll): 1 dado de 2 a 20 faces; você define o que cada face significa (text)")
             if (healthResource() != null) append(" e o dano (damage, de 0 até a vida máxima do personagem; o motor aplica)")
+            if (healthResource() != null && pkg.data.hazards.isNotEmpty()) {
+                append(" Em vez de damage você pode usar hazard (id do perfil de perigo): o motor calcula o dano pela vida máxima, sem você escolher números.")
+            }
             append(". Faces maiores = mais graves.")
             if (pkg.data.conditions.isNotEmpty()) append(" Cada face também pode aplicar status ao personagem (campo conditions, lista de ids; o motor aplica).")
+        }
+        if (healthResource() != null && pkg.data.hazards.isNotEmpty()) {
+            parts += "Perfis de perigo (campo hazard em cada face; não combine com damage maior que 0): " +
+                pkg.data.hazards.joinToString(", ") { "${it.id} (${it.name}: ${it.description})" }
         }
         if (pkg.data.conditions.isNotEmpty()) {
             parts += "Condições que existem neste sistema (ids para conditions e add_condition/remove_condition): " +

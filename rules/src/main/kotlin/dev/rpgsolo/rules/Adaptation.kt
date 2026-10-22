@@ -62,6 +62,6 @@ fun RulePackage.applyAdaptation(
     if (refusals.isNotEmpty()) return AdaptationResult.Refused(refusals)
     val newStats = ficha.stats + preview.lines.associate { it.stat to it.after }
     return AdaptationResult.Applied(
-        ficha.copy(stats = newStats, resources = resourcesFor(newStats), adaptations = ficha.adaptations + rule.id)
+        ficha.copy(stats = newStats, resources = resourcesFor(newStats, ficha.traits), adaptations = ficha.adaptations + rule.id)
     )
 }

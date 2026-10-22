@@ -1,5 +1,22 @@
-# id|nome|tipo|slot|descricao|efeitos (opcional: ataque:+1;dano:+1;defesa:+1)
-espada-curta|Espada curta|equipamento|mao|Arma simples para combate corpo a corpo.|ataque:+1;dano:+1
-escudo-leve|Escudo leve|equipamento|outra-mao|Proteção portátil que aumenta a defesa.|defesa:+1
-pocao-cura|Poção de cura|consumivel|-|Recupera recurso quando uma regra do pacote definir seu uso.
+# id|nome|tipo|slot|descricao|efeitos (opcional: ataque:+1;dano:+1;defesa:+1)|preco (opcional, em moedas; vazio = não negociável)
+espada-curta|Espada curta|equipamento|mao|Arma simples para combate corpo a corpo.|ataque:+1;dano:+1|15
+escudo-leve|Escudo leve|equipamento|outra-mao|Proteção portátil que aumenta a defesa.|defesa:+1|10
+pocao-cura|Poção de cura|consumivel|-|Recupera recurso quando uma regra do pacote definir seu uso.|-|8
 chave-antiga|Chave antiga|narrativo|-|Item de história sem efeito mecânico automático.
+adaga|Adaga|equipamento|mao|Lâmina curta e leve, boa para golpes precisos.|ataque:+1|8
+clava|Clava|equipamento|mao|Porrete pesado de madeira ou osso.|dano:+1|5
+lanca|Lança|equipamento|mao|Haste com ponta de metal, alcança o inimigo antes dele.|ataque:+1|10
+machado|Machado|equipamento|mao|Lâmina larga que pesa no golpe e cobra o preço na guarda.|dano:+2;ataque:-1|18
+arco-curto|Arco curto|equipamento|mao|Arco leve para disparos rápidos.|ataque:+1|14
+espada-longa|Espada longa|equipamento|mao|Arma de lâmina equilibrada, superior à espada curta.|ataque:+1;dano:+2|30
+escudo-pesado|Escudo pesado|equipamento|outra-mao|Escudo largo e robusto que protege bem, mas atrapalha o corpo.|defesa:+2|22
+roupa-reforcada|Roupa reforçada|equipamento|corpo|Tecido grosso e couro fino sobre o torso.|defesa:+1|6
+couro-batido|Armadura de couro|equipamento|corpo|Couro endurecido que cobre tronco e braços.|defesa:+2|20
+cota-de-malha|Cota de malha|equipamento|corpo|Anéis de metal entrelaçados; protege muito, mas pesa.|defesa:+3;ataque:-1|45
+capacete|Capacete|equipamento|cabeca|Proteção simples para a cabeça.|defesa:+1|9
+pocao-cura-maior|Poção de cura maior|consumivel|-|Frasco denso que restaura muita vitalidade.|-|20
+bandagem|Bandagem|consumivel|-|Faixas limpas para estancar ferimentos leves.|-|2
+pocao-mana|Poção de mana|consumivel|-|Líquido azulado que restaura pontos de magia.|-|12
+tonico-vigor|Tônico de vigor|consumivel|-|Estimulante amargo que devolve pontos de ação.|-|10
+moeda|Prata|narrativo|-|Moeda base usada para comprar e vender itens; os preços são em prata.
+ouro|Ouro|narrativo|-|Moeda valiosa; 1 ouro vale 100 de prata.

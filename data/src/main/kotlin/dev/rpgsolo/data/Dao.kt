@@ -21,6 +21,12 @@ interface CampanhaDao {
 
     @Query("DELETE FROM campanhas WHERE id = :id")
     fun apagar(id: String)
+
+    @Query("UPDATE campanhas SET estado = :estado, atualizadaEm = :agora WHERE id = :id")
+    fun definirEstado(id: String, estado: String, agora: Long): Int
+
+    @Query("UPDATE campanhas SET atualizadaEm = :agora WHERE id = :id")
+    fun tocar(id: String, agora: Long)
 }
 
 @Dao
@@ -72,5 +78,56 @@ interface CampanhaMetaDao {
     fun salvar(row: CampanhaMetaRow)
 
     @Query("DELETE FROM campanha_meta WHERE campanhaId = :id")
+    fun apagar(id: String)
+}
+
+@Dao
+interface CapituloDao {
+    @Query("SELECT * FROM capitulos WHERE campanhaId = :id ORDER BY numero")
+    fun listar(id: String): List<CapituloRow>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(rows: List<CapituloRow>)
+
+    @Query("DELETE FROM capitulos WHERE campanhaId = :id")
+    fun apagar(id: String)
+}
+
+@Dao
+interface MissaoDao {
+    @Query("SELECT * FROM missoes WHERE campanhaId = :id ORDER BY ordem")
+    fun listar(id: String): List<MissaoRow>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(rows: List<MissaoRow>)
+
+    @Query("DELETE FROM missoes WHERE campanhaId = :id")
+    fun apagar(id: String)
+}
+
+@Dao
+interface SnapshotDao {
+    @Query("SELECT * FROM snapshots WHERE campanhaId = :id")
+    fun buscar(id: String): SnapshotRow?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: SnapshotRow)
+
+    @Query("DELETE FROM snapshots WHERE campanhaId = :id AND eventCount > :aPartirDe")
+    fun apagarDepoisDe(id: String, aPartirDe: Int)
+
+    @Query("DELETE FROM snapshots WHERE campanhaId = :id")
+    fun apagar(id: String)
+}
+
+@Dao
+interface LinhaTempoDao {
+    @Query("SELECT * FROM linha_tempo WHERE campanhaId = :id ORDER BY ordem")
+    fun listar(id: String): List<LinhaTempoRow>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(rows: List<LinhaTempoRow>)
+
+    @Query("DELETE FROM linha_tempo WHERE campanhaId = :id")
     fun apagar(id: String)
 }

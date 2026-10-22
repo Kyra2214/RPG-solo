@@ -90,7 +90,7 @@ fun NewCampaignSection(model: AppModel) {
                     busy = true
                     scope.launch {
                         // Chamada à IA: fora da thread principal.
-                        withContext(Dispatchers.IO) { flow.submitDescription(text) }
+                        cancellableIo { flow.submitDescription(text) }
                         step = flow.step
                         busy = false
                     }
@@ -122,10 +122,27 @@ fun NewCampaignSection(model: AppModel) {
                 }
                 OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth(), label = { Text("Nome da campanha") }, singleLine = true)
                 s.errors.forEach { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
-                Button(modifier = Modifier.fillMaxWidth(), enabled = chosen != null && name.isNotBlank(), onClick = {
-                    val result = flow.start(chosen!!, name, Random.nextLong())
-                    step = result
-                    if (result is NewCampaignFlow.Step.Started) model.activate(result.result)
+                Button(modifier = Modifier.fillMaxWidth(), enabled = chosen != null && name.isNotBlank() && !busy, onClick = {
+                    val ficha = chosen!!
+                    val campaignName = name
+                    busy = true
+                    scope.launch {
+                        // Grava no banco e troca a sessão: fora da thread principal, com exclusividade de turno (R-02).
+                        val result = try {
+                            withContext(Dispatchers.IO) {
+                                model.exclusiveTurn {
+                                    flow.start(ficha, campaignName, Random.nextLong()).also {
+                                        if (it is NewCampaignFlow.Step.Started) model.activate(it.result)
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            NewCampaignFlow.Step.Problem(listOf(e.message ?: "Falha ao iniciar a campanha."))
+                        } finally {
+                            busy = false
+                        }
+                        step = result
+                    }
                 }) { Text("Começar") }
                 OutlinedButton(onClick = { flow.reset(); step = flow.step }) { Text("Cancelar") }
             }

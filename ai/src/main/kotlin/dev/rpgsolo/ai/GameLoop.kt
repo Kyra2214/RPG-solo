@@ -13,6 +13,7 @@ import dev.rpgsolo.engine.checkWithFortune
 import dev.rpgsolo.engine.checkWithFortuneSpendingResource
 import dev.rpgsolo.engine.checkOpposed
 import dev.rpgsolo.engine.checkGroup
+import dev.rpgsolo.engine.spendLuck
 
 data class PlayInput(
     val playerEntityId: String,
@@ -33,7 +34,11 @@ data class PlayInput(
     /** IDs dos NPCs presentes nesta cena; evita enviar todos os NPCs da campanha. */
     val sceneNpcIds: Set<String> = emptySet(),
     val worldContext: String? = null,
-    val generationPreferences: String? = null
+    val generationPreferences: String? = null,
+    /** CP-03: briefing de retomada; só é enviado enquanto não há cenas recentes na memória do loop. */
+    val resumeBriefing: String? = null,
+    /** DC-05.1: trechos do documento-fonte para esta cena. */
+    val sourceContext: String? = null
 )
 
 /** Marcas do log permitem desfazer a jogada inteira ou só refazer a narração mantendo os dados (7.4). */
@@ -49,7 +54,11 @@ data class TurnRecord(
     /** Rolagens de vantagem/desvantagem não escolhidas; o resultado efetivo continua em [check]. */
     val fortuneAlternatives: List<CheckResult> = emptyList(),
     /** Resultados de todos os participantes em uma disputa ou teste de grupo pedido pela IA. */
-    val advancedChecks: List<Pair<String, CheckResult>> = emptyList()
+    val advancedChecks: List<Pair<String, CheckResult>> = emptyList(),
+    /** Poder pedido pela IA nesta jogada e resolvido pelo motor. */
+    val powerUse: PowerUse? = null,
+    /** true depois que o jogador gastou sorte pós-rolagem neste teste (um uso por teste). */
+    val luckUsed: Boolean = false
 )
 
 private data class CheckResolution(
@@ -81,14 +90,30 @@ class GameLoop(
     /** Efeitos tipados de outras fontes, preservando a origem no registro do teste. */
     private val externalBonuses: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
     /** Origem individual das adaptações aprovadas; o total mecânico continua vindo de additionalBonus. */
+<<<<<<< HEAD
     private val additionalBonusSources: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() }
+=======
+    private val additionalBonusSources: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
+    /** Poderes que o mestre pode pedir por request_power (do pacote ativo). null = não pode. */
+    private val powerMenu: PowerMenu? = null
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 ) {
-    private val history = mutableListOf<TurnRecord>()
+    /** Uma jogada por vez: protege mark() → rede → rollbackTo() (R-01). Compartilhado com o PlayController. */
+    val turnGate = TurnGate()
+
+    private val history: MutableList<TurnRecord> = java.util.Collections.synchronizedList(mutableListOf<TurnRecord>())
     private val narrations = mutableListOf<String>()
+
+    /** Tamanho do log ao fim da última narração aceita; o que entrou depois foi tempo passando fora da IA (M-07). */
+    /** -1 = ainda sem narração nesta sessão (ex.: campanha reaberta): sem marcação, para não tratar o histórico todo como novo. */
+    private var narratedUpTo = -1
 
     val turns: List<TurnRecord> get() = history.toList()
 
-    fun play(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
+    fun play(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult =
+        turnGate.exclusive { playLocked(session, input, onNarrativeChunk) }
+
+    private fun playLocked(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit): PlayResult {
         val markBefore = session.mark()
         val resolution = try {
             input.check?.let { resolveCheck(session, adjusted(it, session, input.playerEntityId)) }
@@ -210,6 +235,13 @@ class GameLoop(
         template: PlayInput,
         useFortuneResource: Boolean = false,
         onNarrativeChunk: (String) -> Unit = {}
+    ): PlayResult = turnGate.exclusive { resolvePendingLocked(session, template, useFortuneResource, onNarrativeChunk) }
+
+    private fun resolvePendingLocked(
+        session: CampaignSession,
+        template: PlayInput,
+        useFortuneResource: Boolean,
+        onNarrativeChunk: (String) -> Unit
     ): PlayResult {
         val pending = pending() ?: return PlayResult.Failed("não há teste pendente")
         var resolvedPending: Pending = pending
@@ -383,7 +415,7 @@ class GameLoop(
         if (pending is PendingRoll) {
             val face = check.roll.dice.single()
             val entry = pending.request.table[face]
-            val damage = entry?.damage ?: 0
+            val damage = if (entry == null) 0 else menu?.rollDamage(entry, session.state, template.playerEntityId) ?: entry.damage
             val resource = menu?.healthResource()
             val alive = session.state.entities[template.playerEntityId]?.alive == true
             if (damage > 0 && resource != null && alive) {
@@ -416,8 +448,65 @@ class GameLoop(
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
+    /**
+     * Sorte pós-rolagem (F3) oferecida para o último teste, ou null. Só vale para teste direto da jogada (sem pedido do mestre,
+     * disputa, grupo ou revelação, que gravam efeitos dependentes do dado), uma vez por teste, com recurso suficiente.
+     */
+    fun luckOffer(session: CampaignSession, playerEntityId: String): LuckOption? = turnGate.exclusive {
+        val last = history.lastOrNull() ?: return@exclusive null
+        luckOfferFor(session, last, playerEntityId)
+    }
+
+    private fun luckOfferFor(session: CampaignSession, last: TurnRecord, playerEntityId: String): LuckOption? {
+        val check = last.check ?: return null
+        if (last.luckUsed || last.pending != null || last.input.resolving != null || last.advancedChecks.isNotEmpty()) return null
+        val option = menu?.luckOption(check.spec.checkId) ?: return null
+        val available = session.state.entities[playerEntityId]?.resources?.get(option.resource)?.current ?: return null
+        return option.takeIf { available >= it.cost }
+    }
+
+    /**
+     * Gasta sorte no último teste: volta ao ponto logo após a rolagem, o motor gasta o recurso e repete a rolagem ou soma uma face,
+     * e o mestre narra de novo o novo resultado. Falha ao narrar desfaz a jogada inteira, como em [regenerate].
+     */
+    fun spendLuck(
+        session: CampaignSession, playerEntityId: String, kind: dev.rpgsolo.engine.LuckKind, onNarrativeChunk: (String) -> Unit = {}
+    ): PlayResult = turnGate.exclusive {
+        val last = history.lastOrNull() ?: return@exclusive PlayResult.Failed("não há jogada com teste")
+        val option = luckOfferFor(session, last, playerEntityId)
+            ?: return@exclusive PlayResult.Failed("este teste não aceita sorte agora")
+        if (kind !in option.kinds) return@exclusive PlayResult.Failed("este teste não aceita essa forma de sorte")
+        val original = last.check!!
+        session.rollbackTo(last.markAfterRoll)
+        val spent = session.spendLuck(playerEntityId, option.resource, option.cost, original, kind)
+        if (spent is dev.rpgsolo.engine.LuckResult.Rejected) {
+            history.removeLast()
+            narrations.removeLastOrNull()
+            session.rollbackTo(last.markBefore)
+            return@exclusive PlayResult.Failed(spent.reason)
+        }
+        val resolved = spent as dev.rpgsolo.engine.LuckResult.Resolved
+        narrations.removeLastOrNull()
+        when (val r = narrate(
+            session, last.input, resolved.chosen, last.markBefore, session.mark(), chainDepth(history.dropLast(1)), onNarrativeChunk,
+            fortuneAlternatives = last.fortuneAlternatives + resolved.original
+        )) {
+            is PlayResult.Played -> {
+                history[history.lastIndex] = r.record.copy(luckUsed = true)
+                PlayResult.Played(history.last())
+            }
+            is PlayResult.Failed -> {
+                history.removeLast()
+                session.rollbackTo(last.markBefore)
+                r
+            }
+        }
+    }
+
     /** 7.4.1: reverte a última jogada (eventos e rolagens). false se não há o que desfazer. */
-    fun undo(session: CampaignSession): Boolean {
+    fun undo(session: CampaignSession): Boolean = turnGate.exclusive { undoLocked(session) }
+
+    private fun undoLocked(session: CampaignSession): Boolean {
         val last = history.removeLastOrNull() ?: return false
         session.rollbackTo(last.markBefore)
         narrations.removeLastOrNull()
@@ -425,7 +514,9 @@ class GameLoop(
     }
 
     /** 7.4.2: nova narração do MESMO resultado. Mantém os dados rolados; refaz as propostas da IA. */
-    fun regenerate(session: CampaignSession): PlayResult {
+    fun regenerate(session: CampaignSession): PlayResult = turnGate.exclusive { regenerateLocked(session) }
+
+    private fun regenerateLocked(session: CampaignSession): PlayResult {
         val last = history.lastOrNull() ?: return PlayResult.Failed("não há jogada para refazer")
         session.rollbackTo(last.markAfterRoll)
         narrations.removeLastOrNull()
@@ -451,8 +542,12 @@ class GameLoop(
         fortuneAlternatives: List<CheckResult> = emptyList(),
         advancedChecks: List<Pair<String, CheckResult>> = emptyList()
     ): PlayResult {
+        val advancedClocks = if (narratedUpTo < 0) emptySet() else session.events
+            .let { all -> all.subList(minOf(narratedUpTo, markBefore).coerceIn(0, all.size), markBefore.coerceIn(0, all.size)) }
+            .filterIsInstance<dev.rpgsolo.engine.ClockAdvanced>().map { it.id }.toSet()
         val request = ContextAssembler.build(
             ContextInput(
+                advancedClockIds = advancedClocks,
                 state = session.state,
                 playerEntityId = input.playerEntityId,
                 playerText = input.text,
@@ -465,9 +560,11 @@ class GameLoop(
                 worldContext = input.worldContext,
                 generationPreferences = input.generationPreferences,
                 playerSheet = input.playerSheet,
-                checkMenu = menu?.describe(),
+                checkMenu = listOfNotNull(menu?.describe(), powerMenu?.describe(playerTraits())).joinToString("\n\n").ifBlank { null },
                 resolving = input.resolving,
                 recentNarrative = narrations.toList(),
+                resumeBriefing = if (narrations.isEmpty()) input.resumeBriefing else null,
+                sourceContext = input.sourceContext,
                 budgetTokens = input.budgetTokens
             )
         )
@@ -475,10 +572,12 @@ class GameLoop(
         // No máximo duas resoluções seguidas pedindo coisa nova: evita o mestre prender o jogador em pedidos.
         return when (val o = chosen.run(
             session, request, menu, canRequest = depth < 2, playerEntityId = input.playerEntityId,
-            onNarrativeChunk = onNarrativeChunk, sceneNpcIds = input.sceneNpcIds
+            onNarrativeChunk = onNarrativeChunk, sceneNpcIds = input.sceneNpcIds,
+            powers = powerMenu?.let { PowerContext(it, playerTraits) }
         )) {
             is TurnOutcome.Applied -> {
                 narrations += o.narrative
+                narratedUpTo = session.mark()
                 val stats = session.state.entities[input.playerEntityId]?.stats.orEmpty()
                 val skills = session.state.entities[input.playerEntityId]?.skills.orEmpty()
                 val baseText = input.resolving?.playerText ?: input.text
@@ -499,7 +598,7 @@ class GameLoop(
                     rollReq != null -> menu?.let { PendingRoll(rollReq, it.buildRoll(rollReq), baseText) }
                     else -> null
                 }
-                PlayResult.Played(TurnRecord(input, markBefore, markAfterRoll, check, o.narrative, o.suggestions, pending, fortuneAlternatives, advancedChecks))
+                PlayResult.Played(TurnRecord(input, markBefore, markAfterRoll, check, o.narrative, o.suggestions, pending, fortuneAlternatives, advancedChecks, o.powerUse))
             }
             is TurnOutcome.Refused -> fail(session, markBefore, o.reason, null)
             is TurnOutcome.Failed -> fail(session, markBefore, o.reason, o.error)

@@ -3,10 +3,17 @@ package dev.rpgsolo.ai
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CheckResult
 import dev.rpgsolo.engine.CheckSpec
+import dev.rpgsolo.engine.FortuneMode
+import dev.rpgsolo.engine.successChance
 import dev.rpgsolo.engine.Outcome
 import dev.rpgsolo.engine.QuestLog
 import dev.rpgsolo.engine.checkOpposed
 import dev.rpgsolo.engine.checkGroup
+<<<<<<< HEAD
+=======
+import dev.rpgsolo.engine.survivalTest
+import dev.rpgsolo.engine.removeConditionByCheck
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
 enum class Author { PLAYER, ROLL, MASTER, SYSTEM }
 
@@ -26,7 +33,9 @@ data class RollView(
     /** Margem positiva = passou; negativa = faltou. O motor continua sendo a fonte deste valor. */
     val margin: Int = 0,
     /** Rolagem simples (sem dificuldade nem sucesso/falha): a tela mostra só o dado. */
-    val plain: Boolean = false
+    val plain: Boolean = false,
+    /** Chance exata de sucesso pleno calculada pelo motor; null em rolagem simples, vantagem/desvantagem ou dados explosivos. */
+    val chance: Double? = null
 )
 
 /** [roll] só vem preenchido nas linhas ROLL; [text] continua com a versão em texto da mesma rolagem. */
@@ -70,32 +79,45 @@ class PlayController(
     /** NPCs presentes: todos os combatentes ou os mencionados explicitamente na ação atual. */
     private val sceneNpcIds: (String) -> Set<String> = { emptySet() },
     private val worldContext: () -> String? = { null },
-    private val generationPreferences: () -> String? = { null }
+    private val generationPreferences: () -> String? = { null },
+    /** CP-03: briefing de retomada (ver [ResumeBriefing]); enviado só até a primeira narração depois de abrir a campanha. */
+    private val resumeBriefing: () -> String? = { null },
+    /** DC-05.1: trechos do documento-fonte para o texto da jogada (ver [SourceContext]). */
+    private val sourceContext: (String) -> String? = { null }
 ) {
     /** Uma jogada no chat: onde começa e, se foi ação local que gravou estado, a marca para desfazer. */
     private data class Entry(val start: Int, val localMark: Int? = null, val viaLoop: Boolean = true)
 
-    private val chat = mutableListOf<ChatLine>()
+    /** `chat` (lista sincronizada) é também o monitor de `entries` e `revealedRolls`: leituras da interface não esperam o turno. */
+    private val chat: MutableList<ChatLine> = java.util.Collections.synchronizedList(mutableListOf<ChatLine>())
     private val entries = ArrayDeque<Entry>()
     /** Índices das rolagens que o jogador já abriu; pertence à sessão, não à composição da tela. */
     private val revealedRolls = mutableSetOf<Int>()
 
-    val lines: List<ChatLine> get() = chat.toList()
+    val lines: List<ChatLine> get() = synchronized(chat) { chat.toList() }
+
+    /** Executa uma ação local da interface (combate, inventário, lugares) com exclusividade de turno. Chamar fora da thread principal. */
+    fun <T> exclusiveTurn(block: () -> T): T = loop.turnGate.exclusive(block)
+
+    /** true enquanto uma jogada ou ação exclusiva está em andamento. */
+    val busy: Boolean get() = loop.turnGate.busy
 
     /** Linha do tempo derivada do log persistido; segredos e estado privado de NPC não são incluídos. */
-    fun automaticTimeline() = dev.rpgsolo.engine.automaticTimeline(session.engine.events, playerId, session.state)
+    fun automaticTimeline() = dev.rpgsolo.engine.automaticTimeline(session.events, playerId, session.state)
 
-    fun isRollRevealed(index: Int): Boolean = index in revealedRolls
+    fun isRollRevealed(index: Int): Boolean = synchronized(chat) { index in revealedRolls }
 
     /** Marca uma rolagem como vista depois que a animação visual terminou. */
     fun revealRoll(index: Int): Boolean {
-        if (index !in chat.indices || chat[index].roll == null) return false
-        return revealedRolls.add(index)
+        synchronized(chat) {
+            if (index !in chat.indices || chat[index].roll == null) return false
+            return revealedRolls.add(index)
+        }
     }
 
     /** Sugestões de ação da última narração (7.3.4). Opcionais; vazias após ação local ou desfazer tudo. */
     fun suggestions(): List<String> =
-        if (entries.lastOrNull()?.viaLoop == true) loop.turns.lastOrNull()?.suggestions.orEmpty() else emptyList()
+        if (synchronized(chat) { entries.lastOrNull()?.viaLoop } == true) loop.turns.lastOrNull()?.suggestions.orEmpty() else emptyList()
 
     /** Teste ou rolagem que o mestre pediu e o jogador ainda não rolou. A tela mostra o botão de rolar enquanto houver um. */
     fun pending(): Pending? = loop.pending()
@@ -126,7 +148,10 @@ class PlayController(
         return level to s.render(session.state, playerId, level)
     }
 
-    fun submit(text: String, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
+    fun submit(text: String, onNarrativeChunk: (String) -> Unit = {}): PlayResult =
+        loop.turnGate.exclusive { submitLocked(text, onNarrativeChunk) }
+
+    private fun submitLocked(text: String, onNarrativeChunk: (String) -> Unit): PlayResult {
         if (text.isBlank()) return PlayResult.Failed("texto vazio")
         if (loop.pending() != null) return PlayResult.Failed("o mestre pediu uma rolagem: role-a antes de continuar")
         val start = chat.size
@@ -141,7 +166,9 @@ class PlayController(
                 chapterSummary = chapterSummary(),
                 npcPrivate = npcContext(text),
                 sceneNpcIds = sceneNpcIds(text),
+                sourceContext = sourceContext(text),
                 worldContext = worldContext(),
+                resumeBriefing = resumeBriefing(),
                 generationPreferences = generationPreferences(),
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
@@ -150,7 +177,7 @@ class PlayController(
         )
         when (result) {
             is PlayResult.Played -> {
-                entries.addLast(Entry(start))
+                synchronized(chat) { entries.addLast(Entry(start)) }
                 showTurn(result)
             }
             is PlayResult.Failed -> chat += ChatLine(Author.SYSTEM, result.reason)
@@ -159,7 +186,10 @@ class PlayController(
     }
 
     /** O jogador rola o teste pedido pelo mestre: o motor rola e o mestre narra o desfecho. Chamada de rede. */
-    fun rollPending(useFortuneResource: Boolean = false, onNarrativeChunk: (String) -> Unit = {}): PlayResult {
+    fun rollPending(useFortuneResource: Boolean = false, onNarrativeChunk: (String) -> Unit = {}): PlayResult =
+        loop.turnGate.exclusive { rollPendingLocked(useFortuneResource, onNarrativeChunk) }
+
+    private fun rollPendingLocked(useFortuneResource: Boolean, onNarrativeChunk: (String) -> Unit): PlayResult {
         val pending = loop.pending() ?: return PlayResult.Failed("não há teste pendente")
         val start = chat.size
         val sheetNow = sheetNow()
@@ -171,7 +201,9 @@ class PlayController(
                 chapterSummary = chapterSummary(),
                 npcPrivate = npcContext(pending.playerText),
                 sceneNpcIds = sceneNpcIds(pending.playerText),
+                sourceContext = sourceContext(pending.playerText),
                 worldContext = worldContext(),
+                resumeBriefing = resumeBriefing(),
                 generationPreferences = generationPreferences(),
                 playerSheet = sheetNow?.second,
                 sheetLevel = sheetNow?.first
@@ -181,10 +213,42 @@ class PlayController(
         )
         when (result) {
             is PlayResult.Played -> {
-                entries.addLast(Entry(start))
+                synchronized(chat) { entries.addLast(Entry(start)) }
                 showTurn(result)
             }
             is PlayResult.Failed -> chat += ChatLine(Author.SYSTEM, result.reason)
+        }
+        return result
+    }
+
+    /** Sorte pós-rolagem disponível para o último teste (F3), ou null. */
+    fun luckOffer(): LuckOption? = loop.luckOffer(session, playerId)
+
+    /** Gasta sorte no último teste e narra de novo o novo resultado. O chat troca as rolagens e a narração dessa jogada. Chamada de rede. */
+    fun spendLuck(kind: dev.rpgsolo.engine.LuckKind, onNarrativeChunk: (String) -> Unit = {}): PlayResult =
+        loop.turnGate.exclusive { spendLuckLocked(kind, onNarrativeChunk) }
+
+    private fun spendLuckLocked(kind: dev.rpgsolo.engine.LuckKind, onNarrativeChunk: (String) -> Unit): PlayResult {
+        if (synchronized(chat) { entries.lastOrNull()?.viaLoop } != true) {
+            val reason = "a última jogada não tem teste para alterar"
+            chat += ChatLine(Author.SYSTEM, reason)
+            return PlayResult.Failed(reason)
+        }
+        val result = loop.spendLuck(session, playerId, kind, onNarrativeChunk)
+        when (result) {
+            is PlayResult.Played -> {
+                synchronized(chat) {
+                    var i = entries.last().start
+                    if (i < chat.size && chat[i].author == Author.PLAYER) i++
+                    while (chat.size > i) chat.removeAt(chat.size - 1)
+                    revealedRolls.removeAll { it >= chat.size }
+                }
+                showTurn(result)
+            }
+            is PlayResult.Failed -> {
+                if (loop.turns.size < synchronized(chat) { entries.count { it.viaLoop } }) truncateLastTurn()
+                chat += ChatLine(Author.SYSTEM, result.reason)
+            }
         }
         return result
     }
@@ -194,7 +258,7 @@ class PlayController(
         val mark = session.mark()
         return when (val r = LocalActions.run(action, session, playerId, restResources)) {
             is LocalResult.Done -> {
-                entries.addLast(Entry(start, localMark = if (r.changedState) mark else null, viaLoop = false))
+                synchronized(chat) { entries.addLast(Entry(start, localMark = if (r.changedState) mark else null, viaLoop = false)) }
                 chat += ChatLine(Author.SYSTEM, r.text)
                 PlayResult.Played(TurnRecord(PlayInput(playerId, chat[start].text), mark, session.mark(), null, r.text))
             }
@@ -206,8 +270,10 @@ class PlayController(
     }
 
     /** Desfaz a última jogada, inclusive no chat. */
-    fun undo(): Boolean {
-        val last = entries.lastOrNull() ?: return false
+    fun undo(): Boolean = loop.turnGate.exclusive { undoLocked() }
+
+    private fun undoLocked(): Boolean {
+        val last = synchronized(chat) { entries.lastOrNull() } ?: return false
         if (last.viaLoop) {
             if (!loop.undo(session)) return false
         } else {
@@ -218,8 +284,10 @@ class PlayController(
     }
 
     /** Nova narração do mesmo resultado; a rolagem mostrada continua a mesma. */
-    fun regenerate(): PlayResult {
-        if (entries.lastOrNull()?.viaLoop == false) {
+    fun regenerate(): PlayResult = loop.turnGate.exclusive { regenerateLocked() }
+
+    private fun regenerateLocked(): PlayResult {
+        if (synchronized(chat) { entries.lastOrNull()?.viaLoop } == false) {
             val reason = "a última jogada foi uma ação local, sem narração para refazer"
             chat += ChatLine(Author.SYSTEM, reason)
             return PlayResult.Failed(reason)
@@ -227,12 +295,14 @@ class PlayController(
         val result = loop.regenerate(session)
         when (result) {
             is PlayResult.Played -> {
-                val i = chat.indexOfLast { it.author == Author.MASTER }
-                if (i >= 0) chat.removeAt(i)
-                chat += ChatLine(Author.MASTER, result.record.narrative)
+                synchronized(chat) {
+                    val i = chat.indexOfLast { it.author == Author.MASTER }
+                    if (i >= 0) chat.removeAt(i)
+                    chat += ChatLine(Author.MASTER, result.record.narrative)
+                }
             }
             is PlayResult.Failed -> {
-                if (entries.isNotEmpty()) truncateLastTurn()
+                truncateLastTurn()
                 chat += ChatLine(Author.SYSTEM, result.reason)
             }
         }
@@ -251,6 +321,17 @@ class PlayController(
         defenderName: String = defender.label,
         challengerEntityId: String = playerId,
         defenderEntityId: String? = null
+    ): PlayResult = loop.turnGate.exclusive {
+        resolveOpposedLocked(challenger, defender, challengerName, defenderName, challengerEntityId, defenderEntityId)
+    }
+
+    private fun resolveOpposedLocked(
+        challenger: CheckSpec,
+        defender: CheckSpec,
+        challengerName: String,
+        defenderName: String,
+        challengerEntityId: String,
+        defenderEntityId: String?
     ): PlayResult {
         if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes da disputa")
         if (challengerName.isBlank() || defenderName.isBlank()) {
@@ -279,7 +360,7 @@ class PlayController(
                     ?: return PlayResult.Failed("participante defensor inexistente: $id")
             } ?: defender
             val result = session.checkOpposed(preparedChallenger, preparedDefender)
-            entries.addLast(Entry(start, localMark = mark, viaLoop = false))
+            synchronized(chat) { entries.addLast(Entry(start, localMark = mark, viaLoop = false)) }
             chat += ChatLine(Author.SYSTEM, "Disputa: $challengerName contra $defenderName.")
             result.challengerAlternatives.forEach { alternative -> chat += ChatLine(Author.ROLL, "Não escolhido · $challengerName · " + rollText(alternative), rollView(alternative)) }
             chat += ChatLine(Author.ROLL, "$challengerName · " + rollText(result.challenger), rollView(result.challenger))
@@ -316,6 +397,15 @@ class PlayController(
         requiredSuccesses: Int,
         participantNames: List<String> = checks.map { it.label },
         participantEntityIds: List<String?> = listOf(playerId) + List((checks.size - 1).coerceAtLeast(0)) { null }
+    ): PlayResult = loop.turnGate.exclusive {
+        resolveGroupLocked(checks, requiredSuccesses, participantNames, participantEntityIds)
+    }
+
+    private fun resolveGroupLocked(
+        checks: List<CheckSpec>,
+        requiredSuccesses: Int,
+        participantNames: List<String>,
+        participantEntityIds: List<String?>
     ): PlayResult {
         if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes do teste de grupo")
         if (checks.size < 2) {
@@ -354,7 +444,7 @@ class PlayController(
                     ?: return PlayResult.Failed("participante inexistente: $entityId")
             }
             val result = session.checkGroup(preparedChecks, requiredSuccesses)
-            entries.addLast(Entry(start, localMark = mark, viaLoop = false))
+            synchronized(chat) { entries.addLast(Entry(start, localMark = mark, viaLoop = false)) }
             chat += ChatLine(Author.SYSTEM, "Teste de grupo: ${checks.size} participantes; necessários ${result.requiredSuccesses} sucessos.")
             result.individual.forEachIndexed { index, check ->
                 result.alternatives.getOrNull(index).orEmpty().forEach { alternative ->
@@ -383,6 +473,152 @@ class PlayController(
         }
     }
 
+    /**
+     * Ativa um poder já traduzido pelo pacote ([PowerMenu]). Custo, teste e efeito são do motor; o chat mostra o
+     * resultado e a jogada pode ser desfeita como as outras ações locais.
+     */
+    fun activatePower(spec: dev.rpgsolo.engine.PowerSpec, powerName: String, userName: String, targetName: String?): PlayResult =
+        loop.turnGate.exclusive { activatePowerLocked(spec, powerName, userName, targetName) }
+
+    private fun activatePowerLocked(spec: dev.rpgsolo.engine.PowerSpec, powerName: String, userName: String, targetName: String?): PlayResult {
+        if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes de usar um poder")
+        val start = chat.size
+        val mark = session.mark()
+        return try {
+            when (val result = session.activatePower(spec)) {
+                is dev.rpgsolo.engine.PowerResult.Rejected -> {
+                    chat += ChatLine(Author.SYSTEM, result.reason)
+                    PlayResult.Failed(result.reason)
+                }
+                is dev.rpgsolo.engine.PowerResult.Activated -> {
+                    synchronized(chat) { entries.addLast(Entry(start, localMark = mark, viaLoop = false)) }
+                    val summary = addPowerLines(powerName, userName, targetName, spec, result)
+                    PlayResult.Played(TurnRecord(PlayInput(playerId, "poder: $powerName"), mark, session.mark(), result.check, summary))
+                }
+            }
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(mark) }
+            PlayResult.Failed(e.message ?: "falha ao ativar o poder")
+        }
+    }
+
+    /**
+     * Gasta um uso de um traço com usos limitados ([limit] vem do pacote). Só o motor decide se há uso disponível;
+     * desfazer reverte como as outras ações locais.
+     */
+    fun spendTraitUse(traitId: String, traitName: String, limit: Int, userName: String): PlayResult =
+        loop.turnGate.exclusive { spendTraitUseLocked(traitId, traitName, limit, userName) }
+
+    private fun spendTraitUseLocked(traitId: String, traitName: String, limit: Int, userName: String): PlayResult {
+        if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes de usar um traço")
+        val start = chat.size
+        val mark = session.mark()
+        return try {
+            when (val r = session.execute(dev.rpgsolo.engine.SpendTraitUse(playerId, traitId, limit))) {
+                is dev.rpgsolo.engine.ExecResult.Rejected -> {
+                    chat += ChatLine(Author.SYSTEM, r.reason)
+                    PlayResult.Failed(r.reason)
+                }
+                is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                    synchronized(chat) { entries.addLast(Entry(start, localMark = mark, viaLoop = false)) }
+                    val used = session.state.traitUses[playerId]?.get(traitId) ?: 0
+                    val summary = "$userName usa $traitName ($used/$limit)."
+                    chat += ChatLine(Author.SYSTEM, summary)
+                    PlayResult.Played(TurnRecord(PlayInput(playerId, "traço: $traitName"), mark, session.mark(), null, summary))
+                }
+            }
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(mark) }
+            PlayResult.Failed(e.message ?: "falha ao usar o traço")
+        }
+    }
+
+    /**
+     * Teste de sobrevivência do herói caído (M-04.5). O motor rola e aplica (reergue, mantém ou conta falha/morte);
+     * chat e desfazer como as outras ações locais. Sem chamada de IA.
+     */
+    fun survivalTest(spec: dev.rpgsolo.engine.CheckSpec, failuresToDie: Int, userName: String): PlayResult =
+        loop.turnGate.exclusive { survivalTestLocked(spec, failuresToDie, userName) }
+
+    private fun survivalTestLocked(spec: dev.rpgsolo.engine.CheckSpec, failuresToDie: Int, userName: String): PlayResult {
+        if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes do teste de sobrevivência")
+        val start = chat.size
+        val mark = session.mark()
+        return try {
+            when (val r = session.survivalTest(playerId, spec, failuresToDie)) {
+                is dev.rpgsolo.engine.SurvivalResult.Rejected -> {
+                    chat += ChatLine(Author.SYSTEM, r.reason)
+                    PlayResult.Failed(r.reason)
+                }
+                else -> {
+                    synchronized(chat) { entries.addLast(Entry(start, localMark = mark, viaLoop = false)) }
+                    val summary = when (r) {
+                        is dev.rpgsolo.engine.SurvivalResult.Recovered -> "$userName passa no teste de sobrevivência e se reergue."
+                        is dev.rpgsolo.engine.SurvivalResult.Stable -> "$userName se mantém caído, mas estável."
+                        is dev.rpgsolo.engine.SurvivalResult.Failed ->
+                            if (r.died) "$userName falha no teste de sobrevivência (${r.failures}/$failuresToDie) e morre."
+                            else "$userName falha no teste de sobrevivência (${r.failures}/$failuresToDie)."
+                        is dev.rpgsolo.engine.SurvivalResult.Rejected -> r.reason
+                    }
+                    chat += ChatLine(Author.SYSTEM, summary)
+                    PlayResult.Played(TurnRecord(PlayInput(playerId, "sobrevivência"), mark, session.mark(), null, summary))
+                }
+            }
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(mark) }
+            PlayResult.Failed(e.message ?: "falha no teste de sobrevivência")
+        }
+    }
+
+    /** Tenta remover uma condição do herói por teste do pacote (M-05); chat e desfazer como as ações locais. */
+    fun removeConditionByCheck(condition: String, conditionName: String, spec: dev.rpgsolo.engine.CheckSpec, userName: String): PlayResult =
+        loop.turnGate.exclusive { removeConditionLocked(condition, conditionName, spec, userName) }
+
+    private fun removeConditionLocked(condition: String, conditionName: String, spec: dev.rpgsolo.engine.CheckSpec, userName: String): PlayResult {
+        if (loop.pending() != null) return PlayResult.Failed("resolva o pedido pendente antes de tentar remover a condição")
+        val start = chat.size
+        val mark = session.mark()
+        return try {
+            when (val r = session.removeConditionByCheck(playerId, condition, spec)) {
+                is dev.rpgsolo.engine.ConditionRemovalResult.Rejected -> {
+                    chat += ChatLine(Author.SYSTEM, r.reason)
+                    PlayResult.Failed(r.reason)
+                }
+                else -> {
+                    synchronized(chat) { entries.addLast(Entry(start, localMark = mark, viaLoop = false)) }
+                    val summary = if (r is dev.rpgsolo.engine.ConditionRemovalResult.Removed) "$userName se livra de $conditionName."
+                    else "$userName não consegue se livrar de $conditionName."
+                    chat += ChatLine(Author.SYSTEM, summary)
+                    PlayResult.Played(TurnRecord(PlayInput(playerId, "remover: $conditionName"), mark, session.mark(), null, summary))
+                }
+            }
+        } catch (e: Exception) {
+            runCatching { session.rollbackTo(mark) }
+            PlayResult.Failed(e.message ?: "falha ao tentar remover a condição")
+        }
+    }
+
+    /** Mostra no chat o uso do poder (custo, teste, efeito) e devolve o resumo do efeito. */
+    private fun addPowerLines(
+        powerName: String, userName: String, targetName: String?,
+        spec: dev.rpgsolo.engine.PowerSpec, result: dev.rpgsolo.engine.PowerResult.Activated
+    ): String {
+        val costText = if (result.spent > 0) " (custo ${result.spent} de ${spec.resource})" else ""
+        chat += ChatLine(Author.SYSTEM, "$userName usa $powerName" + (targetName?.let { " em $it" } ?: "") + costText + ".")
+        result.check?.let { chat += ChatLine(Author.ROLL, rollText(it), rollView(it)) }
+        val summary = when {
+            !result.effectApplied -> "$powerName falha: o custo foi gasto, sem efeito."
+            result.damageRoll != null -> {
+                val r = result.damageRoll!!
+                "Dano: ${r.expression} [${r.dice.joinToString(", ")}] = ${r.total}; ${-result.resourceDelta} aplicado."
+            }
+            result.resourceDelta > 0 -> "$powerName cura ${result.resourceDelta}."
+            else -> "$powerName faz efeito."
+        }
+        chat += ChatLine(Author.SYSTEM, summary)
+        return summary
+    }
+
     fun panel(): PanelState? {
         val e = session.state.entities[playerId] ?: return null
         return PanelState(
@@ -397,9 +633,11 @@ class PlayController(
     }
 
     private fun truncateLastTurn() {
-        val start = entries.removeLastOrNull()?.start ?: return
-        while (chat.size > start) chat.removeAt(chat.size - 1)
-        revealedRolls.removeAll { it >= chat.size }
+        synchronized(chat) {
+            val start = entries.removeLastOrNull()?.start ?: return
+            while (chat.size > start) chat.removeAt(chat.size - 1)
+            revealedRolls.removeAll { it >= chat.size }
+        }
     }
 
     private fun showTurn(r: PlayResult.Played) {
@@ -417,6 +655,7 @@ class PlayController(
         } else {
             r.record.check?.let { chat += ChatLine(Author.ROLL, rollText(it, plain), rollView(it, plain)) }
         }
+        r.record.powerUse?.let { addPowerLines(it.powerName, it.userName, it.targetName, it.spec, it.result) }
         chat += ChatLine(Author.MASTER, r.record.narrative)
     }
 
@@ -433,7 +672,8 @@ class PlayController(
         fun rollView(c: CheckResult, plain: Boolean = false) = RollView(
             label = c.spec.label, sides = c.spec.diceSides, dice = c.roll.dice, modifier = c.roll.modifier,
             total = c.roll.total, difficulty = c.spec.difficulty, outcome = c.outcome,
-            outcomeWord = if (plain) "" else word(c.outcome), margin = c.margin, plain = plain
+            outcomeWord = if (plain) "" else word(c.outcome), margin = c.margin, plain = plain,
+            chance = if (plain || c.spec.fortuneMode != FortuneMode.NORMAL || c.spec.explodeOnMax) null else c.spec.successChance()
         )
 
         /** Rolagem do motor, clara (10.1.4): dados, modificador, total e resultado. */

@@ -11,6 +11,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import dev.rpgsolo.ai.AiProvider
 import dev.rpgsolo.ai.AiError
 import dev.rpgsolo.ai.AiMessage
@@ -37,6 +39,8 @@ import dev.rpgsolo.ai.UsageTracker
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.ChapterBook
 import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.engine.chapterClocks
+import dev.rpgsolo.engine.travelClocks
 import dev.rpgsolo.engine.Quest
 import dev.rpgsolo.engine.QuestLog
 import dev.rpgsolo.engine.journal
@@ -57,12 +61,32 @@ data class CombatTarget(val id: String, val name: String, val rulesValidated: Bo
 data class PlaceView(val id: String, val name: String, val description: String, val current: Boolean, val exits: List<Pair<String, String>>)
 data class RelationshipView(val npcName: String, val attitude: String)
 data class EquipmentView(val id: String, val name: String, val quantity: Int, val slot: String, val equipped: Boolean)
+data class TraitUseView(val id: String, val name: String, val description: String, val used: Int, val limit: Int)
+
+data class PowerView(
+    val id: String, val name: String, val description: String,
+    val resourceName: String, val cost: Int, val needsTarget: Boolean
+)
 data class InventoryView(
     val id: String, val name: String, val quantity: Int, val kind: String,
-    val slot: String?, val equipped: Boolean, val description: String
+    val slot: String?, val equipped: Boolean, val description: String,
+    val price: Int? = null
+)
+data class ShopEntry(val id: String, val name: String, val price: Int, val description: String)
+data class SpellShopEntry(val id: String, val name: String, val price: Int, val learned: Boolean)
+data class ShopView(
+    val currencyName: String,
+    val balance: Int,
+    val entries: List<ShopEntry>,
+    /** MU-07.1: ouro (null = pacote sem ouro); [balance] já soma o ouro convertido em moeda base. */
+    val goldName: String? = null,
+    val goldHeld: Int = 0,
+    val silverHeld: Int = 0,
+    val silverPerGold: Int = 0
 )
 data class AdvancementChoice(val id: String, val name: String, val current: Int, val max: Int, val skill: Boolean)
 data class AdvancementState(val pointsAvailable: Int, val choices: List<AdvancementChoice>)
+data class StatPointsState(val statPoints: Int, val abilityPoints: Int, val choices: List<AdvancementChoice>)
 data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val campaignReady: Boolean) {
     val complete: Boolean get() = providerReady && heroReady && campaignReady
 }
@@ -138,6 +162,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+<<<<<<< HEAD
     private fun selectedCatalogBonus(pkg: RulePackage, scope: String): Int =
         selectedCatalogBonuses(pkg).filter { it.scope == scope }.sumOf { it.bonus }
 
@@ -152,6 +177,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         return " Efeitos de personagem: $details."
     }
+=======
+    private val bonuses = CombatBonuses(
+        session = { session },
+        activePackage = { activePackage },
+        activeFicha = { activeFicha },
+        playerId = { playerId },
+        catalogBonuses = { pkg -> selectedCatalogBonuses(pkg) }
+    )
+
+    private fun selectedCatalogBonus(pkg: RulePackage, scope: String): Int = bonuses.selectedCatalogBonus(pkg, scope)
+
+    private fun selectedCatalogBonusSummary(pkg: RulePackage, scopes: Collection<String>): String =
+        bonuses.selectedCatalogBonusSummary(pkg, scopes)
+
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
         val choices = characterChoices(fichaId)
@@ -228,6 +268,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         campaignVersion++
     }
 
+<<<<<<< HEAD
+=======
+    /** ID de rascunho sem acesso ao banco (seguro na composição): UUID aleatório conferido só contra a memória. */
+    fun draftFichaId(): String {
+        var candidate: String
+        do {
+            candidate = "f-${java.util.UUID.randomUUID()}"
+        } while ((fichas + archivedFichas).any { it.id == candidate })
+        return candidate
+    }
+
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     /** ID novo e resistente a colisões entre fichas ativas, arquivadas e importadas. */
     fun newFichaId(): String {
         var candidate: String
@@ -241,6 +293,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     val fichas = mutableStateListOf<Ficha>()
     val archivedFichas = mutableStateListOf<Ficha>()
     val campaigns = mutableStateListOf<CampaignRecord>()
+    /** CP-02: estado, datas e tamanho do log de cada campanha, para a lista e o histórico. */
+    val campaignInfos = mutableStateListOf<dev.rpgsolo.data.CampanhaInfo>()
     var chapters = ChapterBook(chapterEventLimit)
         private set
     var quests = QuestLog()
@@ -252,6 +306,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var packageVersion by mutableIntStateOf(0)
         private set
     var chapterNotice by mutableStateOf<String?>(null)
+    /** CP-01.3: motivo da última gravação que falhou (log ou metadados); `null` = tudo confirmado. */
+    var saveError by mutableStateOf<String?>(null)
         private set
     private var roles: AiRoles? = null
     private val database = RpgDatabase.build(application)
@@ -265,33 +321,31 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private var activeFichaId: String? = null
     private var activeSystemId: String? = null
     private var activeEditionId: String? = null
-    private var session: CampaignSession = openOrCreateCampaign()
+    /** Definida na inicialização assíncrona (R-02); as telas só são desenhadas depois de [ready]. */
+    private lateinit var session: CampaignSession
+
+    /** false enquanto o banco e a campanha ativa são restaurados fora da thread principal. */
+    var ready by mutableStateOf(false)
+        private set
+    var startupError: String? by mutableStateOf(null)
+        private set
+    private val startupScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
+
+    override fun onCleared() {
+        startupScope.cancel()
+        super.onCleared()
+    }
 
     /** null enquanto não houver provedor configurado. */
     var controller: PlayController? by mutableStateOf(null)
         private set
 
+    /** Roda uma ação de combate/inventário/lugar com exclusividade de turno (R-01). Chamar fora da thread principal. */
+    fun <T> exclusiveTurn(block: () -> T): T = controller?.exclusiveTurn(block) ?: block()
+
     var configError: String? by mutableStateOf(null)
         private set
 
-    init {
-        restoreImportedPackages()
-        restoreFichas()
-        refreshCampaigns()
-        restoreMetadata()
-        restorePendingCombatNpcIds()
-        if (chapters.chapters.isEmpty()) openChapter("Capítulo 1")
-        storedSettings?.let { saved ->
-            runCatching {
-                applySettings(
-                    ProviderKind.valueOf(saved.kind), saved.endpoint, saved.model, saved.apiKey,
-                    saved.cheapModel, saved.premiumModel, saved.cacheSystemPrompt,
-                    saved.inputPricePerMillion, saved.outputPricePerMillion,
-                    saved.cacheReadPricePerMillion, saved.cacheCreationPricePerMillion
-                )
-            }
-        }
-    }
 
     /** Reinstala no registro em memória os pacotes ZIP guardados no armazenamento privado do app. */
     private fun restoreImportedPackages() {
@@ -336,6 +390,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun refreshCampaigns() {
         campaigns.clear()
         campaigns.addAll(store.campaigns())
+        campaignInfos.clear()
+        campaignInfos.addAll(store.infos())
     }
 
     private fun restoreFichas() {
@@ -555,53 +611,24 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
+    private val combatActions = CombatActions(
+        session = { session },
+        activePackage = { activePackage },
+        playerId = { playerId },
+        pendingCombatNpcIds = pendingCombatNpcIds,
+        savePending = { savePendingCombatNpcIds() },
+        onChanged = { campaignVersion++ },
+        bonuses = bonuses
+    )
+
     /** Inicia a iniciativa do jogador e dos NPCs preparados para este encontro; os números vêm do motor. */
-    fun startCombat(): String? = try {
-        val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
-        val initiativeStat = pkg.data.creation["combate_atributo_iniciativa"]
-            ?: return "o pacote não define o atributo de iniciativa"
-        val initiativeDiceCount = pkg.data.creation["combate_dados_iniciativa"]?.toIntOrNull()
-            ?: return "o pacote não define combate_dados_iniciativa"
-        val initiativeDiceSides = pkg.data.creation["combate_lados_iniciativa"]?.toIntOrNull()
-            ?: return "o pacote não define combate_lados_iniciativa"
-        val initiativeOrder = pkg.data.creation["combate_ordem_iniciativa"]
-            ?: return "o pacote não define combate_ordem_iniciativa"
-        val participants = (listOf(playerId) + pendingCombatNpcIds).distinct().filter { id ->
-            session.state.entities[id]?.alive == true
-        }
-        require(participants.size >= 2) { "adicione pelo menos um adversário para este encontro" }
-        when (val result = session.rollInitiative(
-            participants,
-            diceCount = initiativeDiceCount,
-            diceSides = initiativeDiceSides,
-            statKey = initiativeStat,
-            highestFirst = initiativeOrder == "MAIOR"
-        )) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> {
-                pendingCombatNpcIds.clear()
-                savePendingCombatNpcIds()
-                campaignVersion++
-                null
-            }
-            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
-        }
-    } catch (e: IllegalArgumentException) { e.message }
+    fun startCombat(): String? = combatActions.startCombat()
 
     /** Permite passar o turno apenas ao jogador; turnos de NPC são resolvidos pela ação mecânica correspondente. */
-    fun nextCombatTurn(): String? {
-        if (!isPlayerCombatTurn()) return "só é possível passar o turno durante o turno do jogador"
-        val combatantsBefore = session.state.combat?.order.orEmpty()
-        return when (val result = session.execute(dev.rpgsolo.engine.NextTurn)) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> {
-                awardCombatVictoryXp(combatantsBefore)
-                campaignVersion++
-                null
-            }
-            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
-        }
-    }
+    fun nextCombatTurn(): String? = combatActions.nextCombatTurn()
 
     /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
+<<<<<<< HEAD
     fun resolveNpcTurn(): String? {
         return try {
         val combat = requireNotNull(session.state.combat) { "não há combate ativo" }
@@ -696,58 +723,26 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         } catch (e: IllegalArgumentException) { e.message }
           catch (e: IllegalStateException) { e.message }
     }
+=======
+    fun resolveNpcTurn(): String? = combatActions.resolveNpcTurn()
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
-    fun endCombat(): String? = when (val result = session.execute(dev.rpgsolo.engine.EndCombat)) {
-        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
-        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
-    }
+    fun endCombat(): String? = combatActions.endCombat()
 
-    fun combatState(): dev.rpgsolo.engine.CombatState? = session.state.combat
+    fun combatState(): dev.rpgsolo.engine.CombatState? = combatActions.combatState()
 
-    fun combatantName(id: String): String = session.state.entities[id]?.name ?: id
+    fun combatantName(id: String): String = combatActions.combatantName(id)
 
     /** Ordem de iniciativa em palavras; nunca expõe atributos ou recursos dos NPCs. */
-    fun combatOrderDescription(): String? {
-        val combat = session.state.combat ?: return null
-        return combat.order.mapNotNull { id ->
-            val entity = session.state.entities[id]?.takeIf { it.alive } ?: return@mapNotNull null
-            if (id == playerId) "Você" else entity.name
-        }.joinToString(" → ").ifBlank { null }
-    }
+    fun combatOrderDescription(): String? = combatActions.combatOrderDescription()
 
-    fun combatTargets(): List<CombatTarget> = session.state.combat?.order.orEmpty()
-        .filter { it != playerId }
-        .mapNotNull { id ->
-            session.state.entities[id]?.takeIf { it.alive }?.let { entity ->
-                val resourceId = activePackage?.manifest?.deathResource
-                val resource = resourceId?.let { entity.resources[it] }
-                val condition = when {
-                    resource == null || resource.max <= 0 -> ""
-                    resource.current * 4 <= resource.max -> "gravemente ferido"
-                    resource.current * 4 <= resource.max * 3 -> "ferido"
-                    else -> "ileso"
-                }
-                CombatTarget(entity.id, entity.name, entity.rulesValidated, condition)
-            }
-        }
+    fun combatTargets(): List<CombatTarget> = combatActions.combatTargets()
 
-    fun isPlayerCombatTurn(): Boolean =
-        session.state.combat?.current == playerId
+    fun isPlayerCombatTurn(): Boolean = combatActions.isPlayerCombatTurn()
 
-    fun canDefend(): Boolean = (activePackage?.engineConfig()?.defendBonus ?: 0) > 0 && session.state.entities[playerId]?.alive == true
+    fun canDefend(): Boolean = combatActions.canDefend()
 
-    /** Só recompensa quando o combate terminou e todos os NPCs que participaram foram derrotados. */
-    private fun awardCombatVictoryXp(combatantIds: Collection<String>): Int {
-        if (session.state.combat != null || session.state.entities[playerId]?.alive != true) return 0
-        val npcIds = combatantIds.filter { session.state.entities[it]?.kind == EntityKind.NPC }
-        if (npcIds.isEmpty() || npcIds.any { session.state.entities[it]?.alive == true }) return 0
-        val xp = activePackage?.data?.creation?.get("combate_xp_vitoria")?.toIntOrNull() ?: 0
-        if (xp <= 0) return 0
-        return when (session.execute(dev.rpgsolo.engine.GainXp(playerId, xp))) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> xp
-            is dev.rpgsolo.engine.ExecResult.Rejected -> 0
-        }
-    }
+    private fun awardCombatVictoryXp(combatantIds: Collection<String>): Int = combatActions.awardCombatVictoryXp(combatantIds)
 
     fun additionalRulesView(): List<dev.rpgsolo.engine.RegraAdicional> =
         session.state.additionalRules.values.sortedWith(compareBy({ it.approved }, { it.name }))
@@ -778,15 +773,25 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }.sortedWith(compareByDescending<PlaceView> { it.current }.thenBy { it.name })
     }
 
+    /** A viagem também faz o tempo passar: relógios com `moveTick` avançam pelo motor, no mesmo lote do deslocamento. */
     fun moveToPlace(id: String): String? = when (
-        val result = session.execute(dev.rpgsolo.engine.MoveToPlace(id))
+        val result = session.executeAll(
+            listOf<dev.rpgsolo.engine.Command>(dev.rpgsolo.engine.MoveToPlace(id)) +
+                session.state.travelClocks().map {
+                    dev.rpgsolo.engine.AdvanceClock(it.id, minOf(it.moveTick, it.segments - it.filled))
+                }
+        )
     ) {
         is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
     }
 
-    private fun approvedRuleBonus(scope: String): Int =
-        session.state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
+    private fun approvedRuleBonus(scope: String): Int = bonuses.approvedRuleBonus(scope)
+
+    private fun approvedRuleEffects(scopes: Collection<String>): List<dev.rpgsolo.rules.ExternalBonus> =
+        bonuses.approvedRuleEffects(scopes)
+
+    private fun approvedRuleBonusSummary(scopes: Collection<String>): String = bonuses.approvedRuleBonusSummary(scopes)
 
     private fun approvedRuleEffects(scopes: Collection<String>): List<dev.rpgsolo.rules.ExternalBonus> =
         session.state.additionalRules.values.filter { it.approved }.flatMap { rule ->
@@ -825,6 +830,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
     }
 
+<<<<<<< HEAD
     /** Ganho/Perda das condições para um teste que usa o atributo informado. */
     private fun conditionDiceShift(entityId: String, stat: String): Int =
         session.state.conditions[entityId].orEmpty().sumOf { conditionId ->
@@ -832,30 +838,137 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             val effectStats = effect?.stats
             if (effect != null && (effectStats == null || stat in effectStats)) effect.dice else 0
         }
+=======
+    private fun conditionDiceShift(entityId: String, stat: String): Int = bonuses.conditionDiceShift(entityId, stat)
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
-    /** Traços mecânicos do combatente; a ficha salva cobre campanhas antigas cujo Entity ainda não os continha. */
-    private fun combatTraitIds(entityId: String): List<String> =
-        (session.state.entities[entityId]?.traits.orEmpty() +
-            if (entityId == playerId) activeFicha?.traits.orEmpty() else emptyList()).distinct()
+    private fun combatTraitIds(entityId: String): List<String> = bonuses.combatTraitIds(entityId)
 
-    fun inventoryView(): List<InventoryView> {
-        val pkg = activePackage
-        val equipped = session.state.equipped[playerId].orEmpty()
-        return session.state.inventory[playerId].orEmpty().map { (id, quantity) ->
-            val item = pkg?.item(id)
-            InventoryView(
-                id = id,
-                name = item?.name ?: id,
-                quantity = quantity,
-                kind = item?.kind ?: "desconhecido",
-                slot = item?.slot,
-                equipped = item?.slot?.let { equipped[it] == id } == true,
-                description = item?.description ?: "Item não existe no pacote ativo."
+    /** Poderes do pacote cujo traço está na ficha ativa; sem pacote ou sem traços, lista vazia. */
+    fun powersView(): List<PowerView> {
+        val pkg = activePackage ?: return emptyList()
+        return dev.rpgsolo.ai.PowerMenu(pkg).available(combatTraitIds(playerId)).map { def ->
+            PowerView(
+                id = def.id, name = def.name, description = def.description,
+                resourceName = pkg.data.resources.firstOrNull { it.id == def.resource }?.name ?: def.resource,
+                cost = def.cost, needsTarget = def.target == dev.rpgsolo.rules.PowerTarget.ENEMY
             )
-        }.filter { it.quantity > 0 }.sortedWith(compareBy<InventoryView>({ it.kind }, { it.name }))
+        }
     }
 
+    /** Traços da ficha ativa com usos limitados declarados pelo pacote (`usos` em `tracos.txt`). */
+    fun traitUsesView(): List<TraitUseView> {
+        val pkg = activePackage ?: return emptyList()
+        val me = session.state.entities[playerId] ?: return emptyList()
+        return me.traits.distinct().mapNotNull { id ->
+            val def = pkg.trait(id)?.takeIf { it.uses > 0 } ?: return@mapNotNull null
+            TraitUseView(def.id, def.name, def.description, session.state.traitUses[playerId]?.get(id) ?: 0, def.uses)
+        }
+    }
+
+    /** Gasta um uso do traço pelo motor; limite vem do pacote. Chamar fora da thread principal (via `act`). */
+    fun spendTraitUse(traitId: String): String? {
+        val pkg = activePackage ?: return "Não há pacote de regras ativo."
+        val user = session.state.entities[playerId] ?: return "Personagem do jogador inexistente."
+        val def = pkg.trait(traitId)?.takeIf { it.uses > 0 } ?: return "Este traço não tem usos limitados."
+        return when (val result = controller?.spendTraitUse(def.id, def.name, def.uses, user.name)
+            ?: return "O controlador da campanha não está disponível.") {
+            is dev.rpgsolo.ai.PlayResult.Played -> { campaignVersion++; null }
+            is dev.rpgsolo.ai.PlayResult.Failed -> result.reason
+        }
+    }
+
+    /** Condições ativas do herói que o pacote deixa remover por teste: (id, nome). */
+    fun removableConditions(): List<Pair<String, String>> {
+        val pkg = activePackage ?: return emptyList()
+        val me = session.state.entities[playerId]?.takeIf { it.alive } ?: return emptyList()
+        return session.state.conditions[playerId].orEmpty().sorted().mapNotNull { id ->
+            pkg.conditionRemovalSpec(id, me.stats, me.skills) ?: return@mapNotNull null
+            id to (pkg.data.conditions.firstOrNull { it.id == id }?.name ?: id)
+        }
+    }
+
+    /** Tenta remover a condição por teste, pelo motor. Chamar fora da thread principal (via `act`). */
+    fun removeCondition(conditionId: String): String? {
+        val pkg = activePackage ?: return "Não há pacote de regras ativo."
+        val me = session.state.entities[playerId] ?: return "Personagem do jogador inexistente."
+        val spec = pkg.conditionRemovalSpec(conditionId, me.stats, me.skills) ?: return "Esta condição não pode ser removida por teste."
+        val name = pkg.data.conditions.firstOrNull { it.id == conditionId }?.name ?: conditionId
+        return when (val result = controller?.removeConditionByCheck(conditionId, name, spec, me.name)
+            ?: return "O controlador da campanha não está disponível.") {
+            is dev.rpgsolo.ai.PlayResult.Played -> { campaignVersion++; null }
+            is dev.rpgsolo.ai.PlayResult.Failed -> result.reason
+        }
+    }
+
+    /** Falhas que matam, se o herói está caído e o pacote declara teste de sobrevivência; senão null. */
+    fun survivalLimit(): Int? {
+        val pkg = activePackage ?: return null
+        val me = session.state.entities[playerId] ?: return null
+        if (!me.alive || !me.downed) return null
+        pkg.survivalSpec(me.stats, me.skills) ?: return null
+        return pkg.survivalFailureLimit
+    }
+
+    /** Falhas acumuladas do herói caído. */
+    fun survivalFailures(): Int = session.state.entities[playerId]?.deathFailures ?: 0
+
+    /** Teste de sobrevivência do herói caído, pelo motor. Chamar fora da thread principal (via `act`). */
+    fun survivalTest(): String? {
+        val pkg = activePackage ?: return "Não há pacote de regras ativo."
+        val me = session.state.entities[playerId] ?: return "Personagem do jogador inexistente."
+        val spec = pkg.survivalSpec(me.stats, me.skills) ?: return "O pacote não declara teste de sobrevivência."
+        return when (val result = controller?.survivalTest(spec, pkg.survivalFailureLimit, me.name)
+            ?: return "O controlador da campanha não está disponível.") {
+            is dev.rpgsolo.ai.PlayResult.Played -> { campaignVersion++; null }
+            is dev.rpgsolo.ai.PlayResult.Failed -> result.reason
+        }
+    }
+
+    /** Nome de exibição de um recurso do pacote ativo; o próprio id se não houver. */
+    fun resourceName(id: String): String = activePackage?.data?.resources?.firstOrNull { it.id == id }?.name ?: id
+
+    /** NPCs vivos que podem ser alvo de um poder ofensivo. */
+    fun powerTargets(): List<CombatTarget> = session.state.entities.values
+        .filter { it.kind == EntityKind.NPC && it.alive }
+        .map { CombatTarget(it.id, it.name) }
+
+    /**
+     * Ativa um poder pelo motor. ASSUMINDO: usar um poder não consome o turno de combate; custo, teste e efeito
+     * vêm do pacote e são resolvidos pelo motor. Chamar fora da thread principal (via `act`).
+     */
+    fun activatePower(powerId: String, targetId: String?): String? {
+        val pkg = activePackage ?: return "Não há pacote de regras ativo."
+        val user = session.state.entities[playerId] ?: return "Personagem do jogador inexistente."
+        val menu = dev.rpgsolo.ai.PowerMenu(pkg)
+        return when (val built = menu.build(
+            powerId, playerId, targetId, session.state, combatTraitIds(playerId),
+            targetId?.let(::combatTraitIds).orEmpty()
+        )) {
+            is dev.rpgsolo.ai.PowerBuild.Invalid -> built.reason
+            is dev.rpgsolo.ai.PowerBuild.Ready -> {
+                val targetName = built.spec.targetId?.let { session.state.entities[it]?.name }
+                when (val result = controller?.activatePower(built.spec, built.def.name, user.name, targetName)
+                    ?: return "O controlador da campanha não está disponível.") {
+                    is dev.rpgsolo.ai.PlayResult.Played -> { campaignVersion++; null }
+                    is dev.rpgsolo.ai.PlayResult.Failed -> result.reason
+                }
+            }
+        }
+    }
+
+    private val inventory = InventoryActions(
+        session = { session },
+        activePackage = { activePackage },
+        playerId = { playerId },
+        isPlayerCombatTurn = { isPlayerCombatTurn() },
+        onChanged = { campaignVersion++ }
+    )
+
+    fun inventoryView(): List<InventoryView> = inventory.inventoryView()
+
     /** Usa consumíveis apenas quando o pacote declara uma ação mecânica explícita. */
+<<<<<<< HEAD
     fun useItem(itemId: String): String? {
         return try {
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
@@ -893,27 +1006,28 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         } catch (e: IllegalArgumentException) { e.message }
           catch (e: IllegalStateException) { e.message }
     }
+=======
+    fun useItem(itemId: String): String? = inventory.useItem(itemId)
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
-    fun equipItem(itemId: String): String? = try {
-        require(session.state.combat == null) { "não é possível trocar equipamento durante o combate" }
-        val item = requireNotNull(activePackage?.item(itemId)) { "item não existe no catálogo: $itemId" }
-        val slot = item.slot
-        require(item.kind == "equipamento" && slot != null) { "item não é equipável" }
-        when (val result = session.execute(dev.rpgsolo.engine.EquipItem(playerId, itemId, slot))) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
-            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
-        }
-    } catch (e: IllegalArgumentException) { e.message }
+    fun equipItem(itemId: String): String? = inventory.equipItem(itemId)
 
-    fun unequipItem(slot: String): String? {
-        if (session.state.combat != null) return "não é possível trocar equipamento durante o combate"
-        return when (val result = session.execute(dev.rpgsolo.engine.UnequipItem(playerId, slot))) {
-        is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
-        is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
-        }
-    }
+    fun shopView(): ShopView? = inventory.shopView()
+
+    fun buyItem(itemId: String, qty: Int = 1): String? = inventory.buyItem(itemId, qty)
+
+    fun sellItem(itemId: String, qty: Int = 1): String? = inventory.sellItem(itemId, qty)
+
+    fun spellShopView(): List<SpellShopEntry> = inventory.spellShopView()
+
+    fun buySpell(spellId: String): String? = inventory.buySpell(spellId)
+
+    fun convertCoins(toGold: Boolean, goldQty: Int = 1): String? = inventory.convertCoins(toGold, goldQty)
+
+    fun unequipItem(slot: String): String? = inventory.unequipItem(slot)
 
     /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
+<<<<<<< HEAD
     fun attack(targetId: String): String? {
         return try {
         require(isPlayerCombatTurn()) { "não é o turno do jogador" }
@@ -1003,25 +1117,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         } catch (e: IllegalArgumentException) { e.message }
           catch (e: IllegalStateException) { e.message }
     }
+=======
+    fun attack(targetId: String): String? = combatActions.attack(targetId)
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
     /** A postura defensiva concede o bônus do pacote contra o próximo ataque recebido e consome o turno. */
-    fun defend(): String? {
-        if (!isPlayerCombatTurn()) return "só é possível defender no seu turno"
-        val combatantsBefore = session.state.combat?.order.orEmpty()
-        return when (val result = session.executeAll(listOf(
-            dev.rpgsolo.engine.Defend(playerId),
-            dev.rpgsolo.engine.NextTurn
-        ))) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> {
-                awardCombatVictoryXp(combatantsBefore)
-                campaignVersion++
-                "Postura defensiva ativa até o próximo ataque recebido ou o retorno do seu turno."
-            }
-            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
-        }
-    }
+    fun defend(): String? = combatActions.defend()
 
     /** Fuga usa um teste real do pacote; sucesso encerra o combate, falha cede a próxima ação ao adversário. */
+<<<<<<< HEAD
     fun fleeCombat(): String? = try {
         require(isPlayerCombatTurn()) { "só é possível fugir no seu turno" }
         val pkg = requireNotNull(activePackage) { "pacote de regras não está ativo" }
@@ -1086,6 +1190,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
+=======
+    fun fleeCombat(): String? = combatActions.fleeCombat()
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 
     fun exportBackup(): String = dev.rpgsolo.engine.Backup.export(
         store,
@@ -1139,7 +1246,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
         var importedCampaignId = ""
+<<<<<<< HEAD
         database.runInTransaction {
+=======
+        store.inTransaction {
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
             importedCampaignId = dev.rpgsolo.engine.Backup.import(
                 store, raw, "import-${java.util.UUID.randomUUID()}"
             )
@@ -1159,6 +1270,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         editionId = meta.editionId
                     )
                 )
+<<<<<<< HEAD
+=======
+                runCatching { dev.rpgsolo.engine.Codec.decodeChapters(meta.chaptersJson) }.getOrNull()
+                    ?.let { store.saveChapters(importedCampaignId, it) }
+                runCatching { dev.rpgsolo.engine.Codec.decodeQuests(meta.questsJson) }.getOrNull()
+                    ?.let { store.saveQuests(importedCampaignId, it) }
+                runCatching { dev.rpgsolo.engine.Codec.decodeTimeline(meta.timelineJson) }.getOrNull()
+                    ?.let { store.saveTimeline(importedCampaignId, it) }
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
                 decodedFichas.forEach { decoded ->
                     val mappedId = fichaIdMap.getValue(decoded.id)
                     val legacyChoices = meta.characterChoices[decoded.id].orEmpty()
@@ -1202,9 +1322,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         quests = QuestLog()
         val row = store.metadata(session.campaignId)
         if (row != null) {
+            // M-08: as tabelas dedicadas são a fonte; o JSON legado só vale enquanto elas estiverem vazias.
             runCatching {
-                chapters.restore(dev.rpgsolo.engine.Codec.decodeChapters(row.chaptersJson))
-                quests.restore(dev.rpgsolo.engine.Codec.decodeQuests(row.questsJson), dev.rpgsolo.engine.Codec.decodeTimeline(row.timelineJson))
+                val tableChapters = store.chapters(session.campaignId)
+                val tableQuests = store.quests(session.campaignId)
+                val tableTimeline = store.timeline(session.campaignId)
+                chapters.restore(tableChapters.ifEmpty { dev.rpgsolo.engine.Codec.decodeChapters(row.chaptersJson) })
+                quests.restore(
+                    tableQuests.ifEmpty { dev.rpgsolo.engine.Codec.decodeQuests(row.questsJson) },
+                    tableTimeline.ifEmpty { dev.rpgsolo.engine.Codec.decodeTimeline(row.timelineJson) }
+                )
             }
         }
 
@@ -1247,7 +1374,28 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         controller = roles?.let { buildController(it) }
     }
 
+    /** Grava metadados numa transação; falha fica em [saveError] (nunca mostra "salvo" sem confirmação) e não derruba a jogada. */
     private fun saveMetadata() {
+        saveError = try {
+            writeMetadata()
+            store.touch(session.campaignId)
+            session.saveError
+        } catch (e: Exception) {
+            e.message ?: e::class.simpleName ?: "falha ao gravar"
+        }
+    }
+
+    /** Tenta gravar de novo log e metadados pendentes. Devolve `null` se confirmou ou o motivo da falha. */
+    fun retrySave(): String? {
+        val logFailure = session.recover()
+        saveMetadata()
+        return logFailure ?: saveError
+    }
+
+    private fun writeMetadata() = store.inTransaction {
+        store.saveChapters(session.campaignId, chapters.chapters)
+        store.saveQuests(session.campaignId, quests.all())
+        store.saveTimeline(session.campaignId, quests.timeline())
         store.saveMetadata(
             CampanhaMetaRow(
                 session.campaignId,
@@ -1273,6 +1421,32 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         store.duplicate(source.id, "${source.id}-copy-${System.nanoTime()}", "${source.name} (cópia)")
         refreshCampaigns(); campaignVersion++; null
     } catch (e: IllegalArgumentException) { e.message }
+
+    /** CP-04.1: conteúdo do "Livro da aventura" da campanha aberta (só leitura; sem segredos). */
+    fun adventureBook(): dev.rpgsolo.engine.AdventureBook = dev.rpgsolo.engine.AdventureBookBuilder.build(
+        campaigns.firstOrNull { it.id == session.campaignId }?.name ?: "Aventura",
+        session.state.entities[playerId]?.name,
+        chapters.chapters,
+        quests.all(),
+        quests.timeline()
+    )
+
+    /** CP-04.2: "Arquivo completo" da campanha aberta, só leitura e sem segredos. */
+    fun campaignArchive(): dev.rpgsolo.engine.AdventureBook = dev.rpgsolo.engine.CampaignArchiveBuilder.build(
+        adventureBook(),
+        session.state,
+        playerId,
+        itemName = { id -> activePackage?.item(id)?.name ?: id }
+    )
+
+    fun campaignArchivePdf(): ByteArray = BookPdf.render(campaignArchive())
+
+    /** CP-04.1: bytes do PDF do livro da aventura. Salvar e compartilhar entram no CP-04.3. */
+    fun adventureBookPdf(): ByteArray = BookPdf.render(adventureBook())
+
+    /** CP-02: pausar, concluir ou reativar qualquer campanha da lista. */
+    fun setCampaignState(campaignId: String, state: dev.rpgsolo.data.EstadoCampanha): String? =
+        if (store.setState(campaignId, state)) { refreshCampaigns(); campaignVersion++; null } else "campanha não encontrada"
 
     fun deleteCurrentCampaign(): String? = try {
         require(campaigns.size > 1) { "mantenha pelo menos uma campanha" }
@@ -1335,8 +1509,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         kind: ProviderKind, endpoint: String, model: String, apiKey: String,
         cacheSystemPrompt: Boolean = endpoint.trim().startsWith("https://api.anthropic.com/")
     ): ConnectionTestResult = try {
-        require(endpoint.trim().startsWith("http://") || endpoint.trim().startsWith("https://")) {
-            "o endpoint deve começar com http:// ou https://"
+        require(endpoint.trim().startsWith("https://")) {
+            "o endpoint deve começar com https:// (http:// não é aceito: a chave trafegaria sem criptografia)"
         }
         require(model.isNotBlank()) { "informe o modelo" }
         require(apiKey.isNotBlank()) { "informe a chave de API" }
@@ -1474,6 +1648,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             runner = TurnRunner(r.narrator, npcCreator = npcCreator),
             premiumRunner = if (r.hasPremium) TurnRunner(r.premium, npcCreator = npcCreator) else null,
             menu = activePackage?.let { CheckMenu(it) },
+            powerMenu = activePackage?.let { dev.rpgsolo.ai.PowerMenu(it) },
             playerTraits = { activeFicha?.traits.orEmpty() },
             additionalBonus = { scope -> approvedRuleBonus(scope) },
             externalBonuses = { scopes ->
@@ -1506,6 +1681,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 (packageRules + adaptationRules).take(5)
             },
             chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
+            resumeBriefing = { dev.rpgsolo.ai.ResumeBriefing.build(quests.all(), quests.timeline(), chapters.summaries()) },
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
             generationPreferences = {
@@ -1696,7 +1872,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val p = roles?.cheap ?: return "configure o provedor de IA na aba Config"
         val narrations = controller?.lines.orEmpty().filter { it.author == Author.MASTER }.map { it.text }
         return when (val r = ChapterSummarizer(p).closeWithSummary(session, chapters, narrations)) {
-            is ChapterSummarizer.Result.Closed -> { saveMetadata(); campaignVersion++; null }
+            is ChapterSummarizer.Result.Closed -> {
+                // M-07: encerrar um capítulo faz o tempo passar; relógios com chapterTick avançam pelo motor.
+                val advances = session.state.chapterClocks().map {
+                    dev.rpgsolo.engine.AdvanceClock(it.id, minOf(it.chapterTick, it.segments - it.filled))
+                }
+                if (advances.isNotEmpty()) session.executeAll(advances)
+                saveMetadata(); campaignVersion++; null
+            }
             is ChapterSummarizer.Result.Failed -> r.reason
         }
     }
@@ -1718,6 +1901,27 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return AdvancementState(player.advancementPoints, stats + skills)
     }
 
+    /** MU-07.2: slots de magia do herói; null se o pacote não declara níveis de slot. */
+    fun spellSlotsView(): SpellSlots? =
+        session.engine.config.takeIf { it.spellSlotLevels.isNotEmpty() }?.let { session.engine.spellSlots(playerId) }
+
+    /** MU-05.3: pontos de status e habilidade do herói; atributos do pacote ativo, sem teto (max = 0 indica ilimitado). */
+    fun statPointsState(): StatPointsState {
+        val player = session.state.entities[playerId] ?: return StatPointsState(0, 0, emptyList())
+        val pkg = activePackage ?: return StatPointsState(player.statPoints, player.abilityPoints, emptyList())
+        val stats = pkg.data.stats.filter { it.id in player.stats }.map { stat ->
+            AdvancementChoice(stat.id, stat.name, player.stats[stat.id] ?: stat.default, 0, skill = false)
+        }
+        return StatPointsState(player.statPoints, player.abilityPoints, stats)
+    }
+
+    /** MU-05.3: gasta um ponto de status em um atributo; o motor valida saldo e atributo. */
+    fun increaseStatPoint(statId: String): String? =
+        when (val result = session.execute(dev.rpgsolo.engine.AllocateStatPoints(playerId, mapOf(statId to 1)))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+
     /** Gasta exatamente um ponto; motor valida saldo e teto antes de registrar qualquer alteração. */
     fun increaseAdvancement(choiceId: String, skill: Boolean): String? {
         val command = if (skill) {
@@ -1733,7 +1937,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Histórico de evolução derivado do log canônico; não duplica dados nem perde eventos ao reabrir campanha. */
     fun progressionHistory(): List<String> {
-        val events = session.engine.events
+        val events = session.events
         return events.mapNotNull { event ->
             when (event) {
                 is dev.rpgsolo.engine.XpGained -> if (event.entityId == playerId) {
@@ -1743,7 +1947,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 is dev.rpgsolo.engine.LevelGained -> if (event.entityId == playerId) {
                     val name = session.state.entities[event.entityId]?.name ?: event.entityId
                     "$name alcançou o nível ${event.level}" +
-                        if (event.pointsGranted > 0) " e recebeu ${event.pointsGranted} ponto(s) de evolução" else ""
+                        (if (event.pointsGranted > 0) " e recebeu ${event.pointsGranted} ponto(s) de evolução" else "") +
+                        (if (event.statPointsGranted > 0) ", ${event.statPointsGranted} de status" else "") +
+                        (if (event.abilityPointsGranted > 0) ", ${event.abilityPointsGranted} de habilidade" else "")
                 } else null
                 is dev.rpgsolo.engine.AdvancementAllocated -> if (event.entityId == playerId) {
                     val statNames = event.statIncreases.keys.map { id ->
@@ -1754,6 +1960,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     }
                     val choices = statNames + skillNames
                     "Você investiu pontos de evolução em ${choices.joinToString(", ")}"
+                } else null
+                is dev.rpgsolo.engine.StatPointsAllocated -> if (event.entityId == playerId) {
+                    val names = event.increases.keys.map { id ->
+                        activePackage?.data?.stats?.firstOrNull { it.id == id }?.name ?: id
+                    }
+                    "Você investiu pontos de status em ${names.joinToString(", ")}"
                 } else null
                 else -> null
             }
@@ -1794,9 +2006,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         try {
             require(status != dev.rpgsolo.engine.QuestStatus.ACTIVE) { "escolha concluída ou falhou" }
             quests.finish(questId, status)
+            var warning: String? = null
+            if (status == dev.rpgsolo.engine.QuestStatus.DONE && (quests.get(questId)?.xpReward ?: 0) > 0) {
+                val award = session.awardQuestXp(quests, questId, playerId)
+                if (award is dev.rpgsolo.engine.ExecResult.Rejected) warning = award.reason
+            }
             saveMetadata()
             campaignVersion++
-            null
+            warning
         } catch (e: IllegalArgumentException) {
             e.message
         } catch (e: IllegalStateException) {
@@ -1814,4 +2031,36 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         } catch (e: IllegalStateException) {
             e.message
         }
+
+    private fun startup() {
+        session = openOrCreateCampaign()
+        restoreImportedPackages()
+        restoreFichas()
+        refreshCampaigns()
+        restoreMetadata()
+        restorePendingCombatNpcIds()
+        if (chapters.chapters.isEmpty()) openChapter("Capítulo 1")
+        storedSettings?.let { saved ->
+            runCatching {
+                applySettings(
+                    ProviderKind.valueOf(saved.kind), saved.endpoint, saved.model, saved.apiKey,
+                    saved.cheapModel, saved.premiumModel, saved.cacheSystemPrompt,
+                    saved.inputPricePerMillion, saved.outputPricePerMillion,
+                    saved.cacheReadPricePerMillion, saved.cacheCreationPricePerMillion
+                )
+            }
+        }
+    }
+
+    init {
+        // Último membro da classe: todas as propriedades acima já foram inicializadas quando a restauração começa.
+        startupScope.launch {
+            try {
+                startup()
+                ready = true
+            } catch (e: Exception) {
+                startupError = e.message ?: "Falha ao abrir o banco de dados."
+            }
+        }
+    }
 }

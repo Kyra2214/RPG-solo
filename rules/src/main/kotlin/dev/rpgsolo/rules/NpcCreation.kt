@@ -7,25 +7,21 @@ import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SystemRef
 
 /** De onde veio o conhecimento de regra usado para criar um NPC. */
-enum class RuleSource { PACOTE, PDF_DO_USUARIO, PESQUISA_NA_REDE, IA_NAO_VERIFICADA }
+enum class RuleSource { PACOTE, PESQUISA_NA_REDE, IA_NAO_VERIFICADA }
 
 data class RuleLookup(val source: RuleSource, val snippets: List<RuleHint>) {
-    /** Verdadeiro quando nem o pacote nem os PDFs responderam: a camada de IA deve pesquisar na rede. */
+    /** Verdadeiro quando o pacote não respondeu: a camada de IA deve pesquisar na rede. */
     val needsWebSearch: Boolean get() = source == RuleSource.PESQUISA_NA_REDE
 }
 
 /**
  * Ordem de consulta para o mestre/IA saber vantagens, desvantagens e regras de um conceito (ex.: "vilão arqueiro élfico"):
- * 1) pacote do sistema; 2) PDFs que o usuário inseriu (se houver); 3) pesquisa na rede pela IA.
- * Nada aqui exige PDF.
+ * 1) pacote do sistema; 2) pesquisa na rede pela IA.
  */
 object RuleLookupChain {
-    fun lookup(query: String, pkg: RulePackage?, docs: DocumentIndex?, minPackageHits: Int = 1): RuleLookup {
+    fun lookup(query: String, pkg: RulePackage?, minPackageHits: Int = 1): RuleLookup {
         val fromPkg = pkg?.search(query)?.map { RuleHint(RuleHint.Source.PACOTE, it.title, it.text) }.orEmpty()
         if (fromPkg.size >= minPackageHits) return RuleLookup(RuleSource.PACOTE, fromPkg)
-        val fromPdf = docs?.search(query, 5, pkg?.manifest?.edition).orEmpty()
-            .map { RuleHint(RuleHint.Source.PDF_DO_USUARIO, it.title, it.text, it.page) }
-        if (fromPdf.isNotEmpty()) return RuleLookup(RuleSource.PDF_DO_USUARIO, fromPdf)
         return RuleLookup(RuleSource.PESQUISA_NA_REDE, emptyList())
     }
 }
@@ -37,7 +33,7 @@ data class NpcProposal(
     val concept: String,
     val stats: Map<String, Int>,
     val traits: List<String>,
-    /** Só usado quando não há pacote para validar (sistema só com PDF/rede): máximos dos recursos. */
+    /** Só usado quando não há pacote para validar (sistema sem pacote instalado): máximos dos recursos. */
     val resources: Map<String, Int> = emptyMap(),
     val ruleSource: RuleSource,
     val skills: Map<String, Int> = emptyMap(),

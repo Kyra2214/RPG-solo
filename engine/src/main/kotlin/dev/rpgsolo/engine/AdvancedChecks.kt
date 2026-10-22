@@ -143,9 +143,9 @@ fun GameEngine.checkGroup(
  * Persiste uma resolução avançada como uma única unidade lógica. Se a resolução ou o append falhar,
  * restaura o estado em memória; EventStore exige que append seja atômico (tudo ou nada).
  */
-private inline fun <T> CampaignSession.persistAdvancedCheck(block: GameEngine.() -> T): T {
+private fun <T> CampaignSession.persistAdvancedCheck(block: GameEngine.() -> T): T = atomically {
     val start = mark()
-    return try {
+    try {
         val result = engine.block()
         save()
         result
@@ -187,22 +187,87 @@ fun CampaignSession.checkWithFortuneSpendingResource(
     if (mode == FortuneMode.NORMAL) {
         return FortuneSpendResult.Rejected("gastar recurso exige vantagem ou desvantagem")
     }
-    val start = mark()
-    return try {
-        when (val spent = engine.execute(SpendResource(entityId, resource, cost))) {
-            is ExecResult.Rejected -> {
-                engine.rollbackTo(start)
-                FortuneSpendResult.Rejected(spent.reason)
+    return atomically<FortuneSpendResult> {
+        val start = mark()
+        try {
+            when (val spent = engine.execute(SpendResource(entityId, resource, cost))) {
+                is ExecResult.Rejected -> {
+                    engine.rollbackTo(start)
+                    FortuneSpendResult.Rejected(spent.reason)
+                }
+                is ExecResult.Accepted -> {
+                    val result = engine.checkWithFortune(spec, mode)
+                    save() // grava gasto + rolagens em um único append
+                    FortuneSpendResult.Resolved(result)
+                }
             }
-            is ExecResult.Accepted -> {
-                val result = engine.checkWithFortune(spec, mode)
-                save() // grava gasto + rolagens em um único append
-                FortuneSpendResult.Resolved(result)
-            }
+        } catch (e: Exception) {
+            // Nenhum save ocorreu antes da resolução; append do EventStore é atômico.
+            engine.rollbackTo(start)
+            FortuneSpendResult.Rejected(e.message ?: "falha ao resolver teste com recurso")
         }
-    } catch (e: Exception) {
-        // Nenhum save ocorreu antes da resolução; append do EventStore é atômico.
-        engine.rollbackTo(start)
-        FortuneSpendResult.Rejected(e.message ?: "falha ao resolver teste com recurso")
+    }
+}
+
+/** Como a sorte gasta DEPOIS da rolagem altera o resultado (F3). */
+enum class LuckKind {
+    /** Repete a rolagem do mesmo teste; o novo resultado substitui o anterior, para melhor ou pior. */
+    REROLL,
+    /** Soma uma face de sucesso ao mesmo dado já rolado: a dificuldade fica 1 ponto mais favorável. Não rola de novo. */
+    ADD_FACE
+}
+
+sealed interface LuckResult {
+    data class Resolved(val kind: LuckKind, val original: CheckResult, val chosen: CheckResult) : LuckResult
+    data class Rejected(val reason: String) : LuckResult
+}
+
+/**
+ * Gasta um recurso (sorte/destino) sobre um teste já rolado. O custo e o recurso vêm das regras, nunca da IA.
+ * Gasto e eventual nova rolagem formam uma operação lógica única: se falhar, o log volta ao ponto inicial.
+ * ASSUMINDO: [previous] já é o resultado efetivo do teste (inclusive de testes de pontos, já convertidos em dado comum);
+ * limitar a um uso por teste é responsabilidade de quem chama.
+ */
+fun CampaignSession.spendLuck(
+    entityId: String,
+    resource: String,
+    cost: Int,
+    previous: CheckResult,
+    kind: LuckKind
+): LuckResult {
+    if (cost <= 0) return LuckResult.Rejected("o custo do recurso deve ser positivo")
+    return atomically<LuckResult> {
+        val start = mark()
+        try {
+            when (val spent = engine.execute(SpendResource(entityId, resource, cost))) {
+                is ExecResult.Rejected -> {
+                    engine.rollbackTo(start)
+                    LuckResult.Rejected(spent.reason)
+                }
+                is ExecResult.Accepted -> {
+                    val chosen = when (kind) {
+                        LuckKind.REROLL -> engine.check(
+                            previous.spec.copy(
+                                label = previous.spec.label.removeSuffix(" [nova rolagem]") + " [nova rolagem]",
+                                fortuneMode = FortuneMode.NORMAL
+                            )
+                        )
+                        LuckKind.ADD_FACE -> {
+                            val spec = previous.spec
+                            val shifted = when (spec.comparison) {
+                                Comparison.ROLL_UNDER -> spec.copy(difficulty = spec.difficulty + 1)
+                                else -> spec.copy(difficulty = spec.difficulty - 1)
+                            }
+                            resolveCheck(shifted.copy(label = spec.label + " [+1 face]"), previous.roll)
+                        }
+                    }
+                    save()
+                    LuckResult.Resolved(kind, previous, chosen)
+                }
+            }
+        } catch (e: Exception) {
+            engine.rollbackTo(start)
+            LuckResult.Rejected(e.message ?: "falha ao gastar sorte")
+        }
     }
 }

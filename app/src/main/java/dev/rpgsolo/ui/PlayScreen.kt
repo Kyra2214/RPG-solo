@@ -128,6 +128,8 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     // Teste pedido pelo mestre no meio da história: o jogo espera o jogador rolar.
     val pendingCheck = remember(version) { c.pending()?.label }
     val fortuneSpendOption = remember(version) { c.pendingFortuneSpendOption() }
+    // luckOffer() usa a trava de turno: só consulta com a tela livre, nunca durante a narração.
+    val luckOffer = remember(version, busy) { if (busy) null else c.luckOffer() }
     val listState = rememberLazyListState()
 
     val visible = lines.withIndex().filter { (i, line) ->
@@ -155,7 +157,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
         busy = true
         scope.launch {
             try {
-                withContext(Dispatchers.IO) { block() }
+                cancellableIoSuspend { block() }
             } catch (e: Exception) {
                 playError = e.message ?: "A ação falhou inesperadamente. Você pode tentar de novo."
                 streamingText = ""
@@ -166,22 +168,63 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
         }
     }
 
+    // Ações locais de painéis: mesma trava de turno e mesmo despacho em IO que a narração.
+    fun act(block: () -> String?, onResult: (String?) -> Unit) {
+        if (busy) return
+        busy = true
+        scope.launch {
+            var result: String? = null
+            try {
+                result = withContext(Dispatchers.IO) { model.exclusiveTurn(block) }
+            } catch (e: Exception) {
+                result = e.message ?: "A ação falhou inesperadamente. Você pode tentar de novo."
+            } finally {
+                busy = false
+                version++
+            }
+            onResult(result)
+        }
+    }
+
     Column(Modifier.fillMaxSize()) {
         model.chapterNotice?.let { notice ->
             Muted(notice)
         }
         panel?.let { StatusPanel(it) }
-        InventoryPanel(model)
-        AdditionalRulesPanel(model)
-        PlacesPanel(model)
+        InventoryPanel(model, enabled = !busy, act = ::act)
+        ShopPanel(model, enabled = !busy, act = ::act)
+        PowersPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
+        TraitUsesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
+        ConditionRemovalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
+        SurvivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
+        luckOffer?.let { offer ->
+            LuckPanel(
+                offer = offer,
+                resourceName = model.resourceName(offer.resource),
+                enabled = !busy && !pendingRoll && pendingCheck == null,
+                onSpend = { kind ->
+                    run {
+                        val result = c.spendLuck(kind) { partial ->
+                            scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+                        }
+                        withContext(kotlinx.coroutines.Dispatchers.Main) {
+                            streamingText = ""
+                            playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                        }
+                    }
+                }
+            )
+        }
+        AdditionalRulesPanel(model, enabled = !busy, act = ::act)
+        PlacesPanel(model, enabled = !busy, act = ::act)
         QuickActions(
             enabled = !busy && !pendingRoll && pendingCheck == null,
             onSheet = { run { c.submit("ver ficha") } },
             onInventory = { run { c.submit("inventário") } },
             onRest = { run { c.submit("descansar") } }
         )
-        AdvancedCheckControls(model, enabled = !busy && !pendingRoll && pendingCheck == null)
-        CombatControls(model)
+        AdvancedCheckControls(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
+        CombatControls(model, enabled = !busy, act = ::act)
 
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth(),
@@ -279,8 +322,32 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     }
 }
 
+/** F3.4: sorte/destino gasto depois da rolagem do último teste; custo e formas vêm do pacote. */
 @Composable
-private fun InventoryPanel(model: AppModel) {
+private fun LuckPanel(
+    offer: dev.rpgsolo.ai.LuckOption,
+    resourceName: String,
+    enabled: Boolean,
+    onSpend: (dev.rpgsolo.engine.LuckKind) -> Unit
+) {
+    AppCard {
+        Text("Sorte", style = MaterialTheme.typography.titleSmall)
+        Muted("Custo: ${offer.cost} de $resourceName. Vale uma vez para o último teste e o mestre narra o novo resultado.")
+        if (dev.rpgsolo.engine.LuckKind.REROLL in offer.kinds) {
+            OutlinedButton(enabled = enabled, onClick = { onSpend(dev.rpgsolo.engine.LuckKind.REROLL) }, modifier = Modifier.fillMaxWidth()) {
+                Text("Repetir a rolagem")
+            }
+        }
+        if (dev.rpgsolo.engine.LuckKind.ADD_FACE in offer.kinds) {
+            OutlinedButton(enabled = enabled, onClick = { onSpend(dev.rpgsolo.engine.LuckKind.ADD_FACE) }, modifier = Modifier.fillMaxWidth()) {
+                Text("Somar uma face")
+            }
+        }
+    }
+}
+
+@Composable
+private fun InventoryPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
     val campaignVersion = model.campaignVersion
     @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
@@ -301,11 +368,26 @@ private fun InventoryPanel(model: AppModel) {
                 }
                 when {
                     item.kind == "equipamento" && item.slot != null && item.equipped ->
-                        TextButton(onClick = { message = model.unequipItem(item.slot) }) { Text("Desequipar") }
+                        TextButton(enabled = enabled, onClick = { act({ model.unequipItem(item.slot) }) { message = it } }) { Text("Desequipar") }
                     item.kind == "equipamento" && item.slot != null ->
-                        TextButton(onClick = { message = model.equipItem(item.id) }) { Text("Equipar") }
+                        TextButton(enabled = enabled, onClick = { act({ model.equipItem(item.id) }) { message = it } }) { Text("Equipar") }
                     item.kind == "consumivel" ->
-                        TextButton(onClick = { message = model.useItem(item.id) }) { Text("Usar") }
+                        TextButton(enabled = enabled, onClick = { act({ model.useItem(item.id) }) { message = it } }) { Text("Usar") }
+                }
+                if (item.price != null && !item.equipped) {
+                    TextButton(enabled = enabled, onClick = { act({ model.sellItem(item.id) }) { message = it } }) { Text("Vender (${item.price})") }
+                }
+            }
+        }
+        if (spellShop.isNotEmpty()) {
+            Text("Magias", style = MaterialTheme.typography.titleSmall)
+            spellShop.forEach { spell ->
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("${spell.name} · ${spell.price}", Modifier.weight(1f))
+                    if (spell.learned) Muted("aprendida") else TextButton(
+                        enabled = enabled && shop.balance >= spell.price,
+                        onClick = { act({ model.buySpell(spell.id) }) { message = it } }
+                    ) { Text("Aprender") }
                 }
             }
         }
@@ -314,7 +396,130 @@ private fun InventoryPanel(model: AppModel) {
 }
 
 @Composable
-private fun PlacesPanel(model: AppModel) {
+private fun ShopPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+    @Suppress("UNUSED_VARIABLE") val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    val shop = model.shopView() ?: return
+    val spellShop = model.spellShopView()
+    if (shop.entries.isEmpty() && spellShop.isEmpty()) return
+    AppCard {
+        Text("Loja", style = MaterialTheme.typography.titleSmall)
+        Muted("Saldo: ${shop.balance} (${shop.currencyName})")
+        shop.goldName?.let { goldName ->
+            Muted("${shop.goldHeld} de $goldName e ${shop.silverHeld} de ${shop.currencyName} · 1 $goldName = ${shop.silverPerGold} ${shop.currencyName}")
+            Row {
+                TextButton(enabled = enabled && shop.silverHeld >= shop.silverPerGold, onClick = { act({ model.convertCoins(toGold = true) }) { message = it } }) { Text("Trocar ${shop.silverPerGold} ${shop.currencyName} por 1 $goldName") }
+                TextButton(enabled = enabled && shop.goldHeld >= 1, onClick = { act({ model.convertCoins(toGold = false) }) { message = it } }) { Text("Trocar 1 $goldName por ${shop.silverPerGold} ${shop.currencyName}") }
+            }
+        }
+        shop.entries.forEach { entry ->
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("${entry.name} · ${entry.price}")
+                    Muted(entry.description)
+                }
+                TextButton(enabled = enabled && shop.balance >= entry.price, onClick = { act({ model.buyItem(entry.id) }) { message = it } }) { Text("Comprar") }
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun PowersPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+    val campaignVersion = model.campaignVersion
+    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    var targetId by remember { mutableStateOf<String?>(null) }
+    val powers = model.powersView()
+    if (powers.isEmpty()) return
+    val targets = model.powerTargets()
+    AppCard {
+        Text("Poderes", style = MaterialTheme.typography.titleSmall)
+        powers.forEach { power ->
+            Column(Modifier.fillMaxWidth()) {
+                Text(power.name)
+                Muted(power.description)
+                Muted("custo: ${power.cost} de ${power.resourceName}" + if (power.needsTarget) " · exige alvo" else "")
+                if (power.needsTarget) {
+                    if (targets.isEmpty()) Muted("Nenhum adversário disponível.")
+                    targets.forEach { t ->
+                        TextButton(enabled = enabled, onClick = { targetId = t.id }) {
+                            Text((if (targetId == t.id) "● " else "○ ") + t.name)
+                        }
+                    }
+                }
+                TextButton(
+                    enabled = enabled && (!power.needsTarget || targetId in targets.map { it.id }),
+                    onClick = {
+                        val id = power.id
+                        val target = if (power.needsTarget) targetId else null
+                        act({ model.activatePower(id, target) }) { message = it }
+                    }
+                ) { Text("Usar ${power.name}") }
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun TraitUsesPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+    @Suppress("UNUSED_VARIABLE") val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    val traits = model.traitUsesView()
+    if (traits.isEmpty()) return
+    AppCard {
+        Text("Traços com usos", style = MaterialTheme.typography.titleSmall)
+        traits.forEach { t ->
+            Column(Modifier.fillMaxWidth()) {
+                Text(t.name)
+                if (t.description.isNotBlank()) Muted(t.description)
+                Muted("usos: ${t.used}/${t.limit} · voltam ao descansar")
+                TextButton(
+                    enabled = enabled && t.used < t.limit,
+                    onClick = { val id = t.id; act({ model.spendTraitUse(id) }) { message = it } }
+                ) { Text("Usar ${t.name}") }
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun ConditionRemovalPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+    @Suppress("UNUSED_VARIABLE") val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    val list = model.removableConditions()
+    if (list.isEmpty()) return
+    AppCard {
+        Text("Condições tratáveis", style = MaterialTheme.typography.titleSmall)
+        list.forEach { (id, name) ->
+            TextButton(enabled = enabled, onClick = { act({ model.removeCondition(id) }) { message = it } }) {
+                Text("Tentar remover: $name")
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun SurvivalPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+    @Suppress("UNUSED_VARIABLE") val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    val limit = model.survivalLimit() ?: return
+    AppCard {
+        Text("Você está caído", style = MaterialTheme.typography.titleSmall)
+        Muted("falhas: ${model.survivalFailures()}/$limit · novo dano mata")
+        TextButton(enabled = enabled, onClick = { act({ model.survivalTest() }) { message = it } }) {
+            Text("Teste de sobrevivência")
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun PlacesPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
     val places = model.placesView()
     var message by remember { mutableStateOf<String?>(null) }
     if (places.isEmpty()) return
@@ -334,7 +539,7 @@ private fun PlacesPanel(model: AppModel) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         place.exits.forEach { (id, name) ->
-                            OutlinedButton(onClick = { message = model.moveToPlace(id) }) { Text("Ir para $name") }
+                            OutlinedButton(enabled = enabled, onClick = { act({ model.moveToPlace(id) }) { message = it } }) { Text("Ir para $name") }
                         }
                     }
                 }
@@ -345,7 +550,7 @@ private fun PlacesPanel(model: AppModel) {
 }
 
 @Composable
-private fun AdditionalRulesPanel(model: AppModel) {
+private fun AdditionalRulesPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
     val campaignVersion = model.campaignVersion
     @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
     val rules = model.additionalRulesView()
@@ -368,8 +573,8 @@ private fun AdditionalRulesPanel(model: AppModel) {
                 Muted("Limite/custo: ${rule.limit}")
                 if (!rule.approved) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { message = model.approveAdditionalRule(rule.id) }) { Text("Aprovar") }
-                        TextButton(onClick = { message = model.rejectAdditionalRule(rule.id) }) { Text("Descartar") }
+                        Button(enabled = enabled, onClick = { act({ model.approveAdditionalRule(rule.id) }) { message = it } }) { Text("Aprovar") }
+                        TextButton(enabled = enabled, onClick = { act({ model.rejectAdditionalRule(rule.id) }) { message = it } }) { Text("Descartar") }
                     }
                 }
             }
@@ -394,7 +599,7 @@ private fun QuickActions(enabled: Boolean, onSheet: () -> Unit, onInventory: () 
 }
 
 @Composable
-private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
+private fun AdvancedCheckControls(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
     val version = model.campaignVersion
     val options = remember(version) { model.advancedCheckOptions() }
     val targets = remember(version) { model.advancedCheckTargets() }
@@ -439,7 +644,7 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
                 }
             }
             Button(
-                onClick = { message = model.resolveOpposedCheck(selectedTarget, selectedCheck) },
+                onClick = { val t = selectedTarget; val c = selectedCheck; act({ model.resolveOpposedCheck(t, c) }) { message = it } },
                 enabled = enabled && selectedCheck in options.map { it.id } && selectedTarget in targets.map { it.id },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -481,7 +686,7 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
                 }
             }
             Button(
-                onClick = { message = model.resolveGroupCheck(selectedGroupTargets.toList(), selectedCheck, requiredGroupSuccesses) },
+                onClick = { val g = selectedGroupTargets.toList(); val c = selectedCheck; val n = requiredGroupSuccesses; act({ model.resolveGroupCheck(g, c, n) }) { message = it } },
                 enabled = enabled && selectedCheck in options.map { it.id } && requiredGroupSuccesses in 1..participantCount,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -493,7 +698,7 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean) {
 }
 
 @Composable
-private fun CombatControls(model: AppModel) {
+private fun CombatControls(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
     val campaignVersion = model.campaignVersion
     @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
     var message by remember(campaignVersion) { mutableStateOf<String?>(null) }
@@ -518,11 +723,14 @@ private fun CombatControls(model: AppModel) {
                         singleLine = true
                     )
                     Button(onClick = {
-                        message = model.addNpc(npcName)
-                        if (message?.contains("adicionado") == true) npcName = ""
-                    }, enabled = npcName.isNotBlank()) { Text("Adicionar") }
+                        val name = npcName
+                        act({ model.addNpc(name) }) { r ->
+                            message = r
+                            if (r?.contains("adicionado") == true) npcName = ""
+                        }
+                    }, enabled = enabled && npcName.isNotBlank()) { Text("Adicionar") }
                 }
-                Button(onClick = { message = model.startCombat() }, modifier = Modifier.fillMaxWidth()) {
+                Button(enabled = enabled, onClick = { act({ model.startCombat() }) { message = it } }, modifier = Modifier.fillMaxWidth()) {
                     Text("⚔ Iniciar combate")
                 }
             } else {
@@ -540,7 +748,7 @@ private fun CombatControls(model: AppModel) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             targets.forEach { target ->
-                                Button(onClick = { message = model.attack(target.id) }) {
+                                Button(enabled = enabled, onClick = { val id = target.id; act({ model.attack(id) }) { message = it } }) {
                                     Text("Atacar ${target.name}${target.condition.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()}${if (target.rulesValidated) "" else " (não validado)"}")
                                 }
                             }
@@ -551,18 +759,19 @@ private fun CombatControls(model: AppModel) {
                 }
                 if (model.isPlayerCombatTurn() && model.canDefend()) {
                     OutlinedButton(
-                        onClick = { message = model.defend() },
+                        enabled = enabled,
+                        onClick = { act({ model.defend() }) { message = it } },
                         modifier = Modifier.fillMaxWidth()
                     ) { Text("Defender — bônus contra o próximo ataque") }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (model.isPlayerCombatTurn()) {
-                        Button(onClick = { message = model.nextCombatTurn() }, modifier = Modifier.weight(1f)) { Text("Passar turno") }
-                        OutlinedButton(onClick = { message = model.fleeCombat() }, modifier = Modifier.weight(1f)) { Text("Fugir") }
+                        Button(enabled = enabled, onClick = { act({ model.nextCombatTurn() }) { message = it } }, modifier = Modifier.weight(1f)) { Text("Passar turno") }
+                        OutlinedButton(enabled = enabled, onClick = { act({ model.fleeCombat() }) { message = it } }, modifier = Modifier.weight(1f)) { Text("Fugir") }
                     } else {
-                        Button(onClick = { message = model.resolveNpcTurn() }, modifier = Modifier.weight(1f)) { Text("Resolver turno inimigo") }
+                        Button(enabled = enabled, onClick = { act({ model.resolveNpcTurn() }) { message = it } }, modifier = Modifier.weight(1f)) { Text("Resolver turno inimigo") }
                     }
-                    TextButton(onClick = { message = model.endCombat() }) { Text("Encerrar") }
+                    TextButton(enabled = enabled, onClick = { act({ model.endCombat() }) { message = it } }) { Text("Encerrar") }
                 }
             }
             message?.let { ErrorText(it) }

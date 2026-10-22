@@ -1,0 +1,5 @@
+# id|nome|descricao|percentual da vida máxima (1-100; o motor arredonda para cima, mínimo 1)
+leve|Perigo leve|Arranhão, queda curta, susto que fere pouco.|15
+medio|Perigo médio|Golpe, queda ou chama que machuca de verdade.|30
+grave|Perigo grave|Ferimento sério que deixa o personagem à beira do colapso.|60
+mortal|Perigo mortal|Quase certo de matar quem estiver com a vida cheia; use só quando a cena justificar.|100

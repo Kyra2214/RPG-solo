@@ -3,6 +3,7 @@ package dev.rpgsolo.rules
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.AdvancementRequirement
 import dev.rpgsolo.engine.Comparison
+import dev.rpgsolo.engine.DeathMode
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Ficha
 import dev.rpgsolo.engine.REAL_DICE
@@ -37,6 +38,7 @@ data class CheckChoice(val id: String, val description: String, val spec: CheckS
 /** Tipos de traço que contam como "vantagem" no equilíbrio vantagens x desvantagens. */
 internal val ADVANTAGE_TYPES = setOf("vantagem", "poder")
 internal const val MAX_SKILL_POINTS = 5
+internal const val DEFAULT_SURVIVAL_FAILURES = 3
 private const val BALANCE_CAP = 1_000_000L
 internal fun parseBalance(s: String?): List<Int> = s?.split(",")?.mapNotNull { it.trim().toIntOrNull() } ?: emptyList()
 
@@ -79,6 +81,40 @@ class RulePackage internal constructor(val data: PackageData) {
     fun difficultyValue(id: String): Int? = difficultyById[id]?.value
     fun isUncertain(id: String): Boolean = id in uncertainById
     fun item(id: String): ItemDef? = itemById[id]
+
+    /** Item de moeda declarado por `moeda_item` em criacao.txt; null = pacote sem economia. */
+    val currencyItemId: String? get() = data.creation["moeda_item"]
+    /** MU-07.3: magias compráveis, declaradas por `magia_<id>_preco` (e `magia_<id>_nome`, opcional) em criacao.txt. */
+    val spells: List<SpellDef> get() = data.creation.keys
+        .filter { it.startsWith("magia_") && it.endsWith("_preco") }
+        .map { it.removePrefix("magia_").removeSuffix("_preco") }
+        .sorted()
+        .mapNotNull { id ->
+            val price = data.creation["magia_${id}_preco"]?.toIntOrNull() ?: return@mapNotNull null
+            SpellDef(id, data.creation["magia_${id}_nome"]?.takeIf { it.isNotBlank() } ?: id, price)
+        }
+    fun spell(id: String): SpellDef? = spells.firstOrNull { it.id == id }
+
+    /** MU-07.1: item de ouro (`moeda_ouro`); null = sem ouro (só a moeda base, a prata). */
+    val goldItemId: String? get() = data.creation["moeda_ouro"]
+    /** MU-07.1: quantas moedas base (prata) valem 1 ouro (`prata_por_ouro`, padrão 10). */
+    val silverPerGold: Int get() = data.creation["prata_por_ouro"]?.toIntOrNull() ?: 10
+
+    /**
+     * MU-07.1: plano de pagamento de [total] moedas base, gastando prata primeiro e quebrando ouro só no que faltar
+     * (o troco volta em prata). Null se o saldo não cobre o total.
+     */
+    fun planPayment(silverHeld: Int, goldHeld: Int, total: Int): CoinPayment? {
+        require(total >= 0) { "total negativo" }
+        val silverPaid = minOf(silverHeld, total)
+        val missing = total - silverPaid
+        if (missing == 0) return CoinPayment(silverPaid, 0, 0)
+        if (goldItemId == null) return null
+        val ratio = silverPerGold
+        val gold = (missing + ratio - 1) / ratio
+        if (gold > goldHeld) return null
+        return CoinPayment(silverPaid, gold, gold * ratio - missing)
+    }
     /** Soma os efeitos dos equipamentos atualmente equipados para um escopo mecânico. */
     fun equipmentBonus(itemIds: Collection<String>, scope: String): Int =
         itemIds.sumOf { id -> itemById[id]?.effects.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
@@ -86,6 +122,17 @@ class RulePackage internal constructor(val data: PackageData) {
     /** Bônus mecânico de traços para testes e combate (ataque, dano, defesa e resistência/vulnerabilidade a dano). */
     fun traitBonus(traitIds: Collection<String>, scope: String): Int =
         traitIds.distinct().sumOf { id -> traitById[id]?.bonuses.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
+
+    /** M-01.7: imunidade a condição por traço com escopo `imune_<condição>` e bônus positivo. */
+    fun isImmuneToCondition(traitIds: Collection<String>, conditionId: String): Boolean =
+        traitBonus(traitIds, "imune_" + conditionId) > 0
+
+    /** M-03.6: dano do perfil de perigo [hazardId] para quem tem [maxHealth] de vida máxima; null = perfil inexistente. */
+    fun hazardDamage(hazardId: String, maxHealth: Int): Int? {
+        val hazard = data.hazards.firstOrNull { it.id == hazardId } ?: return null
+        if (maxHealth <= 0) return 0
+        return maxOf(1, (maxHealth * hazard.percent + 99) / 100).coerceAtMost(maxHealth)
+    }
 
     fun isEquipableItem(id: String, slot: String): Boolean =
         itemById[id]?.kind == "equipamento" && itemById[id]?.slot == slot
@@ -104,13 +151,38 @@ class RulePackage internal constructor(val data: PackageData) {
         }
     }
 
+    /** M-05: condição removível por teste (declarada em `condicoes.txt`), ou null. */
+    fun conditionRemovalSpec(conditionId: String, stats: Map<String, Int>, skills: Map<String, Int> = emptyMap()): CheckSpec? {
+        val def = data.conditions.firstOrNull { it.id == conditionId } ?: return null
+        val id = def.removalCheck?.takeIf { it in checkById } ?: return null
+        val difficulty = def.removalDifficulty?.let { difficultyValue(it) } ?: defaultDifficulty() ?: 0
+        return check(id, stats, difficulty, skills)
+    }
+
+    /** M-04.4: falhas de sobrevivência que matam o caído (padrão 3). */
+    val survivalFailureLimit: Int get() = manifest.survivalFailures ?: DEFAULT_SURVIVAL_FAILURES
+
+    /** M-04.4: teste de sobrevivência declarado pelo pacote, ou null (sem declaração ou teste inexistente). */
+    fun survivalSpec(stats: Map<String, Int>, skills: Map<String, Int> = emptyMap()): CheckSpec? {
+        val id = manifest.survivalCheck?.takeIf { it in checkById } ?: return null
+        val difficulty = manifest.survivalDifficulty?.let { difficultyValue(it) } ?: defaultDifficulty() ?: 0
+        return check(id, stats, difficulty, skills)
+    }
+
     /** Configuração para o motor: o que mata e os níveis. Sem isso no pacote, o motor não mata nem sobe de nível. */
     fun engineConfig(): EngineConfig =
         EngineConfig(
             deathResource = manifest.deathResource,
+            deathMode = manifest.deathMode ?: DeathMode.PERMADEATH,
             levelThresholds = data.progression ?: emptyList(),
             defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
             advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
+            masteryLevels = data.creation["niveis_chave_pericia"]?.trim()
+                ?.takeIf { it.isNotEmpty() && it != "-" }?.split(",")?.map { it.trim().toInt() } ?: emptyList(),
+            spellSlotLevels = data.creation["niveis_slot_magia"]?.trim()
+                ?.takeIf { it.isNotEmpty() && it != "-" }?.split(",")?.map { it.trim().toInt() } ?: emptyList(),
+            statPointsPerLevel = data.creation["pontos_status_por_nivel"]?.toIntOrNull() ?: 0,
+            abilityPointsPerLevel = data.creation["pontos_habilidade_por_nivel"]?.toIntOrNull() ?: 0,
             levelResourceRewards = parseResourceRewards(data.creation["recompensa_recurso"]),
             statCaps = data.stats.associate { it.id to it.max },
             statDefaults = data.stats.associate { it.id to it.default },
@@ -125,10 +197,11 @@ class RulePackage internal constructor(val data: PackageData) {
         )
 
     /** Recursos derivados dos atributos (vida, mana...), cheios. */
-    fun resourcesFor(stats: Map<String, Int>): Map<String, Resource> =
+    fun resourcesFor(stats: Map<String, Int>, traitIds: Collection<String> = emptyList()): Map<String, Resource> =
         data.resources.associate { r ->
             val v = r.stat?.let { stats[it] ?: statById[it]?.default ?: 0 } ?: 0
-            val max = maxOf(0, r.base + r.mult * v)
+            // M-01.6: traços com escopo `max_<recurso>` somam ao máximo derivado.
+            val max = maxOf(0, r.base + r.mult * v + traitBonus(traitIds, "max_" + r.id))
             r.id to Resource(max, max)
         }
 
@@ -225,7 +298,7 @@ class RulePackage internal constructor(val data: PackageData) {
             system = SystemRef(manifest.system, manifest.edition),
             concept = concept,
             stats = full,
-            resources = resourcesFor(full),
+            resources = resourcesFor(full, traits),
             traits = traits,
             skills = skills
         )
@@ -414,7 +487,8 @@ object PackageValidator {
             "dificuldade" to d.difficulties.map { it.id },
             "condição" to d.conditions.map { it.id },
             "perfil de dano" to d.damage.map { it.id },
-            "item" to d.items.map { it.id }
+            "item" to d.items.map { it.id },
+            "poder" to d.powers.map { it.id }
         )
         idGroups.forEach { (kind, ids) ->
             ids.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.forEach { id ->
@@ -458,6 +532,15 @@ object PackageValidator {
             if (check.fortuneSpendMode == dev.rpgsolo.engine.FortuneMode.NORMAL) {
                 p += "teste ${check.id}: modo de fortuna paga não pode ser NORMAL"
             }
+            if (check.luckResource != null && d.resources.none { it.id == check.luckResource }) {
+                p += "teste ${check.id}: recurso de sorte inexistente ${check.luckResource}"
+            }
+            if (check.luckResource != null && check.luckCost <= 0) {
+                p += "teste ${check.id}: custo de sorte deve ser positivo"
+            }
+            if ((check.luckResource == null) != check.luckKinds.isEmpty() || (check.luckResource == null && check.luckCost != 0)) {
+                p += "teste ${check.id}: recurso, custo e formas de sorte devem ser declarados juntos"
+            }
         }
         d.conditions.forEach { c -> c.effect?.stats?.filter { it !in stats }?.forEach { p += "condição ${c.id}: atributo inexistente no efeito $it" } }
         d.conditions.forEach { c ->
@@ -466,6 +549,27 @@ object PackageValidator {
             if (c.damagePerRound < 0) p += "condição ${c.id}: dano por rodada negativo"
             if (c.damagePerRound > 0 && d.resources.none { it.id == c.damageResource }) {
                 p += "condição ${c.id}: recurso de dano inexistente ${c.damageResource}"
+            }
+        }
+        d.powers.forEach { power ->
+            val trait = d.traits.firstOrNull { it.id == power.traitId }
+            if (trait == null) p += "poder ${power.id}: traço inexistente ${power.traitId}"
+            else if (trait.type != "poder") p += "poder ${power.id}: traço ${trait.id} não é do tipo poder"
+            if (d.resources.none { it.id == power.resource }) p += "poder ${power.id}: recurso inexistente ${power.resource}"
+            if (power.cost < 0) p += "poder ${power.id}: custo negativo"
+            if (power.checkId != null && d.checks.none { it.id == power.checkId }) p += "poder ${power.id}: teste inexistente ${power.checkId}"
+            when (power.effect) {
+                PowerEffectKind.HEAL -> {
+                    if (power.target != PowerTarget.SELF) p += "poder ${power.id}: cura só pode ter alvo self"
+                    if ((power.param.toIntOrNull() ?: 0) <= 0) p += "poder ${power.id}: quantidade de cura inválida"
+                    if (d.manifest.deathResource == null) p += "poder ${power.id}: cura exige recurso de saúde (morte) no pacote"
+                }
+                PowerEffectKind.DAMAGE -> {
+                    if (power.target != PowerTarget.ENEMY) p += "poder ${power.id}: dano só pode ter alvo inimigo"
+                    if (d.damage.none { it.id == power.param }) p += "poder ${power.id}: perfil de dano inexistente ${power.param}"
+                }
+                PowerEffectKind.APPLY_CONDITION, PowerEffectKind.REMOVE_CONDITION ->
+                    if (d.conditions.none { it.id == power.param }) p += "poder ${power.id}: condição inexistente ${power.param}"
             }
         }
         d.damage.filter { it.bonusStat != null && it.bonusStat !in stats }.forEach { p += "dano ${it.id}: atributo inexistente ${it.bonusStat}" }
@@ -488,7 +592,7 @@ object PackageValidator {
             trait.bonuses.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
                 .forEach { p += "traço ${trait.id}: escopo ou bônus inválido" }
         }
-        val validTraitScopes = stats + d.checks.map { it.id } + traits + setOf("ataque", "dano", "defesa", "resistencia_dano")
+        val validTraitScopes = stats + d.checks.map { it.id } + traits + setOf("ataque", "dano", "defesa", "resistencia_dano") + d.resources.map { "max_" + it.id } + d.conditions.map { "imune_" + it.id }
         d.traits.forEach { trait ->
             trait.bonuses.filter { it.scope !in validTraitScopes }.forEach { p += "traço " + trait.id + ": escopo de bônus sem regra mecânica: " + it.scope }
         }
@@ -608,6 +712,38 @@ object PackageValidator {
                 if (amount == null) p += "criacao.txt: consumível ${item.id} sem quantidade"
             }
         }
+        d.items.filter { it.price != null && it.price !in 1..1_000_000 }
+            .forEach { p += "item ${it.id}: preço fora de 1..1000000" }
+        val currencyId = d.creation["moeda_item"]
+        if (currencyId != null) {
+            val currency = d.items.firstOrNull { it.id == currencyId }
+            if (currency == null) p += "criacao.txt: moeda_item referencia item inexistente: $currencyId"
+            else {
+                if (currency.kind != "narrativo") p += "criacao.txt: moeda_item deve ser item narrativo: $currencyId"
+                if (currency.price != null) p += "item $currencyId: a moeda não pode ter preço"
+            }
+        }
+        d.creation["moeda_ouro"]?.let { goldId ->
+            val gold = d.items.firstOrNull { it.id == goldId }
+            when {
+                currencyId == null -> p += "criacao.txt: moeda_ouro exige 'moeda_item'"
+                goldId == currencyId -> p += "criacao.txt: moeda_ouro deve ser diferente de moeda_item"
+                gold == null -> p += "criacao.txt: moeda_ouro referencia item inexistente: $goldId"
+                else -> {
+                    if (gold.kind != "narrativo") p += "criacao.txt: moeda_ouro deve ser item narrativo: $goldId"
+                    if (gold.price != null) p += "item $goldId: a moeda não pode ter preço"
+                }
+            }
+        }
+        val spellKeys = d.creation.keys.filter { it.startsWith("magia_") && it.endsWith("_preco") }
+        spellKeys.forEach { key ->
+            val id = key.removePrefix("magia_").removeSuffix("_preco")
+            if (!Regex("[a-z0-9][a-z0-9_-]*").matches(id)) p += "criacao.txt: id de magia inválido: '$id'"
+            if (d.creation[key]?.toIntOrNull()?.let { it in 1..1_000_000 } != true) p += "criacao.txt: $key deve ser inteiro de 1 a 1000000"
+        }
+        if (spellKeys.isNotEmpty() && currencyId == null) p += "criacao.txt: magias à venda exigem 'moeda_item'"
+        if (spellKeys.isNotEmpty() && d.creation["niveis_slot_magia"].isNullOrBlank()) p += "criacao.txt: magias à venda exigem 'niveis_slot_magia'"
+        if (currencyId == null && d.items.any { it.price != null }) p += "criacao.txt: itens com preço exigem 'moeda_item'"
         val pontos = d.creation["pontos"]?.toIntOrNull()
         if (pontos == null || pontos < 0) p += "criacao.txt: 'pontos' ausente ou inválido"
         d.creation["limite_desvantagens"]?.let { if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'limite_desvantagens' inválido" }
@@ -682,5 +818,5 @@ object PackageValidator {
     }
 }
 
-/** Limite de dados de um teste ao somar Ganhos (3D&T). */
+/** Limite de dados de um teste ao somar Ganhos. */
 private const val MAX_CONDITION_DICE = 3

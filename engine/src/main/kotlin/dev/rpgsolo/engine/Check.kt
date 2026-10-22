@@ -20,7 +20,11 @@ const val MIN_POINT_FACES = 1
 
 /** Zero pontos = uma face mínima; cada ponto positivo acrescenta uma face, até lados − 1. */
 fun pointFaces(points: Int, sides: Int): Int =
-    minOf(points.coerceAtLeast(MIN_POINT_FACES), maxOf(MIN_POINT_FACES, sides - 1))
+    minOf(maxOf(points.coerceAtLeast(0), MIN_POINT_FACES), maxOf(MIN_POINT_FACES, sides - 1))
+
+/** True quando os pontos já enchem o dado (lados − 1 faces): pontos extras não melhoram a chance. */
+fun pointsAtDieMax(points: Int, sides: Int): Boolean =
+    sides > 2 && pointFaces(points, sides) >= sides - 1
 
 enum class Outcome {
     CRITICAL_FAILURE, FAILURE, PARTIAL_SUCCESS, SUCCESS, CRITICAL_SUCCESS;
@@ -73,7 +77,8 @@ fun CheckSpec.resolvedPool(): CheckSpec {
     val faces = pointFaces(modifier, diceSides)
     val lowest = diceSides + 1 - faces
     return copy(
-        label = "$label · d$diceSides · acerta com ${if (faces == 1) "$diceSides" else "$lowest–$diceSides"}",
+        label = "$label · d$diceSides · acerta com ${if (faces == 1) "$diceSides" else "$lowest–$diceSides"}" +
+            if (pointsAtDieMax(modifier, diceSides)) " · já no máximo neste dado" else "",
         diceCount = 1, modifier = 0, difficulty = lowest, comparison = Comparison.ROLL_OVER
     )
 }

@@ -1,5 +1,0 @@
-# id|titulo|atributos|tracos   (reconstruídos do menu de personagens do kit demo; todos fecham em 10 pontos)
-rin|Lutadora de artes marciais|poder=2,habilidade=3,resistencia=2|luta,manha,ataque-especial-potente,defesa-especial-tenaz,maestria-luta,codigo-combate,codigo-herois
-gatimu|Mestre de kendô|poder=3,habilidade=2,resistencia=2|luta,ataque-especial-perigoso,ataque-especial-potente,defesa-especial-tenaz,vigoroso,codigo-combate,codigo-herois
-chelsea|Soldada acrobática|poder=1,habilidade=3,resistencia=2|esporte,luta,agil,ataque-especial-preciso,defesa-especial-esquiva,codigo-combate
-kel|Caçadora de monstros|poder=3,habilidade=2,resistencia=3|luta,sustento,ataque-especial-penetrante,vigoroso,antipatico,infame

@@ -20,6 +20,13 @@ class CampaignStarterTest {
         res("catalog/estilos.txt").readText(), res("catalog/sistemas.txt").readText(), res("catalog/compat.txt").readText()
     ) as LoadResult.Success).catalog
 
+    // Catálogo embutido + uma edição fictícia sem pacote instalado (para o caso "sem pacote").
+    private fun catalogComEdicaoSemPacote() = (CatalogLoader.load(
+        res("catalog/estilos.txt").readText(),
+        res("catalog/sistemas.txt").readText() + "\nsistema-sem-pacote|semPacote|Sistema sem pacote|v1|generico|PENDENTE|PENDENTE|teste\n",
+        res("catalog/compat.txt").readText()
+    ) as LoadResult.Success).catalog
+
     private fun registry(cat: Catalog): PackageRegistry {
         val r = PackageRegistry(cat)
         for (n in listOf("sistema-proprio")) {
@@ -38,7 +45,7 @@ class CampaignStarterTest {
         return c to (resolveConfig(cat, c) as ConfigResult.Ready)
     }
 
-    private fun fate(cat: Catalog, reg: PackageRegistry): Ficha {
+    private fun fichaPadrao(cat: Catalog, reg: PackageRegistry): Ficha {
         val p = packageFor(reg)
         val b = p.buildFicha("pj1", "Brokk", "anão minerador", p.data.stats.associate { it.id to it.default }, emptyList())
         return (b as FichaBuild.Created).ficha
@@ -49,19 +56,19 @@ class CampaignStarterTest {
     @Test fun achaOPacotePelaEdicao() {
         val reg = registry(catalog())
         assertEquals("sistema-proprio", packageFor(reg).manifest.id)
-        assertNull(CampaignStarter.packageFor(reg, "3det-victory"))
+        assertNull(CampaignStarter.packageFor(reg, "sistema-sem-pacote"))
     }
 
     @Test fun iniciaCampanhaComFichaPacoteEAmbientacao() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
-        val r = CampaignStarter.start(store, reg, cat, rd, cfg, fate(cat, reg), "c1", "Minas de neon", 7L) as StartResult.Started
+        val r = CampaignStarter.start(store, reg, cat, rd, cfg, fichaPadrao(cat, reg), "c1", "Minas de neon", 7L) as StartResult.Started
         assertNotNull(r.pkg)
         assertEquals("pj1", r.playerId)
         assertEquals(EntityKind.PLAYER, r.session.state.entities.getValue("pj1").kind)
         assertEquals("Cyberpunk", r.campanha.ambientacao.name)
         assertEquals("Sombrio", r.campanha.ambientacao.tone)
-        assertTrue(r.campanha.validate(fate(cat, reg)).isEmpty())
+        assertTrue(r.campanha.validate(fichaPadrao(cat, reg)).isEmpty())
         // Já está salva: reabre com o mesmo estado.
         val reopened = CampaignSession.open(store, "c1")
         assertTrue("pj1" in reopened.state.entities)
@@ -70,14 +77,14 @@ class CampaignStarterTest {
     @Test fun ambientacaoLivreTemPrioridadeSobreOCatalogo() {
         val cat = catalog(); val reg = registry(cat)
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
-        val r = CampaignStarter.start(InMemoryEventStore(), reg, cat, rd, cfg, fate(cat, reg), "c1", "X", 1L, "cyberpunk com mineração em asteroides")
+        val r = CampaignStarter.start(InMemoryEventStore(), reg, cat, rd, cfg, fichaPadrao(cat, reg), "c1", "X", 1L, "cyberpunk com mineração em asteroides")
         assertEquals("cyberpunk com mineração em asteroides", (r as StartResult.Started).campanha.ambientacao.name)
     }
 
     @Test fun fichaDeOutraEdicaoNaoEntraEmSilencio() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
-        val estranha = Ficha("pj2", "Intruso", SystemRef("3det", "3det-victory"), stats = mapOf("forca" to 3))
+        val estranha = Ficha("pj2", "Intruso", SystemRef("externo", "externo-1"), stats = mapOf("forca" to 3))
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, estranha, "c1", "X", 1L) as StartResult.Refused
         assertTrue(r.reasons.any { "não se misturam" in it })
         assertNull(store.campaign("c1")) // nada foi criado
@@ -86,7 +93,7 @@ class CampaignStarterTest {
     @Test fun fichaInvalidaPeloPacoteERecusada() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
-        val ruim = fate(cat, reg).copy(stats = mapOf("inexistente" to 99), traits = listOf("tracoInexistente"))
+        val ruim = fichaPadrao(cat, reg).copy(stats = mapOf("inexistente" to 99), traits = listOf("tracoInexistente"))
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, ruim, "c1", "X", 1L)
         assertTrue(r is StartResult.Refused)
         assertNull(store.campaign("c1"))
@@ -95,7 +102,7 @@ class CampaignStarterTest {
     @Test fun fichaComPreRequisitoDePericiaPendenteERecusadaAntesDeCriarCampanha() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
-        val ficha = fate(cat, reg).copy(skills = mapOf("olhar-atento" to 2))
+        val ficha = fichaPadrao(cat, reg).copy(skills = mapOf("olhar-atento" to 2))
         val result = CampaignStarter.start(store, reg, cat, rd, cfg, ficha, "c1", "X", 1L)
         assertTrue(result is StartResult.Refused)
         assertTrue((result as StartResult.Refused).reasons.any { "exige o traço Percepção" in it })
@@ -103,9 +110,9 @@ class CampaignStarterTest {
     }
 
     @Test fun semPacoteIniciaMasAvisaQueNaoHaValidacao() {
-        val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
-        val (cfg, rd) = ready(cat, "3det", "3det-victory")
-        val livre = Ficha("pj3", "Livre", SystemRef("3det", "3det-victory"), stats = mapOf("forca" to 2))
+        val cat = catalogComEdicaoSemPacote(); val reg = registry(cat); val store = InMemoryEventStore()
+        val (cfg, rd) = ready(cat, "semPacote", "sistema-sem-pacote")
+        val livre = Ficha("pj3", "Livre", SystemRef("semPacote", "sistema-sem-pacote"), stats = mapOf("forca" to 2))
         val r = CampaignStarter.start(store, reg, cat, rd, cfg, livre, "c1", "X", 1L) as StartResult.Started
         assertNull(r.pkg)
         assertTrue(r.notes.any { "não são validados pelo motor" in it })
@@ -115,7 +122,7 @@ class CampaignStarterTest {
     @Test fun nomeVazioEIdRepetidoSaoRecusados() {
         val cat = catalog(); val reg = registry(cat); val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
-        val f = fate(cat, reg)
+        val f = fichaPadrao(cat, reg)
         assertTrue(CampaignStarter.start(store, reg, cat, rd, cfg, f, "c1", "  ", 1L) is StartResult.Refused)
         assertTrue(CampaignStarter.start(store, reg, cat, rd, cfg, f, "c1", "Ok", 1L) is StartResult.Started)
         val dup = CampaignStarter.start(store, reg, cat, rd, cfg, f, "c1", "Ok", 1L) as StartResult.Refused

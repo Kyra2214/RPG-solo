@@ -6,15 +6,11 @@ import dev.rpgsolo.rules.CatalogLoader
 import dev.rpgsolo.rules.InstallResult
 import dev.rpgsolo.rules.LoadResult
 import dev.rpgsolo.rules.PackageRegistry
-import dev.rpgsolo.rules.SourceLibrary
-import dev.rpgsolo.rules.SourceLibraryParser
-import dev.rpgsolo.rules.SourcesResult
 
-/** Catálogo, pacotes embutidos e links de fontes, lidos dos recursos do módulo `rules` (funciona no Android). */
+/** Catálogo e pacotes embutidos, lidos dos recursos do módulo `rules` (funciona no Android). */
 class Content(
     val catalog: Catalog?,
     val registry: PackageRegistry,
-    val sources: SourceLibrary?,
     /** Problemas ao carregar; mostrados na aba Sistemas em vez de derrubar o app. */
     val errors: List<String>
 )
@@ -22,7 +18,7 @@ class Content(
 object BundledContent {
     private val FILES = listOf(
         "manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes",
-        "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo"
+        "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo", "poderes", "perigos"
     )
 
     // Único sistema embutido: o sistema próprio. Pacotes de teste ficam só nos testes.
@@ -72,12 +68,6 @@ object BundledContent {
                 }
         }
 
-        val sources = read("catalog/fontes.txt")?.let {
-            when (val r = SourceLibraryParser.parse(it, catalog)) {
-                is SourcesResult.Ok -> SourceLibrary(r.links)
-                is SourcesResult.Fail -> { errors += r.errors; null }
-            }
-        }
-        return Content(catalog, registry, sources, errors)
+        return Content(catalog, registry, errors)
     }
 }

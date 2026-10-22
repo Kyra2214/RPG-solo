@@ -85,9 +85,10 @@ class ChapterBook(maxEvents: Int = 200) {
     fun close(session: CampaignSession, summary: String): Chapter {
         val cur = checkNotNull(current()) { "não há capítulo aberto" }
         require(summary.isNotBlank()) { "resumo vazio" }
-        val end = session.mark()
+        val all = session.events // cópia única: início e fim vêm do mesmo instante
+        val end = all.size
         check(end >= cur.startMark) { "o log voltou antes do início do capítulo; use reconcile" }
-        val events = session.engine.events.subList(cur.startMark, end)
+        val events = all.subList(cur.startMark, end)
         val closed = cur.copy(endMark = end, summary = summary.trim(), digest = digestOf(events))
         list[list.lastIndex] = closed
         return closed
@@ -96,7 +97,7 @@ class ChapterBook(maxEvents: Int = 200) {
     /** Eventos do capítulo aberto, para alimentar o resumo. */
     fun eventsOfCurrent(session: CampaignSession): List<Event> {
         val cur = checkNotNull(current()) { "não há capítulo aberto" }
-        return session.engine.events.drop(cur.startMark)
+        return session.events.drop(cur.startMark)
     }
 
     /** Depois de desfazer, um capítulo aberto não pode começar depois do fim do log. Ajusta e devolve true se mudou. */
@@ -118,7 +119,24 @@ enum class QuestStatus { ACTIVE, DONE, FAILED }
 data class Objective(val text: String, val done: Boolean = false)
 
 @Serializable
-data class Quest(val id: String, val title: String, val objectives: List<Objective> = emptyList(), val status: QuestStatus = QuestStatus.ACTIVE)
+data class Quest(
+    val id: String,
+    val title: String,
+    val objectives: List<Objective> = emptyList(),
+    val status: QuestStatus = QuestStatus.ACTIVE,
+    /** MU-05.1: XP proposto para a missão; o motor limita por nível ([EngineConfig.maxQuestXp]). 0 = sem recompensa. */
+    val xpReward: Int = 0,
+    /** MU-05.1: true depois que o XP foi concedido (impede pagar duas vezes). */
+    val rewarded: Boolean = false,
+    /** MU-06.2: perícia cujo nível 2 esta missão libera ao ser concluída; null = não libera. */
+    val masterySkillId: String? = null,
+    /** MU-06.2: true depois que o nível 2 foi liberado (uma vez por missão). */
+    val masteryGranted: Boolean = false,
+    /** MU-07.3: magia que esta missão concede ao ser concluída; null = não concede. */
+    val spellRewardId: String? = null,
+    /** MU-07.3: true depois que a magia foi concedida (uma vez por missão). */
+    val spellGranted: Boolean = false
+)
 
 /** Fase 9.3: missões e linha do tempo. */
 class QuestLog {
@@ -144,6 +162,21 @@ class QuestLog {
         require(index in q.objectives.indices) { "objetivo inexistente: $index" }
         val objs = q.objectives.mapIndexed { i, o -> if (i == index) o.copy(done = true) else o }
         quests[id] = q.copy(objectives = objs, status = if (objs.all { it.done }) QuestStatus.DONE else q.status)
+    }
+
+    fun markRewarded(id: String) {
+        val q = requireNotNull(quests[id]) { "missão inexistente: $id" }
+        quests[id] = q.copy(rewarded = true)
+    }
+
+    fun markMasteryGranted(id: String) {
+        val q = requireNotNull(quests[id]) { "missão inexistente: $id" }
+        quests[id] = q.copy(masteryGranted = true)
+    }
+
+    fun markSpellGranted(id: String) {
+        val q = requireNotNull(quests[id]) { "missão inexistente: $id" }
+        quests[id] = q.copy(spellGranted = true)
     }
 
     fun finish(id: String, status: QuestStatus) {

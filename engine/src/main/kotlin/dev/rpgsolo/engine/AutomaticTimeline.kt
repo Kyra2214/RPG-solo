@@ -9,7 +9,7 @@ data class AutomaticTimelineEntry(
 
 /**
  * Cria uma linha do tempo só com acontecimentos que o personagem poderia conhecer.
- * Não inclui relógios em si, dossiês privados, mudanças ocultas de NPC nem texto de segredos não descobertos; só pode incluir a pista pública definida para um relógio concluído.
+ * Não inclui relógios em si, dossiês privados, mudanças ocultas de NPC nem texto de segredos não descobertos; só pode incluir a pista pública definida para um relógio concluído e a pista intermediária ao cruzar a metade das casas.
  * O índice é a posição do evento no log, não uma data civil.
  */
 fun automaticTimeline(
@@ -36,6 +36,13 @@ fun automaticTimeline(
                 clockFills[event.id] = event.filled
                 val clock = finalState.clocks[event.id]
                 if (clock != null &&
+                    previousFill < clock.midpoint &&
+                    event.filled >= clock.midpoint &&
+                    event.filled < clock.segments &&
+                    clock.midClue.isNotBlank()
+                ) {
+                    AutomaticTimelineEntry(index, "pista", clock.midClue)
+                } else if (clock != null &&
                     previousFill < clock.segments &&
                     event.filled == clock.segments &&
                     clock.publicClue.isNotBlank()
@@ -96,15 +103,38 @@ fun automaticTimeline(
             is AdvancementAllocated -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você investiu pontos de evolução na ficha.")
             } else null
+            is SpellLearned -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você aprendeu uma magia.")
+            } else null
+            is AbilityLearned -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você aprendeu uma habilidade.")
+            } else null
+            is AbilityActivated -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "habilidade", "Você ativou uma habilidade.")
+            } else null
+            is SkillMastered -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você alcançou o nível 2 de uma perícia.")
+            } else null
+            is StatPointsAllocated -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você investiu pontos de status na ficha.")
+            } else null
             is ConditionAdded -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "condição", "Você sofreu a condição: ${event.condition}.")
             } else null
             is ConditionRemoved -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "condição", "A condição ${event.condition} deixou de afetar você.")
             } else null
+            is EntityDowned -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "consequência", "Seu personagem caiu.")
+            } else null
+            is EntityRecovered -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "consequência", "Seu personagem se reergueu.")
+            } else null
             is EntityRevived -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "consequência", "Seu personagem voltou à vida.")
             } else null
+            // A criação de NPC é estado interno; só fatos explicitamente públicos entram na timeline.
+            is EntityCreated -> null
             else -> null
         }
         if (entry != null) result += entry

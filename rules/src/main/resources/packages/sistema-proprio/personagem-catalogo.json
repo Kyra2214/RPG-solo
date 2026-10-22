@@ -2,7 +2,11 @@
   "schemaVersion": 1,
   "catalogId": "rpg-solo-personagem",
   "packageId": "sistema-proprio",
+<<<<<<< HEAD
   "status": "catalogo-editorial-integrado-parcialmente-na-ui-sem-efeitos-mecanicos",
+=======
+  "status": "catalogo-editorial-integrado-parcialmente-na-ui-efeitos-mecanicos-em-andamento",
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
   "policy": {
     "independentChoices": [
       "raceOrSubrace",
@@ -18,7 +22,11 @@
       "disadvantageIds",
       "hybridId"
     ],
+<<<<<<< HEAD
     "effectsPolicy": "mechanicalEffects permanecem vazios até serem definidos e suportados pelo motor; lore e resumo nunca concedem bônus.",
+=======
+    "effectsPolicy": "mechanicalEffects só são preenchidos quando definidos e suportados pelo motor (M-02: as 50 raças, 50 sub-raças, 50 classes e 103 profissões e 20 híbridos; maldições só com benefício numérico incondicional em perícia com +1 em uma perícia; demais entradas ainda vazias); lore e resumo nunca concedem bônus.",
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
     "subracePolicy": "sub-raça referencia uma raça-base por parentRaceId; herança e substituições devem ser validadas pelo carregador.",
     "aiPolicy": "IA pode usar lore e escolhas confirmadas para narrativa e retrato, mas não pode criar ou alterar regras, vantagens, desvantagens, atributos ou equipamentos.",
     "equipmentAndBuffs": "equipamentos, buffs, debuffs e outros modificadores pertencem a camadas separadas e são calculados pelo motor.",
@@ -36,7 +44,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -49,7 +66,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -62,7 +88,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -75,7 +110,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -88,7 +132,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -101,7 +154,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -114,7 +176,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "intimidacao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -127,7 +198,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -140,7 +220,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -153,7 +242,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -166,7 +264,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -179,7 +286,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -192,7 +308,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -205,7 +330,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -218,7 +352,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -231,7 +374,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "montaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -244,7 +396,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -257,7 +418,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -270,7 +440,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -283,7 +462,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -296,7 +484,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sistemas",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -309,7 +506,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -322,7 +528,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -335,7 +550,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -348,7 +572,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -361,7 +594,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -374,7 +616,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -387,7 +638,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -400,7 +660,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -413,7 +682,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -426,7 +704,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -439,7 +726,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "intimidacao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -452,7 +748,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -465,7 +770,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -478,7 +792,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -491,7 +814,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -504,7 +836,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -517,7 +858,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -530,7 +880,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -543,7 +902,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -556,7 +924,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sistemas",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -569,7 +946,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -582,7 +968,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -595,7 +990,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -608,7 +1012,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "intimidacao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -621,7 +1034,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -634,7 +1056,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -647,7 +1078,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sistemas",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -660,7 +1100,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "olhar-atento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -673,7 +1122,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     }
   ],
@@ -695,7 +1153,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -715,7 +1182,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -735,7 +1211,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -755,7 +1240,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -775,7 +1269,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -795,7 +1298,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -815,7 +1327,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -835,7 +1356,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -855,7 +1385,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "montaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -875,7 +1414,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -895,7 +1443,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -915,7 +1472,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -935,7 +1501,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sistemas",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -955,7 +1530,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -975,7 +1559,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -995,7 +1588,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1015,7 +1617,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1035,7 +1646,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1055,7 +1675,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1075,7 +1704,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1095,7 +1733,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1115,7 +1762,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1135,7 +1791,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1155,7 +1820,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "olhar-atento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1175,7 +1849,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1195,7 +1878,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1215,7 +1907,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1235,7 +1936,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1255,7 +1965,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1275,7 +1994,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1295,7 +2023,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1315,7 +2052,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1335,7 +2081,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1355,7 +2110,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1375,7 +2139,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sistemas",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1395,7 +2168,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1415,7 +2197,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sistemas",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1435,7 +2226,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1455,7 +2255,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1475,7 +2284,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1495,7 +2313,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1515,7 +2342,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1535,7 +2371,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1555,7 +2400,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1575,7 +2429,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1595,7 +2458,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1615,7 +2487,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1635,7 +2516,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1655,7 +2545,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1675,7 +2574,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     }
   ],
@@ -1690,7 +2598,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pontaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1703,7 +2620,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1716,7 +2642,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1729,7 +2664,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1742,7 +2686,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1755,7 +2708,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1768,7 +2730,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1781,7 +2752,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1794,7 +2774,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1807,7 +2796,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1820,7 +2818,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1833,7 +2840,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1846,7 +2862,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "olhar-atento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1859,7 +2884,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1872,7 +2906,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "intimidacao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1885,7 +2928,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1898,7 +2950,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1911,7 +2972,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1924,7 +2994,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1937,7 +3016,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "montaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1950,7 +3038,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1963,7 +3060,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1976,7 +3082,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "montaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -1989,7 +3104,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "intimidacao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2002,7 +3126,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2015,7 +3148,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2028,7 +3170,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2041,7 +3192,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2054,7 +3214,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2067,7 +3236,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pontaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2080,7 +3258,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pontaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2093,7 +3280,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2106,7 +3302,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "olhar-atento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2119,7 +3324,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2132,7 +3346,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2145,7 +3368,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2158,7 +3390,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2171,7 +3412,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2184,7 +3434,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2197,7 +3456,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2210,7 +3478,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2223,7 +3500,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2236,7 +3522,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2249,7 +3544,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2262,7 +3566,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2275,7 +3588,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2288,7 +3610,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2301,7 +3632,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2314,7 +3654,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -2327,7 +3676,16 @@
         "original"
       ],
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     }
   ],
@@ -2335,10 +3693,22 @@
     {
       "id": "perito-em-arcos",
       "name": "Perito em Arcos",
+<<<<<<< HEAD
       "summary": "Estuda madeira, fibras, geometria e manutenção de arcos e bestas; sua lore descreve o ofício, sem conceder bônus automático.",
       "lore": "Estuda madeira, fibras, geometria e manutenção de arcos e bestas; sua lore descreve o ofício, sem conceder bônus automático.",
       "competencies": [],
       "mechanicalEffects": [],
+=======
+      "summary": "Estuda madeira, fibras, geometria e manutenção de arcos e bestas.",
+      "lore": "Estuda madeira, fibras, geometria e manutenção de arcos e bestas.",
+      "competencies": [],
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2351,7 +3721,16 @@
       "summary": "Avalia gemas e metais preciosos, domina lapidação e montagem e conhece a procedência de peças.",
       "lore": "Avalia gemas e metais preciosos, domina lapidação e montagem e conhece a procedência de peças.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2364,7 +3743,16 @@
       "summary": "Trabalha metais, calor e ferramentas para produzir e reparar objetos conforme os recursos disponíveis.",
       "lore": "Trabalha metais, calor e ferramentas para produzir e reparar objetos conforme os recursos disponíveis.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2377,7 +3765,16 @@
       "summary": "Conhece construção, ajuste, conservação e identificação de armas de diferentes tradições.",
       "lore": "Conhece construção, ajuste, conservação e identificação de armas de diferentes tradições.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2390,7 +3787,16 @@
       "summary": "Mede, ajusta e repara proteções, entendendo articulações e limitações de cada modelo.",
       "lore": "Mede, ajusta e repara proteções, entendendo articulações e limitações de cada modelo.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2403,7 +3809,16 @@
       "summary": "Prepara misturas e documenta reações com protocolos adequados ao cenário.",
       "lore": "Prepara misturas e documenta reações com protocolos adequados ao cenário.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2416,7 +3831,16 @@
       "summary": "Identifica plantas, épocas de colheita, usos tradicionais e riscos de espécies locais.",
       "lore": "Identifica plantas, épocas de colheita, usos tradicionais e riscos de espécies locais.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2429,7 +3853,16 @@
       "summary": "Transforma ingredientes em refeições, organiza provisões e preserva técnicas culinárias regionais.",
       "lore": "Transforma ingredientes em refeições, organiza provisões e preserva técnicas culinárias regionais.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2442,7 +3875,16 @@
       "summary": "Trabalha massas, fermentação e fornos, mantendo receitas e métodos de conservação.",
       "lore": "Trabalha massas, fermentação e fornos, mantendo receitas e métodos de conservação.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2455,7 +3897,16 @@
       "summary": "Produz bebidas fermentadas e registra leveduras, ingredientes e práticas locais.",
       "lore": "Produz bebidas fermentadas e registra leveduras, ingredientes e práticas locais.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2468,7 +3919,16 @@
       "summary": "Conhece ciclos de cultivo, solo, sementes e formas de manter uma produção estável.",
       "lore": "Conhece ciclos de cultivo, solo, sementes e formas de manter uma produção estável.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2481,7 +3941,16 @@
       "summary": "Cuida de rebanhos, reconhece sinais de doença e organiza reprodução e alimentação.",
       "lore": "Cuida de rebanhos, reconhece sinais de doença e organiza reprodução e alimentação.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2494,7 +3963,16 @@
       "summary": "Cuida da saúde, do equipamento e do treinamento básico de animais de transporte.",
       "lore": "Cuida da saúde, do equipamento e do treinamento básico de animais de transporte.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "montaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2507,7 +3985,16 @@
       "summary": "Seleciona madeiras, constrói estruturas e repara objetos de uso cotidiano.",
       "lore": "Seleciona madeiras, constrói estruturas e repara objetos de uso cotidiano.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2520,7 +4007,16 @@
       "summary": "Produz móveis e peças detalhadas com encaixes, acabamento e técnicas de conservação.",
       "lore": "Produz móveis e peças detalhadas com encaixes, acabamento e técnicas de conservação.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2533,7 +4029,16 @@
       "summary": "Constrói e repara paredes, fundações e estruturas usando materiais adequados à região.",
       "lore": "Constrói e repara paredes, fundações e estruturas usando materiais adequados à região.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2546,7 +4051,16 @@
       "summary": "Planeja espaços, circulação e estruturas considerando uso, clima e segurança.",
       "lore": "Planeja espaços, circulação e estruturas considerando uso, clima e segurança.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2559,7 +4073,16 @@
       "summary": "Reconhece formações geológicas, planeja escavações e trabalha com segurança em minas.",
       "lore": "Reconhece formações geológicas, planeja escavações e trabalha com segurança em minas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2572,7 +4095,16 @@
       "summary": "Dá forma a pedras e cristais, valorizando suas características e evitando perdas de material.",
       "lore": "Dá forma a pedras e cristais, valorizando suas características e evitando perdas de material.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2585,7 +4117,16 @@
       "summary": "Cria e repara objetos finos de metal, fechos, anéis e peças ornamentais.",
       "lore": "Cria e repara objetos finos de metal, fechos, anéis e peças ornamentais.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2598,7 +4139,16 @@
       "summary": "Corta, ajusta e costura roupas para diferentes necessidades e costumes.",
       "lore": "Corta, ajusta e costura roupas para diferentes necessidades e costumes.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2611,7 +4161,16 @@
       "summary": "Produz tecidos a partir de fibras, tinturas e padrões transmitidos por sua comunidade.",
       "lore": "Produz tecidos a partir de fibras, tinturas e padrões transmitidos por sua comunidade.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2624,7 +4183,16 @@
       "summary": "Prepara couro e peles por métodos de conservação e acabamento próprios.",
       "lore": "Prepara couro e peles por métodos de conservação e acabamento próprios.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2637,7 +4205,16 @@
       "summary": "Fabrica e conserta calçados, adaptando materiais a terrenos e rotinas de uso.",
       "lore": "Fabrica e conserta calçados, adaptando materiais a terrenos e rotinas de uso.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2650,7 +4227,16 @@
       "summary": "Conhece correntes, ciclos de espécies, redes e métodos sustentáveis de pesca local.",
       "lore": "Conhece correntes, ciclos de espécies, redes e métodos sustentáveis de pesca local.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2663,7 +4249,16 @@
       "summary": "Organiza carregamento, amarração e conservação de mercadorias em viagem.",
       "lore": "Organiza carregamento, amarração e conservação de mercadorias em viagem.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2676,7 +4271,16 @@
       "summary": "Interpreta mapas, estrelas, ventos e sinais costeiros para planejar rotas.",
       "lore": "Interpreta mapas, estrelas, ventos e sinais costeiros para planejar rotas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2689,7 +4293,16 @@
       "summary": "Registra trilhas, marcos e alterações no terreno durante expedições.",
       "lore": "Registra trilhas, marcos e alterações no terreno durante expedições.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2702,7 +4315,16 @@
       "summary": "Planeja entregas, memoriza rotas e protege correspondências durante deslocamentos.",
       "lore": "Planeja entregas, memoriza rotas e protege correspondências durante deslocamentos.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2715,7 +4337,16 @@
       "summary": "Copia documentos, mantém registros e adapta escrita a convenções administrativas.",
       "lore": "Copia documentos, mantém registros e adapta escrita a convenções administrativas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2728,7 +4359,16 @@
       "summary": "Organiza coleções, cataloga fontes e ajuda a localizar informações preservadas.",
       "lore": "Organiza coleções, cataloga fontes e ajuda a localizar informações preservadas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2741,7 +4381,16 @@
       "summary": "Interpreta idiomas e costumes, registrando ambiguidades que podem mudar o sentido de um acordo.",
       "lore": "Interpreta idiomas e costumes, registrando ambiguidades que podem mudar o sentido de um acordo.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2754,7 +4403,16 @@
       "summary": "Ensina conhecimentos e métodos de estudo a aprendizes de diferentes níveis.",
       "lore": "Ensina conhecimentos e métodos de estudo a aprendizes de diferentes níveis.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2767,7 +4425,16 @@
       "summary": "Estuda leis, precedentes e procedimentos de disputa da sociedade em que atua.",
       "lore": "Estuda leis, precedentes e procedimentos de disputa da sociedade em que atua.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2780,7 +4447,16 @@
       "summary": "Mantém livros de contas, calcula custos e identifica inconsistências financeiras.",
       "lore": "Mantém livros de contas, calcula custos e identifica inconsistências financeiras.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2793,7 +4469,16 @@
       "summary": "Negocia mercadorias, acompanha preços locais e mantém relações com fornecedores.",
       "lore": "Negocia mercadorias, acompanha preços locais e mantém relações com fornecedores.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2806,7 +4491,16 @@
       "summary": "Examina procedência, materiais e sinais de falsificação em objetos antigos.",
       "lore": "Examina procedência, materiais e sinais de falsificação em objetos antigos.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2819,7 +4513,16 @@
       "summary": "Faz pequenos reparos e avaliações de joias usando ferramentas portáteis.",
       "lore": "Faz pequenos reparos e avaliações de joias usando ferramentas portáteis.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2832,7 +4535,16 @@
       "summary": "Constrói e repara mecanismos delicados, registrando tolerâncias e desgaste.",
       "lore": "Constrói e repara mecanismos delicados, registrando tolerâncias e desgaste.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2845,7 +4557,16 @@
       "summary": "Projeta protótipos, documenta falhas e adapta componentes para resolver problemas concretos.",
       "lore": "Projeta protótipos, documenta falhas e adapta componentes para resolver problemas concretos.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2858,7 +4579,16 @@
       "summary": "Diagnostica falhas e mantém máquinas, veículos ou mecanismos existentes no cenário.",
       "lore": "Diagnostica falhas e mantém máquinas, veículos ou mecanismos existentes no cenário.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2871,7 +4601,16 @@
       "summary": "Conhece práticas locais de cuidado, higiene e apoio a pessoas enfermas.",
       "lore": "Conhece práticas locais de cuidado, higiene e apoio a pessoas enfermas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2884,7 +4623,16 @@
       "summary": "Organiza cuidados continuados, observa sintomas e acompanha a recuperação de pacientes.",
       "lore": "Organiza cuidados continuados, observa sintomas e acompanha a recuperação de pacientes.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2897,7 +4645,16 @@
       "summary": "Estuda procedimentos invasivos e instrumentos, exigindo condições e recursos apropriados.",
       "lore": "Estuda procedimentos invasivos e instrumentos, exigindo condições e recursos apropriados.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2910,7 +4667,16 @@
       "summary": "Reúne depoimentos e evidências para esclarecer incidentes sem presumir culpa antecipada.",
       "lore": "Reúne depoimentos e evidências para esclarecer incidentes sem presumir culpa antecipada.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2923,7 +4689,16 @@
       "summary": "Conhece passagens, clima e técnicas de deslocamento em regiões elevadas.",
       "lore": "Conhece passagens, clima e técnicas de deslocamento em regiões elevadas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2936,7 +4711,16 @@
       "summary": "Reconhece trilhas, fontes e riscos ambientais em matas locais.",
       "lore": "Reconhece trilhas, fontes e riscos ambientais em matas locais.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2949,7 +4733,16 @@
       "summary": "Planeja água, abrigo e deslocamento em terrenos áridos e de orientação difícil.",
       "lore": "Planeja água, abrigo e deslocamento em terrenos áridos e de orientação difícil.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2962,7 +4755,16 @@
       "summary": "Interpreta rastros e hábitos animais e conhece regras locais de caça.",
       "lore": "Interpreta rastros e hábitos animais e conhece regras locais de caça.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2975,7 +4777,16 @@
       "summary": "Conserva peles, ossos e outros materiais animais para usos permitidos pelo cenário.",
       "lore": "Conserva peles, ossos e outros materiais animais para usos permitidos pelo cenário.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -2988,7 +4799,16 @@
       "summary": "Cuida de colmeias e compreende ciclos de polinização, produção e segurança.",
       "lore": "Cuida de colmeias e compreende ciclos de polinização, produção e segurança.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3001,7 +4821,16 @@
       "summary": "Planeja jardins, identifica espécies e mantém plantas ornamentais ou úteis.",
       "lore": "Planeja jardins, identifica espécies e mantém plantas ornamentais ou úteis.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3014,7 +4843,16 @@
       "summary": "Classifica plantas, compara espécimes e documenta ambientes e relações ecológicas.",
       "lore": "Classifica plantas, compara espécimes e documenta ambientes e relações ecológicas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3027,7 +4865,16 @@
       "summary": "Observa corpos celestes e mantém registros de fenômenos e calendários.",
       "lore": "Observa corpos celestes e mantém registros de fenômenos e calendários.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3040,7 +4887,16 @@
       "summary": "Analisa rochas, minerais e sinais de mudança no terreno.",
       "lore": "Analisa rochas, minerais e sinais de mudança no terreno.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3053,7 +4909,16 @@
       "summary": "Estuda vestígios materiais e documenta contextos sem confundir hipótese com certeza.",
       "lore": "Estuda vestígios materiais e documenta contextos sem confundir hipótese com certeza.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3066,7 +4931,16 @@
       "summary": "Conserva artefatos e edifícios históricos com métodos que respeitam seus materiais.",
       "lore": "Conserva artefatos e edifícios históricos com métodos que respeitam seus materiais.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3079,7 +4953,16 @@
       "summary": "Produz obras visuais e desenvolve linguagem própria para retratar pessoas, lugares ou ideias.",
       "lore": "Produz obras visuais e desenvolve linguagem própria para retratar pessoas, lugares ou ideias.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3092,7 +4975,16 @@
       "summary": "Toca instrumentos, compõe e preserva repertórios de diferentes comunidades.",
       "lore": "Toca instrumentos, compõe e preserva repertórios de diferentes comunidades.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3105,7 +4997,16 @@
       "summary": "Interpreta personagens e domina técnicas de presença, voz e expressão.",
       "lore": "Interpreta personagens e domina técnicas de presença, voz e expressão.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3118,7 +5019,16 @@
       "summary": "Pratica formas de dança como arte, tradição comunitária ou expressão cerimonial.",
       "lore": "Pratica formas de dança como arte, tradição comunitária ou expressão cerimonial.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3131,7 +5041,16 @@
       "summary": "Cria desenhos permanentes e conhece significados culturais, higiene e técnicas de aplicação.",
       "lore": "Cria desenhos permanentes e conhece significados culturais, higiene e técnicas de aplicação.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3144,7 +5063,16 @@
       "summary": "Cuida de cabelo e barba e conhece estilos associados a grupos e regiões.",
       "lore": "Cuida de cabelo e barba e conhece estilos associados a grupos e regiões.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3157,7 +5085,16 @@
       "summary": "Limpa, trata e conserva tecidos com técnicas adaptadas aos materiais disponíveis.",
       "lore": "Limpa, trata e conserva tecidos com técnicas adaptadas aos materiais disponíveis.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3170,7 +5107,16 @@
       "summary": "Administra hospedagem, provisões e informações de viajantes de passagem.",
       "lore": "Administra hospedagem, provisões e informações de viajantes de passagem.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3183,7 +5129,16 @@
       "summary": "Gerencia salão e bebidas, reconhecendo rumores sem tratar boatos como fatos.",
       "lore": "Gerencia salão e bebidas, reconhecendo rumores sem tratar boatos como fatos.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3196,7 +5151,16 @@
       "summary": "Coordena cerimônias, calendários, fornecedores e necessidades de convidados.",
       "lore": "Coordena cerimônias, calendários, fornecedores e necessidades de convidados.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3209,7 +5173,16 @@
       "summary": "Conhece protocolo, títulos e práticas de negociação entre autoridades.",
       "lore": "Conhece protocolo, títulos e práticas de negociação entre autoridades.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3222,7 +5195,16 @@
       "summary": "Planeja deslocamentos seguros e coordena a proteção de pessoas e cargas.",
       "lore": "Planeja deslocamentos seguros e coordena a proteção de pessoas e cargas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3235,7 +5217,16 @@
       "summary": "Administra custódia, registros e rotinas de instalações de detenção.",
       "lore": "Administra custódia, registros e rotinas de instalações de detenção.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3248,7 +5239,16 @@
       "summary": "Examina padrões de dano e relatos para reconstruir possíveis causas de incêndio.",
       "lore": "Examina padrões de dano e relatos para reconstruir possíveis causas de incêndio.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3261,7 +5261,16 @@
       "summary": "Mantém mecanismos raros e registra cuidadosamente comportamentos que não compreende.",
       "lore": "Mantém mecanismos raros e registra cuidadosamente comportamentos que não compreende.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3274,7 +5283,16 @@
       "summary": "Conhece equipamentos, correntes e riscos de pesca em águas profundas.",
       "lore": "Conhece equipamentos, correntes e riscos de pesca em águas profundas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3287,7 +5305,16 @@
       "summary": "Explora ambientes submersos com atenção a pressão, orientação e retorno seguro.",
       "lore": "Explora ambientes submersos com atenção a pressão, orientação e retorno seguro.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3300,7 +5327,16 @@
       "summary": "Projeta e repara embarcações conforme águas, carga e materiais locais.",
       "lore": "Projeta e repara embarcações conforme águas, carga e materiais locais.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3313,7 +5349,16 @@
       "summary": "Integra gemas e metais em peças decorativas ou funcionais conforme projetos aprovados.",
       "lore": "Integra gemas e metais em peças decorativas ou funcionais conforme projetos aprovados.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3326,7 +5371,16 @@
       "summary": "Seleciona madeira, molda lâminas e testa tensão de arcos conforme técnicas conhecidas.",
       "lore": "Seleciona madeira, molda lâminas e testa tensão de arcos conforme técnicas conhecidas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3339,7 +5393,16 @@
       "summary": "Produz hastes, pontas e penas e verifica equilíbrio e acabamento.",
       "lore": "Produz hastes, pontas e penas e verifica equilíbrio e acabamento.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3352,7 +5415,16 @@
       "summary": "Trança fibras e cria cordas de resistência e flexibilidade adequadas a cada uso.",
       "lore": "Trança fibras e cria cordas de resistência e flexibilidade adequadas a cada uso.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3365,7 +5437,16 @@
       "summary": "Modela argila, prepara esmaltes e controla a queima para produzir recipientes e peças.",
       "lore": "Modela argila, prepara esmaltes e controla a queima para produzir recipientes e peças.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3378,7 +5459,16 @@
       "summary": "Trabalha vidro quente e frio para criar recipientes, lentes e ornamentos.",
       "lore": "Trabalha vidro quente e frio para criar recipientes, lentes e ornamentos.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3391,7 +5481,16 @@
       "summary": "Produz sabões e produtos de limpeza, controlando ingredientes e processos.",
       "lore": "Produz sabões e produtos de limpeza, controlando ingredientes e processos.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3404,7 +5503,16 @@
       "summary": "Combina essências e documenta fórmulas olfativas usadas em perfumes e ritos.",
       "lore": "Combina essências e documenta fórmulas olfativas usadas em perfumes e ritos.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3417,7 +5525,16 @@
       "summary": "Estuda substâncias tóxicas para reconhecer riscos e apoiar práticas seguras de prevenção.",
       "lore": "Estuda substâncias tóxicas para reconhecer riscos e apoiar práticas seguras de prevenção.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3430,7 +5547,16 @@
       "summary": "Estuda brasões, bandeiras e símbolos de casas, guildas e instituições.",
       "lore": "Estuda brasões, bandeiras e símbolos de casas, guildas e instituições.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3443,7 +5569,16 @@
       "summary": "Reconstrói vínculos familiares a partir de registros, testemunhos e tradições.",
       "lore": "Reconstrói vínculos familiares a partir de registros, testemunhos e tradições.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3456,7 +5591,16 @@
       "summary": "Localiza pessoas procuradas e interpreta contratos, jurisdições e pistas.",
       "lore": "Localiza pessoas procuradas e interpreta contratos, jurisdições e pistas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3469,7 +5613,16 @@
       "summary": "Facilita acordos em disputas, esclarecendo interesses e limites de cada parte.",
       "lore": "Facilita acordos em disputas, esclarecendo interesses e limites de cada parte.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3482,7 +5635,16 @@
       "summary": "Reúne informações discretamente e avalia riscos de identidade, confiança e exposição.",
       "lore": "Reúne informações discretamente e avalia riscos de identidade, confiança e exposição.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "furtividade",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3495,7 +5657,16 @@
       "summary": "Estuda cifras, padrões e mensagens codificadas sem presumir que toda sequência é um código.",
       "lore": "Estuda cifras, padrões e mensagens codificadas sem presumir que toda sequência é um código.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3508,7 +5679,16 @@
       "summary": "Documenta danos e executa reparos conservadores em objetos históricos ou incomuns.",
       "lore": "Documenta danos e executa reparos conservadores em objetos históricos ou incomuns.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3521,7 +5701,16 @@
       "summary": "Cuida de limites de áreas naturais, registra mudanças e orienta visitantes.",
       "lore": "Cuida de limites de áreas naturais, registra mudanças e orienta visitantes.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3534,7 +5723,16 @@
       "summary": "Estuda fósseis e vestígios de vida antiga para reconstruir ecossistemas passados.",
       "lore": "Estuda fósseis e vestígios de vida antiga para reconstruir ecossistemas passados.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3547,7 +5745,16 @@
       "summary": "Registra nuvens, ventos e padrões sazonais para antecipar mudanças do tempo.",
       "lore": "Registra nuvens, ventos e padrões sazonais para antecipar mudanças do tempo.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3560,7 +5767,16 @@
       "summary": "Cuida de aves treinadas e organiza rotas e mensagens curtas.",
       "lore": "Cuida de aves treinadas e organiza rotas e mensagens curtas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "montaria",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3573,7 +5789,16 @@
       "summary": "Conduz ritos e eventos públicos, conhecendo seus protocolos e simbolismos.",
       "lore": "Conduz ritos e eventos públicos, conhecendo seus protocolos e simbolismos.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3586,7 +5811,16 @@
       "summary": "Ensina técnicas e hábitos por prática progressiva, observação e feedback.",
       "lore": "Ensina técnicas e hábitos por prática progressiva, observação e feedback.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3599,7 +5833,16 @@
       "summary": "Registra processos, decisões e depoimentos conforme normas locais.",
       "lore": "Registra processos, decisões e depoimentos conforme normas locais.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3612,7 +5855,16 @@
       "summary": "Identifica composição, qualidade aparente e usos possíveis de materiais comuns.",
       "lore": "Identifica composição, qualidade aparente e usos possíveis de materiais comuns.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3625,7 +5877,16 @@
       "summary": "Reconhece mecanismos de disparo e documenta formas de neutralização segura.",
       "lore": "Reconhece mecanismos de disparo e documenta formas de neutralização segura.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3638,7 +5899,16 @@
       "summary": "Planeja defesas, barreiras e rotas de abastecimento para estruturas protegidas.",
       "lore": "Planeja defesas, barreiras e rotas de abastecimento para estruturas protegidas.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3651,7 +5921,16 @@
       "summary": "Calcula e mantém travessias, avaliando materiais, terreno e carga.",
       "lore": "Calcula e mantém travessias, avaliando materiais, terreno e carga.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3664,7 +5943,16 @@
       "summary": "Preserva documentos, estabelece índices e controla versões de registros importantes.",
       "lore": "Preserva documentos, estabelece índices e controla versões de registros importantes.",
       "competencies": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "tags": [
         "profissao",
         "original"
@@ -3948,7 +6236,16 @@
       "benefits": [
         {
           "description": "+1 em Intimidação",
+<<<<<<< HEAD
           "mechanicalEffects": []
+=======
+          "mechanicalEffects": [
+            {
+              "scope": "intimidacao",
+              "bonus": 1
+            }
+          ]
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
         }
       ],
       "drawbacks": [
@@ -4818,7 +7115,16 @@
       "benefits": [
         {
           "description": "+1 em Intimidação",
+<<<<<<< HEAD
           "mechanicalEffects": []
+=======
+          "mechanicalEffects": [
+            {
+              "scope": "intimidacao",
+              "bonus": 1
+            }
+          ]
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
         }
       ],
       "drawbacks": [
@@ -5688,7 +7994,16 @@
       "benefits": [
         {
           "description": "+1 em Intimidação",
+<<<<<<< HEAD
           "mechanicalEffects": []
+=======
+          "mechanicalEffects": [
+            {
+              "scope": "intimidacao",
+              "bonus": 1
+            }
+          ]
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
         }
       ],
       "drawbacks": [
@@ -6558,7 +8873,16 @@
       "benefits": [
         {
           "description": "+1 em Intimidação",
+<<<<<<< HEAD
           "mechanicalEffects": []
+=======
+          "mechanicalEffects": [
+            {
+              "scope": "intimidacao",
+              "bonus": 1
+            }
+          ]
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
         }
       ],
       "drawbacks": [
@@ -6590,7 +8914,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "percepcao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6608,7 +8941,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6626,7 +8968,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6644,7 +8995,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6662,7 +9022,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6680,7 +9049,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "conhecimento",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6698,7 +9076,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6716,7 +9103,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "cuidados",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6734,7 +9130,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "ocultismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6752,7 +9157,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sobrevivencia",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6770,7 +9184,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6788,7 +9211,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "oficios",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6806,7 +9238,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "pilotagem",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6824,7 +9265,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6842,7 +9292,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6860,7 +9319,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "sistemas",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6878,7 +9346,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "persuasao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6896,7 +9373,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "intimidacao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6914,7 +9400,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "atletismo",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     },
     {
@@ -6932,7 +9427,16 @@
         "original"
       ],
       "traits": [],
+<<<<<<< HEAD
       "mechanicalEffects": [],
+=======
+      "mechanicalEffects": [
+        {
+          "scope": "intimidacao",
+          "bonus": 1
+        }
+      ],
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
       "contentVersion": 1
     }
   ]

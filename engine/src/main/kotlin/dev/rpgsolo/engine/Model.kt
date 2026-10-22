@@ -5,6 +5,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class EntityKind { PLAYER, NPC }
 
+/** Modo de morte da campanha (M-04). PERMADEATH: recurso de morte em 0 mata. DOWNED: o jogador cai antes de morrer. */
+@Serializable
+enum class DeathMode { PERMADEATH, DOWNED }
+
 @Serializable
 data class Resource(val current: Int, val max: Int) {
     init {
@@ -22,6 +26,10 @@ data class Entity(
     val stats: Map<String, Int> = emptyMap(),
     val resources: Map<String, Resource> = emptyMap(),
     val alive: Boolean = true,
+    /** M-04: caído (vivo, com o recurso de morte em 0). Só ocorre com [DeathMode.DOWNED] e em PLAYER. */
+    val downed: Boolean = false,
+    /** M-04: falhas em testes de sobrevivência desde que caiu. */
+    val deathFailures: Int = 0,
     val xp: Int = 0,
     val level: Int = 1,
     /** Pontos por perícia; ids e limites vêm do pacote de regras. */
@@ -32,10 +40,26 @@ data class Entity(
     /** false = ficha criada sem pacote de regras para validação. */
     val rulesValidated: Boolean = true,
     /** Pontos de evolução não gastos, concedidos pelo pacote ao subir de nível. */
-    val advancementPoints: Int = 0
+    val advancementPoints: Int = 0,
+    /** MU-05.2: reserva de pontos de status (sem teto), separada da de habilidade. */
+    val statPoints: Int = 0,
+    /** MU-05.2: reserva de pontos de habilidade; o gasto entra em MU-06.3. */
+    val abilityPoints: Int = 0,
+    /** MU-06.2: perícias com o nível 2 liberado (por missão, em níveis-chave). */
+    val masteredSkills: Set<String> = emptySet(),
+    /** MU-06.3: habilidades aprendidas com pontos de habilidade. */
+    val abilities: Set<String> = emptySet(),
+    /** MU-07.2: magias aprendidas; cada uma ocupa um slot (aquisição em MU-07.3). */
+    val spells: Set<String> = emptySet()
 )
 
+/** MU-07.2: slots de magia de uma entidade: [total] pelos níveis-chave alcançados, [used] por magias aprendidas. */
+data class SpellSlots(val total: Int, val used: Int) {
+    val free: Int get() = (total - used).coerceAtLeast(0)
+}
+
 /** Estado canônico da campanha. Só muda aplicando eventos (ver [apply]). */
+@Serializable
 data class GameState(
     val entities: Map<String, Entity> = emptyMap(),
     /** dono -> (item -> quantidade) */
@@ -70,9 +94,21 @@ data class GameState(
     val knownPlaces: Set<String> = emptySet(),
     val currentPlaceId: String? = null,
     /** Preferências e limites de conteúdo persistidos separadamente das regras mecânicas. */
-    val campaignStyle: CampaignStyle? = null
+    val campaignStyle: CampaignStyle? = null,
+    /** DC-05.2: modo do documento-fonte (null = campanha sem documento). */
+    val sourceMode: SourceMode? = null,
+    /** entidade -> traço -> usos já gastos desde o último zeramento (M-01). Sem entrada = nenhum uso. */
+    val traitUses: Map<String, Map<String, Int>> = emptyMap(),
+    /** I-02.1: NPC/lugar -> notas do que importa lembrar (as mais recentes, até [MEMORY_NOTES_PER_SUBJECT]). */
+    val memories: Map<String, List<String>> = emptyMap(),
+    /** MU-06.3: entidade -> efeitos temporários de habilidades, com duração em rodadas gravada. */
+    val activeEffects: Map<String, List<ActiveEffect>> = emptyMap()
 )
 
+const val MEMORY_NOTES_PER_SUBJECT = 5
+const val MEMORY_NOTE_MAX_CHARS = 200
+
+@Serializable
 data class Promise(val id: String, val npcId: String, val text: String, val kept: Boolean = false)
 
 /** Conhecimento descoberto pelo jogador; crenças podem ser falsas e preservam sua fonte. */
@@ -94,6 +130,7 @@ data class ConditionState(
 }
 
 /** [order] já vem decidido (iniciativa rolada pelo motor). */
+@Serializable
 data class CombatState(
     val order: List<String>,
     val round: Int = 1,
@@ -113,7 +150,17 @@ data class Clock(
     val segments: Int,
     val filled: Int = 0,
     /** Pista pública opcional, revelada somente quando o relógio termina; nome e contagem seguem privados. */
-    val publicClue: String = ""
+    val publicClue: String = "",
+    /** Casas que o relógio avança sozinho a cada descanso do jogador (M-07); 0 = só avança por proposta validada. */
+    val restTick: Int = 0,
+    /** Casas que o relógio avança sozinhas a cada viagem do jogador para outro local (M-07); 0 = não avança. */
+    val moveTick: Int = 0,
+    /** Casas que o relógio avança sozinhas ao encerrar um capítulo (M-07); 0 = não avança. */
+    val chapterTick: Int = 0,
+    /** Pista pública opcional de meio caminho (M-07): revelada ao preenchimento cruzar a metade das casas; vazia = sem pista. */
+    val midClue: String = "",
+    /** Consequência privada (M-07): orientação ao mestre para quando o relógio completar; nunca vai ao jogador pelo app. */
+    val consequence: String = ""
 ) {
     init {
         require(id.isNotBlank() && id.length <= 80) { "id de relógio inválido" }
@@ -121,9 +168,17 @@ data class Clock(
         require(segments in 2..12) { "relógio precisa de 2 a 12 casas" }
         require(filled in 0..segments) { "preenchimento de relógio fora dos limites" }
         require(publicClue.length <= 500) { "pista pública excede 500 caracteres" }
+        require(midClue.length <= 500) { "pista intermediária excede 500 caracteres" }
+        require(consequence.length <= 500) { "consequência excede 500 caracteres" }
+        require(restTick in 0..segments) { "avanço por descanso fora dos limites" }
+        require(moveTick in 0..segments) { "avanço por viagem fora dos limites" }
+        require(chapterTick in 0..segments) { "avanço por capítulo fora dos limites" }
     }
 
     val full: Boolean get() = filled >= segments
+
+    /** Preenchimento a partir do qual a pista intermediária é revelada (metade das casas, arredondada para cima). */
+    val midpoint: Int get() = (segments + 1) / 2
 }
 
 /**

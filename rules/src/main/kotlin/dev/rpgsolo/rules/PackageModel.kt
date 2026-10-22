@@ -1,5 +1,6 @@
 package dev.rpgsolo.rules
 
+import dev.rpgsolo.engine.DeathMode
 import dev.rpgsolo.engine.Comparison
 import dev.rpgsolo.engine.FortuneMode
 
@@ -27,7 +28,7 @@ internal fun parseResourceRewards(raw: String?): Map<String, Int> {
 
 data class Manifest(
     val id: String,
-    /** Família do sistema (ex.: "dnd"). Herança só vale dentro da mesma família. */
+    /** Família do sistema (ex.: "proprio"). Herança só vale dentro da mesma família. */
     val system: String,
     /** Edição/variante exata (id do catálogo, para pacotes REAL). */
     val edition: String,
@@ -38,7 +39,15 @@ data class Manifest(
     val kind: PackageKind,
     val extends: String? = null,
     /** Recurso que mata ao chegar a 0. null = o sistema não mata automaticamente. */
-    val deathResource: String? = null
+    val deathResource: String? = null,
+    /** M-04: PERMADEATH ou DOWNED (`modo_morte`). null = não declarado (herda do pai; sem pai, PERMADEATH). */
+    val deathMode: DeathMode? = null,
+    /** M-04.4: id do teste (`testes.txt`) usado para sobreviver caído (`teste_sobrevivencia`). null = não declarado (herda do pai). */
+    val survivalCheck: String? = null,
+    /** M-04.4: id da dificuldade do teste de sobrevivência (`dificuldade_sobrevivencia`). null = dificuldade padrão. */
+    val survivalDifficulty: String? = null,
+    /** M-04.4: falhas que matam o caído, 1–10 (`falhas_morte`). null = não declarado (herda do pai; sem pai, 3). */
+    val survivalFailures: Int? = null
 )
 
 data class StatDef(val id: String, val name: String, val min: Int, val max: Int, val default: Int)
@@ -78,6 +87,18 @@ fun distinctExternalBonuses(bonuses: Collection<ExternalBonus>): List<ExternalBo
     }
 }
 
+<<<<<<< HEAD
+=======
+/** MU-06.1: bônus de perícia que só vale com o item [itemId] equipado (qualquer slot). */
+/** MU-07.3: magia à venda; preço em moedas base (prata). Declarada por `magia_<id>_preco` em `criacao.txt`. */
+data class SpellDef(val id: String, val name: String, val price: Int)
+
+/** MU-07.1: pagamento em moedas: [silver] de prata e [gold] de ouro gastos, com [change] de troco em prata. */
+data class CoinPayment(val silver: Int, val gold: Int, val change: Int)
+
+data class ConditionalBonus(val scope: String, val bonus: Int, val itemId: String)
+
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
 data class TraitDef(
     val id: String,
     val type: String,
@@ -85,7 +106,13 @@ data class TraitDef(
     val cost: Int,
     val requires: List<Requirement>,
     val description: String,
-    val bonuses: List<TraitBonus> = emptyList()
+    val bonuses: List<TraitBonus> = emptyList(),
+    /** Usos máximos entre dois descansos (M-01); 0 = sem controle de usos. */
+    val uses: Int = 0,
+    /** MU-06.1: bônus condicionais à posse equipada de um item; só perícias podem declará-los. */
+    val conditionalBonuses: List<ConditionalBonus> = emptyList(),
+    /** MU-06.2: bônus da perícia com o nível 2 liberado; só perícias. */
+    val level2Bonuses: List<TraitBonus> = emptyList()
 )
 
 /** Modelo de teste. modificador = atributo * mult. Parcial e críticos só existem se o pacote declarar. */
@@ -111,7 +138,13 @@ data class CheckDef(
     /** Custo positivo do recurso para ativar vantagem/desvantagem. */
     val fortuneCost: Int = 0,
     /** Política ativada pelo gasto opcional; independente da política automática do teste. */
-    val fortuneSpendMode: FortuneMode? = null
+    val fortuneSpendMode: FortuneMode? = null,
+    /** Recurso de sorte/destino gasto DEPOIS da rolagem (F3); independente da fortuna paga antes de rolar. */
+    val luckResource: String? = null,
+    /** Custo positivo por uso da sorte pós-rolagem. */
+    val luckCost: Int = 0,
+    /** Formas permitidas: repetir a rolagem e/ou somar uma face. Vazio = o teste não aceita sorte pós-rolagem. */
+    val luckKinds: Set<dev.rpgsolo.engine.LuckKind> = emptySet()
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)
@@ -128,7 +161,11 @@ data class ConditionDef(
     /** null = duração narrativa/indefinida; valor positivo = rodadas restantes. */
     val durationRounds: Int? = null,
     val damagePerRound: Int = 0,
-    val damageResource: String = "hp"
+    val damageResource: String = "hp",
+    /** M-05: teste que remove a condição com sucesso (`remocao`, coluna 8: `teste` ou `teste:dificuldade`). */
+    val removalCheck: String? = null,
+    /** M-05: id da dificuldade do teste de remoção; null = dificuldade padrão do pacote. */
+    val removalDifficulty: String? = null
 )
 data class DamageDef(val id: String, val name: String, val diceCount: Int, val diceSides: Int, val bonusStat: String?)
 
@@ -138,8 +175,40 @@ data class ItemEffect(val scope: String, val bonus: Int)
 /** Item do catálogo: efeitos tipados aplicados pelo motor, nunca inferidos da descrição. */
 data class ItemDef(
     val id: String, val name: String, val kind: String, val slot: String?, val description: String,
-    val effects: List<ItemEffect> = emptyList()
+    val effects: List<ItemEffect> = emptyList(),
+    /** Preço em unidades do item de moeda (`moeda_item` em criacao.txt); null = não negociável. */
+    val price: Int? = null
 )
+
+/** Quem recebe o efeito de um poder. */
+enum class PowerTarget { SELF, ENEMY }
+
+/** Efeito tipado de um poder; o motor aplica, nunca a descrição. */
+enum class PowerEffectKind { HEAL, DAMAGE, APPLY_CONDITION, REMOVE_CONDITION }
+
+/**
+ * Poder ativável. Exige o traço [traitId] (do tipo `poder`) na ficha, gasta [cost] de [resource] e, se houver [checkId],
+ * só produz efeito com sucesso nesse teste. [param]: HEAL = quantidade (inteiro positivo, recurso de saúde do pacote);
+ * DAMAGE = id de perfil de dano; APPLY_CONDITION/REMOVE_CONDITION = id de condição.
+ */
+data class PowerDef(
+    val id: String,
+    val name: String,
+    val description: String,
+    val traitId: String,
+    val resource: String,
+    val cost: Int,
+    val target: PowerTarget,
+    val effect: PowerEffectKind,
+    val param: String,
+    val checkId: String? = null
+)
+
+/**
+ * Perfil de perigo (leve, médio, grave, mortal...): a IA escolhe o id, o motor calcula o dano como [percent] % da vida
+ * máxima do personagem (arredondado para cima, mínimo 1). [percent] de 1 a 100.
+ */
+data class HazardDef(val id: String, val name: String, val description: String, val percent: Int)
 
 /** Regra ambígua: nunca apresentada como oficial (4.1.6). */
 data class UncertainRule(val id: String, val note: String)
@@ -176,5 +245,7 @@ data class PackageData(
     val tutorial: List<TutorialStep> = emptyList(),
     val examples: List<ExampleCharacter> = emptyList(),
     val archetypes: List<Archetype> = emptyList(),
-    val archetypeOptions: List<ArchetypeOptions> = emptyList()
+    val archetypeOptions: List<ArchetypeOptions> = emptyList(),
+    val powers: List<PowerDef> = emptyList(),
+    val hazards: List<HazardDef> = emptyList()
 )

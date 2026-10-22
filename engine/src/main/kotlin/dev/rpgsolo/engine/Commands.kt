@@ -12,6 +12,10 @@ data class Damage(val entityId: String, val resource: String, val amount: Int) :
 data class Heal(val entityId: String, val resource: String, val amount: Int) : Command
 /** Gasto de recurso (mana, munição...). Falha se não houver o suficiente. */
 data class SpendResource(val entityId: String, val resource: String, val cost: Int) : Command
+/** Gasta um uso de um traço com usos limitados; [limit] é o máximo declarado por quem chama (pacote, em etapa futura). */
+data class SpendTraitUse(val entityId: String, val traitId: String, val limit: Int) : Command
+/** Devolve os usos de [traitIds] (vazio = todos os traços da entidade). */
+data class ResetTraitUses(val entityId: String, val traitIds: List<String> = emptyList()) : Command
 data class AddItem(val ownerId: String, val itemId: String, val qty: Int = 1) : Command
 data class ConsumeItem(val ownerId: String, val itemId: String, val qty: Int = 1) : Command
 data class EquipItem(val ownerId: String, val itemId: String, val slot: String) : Command
@@ -23,9 +27,31 @@ data class AllocateAdvancement(
     val statIncreases: Map<String, Int> = emptyMap(),
     val skillIncreases: Map<String, Int> = emptyMap()
 ) : Command
+/** MU-05.2: gasta pontos de status (1 ponto = +1), sem teto, em atributos que a entidade já tem. */
+data class AllocateStatPoints(val entityId: String, val increases: Map<String, Int>) : Command
+/** MU-06.2: libera o nível 2 de uma perícia que a entidade já tem; limitado pelos níveis-chave alcançados. */
+data class MasterSkill(val entityId: String, val skillId: String) : Command
+/** MU-07.3: aprende uma magia, ocupando um slot livre (quem chama garante a origem: missão ou compra). */
+data class LearnSpell(val entityId: String, val spellId: String) : Command
+/** MU-06.3: aprende uma habilidade gastando [cost] pontos de habilidade. */
+data class LearnAbility(val entityId: String, val abilityId: String, val cost: Int) : Command
+/** MU-06.3: ativa uma habilidade aprendida; [effects] já trazem a duração (fixa ou sorteada). */
+data class ActivateAbility(
+    val entityId: String,
+    val abilityId: String,
+    val declaredTrigger: AbilityTrigger,
+    val trigger: AbilityTrigger,
+    val effects: List<ActiveEffect>
+) : Command
+/** MU-06.3: fim de rodada; desconta 1 de cada efeito temporário e remove os expirados. */
+object EndEffectsRound : Command
 /** Ressurreição exige justificativa explícita. */
+/** M-04: registra uma falha de sobrevivência do caído; ao atingir [limit] falhas, a entidade morre. */
+data class FailSurvival(val entityId: String, val limit: Int) : Command
 data class Revive(val entityId: String, val reason: String) : Command
 data class RecordFact(val key: String, val value: String) : Command
+/** I-02.1: guarda uma nota curta sobre um NPC ou lugar existente. */
+data class NoteMemory(val subjectId: String, val text: String) : Command
 /** Jogador descobriu algo. [believed] = informação falsa/incerta, guardada como "acreditada". */
 data class LearnKnowledge(val key: String, val text: String, val source: String, val believed: Boolean = false) : Command
 data class MakePromise(val id: String, val npcId: String, val text: String) : Command
@@ -33,7 +59,7 @@ data class KeepPromise(val id: String) : Command
 /** 8.2.2: muda a relação de [fromId] com [toId] (quanto o primeiro gosta/confia no segundo), de -100 a 100. */
 data class ChangeRelation(val fromId: String, val toId: String, val delta: Int, val reason: String) : Command
 /** 8.2.3: relógio de agenda (ameaça ou plano de NPC) com [segments] casas. */
-data class CreateClock(val id: String, val name: String, val segments: Int, val publicClue: String = "") : Command
+data class CreateClock(val id: String, val name: String, val segments: Int, val publicClue: String = "", val restTick: Int = 0, val moveTick: Int = 0, val chapterTick: Int = 0, val midClue: String = "", val consequence: String = "") : Command
 data class AdvanceClock(val id: String, val by: Int = 1) : Command
 data class AddCondition(
     val entityId: String,
@@ -51,6 +77,8 @@ data class ApproveRuleAddition(val id: String) : Command
 data class RejectRuleAddition(val id: String) : Command
 data class SetAmbientacao(val ambientacao: Ambientacao) : Command
 data class SetCampaignStyle(val style: CampaignStyle) : Command
+/** DC-05.2: define o modo do documento-fonte; recusa repetir o modo atual. */
+data class SetSourceMode(val mode: SourceMode) : Command
 data class AddPlace(val place: Place) : Command
 data class ConnectPlaces(val fromId: String, val toId: String) : Command
 data class DiscoverPlace(val id: String) : Command
@@ -75,12 +103,22 @@ data class AdvancementRequirement(
 data class EngineConfig(
     /** Recurso que, ao chegar a 0, mata (ex.: "pv"). null = o sistema não mata automaticamente. */
     val deathResource: String? = "hp",
+    /** M-04: o que acontece quando [deathResource] chega a 0. */
+    val deathMode: DeathMode = DeathMode.PERMADEATH,
     /** XP total necessário para o nível 2, 3, 4... (crescente). Vazio = o sistema não sobe de nível por XP. */
     val levelThresholds: List<Int> = emptyList(),
     /** Bônus de defesa da ação Defend; 0 desativa a ação. */
     val defendBonus: Int = 0,
     /** Pontos concedidos por cada nível novo, conforme declarado pelo pacote. */
     val advancementPointsPerLevel: Int = 0,
+    /** MU-05.2: pontos de status concedidos por nível novo (reserva própria). */
+    val statPointsPerLevel: Int = 0,
+    /** MU-05.2: pontos de habilidade concedidos por nível novo (reserva própria). */
+    val abilityPointsPerLevel: Int = 0,
+    /** MU-06.2: níveis-chave; cada um permite liberar o nível 2 de uma perícia (por missão). */
+    val masteryLevels: List<Int> = emptyList(),
+    /** MU-07.2: níveis-chave que concedem 1 slot de magia cada (`niveis_slot_magia`). Vazio = sem magia. */
+    val spellSlotLevels: List<Int> = emptyList(),
     /** Quantidade de cada recurso restaurada por nível novo, limitada ao máximo atual. */
     val levelResourceRewards: Map<String, Int> = emptyMap(),
     /** Tetos de atributos e perícias do pacote, usados ao gastar pontos de evolução. */
@@ -89,9 +127,21 @@ data class EngineConfig(
     val skillCaps: Map<String, Int> = emptyMap(),
     val skillRequirements: Map<String, AdvancementRequirement> = emptyMap()
 ) {
+    /** MU-07.2: total de slots de magia no [level] (um por nível-chave alcançado). */
+    fun spellSlotsFor(level: Int): Int = spellSlotLevels.count { it <= level }
+
     init {
         require(defendBonus in 0..10) { "defendBonus deve ficar entre 0 e 10" }
         require(advancementPointsPerLevel in 0..100) { "advancementPointsPerLevel deve ficar entre 0 e 100" }
+        require(masteryLevels.all { it > 0 } && masteryLevels.zipWithNext().all { (a, b) -> a < b }) {
+            "masteryLevels deve ser positivo e estritamente crescente"
+        }
+        require(spellSlotLevels.all { it > 0 } && spellSlotLevels.zipWithNext().all { (a, b) -> a < b }) {
+            "spellSlotLevels deve ser positivo e estritamente crescente"
+        }
+        require(statPointsPerLevel in 0..100 && abilityPointsPerLevel in 0..100) {
+            "statPointsPerLevel e abilityPointsPerLevel devem ficar entre 0 e 100"
+        }
         require(levelResourceRewards.values.all { it > 0 } && levelResourceRewards.keys.all { it.isNotBlank() }) {
             "recompensas de recurso por nível devem usar ids não vazios e quantidades positivas"
         }
@@ -117,6 +167,27 @@ data class EngineConfig(
 
     /** Nível correspondente a um total de XP. */
     fun levelFor(xp: Int): Int = 1 + levelThresholds.count { xp >= it }
+
+    /**
+     * MU-05.1: teto de XP por missão no nível [level] = XP necessário para subir um nível (no máximo um nível
+     * por missão). Acima do último limiar vale a última faixa. Sem limiares não há teto (XP não gera nível).
+     */
+    fun maxQuestXp(level: Int): Int {
+        if (levelThresholds.isEmpty()) return Int.MAX_VALUE
+        val i = (level - 1).coerceIn(0, levelThresholds.lastIndex)
+        return levelThresholds[i] - if (i == 0) 0 else levelThresholds[i - 1]
+    }
+
+    /**
+     * Evento ao zerar o recurso de morte de [ent] por [amount] de dano (M-04).
+     * PERMADEATH e NPCs: morte. DOWNED em PLAYER: cai; já caído e com dano > 0: morre; já caído com dano 0: nada.
+     */
+    internal fun zeroEvent(ent: Entity, amount: Int): Event? = when {
+        deathMode != DeathMode.DOWNED || ent.kind != EntityKind.PLAYER -> EntityDied(ent.id)
+        !ent.downed -> EntityDowned(ent.id)
+        amount > 0 -> EntityDied(ent.id)
+        else -> null
+    }
 }
 
 sealed interface Decision {
@@ -140,7 +211,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.amount < 0) return no("dano negativo")
             val newValue = maxOf(0, res.current - cmd.amount)
             val events = mutableListOf<Event>(ResourceChanged(ent.id, cmd.resource, newValue, newValue - res.current))
-            if (newValue == 0 && config.deathResource == cmd.resource) events += EntityDied(ent.id)
+            if (newValue == 0 && config.deathResource == cmd.resource) config.zeroEvent(ent, cmd.amount)?.let { events += it }
             if (events.any { it is EntityDied } && state.combat != null) {
                 val afterDamage = events.fold(state) { current, event -> current.apply(event) }
                 val aliveKinds = afterDamage.combat!!.order
@@ -160,7 +231,9 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val res = ent.resources[cmd.resource] ?: return no("recurso inexistente: ${cmd.resource}")
             if (cmd.amount < 0) return no("cura negativa")
             val newValue = minOf(res.max, res.current + cmd.amount)
-            return Decision.Ok(listOf(ResourceChanged(ent.id, cmd.resource, newValue, newValue - res.current)))
+            val healEvents = mutableListOf<Event>(ResourceChanged(ent.id, cmd.resource, newValue, newValue - res.current))
+            if (ent.downed && config.deathResource == cmd.resource && newValue > 0) healEvents += EntityRecovered(ent.id)
+            return Decision.Ok(healEvents)
         }
 
         is SpendResource -> {
@@ -176,6 +249,24 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (entity(cmd.ownerId) == null) return no("dono inexistente: ${cmd.ownerId}")
             if (cmd.qty <= 0) return no("quantidade inválida")
             return Decision.Ok(listOf(ItemChanged(cmd.ownerId, cmd.itemId, cmd.qty)))
+        }
+
+        is SpendTraitUse -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.limit <= 0) return no("limite de usos inválido")
+            if (cmd.traitId !in ent.traits) return no("${ent.name} não possui o traço ${cmd.traitId}")
+            val used = state.traitUses[cmd.entityId]?.get(cmd.traitId) ?: 0
+            if (used >= cmd.limit) return no("usos esgotados: ${cmd.traitId} ($used/${cmd.limit})")
+            return Decision.Ok(listOf(TraitUseSpent(cmd.entityId, cmd.traitId, used + 1)))
+        }
+
+        is ResetTraitUses -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            val spent = state.traitUses[cmd.entityId].orEmpty()
+            val targets: List<String> = if (cmd.traitIds.isEmpty()) spent.keys.toList() else cmd.traitIds.filter { it in spent }
+            if (targets.isEmpty()) return no("${ent.name} não tem usos gastos para devolver")
+            return Decision.Ok(listOf(TraitUsesReset(cmd.entityId, if (cmd.traitIds.isEmpty()) emptyList() else targets)))
         }
 
         is ConsumeItem -> {
@@ -219,7 +310,12 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 val gainedLevels = newLevel - ent.level
                 val pointsGranted = gainedLevels.toLong() * config.advancementPointsPerLevel.toLong()
                 if (pointsGranted > Int.MAX_VALUE) return no("pontos de evolução excedem o limite suportado")
-                events += LevelGained(ent.id, newLevel, pointsGranted.toInt())
+                val statGranted = gainedLevels.toLong() * config.statPointsPerLevel.toLong()
+                val abilityGranted = gainedLevels.toLong() * config.abilityPointsPerLevel.toLong()
+                if (ent.statPoints + statGranted > Int.MAX_VALUE || ent.abilityPoints + abilityGranted > Int.MAX_VALUE) {
+                    return no("pontos de status ou habilidade excedem o limite suportado")
+                }
+                events += LevelGained(ent.id, newLevel, pointsGranted.toInt(), statGranted.toInt(), abilityGranted.toInt())
                 for ((resource, perLevel) in config.levelResourceRewards) {
                     val current = ent.resources[resource] ?: return no("recompensa por nível referencia recurso ausente na ficha: $resource")
                     val reward = perLevel.toLong() * gainedLevels.toLong()
@@ -267,6 +363,75 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val cost = costLong.toInt()
             if (cost > ent.advancementPoints) return no("pontos de evolução insuficientes: ${ent.advancementPoints}/$cost")
             return Decision.Ok(listOf(AdvancementAllocated(ent.id, cmd.statIncreases, cmd.skillIncreases, cost)))
+        }
+
+        is AllocateStatPoints -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.increases.isEmpty()) return no("escolha ao menos um aumento")
+            if (cmd.increases.values.any { it <= 0 }) return no("aumentos devem ser inteiros positivos")
+            for ((stat, increase) in cmd.increases) {
+                val current = ent.stats[stat] ?: return no("atributo inexistente na ficha: $stat")
+                if (current.toLong() + increase.toLong() > Int.MAX_VALUE) return no("aumento excede o limite suportado em $stat")
+            }
+            val cost = cmd.increases.values.sumOf { it.toLong() }
+            if (cost > ent.statPoints) return no("pontos de status insuficientes: ${ent.statPoints}/$cost")
+            return Decision.Ok(listOf(StatPointsAllocated(ent.id, cmd.increases, cost.toInt())))
+        }
+
+        is MasterSkill -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if ((ent.skills[cmd.skillId] ?: 0) <= 0) return no("a entidade não tem a perícia: ${cmd.skillId}")
+            if (cmd.skillId in ent.masteredSkills) return no("nível 2 já liberado: ${cmd.skillId}")
+            val slots = config.masteryLevels.count { it <= ent.level }
+            if (ent.masteredSkills.size >= slots) return no("sem nível-chave disponível para liberar o nível 2 (${ent.masteredSkills.size}/$slots)")
+            return Decision.Ok(listOf(SkillMastered(ent.id, cmd.skillId)))
+        }
+
+        is LearnSpell -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.spellId.isBlank()) return no("magia sem id")
+            if (cmd.spellId in ent.spells) return no("magia já aprendida: ${cmd.spellId}")
+            val slots = config.spellSlotsFor(ent.level)
+            if (ent.spells.size >= slots) return no("sem slot de magia livre (${ent.spells.size}/$slots)")
+            return Decision.Ok(listOf(SpellLearned(ent.id, cmd.spellId)))
+        }
+
+        is LearnAbility -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.abilityId.isBlank()) return no("habilidade sem id")
+            if (cmd.cost <= 0) return no("custo da habilidade deve ser positivo")
+            if (cmd.abilityId in ent.abilities) return no("habilidade já aprendida: ${cmd.abilityId}")
+            if (cmd.cost > ent.abilityPoints) return no("pontos de habilidade insuficientes: ${ent.abilityPoints}/${cmd.cost}")
+            return Decision.Ok(listOf(AbilityLearned(ent.id, cmd.abilityId, cmd.cost)))
+        }
+
+        is ActivateAbility -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.abilityId !in ent.abilities) return no("habilidade não aprendida: ${cmd.abilityId}")
+            if (cmd.declaredTrigger != cmd.trigger) return no("gatilho incorreto para ${cmd.abilityId}: exige ${cmd.declaredTrigger}")
+            if (cmd.effects.isEmpty()) return no("habilidade sem bônus")
+            if (cmd.effects.any { it.remainingRounds <= 0 || it.target.isBlank() || it.value == 0 }) return no("efeito de habilidade inválido")
+            return Decision.Ok(listOf(AbilityActivated(ent.id, cmd.abilityId, cmd.effects)))
+        }
+
+        is EndEffectsRound -> {
+            if (state.activeEffects.values.all { it.isEmpty() }) return no("não há efeitos temporários ativos")
+            return Decision.Ok(listOf(EffectsRoundEnded))
+        }
+
+        is FailSurvival -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive || !ent.downed) return no("${ent.name} não está caído")
+            if (cmd.limit !in 1..10) return no("limite de falhas deve ficar entre 1 e 10")
+            val failures = ent.deathFailures + 1
+            val events = mutableListOf<Event>(SurvivalFailed(ent.id, failures))
+            if (failures >= cmd.limit) events += EntityDied(ent.id)
+            return Decision.Ok(events)
         }
 
         is Revive -> {
@@ -324,8 +489,13 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             }
             if (cmd.segments !in 2..12) return no("relógio precisa de 2 a 12 casas")
             if (cmd.publicClue.length > 500) return no("pista pública excede 500 caracteres")
+            if (cmd.midClue.length > 500) return no("pista intermediária excede 500 caracteres")
+            if (cmd.consequence.length > 500) return no("consequência excede 500 caracteres")
+            if (cmd.restTick !in 0..cmd.segments) return no("avanço por descanso deve ficar entre 0 e o número de casas")
+            if (cmd.moveTick !in 0..cmd.segments) return no("avanço por viagem deve ficar entre 0 e o número de casas")
+            if (cmd.chapterTick !in 0..cmd.segments) return no("avanço por capítulo deve ficar entre 0 e o número de casas")
             if (state.clocks.containsKey(cmd.id)) return no("relógio já existe: ${cmd.id}")
-            return Decision.Ok(listOf(ClockCreated(cmd.id, cmd.name.trim(), cmd.segments, cmd.publicClue.trim())))
+            return Decision.Ok(listOf(ClockCreated(cmd.id, cmd.name.trim(), cmd.segments, cmd.publicClue.trim(), cmd.restTick, cmd.moveTick, cmd.chapterTick, cmd.midClue.trim(), cmd.consequence.trim())))
         }
 
         is AdvanceClock -> {
@@ -405,9 +575,10 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                                 events += tick
                                 tickState = tickState.apply(tick)
                                 if (resource != null && newValue == 0 && config.deathResource == effect.damageResource) {
-                                    val death = EntityDied(entityId)
-                                    events += death
-                                    tickState = tickState.apply(death)
+                                    config.zeroEvent(ent, effect.damagePerRound)?.let { death ->
+                                        events += death
+                                        tickState = tickState.apply(death)
+                                    }
                                 }
                             }
                         }
@@ -480,6 +651,10 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             }
             return Decision.Ok(listOf(CampaignStyleSet(cmd.style)))
         }
+        is SetSourceMode -> {
+            if (state.sourceMode == cmd.mode) return no("a campanha já está nesse modo de fonte")
+            return Decision.Ok(listOf(SourceModeSet(cmd.mode)))
+        }
         is AddPlace -> {
             val p = cmd.place
             if (p.id.isBlank() || p.id.length > 80 || p.name.isBlank()) return no("local exige id válido e nome")
@@ -547,5 +722,15 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
 
         is RecordFact ->
             return if (cmd.key.isBlank()) no("chave vazia") else Decision.Ok(listOf(FactRecorded(cmd.key, cmd.value)))
+
+        is NoteMemory -> {
+            val text = cmd.text.trim()
+            if (text.isEmpty()) return no("nota vazia")
+            if (text.length > MEMORY_NOTE_MAX_CHARS) return no("nota acima de $MEMORY_NOTE_MAX_CHARS caracteres")
+            val isNpc = state.entities[cmd.subjectId]?.kind == EntityKind.NPC
+            if (!isNpc && cmd.subjectId !in state.places) return no("assunto inexistente (só NPC ou lugar): ${cmd.subjectId}")
+            if (state.memories[cmd.subjectId]?.lastOrNull() == text) return no("nota repetida")
+            return Decision.Ok(listOf(MemoryNoted(cmd.subjectId, text)))
+        }
     }
 }

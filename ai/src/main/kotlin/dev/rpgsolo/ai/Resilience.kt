@@ -9,7 +9,8 @@ fun interface Sleeper {
 
 object ThreadSleeper : Sleeper {
     override fun sleep(ms: Long) {
-        Thread.sleep(ms)
+        val token = CancelToken.current()
+        if (token != null) token.sleep(ms) else Thread.sleep(ms)
     }
 }
 

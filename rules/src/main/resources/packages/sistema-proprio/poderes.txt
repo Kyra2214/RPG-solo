@@ -1,0 +1,5 @@
+# id|nome|descricao|traco (tipo poder)|recurso|custo|alvo (self|inimigo)|efeito (cura|dano|condicao|remover-condicao)|parametro|teste opcional
+# cura: parametro = quantidade (recurso de saude do pacote); dano: perfil de dano; condicao/remover-condicao: id da condicao.
+# Se houver teste, o efeito so ocorre com sucesso nele; o custo e gasto de qualquer forma. Fórmulas e valores em rascunho.
+regeneracao-ativa|Regeneração acelerada|Concentra o corpo para fechar ferimentos: recupera 2 PV.|regeneracao|pm|1|self|cura|2
+rajada-arcana|Rajada arcana|Descarga de energia contra um inimigo: dano do golpe comum, se acertar.|talento-arcano|pm|1|inimigo|dano|golpe|ataque

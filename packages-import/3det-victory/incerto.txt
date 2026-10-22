@@ -1,3 +1,0 @@
-# id|nota   (regra ambígua ou ainda não modelada: nunca apresentar como oficial)
-poder-1d|Crítico (cada 6 soma o atributo de novo) e falha crítica (todos os dados 1) ainda não são modelados pelo motor; o mestre aplica na narração.
-ganho|Ganho/Perda ainda não alteram o número de dados automaticamente; escolha o teste de 1d, 2d ou 3d já com o saldo aplicado (mínimo 1d, máximo 3d).

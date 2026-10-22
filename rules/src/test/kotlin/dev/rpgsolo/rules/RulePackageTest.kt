@@ -299,7 +299,12 @@ class RulePackageTest {
 
     private fun realCatalog(): Catalog {
         fun res(name: String) = listOf("src/main/resources/catalog/$name", "rules/src/main/resources/catalog/$name").map(::File).first { it.exists() }.readText()
-        return (CatalogLoader.load(res("estilos.txt"), res("sistemas.txt"), res("compat.txt")) as LoadResult.Success).catalog
+        // Estilos reais do app com sistemas fictícios de teste: duas famílias, uma edição cada.
+        val sistemas = """
+            alfa-1|alfa|Sistema Alfa|1|generico|PENDENTE|PENDENTE|teste
+            beta-1|beta|Sistema Beta|1|generico|PESQUISADO_PARCIAL|VERIFICADA|teste
+        """.trimIndent()
+        return (CatalogLoader.load(res("estilos.txt"), sistemas, "") as LoadResult.Success).catalog
     }
 
     private fun realManifest(edition: String, system: String, status: String, source: String) =
@@ -318,13 +323,13 @@ class RulePackageTest {
 
     @Test fun pacoteRealExigeEdicaoDoCatalogoELicencaNaoBloqueia() {
         val cat = realCatalog()
-        assertTrue(failure(PackageRegistry(cat).install(realManifest("nao-existe", "dnd", "VERIFICADA", "autoral")))
+        assertTrue(failure(PackageRegistry(cat).install(realManifest("nao-existe", "beta", "VERIFICADA", "autoral")))
             .any { it.contains("não existe no catálogo") })
-        assertTrue(PackageRegistry(cat).install(realManifest("3det-alpha", "3det", "PENDENTE", "autoral")) is InstallResult.Success)
-        assertTrue(failure(PackageRegistry(cat).install(realManifest("3det-alpha", "dnd", "VERIFICADA", "autoral")))
+        assertTrue(PackageRegistry(cat).install(realManifest("alfa-1", "alfa", "PENDENTE", "autoral")) is InstallResult.Success)
+        assertTrue(failure(PackageRegistry(cat).install(realManifest("alfa-1", "beta", "VERIFICADA", "autoral")))
             .any { it.contains("família") })
-        assertTrue(PackageRegistry(cat).install(realManifest("3det-alpha", "3det", "PENDENTE", USER_IMPORT_SOURCE)) is InstallResult.Success)
-        assertTrue(PackageRegistry(cat).install(realManifest("dnd-5-2-srd", "dnd", "VERIFICADA", "autoral")) is InstallResult.Success)
+        assertTrue(PackageRegistry(cat).install(realManifest("alfa-1", "alfa", "PENDENTE", USER_IMPORT_SOURCE)) is InstallResult.Success)
+        assertTrue(PackageRegistry(cat).install(realManifest("beta-1", "beta", "VERIFICADA", "autoral")) is InstallResult.Success)
     }
 
     // ---- busca (4.2.3) ----

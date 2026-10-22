@@ -20,6 +20,6 @@ class CampaignFormTest {
     }
 
     @Test fun soTextoLivreFunciona() {
-        assertEquals("quero jogar D&D", CampaignForm(freeText = "  quero jogar D&D ").toDescription())
+        assertEquals("quero jogar fantasia sombria", CampaignForm(freeText = "  quero jogar fantasia sombria ").toDescription())
     }
 }

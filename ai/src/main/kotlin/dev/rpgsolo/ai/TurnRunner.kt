@@ -15,7 +15,9 @@ sealed interface TurnOutcome {
         /** O mestre pediu um teste: nada foi aplicado ainda; o jogo espera o jogador rolar. */
         val checkRequest: CheckRequest? = null,
         /** O mestre pediu uma rolagem com tabela: nada foi aplicado ainda; o jogo espera o jogador rolar. */
-        val rollRequest: RollRequest? = null
+        val rollRequest: RollRequest? = null,
+        /** Poder pedido pela IA e já resolvido pelo motor nesta jogada. */
+        val powerUse: PowerUse? = null
     ) : TurnOutcome
 
     /** A IA respondeu, mas o motor recusou as propostas mesmo após a correção. Nada foi alterado. */
@@ -52,7 +54,8 @@ class TurnRunner(
         canRequest: Boolean = true,
         playerEntityId: String? = null,
         sceneNpcIds: Set<String> = emptySet(),
-        onNarrativeChunk: (String) -> Unit = {}
+        onNarrativeChunk: (String) -> Unit = {},
+        powers: PowerContext? = null
     ): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
@@ -73,7 +76,7 @@ class TurnRunner(
             } catch (e: AiError) {
                 return TurnOutcome.Failed(e.message ?: "erro de IA", e)
             }
-            when (val a = attempt(session, response.text, menu, canRequest, playerEntityId, sceneNpcIds)) {
+            when (val a = attempt(session, response.text, menu, canRequest, playerEntityId, sceneNpcIds, powers)) {
                 is Attempt.Done -> return a.outcome
                 is Attempt.Retry -> {
                     lastProblem = a.problem
@@ -89,7 +92,7 @@ class TurnRunner(
             }
         }
         // Defesa extra: lote recusado não grava nada, mas garantimos o ponto de partida.
-        if (session.engine.eventCount != mark) session.rollbackTo(mark)
+        if (session.eventCount != mark) session.rollbackTo(mark)
         return if (lastFromEngine) TurnOutcome.Refused(lastProblem) else TurnOutcome.Failed(lastProblem)
     }
 
@@ -134,12 +137,49 @@ class TurnRunner(
         }
     }
 
+<<<<<<< HEAD
     private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?, sceneNpcIds: Set<String>): Attempt {
+=======
+    /** request_power: valida pelo pacote e deixa o motor gastar custo, rolar e aplicar o efeito. Recusa volta à IA. */
+    private fun attemptPower(session: CampaignSession, out: TurnOutput, powers: PowerContext?, playerEntityId: String?): Attempt {
+        val request = out.powerRequest!!
+        val context = powers ?: return Attempt.Retry("este jogo não oferece poderes; não use request_power", false)
+        val playerId = playerEntityId ?: return Attempt.Retry("o jogador não foi identificado para usar o poder", false)
+        val targetTraits = request.targetId?.let { session.state.entities[it]?.traits.orEmpty() }.orEmpty()
+        val built = context.menu.build(request.powerId, playerId, request.targetId, session.state, context.traitIds(), targetTraits)
+        val ready = when (built) {
+            is PowerBuild.Invalid -> return Attempt.Retry("poder recusado: ${built.reason}", false)
+            is PowerBuild.Ready -> built
+        }
+        val mark = session.mark()
+        return when (val r = session.activatePower(ready.spec)) {
+            is dev.rpgsolo.engine.PowerResult.Rejected -> {
+                if (session.eventCount != mark) session.rollbackTo(mark)
+                Attempt.Retry("o motor recusou o poder: ${r.reason}", true)
+            }
+            is dev.rpgsolo.engine.PowerResult.Activated -> Attempt.Done(TurnOutcome.Applied(
+                out.narrative,
+                session.events.drop(mark),
+                out.suggestions,
+                powerUse = PowerUse(
+                    ready.def.name,
+                    session.state.entities[playerId]?.name ?: playerId,
+                    ready.spec.targetId?.let { session.state.entities[it]?.name },
+                    ready.spec,
+                    r
+                )
+            ))
+        }
+    }
+
+    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?, sceneNpcIds: Set<String>, powers: PowerContext?): Attempt {
+>>>>>>> 1093c41 (Integrar fase 14 e documentar validacao Gradle)
         return when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
                 Attempt.Retry("formato inválido: " + parsed.errors.joinToString("; "), false)
             is ParseResult.Ok -> {
                 val out = parsed.output
+                if (out.powerRequest != null) return attemptPower(session, out, powers, playerEntityId)
                 val req = out.checkRequest
                 val roll = out.rollRequest
                 if (req != null || roll != null) {
@@ -187,6 +227,20 @@ class TurnRunner(
                             is dev.rpgsolo.engine.RemoveCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
                             else -> false
                         }
+                        val combatantId = when (command) {
+                            is dev.rpgsolo.engine.Damage -> command.entityId
+                            is dev.rpgsolo.engine.Heal -> command.entityId
+                            is dev.rpgsolo.engine.SpendResource -> command.entityId
+                            is dev.rpgsolo.engine.AddCondition -> command.entityId
+                            is dev.rpgsolo.engine.RemoveCondition -> command.entityId
+                            else -> null
+                        }
+                        if (combatantId != null && session.state.combat?.order?.contains(combatantId) == true) {
+                            return Attempt.Retry(
+                                "durante o combate PV, custos e condições de quem luta só mudam por ações do motor (ataque, poder, condição do pacote); proponha apenas a intenção e narre o resultado",
+                                false
+                            )
+                        }
                         if (playerTarget) {
                             return Attempt.Retry(
                                 "esta proposta alteraria diretamente recursos, XP, inventário ou condições do jogador; use uma ação local ou uma rolagem mecânica do motor",
@@ -199,6 +253,10 @@ class TurnRunner(
                                     ?: return Attempt.Retry("não há pacote ativo para validar condições mecânicas", false)
                                 val configured = conditionMenu.conditionCommand(command.entityId, command.condition)
                                     ?: return Attempt.Retry("condição '${command.condition}' não existe no pacote ativo", false)
+                                val targetTraits = session.state.entities[command.entityId]?.traits.orEmpty()
+                                if (conditionMenu.isImmune(command.entityId, command.condition, targetTraits)) {
+                                    return Attempt.Retry("o alvo é imune à condição '${command.condition}'", false)
+                                }
                                 normalized += configured
                             }
                             is dev.rpgsolo.engine.AddItem, is dev.rpgsolo.engine.ConsumeItem -> {
@@ -230,7 +288,14 @@ class TurnRunner(
                         if (npcMenu == null && npcCreator == null) {
                             return Attempt.Retry("não há pacote nem contexto de sistema para criar a ficha de NPC", false)
                         }
-                        val npcId = "npc-${transactionMark}-${proposal.name.trim().lowercase().hashCode()}"
+                        val npcId = if (proposal.id == "pending") {
+                            "npc-${transactionMark}-${proposal.name.trim().lowercase().hashCode()}"
+                        } else {
+                            if (proposal.id in session.state.entities || proposal.id == playerEntityId || proposal.id == "player") {
+                                return Attempt.Retry("o id '${proposal.id}' do NPC já está em uso; escolha outro", false)
+                            }
+                            proposal.id
+                        }
                         combatNpcId = npcId
                         val candidate = proposal.copy(id = npcId)
                         val result = npcCreator?.invoke(candidate)
@@ -264,7 +329,7 @@ class TurnRunner(
                                 }
                                 Attempt.Done(TurnOutcome.Applied(
                                     out.narrative,
-                                    session.engine.events.drop(transactionMark),
+                                    session.events.drop(transactionMark),
                                     out.suggestions
                                 ))
                             } else {

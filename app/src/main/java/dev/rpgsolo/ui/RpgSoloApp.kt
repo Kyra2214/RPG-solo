@@ -4,6 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -75,6 +76,22 @@ fun RpgSoloApp() {
             }
         ) { padding ->
             Box(Modifier.fillMaxSize().padding(padding)) {
+                if (!model.ready) {
+                    Column(
+                        Modifier.fillMaxSize().padding(24.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        val failure = model.startupError
+                        if (failure == null) {
+                            CircularProgressIndicator()
+                            Text("Abrindo sua campanha…", Modifier.padding(top = 12.dp))
+                        } else {
+                            Text("Não foi possível abrir os dados: $failure", color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                    return@Box
+                }
                 Crossfade(targetState = selected, label = "aba") { tab ->
                     when (tab) {
                         Tab.JOGAR -> PlayScreen(model) { destination -> selectedName = destination.name }

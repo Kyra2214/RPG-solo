@@ -10,7 +10,23 @@ data class CampanhaRow(
     @androidx.room.PrimaryKey val id: String,
     val nome: String,
     val seed: Long,
-    val configJson: String
+    val configJson: String,
+    /** CP-02: `ATIVA`, `PAUSADA` ou `CONCLUIDA` (ver [EstadoCampanha]). */
+    @androidx.room.ColumnInfo(defaultValue = "'ATIVA'") val estado: String = "ATIVA",
+    @androidx.room.ColumnInfo(defaultValue = "0") val criadaEm: Long = 0,
+    @androidx.room.ColumnInfo(defaultValue = "0") val atualizadaEm: Long = 0
+)
+
+enum class EstadoCampanha { ATIVA, PAUSADA, CONCLUIDA }
+
+/** Resumo de uma campanha para a lista e o histórico (CP-02). Datas em milissegundos; 0 = desconhecida (campanha antiga). */
+data class CampanhaInfo(
+    val id: String,
+    val nome: String,
+    val estado: EstadoCampanha,
+    val criadaEm: Long,
+    val atualizadaEm: Long,
+    val eventos: Int
 )
 
 /** Um evento do log append-only. [seq] começa em 0 e não tem buracos. */
@@ -43,3 +59,37 @@ data class CampanhaMetaRow(
     val systemId: String? = null,
     val editionId: String? = null
 )
+
+/** Capítulo de uma campanha (M-08). [json] é um `Chapter` codificado; [numero] ordena e identifica. */
+@Entity(
+    tableName = "capitulos",
+    primaryKeys = ["campanhaId", "numero"],
+    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("campanhaId")]
+)
+data class CapituloRow(val campanhaId: String, val numero: Int, val json: String)
+
+/** Missão de uma campanha (M-08). [json] é um `Quest` codificado; [ordem] preserva a ordem de criação. */
+@Entity(
+    tableName = "missoes",
+    primaryKeys = ["campanhaId", "missaoId"],
+    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("campanhaId")]
+)
+data class MissaoRow(val campanhaId: String, val missaoId: String, val ordem: Int, val json: String)
+
+/** Último snapshot do estado de uma campanha (M-08.3): estado após [eventCount] eventos; reabrir aplica só a cauda do log. */
+@Entity(
+    tableName = "snapshots",
+    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)]
+)
+data class SnapshotRow(@androidx.room.PrimaryKey val campanhaId: String, val eventCount: Int, val stateJson: String)
+
+/** Linha do tempo derivada do log (CP-01.2): [eventoIndice] é o índice do evento de origem, [ordem] preserva a ordem. */
+@Entity(
+    tableName = "linha_tempo",
+    primaryKeys = ["campanhaId", "ordem"],
+    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("campanhaId")]
+)
+data class LinhaTempoRow(val campanhaId: String, val ordem: Int, val eventoIndice: Int, val texto: String)

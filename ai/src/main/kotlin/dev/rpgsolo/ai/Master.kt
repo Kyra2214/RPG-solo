@@ -19,7 +19,7 @@ object MasterPrompt {
         7. Você recebe a ficha completa do jogador (atributos, recursos, vantagens, desvantagens, perícias, condições, itens). Use-a em toda cena, principalmente em combate: respeite o que o personagem sabe e não sabe fazer, faça vantagens e desvantagens aparecerem na história e nunca conceda a ele algo que a ficha não permite. A ficha é só para você: não a recite nem cite números, pontos ou nomes de mecânica.
         8. Testes pedidos por você: quando o desfecho de algo for realmente incerto, em vez de decidir você pode PEDIR um teste ao jogador com "request_check", usando só os testes e dificuldades da seção "Testes que você pode pedir" do pedido (se a seção não existir, nunca peça teste). Vale para descobertas (notar algo escondido, forçar, convencer, lembrar) e para eventos surpresa (armadilha, emboscada, uma flecha vinda do escuro: peça o teste que permite evitar). Ao pedir: narre apenas até o momento do teste e termine convidando o jogador a rolar; não revele nem decida o resultado; não envie proposals; escreva em onSuccess e onFailure (privados) o que acontece em cada caso. Se o teste falhar numa descoberta, o jogador simplesmente não percebe o que estava escondido e a história segue, sem avisar que algo foi perdido. Peça poucos testes, só quando a descoberta ou o risco importar, e não peça outro se a jogada já trouxe um resultado de teste. Se a ficha do jogador listar um traço com "bônus nos testes" (ex.: +2 em esquiva) e o teste for dessa situação, preencha "skill" com o escopo (esquiva, sorte...): o motor soma o bônus sozinho, você não calcula nem cita números.
         9. Disputas e grupos: use request_check com opposed ou group no formato definido no JSON abaixo, incluindo "player" e apenas NPCs vivos da cena. O motor resolve todos os dados; siga só a consequência selecionada e nunca revele o ramo alternativo.
-        9. Rolagem com tabela: quando uma falha ou evento precisa de variação (onde a flecha acerta, quanto fere, o que cai do baú), peça com "request_roll", na mesma resposta em que narra o resultado do teste: 1 dado e uma entrada para CADA face, com "text" (privado), "damage" (dano que o motor aplicará; 0 se não fere; faces maiores são mais graves, até a vida máxima do personagem, e só fatais quando a cena justificar) e, se couber, "conditions" (status do sistema que o motor aplicará, como sangramento ou veneno; use só ids da lista de condições do pedido). Ao pedir, diga ao jogador o que o dado decide (ex.: "role um d6: quanto maior, pior"), sem revelar a tabela. Depois da rolagem o motor JÁ aplicou o dano e as condições: você só narra, sem números, e nunca propõe isso de novo. Condições ativas continuam valendo: faça-as pesar nas cenas seguintes (visão turva atrapalha mirar, sangramento enfraquece) e proponha remove_condition quando forem tratadas ou passarem. Não encadeie mais de dois pedidos seguidos.
+        9. Rolagem com tabela: quando uma falha ou evento precisa de variação (onde a flecha acerta, quanto fere, o que cai do baú), peça com "request_roll", na mesma resposta em que narra o resultado do teste: 1 dado e uma entrada para CADA face, com "text" (privado), "damage" (dano que o motor aplicará; 0 se não fere; faces maiores são mais graves, até a vida máxima do personagem, e só fatais quando a cena justificar) ou, se o contexto listar perfis de perigo, "hazard" com o id do perfil (leve a mortal), deixando o motor calcular o dano e, se couber, "conditions" (status do sistema que o motor aplicará, como sangramento ou veneno; use só ids da lista de condições do pedido). Ao pedir, diga ao jogador o que o dado decide (ex.: "role um d6: quanto maior, pior"), sem revelar a tabela. Depois da rolagem o motor JÁ aplicou o dano e as condições: você só narra, sem números, e nunca propõe isso de novo. Condições ativas continuam valendo: faça-as pesar nas cenas seguintes (visão turva atrapalha mirar, sangramento enfraquece) e proponha remove_condition quando forem tratadas ou passarem. Não encadeie mais de dois pedidos seguidos.
         10. Ritmo: avance a cena com consequências concretas, preserve a agência do jogador e termine decisões importantes perguntando o que ele faz. Não transforme toda ação em teste; peça teste só quando o resultado for incerto e relevante.
         11. Combate: respeite a ordem de iniciativa e os turnos informados pelo motor. Não narre ataque, dano, cura, condição ou morte como ocorridos antes da resolução mecânica. O jogador decide suas ações e não recebe ações extras fora do turno.
         12. Locais: não invente nem revele nomes de passagens desconhecidas. Segredos de lugares seguem a mesma regra dos segredos de NPC: só descreva conteúdo que o motor liberou.
@@ -49,7 +49,13 @@ data class ContextInput(
     /** IDs de NPCs realmente presentes na cena, para não vazar estado de toda a campanha. */
     val sceneNpcIds: Set<String> = emptySet(),
     val worldContext: String? = null,
-    val generationPreferences: String? = null
+    val generationPreferences: String? = null,
+    /** Relógios que avançaram entre a última narração e esta jogada (descanso, viagem, capítulo...); o mestre deve mostrar um sinal. */
+    val advancedClockIds: Set<String> = emptySet(),
+    /** CP-03: briefing de retomada (ver [ResumeBriefing]); só na primeira jogada depois de abrir a campanha. */
+    val resumeBriefing: String? = null,
+    /** DC-05.1: trechos do documento-fonte escolhidos pelo código para esta cena (ver [SourceContext]); cortável pelo orçamento. */
+    val sourceContext: String? = null
 )
 
 object ContextAssembler {
@@ -74,7 +80,7 @@ object ContextAssembler {
     /** Nota privada da face sorteada. O dano, se houver, já foi aplicado pelo motor: a IA não o repete nem cita valores. */
     internal fun rollNote(e: RollEntry): String {
         val applied = buildList {
-            if (e.damage > 0) add("o dano")
+            if (e.damage > 0 || e.hazard != null) add("o dano")
             if (e.conditions.isNotEmpty()) add("a condição (${e.conditions.joinToString(", ")})")
         }
         val tail = if (applied.isEmpty()) "Esta face não causa dano."
@@ -152,7 +158,11 @@ object ContextAssembler {
             },
             s.clocks.values.takeIf { it.isNotEmpty() }?.let { cs ->
                 "Relógios de agenda (privado; não mostre números, só sinais no mundo):\n" + cs.joinToString("\n") {
-                    "- ${it.name}: ${it.filled}/${it.segments}" + if (it.full) " — COMPLETO: narre a consequência" else ""
+                    "- ${it.name}: ${it.filled}/${it.segments}" +
+                        if (it.full) " — COMPLETO: narre a consequência" + (if (it.consequence.isNotBlank()) " planejada: ${it.consequence}" else "")
+                        else if (it.id in input.advancedClockIds && it.midClue.isNotBlank() && it.filled >= it.midpoint) " — AVANÇOU desde sua última fala e passou da metade: deixe o jogador perceber esta pista, sem números nem o nome do relógio: ${it.midClue}"
+                        else if (it.id in input.advancedClockIds) " — AVANÇOU desde sua última fala: mostre um sinal sutil no mundo, sem números nem o nome do relógio"
+                        else ""
                 }
             },
             s.facts.takeIf { it.isNotEmpty() }
@@ -167,6 +177,7 @@ object ContextAssembler {
                 ?.let { k -> "O jogador sabe:\n" + k.joinToString("\n") { "- ${it.text}" + if (it.believed) " (apenas acreditado)" else "" } },
             input.ruleSnippets.takeIf { it.isNotEmpty() }?.let { "Regras relevantes:\n" + it.joinToString("\n") },
             input.chapterSummary?.takeIf { it.isNotBlank() }?.let { "Resumo do capítulo:\n$it" },
+            input.sourceContext?.takeIf { it.isNotBlank() },
             input.generationPreferences?.takeIf { it.isNotBlank() },
             input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") }
         )
@@ -174,7 +185,8 @@ object ContextAssembler {
         val always = listOfNotNull(
             input.playerSheet?.takeIf { it.isNotBlank() },
             input.checkMenu?.takeIf { it.isNotBlank() },
-            input.worldContext?.takeIf { it.isNotBlank() }
+            input.worldContext?.takeIf { it.isNotBlank() },
+            input.resumeBriefing?.takeIf { it.isNotBlank() }
         ) + input.npcPrivate
         var used = TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required) +
             always.sumOf { TokenEstimator.estimate(it) }

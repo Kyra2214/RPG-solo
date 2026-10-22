@@ -199,6 +199,7 @@ fun RollCard(view: RollView, revealed: Boolean, onRevealed: () -> Unit) {
                 }
             )
         }
+        view.chance?.let { Muted("chance de sucesso: ${kotlin.math.round(it * 100).toInt()}%") }
         Row(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 52.dp, bottom = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
