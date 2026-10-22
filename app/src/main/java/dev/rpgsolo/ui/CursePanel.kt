@@ -31,7 +31,6 @@ fun CursePanel(
     var message by remember { mutableStateOf<String?>(null) }
     var selectedCurseId by remember { mutableStateOf("maldicao-sangue-frio") }
     var selectedTargetId by remember { mutableStateOf<String?>(null) }
-    var resistanceSucceeded by remember { mutableStateOf<Boolean?>(null) }
     val actions = remember(model, version, model.campaignVersion, model.packageVersion) { model.curseActions() }
     val curses = remember(version) { actions.all() }
     val targets = remember(version, model.campaignVersion) { actions.targets() }
@@ -53,7 +52,7 @@ fun CursePanel(
                     targets.forEach { (id, name) ->
                         FilterChip(
                             selected = targetId == id,
-                            onClick = { selectedTargetId = id; resistanceSucceeded = null },
+                            onClick = { selectedTargetId = id },
                             label = { Text(name) },
                             enabled = enabled
                         )
@@ -64,7 +63,7 @@ fun CursePanel(
                     curses.forEach { curse ->
                         FilterChip(
                             selected = selectedCurse.id == curse.id,
-                            onClick = { selectedCurseId = curse.id; resistanceSucceeded = null },
+                            onClick = { selectedCurseId = curse.id },
                             label = { Text(curse.name) },
                             enabled = enabled
                         )
@@ -76,28 +75,13 @@ fun CursePanel(
                     Muted("${effect.target}: ${if (effect.baseValue > 0) "+" else ""}${effect.baseValue} (${effect.stackingGroup})")
                 }
                 if (selectedCurse.resistanceCheckId != null) {
-                    Muted("Exige teste '${selectedCurse.resistanceCheckId}' contra dificuldade ${selectedCurse.resistanceDifficulty}. Resolva o teste real antes de marcar o resultado abaixo.")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(
-                            selected = resistanceSucceeded == false,
-                            onClick = { resistanceSucceeded = false },
-                            label = { Text("Falhou") },
-                            enabled = enabled
-                        )
-                        FilterChip(
-                            selected = resistanceSucceeded == true,
-                            onClick = { resistanceSucceeded = true },
-                            label = { Text("Resistiu") },
-                            enabled = enabled
-                        )
-                    }
+                    Muted("Exige teste '${selectedCurse.resistanceCheckId}' contra dificuldade ${selectedCurse.resistanceDifficulty}. O motor rola o teste automaticamente e só aplica a maldição se o alvo não resistir.")
                 }
                 Button(
-                    enabled = enabled && targetId != null && (selectedCurse.resistanceCheckId == null || resistanceSucceeded != null),
+                    enabled = enabled && targetId != null,
                     onClick = {
-                        act({ actions.apply(requireNotNull(targetId), selectedCurse.id, actions.defaultSourceId(), resistanceSucceeded) }) { result ->
+                        act({ actions.apply(requireNotNull(targetId), selectedCurse.id, actions.defaultSourceId()) }) { result ->
                             message = result ?: "Maldição aplicada."
-                            resistanceSucceeded = null
                             version++
                         }
                     },
