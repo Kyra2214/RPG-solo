@@ -65,6 +65,16 @@ data class InitialBuildAllocated(
     val statIncreases: Map<String, Int>,
     val skillPointsGranted: Int
 ) : Event
+/** Maldição aplicada a uma entidade por personagem, criatura, ritual ou artefato. */
+@Serializable
+data class CurseApplied(
+    val targetId: String,
+    val curseId: String,
+    val sourceId: String,
+    val remainingRounds: Int? = null
+) : Event
+@Serializable
+data class CurseRemoved(val targetId: String, val curseId: String, val reason: String) : Event
 /** Efeito de habilidade aplicado pelo usuário da habilidade a outro combatente. */
 @Serializable
 data class TargetSkillEffectsApplied(
@@ -277,6 +287,15 @@ fun GameState.apply(e: Event): GameState {
                 abilityPoints = current.abilityPoints + e.skillPointsGranted,
                 initialBuildAllocated = true
             )))
+        }
+        is CurseApplied -> {
+            val current = entity(e.targetId)
+            val curse = AppliedCurseState(e.curseId, e.sourceId, e.remainingRounds)
+            copy(entities = entities + (current.id to current.copy(appliedCurses = current.appliedCurses + (e.curseId to curse))))
+        }
+        is CurseRemoved -> {
+            val current = entity(e.targetId)
+            copy(entities = entities + (current.id to current.copy(appliedCurses = current.appliedCurses - e.curseId)))
         }
         is TargetSkillEffectsApplied -> {
             val source = "habilidade:${e.skillId}"
