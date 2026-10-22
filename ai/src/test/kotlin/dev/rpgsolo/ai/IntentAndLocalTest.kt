@@ -4,6 +4,7 @@ import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.CreateEntity
+import dev.rpgsolo.engine.CreateClock
 import dev.rpgsolo.engine.Damage
 import dev.rpgsolo.engine.AddItem
 import dev.rpgsolo.engine.AddCondition
@@ -118,6 +119,28 @@ class IntentAndLocalTest {
         s.execute(Damage("hero", "pv", 4))
         assertTrue(LocalActions.run(LocalAction.REST, s, "hero") is LocalResult.Refused)
         assertEquals(6, s.state.entities["hero"]!!.resources["pv"]!!.current)
+    }
+
+    @Test fun descansoAvancaRelogioERevelaPistasSemExporContagemOuNome() {
+        val s = session()
+        s.execute(CreateClock(
+            "culto-secreto", "Culto secreto", 4,
+            publicClue = "A cerimônia começa ao longe.", restTick = 2,
+            midClue = "Sinos ecoam pela cidade."
+        ))
+
+        val halfway = LocalActions.run(LocalAction.REST, s, "hero", setOf("pv")) as LocalResult.Done
+
+        assertEquals(2, s.state.clocks.getValue("culto-secreto").filled)
+        assertTrue("Sinos ecoam pela cidade." in halfway.text)
+        assertFalse("A cerimônia começa ao longe." in halfway.text)
+        assertFalse("Culto secreto" in halfway.text || "culto-secreto" in halfway.text || "2/4" in halfway.text)
+
+        val completed = LocalActions.run(LocalAction.REST, s, "hero", setOf("pv")) as LocalResult.Done
+
+        assertEquals(4, s.state.clocks.getValue("culto-secreto").filled)
+        assertTrue("A cerimônia começa ao longe." in completed.text)
+        assertFalse("Culto secreto" in completed.text || "culto-secreto" in completed.text || "4/4" in completed.text)
     }
 
     @Test fun descansarEmCombateOuJaDescansadoOuMortoNaoMudaNada() {

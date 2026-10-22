@@ -54,6 +54,30 @@ class AgendaTest {
         assertTrue(s.executeAll(listOf(CreateClock("a", "Outra", 3))) is ExecResult.Rejected)
     }
 
+    @Test fun viagemAvancaSomenteRelogiosConfiguradosEIncompletos() {
+        val s = session()
+        s.executeAll(listOf(
+            CreateClock("threat", "Ameaça", 4, moveTick = 3),
+            CreateClock("parado", "Plano parado", 4),
+            CreateClock("completo", "Plano concluído", 2, moveTick = 2),
+            AdvanceClock("completo", 2),
+            AddPlace(Place("inicio", "Início")),
+            AddPlace(Place("destino", "Destino")),
+            ConnectPlaces("inicio", "destino"),
+            DiscoverPlace("inicio"),
+            DiscoverPlace("destino")
+        ))
+
+        val eventMark = s.engine.events.size
+        val result = s.execute(MoveToPlace("destino"))
+
+        assertTrue(result is ExecResult.Accepted)
+        assertEquals(3, s.state.clocks.getValue("threat").filled)
+        assertEquals(0, s.state.clocks.getValue("parado").filled)
+        assertEquals(2, s.state.clocks.getValue("completo").filled)
+        assertEquals(listOf("threat"), s.engine.events.drop(eventMark).filterIsInstance<ClockAdvanced>().map { it.id })
+    }
+
     @Test fun logReproduzOEstado() {
         val s = session()
         s.executeAll(listOf(ChangeRelation("ana", "hero", 10, "ajuda"), CreateClock("c", "C", 3), AdvanceClock("c", 2)))
