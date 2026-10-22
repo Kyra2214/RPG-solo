@@ -122,9 +122,10 @@ class CheckMenu(private val pkg: RulePackage) {
      */
     fun luckOption(checkId: String?): LuckOption? {
         val check = checks.firstOrNull { it.id == checkId } ?: return null
-        if (check.luckResource != null) {
+        val luckResource = check.luckResource
+        if (luckResource != null) {
             if (check.luckCost <= 0 || check.luckKinds.isEmpty()) return null
-            return LuckOption(check.luckResource, check.luckCost, check.luckKinds)
+            return LuckOption(luckResource, check.luckCost, check.luckKinds)
         }
         val creation = pkg.data.creation
         val resource = creation["recurso_sorte"]?.trim()?.takeIf { it.isNotEmpty() } ?: return null
