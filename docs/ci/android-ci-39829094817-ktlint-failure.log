@@ -18,7 +18,7 @@ test-and-build	Check Kotlin style	2026-10-22T18:11:49.2394683Z > Task :ai:loadKt
 test-and-build	Check Kotlin style	2026-10-22T18:11:50.8379426Z > Task :ai:runKtlintCheckOverKotlinScripts
 test-and-build	Check Kotlin style	2026-10-22T18:11:50.9365342Z > Task :ai:ktlintKotlinScriptCheck
 test-and-build	Check Kotlin style	2026-10-22T18:11:53.7415715Z > Task :ai:runKtlintCheckOverMainSourceSet
-test-and-build	Check Kotlin style	2026-10-22T18:11:54.1362828Z 
+test-and-build	Check Kotlin style	2026-10-22T18:11:54.1362828Z
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.1395643Z > Task :ai:ktlintMainSourceSetCheck FAILED
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.1415718Z $GITHUB_WORKSPACE/ai/src/main/kotlin/dev/rpgsolo/ai/AiProvider.kt:13:34 Missing trailing comma before ")"
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.1435408Z $GITHUB_WORKSPACE/ai/src/main/kotlin/dev/rpgsolo/ai/AiProvider.kt:21:42 Missing trailing comma before ")"
@@ -566,20 +566,20 @@ test-and-build	Check Kotlin style	2026-10-22T18:11:54.2757099Z $GITHUB_WORKSPACE
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2758370Z $GITHUB_WORKSPACE/ai/src/main/kotlin/dev/rpgsolo/ai/LocalActions.kt:72:42 Expected a newline
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2759554Z $GITHUB_WORKSPACE/ai/src/main/kotlin/dev/rpgsolo/ai/LocalActions.kt:73:26 Missing { ... }
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2760763Z $GITHUB_WORKSPACE/ai/src/main/kotlin/dev/rpgsolo/ai/LocalActions.kt:73:26 Expected a newline
-test-and-build	Check Kotlin style	2026-10-22T18:11:54.2761790Z 
+test-and-build	Check Kotlin style	2026-10-22T18:11:54.2761790Z
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2762010Z FAILURE: Build failed with an exception.
-test-and-build	Check Kotlin style	2026-10-22T18:11:54.2762354Z 
+test-and-build	Check Kotlin style	2026-10-22T18:11:54.2762354Z
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2762536Z * What went wrong:
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2763056Z Execution failed for task ':ai:ktlintMainSourceSetCheck'.
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2764249Z > A failure occurred while executing org.jlleitschuh.gradle.ktlint.worker.ConsoleReportWorkAction
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2765324Z    > KtLint found code style violations. Please see the following reports:
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2766440Z      - $GITHUB_WORKSPACE/ai/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.txt
-test-and-build	Check Kotlin style	2026-10-22T18:11:54.2767225Z 
+test-and-build	Check Kotlin style	2026-10-22T18:11:54.2767225Z
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2767394Z * Try:
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2767876Z > Run with --info or --debug option to get more log output.
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2768441Z > Run with --scan to get full insights.
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2768985Z > Get more help at https://help.gradle.org.
-test-and-build	Check Kotlin style	2026-10-22T18:11:54.2769360Z 
+test-and-build	Check Kotlin style	2026-10-22T18:11:54.2769360Z
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2769536Z * Exception is:
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2770333Z org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':ai:ktlintMainSourceSetCheck'.
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.2771947Z 	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.lambda$executeIfValid$1(ExecuteActionsTaskExecuter.java:130)
@@ -828,8 +828,8 @@ test-and-build	Check Kotlin style	2026-10-22T18:11:54.3376676Z 	at org.gradle.in
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.3378345Z 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runBatch(DefaultConditionalExecutionQueue.java:165)
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.3380132Z 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.run(DefaultConditionalExecutionQueue.java:134)
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.3381331Z 	... 2 more
-test-and-build	Check Kotlin style	2026-10-22T18:11:54.3381554Z 
-test-and-build	Check Kotlin style	2026-10-22T18:11:54.3381564Z 
+test-and-build	Check Kotlin style	2026-10-22T18:11:54.3381554Z
+test-and-build	Check Kotlin style	2026-10-22T18:11:54.3381564Z
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.3381748Z BUILD FAILED in 19s
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.3382743Z $GITHUB_WORKSPACE/ai/src/main/kotlin/dev/rpgsolo/ai/LocalActions.kt:73:127 Missing trailing comma before ")"
 test-and-build	Check Kotlin style	2026-10-22T18:11:54.3384542Z $GITHUB_WORKSPACE/ai/src/main/kotlin/dev/rpgsolo/ai/LocalActions.kt:81:22 Newline expected after opening parenthesis
