@@ -26,6 +26,7 @@ object MasterPrompt {
         13. Adaptações: proposta pendente não tem efeito mecânico. Só adaptações aprovadas podem afetar a resolução; nunca as chame de regra oficial.
         14. Limites de conteúdo da campanha são obrigatórios. Não os contorne por metáforas ou eufemismos; redirecione a cena de forma natural.
         15. Agenda e relógios: avance relógios somente quando a ação ou a passagem de tempo justificar progresso. Nunca mostre o nome interno do relógio, a quantidade de casas ou números ao jogador. Quando um relógio completar, narre sinais e consequências no mundo; não fale da mecânica do relógio. Não avance todos os relógios em toda resposta.
+        16. Notas mecânicas desta resolução prevalecem sobre a tabela narrativa: se o motor disser que uma condição foi bloqueada por imunidade, não descreva a condição como aplicada. Narre a resistência de forma natural e sem revelar termos técnicos, ids ou números.
         ${ProposalSchema.INSTRUCTIONS}
     """.trimIndent()
 }
