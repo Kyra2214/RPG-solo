@@ -23,7 +23,7 @@ class CurseActions(
 ) {
     private val catalog: List<CurseDefinition> by lazy {
         val stream = CurseActions::class.java.classLoader
-            ?.getResourceAsStream("packages/sistema-proprio/maldicoes-lancadas.txt")
+            ?.getResourceAsStream("catalogs/sistema-proprio/maldicoes-lancadas.txt")
             ?: error("catálogo de maldições lançadas não encontrado")
         val raw = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
         val parsed = CurseCatalogLoader.load(raw)
