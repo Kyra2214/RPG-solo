@@ -219,7 +219,7 @@ class CombatActions(
     }
 
     /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
-    fun attack(targetId: String, strikeCount: Int = 1, extraDamageBonus: Int = 0): String? {
+    fun attack(targetId: String, strikeCount: Int = 1, extraDamageBonus: Int = 0, elementalResistanceScope: String? = null): String? {
         return try {
             require(isPlayerCombatTurn()) { "não é o turno do jogador" }
             require(strikeCount in 1..20) { "quantidade de golpes inválida" }
@@ -280,7 +280,11 @@ class CombatActions(
                     bonuses.skillTreeAndActiveBonus(targetId, "defesa") +
                     bonuses.skillTreeAndActiveBonus(targetId, "velocidade") + targetConditionShift,
                 damageReduction = pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_dano") +
-                    bonuses.skillTreeAndActiveBonus(targetId, "resistencia_dano"),
+                    bonuses.skillTreeAndActiveBonus(targetId, "resistencia_dano") +
+                    (elementalResistanceScope?.let { scope ->
+                        pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_$scope") +
+                            bonuses.skillTreeAndActiveBonus(targetId, "resistencia_$scope")
+                    } ?: 0),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
