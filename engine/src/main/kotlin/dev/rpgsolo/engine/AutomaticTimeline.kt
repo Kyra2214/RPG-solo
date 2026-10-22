@@ -67,13 +67,13 @@ fun automaticTimeline(
                     event.attackerId == playerId -> finalState.entities[event.targetId]?.let {
                         AutomaticTimelineEntry(
                             index, "combate",
-                            if (event.hit) "Você atingiu ${it.name}." else "Você errou o ataque contra ${it.name}."
+                            if (event.hit) "Você atingiu ${it.name} e causou ${event.damage} de dano." else "Você não causou dano a ${it.name}."
                         )
                     }
                     else -> finalState.entities[event.attackerId]?.let {
                         AutomaticTimelineEntry(
                             index, "combate",
-                            if (event.hit) "${it.name} atingiu você." else "${it.name} errou o ataque contra você."
+                            if (event.hit) "${it.name} atingiu você e causou ${event.damage} de dano." else "${it.name} não causou dano a você."
                         )
                     }
                 }
