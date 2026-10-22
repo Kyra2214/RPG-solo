@@ -139,6 +139,27 @@ fun automaticTimeline(
                     AutomaticTimelineEntry(index, "equipamento", "Você equipou ${event.itemId} no espaço ${event.slot}.")
                 }
             } else null
+            is XpGained -> if (event.entityId == playerId && event.amount > 0) {
+                AutomaticTimelineEntry(index, "progressão", "Você ganhou ${event.amount} ponto(s) de experiência.")
+            } else null
+            is LevelGained -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você alcançou o nível ${event.level}.")
+            } else null
+            is SpellLearned -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você aprendeu a magia ${event.spellId}.")
+            } else null
+            is AbilityLearned -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você aprendeu a habilidade ${event.abilityId}.")
+            } else null
+            is SkillMastered -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você dominou a perícia ${event.skillId}.")
+            } else null
+            is StatPointsAllocated -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você distribuiu pontos de atributo.")
+            } else null
+            is AdvancementAllocated -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você investiu pontos em atributos e perícias.")
+            } else null
             is SkillTreeProgressed -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você avançou uma habilidade da sua árvore de habilidades.")
             } else null
