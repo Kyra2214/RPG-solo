@@ -25,6 +25,30 @@ class CombatBonuses(
         loaded.skills
     }
 
+    private val curseDefinitions: List<dev.rpgsolo.rules.CurseDefinition> by lazy {
+        val stream = CombatBonuses::class.java.classLoader
+            ?.getResourceAsStream("packages/sistema-proprio/maldicoes-lancadas.txt")
+            ?: return@lazy emptyList()
+        val raw = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        val loaded = dev.rpgsolo.rules.CurseCatalogLoader.load(raw)
+        require(loaded.valid) { loaded.errors.joinToString("; ") }
+        loaded.curses
+    }
+
+    /** Efeitos permanentes/temporários de maldições realmente aplicadas à entidade. */
+    fun appliedCurseBonus(entityId: String, scope: String): Int {
+        val entity = session().state.entities[entityId] ?: return 0
+        val definitions = curseDefinitions.associateBy { it.id }
+        val effects = entity.appliedCurses.values.flatMap { applied ->
+            val curse = definitions[applied.curseId] ?: return@flatMap emptyList()
+            curse.effects.filter { it.target == scope }.map { effect -> effect to effect.baseValue }
+        }
+        return effects.groupBy { it.first.stackingGroup }
+            .values
+            .mapNotNull { group -> group.maxWithOrNull(compareBy<Pair<dev.rpgsolo.engine.SkillEffectSpec, Int>>({ kotlin.math.abs(it.second) }, { it.second })) }
+            .sumOf { it.second }
+    }
+
     /** Bônus passivos da árvore + buffs temporários já validados pelo motor. */
     fun skillTreeAndActiveBonus(entityId: String, scope: String): Int {
         val state = session().state
@@ -32,7 +56,7 @@ class CombatBonuses(
         val passive = dev.rpgsolo.engine.SkillTreeModifierProvider(skillTreeDefinitions)
             .modifiers(state, entity, scope).sumOf { it.value }
         val active = state.activeEffects[entityId].orEmpty().filter { it.target == scope }.sumOf { it.value }
-        return passive + active
+        return passive + active + appliedCurseBonus(entityId, scope)
     }
     fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> = catalogBonuses(pkg)
 
