@@ -1,3 +1,10 @@
+## 2026-10-22 — U-02: strings do cartão de conflito (não validado)
+
+- `app/ClashCard.kt`: rótulos de defesa ignorada, acerto crítico e dano final passaram a usar recursos Android.
+- `app/src/main/res/values/strings.xml`: adicionados placeholders para o dano final exibido.
+- `PLANO_RPG_SOLO.md`: registrada a sétima fatia; as demais telas ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — U-02: strings da criação de campanha (não validado)
 
 - `app/NewCampaignSection.kt`: título, formulário auxiliar, campos, estados do fluxo, avisos e ações passaram a usar recursos Android.

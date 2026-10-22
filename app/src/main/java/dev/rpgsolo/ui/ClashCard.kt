@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import dev.rpgsolo.R
 import dev.rpgsolo.engine.ClashReport
 
 /**
@@ -28,11 +30,11 @@ fun ClashCard(report: ClashReport, attackerName: String = report.attackerId, tar
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(lines.first(), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             when {
-                report.ignoredDefense -> Pill("IGNORA DEFESA", tint)
-                report.critical -> Pill("CRÍTICO", tint)
+                report.ignoredDefense -> Pill(stringResource(R.string.clash_ignored_defense), tint)
+                report.critical -> Pill(stringResource(R.string.clash_critical), tint)
             }
         }
         lines.drop(1).dropLast(1).forEach { Muted(it) }
-        Text("Dano final: ${report.damage}", style = MaterialTheme.typography.titleMedium, color = tint)
+        Text(stringResource(R.string.clash_final_damage, report.damage), style = MaterialTheme.typography.titleMedium, color = tint)
     }
 }

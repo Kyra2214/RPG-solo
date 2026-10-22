@@ -115,4 +115,7 @@
     <string name="campaign_started">Campanha iniciada. Vá para a aba Jogar.</string>
     <string name="campaign_try_again">Tentar de novo</string>
     <string name="campaign_create_another">Criar outra</string>
+    <string name="clash_ignored_defense">IGNORA DEFESA</string>
+    <string name="clash_critical">CRÍTICO</string>
+    <string name="clash_final_damage">Dano final: %1$d</string>
 </resources>
