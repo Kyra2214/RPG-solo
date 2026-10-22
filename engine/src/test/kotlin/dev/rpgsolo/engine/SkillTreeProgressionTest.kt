@@ -67,6 +67,16 @@ class SkillTreeProgressionTest {
         assertTrue(runCatching { HybridClassRules.socialPenalty(5) }.isFailure)
     }
 
+    @Test fun classesSecundariasSoContamQuandoDesbloqueadasPeloNivel() {
+        val classes = listOf("guerreiro", "mago", "ladino", "clerigo")
+        assertEquals(1, HybridClassRules.unlockedClassCount(classes, 1))
+        assertEquals(1, HybridClassRules.unlockedClassCount(classes, 9))
+        assertEquals(2, HybridClassRules.unlockedClassCount(classes, 10))
+        assertEquals(3, HybridClassRules.unlockedClassCount(classes, 20))
+        assertEquals(4, HybridClassRules.unlockedClassCount(classes, 30))
+        assertTrue(runCatching { HybridClassRules.unlockedClassCount(classes + "druida", 40) }.isFailure)
+    }
+
     @Test fun economiaDePergaminhosSegueTabelaDefinida() {
         assertEquals(listOf(200L, 2_000L, 10_000L, 15_000L, 20_000L, 30_000L, 50_000L), SkillTreeEconomy.scrollPricesSilver)
         assertEquals(25_000L, SkillTreeEconomy.RESET_PRICE_SILVER)
