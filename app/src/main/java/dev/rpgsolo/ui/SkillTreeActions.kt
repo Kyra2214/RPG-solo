@@ -129,6 +129,7 @@ class SkillTreeActions(
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
       catch (e: ArithmeticException) { "preço do pergaminho excede o limite suportado" }
+    }
 
     /** Resgata um pergaminho como recompensa de uma missão concluída, sem cobrar prata. */
     fun rewardScrollFromQuest(skillId: String, questId: String): String? { return try {
