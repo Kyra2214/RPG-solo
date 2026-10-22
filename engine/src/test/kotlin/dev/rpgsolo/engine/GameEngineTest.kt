@@ -37,6 +37,30 @@ class GameEngineTest {
         assertFalse(e.state.entities.getValue("orc").alive)
     }
 
+    @Test fun maldicaoExigeResistenciaResolvidaExpiraEPermaneceNoReplay() {
+        val e = engine()
+        assertTrue(e.execute(ApplyCurse("orc", "curse-test", "hero", 2, true, null)) is ExecResult.Rejected)
+        assertTrue(e.execute(ApplyCurse("orc", "curse-test", "hero", 2, true, true)) is ExecResult.Rejected)
+        assertTrue(e.execute(ApplyCurse("orc", "curse-test", "hero", 2, true, false)) is ExecResult.Accepted)
+        assertEquals(2, e.state.entities.getValue("orc").appliedCurses.getValue("curse-test").remainingRounds)
+        assertTrue(e.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertEquals(1, e.state.entities.getValue("orc").appliedCurses.getValue("curse-test").remainingRounds)
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertFalse(e.state.entities.getValue("orc").appliedCurses.containsKey("curse-test"))
+        assertEquals(e.state, replay(e.events))
+    }
+
+    @Test fun maldicaoPodeSerRemovidaComMotivoExplicito() {
+        val e = engine()
+        assertTrue(e.execute(ApplyCurse("orc", "curse-test", "ritual:purificacao")) is ExecResult.Accepted)
+        assertTrue(e.execute(RemoveCurse("orc", "curse-test", "purificação concluída")) is ExecResult.Accepted)
+        assertFalse(e.state.entities.getValue("orc").appliedCurses.containsKey("curse-test"))
+        assertEquals(e.state, replay(e.events))
+    }
+
     @Test fun curaNaoPassaDoMaximo() {
         val e = engine()
         e.execute(Damage("hero", "hp", 3))
