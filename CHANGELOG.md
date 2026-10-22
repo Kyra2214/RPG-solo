@@ -1,3 +1,10 @@
+## 2026-10-22 — DC-05.1: integração de contexto de fontes (não validado)
+
+- `app/AppModel.kt`: conectado o callback de contexto do `PlayController` ao `SourceIndex`, fatos canônicos e modo da campanha.
+- O contexto é por campanha, permanece em memória e é opt-in: sem `privacyConfirmed = true`, nenhum trecho é disponibilizado à IA remota; há API para revogar a configuração.
+- `PLANO_RPG_SOLO.md`: atualizado o status de DC-05.1 e mantidas como pendentes a persistência, a interface e a tela de consentimento Q-09.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — U-02: strings do cartão de conflito (não validado)
 
 - `app/ClashCard.kt`: rótulos de defesa ignorada, acerto crítico e dano final passaram a usar recursos Android.

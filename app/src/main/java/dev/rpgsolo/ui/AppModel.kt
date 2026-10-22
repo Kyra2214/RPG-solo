@@ -51,11 +51,14 @@ import dev.rpgsolo.engine.SetSkillTreeLoadout
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SpellSlots
+import dev.rpgsolo.engine.CanonFacts
+import dev.rpgsolo.engine.SourceIndex
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.CampanhaMetaRow
 import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.rules.CampaignStarter
+import dev.rpgsolo.ai.SourceContext
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
 data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true, val condition: String = "")
@@ -92,6 +95,12 @@ data class InitialBuildState(val allocated: Boolean, val stats: List<Advancement
 data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val campaignReady: Boolean) {
     val complete: Boolean get() = providerReady && heroReady && campaignReady
 }
+
+private data class CampaignSourceContext(
+    val index: SourceIndex,
+    val facts: CanonFacts,
+    val sourceIds: Set<String>?
+)
 
 
 /**
@@ -367,6 +376,52 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** null enquanto não houver provedor configurado. */
     var controller: PlayController? by mutableStateOf(null)
         private set
+
+    /** DC-05.1: só mantém índice em memória depois de confirmação explícita de envio à IA remota. */
+    private val sourceContextLock = Any()
+    private val campaignSourceContexts = mutableMapOf<String, CampaignSourceContext>()
+
+    /**
+     * Disponibiliza fontes e fatos de uma campanha ao contexto narrativo. A tela chamadora deve
+     * apresentar o aviso de privacidade e passar [privacyConfirmed] como true; qualquer chamada
+     * sem confirmação revoga o contexto e impede o envio de trechos à IA.
+     */
+    fun configureCampaignSourceContext(
+        campaignId: String,
+        index: SourceIndex,
+        facts: CanonFacts = CanonFacts(),
+        sourceIds: Set<String>? = null,
+        privacyConfirmed: Boolean = false
+    ) {
+        if (campaignId.isBlank()) return
+        synchronized(sourceContextLock) {
+            if (!privacyConfirmed || index.size == 0) {
+                campaignSourceContexts.remove(campaignId)
+            } else {
+                campaignSourceContexts[campaignId] = CampaignSourceContext(index, facts, sourceIds?.toSet())
+            }
+        }
+    }
+
+    /** Revoga a autorização de contexto documental para a campanha. */
+    fun clearCampaignSourceContext(campaignId: String) {
+        synchronized(sourceContextLock) { campaignSourceContexts.remove(campaignId) }
+    }
+
+    private fun sourceContextForScene(sceneText: String): String? {
+        val campaignId = session.campaignId
+        val mode = session.state.sourceMode
+        return synchronized(sourceContextLock) {
+            val configured = campaignSourceContexts[campaignId] ?: return@synchronized null
+            SourceContext.build(
+                index = configured.index,
+                sceneText = sceneText,
+                facts = configured.facts.forCampaign(campaignId),
+                sourceIds = configured.sourceIds,
+                mode = mode
+            )
+        }
+    }
 
     /** Roda uma ação de combate/inventário/lugar com exclusividade de turno (R-01). Chamar fora da thread principal. */
     fun <T> exclusiveTurn(block: () -> T): T = controller?.exclusiveTurn(block) ?: block()
@@ -1380,6 +1435,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             },
             chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
             resumeBriefing = { dev.rpgsolo.ai.ResumeBriefing.build(quests.all(), quests.timeline(), chapters.summaries()) },
+            sourceContext = { text -> sourceContextForScene(text) },
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
             generationPreferences = {
