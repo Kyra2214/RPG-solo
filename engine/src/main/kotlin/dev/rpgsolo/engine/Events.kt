@@ -65,6 +65,14 @@ data class InitialBuildAllocated(
     val statIncreases: Map<String, Int>,
     val skillPointsGranted: Int
 ) : Event
+/** Loadout de árvores e afinidade usado pela resolução mecânica da campanha. */
+@Serializable
+data class SkillTreeLoadoutSet(
+    val entityId: String,
+    val treeIds: Set<String>,
+    val classOrder: List<String>,
+    val elementalAffinity: String
+) : Event
 /** Pergaminho de habilidade resgatado como recompensa de missão concluída. */
 @Serializable
 data class QuestScrollClaimed(
@@ -294,6 +302,14 @@ fun GameState.apply(e: Event): GameState {
                 stats = current.stats + e.statIncreases.mapValues { (key, increase) -> (current.stats[key] ?: 0) + increase },
                 abilityPoints = current.abilityPoints + e.skillPointsGranted,
                 initialBuildAllocated = true
+            )))
+        }
+        is SkillTreeLoadoutSet -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (current.id to current.copy(
+                skillTreeTreeIds = e.treeIds,
+                skillTreeClassOrder = e.classOrder,
+                skillTreeElement = e.elementalAffinity
             )))
         }
         is QuestScrollClaimed -> {
