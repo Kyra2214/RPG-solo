@@ -73,7 +73,7 @@ class SkillTreeActions(
     }
 
     /** Concede automaticamente todas as habilidades básicas gratuitas das origens selecionadas. */
-    fun grantSelectedFreeBaseSkills(): String? = try {
+    fun grantSelectedFreeBaseSkills(): String? { return try {
         val hero = requireNotNull(session().state.entities[playerId()]) { "personagem inexistente" }
         val pending = definitions.filter {
             it.freeBaseSkill && it.treeId in selectedTreeIds() && it.id !in hero.skillTreeLevels
@@ -85,10 +85,11 @@ class SkillTreeActions(
             require(validation.allowed) { validation.reasons.joinToString("; ") }
         }
         execute(pending.map { ProgressSkillTree(playerId(), it.id, 0, freeBase = true) })
-    } catch (e: IllegalArgumentException) { e.message }
+
+    }    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
-    fun grantFreeBaseSkill(skillId: String): String? = try {
+    fun grantFreeBaseSkill(skillId: String): String? { return try {
         val skill = requireSkill(skillId)
         require(skill.freeBaseSkill && skill.origin in setOf(SkillOrigin.RACE, SkillOrigin.SUBRACE, SkillOrigin.CURSED_CLASS)) {
             "esta habilidade não é uma habilidade básica gratuita"
@@ -98,10 +99,11 @@ class SkillTreeActions(
         val validation = SkillTreeProgression.validate(skill, context(hero.skillTreeLevels))
         require(validation.allowed) { validation.reasons.joinToString("; ") }
         execute(listOf(ProgressSkillTree(playerId(), skill.id, 0, freeBase = true)))
-    } catch (e: IllegalArgumentException) { e.message }
+
+    }    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
-    fun buyScroll(skillId: String): String? = try {
+    fun buyScroll(skillId: String): String? { return try {
         val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
         val skill = requireSkill(skillId)
         require(skill.treeId in selectedTreeIds()) { "esta árvore não pertence às escolhas atuais do personagem" }
@@ -110,7 +112,7 @@ class SkillTreeActions(
         val scrollId = scrollItemId(skill.id)
         require((session().state.inventory[playerId()]?.get(scrollId) ?: 0) == 0) { "o pergaminho desta habilidade já está no inventário" }
         val currencyId = requireNotNull(pkg.currencyItemId) { "o pacote não define moeda" }
-        val price = SkillTreeEconomy.scrollPriceSilver(skill.scrollRank)
+        val price = SkillTreeEconomy.scrollPriceSilver(requireNotNull(skill.scrollRank))
         val wallet = session().state.inventory[playerId()]
         val payment = pkg.planPayment(wallet?.get(currencyId) ?: 0, pkg.goldItemId?.let { wallet?.get(it) } ?: 0, price.toInt())
             ?: return "saldo insuficiente para o pergaminho (${price} prata)"
@@ -121,12 +123,13 @@ class SkillTreeActions(
             add(AddItem(playerId(), scrollId, 1))
         }
         execute(commands)
-    } catch (e: IllegalArgumentException) { e.message }
+
+    }    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
       catch (e: ArithmeticException) { "preço do pergaminho excede o limite suportado" }
 
     /** Resgata um pergaminho como recompensa de uma missão concluída, sem cobrar prata. */
-    fun rewardScrollFromQuest(skillId: String, questId: String): String? = try {
+    fun rewardScrollFromQuest(skillId: String, questId: String): String? { return try {
         val skill = requireSkill(skillId)
         require(questId.isNotBlank()) { "informe o id da missão concluída" }
         require(questCompleted(questId)) { "a missão '$questId' não está concluída" }
@@ -138,10 +141,11 @@ class SkillTreeActions(
         require("${questId}:${skill.id}" !in hero.claimedQuestRewards) { "esta missão já foi usada para resgatar esse pergaminho" }
         require((session().state.inventory[playerId()]?.get(scrollId) ?: 0) == 0) { "o pergaminho desta habilidade já está no inventário" }
         execute(listOf(ClaimQuestScroll(playerId(), questId, skill.id, scrollId)))
-    } catch (e: IllegalArgumentException) { e.message }
+
+    }    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
-    fun unlockOrUpgrade(skillId: String): String? = try {
+    fun unlockOrUpgrade(skillId: String): String? { return try {
         val skill = requireSkill(skillId)
         require(skill.treeId in selectedTreeIds()) { "esta árvore não pertence às escolhas atuais do personagem" }
         require(session().state.combat == null) { "não é possível evoluir habilidades durante o combate" }
@@ -157,7 +161,8 @@ class SkillTreeActions(
         } else {
             execute(listOf(ProgressSkillTree(playerId(), skill.id, SkillTreeProgression.upgradeCost(currentLevel))))
         }
-    } catch (e: IllegalArgumentException) { e.message }
+
+    }    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
     fun targets(): List<Pair<String, String>> {
@@ -175,7 +180,7 @@ class SkillTreeActions(
             .map { it.id to it.name }.sortedBy { it.second }
     }
 
-    fun activate(skillId: String, targetId: String? = null): String? = try {
+    fun activate(skillId: String, targetId: String? = null): String? { return try {
         val skill = requireSkill(skillId)
         require(skill.treeId in selectedTreeIds()) { "esta árvore não pertence às escolhas atuais do personagem" }
         require(skill.category != SkillCategory.PASSIVE) { "habilidades passivas são aplicadas automaticamente" }
@@ -243,10 +248,11 @@ class SkillTreeActions(
         }
         require(commands.isNotEmpty()) { "habilidade sem efeito ativável" }
         execute(commands)
-    } catch (e: IllegalArgumentException) { e.message }
+
+    }    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
-    fun reset(): String? = try {
+    fun reset(): String? { return try {
         val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
         require(session().state.combat == null) { "não é possível redefinir habilidades durante o combate" }
         val hero = requireNotNull(session().state.entities[playerId()]) { "personagem inexistente" }
@@ -265,7 +271,8 @@ class SkillTreeActions(
             add(ResetSkillTreeProgress(playerId()))
         }
         execute(commands)
-    } catch (e: IllegalArgumentException) { e.message }
+
+    }    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
       catch (e: ArithmeticException) { "preço do reset excede o limite suportado" }
 
