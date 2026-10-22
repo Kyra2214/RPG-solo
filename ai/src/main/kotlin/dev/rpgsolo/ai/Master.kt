@@ -64,11 +64,11 @@ data class ContextInput(
 )
 
 object ContextAssembler {
-    private fun outcomeWord(o: Outcome) = when (o) {
+    private fun outcomeWord(result: CheckResult): String = when (result.outcome) {
         Outcome.CRITICAL_FAILURE -> "falha crítica"
-        Outcome.FAILURE -> "falha"
-        Outcome.PARTIAL_SUCCESS -> "sucesso parcial"
-        Outcome.SUCCESS -> "sucesso"
+        Outcome.FAILURE -> if (result.margin >= -4) "falha por pouco" else "falha clara"
+        Outcome.PARTIAL_SUCCESS -> "sucesso parcial, com custo ou complicação"
+        Outcome.SUCCESS -> if (result.margin <= 4) "sucesso por pouco" else "sucesso convincente"
         Outcome.CRITICAL_SUCCESS -> "sucesso crítico"
     }
 
@@ -136,7 +136,7 @@ object ContextAssembler {
                 face?.let { resolving.request.table[it] }?.let { append("\n").append(rollNote(it)) }
             } else if (rolled != null) {
                 append("\nResultado decidido pelo motor para '").append(rolled.spec.label).append("': ")
-                append(outcomeWord(rolled.outcome)).append(". Narre exatamente esse resultado.")
+                append(outcomeWord(rolled)).append(". Narre exatamente esse resultado, sem mencionar dados, totais, margens ou números de regra.")
                 if (resolving is PendingCheck) append("\n").append(resolving.resultNote ?: notesFor(resolving.request, rolled.outcome))
             }
         }
