@@ -84,11 +84,12 @@ fun RpgSoloApp() {
                                 onClick = { selectedName = tab.name },
                                 icon = {
                                     val tabLabel = stringResource(tab.labelRes)
+                                    val navigationLabel = stringResource(R.string.navigation_label, tabLabel)
                                     Text(
                                         tab.icon,
                                         modifier =
                                             Modifier.semantics {
-                                                contentDescription = stringResource(R.string.navigation_label, tabLabel)
+                                                contentDescription = navigationLabel
                                             },
                                         fontSize = 20.sp,
                                     )
