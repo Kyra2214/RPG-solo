@@ -17,6 +17,7 @@ data class AppliedCurseView(
 class CurseActions(
     private val session: () -> CampaignSession,
     private val activePackage: () -> RulePackage?,
+    private val playerId: () -> String,
     private val onChanged: () -> Unit
 ) {
     private val catalog: List<CurseDefinition> by lazy {
@@ -30,6 +31,11 @@ class CurseActions(
     }
 
     fun all(): List<CurseDefinition> = catalog
+
+    fun targets(): List<Pair<String, String>> = session().state.entities.values
+        .filter { it.alive }
+        .map { it.id to (if (it.id == playerId()) "Você" else it.name) }
+        .sortedBy { it.second }
 
     fun applied(targetId: String): List<AppliedCurseView> {
         val entity = session().state.entities[targetId] ?: return emptyList()
