@@ -69,13 +69,13 @@ fun automaticTimeline(
                     event.attackerId == playerId -> finalState.entities[event.targetId]?.let {
                         AutomaticTimelineEntry(
                             index, "combate",
-                            if (event.hit) "Você atingiu ${it.name} e causou ${event.damage} de dano." else "Você não causou dano a ${it.name}."
+                            if (event.hit) "Você atingiu ${it.name} e o feriu." else "Você não causou dano a ${it.name}."
                         )
                     }
                     else -> finalState.entities[event.attackerId]?.let {
                         AutomaticTimelineEntry(
                             index, "combate",
-                            if (event.hit) "${it.name} atingiu você e causou ${event.damage} de dano." else "${it.name} não causou dano a você."
+                            if (event.hit) "${it.name} atingiu você e o feriu." else "${it.name} não causou dano a você."
                         )
                     }
                 }
@@ -97,7 +97,7 @@ fun automaticTimeline(
                 AutomaticTimelineEntry(index, "habilidade", "Os usos limitados de suas habilidades foram recuperados.")
             } else null
             is ResourceChanged -> if (event.entityId == playerId && event.delta > 0) {
-                AutomaticTimelineEntry(index, "recuperação", "Você recuperou ${event.delta} ponto(s) de um recurso.")
+                AutomaticTimelineEntry(index, "recuperação", "Você recuperou parte de um recurso.")
             } else null
             is KnowledgeGained ->
                 AutomaticTimelineEntry(index, "descoberta",
@@ -121,9 +121,8 @@ fun automaticTimeline(
                 ?.takeIf { event.id in finalState.knownPlaces }
                 ?.let { AutomaticTimelineEntry(index, "viagem", "Você chegou a ${it.name}.") }
             is ItemChanged -> if (event.ownerId == playerId && event.delta != 0) {
-                val action = if (event.delta > 0) "Você recebeu" else "Você perdeu"
-                val amount = kotlin.math.abs(event.delta)
-                AutomaticTimelineEntry(index, "inventário", "$action $amount unidade(s) de um item.")
+                val action = if (event.delta > 0) "recebeu" else "perdeu"
+                AutomaticTimelineEntry(index, "inventário", "Você $action um item.")
             } else null
             is EquipmentChanged -> if (event.ownerId == playerId) {
                 if (event.itemId == null) {
@@ -133,10 +132,10 @@ fun automaticTimeline(
                 }
             } else null
             is XpGained -> if (event.entityId == playerId && event.amount > 0) {
-                AutomaticTimelineEntry(index, "progressão", "Você ganhou ${event.amount} ponto(s) de experiência.")
+                AutomaticTimelineEntry(index, "progressão", "Você ganhou experiência.")
             } else null
             is LevelGained -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você alcançou o nível ${event.level}.")
+                AutomaticTimelineEntry(index, "progressão", "Você avançou de nível.")
             } else null
             is SpellLearned -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você aprendeu uma magia.")
@@ -157,7 +156,7 @@ fun automaticTimeline(
                 AutomaticTimelineEntry(index, "progressão", "Você avançou uma habilidade da sua árvore de habilidades.")
             } else null
             is SkillTreeProgressReset -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você redefiniu sua árvore de habilidades e recuperou ${event.pointsRefunded} ponto(s) investido(s).")
+                AutomaticTimelineEntry(index, "progressão", "Você redefiniu sua árvore de habilidades e recuperou o investimento.")
             } else null
             is InitialBuildAllocated -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você concluiu a distribuição inicial dos pontos da ficha.")
@@ -166,7 +165,7 @@ fun automaticTimeline(
                 AutomaticTimelineEntry(index, "habilidade", "Você ativou uma habilidade.")
             } else null
             is ConditionTicked -> if (event.entityId == playerId && event.damage > 0) {
-                AutomaticTimelineEntry(index, "condição", "Uma condição causou ${event.damage} de dano em você.")
+                AutomaticTimelineEntry(index, "condição", "Uma condição piorou seus ferimentos.")
             } else null
             is ConditionAdded -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "condição", "Você sofreu uma condição.")
