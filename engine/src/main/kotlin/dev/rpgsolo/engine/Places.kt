@@ -23,7 +23,10 @@ class PlaceMap {
         links[p.id] = linkedSetOf()
     }
 
-    fun connect(a: String, b: String) {
+    fun connect(
+        a: String,
+        b: String,
+    ) {
         require(a != b) { "um local não liga a si mesmo" }
         require(places.containsKey(a)) { "local inexistente: $a" }
         require(places.containsKey(b)) { "local inexistente: $b" }
@@ -40,14 +43,20 @@ class PlaceMap {
     fun isKnown(id: String) = id in known
 
     /** Caminho mais curto passando só por locais descobertos; null se não houver. */
-    fun route(from: String, to: String): List<String>? {
+    fun route(
+        from: String,
+        to: String,
+    ): List<String>? {
         if (from !in known || to !in known) return null
         val prev = mutableMapOf<String, String?>(from to null)
         val queue = ArrayDeque(listOf(from))
         while (queue.isNotEmpty()) {
             val cur = queue.removeFirst()
             if (cur == to) break
-            for (n in links.getValue(cur)) if (n in known && n !in prev) { prev[n] = cur; queue += n }
+            for (n in links.getValue(cur)) if (n in known && n !in prev) {
+                prev[n] = cur
+                queue += n
+            }
         }
         if (to !in prev) return null
         return generateSequence(to) { prev[it] }.toList().reversed()

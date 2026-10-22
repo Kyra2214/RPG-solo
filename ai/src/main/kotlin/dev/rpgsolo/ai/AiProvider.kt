@@ -10,7 +10,7 @@ data class AiRequest(
     val maxTokens: Int = 1000,
     val temperature: Double? = null,
     /** Pede saída em JSON, quando o provedor suporta. A validação do formato é sempre feita por nós. */
-    val jsonMode: Boolean = false
+    val jsonMode: Boolean = false,
 )
 
 data class AiUsage(
@@ -18,7 +18,7 @@ data class AiUsage(
     val inputTokens: Int,
     val outputTokens: Int,
     val cacheReadInputTokens: Int = 0,
-    val cacheCreationInputTokens: Int = 0
+    val cacheCreationInputTokens: Int = 0,
 )
 
 data class AiResponse(val text: String, val usage: AiUsage? = null)
@@ -47,12 +47,15 @@ interface AiProvider {
     fun complete(request: AiRequest): AiResponse
 
     /** Streaming (6.1.1). Implementação padrão: entrega a resposta inteira de uma vez. */
-    fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse =
-        complete(request).also { onChunk(it.text) }
+    fun stream(
+        request: AiRequest,
+        onChunk: (String) -> Unit,
+    ): AiResponse = complete(request).also { onChunk(it.text) }
 }
 
 /** Estimativa grosseira (~4 caracteres por token) para orçamento e custo (6.2.4, 7.2.4). */
 object TokenEstimator {
     fun estimate(text: String): Int = (text.length + 3) / 4
+
     fun estimate(request: AiRequest): Int = request.messages.sumOf { estimate(it.content) }
 }

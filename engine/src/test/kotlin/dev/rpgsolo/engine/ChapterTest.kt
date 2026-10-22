@@ -10,12 +10,16 @@ import org.junit.Test
 
 class ChapterTest {
     private val store = InMemoryEventStore()
-    private fun session() = CampaignSession.create(store, CampaignRecord("c", "T", 5L, EngineConfig())).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))),
-            CreateEntity(Entity("npc", "Ana", EntityKind.NPC))
-        ))
-    }
+
+    private fun session() =
+        CampaignSession.create(store, CampaignRecord("c", "T", 5L, EngineConfig())).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))),
+                    CreateEntity(Entity("npc", "Ana", EntityKind.NPC)),
+                ),
+            )
+        }
 
     @Test fun abreEncerraEGuardaResumoUmaVez() {
         val s = session()
@@ -26,7 +30,11 @@ class ChapterTest {
         assertEquals(mapOf("hero/chave" to 1), c.digest!!.itemDeltas)
         assertEquals(listOf("p1"), c.digest!!.promisesMade)
         assertEquals(mapOf("hero" to 5), c.digest!!.xpGained)
-        try { book.close(s, "outra"); fail() } catch (e: IllegalStateException) { }
+        try {
+            book.close(s, "outra")
+            fail()
+        } catch (e: IllegalStateException) {
+        }
         assertEquals("Ele achou a chave.", book.chapters.single().summary)
         assertEquals(listOf("Capítulo 1 (Início): Ele achou a chave."), book.summaries())
     }
@@ -35,7 +43,11 @@ class ChapterTest {
         val s = session()
         val book = ChapterBook()
         book.open(s, "A")
-        try { book.open(s, "B"); fail() } catch (e: IllegalStateException) { }
+        try {
+            book.open(s, "B")
+            fail()
+        } catch (e: IllegalStateException) {
+        }
     }
 
     @Test fun tamanhoConfiguravelSugereEncerrar() {
@@ -43,7 +55,8 @@ class ChapterTest {
         val book = ChapterBook(maxEvents = 2)
         book.open(s, "A")
         assertFalse(book.shouldClose(s))
-        s.execute(AddItem("hero", "x")); s.execute(AddItem("hero", "y"))
+        s.execute(AddItem("hero", "x"))
+        s.execute(AddItem("hero", "y"))
         assertTrue(book.shouldClose(s))
     }
 

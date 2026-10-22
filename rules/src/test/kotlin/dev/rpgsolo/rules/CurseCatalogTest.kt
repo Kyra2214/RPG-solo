@@ -27,7 +27,7 @@ class CurseCatalogTest {
                 assertEquals(
                     "efeito ${effect.id} da maldição ${curse.id} deve acompanhar a duração da maldição",
                     curse.durationRounds,
-                    effect.durationRounds
+                    effect.durationRounds,
                 )
             }
             if (curse.durationRounds != null) {
@@ -43,16 +43,17 @@ class CurseCatalogTest {
             curse.effects.groupBy { it.target to it.stackingGroup }.forEach { (key, effects) ->
                 assertFalse(
                     "maldição ${curse.id} mistura bônus e penalidade no mesmo alvo/grupo: $key",
-                    effects.any { it.baseValue > 0 } && effects.any { it.baseValue < 0 }
+                    effects.any { it.baseValue > 0 } && effects.any { it.baseValue < 0 },
                 )
             }
         }
     }
 
     @Test fun parserRejeitaEfeitoComDuracaoDiferenteDaMaldicao() {
-        val invalid = """
+        val invalid =
+            """
             test-curse|Maldição de teste|Descrição|ritual|resistir|10|3|purificação|fx-bonus,ataque,1,0,bonus,2,-;fx-penalty,defesa,-1,0,penalty,2,-
-        """.trimIndent()
+            """.trimIndent()
         val result = CurseCatalogLoader.load(invalid)
         assertTrue("o parser deve rejeitar duração divergente", result.errors.any { it.contains("duração dos efeitos") })
     }

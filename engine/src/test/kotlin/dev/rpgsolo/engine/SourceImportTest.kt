@@ -8,24 +8,41 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class SourceImportTest {
-    private fun ok(name: String, bytes: ByteArray) = (SourceImporter.import(name, bytes) as SourceImportResult.Ok).source
-    private fun failed(name: String, bytes: ByteArray) = (SourceImporter.import(name, bytes) as SourceImportResult.Failed).reason
+    private fun ok(
+        name: String,
+        bytes: ByteArray,
+    ) = (SourceImporter.import(name, bytes) as SourceImportResult.Ok).source
+
+    private fun failed(
+        name: String,
+        bytes: ByteArray,
+    ) = (SourceImporter.import(name, bytes) as SourceImportResult.Failed).reason
 
     private fun docx(xml: String): ByteArray {
         val out = ByteArrayOutputStream()
         ZipOutputStream(out).use { z ->
-            z.putNextEntry(ZipEntry("word/document.xml")); z.write(xml.toByteArray(Charsets.UTF_8)); z.closeEntry()
+            z.putNextEntry(ZipEntry("word/document.xml"))
+            z.write(xml.toByteArray(Charsets.UTF_8))
+            z.closeEntry()
         }
         return out.toByteArray()
     }
 
-    private fun pdf(content: String, flate: Boolean = false): ByteArray {
+    private fun pdf(
+        content: String,
+        flate: Boolean = false,
+    ): ByteArray {
         var data = content.toByteArray(Charsets.ISO_8859_1)
         var filter = ""
         if (flate) {
-            val d = Deflater(); d.setInput(data); d.finish()
-            val buf = ByteArray(4096); val n = d.deflate(buf); d.end()
-            data = buf.copyOf(n); filter = " /Filter /FlateDecode"
+            val d = Deflater()
+            d.setInput(data)
+            d.finish()
+            val buf = ByteArray(4096)
+            val n = d.deflate(buf)
+            d.end()
+            data = buf.copyOf(n)
+            filter = " /Filter /FlateDecode"
         }
         val head = "%PDF-1.4\n1 0 obj\n<< /Length ${data.size}$filter >>\nstream\n".toByteArray(Charsets.ISO_8859_1)
         return head + data + "\nendstream\nendobj\n%%EOF".toByteArray(Charsets.ISO_8859_1)
@@ -61,7 +78,9 @@ class SourceImportTest {
     }
 
     @Test fun hashEstavelEDiferenteParaOutroConteudo() {
-        val a = ok("a.txt", "um".toByteArray()); val b = ok("b.txt", "um".toByteArray()); val c = ok("c.txt", "dois".toByteArray())
+        val a = ok("a.txt", "um".toByteArray())
+        val b = ok("b.txt", "um".toByteArray())
+        val c = ok("c.txt", "dois".toByteArray())
         assertEquals(a.sha256, b.sha256)
         assertNotEquals(a.sha256, c.sha256)
         assertEquals(64, a.sha256.length)

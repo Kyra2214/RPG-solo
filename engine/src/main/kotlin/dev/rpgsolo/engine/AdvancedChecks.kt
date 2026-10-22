@@ -10,7 +10,7 @@ data class FortuneCheckResult(
     val mode: FortuneMode,
     val first: CheckResult,
     val second: CheckResult?,
-    val chosen: CheckResult
+    val chosen: CheckResult,
 )
 
 data class OpposedCheckResult(
@@ -20,7 +20,7 @@ data class OpposedCheckResult(
     val challengerWins: Boolean,
     /** Rolagens descartadas pela política de fortuna, agrupadas por participante. */
     val challengerAlternatives: List<CheckResult> = emptyList(),
-    val defenderAlternatives: List<CheckResult> = emptyList()
+    val defenderAlternatives: List<CheckResult> = emptyList(),
 )
 
 data class GroupCheckResult(
@@ -30,19 +30,23 @@ data class GroupCheckResult(
     val requiredSuccesses: Int,
     val passed: Boolean,
     /** Uma lista por participante; contém apenas as rolagens descartadas pela fortuna. */
-    val alternatives: List<List<CheckResult>> = emptyList()
+    val alternatives: List<List<CheckResult>> = emptyList(),
 )
 
-private fun compareQuality(a: CheckResult, b: CheckResult): Int {
+private fun compareQuality(
+    a: CheckResult,
+    b: CheckResult,
+): Int {
     val outcomeComparison = a.outcome.ordinal.compareTo(b.outcome.ordinal)
     if (outcomeComparison != 0) return outcomeComparison
 
     // Margens só podem desempatar quando ambos os resultados usam a mesma escala mecânica.
     // Comparar margem de d20 contra CD com margem de 3d6 abaixo do atributo produz um vencedor artificial.
-    val sameScale = a.spec.comparison == b.spec.comparison &&
-        a.spec.diceCount == b.spec.diceCount &&
-        a.spec.diceSides == b.spec.diceSides &&
-        a.spec.difficulty == b.spec.difficulty
+    val sameScale =
+        a.spec.comparison == b.spec.comparison &&
+            a.spec.diceCount == b.spec.diceCount &&
+            a.spec.diceSides == b.spec.diceSides &&
+            a.spec.difficulty == b.spec.difficulty
     return if (sameScale) a.margin.compareTo(b.margin) else 0
 }
 
@@ -70,7 +74,10 @@ private inline fun <T> GameEngine.atomicAdvancedCheck(block: GameEngine.() -> T)
  * Esta API não deve ser acionada automaticamente pela IA: a política vem do pacote ou de
  * uma regra de situação validada pelo motor. Falha no meio do fluxo restaura log e dado.
  */
-fun GameEngine.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneCheckResult =
+fun GameEngine.checkWithFortune(
+    spec: CheckSpec,
+    mode: FortuneMode,
+): FortuneCheckResult =
     atomicAdvancedCheck {
         if (mode == FortuneMode.NORMAL) {
             val single = check(spec.copy(fortuneMode = FortuneMode.NORMAL))
@@ -79,11 +86,12 @@ fun GameEngine.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneChec
         val first = check(spec.copy(label = "${spec.label} [1]", fortuneMode = FortuneMode.NORMAL))
         val second = check(spec.copy(label = "${spec.label} [2]", fortuneMode = FortuneMode.NORMAL))
         val quality = compareQuality(first, second)
-        val chooseFirst = when (mode) {
-            FortuneMode.NORMAL -> true
-            FortuneMode.ADVANTAGE -> quality >= 0
-            FortuneMode.DISADVANTAGE -> quality <= 0
-        }
+        val chooseFirst =
+            when (mode) {
+                FortuneMode.NORMAL -> true
+                FortuneMode.ADVANTAGE -> quality >= 0
+                FortuneMode.DISADVANTAGE -> quality <= 0
+            }
         val selected = if (chooseFirst) first else second
         val cleanLabel = selected.spec.label.replace(Regex(" \\[([12])\\](?= · d|$)"), "")
         val chosen = selected.copy(spec = selected.spec.copy(label = cleanLabel, fortuneMode = mode))
@@ -97,22 +105,25 @@ fun GameEngine.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneChec
  */
 fun GameEngine.checkOpposed(
     challenger: CheckSpec,
-    defender: CheckSpec
-): OpposedCheckResult = atomicAdvancedCheck {
-    val leftSpec = challenger.copy(label = "${challenger.label} [oposto]")
-    val rightSpec = defender.copy(label = "${defender.label} [oposto]")
-    // Cada lado aplica sua própria política de fortuna, sem misturar a rolagem descartada na disputa.
-    val leftResolution = checkWithFortune(leftSpec, leftSpec.fortuneMode)
-    val rightResolution = checkWithFortune(rightSpec, rightSpec.fortuneMode)
-    val left = leftResolution.chosen
-    val right = rightResolution.chosen
-    // Margens de testes diferentes não são diretamente comparáveis: primeiro vence quem obteve o melhor resultado; em igualdade, compara-se a margem. Empate absoluto favorece o defensor.
-    val leftAlternative = listOfNotNull(leftResolution.first, leftResolution.second)
-        .filter { it.roll !== leftResolution.chosen.roll }
-    val rightAlternative = listOfNotNull(rightResolution.first, rightResolution.second)
-        .filter { it.roll !== rightResolution.chosen.roll }
-    OpposedCheckResult(left, right, compareQuality(left, right) > 0, leftAlternative, rightAlternative)
-}
+    defender: CheckSpec,
+): OpposedCheckResult =
+    atomicAdvancedCheck {
+        val leftSpec = challenger.copy(label = "${challenger.label} [oposto]")
+        val rightSpec = defender.copy(label = "${defender.label} [oposto]")
+        // Cada lado aplica sua própria política de fortuna, sem misturar a rolagem descartada na disputa.
+        val leftResolution = checkWithFortune(leftSpec, leftSpec.fortuneMode)
+        val rightResolution = checkWithFortune(rightSpec, rightSpec.fortuneMode)
+        val left = leftResolution.chosen
+        val right = rightResolution.chosen
+        // Margens de testes diferentes não são diretamente comparáveis: primeiro vence quem obteve o melhor resultado; em igualdade, compara-se a margem. Empate absoluto favorece o defensor.
+        val leftAlternative =
+            listOfNotNull(leftResolution.first, leftResolution.second)
+                .filter { it.roll !== leftResolution.chosen.roll }
+        val rightAlternative =
+            listOfNotNull(rightResolution.first, rightResolution.second)
+                .filter { it.roll !== rightResolution.chosen.roll }
+        OpposedCheckResult(left, right, compareQuality(left, right) > 0, leftAlternative, rightAlternative)
+    }
 
 /**
  * Teste de grupo. A quantidade de sucessos necessária é explícita e não inferida pela IA.
@@ -120,54 +131,65 @@ fun GameEngine.checkOpposed(
  */
 fun GameEngine.checkGroup(
     checks: List<CheckSpec>,
-    requiredSuccesses: Int
-): GroupCheckResult = atomicAdvancedCheck {
-    require(checks.size >= 2) { "teste de grupo exige ao menos dois participantes" }
-    require(requiredSuccesses in 1..checks.size) {
-        "sucessos necessários devem ficar entre 1 e o número de participantes"
+    requiredSuccesses: Int,
+): GroupCheckResult =
+    atomicAdvancedCheck {
+        require(checks.size >= 2) { "teste de grupo exige ao menos dois participantes" }
+        require(requiredSuccesses in 1..checks.size) {
+            "sucessos necessários devem ficar entre 1 e o número de participantes"
+        }
+        val resolutions =
+            checks.mapIndexed { index, spec ->
+                val participantSpec = spec.copy(label = "${spec.label} [grupo ${index + 1}]")
+                checkWithFortune(participantSpec, participantSpec.fortuneMode)
+            }
+        val results = resolutions.map { it.chosen }
+        val alternatives =
+            resolutions.map { resolution ->
+                listOfNotNull(resolution.first, resolution.second).filter { it.roll !== resolution.chosen.roll }
+            }
+        val successes = results.count { it.outcome == Outcome.SUCCESS || it.outcome == Outcome.CRITICAL_SUCCESS }
+        val failures = results.size - successes
+        GroupCheckResult(results, successes, failures, requiredSuccesses, successes >= requiredSuccesses, alternatives)
     }
-    val resolutions = checks.mapIndexed { index, spec ->
-        val participantSpec = spec.copy(label = "${spec.label} [grupo ${index + 1}]")
-        checkWithFortune(participantSpec, participantSpec.fortuneMode)
-    }
-    val results = resolutions.map { it.chosen }
-    val alternatives = resolutions.map { resolution ->
-        listOfNotNull(resolution.first, resolution.second).filter { it.roll !== resolution.chosen.roll }
-    }
-    val successes = results.count { it.outcome == Outcome.SUCCESS || it.outcome == Outcome.CRITICAL_SUCCESS }
-    val failures = results.size - successes
-    GroupCheckResult(results, successes, failures, requiredSuccesses, successes >= requiredSuccesses, alternatives)
-}
 
 /**
  * Persiste uma resolução avançada como uma única unidade lógica. Se a resolução ou o append falhar,
  * restaura o estado em memória; EventStore exige que append seja atômico (tudo ou nada).
  */
-private fun <T> CampaignSession.persistAdvancedCheck(block: GameEngine.() -> T): T = atomically {
-    val start = mark()
-    try {
-        val result = engine.block()
-        save()
-        result
-    } catch (e: Exception) {
-        engine.rollbackTo(start)
-        throw e
+private fun <T> CampaignSession.persistAdvancedCheck(block: GameEngine.() -> T): T =
+    atomically {
+        val start = mark()
+        try {
+            val result = engine.block()
+            save()
+            result
+        } catch (e: Exception) {
+            engine.rollbackTo(start)
+            throw e
+        }
     }
-}
 
 /** Wrappers para campanhas persistidas: a resolução e a gravação formam uma operação lógica. */
-fun CampaignSession.checkWithFortune(spec: CheckSpec, mode: FortuneMode): FortuneCheckResult =
-    persistAdvancedCheck { checkWithFortune(spec, mode) }
+fun CampaignSession.checkWithFortune(
+    spec: CheckSpec,
+    mode: FortuneMode,
+): FortuneCheckResult = persistAdvancedCheck { checkWithFortune(spec, mode) }
 
-fun CampaignSession.checkOpposed(challenger: CheckSpec, defender: CheckSpec): OpposedCheckResult =
-    persistAdvancedCheck { checkOpposed(challenger, defender) }
+fun CampaignSession.checkOpposed(
+    challenger: CheckSpec,
+    defender: CheckSpec,
+): OpposedCheckResult = persistAdvancedCheck { checkOpposed(challenger, defender) }
 
-fun CampaignSession.checkGroup(checks: List<CheckSpec>, requiredSuccesses: Int): GroupCheckResult =
-    persistAdvancedCheck { checkGroup(checks, requiredSuccesses) }
+fun CampaignSession.checkGroup(
+    checks: List<CheckSpec>,
+    requiredSuccesses: Int,
+): GroupCheckResult = persistAdvancedCheck { checkGroup(checks, requiredSuccesses) }
 
 /** Resultado de um teste de sorte que consome um recurso persistido da campanha. */
 sealed interface FortuneSpendResult {
     data class Resolved(val result: FortuneCheckResult) : FortuneSpendResult
+
     data class Rejected(val reason: String) : FortuneSpendResult
 }
 
@@ -181,7 +203,7 @@ fun CampaignSession.checkWithFortuneSpendingResource(
     resource: String,
     cost: Int,
     spec: CheckSpec,
-    mode: FortuneMode
+    mode: FortuneMode,
 ): FortuneSpendResult {
     if (cost <= 0) return FortuneSpendResult.Rejected("o custo do recurso deve ser positivo")
     if (mode == FortuneMode.NORMAL) {
@@ -213,12 +235,14 @@ fun CampaignSession.checkWithFortuneSpendingResource(
 enum class LuckKind {
     /** Repete a rolagem do mesmo teste; o novo resultado substitui o anterior, para melhor ou pior. */
     REROLL,
+
     /** Soma uma face de sucesso ao mesmo dado já rolado: a dificuldade fica 1 ponto mais favorável. Não rola de novo. */
-    ADD_FACE
+    ADD_FACE,
 }
 
 sealed interface LuckResult {
     data class Resolved(val kind: LuckKind, val original: CheckResult, val chosen: CheckResult) : LuckResult
+
     data class Rejected(val reason: String) : LuckResult
 }
 
@@ -233,7 +257,7 @@ fun CampaignSession.spendLuck(
     resource: String,
     cost: Int,
     previous: CheckResult,
-    kind: LuckKind
+    kind: LuckKind,
 ): LuckResult {
     if (cost <= 0) return LuckResult.Rejected("o custo do recurso deve ser positivo")
     return atomically<LuckResult> {
@@ -245,22 +269,25 @@ fun CampaignSession.spendLuck(
                     LuckResult.Rejected(spent.reason)
                 }
                 is ExecResult.Accepted -> {
-                    val chosen = when (kind) {
-                        LuckKind.REROLL -> engine.check(
-                            previous.spec.copy(
-                                label = previous.spec.label.removeSuffix(" [nova rolagem]") + " [nova rolagem]",
-                                fortuneMode = FortuneMode.NORMAL
-                            )
-                        )
-                        LuckKind.ADD_FACE -> {
-                            val spec = previous.spec
-                            val shifted = when (spec.comparison) {
-                                Comparison.ROLL_UNDER -> spec.copy(difficulty = spec.difficulty + 1)
-                                else -> spec.copy(difficulty = spec.difficulty - 1)
+                    val chosen =
+                        when (kind) {
+                            LuckKind.REROLL ->
+                                engine.check(
+                                    previous.spec.copy(
+                                        label = previous.spec.label.removeSuffix(" [nova rolagem]") + " [nova rolagem]",
+                                        fortuneMode = FortuneMode.NORMAL,
+                                    ),
+                                )
+                            LuckKind.ADD_FACE -> {
+                                val spec = previous.spec
+                                val shifted =
+                                    when (spec.comparison) {
+                                        Comparison.ROLL_UNDER -> spec.copy(difficulty = spec.difficulty + 1)
+                                        else -> spec.copy(difficulty = spec.difficulty - 1)
+                                    }
+                                resolveCheck(shifted.copy(label = spec.label + " [+1 face]"), previous.roll)
                             }
-                            resolveCheck(shifted.copy(label = spec.label + " [+1 face]"), previous.roll)
                         }
-                    }
                     save()
                     LuckResult.Resolved(kind, previous, chosen)
                 }

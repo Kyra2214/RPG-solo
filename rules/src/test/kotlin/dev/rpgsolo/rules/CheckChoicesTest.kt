@@ -57,7 +57,6 @@ class CheckChoicesTest {
         assertTrue((result as ParseResult.Fail).errors.any { "atributo inexistente" in it })
     }
 
-
     @Test fun parserRejeitaEscopoDeBonusSemRegraMecanica() {
         val files = files("teste-basico").toMutableMap()
         val traits = files.getValue("tracos.txt")
@@ -81,18 +80,20 @@ class CheckChoicesTest {
     }
 
     @Test fun validadorRejeitaEscopoDeEquipamentoSemRegraMecanica() {
-        val data = basico().data.copy(
-            items = listOf(
-                ItemDef(
-                    id = "teste-escopo",
-                    name = "Equipamento de teste",
-                    kind = "equipamento",
-                    slot = "mao",
-                    description = "Fixture de validação",
-                    effects = listOf(ItemEffect("bonus-fantasma", 1))
-                )
+        val data =
+            basico().data.copy(
+                items =
+                    listOf(
+                        ItemDef(
+                            id = "teste-escopo",
+                            name = "Equipamento de teste",
+                            kind = "equipamento",
+                            slot = "mao",
+                            description = "Fixture de validação",
+                            effects = listOf(ItemEffect("bonus-fantasma", 1)),
+                        ),
+                    ),
             )
-        )
         val errors = PackageValidator.validate(data)
         assertTrue(errors.any { "escopo de efeito sem regra mecânica" in it })
     }
@@ -113,5 +114,4 @@ class CheckChoicesTest {
         assertTrue(result is ParseResult.Fail)
         assertTrue((result as ParseResult.Fail).errors.any { "recurso inexistente 'recurso-fantasma'" in it })
     }
-
 }

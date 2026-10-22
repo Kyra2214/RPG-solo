@@ -1,7 +1,7 @@
 package dev.rpgsolo.rules
 
-import dev.rpgsolo.engine.DeathMode
 import dev.rpgsolo.engine.Comparison
+import dev.rpgsolo.engine.DeathMode
 import dev.rpgsolo.engine.FortuneMode
 
 /** TESTE = mecânica própria para validar o formato. REAL = sistema de verdade (exige licença verificada ou importação do usuário). */
@@ -15,13 +15,14 @@ internal fun parseResourceRewards(raw: String?): Map<String, Int> {
     val result = linkedMapOf<String, Int>()
     for (entry in raw.split(",")) {
         val pair = entry.split("=", limit = 2)
-        require(pair.size == 2) { "recompensa_recurso inválida: '${entry}' (use recurso=quantidade)" }
+        require(pair.size == 2) { "recompensa_recurso inválida: '$entry' (use recurso=quantidade)" }
         val id = pair[0].trim()
-        require(Regex("[a-z0-9][a-z0-9_-]*").matches(id)) { "recurso de recompensa inválido: '${id}'" }
-        val amount = pair[1].trim().toIntOrNull()
-            ?: throw IllegalArgumentException("quantidade de recompensa inválida: '${pair[1]}'")
-        require(amount > 0) { "recompensa de recurso deve ser positiva: '${id}'" }
-        require(result.put(id, amount) == null) { "recurso de recompensa repetido: '${id}'" }
+        require(Regex("[a-z0-9][a-z0-9_-]*").matches(id)) { "recurso de recompensa inválido: '$id'" }
+        val amount =
+            pair[1].trim().toIntOrNull()
+                ?: throw IllegalArgumentException("quantidade de recompensa inválida: '${pair[1]}'")
+        require(amount > 0) { "recompensa de recurso deve ser positiva: '$id'" }
+        require(result.put(id, amount) == null) { "recurso de recompensa repetido: '$id'" }
     }
     return result
 }
@@ -47,7 +48,7 @@ data class Manifest(
     /** M-04.4: id da dificuldade do teste de sobrevivência (`dificuldade_sobrevivencia`). null = dificuldade padrão. */
     val survivalDifficulty: String? = null,
     /** M-04.4: falhas que matam o caído, 1–10 (`falhas_morte`). null = não declarado (herda do pai; sem pai, 3). */
-    val survivalFailures: Int? = null
+    val survivalFailures: Int? = null,
 )
 
 data class StatDef(val id: String, val name: String, val min: Int, val max: Int, val default: Int)
@@ -57,12 +58,15 @@ data class ResourceDef(val id: String, val name: String, val base: Int, val stat
 
 sealed interface Requirement {
     data class MinStat(val stat: String, val min: Int) : Requirement
+
     data class HasTrait(val traitId: String) : Requirement
+
     /** O traço não pode ser combinado com o traço indicado (vale nos dois sentidos). */
     data class Excludes(val traitId: String) : Requirement
 }
 
 /** Vantagem, desvantagem, perícia ou poder. Custo negativo devolve pontos. */
+
 /** Bônus mecânico tipado. Escopos de teste: id do teste, atributo ou perícia; combate: ataque, dano, defesa, resistencia_dano. */
 data class TraitBonus(val scope: String, val bonus: Int)
 
@@ -72,7 +76,7 @@ data class ExternalBonus(
     val bonus: Int,
     val source: String,
     /** Identidade estável da declaração; vazio significa que não há deduplicação segura por identidade. */
-    val effectId: String = ""
+    val effectId: String = "",
 )
 
 /**
@@ -88,6 +92,7 @@ fun distinctExternalBonuses(bonuses: Collection<ExternalBonus>): List<ExternalBo
 }
 
 /** MU-06.1: bônus de perícia que só vale com o item [itemId] equipado (qualquer slot). */
+
 /** MU-07.3: magia à venda; preço em moedas base (prata). Declarada por `magia_<id>_preco` em `criacao.txt`. */
 data class SpellDef(val id: String, val name: String, val price: Int)
 
@@ -109,7 +114,7 @@ data class TraitDef(
     /** MU-06.1: bônus condicionais à posse equipada de um item; só perícias podem declará-los. */
     val conditionalBonuses: List<ConditionalBonus> = emptyList(),
     /** MU-06.2: bônus da perícia com o nível 2 liberado; só perícias. */
-    val level2Bonuses: List<TraitBonus> = emptyList()
+    val level2Bonuses: List<TraitBonus> = emptyList(),
 )
 
 /** Modelo de teste. modificador = atributo * mult. Parcial e críticos só existem se o pacote declarar. */
@@ -141,15 +146,17 @@ data class CheckDef(
     /** Custo positivo por uso da sorte pós-rolagem. */
     val luckCost: Int = 0,
     /** Formas permitidas: repetir a rolagem e/ou somar uma face. Vazio = o teste não aceita sorte pós-rolagem. */
-    val luckKinds: Set<dev.rpgsolo.engine.LuckKind> = emptySet()
+    val luckKinds: Set<dev.rpgsolo.engine.LuckKind> = emptySet(),
 )
 
 data class DifficultyDef(val id: String, val name: String, val value: Int)
+
 /**
  * Efeito automático de uma condição nos testes: [dice] = +1 (Ganho, um dado extra) ou -1 (Perda, um dado a menos).
  * [stats] = atributos afetados; null = todos os testes.
  */
 data class ConditionEffect(val dice: Int, val stats: Set<String>?)
+
 data class ConditionDef(
     val id: String,
     val name: String,
@@ -162,8 +169,9 @@ data class ConditionDef(
     /** M-05: teste que remove a condição com sucesso (`remocao`, coluna 8: `teste` ou `teste:dificuldade`). */
     val removalCheck: String? = null,
     /** M-05: id da dificuldade do teste de remoção; null = dificuldade padrão do pacote. */
-    val removalDifficulty: String? = null
+    val removalDifficulty: String? = null,
 )
+
 data class DamageDef(val id: String, val name: String, val diceCount: Int, val diceSides: Int, val bonusStat: String?)
 
 /** Item do catálogo: equipamento ocupa [slot]; itens narrativos não têm efeito mecânico. */
@@ -171,10 +179,14 @@ data class ItemEffect(val scope: String, val bonus: Int)
 
 /** Item do catálogo: efeitos tipados aplicados pelo motor, nunca inferidos da descrição. */
 data class ItemDef(
-    val id: String, val name: String, val kind: String, val slot: String?, val description: String,
+    val id: String,
+    val name: String,
+    val kind: String,
+    val slot: String?,
+    val description: String,
     val effects: List<ItemEffect> = emptyList(),
     /** Preço em unidades do item de moeda (`moeda_item` em criacao.txt); null = não negociável. */
-    val price: Int? = null
+    val price: Int? = null,
 )
 
 /** Quem recebe o efeito de um poder. */
@@ -198,7 +210,7 @@ data class PowerDef(
     val target: PowerTarget,
     val effect: PowerEffectKind,
     val param: String,
-    val checkId: String? = null
+    val checkId: String? = null,
 )
 
 /**
@@ -209,13 +221,18 @@ data class HazardDef(val id: String, val name: String, val description: String, 
 
 /** Regra ambígua: nunca apresentada como oficial (4.1.6). */
 data class UncertainRule(val id: String, val note: String)
+
 data class TutorialStep(val order: Int, val title: String, val text: String)
+
 data class ExampleCharacter(val id: String, val title: String, val stats: Map<String, Int>, val traits: List<String>)
 
 /** Arquétipo: ponto de partida da criação de ficha (atributos e traços iniciais que o jogador pode editar). */
 data class Archetype(
-    val id: String, val name: String, val description: String,
-    val stats: Map<String, Int>, val traits: List<String>
+    val id: String,
+    val name: String,
+    val description: String,
+    val stats: Map<String, Int>,
+    val traits: List<String>,
 )
 
 /**
@@ -244,5 +261,5 @@ data class PackageData(
     val archetypes: List<Archetype> = emptyList(),
     val archetypeOptions: List<ArchetypeOptions> = emptyList(),
     val powers: List<PowerDef> = emptyList(),
-    val hazards: List<HazardDef> = emptyList()
+    val hazards: List<HazardDef> = emptyList(),
 )

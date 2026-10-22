@@ -7,8 +7,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GameEngineTest {
-    private fun hero() = Entity("hero", "Herói", EntityKind.PLAYER,
-        resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(3, 5)))
+    private fun hero() =
+        Entity(
+            "hero",
+            "Herói",
+            EntityKind.PLAYER,
+            resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(3, 5)),
+        )
+
     private fun orc() = Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6)))
 
     private fun engine(): GameEngine {
@@ -98,11 +104,16 @@ class GameEngineTest {
         val e = engine()
         val before = e.state
         val count = e.eventCount
-        val r = rejected(e.executeAll(listOf(
-            Damage("orc", "hp", 2),
-            ConsumeItem("hero", "inexistente"),
-            Damage("orc", "hp", 2)
-        )))
+        val r =
+            rejected(
+                e.executeAll(
+                    listOf(
+                        Damage("orc", "hp", 2),
+                        ConsumeItem("hero", "inexistente"),
+                        Damage("orc", "hp", 2),
+                    ),
+                ),
+            )
         assertEquals(1, r.commandIndex)
         assertEquals(before, e.state)
         assertEquals(count, e.eventCount)
@@ -153,7 +164,8 @@ class GameEngineTest {
     @Test fun restaurarDoLogMantemEstadoEDados() {
         val e = engine()
         val spec = CheckSpec("t", 2, 6, 0, 7)
-        e.check(spec); e.check(spec)
+        e.check(spec)
+        e.check(spec)
         val restored = GameEngine.restore(1, EngineConfig(), e.events)
         assertEquals(e.state, restored.state)
         assertEquals(e.check(spec).roll, restored.check(spec).roll)

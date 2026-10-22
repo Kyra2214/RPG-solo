@@ -18,11 +18,12 @@ data class ImportedSource(
     val text: String,
     val sections: List<SourceSection>,
     val sha256: String,
-    val byteSize: Int
+    val byteSize: Int,
 )
 
 sealed class SourceImportResult {
     data class Ok(val source: ImportedSource) : SourceImportResult()
+
     data class Failed(val reason: String) : SourceImportResult()
 }
 
@@ -41,35 +42,48 @@ object SourceImporter {
             else -> null
         }
 
-    fun import(fileName: String, bytes: ByteArray): SourceImportResult {
-        val format = formatOf(fileName)
-            ?: return SourceImportResult.Failed("Formato não suportado (use .txt, .md, .docx ou .pdf).")
+    fun import(
+        fileName: String,
+        bytes: ByteArray,
+    ): SourceImportResult {
+        val format =
+            formatOf(fileName)
+                ?: return SourceImportResult.Failed("Formato não suportado (use .txt, .md, .docx ou .pdf).")
         if (bytes.isEmpty()) return SourceImportResult.Failed("Arquivo vazio.")
         if (bytes.size > MAX_BYTES) return SourceImportResult.Failed("Arquivo maior que ${MAX_BYTES / (1024 * 1024)} MiB.")
-        val raw = when (format) {
-            SourceFormat.DOCX -> DocxText.extract(bytes) ?: return SourceImportResult.Failed("DOCX inválido ou sem document.xml.")
-            SourceFormat.PDF -> PdfText.extract(bytes) ?: return SourceImportResult.Failed("PDF sem texto extraível (escaneado, protegido ou com fonte codificada).")
-            else -> {
-                if (bytes.any { it == 0.toByte() }) return SourceImportResult.Failed("Arquivo não parece ser texto.")
-                decode(bytes)
+        val raw =
+            when (format) {
+                SourceFormat.DOCX -> DocxText.extract(bytes) ?: return SourceImportResult.Failed("DOCX inválido ou sem document.xml.")
+                SourceFormat.PDF -> PdfText.extract(bytes) ?: return SourceImportResult.Failed("PDF sem texto extraível (escaneado, protegido ou com fonte codificada).")
+                else -> {
+                    if (bytes.any { it == 0.toByte() }) return SourceImportResult.Failed("Arquivo não parece ser texto.")
+                    decode(bytes)
+                }
             }
-        }
         val text = normalize(raw)
         if (text.isBlank()) return SourceImportResult.Failed("Arquivo sem texto.")
-        val sections = if (format == SourceFormat.MARKDOWN || format == SourceFormat.DOCX) markdownSections(text) else listOf(SourceSection("", 0, text))
-        val title = sections.firstOrNull { it.heading.isNotEmpty() }?.heading
-            ?: fileName.substringBeforeLast('.').trim().ifEmpty { fileName }
+        val sections =
+            if (format == SourceFormat.MARKDOWN || format == SourceFormat.DOCX) {
+                markdownSections(
+                    text,
+                )
+            } else {
+                listOf(SourceSection("", 0, text))
+            }
+        val title =
+            sections.firstOrNull { it.heading.isNotEmpty() }?.heading
+                ?: fileName.substringBeforeLast('.').trim().ifEmpty { fileName }
         return SourceImportResult.Ok(ImportedSource(fileName, format, title, text, sections, sha256(bytes), bytes.size))
     }
 
-    fun sha256(bytes: ByteArray): String =
-        MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+    fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
 
     private fun decode(bytes: ByteArray): String {
         val start = if (bytes.size >= 3 && bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte()) 3 else 0
-        val decoder = Charsets.UTF_8.newDecoder()
-            .onMalformedInput(CodingErrorAction.REPORT)
-            .onUnmappableCharacter(CodingErrorAction.REPORT)
+        val decoder =
+            Charsets.UTF_8.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT)
         return try {
             decoder.decode(ByteBuffer.wrap(bytes, start, bytes.size - start)).toString()
         } catch (_: CharacterCodingException) {
@@ -89,6 +103,7 @@ object SourceImporter {
         var level = 0
         val body = StringBuilder()
         var fenced = false
+
         fun flush() {
             val t = body.toString().trim()
             if (heading.isNotEmpty() || t.isNotEmpty()) out.add(SourceSection(heading, level, t))

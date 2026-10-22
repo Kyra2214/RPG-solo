@@ -23,8 +23,9 @@ import java.io.File
 /** O mestre pede um teste no meio da história; o jogador rola; o mestre narra conforme o resultado. */
 class MasterCheckRequestTest {
     private fun pkg(): RulePackage {
-        val dir = listOf("../rules/src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
-            .map(::File).first { it.exists() }
+        val dir =
+            listOf("../rules/src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
+                .map(::File).first { it.exists() }
         val files = dir.listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }
         val r = PackageRegistry()
         assertTrue(r.install(files) is InstallResult.Success)
@@ -32,20 +33,40 @@ class MasterCheckRequestTest {
     }
 
     private fun ficha(p: RulePackage): Ficha =
-        (p.buildFicha("hero", "Brokk", "", mapOf("forca" to 3, "agilidade" to 1, "mente" to 0), listOf("lutador")) as FichaBuild.Created).ficha
+        (
+            p.buildFicha(
+                "hero",
+                "Brokk",
+                "",
+                mapOf("forca" to 3, "agilidade" to 1, "mente" to 0),
+                listOf("lutador"),
+            ) as FichaBuild.Created
+        ).ficha
 
-    private fun session(f: Ficha) = CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 11L, EngineConfig(deathResource = "hp"))).also {
-        it.executeAll(listOf(CreateEntity(f.toEntity()), CreateEntity(Entity("orc", "Orc", EntityKind.NPC))))
-    }
+    private fun session(f: Ficha) =
+        CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 11L, EngineConfig(deathResource = "hp"))).also {
+            it.executeAll(listOf(CreateEntity(f.toEntity()), CreateEntity(Entity("orc", "Orc", EntityKind.NPC))))
+        }
 
     private val pedido = """{"narrative":"Você caminha pela estrada. Algo parece estranho; role um teste de Percepção.",
         "request_check":{"check":"esquiva","difficulty":"facil","label":"Percepção",
         "onSuccess":"percebe o mato balançando e uma criança caída","onFailure":"segue direto pela estrada"}}"""
+
     private fun fim(n: String) = """{"narrative":"$n"}"""
 
-    private fun ctrl(provider: ScriptedProvider, withMenu: Boolean = true): PlayController {
-        val p = pkg(); val f = ficha(p)
-        return PlayController(session(f), GameLoop(provider, menu = if (withMenu) CheckMenu(p) else null), "hero", "hp", sheet = PlayerSheet(p, f))
+    private fun ctrl(
+        provider: ScriptedProvider,
+        withMenu: Boolean = true,
+    ): PlayController {
+        val p = pkg()
+        val f = ficha(p)
+        return PlayController(
+            session(f),
+            GameLoop(provider, menu = if (withMenu) CheckMenu(p) else null),
+            "hero",
+            "hp",
+            sheet = PlayerSheet(p, f),
+        )
     }
 
     // ---- formato ----
@@ -98,7 +119,7 @@ class MasterCheckRequestTest {
         assertEquals(2, (regenerated as PlayResult.Played).record.advancedChecks.size)
         assertEquals(
             resolved.record.advancedChecks.map { it.first },
-            regenerated.record.advancedChecks.map { it.first }
+            regenerated.record.advancedChecks.map { it.first },
         )
     }
 
@@ -137,7 +158,7 @@ class MasterCheckRequestTest {
         assertEquals(2, (regenerated as PlayResult.Played).record.advancedChecks.size)
         assertEquals(
             resolved.record.advancedChecks.map { it.first },
-            regenerated.record.advancedChecks.map { it.first }
+            regenerated.record.advancedChecks.map { it.first },
         )
     }
 
@@ -279,7 +300,7 @@ class MasterCheckRequestTest {
             assertFalse("segue direto" in user)
         } else {
             assertTrue("segue direto" in user)
-            assertFalse("criança caída" in user)   // o que estava escondido não vaza numa falha
+            assertFalse("criança caída" in user) // o que estava escondido não vaza numa falha
         }
     }
 
@@ -287,10 +308,10 @@ class MasterCheckRequestTest {
         val c = ctrl(ScriptedProvider(listOf(pedido, fim("fim"))))
         c.submit("caminho")
         c.rollPending()
-        assertTrue(c.undo())                       // desfaz a rolagem e o desfecho
+        assertTrue(c.undo()) // desfaz a rolagem e o desfecho
         assertNotNull(c.pending())
         assertEquals(listOf(Author.PLAYER, Author.MASTER), c.lines.map { it.author })
-        assertTrue(c.undo())                       // desfaz o pedido
+        assertTrue(c.undo()) // desfaz o pedido
         assertNull(c.pending())
         assertTrue(c.lines.isEmpty())
     }
@@ -334,15 +355,23 @@ class MasterCheckRequestTest {
     }
 
     // ---- rolagem com tabela: teste de esquiva -> d6 de dano ----
-    private fun tabela(maxDamage: Int = 6) = """{"narrative":"A flecha acerta! Role um d6: quanto maior, pior.",
+    private fun tabela(maxDamage: Int = 6) =
+        """{"narrative":"A flecha acerta! Role um d6: quanto maior, pior.",
         "request_roll":{"sides":6,"label":"Dano da flecha","table":{
         "1":{"text":"raspa no ombro","damage":1},"2":{"text":"corta o braço","damage":2},
         "3":{"text":"fura a coxa","damage":3},"4":{"text":"atinge as costelas","damage":4},
         "5":{"text":"perfura o peito","damage":5},"6":{"text":"atinge perto do coração","damage":$maxDamage}}}}"""
-    private val textos = mapOf(
-        1 to "raspa no ombro", 2 to "corta o braço", 3 to "fura a coxa",
-        4 to "atinge as costelas", 5 to "perfura o peito", 6 to "atinge perto do coração"
-    )
+
+    private val textos =
+        mapOf(
+            1 to "raspa no ombro",
+            2 to "corta o braço",
+            3 to "fura a coxa",
+            4 to "atinge as costelas",
+            5 to "perfura o peito",
+            6 to "atinge perto do coração",
+        )
+
     private fun hp(c: PlayController) = c.panel()!!.resources.getValue("hp")
 
     @Test fun parserRecusaTabelaComFaceFaltando() {
@@ -364,17 +393,17 @@ class MasterCheckRequestTest {
         val c = ctrl(provider)
         c.submit("ando pelo corredor escuro")
         assertEquals(10 to 10, hp(c))
-        c.rollPending()                               // teste de esquiva; o mestre responde pedindo o d6
+        c.rollPending() // teste de esquiva; o mestre responde pedindo o d6
         assertEquals("Dano da flecha (d6)", c.pending()!!.label)
-        assertEquals(10 to 10, hp(c))                 // nada de dano antes de o jogador rolar o d6
-        c.rollPending()                               // d6: o motor aplica o dano da face
+        assertEquals(10 to 10, hp(c)) // nada de dano antes de o jogador rolar o d6
+        c.rollPending() // d6: o motor aplica o dano da face
         assertNull(c.pending())
 
         val roll = c.lines.last { it.author == Author.ROLL }.roll!!
         assertTrue(roll.plain)
         assertEquals(6, roll.sides)
         val face = roll.dice.single()
-        assertEquals(10 - face to 10, hp(c))           // nesta tabela o dano é igual à face
+        assertEquals(10 - face to 10, hp(c)) // nesta tabela o dano é igual à face
 
         // o mestre recebe só a nota da face sorteada e a informação de que o dano já foi aplicado
         val user = provider.requests[2].messages.last().content
@@ -397,7 +426,7 @@ class MasterCheckRequestTest {
         val provider = ScriptedProvider(listOf(pedido, tabela(maxDamage = 99), tabela(), fim("fim")))
         val c = ctrl(provider)
         c.submit("ando")
-        c.rollPending()                                // 2ª tentativa do mestre (99 foi recusado)
+        c.rollPending() // 2ª tentativa do mestre (99 foi recusado)
         assertTrue("vida máxima" in provider.requests[2].messages.last().content)
         assertNotNull(c.pending())
     }
@@ -416,7 +445,8 @@ class MasterCheckRequestTest {
     }
 
     // ---- status (condições) aplicados por uma face do dado ----
-    private fun tabelaComStatus(condicao: String = "sangramento") = """{"narrative":"A flecha acerta! Role um d6: quanto maior, pior.",
+    private fun tabelaComStatus(condicao: String = "sangramento") =
+        """{"narrative":"A flecha acerta! Role um d6: quanto maior, pior.",
         "request_roll":{"sides":6,"label":"Dano da flecha","table":{
         "1":{"text":"raspa no ombro","damage":1,"conditions":["$condicao"]},"2":{"text":"corta o braço","damage":2,"conditions":["$condicao"]},
         "3":{"text":"fura a coxa","damage":3,"conditions":["$condicao"]},"4":{"text":"atinge as costelas","damage":4,"conditions":["$condicao"]},
@@ -439,9 +469,9 @@ class MasterCheckRequestTest {
         val provider = ScriptedProvider(listOf(pedido, tabelaComStatus(), fim("O sangue escorre.")))
         val c = ctrl(provider)
         c.submit("ando pelo corredor escuro")
-        c.rollPending()                                // esquiva
-        assertTrue(c.panel()!!.conditions.isEmpty())   // nenhum status antes do d6
-        c.rollPending()                                // d6: dano e status
+        c.rollPending() // esquiva
+        assertTrue(c.panel()!!.conditions.isEmpty()) // nenhum status antes do d6
+        c.rollPending() // d6: dano e status
         assertEquals(listOf("sangramento"), c.panel()!!.conditions)
         assertTrue("sangramento" in provider.requests[2].messages.last().content)
         assertTrue("JÁ aplicou o dano e a condição" in provider.requests[2].messages.last().content)
@@ -461,7 +491,7 @@ class MasterCheckRequestTest {
         val provider = ScriptedProvider(listOf(pedido, tabelaComStatus("fantasma"), tabelaComStatus(), fim("fim")))
         val c = ctrl(provider)
         c.submit("ando")
-        c.rollPending()                                // 2ª tentativa do mestre ("fantasma" foi recusado)
+        c.rollPending() // 2ª tentativa do mestre ("fantasma" foi recusado)
         val reenvio = provider.requests[2].messages.last().content
         assertTrue("condição desconhecida" in reenvio && "sangramento" in reenvio)
         assertNotNull(c.pending())
@@ -478,10 +508,10 @@ class MasterCheckRequestTest {
         val provider = ScriptedProvider(listOf(pedido, tabelaComStatus("amaldicoado"), sorte, fim("fim")))
         val c = ctrl(provider)
         c.submit("ando")
-        c.rollPending()                                // esquiva
-        c.rollPending()                                // d6: dano + amaldiçoado
+        c.rollPending() // esquiva
+        c.rollPending() // d6: dano + amaldiçoado
         assertEquals(listOf("amaldicoado"), c.panel()!!.conditions)
-        c.rollPending()                                // sorte, já com Perda
+        c.rollPending() // sorte, já com Perda
         assertEquals(1, c.lines.last { it.author == Author.ROLL }.roll!!.dice.size)
     }
 
@@ -494,29 +524,63 @@ class MasterCheckRequestTest {
 
     @Test fun vantagemSomaBonusNoTesteDoMestre() {
         val p = pkg()
-        val f = (p.buildFicha("hero", "Brokk", "", mapOf("forca" to 3, "agilidade" to 1, "mente" to 0), listOf("lutador", "esquivador")) as FichaBuild.Created).ficha
+        val f =
+            (
+                p.buildFicha(
+                    "hero",
+                    "Brokk",
+                    "",
+                    mapOf("forca" to 3, "agilidade" to 1, "mente" to 0),
+                    listOf("lutador", "esquivador"),
+                ) as FichaBuild.Created
+            ).ficha
         val provider = ScriptedProvider(listOf(pedido, fim("desvia")))
-        val c = PlayController(session(f), GameLoop(provider, menu = CheckMenu(p), playerTraits = { f.traits }), "hero", "hp", sheet = PlayerSheet(p, f))
+        val c =
+            PlayController(
+                session(f),
+                GameLoop(provider, menu = CheckMenu(p), playerTraits = { f.traits }),
+                "hero",
+                "hp",
+                sheet = PlayerSheet(p, f),
+            )
         c.submit("ando")
         c.rollPending()
         val roll = c.lines.last { it.author == Author.ROLL }.roll!!
         val base = p.check("esquiva", mapOf("agilidade" to 1), 0).modifier
-        assertEquals(base + 2, roll.modifier)      // o pedido não declara skill, mas o escopo "esquiva" é o id do teste
+        assertEquals(base + 2, roll.modifier) // o pedido não declara skill, mas o escopo "esquiva" é o id do teste
         assertTrue(roll.label.contains("+2"))
     }
 
     @Test fun semOTracoNaoHaBonus() {
-        val p = pkg(); val f = ficha(p)
+        val p = pkg()
+        val f = ficha(p)
         val provider = ScriptedProvider(listOf(pedido, fim("x")))
-        val c = PlayController(session(f), GameLoop(provider, menu = CheckMenu(p), playerTraits = { f.traits }), "hero", "hp", sheet = PlayerSheet(p, f))
-        c.submit("ando"); c.rollPending()
+        val c =
+            PlayController(
+                session(f),
+                GameLoop(provider, menu = CheckMenu(p), playerTraits = { f.traits }),
+                "hero",
+                "hp",
+                sheet = PlayerSheet(p, f),
+            )
+        c.submit("ando")
+        c.rollPending()
         val roll = c.lines.last { it.author == Author.ROLL }.roll!!
         assertEquals(p.check("esquiva", mapOf("agilidade" to 1), 0).modifier, roll.modifier)
     }
 
     @Test fun fichaMostraOBonusAoMestre() {
         val p = pkg()
-        val f = (p.buildFicha("hero", "Brokk", "", mapOf("forca" to 3, "agilidade" to 1, "mente" to 0), listOf("lutador", "esquivador")) as FichaBuild.Created).ficha
+        val f =
+            (
+                p.buildFicha(
+                    "hero",
+                    "Brokk",
+                    "",
+                    mapOf("forca" to 3, "agilidade" to 1, "mente" to 0),
+                    listOf("lutador", "esquivador"),
+                ) as FichaBuild.Created
+            ).ficha
         assertTrue("+2 em esquiva" in PlayerSheet(p, f).render(session(f).state, "hero")!!)
     }
 
@@ -531,21 +595,21 @@ class MasterCheckRequestTest {
         assertTrue(c.lines.isEmpty())
     }
 
-
     @Test fun controllerExibeTesteDeGrupoEPermiteDesfazer() {
         val p = pkg()
         val f = ficha(p)
         val c = PlayController(session(f), GameLoop(ScriptedProvider(emptyList()), menu = CheckMenu(p)), "hero", "hp")
         val spec = p.check("esquiva", mapOf("agilidade" to 1), 0)
-        assertTrue(c.resolveGroup(
-            listOf(spec.copy(label = "Batedor"), spec.copy(label = "Arqueiro")),
-            requiredSuccesses = 1,
-            participantNames = listOf("Batedor", "Arqueiro")
-        ) is PlayResult.Played)
+        assertTrue(
+            c.resolveGroup(
+                listOf(spec.copy(label = "Batedor"), spec.copy(label = "Arqueiro")),
+                requiredSuccesses = 1,
+                participantNames = listOf("Batedor", "Arqueiro"),
+            ) is PlayResult.Played,
+        )
         assertEquals(2, c.lines.count { it.author == Author.ROLL })
         assertTrue(c.lines.first().text.contains("Teste de grupo"))
         assertTrue(c.undo())
         assertTrue(c.lines.isEmpty())
     }
-
 }

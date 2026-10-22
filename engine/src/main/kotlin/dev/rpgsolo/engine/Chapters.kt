@@ -13,7 +13,7 @@ data class ChapterDigest(
     /** Chaves do que o jogador descobriu. */
     val discoveries: List<String> = emptyList(),
     val facts: List<String> = emptyList(),
-    val xpGained: Map<String, Int> = emptyMap()
+    val xpGained: Map<String, Int> = emptyMap(),
 )
 
 fun digestOf(events: List<Event>): ChapterDigest {
@@ -46,7 +46,7 @@ data class Chapter(
     val endMark: Int? = null,
     /** Resumo guardado uma só vez, ao encerrar (9.2.2). */
     val summary: String? = null,
-    val digest: ChapterDigest? = null
+    val digest: ChapterDigest? = null,
 ) {
     val isOpen: Boolean get() = endMark == null
 }
@@ -58,31 +58,43 @@ data class Chapter(
 class ChapterBook(maxEvents: Int = 200) {
     var maxEvents: Int = maxEvents
         private set
+
     init {
         require(maxEvents > 0) { "maxEvents deve ser positivo" }
     }
 
     private val list = mutableListOf<Chapter>()
     val chapters: List<Chapter> get() = list.toList()
-    fun restore(items: List<Chapter>) { list.clear(); list.addAll(items) }
+
+    fun restore(items: List<Chapter>) {
+        list.clear()
+        list.addAll(items)
+    }
+
     fun configureMaxEvents(value: Int) {
         require(value in 50..2000) { "tamanho do capítulo deve ficar entre 50 e 2000 eventos" }
         maxEvents = value
     }
+
     fun current(): Chapter? = list.lastOrNull()?.takeIf { it.isOpen }
 
-    fun open(session: CampaignSession, title: String): Chapter {
+    fun open(
+        session: CampaignSession,
+        title: String,
+    ): Chapter {
         require(title.isNotBlank()) { "capítulo sem título" }
         check(current() == null) { "já existe um capítulo aberto" }
         return Chapter(list.size + 1, title.trim(), session.mark()).also { list += it }
     }
 
     /** Verdadeiro quando o capítulo aberto já passou do tamanho configurado (9.2.3). */
-    fun shouldClose(session: CampaignSession): Boolean =
-        current()?.let { session.mark() - it.startMark >= maxEvents } ?: false
+    fun shouldClose(session: CampaignSession): Boolean = current()?.let { session.mark() - it.startMark >= maxEvents } ?: false
 
     /** Encerra o capítulo aberto. O resumo é gravado uma vez e nunca reescrito. */
-    fun close(session: CampaignSession, summary: String): Chapter {
+    fun close(
+        session: CampaignSession,
+        summary: String,
+    ): Chapter {
         val cur = checkNotNull(current()) { "não há capítulo aberto" }
         require(summary.isNotBlank()) { "resumo vazio" }
         val all = session.events // cópia única: início e fim vêm do mesmo instante
@@ -135,7 +147,7 @@ data class Quest(
     /** MU-07.3: magia que esta missão concede ao ser concluída; null = não concede. */
     val spellRewardId: String? = null,
     /** MU-07.3: true depois que a magia foi concedida (uma vez por missão). */
-    val spellGranted: Boolean = false
+    val spellGranted: Boolean = false,
 )
 
 /** Fase 9.3: missões e linha do tempo. */
@@ -150,10 +162,19 @@ class QuestLog {
     }
 
     fun get(id: String) = quests[id]
+
     fun active(): List<Quest> = quests.values.filter { it.status == QuestStatus.ACTIVE }
+
     fun all(): List<Quest> = quests.values.toList()
-    fun restore(items: List<Quest>, timeline: List<Pair<Int, String>>) {
-        quests.clear(); line.clear(); items.forEach { quests[it.id] = it }; line.addAll(timeline)
+
+    fun restore(
+        items: List<Quest>,
+        timeline: List<Pair<Int, String>>,
+    ) {
+        quests.clear()
+        line.clear()
+        items.forEach { quests[it.id] = it }
+        line.addAll(timeline)
     }
 
     fun completeObjective(id: String, index: Int, chapter: Int = 0) {
@@ -199,7 +220,10 @@ class QuestLog {
     }
 
     /** Evento importante, com o número do capítulo. */
-    fun note(chapter: Int, text: String) {
+    fun note(
+        chapter: Int,
+        text: String,
+    ) {
         require(text.isNotBlank()) { "evento vazio" }
         line += chapter to text.trim()
     }

@@ -4,13 +4,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class AgendaTest {
-    private fun session() = CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 3L, EngineConfig())).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER)),
-            CreateEntity(Entity("ana", "Ana", EntityKind.NPC)),
-            CreateEntity(Entity("rui", "Rui", EntityKind.NPC))
-        ))
-    }
+    private fun session() =
+        CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 3L, EngineConfig())).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER)),
+                    CreateEntity(Entity("ana", "Ana", EntityKind.NPC)),
+                    CreateEntity(Entity("rui", "Rui", EntityKind.NPC)),
+                ),
+            )
+        }
 
     @Test fun relacaoMudaELimita() {
         val s = session()
@@ -28,8 +31,10 @@ class AgendaTest {
         val s = session()
         val before = s.state.eventCount
         listOf(
-            ChangeRelation("ana", "ana", 5, "x"), ChangeRelation("ana", "nada", 5, "x"),
-            ChangeRelation("ana", "hero", 0, "x"), ChangeRelation("ana", "hero", 5, " ")
+            ChangeRelation("ana", "ana", 5, "x"),
+            ChangeRelation("ana", "nada", 5, "x"),
+            ChangeRelation("ana", "hero", 0, "x"),
+            ChangeRelation("ana", "hero", 5, " "),
         ).forEach { assertTrue(it.toString(), s.executeAll(listOf(it)) is ExecResult.Rejected) }
         assertEquals(before, s.state.eventCount)
     }

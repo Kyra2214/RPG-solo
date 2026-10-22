@@ -1,43 +1,58 @@
 package dev.rpgsolo.engine
 
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 
 /** Texto <-> objetos para salvar. Os nomes das classes entram no JSON: renomear um evento exige migração. */
 object Codec {
-    private val json = Json {
-        classDiscriminator = "t"
-        encodeDefaults = true
-        ignoreUnknownKeys = true
-    }
+    private val json =
+        Json {
+            classDiscriminator = "t"
+            encodeDefaults = true
+            ignoreUnknownKeys = true
+        }
 
     fun encode(e: Event): String = json.encodeToString(Event.serializer(), e)
+
     fun decodeEvent(s: String): Event = json.decodeFromString(Event.serializer(), s)
 
     fun encode(c: EngineConfig): String = json.encodeToString(EngineConfig.serializer(), c)
+
     fun decodeConfig(s: String): EngineConfig = json.decodeFromString(EngineConfig.serializer(), s)
 
     fun encode(s: GameState): String = json.encodeToString(GameState.serializer(), s)
+
     fun decodeState(s: String): GameState = json.decodeFromString(GameState.serializer(), s)
 
     fun encode(f: Ficha): String = json.encodeToString(Ficha.serializer(), f)
+
     fun decodeFicha(s: String): Ficha = json.decodeFromString(Ficha.serializer(), s)
 
     fun encodeChapters(value: List<Chapter>): String = json.encodeToString(ListSerializer(Chapter.serializer()), value)
+
     fun decodeChapters(value: String): List<Chapter> = json.decodeFromString(ListSerializer(Chapter.serializer()), value)
+
     fun encode(value: Chapter): String = json.encodeToString(Chapter.serializer(), value)
+
     fun decodeChapter(value: String): Chapter = json.decodeFromString(Chapter.serializer(), value)
+
     fun encode(value: Quest): String = json.encodeToString(Quest.serializer(), value)
+
     fun decodeQuest(value: String): Quest = json.decodeFromString(Quest.serializer(), value)
+
     fun encodeQuests(value: List<Quest>): String = json.encodeToString(ListSerializer(Quest.serializer()), value)
+
     fun decodeQuests(value: String): List<Quest> = json.decodeFromString(ListSerializer(Quest.serializer()), value)
+
     fun encodeTimeline(value: List<Pair<Int, String>>): String =
         json.encodeToString(ListSerializer(String.serializer()), value.map { "${it.first}\u0000${it.second}" })
-    fun decodeTimeline(value: String): List<Pair<Int, String>> = json.decodeFromString(ListSerializer(String.serializer()), value).map {
-        val split = it.split('\u0000', limit = 2)
-        split.first().toInt() to split.getOrElse(1) { "" }
-    }
+
+    fun decodeTimeline(value: String): List<Pair<Int, String>> =
+        json.decodeFromString(ListSerializer(String.serializer()), value).map {
+            val split = it.split('\u0000', limit = 2)
+            split.first().toInt() to split.getOrElse(1) { "" }
+        }
 }
 
 /** Dados que identificam uma campanha salva (a seed e a config são parte do que reproduz o estado). */
@@ -49,19 +64,37 @@ data class CampaignRecord(val id: String, val name: String, val seed: Long, val 
  */
 interface EventStore {
     fun createCampaign(record: CampaignRecord)
+
     fun campaign(id: String): CampaignRecord?
+
     /** Quantos eventos estão salvos. */
     fun size(campaignId: String): Int
+
     /** Eventos em ordem. */
     fun load(campaignId: String): List<String>
+
     /** Acrescenta [payloads] depois dos [size] eventos já salvos. Recusa se [expectedSize] != size atual. */
-    fun append(campaignId: String, expectedSize: Int, payloads: List<String>)
+    fun append(
+        campaignId: String,
+        expectedSize: Int,
+        payloads: List<String>,
+    )
+
     /** Mantém só os primeiros [newSize] eventos (desfazer). */
-    fun truncate(campaignId: String, newSize: Int)
+    fun truncate(
+        campaignId: String,
+        newSize: Int,
+    )
+
     /** Último snapshot do estado: (quantidade de eventos já aplicados, JSON do estado). Padrão: sem snapshots. */
     fun snapshot(campaignId: String): Pair<Int, String>? = null
+
     /** Guarda [stateJson] como o snapshot do estado após [eventCount] eventos, substituindo o anterior. Padrão: ignora. */
-    fun saveSnapshot(campaignId: String, eventCount: Int, stateJson: String) {}
+    fun saveSnapshot(
+        campaignId: String,
+        eventCount: Int,
+        stateJson: String,
+    ) {}
 }
 
 /** Implementação em memória: testes e uso sem banco. */
@@ -78,20 +111,29 @@ class InMemoryEventStore : EventStore {
 
     @Synchronized
     override fun campaign(id: String) = campaigns[id]
+
     @Synchronized
     override fun size(campaignId: String) = logs[campaignId]?.size ?: 0
+
     @Synchronized
     override fun load(campaignId: String) = logs[campaignId]?.toList() ?: emptyList()
 
     @Synchronized
-    override fun append(campaignId: String, expectedSize: Int, payloads: List<String>) {
+    override fun append(
+        campaignId: String,
+        expectedSize: Int,
+        payloads: List<String>,
+    ) {
         val log = requireNotNull(logs[campaignId]) { "campanha inexistente: $campaignId" }
         check(log.size == expectedSize) { "log mudou: esperado $expectedSize, atual ${log.size}" }
         log += payloads
     }
 
     @Synchronized
-    override fun truncate(campaignId: String, newSize: Int) {
+    override fun truncate(
+        campaignId: String,
+        newSize: Int,
+    ) {
         val log = requireNotNull(logs[campaignId]) { "campanha inexistente: $campaignId" }
         require(newSize in 0..log.size) { "tamanho inválido" }
         while (log.size > newSize) log.removeAt(log.size - 1)
@@ -113,9 +155,10 @@ class CampaignSession private constructor(
     val campaignId: String,
     /** Acesso direto ao motor NÃO é seguro entre threads: use [state], [events], [eventCount] e [atomically]. */
     val engine: GameEngine,
-    private val store: EventStore
+    private val store: EventStore,
 ) {
     private val lock = Any()
+
     /** Eventos cobertos pelo último snapshot salvo (M-08.3). */
     private var snapshotAt = 0
 
@@ -140,7 +183,7 @@ class CampaignSession private constructor(
         diceCount: Int = 1,
         diceSides: Int = 20,
         statKey: String? = null,
-        highestFirst: Boolean = true
+        highestFirst: Boolean = true,
     ): ExecResult = atomically { engine.rollInitiative(ids, diceCount, diceSides, statKey, highestFirst).also { save() } }
 
     /** Resolve um ataque no motor e salva as rolagens, o resultado e o dano confirmados. */
@@ -161,20 +204,32 @@ class CampaignSession private constructor(
         guaranteedCrit: Boolean = false,
         canCrit: Boolean = true,
         ignoreDefense: IgnoreDefenseSpec? = null,
-        damageResource: String = "hp"
-    ): UnifiedAttackResult = atomically {
-        engine.unifiedAttackBetween(attackerId, targetId, providers, attackStat, defenseStat, guaranteedCrit, canCrit, ignoreDefense, damageResource).also { save() }
-    }
+        damageResource: String = "hp",
+    ): UnifiedAttackResult =
+        atomically {
+            engine.unifiedAttackBetween(attackerId, targetId, providers, attackStat, defenseStat, guaranteedCrit, canCrit, ignoreDefense, damageResource).also {
+                save()
+            }
+        }
 
     /** MU-05.1: XP de missão concluída, uma vez, com teto por nível. */
-    fun awardQuestXp(quests: QuestLog, questId: String, entityId: String): ExecResult =
-        atomically { engine.awardQuestXp(quests, questId, entityId).also { save() } }
+    fun awardQuestXp(
+        quests: QuestLog,
+        questId: String,
+        entityId: String,
+    ): ExecResult = atomically { engine.awardQuestXp(quests, questId, entityId).also { save() } }
 
-    fun awardQuestMastery(quests: QuestLog, questId: String, entityId: String): ExecResult =
-        atomically { engine.awardQuestMastery(quests, questId, entityId).also { save() } }
+    fun awardQuestMastery(
+        quests: QuestLog,
+        questId: String,
+        entityId: String,
+    ): ExecResult = atomically { engine.awardQuestMastery(quests, questId, entityId).also { save() } }
 
-    fun awardQuestSpell(quests: QuestLog, questId: String, entityId: String): ExecResult =
-        atomically { engine.awardQuestSpell(quests, questId, entityId).also { save() } }
+    fun awardQuestSpell(
+        quests: QuestLog,
+        questId: String,
+        entityId: String,
+    ): ExecResult = atomically { engine.awardQuestSpell(quests, questId, entityId).also { save() } }
 
     fun mark(): Int = synchronized(lock) { engine.mark() }
 
@@ -193,9 +248,15 @@ class CampaignSession private constructor(
     val isSaved: Boolean get() = saveFailure == null
 
     /** Tenta gravar de novo o que ficou pendente. Devolve `null` se confirmou ou o motivo da falha. */
-    fun recover(): String? = atomically {
-        try { save(); null } catch (e: Exception) { e.message ?: e::class.simpleName ?: "falha ao gravar" }
-    }
+    fun recover(): String? =
+        atomically {
+            try {
+                save()
+                null
+            } catch (e: Exception) {
+                e.message ?: e::class.simpleName ?: "falha ao gravar"
+            }
+        }
 
     /** Sincroniza o log salvo com o do motor. Se falhar, [saveError] fica preenchido e a próxima operação tenta de novo. */
     fun save() {
@@ -203,8 +264,9 @@ class CampaignSession private constructor(
             try {
                 val saved = store.size(campaignId)
                 val events = engine.events
-                if (events.size < saved) store.truncate(campaignId, events.size)
-                else if (events.size > saved) {
+                if (events.size < saved) {
+                    store.truncate(campaignId, events.size)
+                } else if (events.size > saved) {
                     store.append(campaignId, saved, events.subList(saved, events.size).map { Codec.encode(it) })
                 }
                 saveFailure = null
@@ -224,24 +286,32 @@ class CampaignSession private constructor(
     }
 
     companion object {
-        fun create(store: EventStore, record: CampaignRecord): CampaignSession {
+        fun create(
+            store: EventStore,
+            record: CampaignRecord,
+        ): CampaignSession {
             store.createCampaign(record)
             return CampaignSession(record.id, GameEngine(record.seed, record.config), store)
         }
 
         /** Reabre uma campanha salva. Erro claro se o registro ou o log estiverem ilegíveis. */
-        fun open(store: EventStore, campaignId: String): CampaignSession {
+        fun open(
+            store: EventStore,
+            campaignId: String,
+        ): CampaignSession {
             val record = requireNotNull(store.campaign(campaignId)) { "campanha não encontrada: $campaignId" }
-            val events = store.load(campaignId).mapIndexed { i, raw ->
-                try {
-                    Codec.decodeEvent(raw)
-                } catch (e: Exception) {
-                    throw IllegalStateException("evento $i da campanha $campaignId ilegível", e)
+            val events =
+                store.load(campaignId).mapIndexed { i, raw ->
+                    try {
+                        Codec.decodeEvent(raw)
+                    } catch (e: Exception) {
+                        throw IllegalStateException("evento $i da campanha $campaignId ilegível", e)
+                    }
                 }
-            }
-            val snap = runCatching { store.snapshot(campaignId) }.getOrNull()
-                ?.takeIf { it.first in 0..events.size }
-                ?.let { (count, raw) -> runCatching { Codec.decodeState(raw) }.getOrNull()?.takeIf { it.eventCount == count } }
+            val snap =
+                runCatching { store.snapshot(campaignId) }.getOrNull()
+                    ?.takeIf { it.first in 0..events.size }
+                    ?.let { (count, raw) -> runCatching { Codec.decodeState(raw) }.getOrNull()?.takeIf { it.eventCount == count } }
             val engine = GameEngine.restore(record.seed, record.config, events, snap)
             return CampaignSession(campaignId, engine, store).also { it.snapshotAt = snap?.eventCount ?: 0 }
         }

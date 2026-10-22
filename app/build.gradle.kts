@@ -3,6 +3,13 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
+val releaseTag =
+    System.getenv("GITHUB_REF_NAME")
+        ?.takeIf { System.getenv("GITHUB_REF_TYPE") == "tag" && it.matches(Regex("v?[0-9]+\\.[0-9]+\\.[0-9]+([-.][0-9A-Za-z.-]+)?")) }
+val configuredVersionName = System.getenv("VERSION_NAME")?.takeIf { it.isNotBlank() }
+val configuredVersionCode = System.getenv("VERSION_CODE")?.toIntOrNull()?.takeIf { it > 0 }
+
 android {
     namespace = "dev.rpgsolo"
     compileSdk = 35
@@ -10,14 +17,27 @@ android {
         applicationId = "dev.rpgsolo"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = configuredVersionCode ?: 1
+        versionName = releaseTag?.removePrefix("v") ?: configuredVersionName ?: "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
     testOptions { animationsDisabled = true }
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+        }
+    }
 }
 dependencies {
     implementation(project(":engine"))

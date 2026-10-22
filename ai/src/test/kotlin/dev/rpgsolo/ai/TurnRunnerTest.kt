@@ -15,13 +15,17 @@ import org.junit.Test
 
 class TurnRunnerTest {
     private val store = InMemoryEventStore()
-    private val session = CampaignSession.create(store, CampaignRecord("c1", "Teste", 1L, EngineConfig())).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6))))
-        ))
-    }
+    private val session =
+        CampaignSession.create(store, CampaignRecord("c1", "Teste", 1L, EngineConfig())).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))),
+                    CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6)))),
+                ),
+            )
+        }
     private val request = AiRequest(listOf(AiMessage(Role.USER, "ataco o orc")))
+
     private fun orcHp() = session.state.entities.getValue("orc").resources.getValue("hp").current
 
     private val dano3 = """{"narrative":"A lâmina acerta.","proposals":[{"type":"damage","entityId":"orc","resource":"hp","amount":3}]}"""

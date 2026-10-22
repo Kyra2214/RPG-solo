@@ -1,9 +1,9 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.Ambientacao
-import dev.rpgsolo.engine.Campanha
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
+import dev.rpgsolo.engine.Campanha
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.InMemoryEventStore
 import dev.rpgsolo.engine.RegraAdicional
@@ -22,6 +22,7 @@ import java.io.File
  */
 class AnaoCyberpunkPorPacoteTest {
     private fun dir(path: String): File? = listOf(path, "rules/$path", "../$path").map(::File).firstOrNull { it.exists() }
+
     private fun files(d: File) = d.listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }
 
     private fun packages(): List<RulePackage> {
@@ -77,7 +78,10 @@ class AnaoCyberpunkPorPacoteTest {
         val rule = RegraAdicional("maq", "Máquinas de combate", "opera exoesqueletos", effects = mapOf("maquinas_de_combate" to 1))
         val preview = p.previewAdaptation(ficha, rule)
         assertEquals(RuleOrigin.ADAPTACAO, rule.origin)
-        assertTrue("$id: alvo desconhecido exige aprovação", preview.requiresApproval && preview.unknownTargets.contains("maquinas_de_combate"))
+        assertTrue(
+            "$id: alvo desconhecido exige aprovação",
+            preview.requiresApproval && preview.unknownTargets.contains("maquinas_de_combate"),
+        )
         assertTrue("$id: recusa sem alvo conhecido", p.applyAdaptation(ficha, rule.copy(approved = true)) is AdaptationResult.Refused)
 
         // 8. valida pelo motor e salva o estado
@@ -88,11 +92,15 @@ class AnaoCyberpunkPorPacoteTest {
             session.check(p.check(c.id, ficha.stats, diff))
         }
         assertTrue("$id: estado coerente", validateState(session.state).isEmpty())
-        val reaberta = CampaignSession.open(InMemoryEventStore().also { st ->
-            // copia o log para outro armazenamento, como um backup/restauração
-            val text = dev.rpgsolo.engine.Backup.export(storeOf(session), session.campaignId)
-            dev.rpgsolo.engine.Backup.import(st, text)
-        }, session.campaignId)
+        val reaberta =
+            CampaignSession.open(
+                InMemoryEventStore().also { st ->
+                    // copia o log para outro armazenamento, como um backup/restauração
+                    val text = dev.rpgsolo.engine.Backup.export(storeOf(session), session.campaignId)
+                    dev.rpgsolo.engine.Backup.import(st, text)
+                },
+                session.campaignId,
+            )
         assertEquals("$id: estado após reabrir", session.state, reaberta.state)
     }
 

@@ -12,11 +12,12 @@ data class CurseDefinition(
     val resistanceDifficulty: Int?,
     val durationRounds: Int?,
     val removalMethods: List<String>,
-    val effects: List<SkillEffectSpec>
+    val effects: List<SkillEffectSpec>,
 )
 
 data class CurseCatalogResult(val curses: List<CurseDefinition>, val errors: List<String>) {
     val valid: Boolean get() = errors.isEmpty()
+
     fun find(id: String): CurseDefinition? = curses.firstOrNull { it.id == id }
 }
 
@@ -41,7 +42,9 @@ object CurseCatalogLoader {
             }
             try {
                 require(idPattern.matches(fields[0])) { "id inválido" }
-                require(fields[1].isNotBlank() && fields[2].isNotBlank() && fields[3].isNotBlank()) { "nome, descrição e origem são obrigatórios" }
+                require(
+                    fields[1].isNotBlank() && fields[2].isNotBlank() && fields[3].isNotBlank(),
+                ) { "nome, descrição e origem são obrigatórios" }
                 val resistanceId = fields[4].takeUnless { it.isBlank() || it == "-" }
                 val difficulty = fields[5].takeUnless { it.isBlank() || it == "-" }?.toInt()
                 val duration = fields[6].takeUnless { it.isBlank() || it == "-" }?.toInt()
@@ -50,24 +53,31 @@ object CurseCatalogLoader {
                 require(duration == null || duration > 0) { "duração inválida" }
                 val removal = fields[7].split(",").map(String::trim).filter { it.isNotBlank() && it != "-" }
                 require(removal.isNotEmpty()) { "maldição precisa declarar ao menos um método de remoção" }
-                val effects = fields[8].takeUnless { it.isBlank() || it == "-" }?.split(";")?.map { rawEffect ->
-                    val parts = rawEffect.split(",").map(String::trim)
-                    require(parts.size == 7) { "efeito '$rawEffect' precisa de 7 partes" }
-                    require(idPattern.matches(parts[0]) && idPattern.matches(parts[1]) && idPattern.matches(parts[4])) { "id de efeito, alvo ou grupo inválido" }
-                    val effectDuration = parts[5].takeUnless { it.isBlank() || it == "-" }?.toInt()
-                    SkillEffectSpec(
-                        id = parts[0],
-                        target = parts[1],
-                        baseValue = parts[2].toInt(),
-                        perLevel = parts[3].toInt(),
-                        stackingGroup = parts[4],
-                        durationRounds = effectDuration,
-                        conditionId = parts[6].takeUnless { it.isBlank() || it == "-" },
-                        recipient = SkillEffectRecipient.SELF
-                    )
-                }.orEmpty()
+                val effects =
+                    fields[8].takeUnless { it.isBlank() || it == "-" }?.split(";")?.map { rawEffect ->
+                        val parts = rawEffect.split(",").map(String::trim)
+                        require(parts.size == 7) { "efeito '$rawEffect' precisa de 7 partes" }
+                        require(idPattern.matches(parts[0]) && idPattern.matches(parts[1]) && idPattern.matches(parts[4])) {
+                            "id de efeito, alvo ou grupo inválido"
+                        }
+                        val effectDuration = parts[5].takeUnless { it.isBlank() || it == "-" }?.toInt()
+                        SkillEffectSpec(
+                            id = parts[0],
+                            target = parts[1],
+                            baseValue = parts[2].toInt(),
+                            perLevel = parts[3].toInt(),
+                            stackingGroup = parts[4],
+                            durationRounds = effectDuration,
+                            conditionId = parts[6].takeUnless { it.isBlank() || it == "-" },
+                            recipient = SkillEffectRecipient.SELF,
+                        )
+                    }.orEmpty()
                 require(effects.size >= 2) { "maldição precisa declarar benefício e contrapartida em efeitos tipados" }
-                require(effects.any { it.baseValue > 0 } && effects.any { it.baseValue < 0 }) { "maldição precisa de pelo menos um benefício e uma desvantagem mecânica" }
+                require(
+                    effects.any {
+                        it.baseValue > 0
+                    } && effects.any { it.baseValue < 0 },
+                ) { "maldição precisa de pelo menos um benefício e uma desvantagem mecânica" }
                 require(effects.all { it.durationRounds == duration }) {
                     "duração dos efeitos deve coincidir com a duração da maldição"
                 }

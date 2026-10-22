@@ -11,7 +11,13 @@ class ProvidersTest {
     private val req = AiRequest(listOf(AiMessage(Role.SYSTEM, "regras"), AiMessage(Role.USER, "oi")), jsonMode = true)
 
     private fun error(block: () -> Unit): AiError =
-        try { block(); fail("deveria falhar"); throw IllegalStateException() } catch (e: AiError) { e }
+        try {
+            block()
+            fail("deveria falhar")
+            throw IllegalStateException()
+        } catch (e: AiError) {
+            e
+        }
 
     @Test fun chaveMascaradaNaConfig() {
         assertFalse("segredo" in cfg.toString())
@@ -21,12 +27,23 @@ class ProvidersTest {
     }
 
     @Test fun endpointExigeHttps() {
-        try { ProviderConfig("http://x", "m", "k"); fail() } catch (e: IllegalArgumentException) { }
+        try {
+            ProviderConfig("http://x", "m", "k")
+            fail()
+        } catch (e: IllegalArgumentException) {
+        }
     }
 
     @Test fun openAiMontaPedidoELeResposta() {
-        val t = FakeTransport(listOf(HttpReply(200,
-            """{"choices":[{"message":{"content":"olá"}}],"usage":{"prompt_tokens":10,"completion_tokens":2}}""")))
+        val t =
+            FakeTransport(
+                listOf(
+                    HttpReply(
+                        200,
+                        """{"choices":[{"message":{"content":"olá"}}],"usage":{"prompt_tokens":10,"completion_tokens":2}}""",
+                    ),
+                ),
+            )
         val r = OpenAiCompatibleProvider(cfg, t).complete(req)
         assertEquals("olá", r.text)
         assertEquals(AiUsage(10, 2), r.usage)
@@ -36,8 +53,15 @@ class ProvidersTest {
     }
 
     @Test fun anthropicSeparaSystemELeBlocosDeTexto() {
-        val t = FakeTransport(listOf(HttpReply(200,
-            """{"content":[{"type":"text","text":"a"},{"type":"text","text":"b"}],"usage":{"input_tokens":5,"output_tokens":1}}""")))
+        val t =
+            FakeTransport(
+                listOf(
+                    HttpReply(
+                        200,
+                        """{"content":[{"type":"text","text":"a"},{"type":"text","text":"b"}],"usage":{"input_tokens":5,"output_tokens":1}}""",
+                    ),
+                ),
+            )
         val r = AnthropicProvider(cfg, t).complete(req)
         assertEquals("ab", r.text)
         assertEquals("sk-segredo-1234", t.lastHeaders["x-api-key"])
@@ -46,8 +70,10 @@ class ProvidersTest {
     }
 
     @Test fun statusViraErroClaro() {
-        fun p(status: Int, headers: Map<String, String> = emptyMap()) =
-            OpenAiCompatibleProvider(cfg, FakeTransport(listOf(HttpReply(status, "{}", headers))))
+        fun p(
+            status: Int,
+            headers: Map<String, String> = emptyMap(),
+        ) = OpenAiCompatibleProvider(cfg, FakeTransport(listOf(HttpReply(status, "{}", headers))))
         assertTrue(error { p(401).complete(req) } is AiError.InvalidKey)
         val limit = error { p(429, mapOf("retry-after" to "3")).complete(req) } as AiError.RateLimited
         assertEquals(3000L, limit.retryAfterMs)

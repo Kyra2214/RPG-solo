@@ -10,7 +10,7 @@ data class CritCheck(
     val threshold: Int,
     val guaranteed: Boolean,
     val roll: RollResult?,
-    val critical: Boolean
+    val critical: Boolean,
 )
 
 /** Habilidade que pode ignorar defesa (MU-02.3). [percent] é o dano em % do valor efetivo cheio. */
@@ -18,7 +18,7 @@ data class IgnoreDefenseSpec(
     val modifiers: List<Modifier> = emptyList(),
     val guaranteed: Boolean = false,
     val cooldownRounds: Int = 0,
-    val percent: Int = 150
+    val percent: Int = 150,
 ) {
     init {
         require(cooldownRounds >= 0) { "recarga negativa" }
@@ -33,7 +33,7 @@ data class IgnoreCheck(
     val guaranteed: Boolean,
     val roll: RollResult?,
     val success: Boolean,
-    val cooldownRounds: Int
+    val cooldownRounds: Int,
 )
 
 /**
@@ -50,7 +50,7 @@ data class ClashResult(
     val crit: CritCheck?,
     val ignore: IgnoreCheck? = null,
     /** Defesa aplicada exatamente uma vez: dano = max(0, ataque − defesa). */
-    val damage: Int
+    val damage: Int,
 ) {
     val ignoredDefense: Boolean get() = ignore?.success == true
     val attackTotal: Int get() = attackRoll?.total ?: attack.value
@@ -78,7 +78,7 @@ object UnifiedCombat {
         critModifiers: List<Modifier> = emptyList(),
         guaranteedCrit: Boolean = false,
         canCrit: Boolean = true,
-        ignoreDefense: IgnoreDefenseSpec? = null
+        ignoreDefense: IgnoreDefenseSpec? = null,
     ): ClashResult {
         val crit = if (canCrit) checkCrit(critModifiers, guaranteedCrit, dice) else null
         val ignore = ignoreDefense?.let { checkIgnore(it, dice) }
@@ -93,7 +93,10 @@ object UnifiedCombat {
         return ClashResult(attack, defense, attackRoll, defenseRoll, crit, ignore, damageOf(attackTotal, defenseRoll.total))
     }
 
-    fun checkIgnore(spec: IgnoreDefenseSpec, dice: Dice): IgnoreCheck {
+    fun checkIgnore(
+        spec: IgnoreDefenseSpec,
+        dice: Dice,
+    ): IgnoreCheck {
         val bonus = ModifierAggregator.aggregate(IGNORE_TARGET, 0, spec.modifiers)
         val threshold = (IGNORE_BASE_THRESHOLD - bonus.value).coerceIn(1, IGNORE_BASE_THRESHOLD)
         if (spec.guaranteed) return IgnoreCheck(bonus, threshold, true, null, true, spec.cooldownRounds)
@@ -101,7 +104,11 @@ object UnifiedCombat {
         return IgnoreCheck(bonus, threshold, false, roll, roll.total >= threshold, spec.cooldownRounds)
     }
 
-    fun checkCrit(critModifiers: List<Modifier>, guaranteed: Boolean, dice: Dice): CritCheck {
+    fun checkCrit(
+        critModifiers: List<Modifier>,
+        guaranteed: Boolean,
+        dice: Dice,
+    ): CritCheck {
         val bonus = ModifierAggregator.aggregate(CRIT_TARGET, 0, critModifiers)
         val threshold = (CRIT_BASE_THRESHOLD - bonus.value).coerceIn(1, CRIT_BASE_THRESHOLD)
         if (guaranteed) return CritCheck(bonus, threshold, true, null, true)
@@ -110,7 +117,10 @@ object UnifiedCombat {
     }
 
     /** Única fórmula de dano; o resultado nunca é negativo e não há dano mínimo de 1. */
-    fun damageOf(attackTotal: Int, defenseTotal: Int): Int = maxOf(0, attackTotal - defenseTotal)
+    fun damageOf(
+        attackTotal: Int,
+        defenseTotal: Int,
+    ): Int = maxOf(0, attackTotal - defenseTotal)
 }
 
 /** Entrada do confronto unificado. Os breakdowns vêm do motor/pacote (agregador), nunca da narração da IA. */
@@ -123,11 +133,12 @@ data class UnifiedAttackSpec(
     val guaranteedCrit: Boolean = false,
     val canCrit: Boolean = true,
     val ignoreDefense: IgnoreDefenseSpec? = null,
-    val damageResource: String = "hp"
+    val damageResource: String = "hp",
 )
 
 sealed interface UnifiedAttackResult {
     data class Resolved(val clash: ClashResult, val events: List<Event>) : UnifiedAttackResult
+
     data class Rejected(val reason: String) : UnifiedAttackResult
 }
 
@@ -137,7 +148,11 @@ sealed interface UnifiedAttackResult {
  * versão por tipo de entidade: jogador, NPC, aliado e chefe usam as mesmas fontes e o mesmo cálculo.
  */
 fun interface ModifierProvider {
-    fun modifiers(state: GameState, entity: Entity, target: String): List<Modifier>
+    fun modifiers(
+        state: GameState,
+        entity: Entity,
+        target: String,
+    ): List<Modifier>
 }
 
 object CombatantValues {
@@ -147,14 +162,19 @@ object CombatantValues {
         entityId: String,
         target: String,
         providers: List<ModifierProvider>,
-        baseStat: String = target
+        baseStat: String = target,
     ): EffectiveBreakdown? {
         val entity = state.entities[entityId] ?: return null
         val modifiers = providers.flatMap { it.modifiers(state, entity, target) }
         return ModifierAggregator.aggregate(target, entity.stats[baseStat] ?: 0, modifiers)
     }
 
-    fun modifiers(state: GameState, entityId: String, target: String, providers: List<ModifierProvider>): List<Modifier> {
+    fun modifiers(
+        state: GameState,
+        entityId: String,
+        target: String,
+        providers: List<ModifierProvider>,
+    ): List<Modifier> {
         val entity = state.entities[entityId] ?: return emptyList()
         return providers.flatMap { it.modifiers(state, entity, target) }.filter { it.target == target }
     }

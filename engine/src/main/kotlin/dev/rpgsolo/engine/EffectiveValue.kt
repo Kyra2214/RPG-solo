@@ -4,13 +4,21 @@ package dev.rpgsolo.engine
 data class DiceExpression(val count: Int, val sides: Int, val modifier: Int) {
     fun roll(dice: Dice): RollResult = dice.roll(count, sides, modifier)
 
-    override fun toString(): String = "${count}d$sides${if (modifier == 0) "" else if (modifier > 0) "+$modifier" else "$modifier"}"
+    override fun toString(): String =
+        "${count}d$sides${if (modifier == 0) {
+            ""
+        } else if (modifier > 0) {
+            "+$modifier"
+        } else {
+            "$modifier"
+        }}"
 }
 
 object EffectiveValue {
     /** Faixa descrita na regra original; fora dela vale a extensão do MU-01.2. */
     const val MIN = 3
     const val MAX = 12
+
     /** Limite de dados de [Dice.roll]; acima dele o excedente vira bônus. */
     const val MAX_DICE = 100
 

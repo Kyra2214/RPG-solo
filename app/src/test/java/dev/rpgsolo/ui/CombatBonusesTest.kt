@@ -10,7 +10,7 @@ class CombatBonusesTest {
         val race = ExternalBonus("ataque", 1, "Traço racial", "race:combat#0")
         assertEquals(
             listOf(passive, race),
-            mergePassiveAndCatalogBonuses(listOf(passive), listOf(race))
+            mergePassiveAndCatalogBonuses(listOf(passive), listOf(race)),
         )
     }
 
@@ -20,7 +20,7 @@ class CombatBonusesTest {
         val distinct = ExternalBonus("defesa", 1, "Traço racial", "race:defense#0")
         assertEquals(
             listOf(passive, distinct),
-            mergePassiveAndCatalogBonuses(listOf(passive, duplicate), listOf(distinct))
+            mergePassiveAndCatalogBonuses(listOf(passive, duplicate), listOf(distinct)),
         )
     }
 }

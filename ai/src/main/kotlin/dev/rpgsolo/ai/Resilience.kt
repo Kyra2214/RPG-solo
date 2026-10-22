@@ -19,7 +19,7 @@ data class RetryPolicy(
     val maxAttempts: Int = 3,
     val baseDelayMs: Long = 1_000,
     val factor: Double = 2.0,
-    val maxDelayMs: Long = 30_000
+    val maxDelayMs: Long = 30_000,
 ) {
     init {
         require(maxAttempts >= 1) { "maxAttempts deve ser >= 1" }
@@ -27,21 +27,23 @@ data class RetryPolicy(
     }
 
     /** Espera antes da retentativa [retryNumber] (1 = primeira retentativa). */
-    fun delayBefore(retryNumber: Int): Long =
-        minOf(maxDelayMs, (baseDelayMs * factor.pow(retryNumber - 1)).toLong())
+    fun delayBefore(retryNumber: Int): Long = minOf(maxDelayMs, (baseDelayMs * factor.pow(retryNumber - 1)).toLong())
 }
 
 /** Repete só erros que valem a pena repetir (sem internet, limite, falha do servidor). Chave inválida falha na hora. */
 class RetryingProvider(
     private val inner: AiProvider,
     private val policy: RetryPolicy = RetryPolicy(),
-    private val sleeper: Sleeper = ThreadSleeper
+    private val sleeper: Sleeper = ThreadSleeper,
 ) : AiProvider {
     override val name: String get() = inner.name
 
     override fun complete(request: AiRequest): AiResponse = retry { inner.complete(request) }
 
-    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse {
+    override fun stream(
+        request: AiRequest,
+        onChunk: (String) -> Unit,
+    ): AiResponse {
         var attempt = 1
         var emitted = false
         while (true) {
@@ -81,7 +83,7 @@ class RateLimiter(
     private val maxRequests: Int,
     private val windowMs: Long,
     private val clock: () -> Long = { System.currentTimeMillis() },
-    private val sleeper: Sleeper = ThreadSleeper
+    private val sleeper: Sleeper = ThreadSleeper,
 ) {
     init {
         require(maxRequests >= 1 && windowMs > 0) { "limite inválido" }
@@ -91,16 +93,17 @@ class RateLimiter(
 
     fun acquire() {
         while (true) {
-            val wait = synchronized(this) {
-                val now = clock()
-                while (stamps.isNotEmpty() && now - stamps.first() >= windowMs) stamps.removeFirst()
-                if (stamps.size < maxRequests) {
-                    stamps.addLast(now)
-                    0L
-                } else {
-                    windowMs - (now - stamps.first())
+            val wait =
+                synchronized(this) {
+                    val now = clock()
+                    while (stamps.isNotEmpty() && now - stamps.first() >= windowMs) stamps.removeFirst()
+                    if (stamps.size < maxRequests) {
+                        stamps.addLast(now)
+                        0L
+                    } else {
+                        windowMs - (now - stamps.first())
+                    }
                 }
-            }
             if (wait <= 0L) return
             sleeper.sleep(wait)
         }
@@ -115,7 +118,10 @@ class RateLimitedProvider(private val inner: AiProvider, private val limiter: Ra
         return inner.complete(request)
     }
 
-    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse {
+    override fun stream(
+        request: AiRequest,
+        onChunk: (String) -> Unit,
+    ): AiResponse {
         limiter.acquire()
         return inner.stream(request, onChunk)
     }
@@ -125,6 +131,7 @@ class RateLimitedProvider(private val inner: AiProvider, private val limiter: Ra
 class UsageTracker {
     var calls = 0
         private set
+
     /** Total de entrada, incluindo tokens lidos/criados no cache. */
     var inputTokens = 0L
         private set
@@ -137,7 +144,11 @@ class UsageTracker {
     private var uncachedInputTokens = 0L
 
     @Synchronized
-    fun record(usage: AiUsage?, request: AiRequest, response: AiResponse) {
+    fun record(
+        usage: AiUsage?,
+        request: AiRequest,
+        response: AiResponse,
+    ) {
         calls++
         if (usage == null) {
             val estimated = TokenEstimator.estimate(request).toLong()
@@ -157,8 +168,10 @@ class UsageTracker {
 
     /** Estimativa conservadora: sem preços específicos, tokens em cache usam o preço normal de entrada. */
     @Synchronized
-    fun estimateCost(inputPerMillion: Double, outputPerMillion: Double): Double =
-        estimateCost(inputPerMillion, outputPerMillion, inputPerMillion, inputPerMillion)
+    fun estimateCost(
+        inputPerMillion: Double,
+        outputPerMillion: Double,
+    ): Double = estimateCost(inputPerMillion, outputPerMillion, inputPerMillion, inputPerMillion)
 
     /** Preços por milhão informados pelo usuário; cache read e cache creation podem ter tarifas diferentes. */
     @Synchronized
@@ -166,7 +179,7 @@ class UsageTracker {
         inputPerMillion: Double,
         outputPerMillion: Double,
         cacheReadPerMillion: Double,
-        cacheCreationPerMillion: Double
+        cacheCreationPerMillion: Double,
     ): Double =
         uncachedInputTokens / 1_000_000.0 * inputPerMillion +
             cacheReadInputTokens / 1_000_000.0 * cacheReadPerMillion +
@@ -177,9 +190,10 @@ class UsageTracker {
 class UsageTrackingProvider(private val inner: AiProvider, private val tracker: UsageTracker) : AiProvider {
     override val name: String get() = inner.name
 
-    override fun complete(request: AiRequest): AiResponse =
-        inner.complete(request).also { tracker.record(it.usage, request, it) }
+    override fun complete(request: AiRequest): AiResponse = inner.complete(request).also { tracker.record(it.usage, request, it) }
 
-    override fun stream(request: AiRequest, onChunk: (String) -> Unit): AiResponse =
-        inner.stream(request, onChunk).also { tracker.record(it.usage, request, it) }
+    override fun stream(
+        request: AiRequest,
+        onChunk: (String) -> Unit,
+    ): AiResponse = inner.stream(request, onChunk).also { tracker.record(it.usage, request, it) }
 }

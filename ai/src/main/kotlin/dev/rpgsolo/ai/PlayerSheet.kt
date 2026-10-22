@@ -25,17 +25,22 @@ enum class SheetLevel { BRIEF, FULL, ROUND }
 class PlayerSheet(
     private val pkg: RulePackage? = null,
     private val ficha: Ficha? = null,
-    private val characterChoices: String = ""
+    private val characterChoices: String = "",
 ) {
     /** Ordem e rótulo dos tipos de traço; tipos que o pacote inventar caem no fim com o próprio nome. */
-    private val typeLabels = linkedMapOf(
-        "vantagem" to "Vantagens",
-        "poder" to "Poderes",
-        "desvantagem" to "Desvantagens",
-        "pericia" to "Perícias"
-    )
+    private val typeLabels =
+        linkedMapOf(
+            "vantagem" to "Vantagens",
+            "poder" to "Poderes",
+            "desvantagem" to "Desvantagens",
+            "pericia" to "Perícias",
+        )
 
-    fun render(state: GameState, playerId: String, level: SheetLevel = SheetLevel.FULL): String? {
+    fun render(
+        state: GameState,
+        playerId: String,
+        level: SheetLevel = SheetLevel.FULL,
+    ): String? {
         val e = state.entities[playerId] ?: return null
         return when (level) {
             SheetLevel.FULL -> full(e, state, playerId)
@@ -44,41 +49,58 @@ class PlayerSheet(
         }
     }
 
-    private fun full(e: Entity, state: GameState, playerId: String): String = buildString {
-        append("Ficha do jogador (PRIVADA: use para decidir o que é possível e para conduzir o combate; ")
-        append("nunca recite números, pontos ou nomes de mecânica ao jogador):")
-        append("\n- Nome: ").append(e.name)
-        ficha?.concept?.takeIf { it.isNotBlank() }?.let { append("\n- Conceito: ").append(it) }
-        characterChoices.takeIf { it.isNotBlank() }?.let { append("\n- Raça/linhagem, classe, profissão e maldições (lore do catálogo; sem regras inventadas):\n").append(it) }
-        append("\n- Nível ").append(e.level)
-        if (!e.alive) append(" (MORTO)")
-        if (e.stats.isNotEmpty()) {
-            append("\n- Atributos: ").append(e.stats.entries.joinToString(", ") { (id, v) -> "${statName(id)} $v" })
+    private fun full(
+        e: Entity,
+        state: GameState,
+        playerId: String,
+    ): String =
+        buildString {
+            append("Ficha do jogador (PRIVADA: use para decidir o que é possível e para conduzir o combate; ")
+            append("nunca recite números, pontos ou nomes de mecânica ao jogador):")
+            append("\n- Nome: ").append(e.name)
+            ficha?.concept?.takeIf { it.isNotBlank() }?.let { append("\n- Conceito: ").append(it) }
+            characterChoices.takeIf {
+                it.isNotBlank()
+            }?.let { append("\n- Raça/linhagem, classe, profissão e maldições (lore do catálogo; sem regras inventadas):\n").append(it) }
+            append("\n- Nível ").append(e.level)
+            if (!e.alive) append(" (MORTO)")
+            if (e.stats.isNotEmpty()) {
+                append("\n- Atributos: ").append(e.stats.entries.joinToString(", ") { (id, v) -> "${statName(id)} $v" })
+            }
+            liveStatus(e, state, playerId)?.let { append("\n- ").append(it) }
+            val items = state.inventory[playerId].orEmpty().filterValues { it > 0 }
+            if (items.isNotEmpty()) {
+                append("\n- Itens: ").append(items.entries.joinToString(", ") { (k, n) -> if (n > 1) "$k x$n" else k })
+            }
+            traitLines().forEach { append("\n").append(it) }
         }
-        liveStatus(e, state, playerId)?.let { append("\n- ").append(it) }
-        val items = state.inventory[playerId].orEmpty().filterValues { it > 0 }
-        if (items.isNotEmpty()) {
-            append("\n- Itens: ").append(items.entries.joinToString(", ") { (k, n) -> if (n > 1) "$k x$n" else k })
+
+    private fun brief(e: Entity): String =
+        buildString {
+            append("Personagem do jogador (resumo privado; não recite): ").append(e.name).append(", nível ").append(e.level)
+            ficha?.concept?.takeIf { it.isNotBlank() }?.let { append(" — ").append(it) }
+            characterChoices.takeIf { it.isNotBlank() }?.let { append("\n").append(it) }
+            if (!e.alive) append(" (MORTO)")
+            traitNames().forEach { append("\n").append(it) }
         }
-        traitLines().forEach { append("\n").append(it) }
-    }
 
-    private fun brief(e: Entity): String = buildString {
-        append("Personagem do jogador (resumo privado; não recite): ").append(e.name).append(", nível ").append(e.level)
-        ficha?.concept?.takeIf { it.isNotBlank() }?.let { append(" — ").append(it) }
-        characterChoices.takeIf { it.isNotBlank() }?.let { append("\n").append(it) }
-        if (!e.alive) append(" (MORTO)")
-        traitNames().forEach { append("\n").append(it) }
-    }
-
-    private fun round(e: Entity, state: GameState, playerId: String): String = buildString {
-        append("Status do jogador nesta rodada (privado): ")
-        append(liveStatus(e, state, playerId) ?: "sem recursos nem condições")
-        append("\n").append(brief(e))
-    }
+    private fun round(
+        e: Entity,
+        state: GameState,
+        playerId: String,
+    ): String =
+        buildString {
+            append("Status do jogador nesta rodada (privado): ")
+            append(liveStatus(e, state, playerId) ?: "sem recursos nem condições")
+            append("\n").append(brief(e))
+        }
 
     /** "Recursos agora: Vida 6/10 · Condições: Envenenado (...)" ou null se não há nenhum dos dois. */
-    private fun liveStatus(e: Entity, state: GameState, playerId: String): String? {
+    private fun liveStatus(
+        e: Entity,
+        state: GameState,
+        playerId: String,
+    ): String? {
         val parts = mutableListOf<String>()
         if (e.resources.isNotEmpty()) {
             parts += "Recursos agora: " + e.resources.entries.joinToString(", ") { (id, r) -> "${resourceName(id)} ${r.current}/${r.max}" }

@@ -8,9 +8,13 @@ package dev.rpgsolo.engine
  * or explicit actions to those existing resolvers.
  */
 enum class SkillCategory { OFFENSE, DEFENSE, BUFF, SUPPORT, PASSIVE, UTILITY, CONTROL }
+
 enum class ElementPath { WATER, FIRE, WIND, EARTH, METAL, YIN, YANG, NONE }
+
 enum class SkillOrigin { RACE, SUBRACE, CLASS, PROFESSION, HYBRID, CURSED_CLASS, SHARED, CURSE }
+
 enum class SkillEffectRecipient { SELF, TARGET }
+
 enum class SkillActionKind { MODIFIER, REVIVE, POWER_STRIKE, MULTI_HIT }
 
 data class SkillEffectSpec(
@@ -21,7 +25,7 @@ data class SkillEffectSpec(
     val stackingGroup: String = id,
     val durationRounds: Int? = null,
     val conditionId: String? = null,
-    val recipient: SkillEffectRecipient = SkillEffectRecipient.SELF
+    val recipient: SkillEffectRecipient = SkillEffectRecipient.SELF,
 ) {
     init {
         require(id.isNotBlank()) { "efeito de habilidade exige id" }
@@ -61,7 +65,7 @@ data class SkillTreeSkill(
     val hitCount: Int = 1,
     val effects: List<SkillEffectSpec> = emptyList(),
     /** Só habilidades básicas de raça/sub-raça/Classe de Malditos devem marcar true. */
-    val freeBaseSkill: Boolean = false
+    val freeBaseSkill: Boolean = false,
 ) {
     init {
         require(id.isNotBlank() && treeId.isNotBlank() && name.isNotBlank()) { "habilidade exige id, árvore e nome" }
@@ -86,36 +90,42 @@ data class SkillTreeCharacterContext(
     val characterLevel: Int,
     val element: ElementPath,
     val weaponTags: Set<String>,
-    val knownSkillLevels: Map<String, Int>
+    val knownSkillLevels: Map<String, Int>,
 )
 
 data class SkillTreeValidation(val allowed: Boolean, val reasons: List<String>)
 
 /** Economia fixa definida pelo usuário. Todos os preços canônicos são armazenados em prata. */
+
 /**
  * Consequência mecânica fixa para personagens que misturam classes: a aparência fica mais
  * monstruosa e prejudica testes sociais de tato/convencimento conforme aumenta a mistura.
  */
 object HybridClassRules {
-    val socialPenaltyScopes: Set<String> = setOf(
-        // IDs das perícias do pacote próprio e escopos sociais usados pelas árvores.
-        "persuasao", "diplomacia", "negociacao", "lideranca", "intimidacao",
-        "atuacao", "enganacao", "etiqueta", "carisma", "convencimento",
-        "argumentacao", "mediacao", "comerciante"
-    )
+    val socialPenaltyScopes: Set<String> =
+        setOf(
+            // IDs das perícias do pacote próprio e escopos sociais usados pelas árvores.
+            "persuasao", "diplomacia", "negociacao", "lideranca", "intimidacao",
+            "atuacao", "enganacao", "etiqueta", "carisma", "convencimento",
+            "argumentacao", "mediacao", "comerciante",
+        )
 
-    fun unlockedClassCount(classOrder: List<String>, characterLevel: Int): Int {
+    fun unlockedClassCount(
+        classOrder: List<String>,
+        characterLevel: Int,
+    ): Int {
         require(characterLevel >= 1) { "nível de personagem deve ser positivo" }
         require(classOrder.size <= 4) { "personagem híbrido pode combinar no máximo quatro classes" }
         require(classOrder.distinct().size == classOrder.size) { "ordem de classes repetida" }
         return classOrder.indices.count { index ->
-            characterLevel >= when (index) {
-                0 -> 1
-                1 -> 10
-                2 -> 20
-                3 -> 30
-                else -> Int.MAX_VALUE
-            }
+            characterLevel >=
+                when (index) {
+                    0 -> 1
+                    1 -> 10
+                    2 -> 20
+                    3 -> 30
+                    else -> Int.MAX_VALUE
+                }
         }
     }
 
@@ -149,7 +159,10 @@ object SkillTreeEconomy {
 object SkillTreeProgression {
     const val POINT_COST_PER_UPGRADE = 1
 
-    fun validate(skill: SkillTreeSkill, context: SkillTreeCharacterContext): SkillTreeValidation {
+    fun validate(
+        skill: SkillTreeSkill,
+        context: SkillTreeCharacterContext,
+    ): SkillTreeValidation {
         val reasons = mutableListOf<String>()
         if (context.characterLevel < skill.requiredCharacterLevel) {
             reasons += "exige nível de personagem ${skill.requiredCharacterLevel}"
@@ -186,7 +199,10 @@ object SkillTreeProgression {
     fun strongestEquivalentEffects(effects: Collection<Pair<SkillEffectSpec, Int>>): List<Pair<SkillEffectSpec, Int>> =
         effects.groupBy { it.first.stackingGroup }
             .values
-            .mapNotNull { group -> group.maxWithOrNull(compareBy<Pair<SkillEffectSpec, Int>>({ kotlin.math.abs(it.second) }, { it.second })) }
+            .mapNotNull {
+                    group ->
+                group.maxWithOrNull(compareBy<Pair<SkillEffectSpec, Int>>({ kotlin.math.abs(it.second) }, { it.second }))
+            }
 }
 
 /**
@@ -195,24 +211,29 @@ object SkillTreeProgression {
  * Active skills are intentionally not treated as passive; their activation must be explicit.
  */
 class SkillTreeModifierProvider(
-    private val definitions: Collection<SkillTreeSkill>
+    private val definitions: Collection<SkillTreeSkill>,
 ) : ModifierProvider {
-    override fun modifiers(state: GameState, entity: Entity, target: String): List<Modifier> {
+    override fun modifiers(
+        state: GameState,
+        entity: Entity,
+        target: String,
+    ): List<Modifier> {
         val definitionsById = definitions.associateBy { it.id }
-        val candidates = entity.skillTreeLevels.mapNotNull { (skillId, level) ->
-            val skill = definitionsById[skillId]?.takeIf { it.category == SkillCategory.PASSIVE } ?: return@mapNotNull null
-            skill.effects.mapNotNull { effect ->
-                if (effect.target != target) return@mapNotNull null
-                val value = effect.valueAt(level)
-                if (value == 0) return@mapNotNull null
-                Modifier(
-                    sourceId = "skill-tree-passive:${effect.target}:${effect.stackingGroup}",
-                    label = skill.name,
-                    target = effect.target,
-                    value = value
-                )
-            }
-        }.flatten()
+        val candidates =
+            entity.skillTreeLevels.mapNotNull { (skillId, level) ->
+                val skill = definitionsById[skillId]?.takeIf { it.category == SkillCategory.PASSIVE } ?: return@mapNotNull null
+                skill.effects.mapNotNull { effect ->
+                    if (effect.target != target) return@mapNotNull null
+                    val value = effect.valueAt(level)
+                    if (value == 0) return@mapNotNull null
+                    Modifier(
+                        sourceId = "skill-tree-passive:${effect.target}:${effect.stackingGroup}",
+                        label = skill.name,
+                        target = effect.target,
+                        value = value,
+                    )
+                }
+            }.flatten()
         return candidates.groupBy { it.sourceId }
             .values
             .mapNotNull { group -> group.maxWithOrNull(compareBy<Modifier>({ kotlin.math.abs(it.value) }, { it.value })) }
