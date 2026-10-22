@@ -36,7 +36,7 @@ object CurseCatalogLoader {
             val fields = line.split("|").map(String::trim)
             val lineNo = index + 1
             if (fields.size != 9) {
-                errors += "maldições linha $lineNo: esperado 9 campos, recebido \${fields.size}"
+                errors += "maldições linha $lineNo: esperado 9 campos, recebido ${fields.size}"
                 return@forEachIndexed
             }
             try {
@@ -69,7 +69,7 @@ object CurseCatalogLoader {
                 require(effects.any { it.baseValue > 0 } && effects.any { it.baseValue < 0 }) { "maldição precisa de pelo menos um benefício e uma desvantagem mecânica" }
                 curses += CurseDefinition(fields[0], fields[1], fields[2], fields[3], resistanceId, difficulty, duration, removal, effects)
             } catch (e: Exception) {
-                errors += "maldições linha $lineNo: \${e.message ?: "formato inválido"}"
+                errors += "maldições linha $lineNo: ${e.message ?: "formato inválido"}"
             }
         }
         curses.groupBy { it.id }.filterValues { it.size > 1 }.keys.forEach { errors += "id de maldição duplicado: $it" }
