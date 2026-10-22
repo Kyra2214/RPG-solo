@@ -168,6 +168,8 @@ class CombatActions(
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(bonuses.combatTraitIds(attacker), "ataque") +
                     bonuses.skillTreeAndActiveBonus(attacker, "ataque") +
+                    bonuses.skillTreeAndActiveBonus(attacker, "precisao") +
+                    bonuses.skillTreeAndActiveBonus(attacker, "velocidade") +
                     attackConditionShift +
                     ((session().state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
                         .roundToInt().coerceIn(0, 10) - 5),
@@ -177,6 +179,7 @@ class CombatActions(
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(bonuses.combatTraitIds(playerId()), "defesa") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "defesa") +
+                    bonuses.skillTreeAndActiveBonus(playerId(), "velocidade") +
                     bonuses.approvedRuleBonus("defesa") + bonuses.approvedRuleBonus(defenseStat) + targetConditionShift,
                 damageReduction = pkg.traitBonus(bonuses.combatTraitIds(playerId()), "resistencia_dano") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "resistencia_dano") +
@@ -263,6 +266,8 @@ class CombatActions(
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(bonuses.combatTraitIds(playerId()), "ataque") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "ataque") +
+                    bonuses.skillTreeAndActiveBonus(playerId(), "precisao") +
+                    bonuses.skillTreeAndActiveBonus(playerId(), "velocidade") +
                     bonuses.approvedRuleBonus("ataque") +
                     bonuses.approvedRuleBonus(attackStat) + attackConditionShift,
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
@@ -272,7 +277,8 @@ class CombatActions(
                     (damageDef?.bonusStat?.let(bonuses::approvedRuleBonus) ?: 0) + extraDamageBonus,
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(bonuses.combatTraitIds(targetId), "defesa") +
-                    bonuses.skillTreeAndActiveBonus(targetId, "defesa") + targetConditionShift,
+                    bonuses.skillTreeAndActiveBonus(targetId, "defesa") +
+                    bonuses.skillTreeAndActiveBonus(targetId, "velocidade") + targetConditionShift,
                 damageReduction = pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_dano") +
                     bonuses.skillTreeAndActiveBonus(targetId, "resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
