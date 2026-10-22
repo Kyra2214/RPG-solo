@@ -50,6 +50,7 @@ import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Resource
+import dev.rpgsolo.engine.SpellSlots
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.CampanhaMetaRow
@@ -675,29 +676,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         bonuses.approvedRuleEffects(scopes)
 
     private fun approvedRuleBonusSummary(scopes: Collection<String>): String = bonuses.approvedRuleBonusSummary(scopes)
-
-    private fun approvedRuleEffects(scopes: Collection<String>): List<dev.rpgsolo.rules.ExternalBonus> =
-        session.state.additionalRules.values.filter { it.approved }.flatMap { rule ->
-            scopes.distinct().mapNotNull { scope ->
-                rule.effects[scope]?.takeIf { it != 0 }?.let { bonus ->
-                    dev.rpgsolo.rules.ExternalBonus(scope, bonus, "adaptação ${rule.id}")
-                }
-            }
-        }
-
-    /** Explica quais adaptações aprovadas contribuíram para os escopos usados neste cálculo. */
-    private fun approvedRuleBonusSummary(scopes: Collection<String>): String {
-        val details = session.state.additionalRules.values
-            .filter { it.approved }
-            .flatMap { rule ->
-                scopes.distinct().mapNotNull { scope ->
-                    rule.effects[scope]?.takeIf { it != 0 }?.let { bonus ->
-                        "${rule.id} ($scope ${if (bonus > 0) "+" else ""}$bonus)"
-                    }
-                }
-            }
-        return if (details.isEmpty()) "" else " · adaptações: ${details.joinToString(", ")}"
-    }
 
     fun approveAdditionalRule(id: String): String? = when (
         val result = session.execute(dev.rpgsolo.engine.ApproveRuleAddition(id))

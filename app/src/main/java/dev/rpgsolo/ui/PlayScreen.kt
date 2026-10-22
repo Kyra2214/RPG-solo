@@ -379,18 +379,6 @@ private fun InventoryPanel(model: AppModel, enabled: Boolean, act: (() -> String
                 }
             }
         }
-        if (spellShop.isNotEmpty()) {
-            Text("Magias", style = MaterialTheme.typography.titleSmall)
-            spellShop.forEach { spell ->
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("${spell.name} · ${spell.price}", Modifier.weight(1f))
-                    if (spell.learned) Muted("aprendida") else TextButton(
-                        enabled = enabled && shop.balance >= spell.price,
-                        onClick = { act({ model.buySpell(spell.id) }) { message = it } }
-                    ) { Text("Aprender") }
-                }
-            }
-        }
         message?.let { ErrorText(it) }
     }
 }

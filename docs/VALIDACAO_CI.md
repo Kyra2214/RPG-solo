@@ -100,3 +100,7 @@ O E2E requer um emulador compatível e pode falhar independentemente da suíte J
 ## Histórico anterior
 
 As execuções antigas sem runner e sem etapas, descritas em versões anteriores deste documento, eram inconclusivas. A execução #169 conseguiu iniciar o runner e concluiu com sucesso as etapas bloqueantes de testes JVM e montagem do APK; o E2E permanece pendente conforme descrito acima.
+
+## CI #39707524769 — diagnóstico e correção
+
+A execução do commit `38503b5` chegou ao runner, mas falhou na compilação Kotlin do app (`:app:compileDebugKotlin` e `:app:compileReleaseKotlin`). O log apontou helpers `approvedRuleEffects`/`approvedRuleBonusSummary` duplicados em `AppModel`, a falta do import de `SpellSlots` e código de loja de magias referenciado no painel de inventário fora de escopo. Os três problemas foram corrigidos no hotfix seguinte. O E2E não iniciou porque a compilação falhou antes da etapa do emulador.
