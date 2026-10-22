@@ -176,3 +176,11 @@ Implementações adicionadas nesta branch:
 - O motor agora rejeita efeitos ativos direcionados fora de combate, fora da iniciativa ou quando não é o turno de quem usa a habilidade. Isso fecha a diferença entre as validações da interface e o comando canônico que pode ser invocado pela IA.
 - Teste unitário cobre a rejeição fora de combate, a aplicação no turno correto, a rejeição fora do turno e o replay do estado.
 - A suíte deve validar esse commit antes de considerar a correção aprovada.
+
+
+### Auditoria de ações ofensivas — 2026-10-22
+
+- Corrigidas 42 habilidades ofensivas iniciais da Classe de Malditos que estavam tipadas como `MODIFIER`: agora são `POWER_STRIKE` e seus efeitos fornecem bônus de dano ao ataque real, em vez de apenas aplicar um bônus temporário de ataque.
+- Corrigido o rank 7 do arqueiro: `Disparo Apocalíptico` é uma técnica física e não deve exigir afinidade elemental para ser desbloqueada/usada.
+- Acrescentado teste de catálogo para impedir que as habilidades ofensivas iniciais da Classe de Malditos voltem a ser apenas modificadores.
+- A CI ainda precisa validar os commits destas correções. O teste automatizado do arqueiro será incluído/confirmado antes de encerrar esta auditoria.
