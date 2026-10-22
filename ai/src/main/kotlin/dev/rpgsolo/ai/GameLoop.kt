@@ -538,12 +538,21 @@ class GameLoop(
         fortuneAlternatives: List<CheckResult> = emptyList(),
         advancedChecks: List<Pair<String, CheckResult>> = emptyList()
     ): PlayResult {
-        val advancedClocks = if (narratedUpTo < 0) emptySet() else session.events
+        val recentClockEvents = if (narratedUpTo < 0) emptyList() else session.events
             .let { all -> all.subList(minOf(narratedUpTo, markBefore).coerceIn(0, all.size), markBefore.coerceIn(0, all.size)) }
-            .filterIsInstance<dev.rpgsolo.engine.ClockAdvanced>().map { it.id }.toSet()
+        val clockAdvances = recentClockEvents.filterIsInstance<dev.rpgsolo.engine.ClockAdvanced>()
+        val advancedClocks = clockAdvances.map { it.id }.toSet()
+        val midpointClocks = clockAdvances.filter { event ->
+            val clock = session.state.clocks[event.id] ?: return@filter false
+            clock.midClue.isNotBlank() &&
+                event.filled - event.delta < clock.midpoint &&
+                event.filled >= clock.midpoint &&
+                event.filled < clock.segments
+        }.map { it.id }.toSet()
         val request = ContextAssembler.build(
             ContextInput(
                 advancedClockIds = advancedClocks,
+                midpointClockIds = midpointClocks,
                 state = session.state,
                 playerEntityId = input.playerEntityId,
                 playerText = input.text,
