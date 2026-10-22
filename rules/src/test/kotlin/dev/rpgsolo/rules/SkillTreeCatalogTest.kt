@@ -38,7 +38,8 @@ class SkillTreeCatalogTest {
                     assertEquals("árvore $treeId não deve ter habilidade básica extra", 0, skills.count { it.freeBaseSkill })
                 }
             }
-        }    }
+        }
+    }
 
     @Test fun raçasESubraçasPossuemHabilidadeBasicaGratuita() {
         val result = SkillTreeCatalogLoader.load(catalogText())
