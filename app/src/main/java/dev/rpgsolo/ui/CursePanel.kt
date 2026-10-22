@@ -31,9 +31,12 @@ fun CursePanel(
     var message by remember { mutableStateOf<String?>(null) }
     var selectedCurseId by remember { mutableStateOf("maldicao-sangue-frio") }
     var selectedTargetId by remember { mutableStateOf<String?>(null) }
+    var selectedSourceId by remember { mutableStateOf<String?>(null) }
+    var sourceIdText by remember { mutableStateOf("") }
     val actions = remember(model, version, model.campaignVersion, model.packageVersion) { model.curseActions() }
     val curses = remember(version) { actions.all() }
     val targets = remember(version, model.campaignVersion) { actions.targets() }
+    val sources = remember(version, model.campaignVersion) { actions.sources() }
     val targetId = selectedTargetId ?: actions.defaultTargetId().takeIf { id -> targets.any { it.first == id } } ?: targets.firstOrNull()?.first
     val selectedCurse = curses.firstOrNull { it.id == selectedCurseId } ?: curses.firstOrNull()
     val active = targetId?.let(actions::applied).orEmpty()
@@ -44,9 +47,27 @@ fun CursePanel(
             TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Ocultar" else "Abrir (${curses.size})") }
         }
         if (expanded) {
-            if (targets.isEmpty() || selectedCurse == null) {
+            if (targets.isEmpty() || sources.isEmpty() || selectedCurse == null) {
                 Muted("Não há alvos ou maldições disponíveis.")
             } else {
+                Text("Quem lança", style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    sources.forEach { (id, name) ->
+                        FilterChip(
+                            selected = (selectedSourceId ?: actions.defaultTargetId()) == id,
+                            onClick = { selectedSourceId = id; sourceIdText = "personagem:$id" },
+                            label = { Text(name) },
+                            enabled = enabled
+                        )
+                    }
+                }
+                androidx.compose.material3.OutlinedTextField(
+                    value = sourceIdText,
+                    onValueChange = { sourceIdText = it.trim() },
+                    label = { Text("Origem (personagem:id, criatura:id, artefato:id ou ritual:id)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Text("Alvo", style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     targets.forEach { (id, name) ->
@@ -80,7 +101,7 @@ fun CursePanel(
                 Button(
                     enabled = enabled && targetId != null,
                     onClick = {
-                        act({ actions.apply(requireNotNull(targetId), selectedCurse.id, actions.defaultSourceId()) }) { result ->
+                        act({ actions.apply(requireNotNull(targetId), selectedCurse.id, sourceIdText.ifBlank { "personagem:" + (selectedSourceId ?: actions.defaultTargetId()) }) }) { result ->
                             message = result ?: "Maldição aplicada."
                             version++
                         }
