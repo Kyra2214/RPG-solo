@@ -11,7 +11,12 @@ import org.junit.Test
 class CampaignPersistenceTest {
     private class FailingStore(private val inner: InMemoryEventStore = InMemoryEventStore()) : EventStore by inner {
         var failAppend = false
-        override fun append(campaignId: String, expectedSize: Int, payloads: List<String>) {
+
+        override fun append(
+            campaignId: String,
+            expectedSize: Int,
+            payloads: List<String>,
+        ) {
             if (failAppend) throw IllegalStateException("disco cheio")
             inner.append(campaignId, expectedSize, payloads)
         }
@@ -20,12 +25,15 @@ class CampaignPersistenceTest {
     private fun hero(name: String = "Herói") =
         CreateEntity(Entity("hero", name, EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10))))
 
-    private fun create(store: EventStore, id: String) =
-        CampaignSession.create(store, CampaignRecord(id, "Campanha $id", 1L, EngineConfig()))
+    private fun create(
+        store: EventStore,
+        id: String,
+    ) = CampaignSession.create(store, CampaignRecord(id, "Campanha $id", 1L, EngineConfig()))
 
     @Test fun campanhasNaoMisturamLogNemEstado() {
         val store = InMemoryEventStore()
-        val a = create(store, "a"); val b = create(store, "b")
+        val a = create(store, "a")
+        val b = create(store, "b")
         a.execute(hero("Ana"))
         assertEquals(1, store.size("a"))
         assertEquals(0, store.size("b"))
@@ -97,13 +105,18 @@ class CampaignPersistenceTest {
     @Test fun maldicaoComDuracaoSobreviveASalvarReabrirEExpiraNoMomentoCorreto() {
         val store = InMemoryEventStore()
         val session = create(store, "curse-persistence")
-        session.executeAll(listOf(
-            hero(),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6))))
-        ))
+        session.executeAll(
+            listOf(
+                hero(),
+                CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6)))),
+            ),
+        )
         assertTrue(session.execute(ApplyCurse("orc", "curse-test", "hero", 2)) is ExecResult.Accepted)
-        assertEquals(2, CampaignSession.open(store, "curse-persistence")
-            .state.entities.getValue("orc").appliedCurses.getValue("curse-test").remainingRounds)
+        assertEquals(
+            2,
+            CampaignSession.open(store, "curse-persistence")
+                .state.entities.getValue("orc").appliedCurses.getValue("curse-test").remainingRounds,
+        )
 
         val reopenedBeforeCombat = CampaignSession.open(store, "curse-persistence")
         assertTrue(reopenedBeforeCombat.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
@@ -111,17 +124,23 @@ class CampaignPersistenceTest {
         reopenedBeforeCombat.execute(NextTurn)
 
         val reopenedAfterFirstRound = CampaignSession.open(store, "curse-persistence")
-        assertEquals(1, reopenedAfterFirstRound.state.entities.getValue("orc")
-            .appliedCurses.getValue("curse-test").remainingRounds)
+        assertEquals(
+            1,
+            reopenedAfterFirstRound.state.entities.getValue("orc")
+                .appliedCurses.getValue("curse-test").remainingRounds,
+        )
         reopenedAfterFirstRound.execute(NextTurn)
         reopenedAfterFirstRound.execute(NextTurn)
 
         val reopenedAfterExpiry = CampaignSession.open(store, "curse-persistence")
         assertFalse(reopenedAfterExpiry.state.entities.getValue("orc").appliedCurses.containsKey("curse-test"))
-        assertEquals(reopenedAfterExpiry.state, GameEngine.restore(
-            seed = 1L,
-            config = EngineConfig(),
-            events = reopenedAfterExpiry.engine.events
-        ).state)
+        assertEquals(
+            reopenedAfterExpiry.state,
+            GameEngine.restore(
+                seed = 1L,
+                config = EngineConfig(),
+                events = reopenedAfterExpiry.engine.events,
+            ).state,
+        )
     }
 }

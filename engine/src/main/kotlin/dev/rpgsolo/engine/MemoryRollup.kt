@@ -12,12 +12,14 @@ object MemoryRollup {
     fun compact(notes: List<String>): List<String> {
         if (notes.size <= MEMORY_NOTES_PER_SUBJECT) return notes
         val recent = notes.takeLast(MEMORY_NOTES_PER_SUBJECT - 1)
-        val older = notes.dropLast(MEMORY_NOTES_PER_SUBJECT - 1)
-            .map { it.removePrefix(SUMMARY_PREFIX) }
-            .distinct()
-        val summary = (SUMMARY_PREFIX + older.joinToString(SEPARATOR))
-            .take(MEMORY_NOTE_MAX_CHARS)
-            .trimEnd()
+        val older =
+            notes.dropLast(MEMORY_NOTES_PER_SUBJECT - 1)
+                .map { it.removePrefix(SUMMARY_PREFIX) }
+                .distinct()
+        val summary =
+            (SUMMARY_PREFIX + older.joinToString(SEPARATOR))
+                .take(MEMORY_NOTE_MAX_CHARS)
+                .trimEnd()
         return listOf(summary) + recent
     }
 }

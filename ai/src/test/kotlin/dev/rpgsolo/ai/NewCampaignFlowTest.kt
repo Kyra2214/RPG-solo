@@ -14,32 +14,53 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class NewCampaignFlowTest {
-    private fun res(path: String) =
-        NewCampaignFlowTest::class.java.classLoader!!.getResourceAsStream(path)!!.bufferedReader().readText()
+    private fun res(path: String) = NewCampaignFlowTest::class.java.classLoader!!.getResourceAsStream(path)!!.bufferedReader().readText()
 
     // Sistema próprio embutido + sistemas fictícios de teste.
-    private val sistemas = res("catalog/sistemas.txt") + "\n" + """
-        alfa-1|alfa|Sistema Alfa|1|generico|PENDENTE|PENDENTE|teste
-        alfa-2|alfa|Sistema Alfa|2|generico|PENDENTE|PENDENTE|teste
-        beta-1|beta|Sistema Beta|1|generico|PENDENTE|PENDENTE|teste
-    """.trimIndent()
+    private val sistemas =
+        res("catalog/sistemas.txt") + "\n" +
+            """
+            alfa-1|alfa|Sistema Alfa|1|generico|PENDENTE|PENDENTE|teste
+            alfa-2|alfa|Sistema Alfa|2|generico|PENDENTE|PENDENTE|teste
+            beta-1|beta|Sistema Beta|1|generico|PENDENTE|PENDENTE|teste
+            """.trimIndent()
 
-    private val catalog = (CatalogLoader.load(res("catalog/estilos.txt"), sistemas, res("catalog/compat.txt")) as LoadResult.Success).catalog
+    private val catalog =
+        (
+            CatalogLoader.load(
+                res("catalog/estilos.txt"),
+                sistemas,
+                res("catalog/compat.txt"),
+            ) as LoadResult.Success
+        ).catalog
 
-    private val registry = PackageRegistry(catalog).also {
-        val files = listOf("manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes", "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo")
-            .mapNotNull { f -> runCatching { "$f.txt" to res("packages/sistema-proprio/$f.txt") }.getOrNull() }.toMap()
-        val installed = it.install(files)
-        assertTrue("pacote sistema-proprio deve instalar: $installed", installed is InstallResult.Success)
-    }
+    private val registry =
+        PackageRegistry(catalog).also {
+            val files =
+                listOf("manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes", "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo")
+                    .mapNotNull { f -> runCatching { "$f.txt" to res("packages/sistema-proprio/$f.txt") }.getOrNull() }.toMap()
+            val installed = it.install(files)
+            assertTrue("pacote sistema-proprio deve instalar: $installed", installed is InstallResult.Success)
+        }
 
     private val store = InMemoryEventStore()
+
     private fun flow(vararg replies: Any) =
         NewCampaignFlow(CampaignInterpreter(ScriptedProvider(replies.toList())), catalog, registry, store) { "camp1" }
 
     private fun fichaPadrao(): Ficha {
         val p = registry.get("sistema-proprio")!!
-        return (p.buildFicha("pj1", "Brokk", "anão minerador", p.data.stats.associate { it.id to it.default }, emptyList()) as FichaBuild.Created).ficha
+        return (
+            p.buildFicha(
+                "pj1",
+                "Brokk",
+                "anão minerador",
+                p.data.stats.associate {
+                    it.id to it.default
+                },
+                emptyList(),
+            ) as FichaBuild.Created
+        ).ficha
     }
 
     private val descricaoPropria = """{"system":"proprio","edition":"sistema-proprio","settings":["setting.cyberpunk"],"difficulty":"difficulty.normal"}"""

@@ -11,14 +11,14 @@ sealed interface PowerEffect {
         val diceCount: Int,
         val diceSides: Int,
         val bonus: Int = 0,
-        val reduction: Int = 0
+        val reduction: Int = 0,
     ) : PowerEffect
 
     data class Inflict(
         val condition: String,
         val durationRounds: Int? = null,
         val damagePerRound: Int = 0,
-        val damageResource: String = "hp"
+        val damageResource: String = "hp",
     ) : PowerEffect
 
     data class Cleanse(val condition: String) : PowerEffect
@@ -35,7 +35,7 @@ data class PowerSpec(
     val resource: String,
     val cost: Int,
     val effect: PowerEffect,
-    val check: CheckSpec? = null
+    val check: CheckSpec? = null,
 ) {
     init {
         require(powerId.isNotBlank()) { "poder sem id" }
@@ -55,7 +55,7 @@ sealed interface PowerResult {
         val damageRoll: RollResult?,
         /** Variação real do recurso do alvo (cura positiva, dano negativo); 0 sem efeito de recurso. */
         val resourceDelta: Int,
-        val events: List<Event>
+        val events: List<Event>,
     ) : PowerResult
 
     data class Rejected(val reason: String) : PowerResult

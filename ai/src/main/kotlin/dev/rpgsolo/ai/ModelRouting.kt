@@ -10,7 +10,7 @@ import dev.rpgsolo.engine.Outcome
 data class AiRoles(
     val cheap: AiProvider,
     val narrator: AiProvider,
-    val premium: AiProvider = narrator
+    val premium: AiProvider = narrator,
 ) {
     val hasPremium: Boolean get() = premium !== narrator
 }
@@ -22,8 +22,9 @@ enum class NarrationTier { STANDARD, PREMIUM }
  * Regra fechada e previsível, para o custo não variar por capricho do modelo.
  */
 object Importance {
-    fun of(check: CheckResult?): NarrationTier = when (check?.outcome) {
-        Outcome.CRITICAL_SUCCESS, Outcome.CRITICAL_FAILURE -> NarrationTier.PREMIUM
-        else -> NarrationTier.STANDARD
-    }
+    fun of(check: CheckResult?): NarrationTier =
+        when (check?.outcome) {
+            Outcome.CRITICAL_SUCCESS, Outcome.CRITICAL_FAILURE -> NarrationTier.PREMIUM
+            else -> NarrationTier.STANDARD
+        }
 }

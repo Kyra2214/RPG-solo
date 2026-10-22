@@ -19,7 +19,11 @@ data class RuleLookup(val source: RuleSource, val snippets: List<RuleHint>) {
  * 1) pacote do sistema; 2) pesquisa na rede pela IA.
  */
 object RuleLookupChain {
-    fun lookup(query: String, pkg: RulePackage?, minPackageHits: Int = 1): RuleLookup {
+    fun lookup(
+        query: String,
+        pkg: RulePackage?,
+        minPackageHits: Int = 1,
+    ): RuleLookup {
         val fromPkg = pkg?.search(query)?.map { RuleHint(RuleHint.Source.PACOTE, it.title, it.text) }.orEmpty()
         if (fromPkg.size >= minPackageHits) return RuleLookup(RuleSource.PACOTE, fromPkg)
         return RuleLookup(RuleSource.PESQUISA_NA_REDE, emptyList())
@@ -37,7 +41,7 @@ data class NpcProposal(
     val resources: Map<String, Int> = emptyMap(),
     val ruleSource: RuleSource,
     val skills: Map<String, Int> = emptyMap(),
-    val dossier: NpcDossier? = null
+    val dossier: NpcDossier? = null,
 )
 
 /**
@@ -49,9 +53,10 @@ data class NpcSheet(
     val validated: Boolean,
     val ruleSource: RuleSource,
     val warnings: List<String> = emptyList(),
-    val dossier: NpcDossier? = null
+    val dossier: NpcDossier? = null,
 ) {
     val isPrivate: Boolean get() = true
+
     fun toEntity() = ficha.toEntity(EntityKind.NPC).copy(rulesValidated = validated)
 
     /** O que a interface pode mostrar ao jogador por padrão: só a identidade, nunca a mecânica. */
@@ -60,26 +65,42 @@ data class NpcSheet(
 
 sealed interface NpcResult {
     data class Created(val sheet: NpcSheet) : NpcResult
+
     /** Proposta inválida pelas regras do pacote: nada é criado; a IA recebe os erros e tenta de novo. */
     data class Rejected(val errors: List<String>) : NpcResult
 }
 
 object NpcFactory {
     /** Com pacote: valida pelas regras do sistema e deriva os recursos. Sem pacote: aceita, marcando como não validado. */
-    fun create(proposal: NpcProposal, pkg: RulePackage?, systemRef: SystemRef? = null): NpcResult {
+    fun create(
+        proposal: NpcProposal,
+        pkg: RulePackage?,
+        systemRef: SystemRef? = null,
+    ): NpcResult {
         if (proposal.name.isBlank()) return NpcResult.Rejected(listOf("NPC sem nome"))
         if (pkg != null) {
-            return when (val b = pkg.buildFicha(
-                proposal.id, proposal.name.trim(), proposal.concept.trim(),
-                proposal.stats, proposal.traits, proposal.skills
-            )) {
-                is FichaBuild.Invalid -> NpcResult.Rejected(b.errors)
-                is FichaBuild.Created -> NpcResult.Created(
-                    NpcSheet(
-                        b.ficha, true, proposal.ruleSource, b.warnings,
-                        proposal.dossier?.copy(npcId = proposal.id)
+            return when (
+                val b =
+                    pkg.buildFicha(
+                        proposal.id,
+                        proposal.name.trim(),
+                        proposal.concept.trim(),
+                        proposal.stats,
+                        proposal.traits,
+                        proposal.skills,
                     )
-                )
+            ) {
+                is FichaBuild.Invalid -> NpcResult.Rejected(b.errors)
+                is FichaBuild.Created ->
+                    NpcResult.Created(
+                        NpcSheet(
+                            b.ficha,
+                            true,
+                            proposal.ruleSource,
+                            b.warnings,
+                            proposal.dossier?.copy(npcId = proposal.id),
+                        ),
+                    )
             }
         }
         val ref = systemRef ?: return NpcResult.Rejected(listOf("sem pacote: informe o sistema/edição do NPC"))
@@ -88,22 +109,25 @@ object NpcFactory {
         if (proposal.traits.any { it.isBlank() }) return NpcResult.Rejected(listOf("traço vazio"))
         val res = proposal.resources.mapValues { (_, max) -> Resource(max, max) }
         if (proposal.resources.values.any { it < 0 }) return NpcResult.Rejected(listOf("recurso negativo"))
-        val ficha = Ficha(
-            id = proposal.id,
-            name = proposal.name.trim(),
-            system = ref,
-            concept = proposal.concept.trim(),
-            stats = proposal.stats,
-            resources = res,
-            traits = proposal.traits,
-            skills = proposal.skills
-        )
+        val ficha =
+            Ficha(
+                id = proposal.id,
+                name = proposal.name.trim(),
+                system = ref,
+                concept = proposal.concept.trim(),
+                stats = proposal.stats,
+                resources = res,
+                traits = proposal.traits,
+                skills = proposal.skills,
+            )
         return NpcResult.Created(
             NpcSheet(
-                ficha, false, proposal.ruleSource,
+                ficha,
+                false,
+                proposal.ruleSource,
                 listOf("sistema sem pacote instalado: ficha não validada pelo motor"),
-                proposal.dossier?.copy(npcId = proposal.id)
-            )
+                proposal.dossier?.copy(npcId = proposal.id),
+            ),
         )
     }
 }

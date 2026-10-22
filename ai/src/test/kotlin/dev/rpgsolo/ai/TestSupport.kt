@@ -23,13 +23,23 @@ class FakeTransport(private val replies: List<HttpReply>) : HttpTransport {
     var lastHeaders: Map<String, String> = emptyMap()
     var lastBody = ""
     private var next = 0
-    override fun post(url: String, headers: Map<String, String>, body: String): HttpReply {
-        lastUrl = url; lastHeaders = headers; lastBody = body
+
+    override fun post(
+        url: String,
+        headers: Map<String, String>,
+        body: String,
+    ): HttpReply {
+        lastUrl = url
+        lastHeaders = headers
+        lastBody = body
         return replies[next++]
     }
 }
 
 class RecordingSleeper : Sleeper {
     val waits = mutableListOf<Long>()
-    override fun sleep(ms: Long) { waits += ms }
+
+    override fun sleep(ms: Long) {
+        waits += ms
+    }
 }

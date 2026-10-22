@@ -2,33 +2,33 @@ package dev.rpgsolo.ai
 
 import dev.rpgsolo.engine.AddCondition
 import dev.rpgsolo.engine.AddItem
+import dev.rpgsolo.engine.AddPlace
 import dev.rpgsolo.engine.AdvanceClock
 import dev.rpgsolo.engine.ChangeRelation
 import dev.rpgsolo.engine.Command
-import dev.rpgsolo.engine.CreateClock
+import dev.rpgsolo.engine.ConnectPlaces
 import dev.rpgsolo.engine.ConsumeItem
+import dev.rpgsolo.engine.CreateClock
 import dev.rpgsolo.engine.Damage
+import dev.rpgsolo.engine.DiscoverPlace
 import dev.rpgsolo.engine.GainXp
 import dev.rpgsolo.engine.Heal
 import dev.rpgsolo.engine.KeepPromise
 import dev.rpgsolo.engine.LearnKnowledge
 import dev.rpgsolo.engine.MakePromise
 import dev.rpgsolo.engine.NoteMemory
+import dev.rpgsolo.engine.NpcDossier
+import dev.rpgsolo.engine.Place
+import dev.rpgsolo.engine.ProposeRuleAddition
 import dev.rpgsolo.engine.RecordFact
+import dev.rpgsolo.engine.RegraAdicional
 import dev.rpgsolo.engine.RemoveCondition
 import dev.rpgsolo.engine.Revive
-import dev.rpgsolo.engine.SpendResource
-import dev.rpgsolo.engine.ProposeRuleAddition
-import dev.rpgsolo.engine.AddPlace
-import dev.rpgsolo.engine.ConnectPlaces
-import dev.rpgsolo.engine.DiscoverPlace
-import dev.rpgsolo.engine.Place
-import dev.rpgsolo.engine.RegraAdicional
 import dev.rpgsolo.engine.RuleOrigin
+import dev.rpgsolo.engine.Secret
+import dev.rpgsolo.engine.SpendResource
 import dev.rpgsolo.rules.NpcProposal
 import dev.rpgsolo.rules.RuleSource
-import dev.rpgsolo.engine.NpcDossier
-import dev.rpgsolo.engine.Secret
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -54,7 +54,7 @@ data class TurnOutput(
     /** Poder do pacote que o personagem do jogador usa nesta jogada; custo, teste e efeito são do motor. */
     val powerRequest: PowerRequest? = null,
     /** I-01: o NPC veio de `request_npc` (pedido isolado), não de `create_npc` junto a outras propostas. */
-    val requestNpc: Boolean = false
+    val requestNpc: Boolean = false,
 )
 
 /** Pedido da IA para o personagem do jogador usar um poder do pacote ([powerId]); [targetId] só para poderes ofensivos. */
@@ -62,12 +62,14 @@ data class PowerRequest(val powerId: String, val targetId: String? = null)
 
 sealed interface ParseResult {
     data class Ok(val output: TurnOutput) : ParseResult
+
     data class Invalid(val errors: List<String>) : ParseResult
 }
 
 /** Texto do formato esperado, para o prompt fixo do mestre (Fase 7.3). */
 object ProposalSchema {
-    val INSTRUCTIONS: String = """
+    val INSTRUCTIONS: String =
+        """
         Responda SOMENTE com um objeto JSON, sem texto fora dele:
         {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}, "personality":"...", "goals":[], "motivations":[], "relations":{}, "secrets":[{"id":"...", "text":"...", "falseInfo":false}]}, "request_combat": false}
         "create_npc" é opcional: quando criar um NPC relevante, proponha nome, conceito, atributos, traços e perícias. O pacote valida tudo; não invente ids nem regras. Não inclua create_npc ao pedir teste/rolagem.
@@ -93,14 +95,15 @@ object ProposalSchema {
         "conditions" (opcional em cada face) é uma lista de ids de condição do sistema que o motor aplica ao personagem junto com o dano.
         Só um pedido por resposta: request_check OU request_roll.
         Campo opcional "request_check": {"check":"id","difficulty":"id opcional","onSuccess":"...","onFailure":"...","skill":"escopo de bônus opcional"}. Para disputa, inclua "opposed":{"entityId":"id-do-npc","check":"id-do-teste-do-npc","difficulty":"id-opcional","label":"nome opcional"}; o jogador é o desafiante e o NPC é o defensor (empate favorece o defensor). Para tarefa cooperativa, inclua "group":{"participantIds":["player","id-npc-1","id-npc-2"],"requiredSuccesses":2,"onSuccess":"...","onFailure":"..."}. "participantIds" deve conter "player" exatamente uma vez e apenas IDs de NPCs vivos presentes na cena, sem repetições; "requiredSuccesses" deve ser de 1 até o total de participantes. Use "group" só quando todos estiverem colaborando no mesmo objetivo, não para uma disputa entre lados. Escolha check/difficulty válidos para cada teste. Não combine opposed/group com revelação de segredo; nunca envie proposals ou outro pedido junto ao request_check. O motor resolve os resultados e só revela a consequência escolhida.
-    """.trimIndent()
+        """.trimIndent()
 
-    val TYPES = listOf(
-        "damage", "heal", "spend_resource", "add_item", "consume_item", "gain_xp", "revive",
-        "record_fact", "record_memory", "learn", "make_promise", "keep_promise", "add_condition", "remove_condition",
-        "change_relation", "create_clock", "advance_clock", "propose_rule",
-        "add_place", "connect_places", "discover_place"
-    )
+    val TYPES =
+        listOf(
+            "damage", "heal", "spend_resource", "add_item", "consume_item", "gain_xp", "revive",
+            "record_fact", "record_memory", "learn", "make_promise", "keep_promise", "add_condition", "remove_condition",
+            "change_relation", "create_clock", "advance_clock", "propose_rule",
+            "add_place", "connect_places", "discover_place",
+        )
 }
 
 private class Bad(message: String) : Exception(message)
@@ -115,25 +118,27 @@ object ProposalParser {
      */
     fun parse(raw: String): ParseResult {
         val text = extractJson(raw) ?: return ParseResult.Invalid(listOf("a resposta não contém um objeto JSON"))
-        val root = try {
-            Json.parseToJsonElement(text)
-        } catch (e: Exception) {
-            return ParseResult.Invalid(listOf("JSON inválido"))
-        }
+        val root =
+            try {
+                Json.parseToJsonElement(text)
+            } catch (e: Exception) {
+                return ParseResult.Invalid(listOf("JSON inválido"))
+            }
         val obj = root as? JsonObject ?: return ParseResult.Invalid(listOf("a resposta deve ser um objeto JSON"))
 
         val errors = mutableListOf<String>()
         val narrative = obj.str("narrative")
         if (narrative.isNullOrBlank()) errors += "campo 'narrative' ausente ou vazio"
 
-        val list: JsonArray = when (val p = obj["proposals"]) {
-            null -> JsonArray(emptyList())
-            is JsonArray -> p
-            else -> {
-                errors += "'proposals' deve ser uma lista"
-                JsonArray(emptyList())
+        val list: JsonArray =
+            when (val p = obj["proposals"]) {
+                null -> JsonArray(emptyList())
+                is JsonArray -> p
+                else -> {
+                    errors += "'proposals' deve ser uma lista"
+                    JsonArray(emptyList())
+                }
             }
-        }
         val commands = mutableListOf<Command>()
         list.forEachIndexed { i, el ->
             val o = el as? JsonObject
@@ -148,84 +153,111 @@ object ProposalParser {
             }
         }
         // Sugestões são opcionais: formato errado nelas não invalida a jogada, só são descartadas.
-        val suggestions = (obj["suggestions"] as? JsonArray).orEmpty()
-            .mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content?.trim() }
-            .filter { it.isNotEmpty() }
-            .distinct()
-            .take(MAX_SUGGESTIONS)
-        val checkRequest = when (val rc = obj["request_check"]) {
-            null, is JsonNull -> null
-            is JsonObject -> try {
-                toCheckRequest(rc)
-            } catch (e: Bad) {
-                errors += "request_check: ${e.message}"
-                null
+        val suggestions =
+            (obj["suggestions"] as? JsonArray).orEmpty()
+                .mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content?.trim() }
+                .filter { it.isNotEmpty() }
+                .distinct()
+                .take(MAX_SUGGESTIONS)
+        val checkRequest =
+            when (val rc = obj["request_check"]) {
+                null, is JsonNull -> null
+                is JsonObject ->
+                    try {
+                        toCheckRequest(rc)
+                    } catch (e: Bad) {
+                        errors += "request_check: ${e.message}"
+                        null
+                    }
+                else -> {
+                    errors += "'request_check' deve ser um objeto"
+                    null
+                }
             }
-            else -> {
-                errors += "'request_check' deve ser um objeto"
-                null
+        val rollRequest =
+            when (val rr = obj["request_roll"]) {
+                null, is JsonNull -> null
+                is JsonObject ->
+                    try {
+                        toRollRequest(rr)
+                    } catch (e: Bad) {
+                        errors += "request_roll: ${e.message}"
+                        null
+                    }
+                else -> {
+                    errors += "'request_roll' deve ser um objeto"
+                    null
+                }
             }
-        }
-        val rollRequest = when (val rr = obj["request_roll"]) {
-            null, is JsonNull -> null
-            is JsonObject -> try {
-                toRollRequest(rr)
-            } catch (e: Bad) {
-                errors += "request_roll: ${e.message}"
-                null
-            }
-            else -> {
-                errors += "'request_roll' deve ser um objeto"
-                null
-            }
-        }
         if (checkRequest != null && rollRequest != null) errors += "peça só um por vez: request_check ou request_roll"
-        val npcProposal = when (val rawNpc = obj["create_npc"]) {
-            null, is JsonNull -> null
-            is JsonObject -> try { toNpcProposal(rawNpc) }
-                catch (e: Bad) { errors += "create_npc: ${e.message}"; null }
-            else -> { errors += "'create_npc' deve ser um objeto"; null }
-        }
-        val requestedNpc = when (val rawReq = obj["request_npc"]) {
-            null, is JsonNull -> null
-            is JsonObject -> try { toNpcProposal(rawReq) }
-                catch (e: Bad) { errors += "request_npc: ${e.message}"; null }
-            else -> { errors += "'request_npc' deve ser um objeto"; null }
-        }
+        val npcProposal =
+            when (val rawNpc = obj["create_npc"]) {
+                null, is JsonNull -> null
+                is JsonObject ->
+                    try {
+                        toNpcProposal(rawNpc)
+                    } catch (e: Bad) {
+                        errors += "create_npc: ${e.message}"
+                        null
+                    }
+                else -> {
+                    errors += "'create_npc' deve ser um objeto"
+                    null
+                }
+            }
+        val requestedNpc =
+            when (val rawReq = obj["request_npc"]) {
+                null, is JsonNull -> null
+                is JsonObject ->
+                    try {
+                        toNpcProposal(rawReq)
+                    } catch (e: Bad) {
+                        errors += "request_npc: ${e.message}"
+                        null
+                    }
+                else -> {
+                    errors += "'request_npc' deve ser um objeto"
+                    null
+                }
+            }
         if (requestedNpc != null && npcProposal != null) errors += "use create_npc ou request_npc, não os dois"
         if (requestedNpc != null && (commands.isNotEmpty() || checkRequest != null || rollRequest != null)) {
             errors += "request_npc deve vir sozinho, sem proposals nem pedidos de rolagem"
         }
-        val requestCombat = when (val rawCombat = obj["request_combat"]) {
-            null, is JsonNull -> false
-            is JsonPrimitive -> rawCombat.booleanOrNull ?: run {
-                errors += "'request_combat' deve ser booleano"
-                false
-            }
-            else -> {
-                errors += "'request_combat' deve ser booleano"
-                false
-            }
-        }
-        val powerRequest = when (val rawPower = obj["request_power"]) {
-            null, is JsonNull -> null
-            is JsonObject -> {
-                val id = rawPower.str("power")?.trim()?.takeIf { it.isNotEmpty() }
-                val rawTarget = rawPower["target"]
-                val target = when (rawTarget) {
-                    null, is JsonNull -> null
-                    is JsonPrimitive -> rawTarget.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
-                    else -> null
+        val requestCombat =
+            when (val rawCombat = obj["request_combat"]) {
+                null, is JsonNull -> false
+                is JsonPrimitive ->
+                    rawCombat.booleanOrNull ?: run {
+                        errors += "'request_combat' deve ser booleano"
+                        false
+                    }
+                else -> {
+                    errors += "'request_combat' deve ser booleano"
+                    false
                 }
-                if (id == null) errors += "request_power: campo 'power' ausente ou vazio"
-                if (rawTarget != null && rawTarget !is JsonNull && target == null) errors += "request_power: 'target' deve ser um id em texto"
-                id?.let { PowerRequest(it, target) }
             }
-            else -> {
-                errors += "'request_power' deve ser um objeto"
-                null
+        val powerRequest =
+            when (val rawPower = obj["request_power"]) {
+                null, is JsonNull -> null
+                is JsonObject -> {
+                    val id = rawPower.str("power")?.trim()?.takeIf { it.isNotEmpty() }
+                    val rawTarget = rawPower["target"]
+                    val target =
+                        when (rawTarget) {
+                            null, is JsonNull -> null
+                            is JsonPrimitive -> rawTarget.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                            else -> null
+                        }
+                    if (id == null) errors += "request_power: campo 'power' ausente ou vazio"
+                    if (rawTarget != null && rawTarget !is JsonNull && target == null) errors += "request_power: 'target' deve ser um id em texto"
+                    id?.let { PowerRequest(it, target) }
+                }
+                else -> {
+                    errors += "'request_power' deve ser um objeto"
+                    null
+                }
             }
-        }
         if (powerRequest != null && (commands.isNotEmpty() || checkRequest != null || rollRequest != null || npcProposal != null || requestedNpc != null || requestCombat)) {
             errors += "request_power deve vir sozinho, sem proposals, create_npc, request_npc, request_combat nem pedidos de rolagem"
         }
@@ -241,9 +273,13 @@ object ProposalParser {
         if (requestCombat && (commands.isNotEmpty() || checkRequest != null || rollRequest != null)) {
             errors += "request_combat deve vir sozinho, sem proposals nem pedidos de rolagem"
         }
-        return if (errors.isEmpty()) ParseResult.Ok(
-            TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal ?: requestedNpc, requestCombat, powerRequest, requestedNpc != null)
-        ) else ParseResult.Invalid(errors)
+        return if (errors.isEmpty()) {
+            ParseResult.Ok(
+                TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal ?: requestedNpc, requestCombat, powerRequest, requestedNpc != null),
+            )
+        } else {
+            ParseResult.Invalid(errors)
+        }
     }
 
     internal fun extractJson(raw: String): String? {
@@ -252,19 +288,19 @@ object ProposalParser {
         return if (start in 0 until end) raw.substring(start, end + 1) else null
     }
 
-    private fun JsonObject.str(key: String): String? =
-        (this[key] as? JsonPrimitive)?.takeIf { it.isString }?.content
+    private fun JsonObject.str(key: String): String? = (this[key] as? JsonPrimitive)?.takeIf { it.isString }?.content
 
-    private fun JsonObject.int(key: String): Int? =
-        (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
+    private fun JsonObject.int(key: String): Int? = (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
 
-    private fun JsonObject.bool(key: String): Boolean? =
-        (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull
+    private fun JsonObject.bool(key: String): Boolean? = (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull
 
     private fun toNpcProposal(o: JsonObject): NpcProposal {
-        fun requiredText(key: String): String =
-            o.str(key)?.trim()?.takeIf { it.isNotEmpty() } ?: throw Bad("campo '$key' ausente ou vazio")
-        fun intMap(key: String, optional: Boolean = false): Map<String, Int> {
+        fun requiredText(key: String): String = o.str(key)?.trim()?.takeIf { it.isNotEmpty() } ?: throw Bad("campo '$key' ausente ou vazio")
+
+        fun intMap(
+            key: String,
+            optional: Boolean = false,
+        ): Map<String, Int> {
             val raw = o[key]
             if (raw == null && optional) return emptyMap()
             val obj = raw as? JsonObject ?: throw Bad("campo '$key' deve ser um objeto id -> número")
@@ -275,58 +311,74 @@ object ProposalParser {
             }
         }
         val rawTraits = o["traits"]
-        val traits = when (rawTraits) {
-            null, is JsonNull -> emptyList()
-            is JsonArray -> rawTraits.map { value ->
-                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("campo 'traits' deve ser uma lista de ids em texto")
+        val traits =
+            when (rawTraits) {
+                null, is JsonNull -> emptyList()
+                is JsonArray ->
+                    rawTraits.map { value ->
+                        (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                            ?: throw Bad("campo 'traits' deve ser uma lista de ids em texto")
+                    }
+                else -> throw Bad("campo 'traits' deve ser uma lista de ids em texto")
             }
-            else -> throw Bad("campo 'traits' deve ser uma lista de ids em texto")
-        }
         val stats = intMap("stats")
         if (stats.isEmpty()) throw Bad("informe os atributos do NPC em 'stats'")
-        fun textList(key: String): List<String> = when (val raw = o[key]) {
-            null, is JsonNull -> emptyList()
-            is JsonArray -> raw.map { value ->
-                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("campo '$key' deve ser uma lista de textos")
+
+        fun textList(key: String): List<String> =
+            when (val raw = o[key]) {
+                null, is JsonNull -> emptyList()
+                is JsonArray ->
+                    raw.map { value ->
+                        (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                            ?: throw Bad("campo '$key' deve ser uma lista de textos")
+                    }
+                else -> throw Bad("campo '$key' deve ser uma lista de textos")
             }
-            else -> throw Bad("campo '$key' deve ser uma lista de textos")
-        }
-        val relations = when (val raw = o["relations"]) {
-            null, is JsonNull -> emptyMap()
-            is JsonObject -> raw.mapValues { (key, value) ->
-                (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("campo 'relations.$key' deve ser texto")
+        val relations =
+            when (val raw = o["relations"]) {
+                null, is JsonNull -> emptyMap()
+                is JsonObject ->
+                    raw.mapValues { (key, value) ->
+                        (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                            ?: throw Bad("campo 'relations.$key' deve ser texto")
+                    }
+                else -> throw Bad("campo 'relations' deve ser um objeto")
             }
-            else -> throw Bad("campo 'relations' deve ser um objeto")
-        }
-        val secrets = when (val raw = o["secrets"]) {
-            null, is JsonNull -> emptyList()
-            is JsonArray -> raw.mapIndexed { index, value ->
-                val secret = value as? JsonObject ?: throw Bad("secrets[$index] deve ser um objeto")
-                val id = secret.str("id")?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("secrets[$index].id ausente")
-                val text = secret.str("text")?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("secrets[$index].text ausente")
-                Secret(id, text, secret.bool("falseInfo") ?: false)
+        val secrets =
+            when (val raw = o["secrets"]) {
+                null, is JsonNull -> emptyList()
+                is JsonArray ->
+                    raw.mapIndexed { index, value ->
+                        val secret = value as? JsonObject ?: throw Bad("secrets[$index] deve ser um objeto")
+                        val id =
+                            secret.str("id")?.trim()?.takeIf { it.isNotEmpty() }
+                                ?: throw Bad("secrets[$index].id ausente")
+                        val text =
+                            secret.str("text")?.trim()?.takeIf { it.isNotEmpty() }
+                                ?: throw Bad("secrets[$index].text ausente")
+                        Secret(id, text, secret.bool("falseInfo") ?: false)
+                    }
+                else -> throw Bad("campo 'secrets' deve ser uma lista de objetos")
             }
-            else -> throw Bad("campo 'secrets' deve ser uma lista de objetos")
-        }
         val personality = o.str("personality")?.trim().orEmpty()
         val goals = textList("goals")
         val motivations = textList("motivations")
-        val dossier = if (personality.isBlank() && goals.isEmpty() && motivations.isEmpty() && relations.isEmpty() && secrets.isEmpty()) {
-            null
-        } else NpcDossier("pending", personality, goals, motivations, relations, secrets)
+        val dossier =
+            if (personality.isBlank() && goals.isEmpty() && motivations.isEmpty() && relations.isEmpty() && secrets.isEmpty()) {
+                null
+            } else {
+                NpcDossier("pending", personality, goals, motivations, relations, secrets)
+            }
         val rawId = o["id"]
-        val customId = when (rawId) {
-            null, is JsonNull -> null
-            is JsonPrimitive -> rawId.takeIf { it.isString }?.content?.trim()
-                ?.takeIf { NPC_ID.matches(it) }
-                ?: throw Bad("campo 'id' deve ser um slug minúsculo (letras, números e hífen, 2 a 40 caracteres)")
-            else -> throw Bad("campo 'id' deve ser texto")
-        }
+        val customId =
+            when (rawId) {
+                null, is JsonNull -> null
+                is JsonPrimitive ->
+                    rawId.takeIf { it.isString }?.content?.trim()
+                        ?.takeIf { NPC_ID.matches(it) }
+                        ?: throw Bad("campo 'id' deve ser um slug minúsculo (letras, números e hífen, 2 a 40 caracteres)")
+                else -> throw Bad("campo 'id' deve ser texto")
+            }
         return NpcProposal(
             id = customId ?: "pending",
             name = requiredText("name"),
@@ -336,7 +388,7 @@ object ProposalParser {
             ruleSource = RuleSource.PACOTE,
             skills = intMap("skills", optional = true),
             dossier = dossier,
-            resources = intMap("resources", optional = true)
+            resources = intMap("resources", optional = true),
         )
     }
 
@@ -351,16 +403,22 @@ object ProposalParser {
             val text = e.str("text")?.trim()?.takeIf { it.isNotEmpty() } ?: throw Bad("table[$key]: campo 'text' ausente ou vazio")
             val damage = if (!e.containsKey("damage")) 0 else (e.int("damage") ?: throw Bad("table[$key]: 'damage' deve ser número"))
             if (damage < 0) throw Bad("table[$key]: 'damage' negativo")
-            val conditions = when (val c = e["conditions"]) {
-                null, is JsonNull -> emptyList()
-                is JsonArray -> c.map { el ->
-                    (el as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
-                        ?: throw Bad("table[$key]: 'conditions' deve ser uma lista de ids em texto")
-                }.distinct()
-                else -> throw Bad("table[$key]: 'conditions' deve ser uma lista de ids em texto")
-            }
-            val hazard = if (!e.containsKey("hazard") || e["hazard"] is JsonNull) null
-                else slug(e.str("hazard")?.takeIf { it.isNotBlank() } ?: throw Bad("table[$key]: 'hazard' deve ser o id do perfil em texto"))
+            val conditions =
+                when (val c = e["conditions"]) {
+                    null, is JsonNull -> emptyList()
+                    is JsonArray ->
+                        c.map { el ->
+                            (el as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                                ?: throw Bad("table[$key]: 'conditions' deve ser uma lista de ids em texto")
+                        }.distinct()
+                    else -> throw Bad("table[$key]: 'conditions' deve ser uma lista de ids em texto")
+                }
+            val hazard =
+                if (!e.containsKey("hazard") || e["hazard"] is JsonNull) {
+                    null
+                } else {
+                    slug(e.str("hazard")?.takeIf { it.isNotBlank() } ?: throw Bad("table[$key]: 'hazard' deve ser o id do perfil em texto"))
+                }
             if (hazard != null && damage > 0) throw Bad("table[$key]: use 'hazard' ou 'damage', não ambos")
             table[face] = RollEntry(text, damage, conditions, hazard)
         }
@@ -378,50 +436,63 @@ object ProposalParser {
 
     private fun toCheckRequest(o: JsonObject): CheckRequest {
         fun req(k: String): String = o.str(k)?.takeIf { it.isNotBlank() } ?: throw Bad("campo '$k' ausente ou vazio")
+
         fun opt(k: String): String? = o.str(k)?.trim()?.takeIf { it.isNotEmpty() }
-        val opposed = when (val raw = o["opposed"]) {
-            null, is JsonNull -> null
-            is JsonObject -> {
-                val entityId = raw.str("entityId")?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("opposed.entityId ausente")
-                val checkId = raw.str("check")?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("opposed.check ausente")
-                OpposedCheckRequest(entityId, checkId, raw.str("difficulty")?.trim()?.takeIf { it.isNotEmpty() },
-                    raw.str("label")?.trim()?.takeIf { it.isNotEmpty() })
+        val opposed =
+            when (val raw = o["opposed"]) {
+                null, is JsonNull -> null
+                is JsonObject -> {
+                    val entityId =
+                        raw.str("entityId")?.trim()?.takeIf { it.isNotEmpty() }
+                            ?: throw Bad("opposed.entityId ausente")
+                    val checkId =
+                        raw.str("check")?.trim()?.takeIf { it.isNotEmpty() }
+                            ?: throw Bad("opposed.check ausente")
+                    OpposedCheckRequest(
+                        entityId,
+                        checkId,
+                        raw.str("difficulty")?.trim()?.takeIf { it.isNotEmpty() },
+                        raw.str("label")?.trim()?.takeIf { it.isNotEmpty() },
+                    )
+                }
+                else -> throw Bad("'opposed' deve ser um objeto")
             }
-            else -> throw Bad("'opposed' deve ser um objeto")
-        }
-        val group = when (val raw = o["group"]) {
-            null, is JsonNull -> null
-            is JsonObject -> {
-                val ids = raw["participantIds"] as? JsonArray ?: throw Bad("group.participantIds deve ser uma lista")
-                val participants = ids.map { value ->
-                    (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
-                        ?: throw Bad("group.participantIds deve conter ids em texto")
+        val group =
+            when (val raw = o["group"]) {
+                null, is JsonNull -> null
+                is JsonObject -> {
+                    val ids = raw["participantIds"] as? JsonArray ?: throw Bad("group.participantIds deve ser uma lista")
+                    val participants =
+                        ids.map { value ->
+                            (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                                ?: throw Bad("group.participantIds deve conter ids em texto")
+                        }
+                    if (participants.size < 2) {
+                        throw Bad("group.participantIds deve conter pelo menos dois participantes")
+                    }
+                    if (participants.distinct().size != participants.size) {
+                        throw Bad("group.participantIds não pode repetir participantes")
+                    }
+                    if ("player" !in participants) {
+                        throw Bad("group.participantIds deve incluir 'player' para resolver o resultado do personagem do jogador")
+                    }
+                    val required =
+                        raw["requiredSuccesses"]?.let {
+                            (it as? JsonPrimitive)?.takeIf { p -> !p.isString }?.intOrNull
+                        } ?: throw Bad("group.requiredSuccesses deve ser inteiro")
+                    if (required !in 1..participants.size) {
+                        throw Bad("group.requiredSuccesses deve ficar entre 1 e o número de participantes")
+                    }
+                    val success =
+                        raw.str("onSuccess")?.trim()?.takeIf { it.isNotEmpty() }
+                            ?: throw Bad("group.onSuccess ausente")
+                    val failure =
+                        raw.str("onFailure")?.trim()?.takeIf { it.isNotEmpty() }
+                            ?: throw Bad("group.onFailure ausente")
+                    GroupCheckRequest(participants, required, success, failure)
                 }
-                if (participants.size < 2) {
-                    throw Bad("group.participantIds deve conter pelo menos dois participantes")
-                }
-                if (participants.distinct().size != participants.size) {
-                    throw Bad("group.participantIds não pode repetir participantes")
-                }
-                if ("player" !in participants) {
-                    throw Bad("group.participantIds deve incluir 'player' para resolver o resultado do personagem do jogador")
-                }
-                val required = raw["requiredSuccesses"]?.let {
-                    (it as? JsonPrimitive)?.takeIf { p -> !p.isString }?.intOrNull
-                } ?: throw Bad("group.requiredSuccesses deve ser inteiro")
-                if (required !in 1..participants.size) {
-                    throw Bad("group.requiredSuccesses deve ficar entre 1 e o número de participantes")
-                }
-                val success = raw.str("onSuccess")?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("group.onSuccess ausente")
-                val failure = raw.str("onFailure")?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw Bad("group.onFailure ausente")
-                GroupCheckRequest(participants, required, success, failure)
+                else -> throw Bad("'group' deve ser um objeto")
             }
-            else -> throw Bad("'group' deve ser um objeto")
-        }
         return CheckRequest(
             checkId = req("check").trim(),
             difficultyId = opt("difficulty"),
@@ -436,7 +507,7 @@ object ProposalParser {
             revealPlaceSecret = o.bool("revealPlaceSecret") ?: false,
             requiredStat = opt("requiredStat"),
             opposed = opposed,
-            group = group
+            group = group,
         ).also {
             if ((it.targetNpcId == null) != (it.revealSecretId == null)) {
                 throw Bad("use targetNpc e revealSecret juntos")
@@ -451,7 +522,8 @@ object ProposalParser {
                 throw Bad("revelar segredo exige requiredStat")
             }
             if ((it.opposed != null || it.group != null) &&
-                (it.targetNpcId != null || it.revealSecretId != null || it.targetPlaceId != null || it.revealPlaceSecret)) {
+                (it.targetNpcId != null || it.revealSecretId != null || it.targetPlaceId != null || it.revealPlaceSecret)
+            ) {
                 throw Bad("não combine teste oposto/em grupo com revelação de segredo")
             }
             if (it.opposed != null && it.group != null) throw Bad("use opposed ou group, não ambos")
@@ -460,9 +532,16 @@ object ProposalParser {
 
     private fun toCommand(o: JsonObject): Command {
         val type = o.str("type") ?: throw Bad("campo 'type' ausente")
+
         fun s(k: String): String = o.str(k)?.takeIf { it.isNotBlank() } ?: throw Bad("$type: campo '$k' ausente ou vazio")
+
         fun n(k: String): Int = o.int(k) ?: throw Bad("$type: campo '$k' ausente ou não numérico")
-        fun nOr(k: String, default: Int): Int = if (o.containsKey(k)) n(k) else default
+
+        fun nOr(
+            k: String,
+            default: Int,
+        ): Int = if (o.containsKey(k)) n(k) else default
+
         fun opt(k: String): String? = o.str(k)?.trim()?.takeIf { it.isNotEmpty() }
         return when (type) {
             "damage" -> Damage(s("entityId"), s("resource"), n("amount"))
@@ -480,25 +559,46 @@ object ProposalParser {
             "add_condition" -> AddCondition(s("entityId"), s("condition"))
             "remove_condition" -> RemoveCondition(s("entityId"), s("condition"))
             "change_relation" -> ChangeRelation(s("fromId"), s("toId"), n("delta"), s("reason"))
-            "create_clock" -> CreateClock(s("id"), s("name"), n("segments"), o.str("publicClue")?.trim().orEmpty(), nOr("restTick", 0), nOr("moveTick", 0), nOr("chapterTick", 0), o.str("midClue")?.trim().orEmpty(), o.str("consequence")?.trim().orEmpty())
-            "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
-            "add_place" -> AddPlace(
-                Place(
-                    id = slug(s("id")),
-                    name = s("name"),
-                    description = o.str("description")?.trim().orEmpty(),
-                    secret = o.str("secret")?.trim().orEmpty()
+            "create_clock" ->
+                CreateClock(
+                    s(
+                        "id",
+                    ),
+                    s(
+                        "name",
+                    ),
+                    n(
+                        "segments",
+                    ),
+                    o.str(
+                        "publicClue",
+                    )?.trim().orEmpty(),
+                    nOr(
+                        "restTick",
+                        0,
+                    ),
+                    nOr("moveTick", 0), nOr("chapterTick", 0), o.str("midClue")?.trim().orEmpty(), o.str("consequence")?.trim().orEmpty(),
                 )
-            )
+            "advance_clock" -> AdvanceClock(s("id"), nOr("by", 1))
+            "add_place" ->
+                AddPlace(
+                    Place(
+                        id = slug(s("id")),
+                        name = s("name"),
+                        description = o.str("description")?.trim().orEmpty(),
+                        secret = o.str("secret")?.trim().orEmpty(),
+                    ),
+                )
             "connect_places" -> ConnectPlaces(slug(s("fromId")), slug(s("toId")))
             "discover_place" -> DiscoverPlace(slug(s("id")))
             "propose_rule" -> {
                 val rawEffects = o["effects"] as? JsonObject ?: throw Bad("propose_rule: campo 'effects' deve ser um objeto escopo -> bônus")
-                val effects = rawEffects.mapValues { (scope, value) ->
-                    val primitive = value as? JsonPrimitive
-                    if (primitive == null || primitive.isString) throw Bad("propose_rule: efeito '$scope' deve ser inteiro")
-                    primitive.intOrNull ?: throw Bad("propose_rule: efeito '$scope' deve ser inteiro")
-                }
+                val effects =
+                    rawEffects.mapValues { (scope, value) ->
+                        val primitive = value as? JsonPrimitive
+                        if (primitive == null || primitive.isString) throw Bad("propose_rule: efeito '$scope' deve ser inteiro")
+                        primitive.intOrNull ?: throw Bad("propose_rule: efeito '$scope' deve ser inteiro")
+                    }
                 ProposeRuleAddition(
                     RegraAdicional(
                         id = slug(s("id")),
@@ -507,8 +607,8 @@ object ProposalParser {
                         effects = effects,
                         limit = s("limit"),
                         origin = RuleOrigin.ADAPTACAO,
-                        approved = false
-                    )
+                        approved = false,
+                    ),
                 )
             }
             "roll", "dice", "check", "set_hp", "set_resource", "create_entity", "start_combat", "end_combat", "next_turn" ->

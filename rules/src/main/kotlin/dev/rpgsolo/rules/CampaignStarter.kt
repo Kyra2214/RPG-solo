@@ -1,10 +1,10 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.Ambientacao
-import dev.rpgsolo.engine.Campanha
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CampaignStyle
+import dev.rpgsolo.engine.Campanha
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.EventStore
@@ -20,7 +20,7 @@ sealed interface StartResult {
         val pkg: RulePackage?,
         val playerId: String,
         /** Avisos que o jogador deve ver antes de jogar. */
-        val notes: List<String>
+        val notes: List<String>,
     ) : StartResult
 
     /** Recusado na validação: nada foi gravado. */
@@ -32,10 +32,11 @@ sealed interface StartResult {
  * Nunca mistura sistemas em silêncio: a ficha precisa ser da mesma edição da campanha.
  */
 object CampaignStarter {
-
     /** Pacote da edição escolhida. Se houver mais de um, o último instalado vence (ex.: variante que herda do base). */
-    fun packageFor(registry: PackageRegistry, editionId: String): RulePackage? =
-        registry.installed().lastOrNull { it.edition == editionId }?.let { registry.get(it.id) }
+    fun packageFor(
+        registry: PackageRegistry,
+        editionId: String,
+    ): RulePackage? = registry.installed().lastOrNull { it.edition == editionId }?.let { registry.get(it.id) }
 
     fun start(
         store: EventStore,
@@ -48,7 +49,7 @@ object CampaignStarter {
         name: String,
         seed: Long,
         /** Ambientação em texto livre (9.1/4A.1.3); se nula, usa o nome da primeira ambientação do catálogo. */
-        customSetting: String? = null
+        customSetting: String? = null,
     ): StartResult {
         val edition = ready.edition
         val problems = mutableListOf<String>()
@@ -64,26 +65,29 @@ object CampaignStarter {
         }
         if (problems.isNotEmpty()) return StartResult.Refused(problems)
 
-        val settingName = customSetting?.trim()?.takeIf { it.isNotEmpty() }
-            ?: config.settingIds.firstNotNullOfOrNull { catalog?.entry(it)?.name }
-            ?: "Ambientação livre"
+        val settingName =
+            customSetting?.trim()?.takeIf { it.isNotEmpty() }
+                ?: config.settingIds.firstNotNullOfOrNull { catalog?.entry(it)?.name }
+                ?: "Ambientação livre"
         val tone = config.toneIds.mapNotNull { catalog?.entry(it)?.name }.joinToString(", ")
-        val campanha = Campanha(
-            id = campaignId,
-            fichaId = ficha.id,
-            system = ficha.system,
-            ambientacao = Ambientacao(id = "amb-$campaignId", campaignId = campaignId, name = settingName, tone = tone),
-            style = CampaignStyle(
-                settingIds = config.settingIds,
-                structureIds = config.structureIds,
-                philosophyIds = config.philosophyIds,
-                toneIds = config.toneIds,
-                difficultyId = config.difficulty.levelId,
-                difficultyParams = config.difficulty.params,
-                progressionId = config.progressionId,
-                contentLimits = config.contentLimits
+        val campanha =
+            Campanha(
+                id = campaignId,
+                fichaId = ficha.id,
+                system = ficha.system,
+                ambientacao = Ambientacao(id = "amb-$campaignId", campaignId = campaignId, name = settingName, tone = tone),
+                style =
+                    CampaignStyle(
+                        settingIds = config.settingIds,
+                        structureIds = config.structureIds,
+                        philosophyIds = config.philosophyIds,
+                        toneIds = config.toneIds,
+                        difficultyId = config.difficulty.levelId,
+                        difficultyParams = config.difficulty.params,
+                        progressionId = config.progressionId,
+                        contentLimits = config.contentLimits,
+                    ),
             )
-        )
 
         val record = CampaignRecord(campaignId, name.trim(), seed, pkg?.engineConfig() ?: EngineConfig())
         val session = CampaignSession.create(store, record)

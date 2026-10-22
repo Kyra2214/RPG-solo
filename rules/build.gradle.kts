@@ -1,3 +1,6 @@
 plugins { alias(libs.plugins.kotlin.jvm) }
 kotlin { jvmToolchain(17) }
-dependencies { implementation(project(":engine")); testImplementation(libs.junit) }
+dependencies {
+    implementation(project(":engine"))
+    testImplementation(libs.junit)
+}

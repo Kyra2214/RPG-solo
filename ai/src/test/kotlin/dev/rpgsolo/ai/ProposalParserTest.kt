@@ -8,6 +8,7 @@ import org.junit.Test
 
 class ProposalParserTest {
     private fun ok(raw: String) = (ProposalParser.parse(raw) as ParseResult.Ok).output
+
     private fun errors(raw: String) = (ProposalParser.parse(raw) as ParseResult.Invalid).errors
 
     @Test fun jsonPuroComPropostas() {
@@ -40,7 +41,9 @@ class ProposalParserTest {
 
     @Test fun campoFaltandoOuTextoNoLugarDeNumero() {
         assertTrue(errors("""{"narrative":"x","proposals":[{"type":"damage","entityId":"orc","resource":"hp"}]}""").isNotEmpty())
-        assertTrue(errors("""{"narrative":"x","proposals":[{"type":"damage","entityId":"orc","resource":"hp","amount":"3"}]}""").isNotEmpty())
+        assertTrue(
+            errors("""{"narrative":"x","proposals":[{"type":"damage","entityId":"orc","resource":"hp","amount":"3"}]}""").isNotEmpty(),
+        )
     }
 
     @Test fun umaPropostaRuimInvalidaOLoteInteiro() {
@@ -50,14 +53,15 @@ class ProposalParserTest {
     }
 
     @Test fun iaNaoPodeEnviarComandosInternosDeArvoreOuMaldicao() {
-        val forbiddenTypes = listOf(
-            "progress_skill_tree",
-            "set_skill_tree_loadout",
-            "apply_target_skill_effects",
-            "activate_ability",
-            "apply_curse",
-            "remove_curse"
-        )
+        val forbiddenTypes =
+            listOf(
+                "progress_skill_tree",
+                "set_skill_tree_loadout",
+                "apply_target_skill_effects",
+                "activate_ability",
+                "apply_curse",
+                "remove_curse",
+            )
         forbiddenTypes.forEach { type ->
             val raw = """{"narrative":"x","proposals":[{"type":"$type","skillId":"inventada","curseId":"inventada"}]}"""
             assertTrue("$type deve ser rejeitado pelo parser da IA", errors(raw).isNotEmpty())

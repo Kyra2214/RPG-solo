@@ -12,7 +12,7 @@ class SkillTreeProgressionTest {
         free: Boolean = false,
         unlockCost: Int = 1,
         actionCost: Int = 0,
-        actionResource: String? = null
+        actionResource: String? = null,
     ) = SkillTreeSkill(
         id = id,
         name = id,
@@ -22,7 +22,7 @@ class SkillTreeProgressionTest {
         freeBaseSkill = free,
         unlockPointCost = unlockCost,
         actionCost = actionCost,
-        actionResource = actionResource
+        actionResource = actionResource,
     )
 
     @Test fun desbloqueioEUpgradeTemCustosSeparadosEProgressaoSemTetoArbitrario() {
@@ -33,12 +33,16 @@ class SkillTreeProgressionTest {
     }
 
     @Test fun habilidadeBasicaGratuitaSoPodeVirDeOrigemPermitida() {
-        assertTrue(runCatching {
-            skill(free = true, unlockCost = 1)
-        }.isFailure)
-        assertTrue(runCatching {
-            skill(origin = SkillOrigin.PROFESSION, free = true, unlockCost = 0)
-        }.isFailure)
+        assertTrue(
+            runCatching {
+                skill(free = true, unlockCost = 1)
+            }.isFailure,
+        )
+        assertTrue(
+            runCatching {
+                skill(origin = SkillOrigin.PROFESSION, free = true, unlockCost = 0)
+            }.isFailure,
+        )
         skill(origin = SkillOrigin.RACE, free = true, unlockCost = 0)
     }
 
@@ -51,9 +55,10 @@ class SkillTreeProgressionTest {
         val weaker = SkillEffectSpec("weak", "defesa", 2, stackingGroup = "guard")
         val stronger = SkillEffectSpec("strong", "defesa", 5, stackingGroup = "guard")
         val different = SkillEffectSpec("speed", "velocidade", 3, stackingGroup = "speed")
-        val selected = SkillTreeProgression.strongestEquivalentEffects(
-            listOf(weaker to 2, stronger to 5, different to 3)
-        )
+        val selected =
+            SkillTreeProgression.strongestEquivalentEffects(
+                listOf(weaker to 2, stronger to 5, different to 3),
+            )
         assertEquals(2, selected.size)
         assertEquals(setOf(5, 3), selected.map { it.second }.toSet())
     }
@@ -68,16 +73,26 @@ class SkillTreeProgressionTest {
     }
 
     @Test fun penalidadeHibridaCobreEscoposSociaisDasPericiasECatalogo() {
-        assertTrue(HybridClassRules.socialPenaltyScopes.containsAll(
+        assertTrue(
+            HybridClassRules.socialPenaltyScopes.containsAll(
+                setOf(
+                    "persuasao", "intimidacao", "lideranca",
+                    "atuacao", "enganacao", "diplomacia",
+                    "argumentacao", "mediacao", "comerciante",
+                ),
+            ),
+        )
+        assertTrue(
+            "penalidade social não deve contaminar escopos de combate",
             setOf(
-                "persuasao", "intimidacao", "lideranca",
-                "atuacao", "enganacao", "diplomacia",
-                "argumentacao", "mediacao", "comerciante"
-            )
-        ))
-        assertTrue("penalidade social não deve contaminar escopos de combate", setOf(
-            "ataque", "dano", "defesa", "resistencia_dano", "velocidade", "precisao"
-        ).none { it in HybridClassRules.socialPenaltyScopes })
+                "ataque",
+                "dano",
+                "defesa",
+                "resistencia_dano",
+                "velocidade",
+                "precisao",
+            ).none { it in HybridClassRules.socialPenaltyScopes },
+        )
     }
 
     @Test fun classesSecundariasSoContamQuandoDesbloqueadasPeloNivel() {

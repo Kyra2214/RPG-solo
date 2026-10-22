@@ -11,47 +11,61 @@ import dev.rpgsolo.engine.InMemoryEventStore
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.rules.InstallResult
 import dev.rpgsolo.rules.PackageRegistry
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class PlayControllerTest {
-    private fun session() = CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 9L, EngineConfig(deathResource = "pv"))).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(6, 6))))
-        ))
-    }
-    private fun ctrl(s: CampaignSession, script: List<Any>, check: ((String) -> CheckSpec?) = { CheckSpec("ataque", 1, 20, 2, 10) }) =
-        PlayController(s, GameLoop(ScriptedProvider(script)), "hero", "pv", check)
+    private fun session() =
+        CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 9L, EngineConfig(deathResource = "pv"))).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))),
+                    CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(6, 6)))),
+                ),
+            )
+        }
+
+    private fun ctrl(
+        s: CampaignSession,
+        script: List<Any>,
+        check: ((String) -> CheckSpec?) = { CheckSpec("ataque", 1, 20, 2, 10) },
+    ) = PlayController(s, GameLoop(ScriptedProvider(script)), "hero", "pv", check)
+
     private fun ok(n: String) = """{"narrative":"$n"}"""
 
     private fun fortuneMenu(): CheckMenu {
-        val root = listOf(
-            "rules/src/test/resources/packages/teste-basico",
-            "../rules/src/test/resources/packages/teste-basico",
-            "src/test/resources/packages/teste-basico"
-        ).map(::File).first { it.exists() }
-        val files = root.listFiles()!!.filter { it.name.endsWith(".txt") }
-            .associate { it.name to it.readText() }.toMutableMap()
-        files["testes.txt"] = files.getValue("testes.txt").lines().joinToString("\n") { line ->
-            if (line.isBlank() || line.startsWith("#")) line
-            else {
-                val fields = line.split("|").toMutableList()
-                if (fields.firstOrNull() == "ataque") {
-                    while (fields.size < 16) fields += "-"
-                    fields[11] = "NORMAL"
-                    fields[12] = "false"
-                    fields[13] = "mana"
-                    fields[14] = "1"
-                    fields[15] = "ADVANTAGE"
-                    fields.joinToString("|")
-                } else line
+        val root =
+            listOf(
+                "rules/src/test/resources/packages/teste-basico",
+                "../rules/src/test/resources/packages/teste-basico",
+                "src/test/resources/packages/teste-basico",
+            ).map(::File).first { it.exists() }
+        val files =
+            root.listFiles()!!.filter { it.name.endsWith(".txt") }
+                .associate { it.name to it.readText() }.toMutableMap()
+        files["testes.txt"] =
+            files.getValue("testes.txt").lines().joinToString("\n") { line ->
+                if (line.isBlank() || line.startsWith("#")) {
+                    line
+                } else {
+                    val fields = line.split("|").toMutableList()
+                    if (fields.firstOrNull() == "ataque") {
+                        while (fields.size < 16) fields += "-"
+                        fields[11] = "NORMAL"
+                        fields[12] = "false"
+                        fields[13] = "mana"
+                        fields[14] = "1"
+                        fields[15] = "ADVANTAGE"
+                        fields.joinToString("|")
+                    } else {
+                        line
+                    }
+                }
             }
-        }
         val installed = PackageRegistry().install(files)
         assertTrue("pacote deveria instalar: $installed", installed is InstallResult.Success)
         return CheckMenu((installed as InstallResult.Success).pkg)
@@ -66,13 +80,14 @@ class PlayControllerTest {
     }
 
     @Test fun vantagemMostraAlternativaDescartadaEResultadoEscolhido() {
-        val c = ctrl(
-            session(),
-            listOf(ok("Você consegue passar.")),
-            check = {
-                CheckSpec("furtividade", 1, 20, 2, 10, fortuneMode = dev.rpgsolo.engine.FortuneMode.ADVANTAGE)
-            }
-        )
+        val c =
+            ctrl(
+                session(),
+                listOf(ok("Você consegue passar.")),
+                check = {
+                    CheckSpec("furtividade", 1, 20, 2, 10, fortuneMode = dev.rpgsolo.engine.FortuneMode.ADVANTAGE)
+                },
+            )
 
         assertTrue(c.submit("passo escondido") is PlayResult.Played)
         assertEquals(listOf(Author.PLAYER, Author.ROLL, Author.ROLL, Author.MASTER), c.lines.map { it.author })
@@ -82,23 +97,37 @@ class PlayControllerTest {
     }
 
     @Test fun jogadorPodeEscolherGastarRecursoParaVantagemNoTestePendente() {
-        val s = CampaignSession.create(
-            InMemoryEventStore(),
-            CampaignRecord("paid-fortune", "Teste", 42L, EngineConfig(deathResource = "hp"))
+        val s =
+            CampaignSession.create(
+                InMemoryEventStore(),
+                CampaignRecord("paid-fortune", "Teste", 42L, EngineConfig(deathResource = "hp")),
+            )
+        s.execute(
+            CreateEntity(
+                Entity(
+                    id = "hero",
+                    name = "Herói",
+                    kind = EntityKind.PLAYER,
+                    stats = mapOf("forca" to 2, "agilidade" to 1, "mente" to 1),
+                    resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(2, 2)),
+                ),
+            ),
         )
-        s.execute(CreateEntity(Entity(
-            id = "hero", name = "Herói", kind = EntityKind.PLAYER,
-            stats = mapOf("forca" to 2, "agilidade" to 1, "mente" to 1),
-            resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(2, 2))
-        )))
-        val provider = ScriptedProvider(listOf(
-            """{"narrative":"A fechadura resiste.","request_check":{"check":"ataque","difficulty":"media","onSuccess":"abre","onFailure":"falha"}}""",
-            ok("A fechadura cede.")
-        ))
-        val c = PlayController(
-            s, GameLoop(provider, menu = fortuneMenu()), "hero", "hp",
-            checkFor = { null }
-        )
+        val provider =
+            ScriptedProvider(
+                listOf(
+                    """{"narrative":"A fechadura resiste.","request_check":{"check":"ataque","difficulty":"media","onSuccess":"abre","onFailure":"falha"}}""",
+                    ok("A fechadura cede."),
+                ),
+            )
+        val c =
+            PlayController(
+                s,
+                GameLoop(provider, menu = fortuneMenu()),
+                "hero",
+                "hp",
+                checkFor = { null },
+            )
 
         assertTrue(c.submit("forço a fechadura") is PlayResult.Played)
         assertEquals(1, c.pendingFortuneSpendOption()!!.cost)
@@ -110,23 +139,37 @@ class PlayControllerTest {
     }
 
     @Test fun rolagemNormalNaoGastaRecursoMesmoQuandoExisteOpcaoPaga() {
-        val s = CampaignSession.create(
-            InMemoryEventStore(),
-            CampaignRecord("normal-fortune", "Teste", 43L, EngineConfig(deathResource = "hp"))
+        val s =
+            CampaignSession.create(
+                InMemoryEventStore(),
+                CampaignRecord("normal-fortune", "Teste", 43L, EngineConfig(deathResource = "hp")),
+            )
+        s.execute(
+            CreateEntity(
+                Entity(
+                    id = "hero",
+                    name = "Herói",
+                    kind = EntityKind.PLAYER,
+                    stats = mapOf("forca" to 2, "agilidade" to 1, "mente" to 1),
+                    resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(2, 2)),
+                ),
+            ),
         )
-        s.execute(CreateEntity(Entity(
-            id = "hero", name = "Herói", kind = EntityKind.PLAYER,
-            stats = mapOf("forca" to 2, "agilidade" to 1, "mente" to 1),
-            resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(2, 2))
-        )))
-        val provider = ScriptedProvider(listOf(
-            """{"narrative":"A fechadura resiste.","request_check":{"check":"ataque","difficulty":"media","onSuccess":"abre","onFailure":"falha"}}""",
-            ok("A fechadura resiste.")
-        ))
-        val c = PlayController(
-            s, GameLoop(provider, menu = fortuneMenu()), "hero", "hp",
-            checkFor = { null }
-        )
+        val provider =
+            ScriptedProvider(
+                listOf(
+                    """{"narrative":"A fechadura resiste.","request_check":{"check":"ataque","difficulty":"media","onSuccess":"abre","onFailure":"falha"}}""",
+                    ok("A fechadura resiste."),
+                ),
+            )
+        val c =
+            PlayController(
+                s,
+                GameLoop(provider, menu = fortuneMenu()),
+                "hero",
+                "hp",
+                checkFor = { null },
+            )
 
         assertTrue(c.submit("forço a fechadura") is PlayResult.Played)
         assertTrue(c.pendingFortuneSpendOption() != null)
@@ -212,11 +255,14 @@ class PlayControllerTest {
         val before = s.mark()
         val check = CheckSpec("ataque", 1, 20, 0, 10)
 
-        assertTrue(c.resolveOpposed(
-            check, check,
-            challengerEntityId = "hero",
-            defenderEntityId = "hero"
-        ) is PlayResult.Failed)
+        assertTrue(
+            c.resolveOpposed(
+                check,
+                check,
+                challengerEntityId = "hero",
+                defenderEntityId = "hero",
+            ) is PlayResult.Failed,
+        )
         assertEquals(before, s.mark())
         assertTrue(c.lines.isEmpty())
     }
@@ -225,12 +271,13 @@ class PlayControllerTest {
         val c = ctrl(session(), emptyList())
         val check = CheckSpec("ajuda", 1, 20, 0, 10)
 
-        val result = c.resolveGroup(
-            listOf(check.copy(label = "Orc"), check.copy(label = "Herói")),
-            requiredSuccesses = 1,
-            participantNames = listOf("Orc", "Herói"),
-            participantEntityIds = listOf(null, "hero")
-        ) as PlayResult.Played
+        val result =
+            c.resolveGroup(
+                listOf(check.copy(label = "Orc"), check.copy(label = "Herói")),
+                requiredSuccesses = 1,
+                participantNames = listOf("Orc", "Herói"),
+                participantEntityIds = listOf(null, "hero"),
+            ) as PlayResult.Played
 
         assertEquals(2, result.record.advancedChecks.size)
         assertEquals("Herói", result.record.advancedChecks[1].first)
@@ -245,16 +292,22 @@ class PlayControllerTest {
 
         assertTrue(c.resolveGroup(listOf(check), 1) is PlayResult.Failed)
         assertTrue(c.resolveGroup(listOf(check, check), 3) is PlayResult.Failed)
-        assertTrue(c.resolveGroup(
-            listOf(check, check), 1,
-            participantNames = listOf("Herói", "Orc"),
-            participantEntityIds = listOf("hero", "hero")
-        ) is PlayResult.Failed)
-        assertTrue(c.resolveGroup(
-            listOf(check, check), 1,
-            participantNames = listOf("Herói", "Orc"),
-            participantEntityIds = listOf("orc", null)
-        ) is PlayResult.Failed)
+        assertTrue(
+            c.resolveGroup(
+                listOf(check, check),
+                1,
+                participantNames = listOf("Herói", "Orc"),
+                participantEntityIds = listOf("hero", "hero"),
+            ) is PlayResult.Failed,
+        )
+        assertTrue(
+            c.resolveGroup(
+                listOf(check, check),
+                1,
+                participantNames = listOf("Herói", "Orc"),
+                participantEntityIds = listOf("orc", null),
+            ) is PlayResult.Failed,
+        )
         assertEquals(before, s.mark())
         assertTrue(c.lines.isEmpty())
     }
@@ -262,11 +315,14 @@ class PlayControllerTest {
     @Test fun testeDeGrupoRecusaNomeVazio() {
         val c = ctrl(session(), emptyList())
         val check = CheckSpec("ajuda", 1, 20, 0, 10)
-        assertTrue(c.resolveGroup(
-            listOf(check, check), 1,
-            participantNames = listOf("Herói", " "),
-            participantEntityIds = listOf("hero", null)
-        ) is PlayResult.Failed)
+        assertTrue(
+            c.resolveGroup(
+                listOf(check, check),
+                1,
+                participantNames = listOf("Herói", " "),
+                participantEntityIds = listOf("hero", null),
+            ) is PlayResult.Failed,
+        )
         assertTrue(c.lines.isEmpty())
     }
 

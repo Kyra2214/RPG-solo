@@ -19,18 +19,25 @@ class CancelToken {
     val isCancelled: Boolean get() = latch.count == 0L
 
     fun cancel() {
-        val action = synchronized(this) {
-            latch.countDown()
-            onCancel.also { onCancel = null }
-        }
+        val action =
+            synchronized(this) {
+                latch.countDown()
+                onCancel.also { onCancel = null }
+            }
         action?.invoke()
     }
 
     /** Registra o que fechar ao cancelar; se já cancelado, executa na hora. Passe null para soltar. */
     internal fun attach(action: (() -> Unit)?) {
-        val runNow = synchronized(this) {
-            if (action != null && isCancelled) true else { onCancel = action; false }
-        }
+        val runNow =
+            synchronized(this) {
+                if (action != null && isCancelled) {
+                    true
+                } else {
+                    onCancel = action
+                    false
+                }
+            }
         if (runNow) action?.invoke()
     }
 
@@ -50,7 +57,10 @@ class CancelToken {
         fun current(): CancelToken? = current.get()
 
         /** Associa [token] à thread atual durante [block]. */
-        fun <T> bind(token: CancelToken, block: () -> T): T {
+        fun <T> bind(
+            token: CancelToken,
+            block: () -> T,
+        ): T {
             val previous = current.get()
             current.set(token)
             try {
@@ -67,10 +77,19 @@ data class HttpReply(val status: Int, val body: String, val headers: Map<String,
 /** Separa a rede do resto: nos testes entra uma implementação falsa, sem internet. */
 interface HttpTransport {
     /** Lança [AiError.NoInternet] se não conseguir falar com o servidor. */
-    fun post(url: String, headers: Map<String, String>, body: String): HttpReply
+    fun post(
+        url: String,
+        headers: Map<String, String>,
+        body: String,
+    ): HttpReply
 
     /** Lê uma resposta progressivamente por linhas (SSE). Implementações falsas herdam o fallback completo. */
-    fun postStream(url: String, headers: Map<String, String>, body: String, onLine: (String) -> Unit): HttpReply {
+    fun postStream(
+        url: String,
+        headers: Map<String, String>,
+        body: String,
+        onLine: (String) -> Unit,
+    ): HttpReply {
         val reply = post(url, headers, body)
         reply.body.lineSequence().forEach(onLine)
         return reply
@@ -79,9 +98,14 @@ interface HttpTransport {
 
 class JavaNetTransport(
     private val connectTimeoutMs: Int = 15_000,
-    private val readTimeoutMs: Int = 60_000
+    private val readTimeoutMs: Int = 60_000,
 ) : HttpTransport {
-    override fun postStream(url: String, headers: Map<String, String>, body: String, onLine: (String) -> Unit): HttpReply {
+    override fun postStream(
+        url: String,
+        headers: Map<String, String>,
+        body: String,
+        onLine: (String) -> Unit,
+    ): HttpReply {
         val token = CancelToken.current()
         token?.throwIfCancelled()
         try {
@@ -98,19 +122,30 @@ class JavaNetTransport(
                 val stream = if (status in 200..299) conn.inputStream else conn.errorStream
                 val captured = StringBuilder()
                 stream?.bufferedReader(Charsets.UTF_8)?.useLines { lines ->
-                    lines.forEach { line -> captured.append(line).append('\n'); onLine(line) }
+                    lines.forEach { line ->
+                        captured.append(line).append('\n')
+                        onLine(line)
+                    }
                 }
-                val hdrs = conn.headerFields.filterKeys { it != null }
-                    .mapKeys { it.key.lowercase() }.mapValues { it.value.firstOrNull().orEmpty() }
+                val hdrs =
+                    conn.headerFields.filterKeys { it != null }
+                        .mapKeys { it.key.lowercase() }.mapValues { it.value.firstOrNull().orEmpty() }
                 return HttpReply(status, captured.toString(), hdrs)
-            } finally { token?.attach(null); conn.disconnect() }
+            } finally {
+                token?.attach(null)
+                conn.disconnect()
+            }
         } catch (e: IOException) {
             token?.throwIfCancelled()
             throw AiError.NoInternet(e.javaClass.simpleName)
         }
     }
 
-    override fun post(url: String, headers: Map<String, String>, body: String): HttpReply {
+    override fun post(
+        url: String,
+        headers: Map<String, String>,
+        body: String,
+    ): HttpReply {
         val token = CancelToken.current()
         token?.throwIfCancelled()
         try {
@@ -126,10 +161,11 @@ class JavaNetTransport(
                 val status = conn.responseCode
                 val stream = if (status in 200..299) conn.inputStream else conn.errorStream
                 val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
-                val hdrs = conn.headerFields
-                    .filterKeys { it != null }
-                    .mapKeys { it.key.lowercase() }
-                    .mapValues { it.value.firstOrNull().orEmpty() }
+                val hdrs =
+                    conn.headerFields
+                        .filterKeys { it != null }
+                        .mapKeys { it.key.lowercase() }
+                        .mapValues { it.value.firstOrNull().orEmpty() }
                 return HttpReply(status, text, hdrs)
             } finally {
                 token?.attach(null)

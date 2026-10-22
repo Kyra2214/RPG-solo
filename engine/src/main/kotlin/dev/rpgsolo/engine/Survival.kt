@@ -4,10 +4,13 @@ package dev.rpgsolo.engine
 sealed interface SurvivalResult {
     /** Sucesso pleno: o recurso de morte sobe a 1 e a entidade se reergue. */
     data class Recovered(val check: CheckResult) : SurvivalResult
+
     /** Sucesso parcial: nada muda. */
     data class Stable(val check: CheckResult) : SurvivalResult
+
     /** Falha: [failures] acumuladas; [died] se atingiu o limite. */
     data class Failed(val check: CheckResult, val failures: Int, val died: Boolean) : SurvivalResult
+
     data class Rejected(val reason: String) : SurvivalResult
 }
 
@@ -15,7 +18,11 @@ sealed interface SurvivalResult {
  * Teste de sobrevivência de um personagem caído. Rola [spec], e então recupera (sucesso pleno), mantém (parcial)
  * ou registra falha (morre ao chegar a [failuresToDie]). Atômico: qualquer recusa ou erro desfaz a rolagem.
  */
-fun GameEngine.survivalTest(entityId: String, spec: CheckSpec, failuresToDie: Int): SurvivalResult {
+fun GameEngine.survivalTest(
+    entityId: String,
+    spec: CheckSpec,
+    failuresToDie: Int,
+): SurvivalResult {
     val ent = state.entities[entityId] ?: return SurvivalResult.Rejected("entidade inexistente: $entityId")
     if (!ent.alive || !ent.downed) return SurvivalResult.Rejected("${ent.name} não está caído")
     val resource = config.deathResource ?: return SurvivalResult.Rejected("o sistema não define recurso de morte")
@@ -25,17 +32,25 @@ fun GameEngine.survivalTest(entityId: String, spec: CheckSpec, failuresToDie: In
         val result = check(spec)
         val outcome = result.outcome
         when {
-            outcome.isSuccess -> when (val r = executeAll(listOf(Heal(entityId, resource, 1)))) {
-                is ExecResult.Rejected -> { rollbackTo(start); SurvivalResult.Rejected(r.reason) }
-                else -> SurvivalResult.Recovered(result)
-            }
-            outcome.isFailure -> when (val r = executeAll(listOf(FailSurvival(entityId, failuresToDie)))) {
-                is ExecResult.Rejected -> { rollbackTo(start); SurvivalResult.Rejected(r.reason) }
-                else -> {
-                    val after = state.entities.getValue(entityId)
-                    SurvivalResult.Failed(result, after.deathFailures, !after.alive)
+            outcome.isSuccess ->
+                when (val r = executeAll(listOf(Heal(entityId, resource, 1)))) {
+                    is ExecResult.Rejected -> {
+                        rollbackTo(start)
+                        SurvivalResult.Rejected(r.reason)
+                    }
+                    else -> SurvivalResult.Recovered(result)
                 }
-            }
+            outcome.isFailure ->
+                when (val r = executeAll(listOf(FailSurvival(entityId, failuresToDie)))) {
+                    is ExecResult.Rejected -> {
+                        rollbackTo(start)
+                        SurvivalResult.Rejected(r.reason)
+                    }
+                    else -> {
+                        val after = state.entities.getValue(entityId)
+                        SurvivalResult.Failed(result, after.deathFailures, !after.alive)
+                    }
+                }
             else -> SurvivalResult.Stable(result)
         }
     } catch (e: Exception) {
@@ -45,12 +60,17 @@ fun GameEngine.survivalTest(entityId: String, spec: CheckSpec, failuresToDie: In
 }
 
 /** Versão persistida: a rolagem e o efeito são gravados juntos. */
-fun CampaignSession.survivalTest(entityId: String, spec: CheckSpec, failuresToDie: Int): SurvivalResult = atomically {
-    val start = mark()
-    try {
-        engine.survivalTest(entityId, spec, failuresToDie).also { save() }
-    } catch (e: Exception) {
-        engine.rollbackTo(start)
-        throw e
+fun CampaignSession.survivalTest(
+    entityId: String,
+    spec: CheckSpec,
+    failuresToDie: Int,
+): SurvivalResult =
+    atomically {
+        val start = mark()
+        try {
+            engine.survivalTest(entityId, spec, failuresToDie).also { save() }
+        } catch (e: Exception) {
+            engine.rollbackTo(start)
+            throw e
+        }
     }
-}

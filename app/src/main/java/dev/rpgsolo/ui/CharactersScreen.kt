@@ -24,21 +24,21 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.rules.CharacterDraft
 import dev.rpgsolo.rules.FichaBuild
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.TraitDef
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Aba Personagens (10.2 e 5.0): criação guiada pelo pacote, com validação do motor e biblioteca de fichas.
@@ -47,7 +47,9 @@ import dev.rpgsolo.rules.TraitDef
 @Composable
 fun CharactersScreen(model: AppModel) {
     val packageVersion = model.packageVersion
-    @Suppress("UNUSED_VARIABLE") val observePackageVersion = packageVersion
+
+    @Suppress("UNUSED_VARIABLE")
+    val observePackageVersion = packageVersion
     val reg = model.content.registry
     val ids = reg.installed().map { it.id }
     var selected by remember { mutableStateOf(ids.firstOrNull()) }
@@ -69,7 +71,11 @@ fun CharactersScreen(model: AppModel) {
 }
 
 @Composable
-private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
+private fun Creator(
+    model: AppModel,
+    pkg: RulePackage,
+    key: String,
+) {
     // Um rascunho por pacote. Depois de salvar, gira o ID para que a próxima criação
     // não sobrescreva a ficha recém-criada.
     var draftId by remember(key) { mutableStateOf(model.draftFichaId()) }
@@ -79,18 +85,23 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     var dbBusy by remember(key) { mutableStateOf(false) }
+
     /** Gravações no banco rodam em IO e desabilitam os botões enquanto duram (R-02). */
-    fun io(work: () -> String?, done: (String?) -> Unit) {
+    fun io(
+        work: () -> String?,
+        done: (String?) -> Unit,
+    ) {
         if (dbBusy) return
         dbBusy = true
         scope.launch {
-            val result = try {
-                withContext(Dispatchers.IO) { work() }
-            } catch (e: Exception) {
-                e.message ?: "A ação falhou inesperadamente."
-            } finally {
-                dbBusy = false
-            }
+            val result =
+                try {
+                    withContext(Dispatchers.IO) { work() }
+                } catch (e: Exception) {
+                    e.message ?: "A ação falhou inesperadamente."
+                } finally {
+                    dbBusy = false
+                }
             done(result)
             version++
         }
@@ -112,24 +123,40 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var elementalAffinity by remember(key) { mutableStateOf("") }
     var cursedClassBranchId by remember(key) { mutableStateOf("") }
     var additionalClassIds by remember(key) { mutableStateOf(emptyList<String>()) }
-    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId, additionalClassIds)
+    val choices =
+        CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId, additionalClassIds)
     val choiceErrors = (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct()
-    @Suppress("UNUSED_EXPRESSION") version
+    @Suppress("UNUSED_EXPRESSION")
+    version
 
     fun toggle(id: String) {
-        if (id in draft.traits()) { draft.removeTrait(id); message = null }
-        else {
+        if (id in draft.traits()) {
+            draft.removeTrait(id)
+            message = null
+        } else {
             val why = draft.whyNot(id)
-            if (why.isEmpty()) { draft.addTrait(id); message = null } else message = why.joinToString("; ")
+            if (why.isEmpty()) {
+                draft.addTrait(id)
+                message = null
+            } else {
+                message = why.joinToString("; ")
+            }
         }
         version++
     }
 
     // ---------- 1. Ponto de partida ----------
-    SectionTitle("Ponto de partida", "Escolha um arquétipo: ele já traz atributos, perícias e um par de vantagem e desvantagem. Você muda o que quiser.")
+    SectionTitle(
+        "Ponto de partida",
+        "Escolha um arquétipo: ele já traz atributos, perícias e um par de vantagem e desvantagem. Você muda o que quiser.",
+    )
     OutlinedTextField(
-        archQuery, { archQuery = it }, Modifier.fillMaxWidth(),
-        placeholder = { Text("Buscar arquétipo (elfo, ladrão, mago…)") }, singleLine = true, shape = MaterialTheme.shapes.large
+        archQuery,
+        { archQuery = it },
+        Modifier.fillMaxWidth(),
+        placeholder = { Text("Buscar arquétipo (elfo, ladrão, mago…)") },
+        singleLine = true,
+        shape = MaterialTheme.shapes.large,
     )
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         pkg.archetypesSorted(archQuery).forEach { a ->
@@ -143,7 +170,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                         version++
                     }
                 },
-                label = { Text(a.name) }
+                label = { Text(a.name) },
             )
         }
     }
@@ -156,16 +183,33 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     if (pkg.data.examples.isNotEmpty()) {
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             pkg.data.examples.forEach { ex ->
-                OutlinedButton(onClick = { draft.loadExample(ex.id); archId = null; version++ }) { Text(ex.title) }
+                OutlinedButton(onClick = {
+                    draft.loadExample(ex.id)
+                    archId = null
+                    version++
+                }) { Text(ex.title) }
             }
         }
     }
 
     // ---------- 2. Origem e identidade de aventura ----------
-    SectionTitle("Raça, linhagem, classe e profissão", "Escolhas do catálogo. Híbridos de raça são separados das combinações de classes; habilidades e efeitos declarados são validados pelo motor.")
+    SectionTitle(
+        "Raça, linhagem, classe e profissão",
+        "Escolhas do catálogo. Híbridos de raça são separados das combinações de classes; habilidades e efeitos declarados são validados pelo motor.",
+    )
     val catalogErrors = CharacterCreationCatalog.validationErrors()
-    if (catalogErrors.isNotEmpty()) AppCard { Text("Catálogo com referências inválidas", color = MaterialTheme.colorScheme.error); catalogErrors.take(5).forEach { Muted(it) } }
-    if (choiceErrors.isNotEmpty()) AppCard { Text("Revise as escolhas", color = MaterialTheme.colorScheme.error); choiceErrors.forEach { Muted(it) } }
+    if (catalogErrors.isNotEmpty()) {
+        AppCard {
+            Text("Catálogo com referências inválidas", color = MaterialTheme.colorScheme.error)
+            catalogErrors.take(5).forEach { Muted(it) }
+        }
+    }
+    if (choiceErrors.isNotEmpty()) {
+        AppCard {
+            Text("Revise as escolhas", color = MaterialTheme.colorScheme.error)
+            choiceErrors.forEach { Muted(it) }
+        }
+    }
     val catalogRaces = CharacterCreationCatalog.races
     val catalogSubraces = CharacterCreationCatalog.subraces.filter { it.parentRaceId == raceId }
     CatalogPicker("Raça", catalogRaces, raceId, { selected ->
@@ -175,11 +219,17 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         version++
     })
     if (raceId.isNotBlank()) {
-        CatalogPicker("Sub-raça / variante (opcional)", catalogSubraces, subraceId, { subraceId = it; version++ }, allowNone = true)
+        CatalogPicker("Sub-raça / variante (opcional)", catalogSubraces, subraceId, {
+            subraceId = it
+            version++
+        }, allowNone = true)
     }
     CatalogPicker("Híbrido / ascendência mista (opcional)", CharacterCreationCatalog.hybrids, hybridId, { selected ->
         hybridId = selected
-        if (selected.isNotBlank()) { raceId = ""; subraceId = "" }
+        if (selected.isNotBlank()) {
+            raceId = ""
+            subraceId = ""
+        }
         version++
     }, allowNone = true)
     hybridId.takeIf { it.isNotBlank() }?.let { selectedId ->
@@ -191,42 +241,78 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             }
         }
     }
-    CatalogPicker("Classe principal", CharacterCreationCatalog.classes, classId, { classId = it; additionalClassIds = additionalClassIds - it; version++ }, allowNone = true)
-    SectionTitle("Classes adicionais (híbrido)", "Até três classes adicionais além da principal. Quanto mais classes combinadas, mais monstruosa fica a aparência.")
+    CatalogPicker("Classe principal", CharacterCreationCatalog.classes, classId, {
+        classId = it
+        additionalClassIds = additionalClassIds - it
+        version++
+    }, allowNone = true)
+    SectionTitle(
+        "Classes adicionais (híbrido)",
+        "Até três classes adicionais além da principal. Quanto mais classes combinadas, mais monstruosa fica a aparência.",
+    )
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         CharacterCreationCatalog.classes.filter { it.id != classId }.forEach { option ->
             FilterChip(
                 selected = option.id in additionalClassIds,
                 onClick = {
-                    additionalClassIds = if (option.id in additionalClassIds) additionalClassIds - option.id
-                    else if (additionalClassIds.size < 3) additionalClassIds + option.id else additionalClassIds
+                    additionalClassIds =
+                        if (option.id in additionalClassIds) {
+                            additionalClassIds - option.id
+                        } else if (additionalClassIds.size < 3) {
+                            additionalClassIds + option.id
+                        } else {
+                            additionalClassIds
+                        }
                     version++
                 },
-                label = { Text(option.name) }
+                label = { Text(option.name) },
             )
         }
     }
     val totalClasses = (if (classId.isBlank()) 0 else 1) + additionalClassIds.size
-    val hybridAppearance = when (totalClasses) {
-        0, 1 -> "Aparência normal"
-        2 -> "Traços híbridos visíveis"
-        3 -> "Aparência monstruosa evidente"
-        else -> "Aparência extremamente monstruosa; forte desvantagem social"
-    }
+    val hybridAppearance =
+        when (totalClasses) {
+            0, 1 -> "Aparência normal"
+            2 -> "Traços híbridos visíveis"
+            3 -> "Aparência monstruosa evidente"
+            else -> "Aparência extremamente monstruosa; forte desvantagem social"
+        }
     Muted("Classes combinadas: $totalClasses/4 — $hybridAppearance")
-    SectionTitle("Afinidade elemental", "Opcional para técnicas físicas; habilidades mágicas exigem compatibilidade com a afinidade escolhida.")
+    SectionTitle(
+        "Afinidade elemental",
+        "Opcional para técnicas físicas; habilidades mágicas exigem compatibilidade com a afinidade escolhida.",
+    )
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("WATER" to "Água", "FIRE" to "Fogo", "WIND" to "Vento", "EARTH" to "Terra", "METAL" to "Metal", "YIN" to "Yin", "YANG" to "Yang").forEach { (id, label) ->
-            FilterChip(selected = elementalAffinity == id, onClick = { elementalAffinity = if (elementalAffinity == id) "" else id; version++ }, label = { Text(label) })
+        listOf(
+            "WATER" to "Água",
+            "FIRE" to "Fogo",
+            "WIND" to "Vento",
+            "EARTH" to "Terra",
+            "METAL" to "Metal",
+            "YIN" to "Yin",
+            "YANG" to "Yang",
+        ).forEach {
+                (id, label) ->
+            FilterChip(selected = elementalAffinity == id, onClick = {
+                elementalAffinity = if (elementalAffinity == id) "" else id
+                version++
+            }, label = { Text(label) })
         }
     }
-    CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, { professionId = it; version++ }, allowNone = true)
+    CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, {
+        professionId = it
+        version++
+    }, allowNone = true)
 
     SectionTitle("Classe de Malditos", "Escolha uma vertente sobrenatural; sua habilidade básica é concedida gratuitamente.")
-    CatalogPicker("Família / vertente de Malditos", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, { cursedClassBranchId = it; version++ }, allowNone = true)
+    CatalogPicker("Família / vertente de Malditos", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, {
+        cursedClassBranchId = it
+        version++
+    }, allowNone = true)
 
-    val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + additionalClassIds + curseIds.toList())
-        .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
+    val chosenCatalogEntries =
+        (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + additionalClassIds + curseIds.toList())
+            .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
     if (chosenCatalogEntries.isNotEmpty()) {
         AppCard {
             Text("Resumo das escolhas", style = MaterialTheme.typography.titleSmall)
@@ -253,11 +339,17 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
 
     editingChoicesFichaId?.let { fichaId ->
         AppCard {
-            Text("Editando escolhas de ${model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId}", style = MaterialTheme.typography.titleSmall)
+            Text(
+                "Editando escolhas de ${model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId}",
+                style = MaterialTheme.typography.titleSmall,
+            )
             Muted("Esta ação altera somente os metadados editoriais; não recalcula nem inventa bônus mecânicos.")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(enabled = choiceErrors.isEmpty() && !dbBusy, onClick = {
-                    io({ model.saveCharacterChoices(fichaId, choices); null }) {
+                    io({
+                        model.saveCharacterChoices(fichaId, choices)
+                        null
+                    }) {
                         editingChoicesFichaId = null
                         libraryMessage = "Escolhas da ficha atualizadas."
                     }
@@ -268,8 +360,14 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     }
 
     // ---------- 2. Nome ----------
-    OutlinedTextField(draft.name, { draft.name = it; version++ }, Modifier.fillMaxWidth(), label = { Text("Nome") }, singleLine = true)
-    OutlinedTextField(draft.concept, { draft.concept = it; version++ }, Modifier.fillMaxWidth(), label = { Text("Conceito (livre)") })
+    OutlinedTextField(draft.name, {
+        draft.name = it
+        version++
+    }, Modifier.fillMaxWidth(), label = { Text("Nome") }, singleLine = true)
+    OutlinedTextField(draft.concept, {
+        draft.concept = it
+        version++
+    }, Modifier.fillMaxWidth(), label = { Text("Conceito (livre)") })
 
     // ---------- 3. Atributos ----------
     SectionTitle("Atributos")
@@ -278,9 +376,15 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             val v = draft.stats()[st.id] ?: st.default
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(st.name, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                OutlinedButton(enabled = v > st.min, onClick = { draft.setStat(st.id, v - 1); version++ }, modifier = Modifier.semantics { contentDescription = "Diminuir ${st.name}" }) { Text("−") }
+                OutlinedButton(enabled = v > st.min, onClick = {
+                    draft.setStat(st.id, v - 1)
+                    version++
+                }, modifier = Modifier.semantics { contentDescription = "Diminuir ${st.name}" }) { Text("−") }
                 Text(v.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
-                OutlinedButton(enabled = v < st.max, onClick = { draft.setStat(st.id, v + 1); version++ }, modifier = Modifier.semantics { contentDescription = "Aumentar ${st.name}" }) { Text("+") }
+                OutlinedButton(enabled = v < st.max, onClick = {
+                    draft.setStat(st.id, v + 1)
+                    version++
+                }, modifier = Modifier.semantics { contentDescription = "Aumentar ${st.name}" }) { Text("+") }
             }
         }
     }
@@ -297,9 +401,15 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                         Text(skill.name, style = MaterialTheme.typography.titleSmall)
                         Muted(skill.description)
                     }
-                    OutlinedButton(enabled = value > 0, onClick = { draft.setSkill(skill.id, value - 1); version++ }, modifier = Modifier.semantics { contentDescription = "Diminuir ${skill.name}" }) { Text("−") }
+                    OutlinedButton(enabled = value > 0, onClick = {
+                        draft.setSkill(skill.id, value - 1)
+                        version++
+                    }, modifier = Modifier.semantics { contentDescription = "Diminuir ${skill.name}" }) { Text("−") }
                     Text(value.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
-                    OutlinedButton(enabled = value < 5 && draft.pointsLeft() > 0, onClick = { draft.setSkill(skill.id, value + 1); version++ }, modifier = Modifier.semantics { contentDescription = "Aumentar ${skill.name}" }) { Text("+") }
+                    OutlinedButton(enabled = value < 5 && draft.pointsLeft() > 0, onClick = {
+                        draft.setSkill(skill.id, value + 1)
+                        version++
+                    }, modifier = Modifier.semantics { contentDescription = "Aumentar ${skill.name}" }) { Text("+") }
                 }
             }
         }
@@ -314,7 +424,8 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         }
         LinearProgressIndicator(
             progress = { (report.pointsSpent.toFloat() / pkg.creationPoints.coerceAtLeast(1)).coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth(), trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+            modifier = Modifier.fillMaxWidth(),
+            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
         )
         if (pkg.balanceTable.isNotEmpty()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -322,7 +433,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                 val ok = report.disadvantages >= report.disadvantagesRequired
                 Pill(
                     "${report.advantages} vant. · ${report.disadvantages}/${report.disadvantagesRequired} desv.",
-                    if (ok) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+                    if (ok) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                 )
             }
             Muted("1 vantagem pede 1 desvantagem, 2 pedem 3, 3 pedem 5 e, da quarta em diante, o mínimo dobra a cada vantagem.")
@@ -350,24 +461,38 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     // ---------- 7. Todos os traços ----------
     SectionTitle("Todos os traços", "Qualquer traço do sistema, filtrado pelo que a ficha atual aceita.")
     OutlinedTextField(
-        traitQuery, { traitQuery = it }, Modifier.fillMaxWidth(),
-        placeholder = { Text("Buscar traço (atrapalhado, visão, magia…)") }, singleLine = true, shape = MaterialTheme.shapes.large
+        traitQuery,
+        { traitQuery = it },
+        Modifier.fillMaxWidth(),
+        placeholder = { Text("Buscar traço (atrapalhado, visão, magia…)") },
+        singleLine = true,
+        shape = MaterialTheme.shapes.large,
     )
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("todos" to "Todos", "vantagem" to "Vantagens", "desvantagem" to "Desvantagens", "pericia" to "Perícias", "poder" to "Poderes")
+        listOf(
+            "todos" to "Todos",
+            "vantagem" to "Vantagens",
+            "desvantagem" to "Desvantagens",
+            "pericia" to "Perícias",
+            "poder" to "Poderes",
+        )
             .forEach { (id, label) -> FilterChip(selected = typeFilter == id, onClick = { typeFilter = id }, label = { Text(label) }) }
     }
     val allowed = remember(version, key) { draft.allowedTraits() }
     val q = traitQuery.trim().lowercase()
-    val shown = allowed.filter {
-        (typeFilter == "todos" || it.type == typeFilter) &&
-            (q.isEmpty() || it.name.lowercase().contains(q) || it.description.lowercase().contains(q))
-    }
+    val shown =
+        allowed.filter {
+            (typeFilter == "todos" || it.type == typeFilter) &&
+                (q.isEmpty() || it.name.lowercase().contains(q) || it.description.lowercase().contains(q))
+        }
     Muted("${shown.size} traços disponíveis" + if (shown.size > 40) " (mostrando 40; use a busca)" else "")
     shown.take(40).forEach { TraitRow(it, false) { toggle(it.id) } }
 
     // ---------- 8. Revisão final ----------
-    SectionTitle("Revisão final", "Confira as escolhas antes de salvar. Os traços mecânicos vêm do pacote; o catálogo editorial não concede bônus automaticamente.")
+    SectionTitle(
+        "Revisão final",
+        "Confira as escolhas antes de salvar. Os traços mecânicos vêm do pacote; o catálogo editorial não concede bônus automaticamente.",
+    )
     AppCard {
         Text(draft.name.ifBlank { "Personagem sem nome" }, style = MaterialTheme.typography.titleMedium)
         Muted("Raça: " + (CharacterCreationCatalog.find(raceId)?.name ?: "não selecionada"))
@@ -375,14 +500,30 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         if (hybridId.isNotBlank()) {
             val hybrid = CharacterCreationCatalog.find(hybridId)
             Muted("Híbrido: " + (hybrid?.name ?: "ID não encontrado"))
-            if (hybrid != null) Muted("Ascendências: " + hybrid.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "))
+            if (hybrid != null) {
+                Muted(
+                    "Ascendências: " +
+                        hybrid.hybridRaceIds.mapNotNull {
+                            CharacterCreationCatalog.find(it)?.name
+                        }.joinToString(" + "),
+                )
+            }
         }
         Muted("Classe: " + (CharacterCreationCatalog.find(classId)?.name ?: "não selecionada"))
         Muted("Profissão: " + (CharacterCreationCatalog.find(professionId)?.name ?: "não selecionada"))
         Muted("Classe de Malditos: " + (CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: "nenhuma"))
-        Muted("Classes híbridas: " + (listOf(classId).filter { it.isNotBlank() } + additionalClassIds).mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(" + "))
+        Muted(
+            "Classes híbridas: " +
+                (
+                    listOf(classId).filter {
+                        it.isNotBlank()
+                    } + additionalClassIds
+                ).mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(" + "),
+        )
         Muted("Maldições lançadas são aplicadas durante a aventura, não escolhidas na criação da ficha.")
-        Muted("Traços mecânicos do pacote: " + draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf("nenhum") }.joinToString(", "))
+        Muted(
+            "Traços mecânicos do pacote: " + draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf("nenhum") }.joinToString(", "),
+        )
         Muted("Atributos: " + draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" })
     }
 
@@ -400,7 +541,9 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                     if (failure == null) {
                         draftId = newId
                         message = "Ficha de ${b.ficha.name} criada e salva."
-                    } else message = failure
+                    } else {
+                        message = failure
+                    }
                 }
             }
             is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
@@ -417,7 +560,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             label = { Text("JSON da ficha") },
             placeholder = { Text("Cole aqui o JSON exportado") },
             minLines = 3,
-            maxLines = 8
+            maxLines = 8,
         )
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -428,7 +571,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                     libraryMessage = it
                     if (it?.startsWith("Ficha ") == true && it.orEmpty().contains("importada")) fichaImportText = ""
                 }
-            }
+            },
         ) { Text("Importar ficha") }
     }
 
@@ -439,24 +582,42 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
                 Muted("${f.concept.ifBlank { "sem conceito" }} · ${f.system.editionId}")
                 val savedChoices = model.characterChoices(f.id)
-                val savedNames = (listOf(savedChoices.raceId, savedChoices.subraceId, savedChoices.hybridId, savedChoices.classId, savedChoices.professionId) + savedChoices.curseIds)
-                    .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it)?.name }
+                val savedNames =
+                    (listOf(savedChoices.raceId, savedChoices.subraceId, savedChoices.hybridId, savedChoices.classId, savedChoices.professionId) + savedChoices.curseIds)
+                        .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it)?.name }
                 if (savedNames.isNotEmpty()) Muted("Origem: " + savedNames.joinToString(" · "))
                 TextButton(onClick = { expandedFichaId = if (expandedFichaId == f.id) null else f.id }) {
                     Text(if (expandedFichaId == f.id) "Ocultar ficha" else "Ver ficha")
                 }
                 if (expandedFichaId == f.id) {
                     val fichaPkg = dev.rpgsolo.rules.CampaignStarter.packageFor(model.content.registry, f.system.editionId)
-                    Muted("Atributos: " + f.stats.entries.joinToString(", ") { (id, value) ->
-                        "${fichaPkg?.stat(id)?.name ?: id}: $value"
-                    })
-                    if (f.skills.isNotEmpty()) Muted("Perícias: " + f.skills.entries.joinToString(", ") { (id, value) ->
-                        "${fichaPkg?.trait(id)?.name ?: id}: $value"
-                    })
-                    if (f.traits.isNotEmpty()) Muted("Traços: " + f.traits.joinToString(", ") { id -> fichaPkg?.trait(id)?.let { traitTag(it) } ?: id })
-                    if (f.resources.isNotEmpty()) Muted("Recursos: " + f.resources.entries.joinToString(", ") { (id, resource) ->
-                        "${id}: ${resource.current}/${resource.max}"
-                    })
+                    Muted(
+                        "Atributos: " +
+                            f.stats.entries.joinToString(", ") { (id, value) ->
+                                "${fichaPkg?.stat(id)?.name ?: id}: $value"
+                            },
+                    )
+                    if (f.skills.isNotEmpty()) {
+                        Muted(
+                            "Perícias: " +
+                                f.skills.entries.joinToString(", ") { (id, value) ->
+                                    "${fichaPkg?.trait(id)?.name ?: id}: $value"
+                                },
+                        )
+                    }
+                    if (f.traits.isNotEmpty()) {
+                        Muted(
+                            "Traços: " + f.traits.joinToString(", ") { id -> fichaPkg?.trait(id)?.let { traitTag(it) } ?: id },
+                        )
+                    }
+                    if (f.resources.isNotEmpty()) {
+                        Muted(
+                            "Recursos: " +
+                                f.resources.entries.joinToString(", ") { (id, resource) ->
+                                    "$id: ${resource.current}/${resource.max}"
+                                },
+                        )
+                    }
                     if (f.adaptations.isNotEmpty()) Muted("Adaptações: " + f.adaptations.joinToString(", "))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -472,14 +633,20 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                         message = null
                         version++
                     }) { Text("Editar escolhas") }
-                    TextButton(enabled = !dbBusy, onClick = { io({ model.duplicateFicha(f.id) }) { libraryMessage = it ?: "Ficha duplicada." } }) { Text("Duplicar") }
-                    TextButton(enabled = !dbBusy, onClick = { io({ model.archiveFicha(f.id, true) }) { libraryMessage = it ?: "Ficha arquivada." } }) { Text("Arquivar") }
+                    TextButton(enabled = !dbBusy, onClick = {
+                        io({ model.duplicateFicha(f.id) }) { libraryMessage = it ?: "Ficha duplicada." }
+                    }) { Text("Duplicar") }
+                    TextButton(enabled = !dbBusy, onClick = {
+                        io({ model.archiveFicha(f.id, true) }) { libraryMessage = it ?: "Ficha arquivada." }
+                    }) { Text("Arquivar") }
                     TextButton(onClick = {
                         val raw = model.exportFicha(f.id)
                         if (raw != null) {
                             clipboard.setText(AnnotatedString(raw))
                             libraryMessage = "JSON da ficha copiado."
-                        } else libraryMessage = "Não foi possível exportar a ficha."
+                        } else {
+                            libraryMessage = "Não foi possível exportar a ficha."
+                        }
                     }) { Text("Copiar JSON") }
                 }
             }
@@ -491,8 +658,12 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             AppCard {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    TextButton(enabled = !dbBusy, onClick = { io({ model.archiveFicha(f.id, false) }) { libraryMessage = it ?: "Ficha restaurada." } }) { Text("Restaurar") }
-                    TextButton(enabled = !dbBusy, onClick = { io({ model.deleteFicha(f.id) }) { libraryMessage = it ?: "Ficha excluída." } }) { Text("Excluir") }
+                    TextButton(enabled = !dbBusy, onClick = {
+                        io({ model.archiveFicha(f.id, false) }) { libraryMessage = it ?: "Ficha restaurada." }
+                    }) { Text("Restaurar") }
+                    TextButton(enabled = !dbBusy, onClick = {
+                        io({ model.deleteFicha(f.id) }) { libraryMessage = it ?: "Ficha excluída." }
+                    }) { Text("Excluir") }
                 }
             }
         }
@@ -501,24 +672,34 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
 }
 
 /** M-01.8: nome do traço com a marcação do que o motor aplica ("efeito: ...") ou "narrativo" (só vantagem/desvantagem). */
-private fun traitTag(t: TraitDef): String = when {
-    t.bonuses.isNotEmpty() -> t.name + " [efeito: " + t.bonuses.joinToString("; ") { "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}" } + "]"
-    t.type == "vantagem" || t.type == "desvantagem" -> t.name + " [narrativo]"
-    else -> t.name
-}
+private fun traitTag(t: TraitDef): String =
+    when {
+        t.bonuses.isNotEmpty() ->
+            t.name + " [efeito: " +
+                t.bonuses.joinToString("; ") {
+                    "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}"
+                } + "]"
+        t.type == "vantagem" || t.type == "desvantagem" -> t.name + " [narrativo]"
+        else -> t.name
+    }
 
 @Composable
-private fun TraitRow(t: TraitDef, chosen: Boolean, onToggle: () -> Unit) {
-    val (label, color) = when (t.type) {
-        "vantagem" -> "Vantagem" to MaterialTheme.colorScheme.tertiary
-        "poder" -> "Poder" to MaterialTheme.colorScheme.tertiary
-        "desvantagem" -> "Desvantagem" to MaterialTheme.colorScheme.error
-        else -> "Perícia" to MaterialTheme.colorScheme.secondary
-    }
+private fun TraitRow(
+    t: TraitDef,
+    chosen: Boolean,
+    onToggle: () -> Unit,
+) {
+    val (label, color) =
+        when (t.type) {
+            "vantagem" -> "Vantagem" to MaterialTheme.colorScheme.tertiary
+            "poder" -> "Poder" to MaterialTheme.colorScheme.tertiary
+            "desvantagem" -> "Desvantagem" to MaterialTheme.colorScheme.error
+            else -> "Perícia" to MaterialTheme.colorScheme.secondary
+        }
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = BorderStroke(1.dp, if (chosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
+        border = BorderStroke(1.dp, if (chosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
     ) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -527,10 +708,14 @@ private fun TraitRow(t: TraitDef, chosen: Boolean, onToggle: () -> Unit) {
                     Pill(label, color)
                     if (t.cost != 0) Pill("custo ${t.cost}", MaterialTheme.colorScheme.outline)
                     // M-01: distingue o que o motor aplica do que é só texto para o mestre e o jogador.
-                    if (t.bonuses.isNotEmpty()) Pill(
-                        "efeito: " + t.bonuses.joinToString("; ") { "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}" },
-                        MaterialTheme.colorScheme.primary
-                    ) else if (t.type == "vantagem" || t.type == "desvantagem") Pill("narrativo", MaterialTheme.colorScheme.outline)
+                    if (t.bonuses.isNotEmpty()) {
+                        Pill(
+                            "efeito: " + t.bonuses.joinToString("; ") { "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}" },
+                            MaterialTheme.colorScheme.primary,
+                        )
+                    } else if (t.type == "vantagem" || t.type == "desvantagem") {
+                        Pill("narrativo", MaterialTheme.colorScheme.outline)
+                    }
                 }
                 Muted(t.description)
             }
@@ -545,7 +730,7 @@ private fun CatalogPicker(
     entries: List<CharacterCatalogEntry>,
     selectedId: String,
     onSelected: (String) -> Unit,
-    allowNone: Boolean = false
+    allowNone: Boolean = false,
 ) {
     var query by remember(title) { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -555,7 +740,7 @@ private fun CatalogPicker(
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Buscar $title") },
-            singleLine = true
+            singleLine = true,
         )
         if (allowNone && selectedId.isNotBlank()) {
             TextButton(onClick = { onSelected("") }) { Text("Limpar seleção") }
@@ -567,7 +752,7 @@ private fun CatalogPicker(
             FilterChip(
                 selected = selectedId == entry.id,
                 onClick = { onSelected(if (selectedId == entry.id && allowNone) "" else entry.id) },
-                label = { Text(entry.name) }
+                label = { Text(entry.name) },
             )
             if (selectedId == entry.id) {
                 if (entry.summary.isNotBlank()) Muted(entry.summary)
@@ -588,7 +773,7 @@ private fun CatalogMultiPicker(
     title: String,
     entries: List<CharacterCatalogEntry>,
     selectedIds: Set<String>,
-    onToggle: (String) -> Unit
+    onToggle: (String) -> Unit,
 ) {
     var query by remember(title) { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -597,7 +782,7 @@ private fun CatalogMultiPicker(
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Buscar maldição") },
-            singleLine = true
+            singleLine = true,
         )
         Text("${selectedIds.size} selecionada(s)", style = MaterialTheme.typography.labelMedium)
         val q = query.trim().lowercase()
@@ -607,7 +792,7 @@ private fun CatalogMultiPicker(
             FilterChip(
                 selected = entry.id in selectedIds,
                 onClick = { onToggle(entry.id) },
-                label = { Text(entry.name) }
+                label = { Text(entry.name) },
             )
             if (entry.id in selectedIds) {
                 if (entry.summary.isNotBlank()) Muted(entry.summary)

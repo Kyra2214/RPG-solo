@@ -13,7 +13,7 @@ data class Modifier(
     val value: Int,
     val remainingRounds: Int? = null,
     val usesLeft: Int? = null,
-    val stackable: Boolean = false
+    val stackable: Boolean = false,
 ) {
     val expired: Boolean get() = (remainingRounds != null && remainingRounds <= 0) || (usesLeft != null && usesLeft <= 0)
 }
@@ -27,7 +27,7 @@ data class EffectiveBreakdown(
     val target: String,
     val base: Int,
     val applied: List<Modifier>,
-    val rejected: List<RejectedModifier>
+    val rejected: List<RejectedModifier>,
 ) {
     val value: Int get() = base + applied.sumOf { it.value }
     val expression: DiceExpression get() = EffectiveValue.expressionFor(value)
@@ -39,7 +39,11 @@ object ModifierAggregator {
      * acumulam (inclusive com valores iguais); a mesma fonte não repete na mesma característica,
      * salvo [Modifier.stackable]. A ordem de entrada decide qual duplicata fica (a primeira).
      */
-    fun aggregate(target: String, base: Int, modifiers: List<Modifier>): EffectiveBreakdown {
+    fun aggregate(
+        target: String,
+        base: Int,
+        modifiers: List<Modifier>,
+    ): EffectiveBreakdown {
         val applied = mutableListOf<Modifier>()
         val rejected = mutableListOf<RejectedModifier>()
         val seen = mutableSetOf<String>()
@@ -68,7 +72,10 @@ object EffectDuration {
     }
 
     /** Cria o modificador já com a duração sorteada gravada em [Modifier.remainingRounds]. */
-    fun withRolledDuration(modifier: Modifier, dice: Dice): Pair<Modifier, RolledDuration> {
+    fun withRolledDuration(
+        modifier: Modifier,
+        dice: Dice,
+    ): Pair<Modifier, RolledDuration> {
         val rolled = rollRounds(dice)
         return modifier.copy(remainingRounds = rolled.rounds) to rolled
     }
@@ -85,9 +92,15 @@ object EffectDuration {
         }
 
     /** Consome um uso de efeitos por usos; remove os esgotados. Chamar uma vez por uso real do efeito. */
-    fun consumeUse(modifiers: List<Modifier>, sourceId: String): List<Modifier> =
+    fun consumeUse(
+        modifiers: List<Modifier>,
+        sourceId: String,
+    ): List<Modifier> =
         modifiers.mapNotNull { m ->
-            if (m.sourceId != sourceId || m.usesLeft == null) m
-            else m.copy(usesLeft = m.usesLeft - 1).takeUnless { it.expired }
+            if (m.sourceId != sourceId || m.usesLeft == null) {
+                m
+            } else {
+                m.copy(usesLeft = m.usesLeft - 1).takeUnless { it.expired }
+            }
         }
 }

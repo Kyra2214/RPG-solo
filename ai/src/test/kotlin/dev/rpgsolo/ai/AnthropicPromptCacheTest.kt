@@ -12,18 +12,28 @@ import org.junit.Test
 class AnthropicPromptCacheTest {
     private class CapturingTransport : HttpTransport {
         var body: String = ""
-        override fun post(url: String, headers: Map<String, String>, body: String): HttpReply {
+
+        override fun post(
+            url: String,
+            headers: Map<String, String>,
+            body: String,
+        ): HttpReply {
             this.body = body
-            return HttpReply(200, """{"content":[{"type":"text","text":"ok"}],"usage":{"input_tokens":10,"output_tokens":1,"cache_read_input_tokens":5,"cache_creation_input_tokens":2}}""")
+            return HttpReply(
+                200,
+                """{"content":[{"type":"text","text":"ok"}],"usage":{"input_tokens":10,"output_tokens":1,"cache_read_input_tokens":5,"cache_creation_input_tokens":2}}""",
+            )
         }
     }
 
-    private val request = AiRequest(
-        messages = listOf(
-            AiMessage(Role.SYSTEM, "Prompt fixo do mestre"),
-            AiMessage(Role.USER, "Ação atual")
+    private val request =
+        AiRequest(
+            messages =
+                listOf(
+                    AiMessage(Role.SYSTEM, "Prompt fixo do mestre"),
+                    AiMessage(Role.USER, "Ação atual"),
+                ),
         )
-    )
 
     @Test fun officialAnthropicEndpointUsesEphemeralCacheForSystemPrefix() {
         val transport = CapturingTransport()

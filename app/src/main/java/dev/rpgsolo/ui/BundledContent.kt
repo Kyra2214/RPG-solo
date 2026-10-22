@@ -12,14 +12,15 @@ class Content(
     val catalog: Catalog?,
     val registry: PackageRegistry,
     /** Problemas ao carregar; mostrados na aba Sistemas em vez de derrubar o app. */
-    val errors: List<String>
+    val errors: List<String>,
 )
 
 object BundledContent {
-    private val FILES = listOf(
-        "manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes",
-        "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo", "poderes", "perigos"
-    )
+    private val FILES =
+        listOf(
+            "manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes",
+            "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo", "poderes", "perigos",
+        )
 
     // Único sistema embutido: o sistema próprio. Pacotes de teste ficam só nos testes.
     private val PACKAGES = listOf("sistema-proprio")
@@ -29,26 +30,35 @@ object BundledContent {
 
     fun load(context: Context? = null): Content {
         val errors = mutableListOf<String>()
-        val catalog = try {
-            val e = read("catalog/estilos.txt")
-            val s = read("catalog/sistemas.txt")
-            val c = read("catalog/compat.txt")
-            if (e == null || s == null || c == null) {
-                errors += "arquivos do catálogo ausentes"
+        val catalog =
+            try {
+                val e = read("catalog/estilos.txt")
+                val s = read("catalog/sistemas.txt")
+                val c = read("catalog/compat.txt")
+                if (e == null || s == null || c == null) {
+                    errors += "arquivos do catálogo ausentes"
+                    null
+                } else {
+                    when (val r = CatalogLoader.load(e, s, c)) {
+                        is LoadResult.Success -> r.catalog
+                        is LoadResult.Failure -> {
+                            errors += r.errors.map { "catálogo: $it" }
+                            null
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
+                errors += "catálogo: ${ex.message}"
                 null
-            } else when (val r = CatalogLoader.load(e, s, c)) {
-                is LoadResult.Success -> r.catalog
-                is LoadResult.Failure -> { errors += r.errors.map { "catálogo: $it" }; null }
             }
-        } catch (ex: Exception) {
-            errors += "catálogo: ${ex.message}"
-            null
-        }
 
         val registry = PackageRegistry(catalog)
         for (name in PACKAGES) {
             val files = FILES.mapNotNull { f -> read("packages/$name/$f.txt")?.let { "$f.txt" to it } }.toMap()
-            if (files.isEmpty()) { errors += "pacote $name ausente"; continue }
+            if (files.isEmpty()) {
+                errors += "pacote $name ausente"
+                continue
+            }
             when (val r = registry.install(files)) {
                 is InstallResult.Success -> {}
                 is InstallResult.Failure -> errors += r.errors.map { "pacote $name: $it" }

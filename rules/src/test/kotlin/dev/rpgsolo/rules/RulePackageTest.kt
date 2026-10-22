@@ -3,8 +3,8 @@ package dev.rpgsolo.rules
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.Damage
 import dev.rpgsolo.engine.Ficha
-import dev.rpgsolo.engine.GameEngine
 import dev.rpgsolo.engine.GainXp
+import dev.rpgsolo.engine.GameEngine
 import dev.rpgsolo.engine.Outcome
 import dev.rpgsolo.engine.RegraAdicional
 import dev.rpgsolo.engine.RuleOrigin
@@ -33,12 +33,14 @@ class RulePackageTest {
     }
 
     private fun basico() = registry().get("teste-basico")!!
+
     private fun pacoteComPericias(): RulePackage {
         val content = files("teste-basico").toMutableMap()
         content["tracos.txt"] = content.getValue("tracos.txt") +
             "\npericia-corrida|pericia|Corrida|0||Correr e saltar.\npericia-furtividade|pericia|Furtividade|0|trait:pericia-corrida|Mover-se sem ser visto.\n"
         return (PackageRegistry().install(content) as InstallResult.Success).pkg
     }
+
     private fun failure(r: InstallResult) = (r as InstallResult.Failure).errors
 
     // ---- formato e carregamento (4.1, 4.2.1) ----
@@ -109,7 +111,11 @@ class RulePackageTest {
     // ---- criação e validação de ficha (4.1.4) ----
     @Test fun validacaoDeFicha() {
         val p = basico()
-        fun errs(stats: Map<String, Int>, traits: List<String>) = p.validateCharacter(stats, traits).errors
+
+        fun errs(
+            stats: Map<String, Int>,
+            traits: List<String>,
+        ) = p.validateCharacter(stats, traits).errors
         assertTrue(errs(mapOf("forca" to 9), emptyList()).any { it.contains("fora do limite") })
         assertTrue(errs(mapOf("sorte" to 1), emptyList()).any { it.contains("atributo desconhecido") })
         assertTrue(errs(mapOf("forca" to 1), listOf("lutador")).any { it.contains("exige Força >= 2") })
@@ -135,9 +141,12 @@ class RulePackageTest {
         assertTrue(semPreRequisito.errors.any { it.contains("exige o traço Corrida") })
         val nivelZero = p.validateCharacter(stats, emptyList(), skills = mapOf("pericia-furtividade" to 0))
         assertTrue(nivelZero.errors.none { it.contains("exige o traço Corrida") })
-        val acimaDoOrcamento = p.validateCharacter(
-            stats, listOf("pericia-corrida"), skills = mapOf("pericia-corrida" to 5, "pericia-furtividade" to 5)
-        )
+        val acimaDoOrcamento =
+            p.validateCharacter(
+                stats,
+                listOf("pericia-corrida"),
+                skills = mapOf("pericia-corrida" to 5, "pericia-furtividade" to 5),
+            )
         assertTrue(acimaDoOrcamento.errors.any { it.contains("pontos gastos") })
         assertTrue(p.validateCharacter(stats, listOf("pericia-corrida"), skills = mapOf("pericia-furtividade" to 1)).valid)
 
@@ -271,10 +280,17 @@ class RulePackageTest {
     }
 
     // ---- zip e licença (4.2.2, 4A.5) ----
-    private fun zipOf(f: Map<String, String>, prefix: String = "pacote/"): ByteArray {
+    private fun zipOf(
+        f: Map<String, String>,
+        prefix: String = "pacote/",
+    ): ByteArray {
         val out = ByteArrayOutputStream()
         ZipOutputStream(out).use { z ->
-            f.forEach { (n, t) -> z.putNextEntry(ZipEntry(prefix + n)); z.write(t.toByteArray()); z.closeEntry() }
+            f.forEach { (n, t) ->
+                z.putNextEntry(ZipEntry(prefix + n))
+                z.write(t.toByteArray())
+                z.closeEntry()
+            }
         }
         return out.toByteArray()
     }
@@ -290,44 +306,62 @@ class RulePackageTest {
         assertTrue(r.installZip(ByteArrayInputStream(ByteArray(0))) is InstallResult.Failure)
         val out = ByteArrayOutputStream()
         ZipOutputStream(out).use { z ->
-            z.putNextEntry(ZipEntry("a/manifest.txt")); z.write("x".toByteArray()); z.closeEntry()
-            z.putNextEntry(ZipEntry("b/manifest.txt")); z.write("y".toByteArray()); z.closeEntry()
+            z.putNextEntry(ZipEntry("a/manifest.txt"))
+            z.write("x".toByteArray())
+            z.closeEntry()
+            z.putNextEntry(ZipEntry("b/manifest.txt"))
+            z.write("y".toByteArray())
+            z.closeEntry()
         }
         assertTrue(failure(r.installZip(ByteArrayInputStream(out.toByteArray()))).any { it.contains("repetido") })
         assertTrue(r.installed().isEmpty())
     }
 
     private fun realCatalog(): Catalog {
-        fun res(name: String) = listOf("src/main/resources/catalog/$name", "rules/src/main/resources/catalog/$name").map(::File).first { it.exists() }.readText()
+        fun res(name: String) =
+            listOf(
+                "src/main/resources/catalog/$name",
+                "rules/src/main/resources/catalog/$name",
+            ).map(::File).first { it.exists() }.readText()
         // Estilos reais do app com sistemas fictícios de teste: duas famílias, uma edição cada.
-        val sistemas = """
+        val sistemas =
+            """
             alfa-1|alfa|Sistema Alfa|1|generico|PENDENTE|PENDENTE|teste
             beta-1|beta|Sistema Beta|1|generico|PESQUISADO_PARCIAL|VERIFICADA|teste
-        """.trimIndent()
+            """.trimIndent()
         return (CatalogLoader.load(res("estilos.txt"), sistemas, "") as LoadResult.Success).catalog
     }
 
-    private fun realManifest(edition: String, system: String, status: String, source: String) =
-        files("teste-basico").toMutableMap().also {
-            it["manifest.txt"] = """
-                id|real-x
-                sistema|$system
-                edicao|$edition
-                versao|1
-                origem|$source
-                licenca|x
-                licenca_status|$status
-                tipo|REAL
+    private fun realManifest(
+        edition: String,
+        system: String,
+        status: String,
+        source: String,
+    ) = files("teste-basico").toMutableMap().also {
+        it["manifest.txt"] =
+            """
+            id|real-x
+            sistema|$system
+            edicao|$edition
+            versao|1
+            origem|$source
+            licenca|x
+            licenca_status|$status
+            tipo|REAL
             """.trimIndent()
-        }
+    }
 
     @Test fun pacoteRealExigeEdicaoDoCatalogoELicencaNaoBloqueia() {
         val cat = realCatalog()
-        assertTrue(failure(PackageRegistry(cat).install(realManifest("nao-existe", "beta", "VERIFICADA", "autoral")))
-            .any { it.contains("não existe no catálogo") })
+        assertTrue(
+            failure(PackageRegistry(cat).install(realManifest("nao-existe", "beta", "VERIFICADA", "autoral")))
+                .any { it.contains("não existe no catálogo") },
+        )
         assertTrue(PackageRegistry(cat).install(realManifest("alfa-1", "alfa", "PENDENTE", "autoral")) is InstallResult.Success)
-        assertTrue(failure(PackageRegistry(cat).install(realManifest("alfa-1", "beta", "VERIFICADA", "autoral")))
-            .any { it.contains("família") })
+        assertTrue(
+            failure(PackageRegistry(cat).install(realManifest("alfa-1", "beta", "VERIFICADA", "autoral")))
+                .any { it.contains("família") },
+        )
         assertTrue(PackageRegistry(cat).install(realManifest("alfa-1", "alfa", "PENDENTE", USER_IMPORT_SOURCE)) is InstallResult.Success)
         assertTrue(PackageRegistry(cat).install(realManifest("beta-1", "beta", "VERIFICADA", "autoral")) is InstallResult.Success)
     }
@@ -345,10 +379,20 @@ class RulePackageTest {
 
     // ---- regras adicionais (4.4) ----
     private fun brokk(): Ficha =
-        (basico().buildFicha("f1", "Brokk", "anão minerador", mapOf("forca" to 3, "agilidade" to 1, "mente" to 0), emptyList()) as FichaBuild.Created).ficha
+        (
+            basico().buildFicha(
+                "f1",
+                "Brokk",
+                "anão minerador",
+                mapOf("forca" to 3, "agilidade" to 1, "mente" to 0),
+                emptyList(),
+            ) as FichaBuild.Created
+        ).ficha
 
-    private fun regra(effects: Map<String, Int>, approved: Boolean = false) =
-        RegraAdicional("r1", "Britadeira de combate", "usa ferramenta de mina como arma", effects, approved = approved)
+    private fun regra(
+        effects: Map<String, Int>,
+        approved: Boolean = false,
+    ) = RegraAdicional("r1", "Britadeira de combate", "usa ferramenta de mina como arma", effects, approved = approved)
 
     @Test fun previaMostraEfeitosEmNumeros() {
         val pv = basico().previewAdaptation(brokk(), regra(mapOf("forca" to 1)))
@@ -391,7 +435,7 @@ class RulePackageTest {
     }
 
     // ---- condições que dão Ganho/Perda automáticos ----
-    private fun sorte() = basico().check("sorte", emptyMap(), 7)   // 2d6, sem atributo
+    private fun sorte() = basico().check("sorte", emptyMap(), 7) // 2d6, sem atributo
 
     @Test fun perdaTiraUmDadoEGanhoCancelaAPerda() {
         val p = basico()
@@ -405,8 +449,8 @@ class RulePackageTest {
         val p = basico()
         val esquiva = p.check("esquiva", mapOf("agilidade" to 2), 10).copy(diceCount = 2)
         assertEquals(1, p.adjustCheck(esquiva, listOf("visao-turva")).diceCount)
-        assertEquals(2, p.adjustCheck(esquiva, listOf("sangramento")).diceCount)   // sangramento é de força
-        assertEquals(2, p.adjustCheck(sorte(), listOf("visao-turva")).diceCount)   // sem atributo: só efeitos para todos
+        assertEquals(2, p.adjustCheck(esquiva, listOf("sangramento")).diceCount) // sangramento é de força
+        assertEquals(2, p.adjustCheck(sorte(), listOf("visao-turva")).diceCount) // sem atributo: só efeitos para todos
     }
 
     @Test fun nuncaFicaAbaixoDeUmDadoNemPassaDoLimite() {
@@ -445,7 +489,7 @@ class RulePackageTest {
         val classBonus = ExternalBonus("sorte", 1, "classe: arqueiro", effectId = "class:arqueiro#mechanicalEffects#0")
         assertEquals(
             listOf(race, classBonus),
-            distinctExternalBonuses(listOf(race, sameDeclaration, classBonus))
+            distinctExternalBonuses(listOf(race, sameDeclaration, classBonus)),
         )
         // Sem identidade explícita, a equivalência não é inferida pelo mesmo número/escopo.
         assertEquals(
@@ -453,9 +497,9 @@ class RulePackageTest {
             distinctExternalBonuses(
                 listOf(
                     ExternalBonus("sorte", 1, "fonte A"),
-                    ExternalBonus("sorte", 1, "fonte B")
-                )
-            ).size
+                    ExternalBonus("sorte", 1, "fonte B"),
+                ),
+            ).size,
         )
     }
 
@@ -464,11 +508,12 @@ class RulePackageTest {
         val spec = p.check("sorte", emptyMap(), 7)
         val declaration = ExternalBonus("sorte", 1, "raça: elfo", effectId = "race:elfo#0")
         val otherSource = ExternalBonus("sorte", 1, "classe: arqueiro", effectId = "class:arqueiro#0")
-        val adjusted = p.adjustCheck(
-            spec,
-            emptyList(),
-            additionalBonuses = listOf(declaration, declaration, otherSource)
-        )
+        val adjusted =
+            p.adjustCheck(
+                spec,
+                emptyList(),
+                additionalBonuses = listOf(declaration, declaration, otherSource),
+            )
         assertEquals(spec.modifier + 2, adjusted.modifier)
     }
 
@@ -479,14 +524,14 @@ class RulePackageTest {
         val r = p.adjustCheck(esquiva, emptyList(), listOf("esquivador"))
         assertEquals(esquiva.modifier + 2, r.modifier)
         assertTrue(r.label.endsWith("· +2"))
-        assertEquals(esquiva, p.adjustCheck(esquiva, emptyList(), listOf("sortudo")))   // sortudo é de sorte
+        assertEquals(esquiva, p.adjustCheck(esquiva, emptyList(), listOf("sortudo"))) // sortudo é de sorte
         assertEquals(esquiva, p.adjustCheck(esquiva, emptyList(), emptyList()))
     }
 
     @Test fun skillInformadaPeloMestreAtivaOBonus() {
         val p = basico()
         val forcaTeste = p.check("sorte", emptyMap(), 7)
-        assertEquals(forcaTeste.modifier + 1, p.adjustCheck(forcaTeste, emptyList(), listOf("sortudo")).modifier)   // id do teste
+        assertEquals(forcaTeste.modifier + 1, p.adjustCheck(forcaTeste, emptyList(), listOf("sortudo")).modifier) // id do teste
         val esquiva = p.check("esquiva", emptyMap(), 10)
         assertEquals(esquiva, p.adjustCheck(esquiva, emptyList(), listOf("sortudo")))
         assertEquals(esquiva.modifier + 1, p.adjustCheck(esquiva, emptyList(), listOf("sortudo"), skill = "sorte").modifier)
@@ -502,7 +547,7 @@ class RulePackageTest {
         val esquiva = p.check("esquiva", emptyMap(), 10)
         val dois = p.adjustCheck(esquiva, emptyList(), listOf("esquivador", "sortudo"), skill = "sorte")
         assertEquals(esquiva.modifier + 3, dois.modifier)
-        assertEquals(esquiva.modifier + 2, p.adjustCheck(esquiva, emptyList(), listOf("esquivador", "esquivador")).modifier)  // não duplica
+        assertEquals(esquiva.modifier + 2, p.adjustCheck(esquiva, emptyList(), listOf("esquivador", "esquivador")).modifier) // não duplica
     }
 
     @Test fun bonusJuntoComPerdaMostraOsDois() {

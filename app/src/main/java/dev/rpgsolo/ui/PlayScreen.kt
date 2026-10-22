@@ -18,8 +18,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -60,7 +60,10 @@ import kotlinx.coroutines.withContext
 
 /** Aba Jogar (10.1): chat com o mestre, rolagem animada de dados e painel rápido do personagem. */
 @Composable
-fun PlayScreen(model: AppModel, onNavigate: (Tab) -> Unit = {}) {
+fun PlayScreen(
+    model: AppModel,
+    onNavigate: (Tab) -> Unit = {},
+) {
     val setup = model.setupStatus()
     if (!setup.complete) {
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
@@ -115,7 +118,11 @@ fun PlayScreen(model: AppModel, onNavigate: (Tab) -> Unit = {}) {
 }
 
 @Composable
-private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: String?) {
+private fun PlayContent(
+    c: PlayController,
+    model: AppModel,
+    classifierWarning: String?,
+) {
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var playError by remember { mutableStateOf<String?>(null) }
@@ -133,18 +140,22 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     val luckOffer = remember(version, busy) { if (busy) null else c.luckOffer() }
     val listState = rememberLazyListState()
 
-    val visible = lines.withIndex().filter { (i, line) ->
-        val hasHiddenRollBeforeNarrative = if (line.author == Author.MASTER) {
-            var cursor = i - 1
-            var hidden = false
-            while (cursor >= 0 && lines[cursor].roll != null) {
-                if (!c.isRollRevealed(cursor)) hidden = true
-                cursor--
-            }
-            hidden
-        } else false
-        !hasHiddenRollBeforeNarrative
-    }
+    val visible =
+        lines.withIndex().filter { (i, line) ->
+            val hasHiddenRollBeforeNarrative =
+                if (line.author == Author.MASTER) {
+                    var cursor = i - 1
+                    var hidden = false
+                    while (cursor >= 0 && lines[cursor].roll != null) {
+                        if (!c.isRollRevealed(cursor)) hidden = true
+                        cursor--
+                    }
+                    hidden
+                } else {
+                    false
+                }
+            !hasHiddenRollBeforeNarrative
+        }
     val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && !c.isRollRevealed(i) }
 
     LaunchedEffect(visible.size, pendingRoll, streamingText.length, busy) {
@@ -170,7 +181,10 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
     }
 
     // Ações locais de painéis: mesma trava de turno e mesmo despacho em IO que a narração.
-    fun act(block: () -> String?, onResult: (String?) -> Unit) {
+    fun act(
+        block: () -> String?,
+        onResult: (String?) -> Unit,
+    ) {
         if (busy) return
         busy = true
         scope.launch {
@@ -207,15 +221,19 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                 enabled = !busy && !pendingRoll && pendingCheck == null,
                 onSpend = { kind ->
                     run {
-                        val result = c.spendLuck(kind) { partial ->
-                            scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
-                        }
+                        val result =
+                            c.spendLuck(kind) { partial ->
+                                scope.launch(Dispatchers.Main) {
+                                    streamingText = partial
+                                    version++
+                                }
+                            }
                         withContext(kotlinx.coroutines.Dispatchers.Main) {
                             streamingText = ""
                             playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
                         }
                     }
-                }
+                },
             )
         }
         AdditionalRulesPanel(model, enabled = !busy, act = ::act)
@@ -224,7 +242,7 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
             enabled = !busy && !pendingRoll && pendingCheck == null,
             onSheet = { run { c.submit("ver ficha") } },
             onInventory = { run { c.submit("inventário") } },
-            onRest = { run { c.submit("descansar") } }
+            onRest = { run { c.submit("descansar") } },
         )
         AdvancedCheckControls(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
         CombatControls(model, enabled = !busy, act = ::act)
@@ -233,18 +251,23 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
             Modifier.weight(1f).fillMaxWidth(),
             state = listState,
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             if (lines.isEmpty()) {
                 item(key = "vazio") {
-                    Muted("Descreva o que seu personagem faz. O mestre responde, e quando a ação exigir um teste, é você quem rola os dados.")
+                    Muted(
+                        "Descreva o que seu personagem faz. O mestre responde, e quando a ação exigir um teste, é você quem rola os dados.",
+                    )
                 }
             }
             itemsIndexed(visible, key = { _, iv -> iv.index }) { _, iv ->
                 ChatItem(
                     iv.value,
                     revealed = c.isRollRevealed(iv.index),
-                    onRevealed = { c.revealRoll(iv.index); version++ }
+                    onRevealed = {
+                        c.revealRoll(iv.index)
+                        version++
+                    },
                 )
             }
             itemsIndexed(clashes, key = { index, _ -> "clash-$index" }) { _, report ->
@@ -266,25 +289,36 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
         playError?.let { ErrorText(it) }
         BottomBar(
             busy = busy, pendingRoll = pendingRoll, pendingCheck = pendingCheck,
-            fortuneSpendLabel = fortuneSpendOption?.let {
-                "${it.cost} ${it.resourceName} para " + when (it.mode) {
-                    dev.rpgsolo.engine.FortuneMode.ADVANTAGE -> "vantagem"
-                    dev.rpgsolo.engine.FortuneMode.DISADVANTAGE -> "desvantagem"
-                    dev.rpgsolo.engine.FortuneMode.NORMAL -> "fortuna"
-                }
-            }, text = text,
-            onText = { text = it; playError = null },
+            fortuneSpendLabel =
+                fortuneSpendOption?.let {
+                    "${it.cost} ${it.resourceName} para " +
+                        when (it.mode) {
+                            dev.rpgsolo.engine.FortuneMode.ADVANTAGE -> "vantagem"
+                            dev.rpgsolo.engine.FortuneMode.DISADVANTAGE -> "desvantagem"
+                            dev.rpgsolo.engine.FortuneMode.NORMAL -> "fortuna"
+                        }
+                },
+            text = text,
+            onText = {
+                text = it
+                playError = null
+            },
             suggestions = suggestions, warning = classifierWarning,
             onSend = {
                 val submitted = text
                 run {
-                    val result = c.submit(submitted) { partial ->
-                        scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
-                    }
+                    val result =
+                        c.submit(submitted) { partial ->
+                            scope.launch(Dispatchers.Main) {
+                                streamingText = partial
+                                version++
+                            }
+                        }
                     withContext(kotlinx.coroutines.Dispatchers.Main) {
                         streamingText = ""
-                        if (result is dev.rpgsolo.ai.PlayResult.Failed) playError = result.reason
-                        else {
+                        if (result is dev.rpgsolo.ai.PlayResult.Failed) {
+                            playError = result.reason
+                        } else {
                             text = ""
                             playError = null
                         }
@@ -292,38 +326,54 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
                     model.autoCloseChapterIfNeeded()
                 }
             },
-            onRollCheck = { run {
-                val result = c.rollPending { partial ->
-                    scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+            onRollCheck = {
+                run {
+                    val result =
+                        c.rollPending { partial ->
+                            scope.launch(Dispatchers.Main) {
+                                streamingText = partial
+                                version++
+                            }
+                        }
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        streamingText = ""
+                        playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                    }
+                    model.autoCloseChapterIfNeeded()
                 }
-                withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    streamingText = ""
-                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+            },
+            onRollFortune = {
+                run {
+                    val result =
+                        c.rollPending(useFortuneResource = true) { partial ->
+                            scope.launch(Dispatchers.Main) {
+                                streamingText = partial
+                                version++
+                            }
+                        }
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        streamingText = ""
+                        playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                    }
+                    model.autoCloseChapterIfNeeded()
                 }
-                model.autoCloseChapterIfNeeded()
-            } },
-            onRollFortune = { run {
-                val result = c.rollPending(useFortuneResource = true) { partial ->
-                    scope.launch(Dispatchers.Main) { streamingText = partial; version++ }
+            },
+            onUndo = {
+                run {
+                    val undone = c.undo()
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        playError = if (undone) null else "Não há jogada para desfazer."
+                    }
                 }
-                withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    streamingText = ""
-                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+            },
+            onRegenerate = {
+                run {
+                    val result = c.regenerate()
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                    }
                 }
-                model.autoCloseChapterIfNeeded()
-            } },
-            onUndo = { run {
-                val undone = c.undo()
-                withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    playError = if (undone) null else "Não há jogada para desfazer."
-                }
-            } },
-            onRegenerate = { run {
-                val result = c.regenerate()
-                withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
-                }
-            } }
+            },
         )
     }
 }
@@ -334,18 +384,26 @@ private fun LuckPanel(
     offer: dev.rpgsolo.ai.LuckOption,
     resourceName: String,
     enabled: Boolean,
-    onSpend: (dev.rpgsolo.engine.LuckKind) -> Unit
+    onSpend: (dev.rpgsolo.engine.LuckKind) -> Unit,
 ) {
     AppCard {
         Text("Sorte", style = MaterialTheme.typography.titleSmall)
         Muted("Custo: ${offer.cost} de $resourceName. Vale uma vez para o último teste e o mestre narra o novo resultado.")
         if (dev.rpgsolo.engine.LuckKind.REROLL in offer.kinds) {
-            OutlinedButton(enabled = enabled, onClick = { onSpend(dev.rpgsolo.engine.LuckKind.REROLL) }, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                enabled = enabled,
+                onClick = { onSpend(dev.rpgsolo.engine.LuckKind.REROLL) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text("Repetir a rolagem")
             }
         }
         if (dev.rpgsolo.engine.LuckKind.ADD_FACE in offer.kinds) {
-            OutlinedButton(enabled = enabled, onClick = { onSpend(dev.rpgsolo.engine.LuckKind.ADD_FACE) }, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                enabled = enabled,
+                onClick = { onSpend(dev.rpgsolo.engine.LuckKind.ADD_FACE) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text("Somar uma face")
             }
         }
@@ -353,9 +411,15 @@ private fun LuckPanel(
 }
 
 @Composable
-private fun InventoryPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+private fun InventoryPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
     val campaignVersion = model.campaignVersion
-    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
     val inventory = model.inventoryView()
     if (inventory.isEmpty()) return
@@ -374,14 +438,20 @@ private fun InventoryPanel(model: AppModel, enabled: Boolean, act: (() -> String
                 }
                 when {
                     item.kind == "equipamento" && item.slot != null && item.equipped ->
-                        TextButton(enabled = enabled, onClick = { act({ model.unequipItem(item.slot) }) { message = it } }) { Text("Desequipar") }
+                        TextButton(
+                            enabled = enabled,
+                            onClick = { act({ model.unequipItem(item.slot) }) { message = it } },
+                        ) { Text("Desequipar") }
                     item.kind == "equipamento" && item.slot != null ->
                         TextButton(enabled = enabled, onClick = { act({ model.equipItem(item.id) }) { message = it } }) { Text("Equipar") }
                     item.kind == "consumivel" ->
                         TextButton(enabled = enabled, onClick = { act({ model.useItem(item.id) }) { message = it } }) { Text("Usar") }
                 }
                 if (item.price != null && !item.equipped) {
-                    TextButton(enabled = enabled, onClick = { act({ model.sellItem(item.id) }) { message = it } }) { Text("Vender (${item.price})") }
+                    TextButton(
+                        enabled = enabled,
+                        onClick = { act({ model.sellItem(item.id) }) { message = it } },
+                    ) { Text("Vender (${item.price})") }
                 }
             }
         }
@@ -390,8 +460,13 @@ private fun InventoryPanel(model: AppModel, enabled: Boolean, act: (() -> String
 }
 
 @Composable
-private fun ShopPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
-    @Suppress("UNUSED_VARIABLE") val observeVersion = model.campaignVersion
+private fun ShopPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
     val shop = model.shopView() ?: return
     val spellShop = model.spellShopView()
@@ -400,10 +475,18 @@ private fun ShopPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (S
         Text("Loja", style = MaterialTheme.typography.titleSmall)
         Muted("Saldo: ${shop.balance} (${shop.currencyName})")
         shop.goldName?.let { goldName ->
-            Muted("${shop.goldHeld} de $goldName e ${shop.silverHeld} de ${shop.currencyName} · 1 $goldName = ${shop.silverPerGold} ${shop.currencyName}")
+            Muted(
+                "${shop.goldHeld} de $goldName e ${shop.silverHeld} de ${shop.currencyName} · 1 $goldName = ${shop.silverPerGold} ${shop.currencyName}",
+            )
             Row {
-                TextButton(enabled = enabled && shop.silverHeld >= shop.silverPerGold, onClick = { act({ model.convertCoins(toGold = true) }) { message = it } }) { Text("Trocar ${shop.silverPerGold} ${shop.currencyName} por 1 $goldName") }
-                TextButton(enabled = enabled && shop.goldHeld >= 1, onClick = { act({ model.convertCoins(toGold = false) }) { message = it } }) { Text("Trocar 1 $goldName por ${shop.silverPerGold} ${shop.currencyName}") }
+                TextButton(enabled = enabled && shop.silverHeld >= shop.silverPerGold, onClick = {
+                    act({ model.convertCoins(toGold = true) }) { message = it }
+                }) { Text("Trocar ${shop.silverPerGold} ${shop.currencyName} por 1 $goldName") }
+                TextButton(enabled = enabled && shop.goldHeld >= 1, onClick = {
+                    act({
+                        model.convertCoins(toGold = false)
+                    }) { message = it }
+                }) { Text("Trocar 1 $goldName por ${shop.silverPerGold} ${shop.currencyName}") }
             }
         }
         shop.entries.forEach { entry ->
@@ -412,7 +495,9 @@ private fun ShopPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (S
                     Text("${entry.name} · ${entry.price}")
                     Muted(entry.description)
                 }
-                TextButton(enabled = enabled && shop.balance >= entry.price, onClick = { act({ model.buyItem(entry.id) }) { message = it } }) { Text("Comprar") }
+                TextButton(enabled = enabled && shop.balance >= entry.price, onClick = {
+                    act({ model.buyItem(entry.id) }) { message = it }
+                }) { Text("Comprar") }
             }
         }
         message?.let { ErrorText(it) }
@@ -420,9 +505,15 @@ private fun ShopPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (S
 }
 
 @Composable
-private fun PowersPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+private fun PowersPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
     val campaignVersion = model.campaignVersion
-    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
     var targetId by remember { mutableStateOf<String?>(null) }
     val powers = model.powersView()
@@ -449,7 +540,7 @@ private fun PowersPanel(model: AppModel, enabled: Boolean, act: (() -> String?, 
                         val id = power.id
                         val target = if (power.needsTarget) targetId else null
                         act({ model.activatePower(id, target) }) { message = it }
-                    }
+                    },
                 ) { Text("Usar ${power.name}") }
             }
         }
@@ -458,8 +549,13 @@ private fun PowersPanel(model: AppModel, enabled: Boolean, act: (() -> String?, 
 }
 
 @Composable
-private fun TraitUsesPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
-    @Suppress("UNUSED_VARIABLE") val observeVersion = model.campaignVersion
+private fun TraitUsesPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
     val traits = model.traitUsesView()
     if (traits.isEmpty()) return
@@ -472,7 +568,10 @@ private fun TraitUsesPanel(model: AppModel, enabled: Boolean, act: (() -> String
                 Muted("usos: ${t.used}/${t.limit} · voltam ao descansar")
                 TextButton(
                     enabled = enabled && t.used < t.limit,
-                    onClick = { val id = t.id; act({ model.spendTraitUse(id) }) { message = it } }
+                    onClick = {
+                        val id = t.id
+                        act({ model.spendTraitUse(id) }) { message = it }
+                    },
                 ) { Text("Usar ${t.name}") }
             }
         }
@@ -481,8 +580,13 @@ private fun TraitUsesPanel(model: AppModel, enabled: Boolean, act: (() -> String
 }
 
 @Composable
-private fun ConditionRemovalPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
-    @Suppress("UNUSED_VARIABLE") val observeVersion = model.campaignVersion
+private fun ConditionRemovalPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
     val list = model.removableConditions()
     if (list.isEmpty()) return
@@ -498,8 +602,13 @@ private fun ConditionRemovalPanel(model: AppModel, enabled: Boolean, act: (() ->
 }
 
 @Composable
-private fun SurvivalPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
-    @Suppress("UNUSED_VARIABLE") val observeVersion = model.campaignVersion
+private fun SurvivalPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
     var message by remember { mutableStateOf<String?>(null) }
     val limit = model.survivalLimit() ?: return
     AppCard {
@@ -513,7 +622,11 @@ private fun SurvivalPanel(model: AppModel, enabled: Boolean, act: (() -> String?
 }
 
 @Composable
-private fun PlacesPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+private fun PlacesPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
     val places = model.placesView()
     var message by remember { mutableStateOf<String?>(null) }
     if (places.isEmpty()) return
@@ -530,10 +643,13 @@ private fun PlacesPanel(model: AppModel, enabled: Boolean, act: (() -> String?, 
                     Muted("Saídas conhecidas:")
                     Row(
                         Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         place.exits.forEach { (id, name) ->
-                            OutlinedButton(enabled = enabled, onClick = { act({ model.moveToPlace(id) }) { message = it } }) { Text("Ir para $name") }
+                            OutlinedButton(
+                                enabled = enabled,
+                                onClick = { act({ model.moveToPlace(id) }) { message = it } },
+                            ) { Text("Ir para $name") }
                         }
                     }
                 }
@@ -544,9 +660,15 @@ private fun PlacesPanel(model: AppModel, enabled: Boolean, act: (() -> String?, 
 }
 
 @Composable
-private fun AdditionalRulesPanel(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+private fun AdditionalRulesPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
     val campaignVersion = model.campaignVersion
-    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = campaignVersion
     val rules = model.additionalRulesView()
     var message by remember { mutableStateOf<String?>(null) }
     if (rules.isEmpty()) return
@@ -557,18 +679,30 @@ private fun AdditionalRulesPanel(model: AppModel, enabled: Boolean, act: (() -> 
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(rule.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                    if (rule.approved) Pill("Aprovada", MaterialTheme.colorScheme.tertiary)
-                    else Pill("Pendente", MaterialTheme.colorScheme.error)
+                    if (rule.approved) {
+                        Pill("Aprovada", MaterialTheme.colorScheme.tertiary)
+                    } else {
+                        Pill("Pendente", MaterialTheme.colorScheme.error)
+                    }
                 }
                 Text(rule.description)
-                Muted("Efeitos: " + rule.effects.entries.joinToString(", ") { (key, value) ->
-                    "${key} ${if (value >= 0) "+" else ""}${value}"
-                })
+                Muted(
+                    "Efeitos: " +
+                        rule.effects.entries.joinToString(", ") { (key, value) ->
+                            "$key ${if (value >= 0) "+" else ""}$value"
+                        },
+                )
                 Muted("Limite/custo: ${rule.limit}")
                 if (!rule.approved) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(enabled = enabled, onClick = { act({ model.approveAdditionalRule(rule.id) }) { message = it } }) { Text("Aprovar") }
-                        TextButton(enabled = enabled, onClick = { act({ model.rejectAdditionalRule(rule.id) }) { message = it } }) { Text("Descartar") }
+                        Button(
+                            enabled = enabled,
+                            onClick = { act({ model.approveAdditionalRule(rule.id) }) { message = it } },
+                        ) { Text("Aprovar") }
+                        TextButton(
+                            enabled = enabled,
+                            onClick = { act({ model.rejectAdditionalRule(rule.id) }) { message = it } },
+                        ) { Text("Descartar") }
                     }
                 }
             }
@@ -579,11 +713,16 @@ private fun AdditionalRulesPanel(model: AppModel, enabled: Boolean, act: (() -> 
 
 /** Atalhos de baixo custo: o controlador reconhece estas frases como ações locais, sem chamar a IA. */
 @Composable
-private fun QuickActions(enabled: Boolean, onSheet: () -> Unit, onInventory: () -> Unit, onRest: () -> Unit) {
+private fun QuickActions(
+    enabled: Boolean,
+    onSheet: () -> Unit,
+    onInventory: () -> Unit,
+    onRest: () -> Unit,
+) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Row(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             AssistChip(onClick = onSheet, enabled = enabled, label = { Text("Ver ficha") })
             AssistChip(onClick = onInventory, enabled = enabled, label = { Text("Inventário") })
@@ -593,7 +732,11 @@ private fun QuickActions(enabled: Boolean, onSheet: () -> Unit, onInventory: () 
 }
 
 @Composable
-private fun AdvancedCheckControls(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+private fun AdvancedCheckControls(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
     val version = model.campaignVersion
     val options = remember(version) { model.advancedCheckOptions() }
     val targets = remember(version) { model.advancedCheckTargets() }
@@ -607,40 +750,44 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean, act: (() ->
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Column(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text("Disputa de testes", style = MaterialTheme.typography.labelLarge)
             Muted("Escolha o mesmo teste para seu personagem e o NPC. Os resultados são decididos pelo motor.")
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 options.forEach { option ->
                     AssistChip(
                         onClick = { selectedCheck = option.id },
                         enabled = enabled,
                         label = { Text(option.id) },
-                        leadingIcon = if (selectedCheck == option.id) ({ Text("✓") }) else null
+                        leadingIcon = if (selectedCheck == option.id) ({ Text("✓") }) else null,
                     )
                 }
             }
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 targets.forEach { target ->
                     AssistChip(
                         onClick = { selectedTarget = target.id },
                         enabled = enabled,
                         label = { Text(target.name + if (target.rulesValidated) "" else " · não validado") },
-                        leadingIcon = if (selectedTarget == target.id) ({ Text("✓") }) else null
+                        leadingIcon = if (selectedTarget == target.id) ({ Text("✓") }) else null,
                     )
                 }
             }
             Button(
-                onClick = { val t = selectedTarget; val c = selectedCheck; act({ model.resolveOpposedCheck(t, c) }) { message = it } },
+                onClick = {
+                    val t = selectedTarget
+                    val c = selectedCheck
+                    act({ model.resolveOpposedCheck(t, c) }) { message = it }
+                },
                 enabled = enabled && selectedCheck in options.map { it.id } && selectedTarget in targets.map { it.id },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Resolver disputa")
             }
@@ -648,41 +795,50 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean, act: (() ->
             Muted("O herói participa automaticamente. Marque os NPCs que participam da tarefa.")
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 targets.forEach { target ->
                     val chosen = target.id in selectedGroupTargets
                     AssistChip(
                         onClick = {
-                            selectedGroupTargets = if (chosen) selectedGroupTargets - target.id
-                            else selectedGroupTargets + target.id
+                            selectedGroupTargets =
+                                if (chosen) {
+                                    selectedGroupTargets - target.id
+                                } else {
+                                    selectedGroupTargets + target.id
+                                }
                             val count = selectedGroupTargets.size + 1
                             if (requiredGroupSuccesses > count) requiredGroupSuccesses = count
                         },
                         enabled = enabled,
                         label = { Text(target.name) },
-                        leadingIcon = if (chosen) ({ Text("✓") }) else null
+                        leadingIcon = if (chosen) ({ Text("✓") }) else null,
                     )
                 }
             }
             val participantCount = selectedGroupTargets.size + 1
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 (1..participantCount).forEach { threshold ->
                     AssistChip(
                         onClick = { requiredGroupSuccesses = threshold },
                         enabled = enabled,
                         label = { Text("$threshold sucesso(s)") },
-                        leadingIcon = if (requiredGroupSuccesses == threshold) ({ Text("✓") }) else null
+                        leadingIcon = if (requiredGroupSuccesses == threshold) ({ Text("✓") }) else null,
                     )
                 }
             }
             Button(
-                onClick = { val g = selectedGroupTargets.toList(); val c = selectedCheck; val n = requiredGroupSuccesses; act({ model.resolveGroupCheck(g, c, n) }) { message = it } },
+                onClick = {
+                    val g = selectedGroupTargets.toList()
+                    val c = selectedCheck
+                    val n = requiredGroupSuccesses
+                    act({ model.resolveGroupCheck(g, c, n) }) { message = it }
+                },
                 enabled = enabled && selectedCheck in options.map { it.id } && requiredGroupSuccesses in 1..participantCount,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Resolver teste de grupo")
             }
@@ -692,29 +848,35 @@ private fun AdvancedCheckControls(model: AppModel, enabled: Boolean, act: (() ->
 }
 
 @Composable
-private fun CombatControls(model: AppModel, enabled: Boolean, act: (() -> String?, (String?) -> Unit) -> Unit) {
+private fun CombatControls(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
     val campaignVersion = model.campaignVersion
-    @Suppress("UNUSED_VARIABLE") val observeVersion = campaignVersion
+
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = campaignVersion
     var message by remember(campaignVersion) { mutableStateOf<String?>(null) }
     var npcName by remember { mutableStateOf("") }
     val combat = model.combatState()
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Column(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             if (combat == null) {
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OutlinedTextField(
                         value = npcName,
                         onValueChange = { npcName = it },
                         modifier = Modifier.weight(1f),
                         label = { Text("Nome do adversário") },
-                        singleLine = true
+                        singleLine = true,
                     )
                     Button(onClick = {
                         val name = npcName
@@ -728,7 +890,10 @@ private fun CombatControls(model: AppModel, enabled: Boolean, act: (() -> String
                     Text("⚔ Iniciar combate")
                 }
             } else {
-                Text("Rodada ${combat.round} · turno ${combat.turnIndex + 1}/${combat.order.size}: ${model.combatantName(combat.current)}", style = MaterialTheme.typography.labelLarge)
+                Text(
+                    "Rodada ${combat.round} · turno ${combat.turnIndex + 1}/${combat.order.size}: ${model.combatantName(combat.current)}",
+                    style = MaterialTheme.typography.labelLarge,
+                )
                 model.combatOrderDescription()?.let { order ->
                     Muted("Ordem de iniciativa: $order")
                 }
@@ -739,11 +904,16 @@ private fun CombatControls(model: AppModel, enabled: Boolean, act: (() -> String
                     } else {
                         Row(
                             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             targets.forEach { target ->
-                                Button(enabled = enabled, onClick = { val id = target.id; act({ model.unifiedAttack(id) }) { message = it } }) {
-                                    Text("Atacar ${target.name}${target.condition.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()}${if (target.rulesValidated) "" else " (não validado)"}")
+                                Button(enabled = enabled, onClick = {
+                                    val id = target.id
+                                    act({ model.unifiedAttack(id) }) { message = it }
+                                }) {
+                                    Text(
+                                        "Atacar ${target.name}${target.condition.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()}${if (target.rulesValidated) "" else " (não validado)"}",
+                                    )
                                 }
                             }
                         }
@@ -755,15 +925,21 @@ private fun CombatControls(model: AppModel, enabled: Boolean, act: (() -> String
                     OutlinedButton(
                         enabled = enabled,
                         onClick = { act({ model.defend() }) { message = it } },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) { Text("Defender — bônus contra o próximo ataque") }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (model.isPlayerCombatTurn()) {
-                        Button(enabled = enabled, onClick = { act({ model.nextCombatTurn() }) { message = it } }, modifier = Modifier.weight(1f)) { Text("Passar turno") }
-                        OutlinedButton(enabled = enabled, onClick = { act({ model.fleeCombat() }) { message = it } }, modifier = Modifier.weight(1f)) { Text("Fugir") }
+                        Button(enabled = enabled, onClick = {
+                            act({ model.nextCombatTurn() }) { message = it }
+                        }, modifier = Modifier.weight(1f)) { Text("Passar turno") }
+                        OutlinedButton(enabled = enabled, onClick = {
+                            act({ model.fleeCombat() }) { message = it }
+                        }, modifier = Modifier.weight(1f)) { Text("Fugir") }
                     } else {
-                        Button(enabled = enabled, onClick = { act({ model.resolveNpcTurn() }) { message = it } }, modifier = Modifier.weight(1f)) { Text("Resolver turno inimigo") }
+                        Button(enabled = enabled, onClick = {
+                            act({ model.resolveNpcTurn() }) { message = it }
+                        }, modifier = Modifier.weight(1f)) { Text("Resolver turno inimigo") }
                     }
                     TextButton(enabled = enabled, onClick = { act({ model.endCombat() }) { message = it } }) { Text("Encerrar") }
                 }
@@ -794,7 +970,11 @@ private fun StatusPanel(p: PanelState) {
 }
 
 @Composable
-private fun ResourceBar(id: String, current: Int, max: Int) {
+private fun ResourceBar(
+    id: String,
+    current: Int,
+    max: Int,
+) {
     val color = resourceColor(id)
     val frac = if (max <= 0) 0f else (current.toFloat() / max).coerceIn(0f, 1f)
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -803,40 +983,53 @@ private fun ResourceBar(id: String, current: Int, max: Int) {
             progress = { frac },
             modifier = Modifier.weight(1f).height(8.dp).clip(CircleShape),
             color = color,
-            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
         )
         Text("$current/$max", Modifier.widthIn(min = 44.dp), style = MaterialTheme.typography.labelMedium)
     }
 }
 
 @Composable
-private fun ChatItem(line: ChatLine, revealed: Boolean, onRevealed: () -> Unit) {
+private fun ChatItem(
+    line: ChatLine,
+    revealed: Boolean,
+    onRevealed: () -> Unit,
+) {
     when (line.author) {
-        Author.PLAYER -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            Surface(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(18.dp, 18.dp, 4.dp, 18.dp),
-                modifier = Modifier.widthIn(max = 320.dp)
-            ) {
-                Text(
-                    line.text, Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+        Author.PLAYER ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(18.dp, 18.dp, 4.dp, 18.dp),
+                    modifier = Modifier.widthIn(max = 320.dp),
+                ) {
+                    Text(
+                        line.text,
+                        Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
             }
-        }
         Author.ROLL -> {
             val view = line.roll
-            if (view != null) RollCard(view, revealed, onRevealed)
-            else Pill("🎲 ${line.text}", MaterialTheme.colorScheme.secondary)
+            if (view != null) {
+                RollCard(view, revealed, onRevealed)
+            } else {
+                Pill("🎲 ${line.text}", MaterialTheme.colorScheme.secondary)
+            }
         }
-        Author.MASTER -> Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-            Box(
-                Modifier.width(3.dp).fillMaxHeight().clip(RoundedCornerShape(2.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
-            )
-            Spacer(Modifier.width(12.dp))
-            Text(line.text, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Serif, lineHeight = 27.sp, fontSize = 17.sp))
-        }
+        Author.MASTER ->
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+                Box(
+                    Modifier.width(3.dp).fillMaxHeight().clip(RoundedCornerShape(2.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)),
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    line.text,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Serif, lineHeight = 27.sp, fontSize = 17.sp),
+                )
+            }
         Author.SYSTEM -> ErrorText(line.text)
     }
 }
@@ -845,20 +1038,41 @@ private fun ChatItem(line: ChatLine, revealed: Boolean, onRevealed: () -> Unit) 
 private fun Thinking() {
     val t = rememberInfiniteTransition(label = "pensando")
     val a by t.animateFloat(0.3f, 1f, infiniteRepeatable(tween(700), RepeatMode.Reverse), label = "alfa")
-    Text("O mestre está pensando…", Modifier.alpha(a), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+    Text(
+        "O mestre está pensando…",
+        Modifier.alpha(a),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.primary,
+    )
 }
 
 @Composable
 private fun BottomBar(
-    busy: Boolean, pendingRoll: Boolean, pendingCheck: String?, fortuneSpendLabel: String?, text: String, onText: (String) -> Unit,
-    suggestions: List<String>, warning: String?,
-    onSend: () -> Unit, onRollCheck: () -> Unit, onRollFortune: () -> Unit, onUndo: () -> Unit, onRegenerate: () -> Unit
+    busy: Boolean,
+    pendingRoll: Boolean,
+    pendingCheck: String?,
+    fortuneSpendLabel: String?,
+    text: String,
+    onText: (String) -> Unit,
+    suggestions: List<String>,
+    warning: String?,
+    onSend: () -> Unit,
+    onRollCheck: () -> Unit,
+    onRollFortune: () -> Unit,
+    onUndo: () -> Unit,
+    onRegenerate: () -> Unit,
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             warning?.let { ErrorText("Não consegui decidir se a ação exige teste ($it). Seguindo sem teste.") }
             if (busy) Thinking()
-            if (pendingRoll && !busy) Text("🎲 Role os dados para continuar.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+            if (pendingRoll && !busy) {
+                Text(
+                    "🎲 Role os dados para continuar.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
             // O mestre pediu um teste: só resta rolar (ou desfazer). O motor rola e o mestre narra o desfecho.
             if (pendingCheck != null && !busy && !pendingRoll) {
                 Button(onClick = onRollCheck, modifier = Modifier.fillMaxWidth()) { Text("🎲 Rolar $pendingCheck") }
@@ -876,10 +1090,13 @@ private fun BottomBar(
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
-                    value = text, onValueChange = onText, modifier = Modifier.weight(1f),
+                    value = text,
+                    onValueChange = onText,
+                    modifier = Modifier.weight(1f),
                     placeholder = { Text(if (pendingCheck != null) "Role o teste para continuar" else "O que você faz?") },
                     enabled = !busy && !pendingRoll && pendingCheck == null,
-                    shape = MaterialTheme.shapes.large, maxLines = 4
+                    shape = MaterialTheme.shapes.large,
+                    maxLines = 4,
                 )
                 Button(enabled = !busy && !pendingRoll && pendingCheck == null && text.isNotBlank(), onClick = onSend) { Text("Enviar") }
             }

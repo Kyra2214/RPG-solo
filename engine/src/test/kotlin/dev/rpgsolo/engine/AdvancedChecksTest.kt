@@ -8,26 +8,46 @@ class AdvancedChecksTest {
     private class ToggleFailStore : EventStore {
         private val delegate = InMemoryEventStore()
         var failAppend = false
+
         override fun createCampaign(record: CampaignRecord) = delegate.createCampaign(record)
+
         override fun campaign(id: String) = delegate.campaign(id)
+
         override fun size(campaignId: String) = delegate.size(campaignId)
+
         override fun load(campaignId: String) = delegate.load(campaignId)
-        override fun truncate(campaignId: String, newSize: Int) = delegate.truncate(campaignId, newSize)
-        override fun append(campaignId: String, expectedSize: Int, payloads: List<String>) {
+
+        override fun truncate(
+            campaignId: String,
+            newSize: Int,
+        ) = delegate.truncate(campaignId, newSize)
+
+        override fun append(
+            campaignId: String,
+            expectedSize: Int,
+            payloads: List<String>,
+        ) {
             if (failAppend) error("append falhou")
             delegate.append(campaignId, expectedSize, payloads)
         }
     }
-    private fun spec(label: String, difficulty: Int = 10) =
-        CheckSpec(label, diceCount = 1, diceSides = 20, difficulty = difficulty)
 
-    private fun compareQuality(a: CheckResult, b: CheckResult): Int {
+    private fun spec(
+        label: String,
+        difficulty: Int = 10,
+    ) = CheckSpec(label, diceCount = 1, diceSides = 20, difficulty = difficulty)
+
+    private fun compareQuality(
+        a: CheckResult,
+        b: CheckResult,
+    ): Int {
         val outcome = a.outcome.ordinal.compareTo(b.outcome.ordinal)
         if (outcome != 0) return outcome
-        val sameScale = a.spec.comparison == b.spec.comparison &&
-            a.spec.diceCount == b.spec.diceCount &&
-            a.spec.diceSides == b.spec.diceSides &&
-            a.spec.difficulty == b.spec.difficulty
+        val sameScale =
+            a.spec.comparison == b.spec.comparison &&
+                a.spec.diceCount == b.spec.diceCount &&
+                a.spec.diceSides == b.spec.diceSides &&
+                a.spec.difficulty == b.spec.difficulty
         return if (sameScale) a.margin.compareTo(b.margin) else 0
     }
 
@@ -55,20 +75,22 @@ class AdvancedChecksTest {
 
     @Test fun opposedTieGoesToDefender() {
         val engine = GameEngine(seed = 1L)
-        val result = engine.checkOpposed(
-            spec("arrombamento", difficulty = 10),
-            spec("resistencia-da-fechadura", difficulty = 10)
-        )
+        val result =
+            engine.checkOpposed(
+                spec("arrombamento", difficulty = 10),
+                spec("resistencia-da-fechadura", difficulty = 10),
+            )
         val expected = compareQuality(result.challenger, result.defender) > 0
         assertEquals(expected, result.challengerWins)
     }
 
     @Test fun opposedDifferentDifficultiesDoNotCompareIncompatibleMargins() {
         val engine = GameEngine(seed = 19L)
-        val result = engine.checkOpposed(
-            spec("ladrao", difficulty = 1).copy(modifier = 20),
-            spec("guarda", difficulty = 2).copy(modifier = 20)
-        )
+        val result =
+            engine.checkOpposed(
+                spec("ladrao", difficulty = 1).copy(modifier = 20),
+                spec("guarda", difficulty = 2).copy(modifier = 20),
+            )
         assertEquals(Outcome.SUCCESS, result.challenger.outcome)
         assertEquals(Outcome.SUCCESS, result.defender.outcome)
         assertEquals(false, result.challengerWins)
@@ -76,14 +98,16 @@ class AdvancedChecksTest {
 
     @Test fun groupUsesExplicitSuccessThreshold() {
         val engine = GameEngine(seed = 42L)
-        val result = engine.checkGroup(
-            listOf(spec("vigia-1", 1), spec("vigia-2", 1), spec("vigia-3", 1)),
-            requiredSuccesses = 2
-        )
+        val result =
+            engine.checkGroup(
+                listOf(spec("vigia-1", 1), spec("vigia-2", 1), spec("vigia-3", 1)),
+                requiredSuccesses = 2,
+            )
         assertEquals(3, result.individual.size)
         assertEquals(3, result.successes + result.failures)
         assertEquals(result.successes >= 2, result.passed)
     }
+
     @Test fun checkSpecCanDeclareAdvantageWithoutCallingSpecialApi() {
         val engine = GameEngine(seed = 321L)
         val result = engine.check(spec("atletismo").copy(fortuneMode = FortuneMode.ADVANTAGE))
@@ -93,9 +117,10 @@ class AdvancedChecksTest {
 
     @Test fun groupRejectsSingleParticipantBeforeRolling() {
         val engine = GameEngine(seed = 777L)
-        val result = runCatching {
-            engine.checkGroup(listOf(spec("solo")), requiredSuccesses = 1)
-        }
+        val result =
+            runCatching {
+                engine.checkGroup(listOf(spec("solo")), requiredSuccesses = 1)
+            }
         assertTrue(result.isFailure)
         assertEquals(0, engine.events.count { it is RollRecorded })
     }
@@ -111,10 +136,11 @@ class AdvancedChecksTest {
 
     @Test fun opposedChecksHonorEachParticipantsFortunePolicy() {
         val engine = GameEngine(seed = 987L)
-        val result = engine.checkOpposed(
-            spec("ladrao").copy(fortuneMode = FortuneMode.ADVANTAGE),
-            spec("guarda").copy(fortuneMode = FortuneMode.DISADVANTAGE)
-        )
+        val result =
+            engine.checkOpposed(
+                spec("ladrao").copy(fortuneMode = FortuneMode.ADVANTAGE),
+                spec("guarda").copy(fortuneMode = FortuneMode.DISADVANTAGE),
+            )
         assertEquals(FortuneMode.ADVANTAGE, result.challenger.spec.fortuneMode)
         assertEquals(FortuneMode.DISADVANTAGE, result.defender.spec.fortuneMode)
         assertEquals(1, result.challengerAlternatives.size)
@@ -124,13 +150,14 @@ class AdvancedChecksTest {
 
     @Test fun groupChecksHonorFortunePolicyPerParticipant() {
         val engine = GameEngine(seed = 654L)
-        val result = engine.checkGroup(
-            listOf(
-                spec("vigia-1").copy(fortuneMode = FortuneMode.ADVANTAGE),
-                spec("vigia-2").copy(fortuneMode = FortuneMode.DISADVANTAGE)
-            ),
-            requiredSuccesses = 1
-        )
+        val result =
+            engine.checkGroup(
+                listOf(
+                    spec("vigia-1").copy(fortuneMode = FortuneMode.ADVANTAGE),
+                    spec("vigia-2").copy(fortuneMode = FortuneMode.DISADVANTAGE),
+                ),
+                requiredSuccesses = 1,
+            )
         assertEquals(2, result.individual.size)
         assertEquals(FortuneMode.ADVANTAGE, result.individual[0].spec.fortuneMode)
         assertEquals(FortuneMode.DISADVANTAGE, result.individual[1].spec.fortuneMode)
@@ -140,19 +167,29 @@ class AdvancedChecksTest {
 
     @Test fun fortuneCheckSpendsResourceAndPersistsRolls() {
         val store = InMemoryEventStore()
-        val session = CampaignSession.create(
-            store,
-            CampaignRecord("fortune", "Sorte", 123L, EngineConfig())
+        val session =
+            CampaignSession.create(
+                store,
+                CampaignRecord("fortune", "Sorte", 123L, EngineConfig()),
+            )
+        session.execute(
+            CreateEntity(
+                Entity(
+                    id = "hero",
+                    name = "Herói",
+                    kind = EntityKind.PLAYER,
+                    resources = mapOf("pa" to Resource(2, 2)),
+                ),
+            ),
         )
-        session.execute(CreateEntity(Entity(
-            id = "hero",
-            name = "Herói",
-            kind = EntityKind.PLAYER,
-            resources = mapOf("pa" to Resource(2, 2))
-        )))
-        val result = session.checkWithFortuneSpendingResource(
-            "hero", "pa", 1, spec("escalar"), FortuneMode.ADVANTAGE
-        )
+        val result =
+            session.checkWithFortuneSpendingResource(
+                "hero",
+                "pa",
+                1,
+                spec("escalar"),
+                FortuneMode.ADVANTAGE,
+            )
         assertTrue(result is FortuneSpendResult.Resolved)
         assertEquals(1, session.state.entities.getValue("hero").resources.getValue("pa").current)
         assertEquals(2, session.engine.events.count { it is RollRecorded })
@@ -164,16 +201,25 @@ class AdvancedChecksTest {
     @Test fun fortuneCheckRejectsInsufficientResourceWithoutRolling() {
         val store = InMemoryEventStore()
         val session = CampaignSession.create(store, CampaignRecord("no-fortune", "Sem sorte", 321L, EngineConfig()))
-        session.execute(CreateEntity(Entity(
-            id = "hero",
-            name = "Herói",
-            kind = EntityKind.PLAYER,
-            resources = mapOf("pa" to Resource(0, 2))
-        )))
-        val before = session.engine.eventCount
-        val result = session.checkWithFortuneSpendingResource(
-            "hero", "pa", 1, spec("escalar"), FortuneMode.ADVANTAGE
+        session.execute(
+            CreateEntity(
+                Entity(
+                    id = "hero",
+                    name = "Herói",
+                    kind = EntityKind.PLAYER,
+                    resources = mapOf("pa" to Resource(0, 2)),
+                ),
+            ),
         )
+        val before = session.engine.eventCount
+        val result =
+            session.checkWithFortuneSpendingResource(
+                "hero",
+                "pa",
+                1,
+                spec("escalar"),
+                FortuneMode.ADVANTAGE,
+            )
         assertTrue(result is FortuneSpendResult.Rejected)
         assertEquals(before, session.engine.eventCount)
         assertEquals(0, session.state.entities.getValue("hero").resources.getValue("pa").current)
@@ -187,9 +233,10 @@ class AdvancedChecksTest {
         val savedBefore = store.size("append-fail")
         store.failAppend = true
 
-        val result = runCatching {
-            session.checkWithFortune(spec("escalar"), FortuneMode.ADVANTAGE)
-        }
+        val result =
+            runCatching {
+                session.checkWithFortune(spec("escalar"), FortuneMode.ADVANTAGE)
+            }
 
         assertTrue(result.isFailure)
         assertEquals(before, session.mark())
@@ -199,17 +246,28 @@ class AdvancedChecksTest {
     @Test fun failedAppendRejectsFortuneSpendAndRestoresResourceAndRolls() {
         val store = ToggleFailStore()
         val session = CampaignSession.create(store, CampaignRecord("spend-append-fail", "Teste", 654L, EngineConfig()))
-        session.execute(CreateEntity(Entity(
-            id = "hero", name = "Herói", kind = EntityKind.PLAYER,
-            resources = mapOf("pa" to Resource(2, 2))
-        )))
+        session.execute(
+            CreateEntity(
+                Entity(
+                    id = "hero",
+                    name = "Herói",
+                    kind = EntityKind.PLAYER,
+                    resources = mapOf("pa" to Resource(2, 2)),
+                ),
+            ),
+        )
         val before = session.mark()
         val savedBefore = store.size("spend-append-fail")
         store.failAppend = true
 
-        val result = session.checkWithFortuneSpendingResource(
-            "hero", "pa", 1, spec("escalar"), FortuneMode.ADVANTAGE
-        )
+        val result =
+            session.checkWithFortuneSpendingResource(
+                "hero",
+                "pa",
+                1,
+                spec("escalar"),
+                FortuneMode.ADVANTAGE,
+            )
 
         assertTrue(result is FortuneSpendResult.Rejected)
         assertEquals(before, session.mark())
@@ -218,23 +276,32 @@ class AdvancedChecksTest {
     }
 
     @Test fun fortuneResourceCannotBeSpentForNormalRoll() {
-        val session = CampaignSession.create(
-            InMemoryEventStore(),
-            CampaignRecord("normal-fortune", "Teste normal", 654L, EngineConfig())
+        val session =
+            CampaignSession.create(
+                InMemoryEventStore(),
+                CampaignRecord("normal-fortune", "Teste normal", 654L, EngineConfig()),
+            )
+        session.execute(
+            CreateEntity(
+                Entity(
+                    id = "hero",
+                    name = "Herói",
+                    kind = EntityKind.PLAYER,
+                    resources = mapOf("pa" to Resource(2, 2)),
+                ),
+            ),
         )
-        session.execute(CreateEntity(Entity(
-            id = "hero",
-            name = "Herói",
-            kind = EntityKind.PLAYER,
-            resources = mapOf("pa" to Resource(2, 2))
-        )))
         val before = session.engine.eventCount
-        val result = session.checkWithFortuneSpendingResource(
-            "hero", "pa", 1, spec("escalar"), FortuneMode.NORMAL
-        )
+        val result =
+            session.checkWithFortuneSpendingResource(
+                "hero",
+                "pa",
+                1,
+                spec("escalar"),
+                FortuneMode.NORMAL,
+            )
         assertTrue(result is FortuneSpendResult.Rejected)
         assertEquals(before, session.engine.eventCount)
         assertEquals(2, session.state.entities.getValue("hero").resources.getValue("pa").current)
     }
-
 }

@@ -17,16 +17,26 @@ interface CampanhaDao {
     fun listar(): List<CampanhaRow>
 
     @Query("UPDATE campanhas SET nome = :nome WHERE id = :id")
-    fun renomear(id: String, nome: String)
+    fun renomear(
+        id: String,
+        nome: String,
+    )
 
     @Query("DELETE FROM campanhas WHERE id = :id")
     fun apagar(id: String)
 
     @Query("UPDATE campanhas SET estado = :estado, atualizadaEm = :agora WHERE id = :id")
-    fun definirEstado(id: String, estado: String, agora: Long): Int
+    fun definirEstado(
+        id: String,
+        estado: String,
+        agora: Long,
+    ): Int
 
     @Query("UPDATE campanhas SET atualizadaEm = :agora WHERE id = :id")
-    fun tocar(id: String, agora: Long)
+    fun tocar(
+        id: String,
+        agora: Long,
+    )
 }
 
 @Dao
@@ -41,7 +51,10 @@ interface EventoDao {
     fun inserir(rows: List<EventoRow>)
 
     @Query("DELETE FROM eventos WHERE campanhaId = :id AND seq >= :aPartirDe")
-    fun apagarDepoisDe(id: String, aPartirDe: Int)
+    fun apagarDepoisDe(
+        id: String,
+        aPartirDe: Int,
+    )
 }
 
 @Dao
@@ -51,7 +64,11 @@ interface FichaDao {
 
     /** Atualiza o conteúdo sem substituir a linha e sem desarquivar a ficha. */
     @Query("UPDATE fichas SET nome = :nome, json = :json WHERE id = :id")
-    fun atualizarConteudo(id: String, nome: String, json: String): Int
+    fun atualizarConteudo(
+        id: String,
+        nome: String,
+        json: String,
+    ): Int
 
     @Query("SELECT * FROM fichas WHERE id = :id")
     fun buscar(id: String): FichaRow?
@@ -63,7 +80,10 @@ interface FichaDao {
     fun listarArquivadas(): List<FichaRow>
 
     @Query("UPDATE fichas SET arquivada = :arquivada WHERE id = :id")
-    fun definirArquivada(id: String, arquivada: Boolean): Int
+    fun definirArquivada(
+        id: String,
+        arquivada: Boolean,
+    ): Int
 
     @Query("DELETE FROM fichas WHERE id = :id")
     fun apagar(id: String): Int
@@ -114,7 +134,10 @@ interface SnapshotDao {
     fun salvar(row: SnapshotRow)
 
     @Query("DELETE FROM snapshots WHERE campanhaId = :id AND eventCount > :aPartirDe")
-    fun apagarDepoisDe(id: String, aPartirDe: Int)
+    fun apagarDepoisDe(
+        id: String,
+        aPartirDe: Int,
+    )
 
     @Query("DELETE FROM snapshots WHERE campanhaId = :id")
     fun apagar(id: String)

@@ -12,11 +12,12 @@ data class AdaptationPreview(
     /** Alvos que o pacote não conhece. Nunca se importa mecânica de outro sistema sem declarar (4.4.5). */
     val unknownTargets: List<String>,
     val requiresApproval: Boolean,
-    val reasons: List<String>
+    val reasons: List<String>,
 )
 
 sealed interface AdaptationResult {
     data class Applied(val ficha: Ficha) : AdaptationResult
+
     data class Refused(val reasons: List<String>) : AdaptationResult
 }
 
@@ -26,15 +27,16 @@ const val DEFAULT_APPROVAL_THRESHOLD = 2
 fun RulePackage.previewAdaptation(
     ficha: Ficha,
     rule: RegraAdicional,
-    approvalThreshold: Int = DEFAULT_APPROVAL_THRESHOLD
+    approvalThreshold: Int = DEFAULT_APPROVAL_THRESHOLD,
 ): AdaptationPreview {
     val unknown = rule.effects.keys.filter { stat(it) == null }.sorted()
-    val lines = rule.effects.filter { stat(it.key) != null }.map { (id, delta) ->
-        val def = stat(id)!!
-        val before = ficha.stats[id] ?: def.default
-        val after = before + delta
-        EffectLine(id, before, after, after !in def.min..def.max)
-    }.sortedBy { it.stat }
+    val lines =
+        rule.effects.filter { stat(it.key) != null }.map { (id, delta) ->
+            val def = stat(id)!!
+            val before = ficha.stats[id] ?: def.default
+            val after = before + delta
+            EffectLine(id, before, after, after !in def.min..def.max)
+        }.sortedBy { it.stat }
     val total = rule.effects.values.sumOf { kotlin.math.abs(it) }
     val reasons = mutableListOf<String>()
     if (total >= approvalThreshold) reasons += "altera $total ponto(s) no total (limite sem aprovação: ${approvalThreshold - 1})"
@@ -50,7 +52,7 @@ fun RulePackage.previewAdaptation(
 fun RulePackage.applyAdaptation(
     ficha: Ficha,
     rule: RegraAdicional,
-    approvalThreshold: Int = DEFAULT_APPROVAL_THRESHOLD
+    approvalThreshold: Int = DEFAULT_APPROVAL_THRESHOLD,
 ): AdaptationResult {
     val preview = previewAdaptation(ficha, rule, approvalThreshold)
     val refusals = mutableListOf<String>()
@@ -62,6 +64,6 @@ fun RulePackage.applyAdaptation(
     if (refusals.isNotEmpty()) return AdaptationResult.Refused(refusals)
     val newStats = ficha.stats + preview.lines.associate { it.stat to it.after }
     return AdaptationResult.Applied(
-        ficha.copy(stats = newStats, resources = resourcesFor(newStats, ficha.traits), adaptations = ficha.adaptations + rule.id)
+        ficha.copy(stats = newStats, resources = resourcesFor(newStats, ficha.traits), adaptations = ficha.adaptations + rule.id),
     )
 }

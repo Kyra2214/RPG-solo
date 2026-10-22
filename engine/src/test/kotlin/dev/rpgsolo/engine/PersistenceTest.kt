@@ -7,9 +7,18 @@ import org.junit.Test
 
 class PersistenceTest {
     private val rec = CampaignRecord("c1", "Teste", 99L, EngineConfig(levelThresholds = listOf(10)))
-    private fun hero() = Entity("hero", "Herói", EntityKind.PLAYER,
-        stats = mapOf("forca" to 2), resources = mapOf("hp" to Resource(10, 10)))
+
+    private fun hero() =
+        Entity(
+            "hero",
+            "Herói",
+            EntityKind.PLAYER,
+            stats = mapOf("forca" to 2),
+            resources = mapOf("hp" to Resource(10, 10)),
+        )
+
     private fun orc() = Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6)))
+
     private fun newSession(store: EventStore = InMemoryEventStore()): Pair<CampaignSession, EventStore> {
         val s = CampaignSession.create(store, rec)
         s.executeAll(listOf(CreateEntity(hero()), CreateEntity(orc())))
@@ -17,21 +26,30 @@ class PersistenceTest {
     }
 
     @Test fun todoEventoTemCodecIdaEVolta() {
-        val samples = listOf<Event>(
-            EntityCreated(hero()), ResourceChanged("hero", "hp", 3, -7), EntityDied("orc"),
-            EntityRevived("orc", "milagre"), ItemChanged("hero", "pocao", 2), XpGained("hero", 5),
-            LevelGained("hero", 2), FactRecorded("k", "v"),
-            KnowledgeGained("s", "texto", "pista", true), PromiseMade("p", "orc", "poupar"), PromiseKept("p"),
-            ConditionAdded("hero", "cego"), ConditionRemoved("hero", "cego"), CombatStarted(listOf("hero", "orc")),
-            TurnAdvanced(1, 2), CombatEnded, RollRecorded("t", "2d6+1", listOf(3, 4), 1, 8)
-        )
+        val samples =
+            listOf<Event>(
+                EntityCreated(hero()), ResourceChanged("hero", "hp", 3, -7), EntityDied("orc"),
+                EntityRevived("orc", "milagre"), ItemChanged("hero", "pocao", 2), XpGained("hero", 5),
+                LevelGained("hero", 2), FactRecorded("k", "v"),
+                KnowledgeGained("s", "texto", "pista", true), PromiseMade("p", "orc", "poupar"), PromiseKept("p"),
+                ConditionAdded("hero", "cego"), ConditionRemoved("hero", "cego"), CombatStarted(listOf("hero", "orc")),
+                TurnAdvanced(1, 2), CombatEnded, RollRecorded("t", "2d6+1", listOf(3, 4), 1, 8),
+            )
         for (e in samples) assertEquals(e, Codec.decodeEvent(Codec.encode(e)))
     }
 
     @Test fun configEFichaTambemVoltamIguais() {
         assertEquals(rec.config, Codec.decodeConfig(Codec.encode(rec.config)))
-        val f = Ficha("f", "Brokk", SystemRef("s", "1e"), "anão", mapOf("forca" to 3),
-            mapOf("hp" to Resource(8, 8)), listOf("Máquinas"))
+        val f =
+            Ficha(
+                "f",
+                "Brokk",
+                SystemRef("s", "1e"),
+                "anão",
+                mapOf("forca" to 3),
+                mapOf("hp" to Resource(8, 8)),
+                listOf("Máquinas"),
+            )
         assertEquals(f, Codec.decodeFicha(Codec.encode(f)))
     }
 
@@ -55,8 +73,9 @@ class PersistenceTest {
         assertEquals(listOf("f-arquivada"), Backup.decode(current).metadata?.archivedFichaIds)
 
         // Backups anteriores ao campo opcional não devem falhar na leitura.
-        val oldBackup = Backup.export(store, "c1", CampaignBackupMetadata())
-            .replace(",\"archivedFichaIds\":[]", "")
+        val oldBackup =
+            Backup.export(store, "c1", CampaignBackupMetadata())
+                .replace(",\"archivedFichaIds\":[]", "")
         assertTrue(oldBackup.contains("\"metadata\""))
         assertEquals(emptyList<String>(), Backup.decode(oldBackup).metadata?.archivedFichaIds)
     }
@@ -108,7 +127,7 @@ class PersistenceTest {
         // continua jogando depois de reabrir, e os dados seguem a mesma sequência
         assertEquals(
             s.check(CheckSpec("x", 1, 20, 0, 10)).roll.dice,
-            reopened.check(CheckSpec("x", 1, 20, 0, 10)).roll.dice
+            reopened.check(CheckSpec("x", 1, 20, 0, 10)).roll.dice,
         )
     }
 

@@ -7,17 +7,29 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class Phase2bTest {
-    private fun ent(id: String, hp: Int = 10, stats: Map<String, Int> = emptyMap()) =
-        Entity(id, id, if (id == "hero") EntityKind.PLAYER else EntityKind.NPC,
-            stats = stats, resources = mapOf("hp" to Resource(hp, hp)))
+    private fun ent(
+        id: String,
+        hp: Int = 10,
+        stats: Map<String, Int> = emptyMap(),
+    ) = Entity(
+        id,
+        id,
+        if (id == "hero") EntityKind.PLAYER else EntityKind.NPC,
+        stats = stats,
+        resources = mapOf("hp" to Resource(hp, hp)),
+    )
 
-    private fun engine(vararg ids: String, seed: Long = 7): GameEngine {
+    private fun engine(
+        vararg ids: String,
+        seed: Long = 7,
+    ): GameEngine {
         val e = GameEngine(seed)
         assertTrue(e.executeAll(ids.map { CreateEntity(ent(it)) }) is ExecResult.Accepted)
         return e
     }
 
     private fun ok(r: ExecResult) = assertTrue(r.toString(), r is ExecResult.Accepted)
+
     private fun bad(r: ExecResult) = assertTrue(r.toString(), r is ExecResult.Rejected)
 
     // ---- conhecimento (2.2.3, 11.1.4) ----
@@ -117,8 +129,10 @@ class Phase2bTest {
         val e = engine("hero", "orc", "elfo")
         ok(e.execute(StartCombat(listOf("orc", "hero", "elfo"))))
         assertEquals("orc", e.state.combat!!.current)
-        e.execute(NextTurn); assertEquals("hero", e.state.combat!!.current)
-        e.execute(NextTurn); assertEquals("elfo", e.state.combat!!.current)
+        e.execute(NextTurn)
+        assertEquals("hero", e.state.combat!!.current)
+        e.execute(NextTurn)
+        assertEquals("elfo", e.state.combat!!.current)
         e.execute(NextTurn)
         assertEquals("orc", e.state.combat!!.current)
         assertEquals(2, e.state.combat!!.round)
@@ -159,9 +173,12 @@ class Phase2bTest {
 
     @Test fun iniciativaSomaAtributoEOrdenaPorTotal() {
         val e = GameEngine(1)
-        e.executeAll(listOf(
-            CreateEntity(ent("lento", stats = mapOf("agi" to 0))),
-            CreateEntity(ent("rapido", stats = mapOf("agi" to 1000)))))
+        e.executeAll(
+            listOf(
+                CreateEntity(ent("lento", stats = mapOf("agi" to 0))),
+                CreateEntity(ent("rapido", stats = mapOf("agi" to 1000))),
+            ),
+        )
         ok(e.rollInitiative(listOf("lento", "rapido"), statKey = "agi"))
         assertEquals(listOf("rapido", "lento"), e.state.combat!!.order)
     }
@@ -178,10 +195,12 @@ class Phase2bTest {
 
     @Test fun ataqueAcertaEReduzRecursoPeloMotor() {
         val e = GameEngine(7)
-        e.executeAll(listOf(
-            CreateEntity(ent("hero", stats = mapOf("forca" to 100))),
-            CreateEntity(ent("orc", stats = mapOf("defesa" to 10)))
-        ))
+        e.executeAll(
+            listOf(
+                CreateEntity(ent("hero", stats = mapOf("forca" to 100))),
+                CreateEntity(ent("orc", stats = mapOf("defesa" to 10))),
+            ),
+        )
         ok(e.execute(StartCombat(listOf("hero", "orc"))))
         val result = e.attack(AttackSpec("hero", "orc", attackStat = "forca", damage = 3))
         assertTrue(result is AttackResult.Resolved)
@@ -194,10 +213,12 @@ class Phase2bTest {
 
     @Test fun ataqueFalhaSemAplicarDanoMasFicaNoLog() {
         val e = GameEngine(7)
-        e.executeAll(listOf(
-            CreateEntity(ent("hero", stats = mapOf("forca" to -100))),
-            CreateEntity(ent("orc", stats = mapOf("defesa" to 20)))
-        ))
+        e.executeAll(
+            listOf(
+                CreateEntity(ent("hero", stats = mapOf("forca" to -100))),
+                CreateEntity(ent("orc", stats = mapOf("defesa" to 20))),
+            ),
+        )
         ok(e.execute(StartCombat(listOf("hero", "orc"))))
         val result = e.attack(AttackSpec("hero", "orc", attackStat = "forca", damage = 3))
         assertTrue(result is AttackResult.Resolved)
@@ -219,11 +240,13 @@ class Phase2bTest {
 
     @Test fun lutaCompletaEncerraQuandoOUltimoInimigoCai() {
         val e = GameEngine(12)
-        e.executeAll(listOf(
-            CreateEntity(ent("hero", hp = 10, stats = mapOf("forca" to 100))),
-            CreateEntity(ent("orc", hp = 3)),
-            CreateEntity(ent("goblin", hp = 3))
-        ))
+        e.executeAll(
+            listOf(
+                CreateEntity(ent("hero", hp = 10, stats = mapOf("forca" to 100))),
+                CreateEntity(ent("orc", hp = 3)),
+                CreateEntity(ent("goblin", hp = 3)),
+            ),
+        )
         ok(e.execute(StartCombat(listOf("hero", "orc", "goblin"))))
         val first = e.attack(AttackSpec("hero", "orc", attackStat = "forca", damage = 3))
         assertTrue(first is AttackResult.Resolved)
@@ -259,8 +282,18 @@ class Phase2bTest {
 
     // ---- camadas (2.2.1b, 9.4.5, 11.1.9, 11.1.10) ----
     private val sys = SystemRef("teste", "1e")
-    private fun ficha() = Ficha("f1", "Brokk", sys, concept = "anão minerador de máquinas de combate",
-        stats = mapOf("forca" to 3), resources = mapOf("hp" to Resource(8, 8)), traits = listOf("Máquinas"))
+
+    private fun ficha() =
+        Ficha(
+            "f1",
+            "Brokk",
+            sys,
+            concept = "anão minerador de máquinas de combate",
+            stats = mapOf("forca" to 3),
+            resources = mapOf("hp" to Resource(8, 8)),
+            traits = listOf("Máquinas"),
+        )
+
     private fun camp(amb: String) = Campanha("c1", "f1", sys, Ambientacao("a-$amb", "c1", amb))
 
     @Test fun trocarAmbientacaoNaoMudaAFicha() {
@@ -298,38 +331,47 @@ class Phase2bTest {
 
 class ProgressionTest {
     private val cfg = EngineConfig(levelThresholds = listOf(10, 30, 60))
+
     private fun engine(config: EngineConfig = cfg): GameEngine {
         val e = GameEngine(1, config)
         e.execute(CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(5, 5)))))
         return e
     }
+
     private fun level(e: GameEngine) = e.state.entities.getValue("hero").level
 
     @Test fun xpAbaixoDoLimiteNaoSobe() {
-        val e = engine(); e.execute(GainXp("hero", 9))
+        val e = engine()
+        e.execute(GainXp("hero", 9))
         assertEquals(1, level(e))
     }
 
     @Test fun xpNoLimiteSobeUmNivel() {
-        val e = engine(); e.execute(GainXp("hero", 10))
+        val e = engine()
+        e.execute(GainXp("hero", 10))
         assertEquals(2, level(e))
     }
 
     @Test fun xpGrandeSobeVariosNiveisDeUmaVez() {
-        val e = engine(); e.execute(GainXp("hero", 100))
+        val e = engine()
+        e.execute(GainXp("hero", 100))
         assertEquals(4, level(e))
         assertEquals(1, e.events.count { it is LevelGained })
     }
 
     @Test fun xpAcumuladoEmPartesSobeNaHora() {
         val e = engine()
-        e.execute(GainXp("hero", 6)); assertEquals(1, level(e))
-        e.execute(GainXp("hero", 6)); assertEquals(2, level(e))
-        e.execute(GainXp("hero", 6)); assertEquals(2, level(e))
+        e.execute(GainXp("hero", 6))
+        assertEquals(1, level(e))
+        e.execute(GainXp("hero", 6))
+        assertEquals(2, level(e))
+        e.execute(GainXp("hero", 6))
+        assertEquals(2, level(e))
     }
 
     @Test fun semLimitesNaoSobeDeNivel() {
-        val e = engine(EngineConfig()); e.execute(GainXp("hero", 9999))
+        val e = engine(EngineConfig())
+        e.execute(GainXp("hero", 9999))
         assertEquals(1, level(e))
     }
 
@@ -343,5 +385,7 @@ class ProgressionTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun limitesForaDeOrdemSaoInvalidos() { EngineConfig(levelThresholds = listOf(30, 10)) }
+    fun limitesForaDeOrdemSaoInvalidos() {
+        EngineConfig(levelThresholds = listOf(30, 10))
+    }
 }

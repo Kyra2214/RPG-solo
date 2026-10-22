@@ -13,21 +13,22 @@ data class CampaignForm(
     val themes: List<String> = emptyList(),
     val duration: String = "",
     val contentLimits: String = "",
-    val freeText: String = ""
+    val freeText: String = "",
 ) {
     fun isEmpty() = toDescription().isBlank()
 
     fun toDescription(): String {
-        val lines = buildList {
-            if (genre.isNotBlank()) add("Gênero: ${genre.trim()}")
-            if (era.isNotBlank()) add("Época: ${era.trim()}")
-            if (tone.isNotBlank()) add("Tom: ${tone.trim()}")
-            if (difficulty.isNotBlank()) add("Dificuldade: ${difficulty.trim()}")
-            val t = themes.map { it.trim() }.filter { it.isNotEmpty() }
-            if (t.isNotEmpty()) add("Temas: ${t.joinToString(", ")}")
-            if (duration.isNotBlank()) add("Duração: ${duration.trim()}")
-            if (contentLimits.isNotBlank()) add("Limites de conteúdo que devem ser respeitados: ${contentLimits.trim()}")
-        }
+        val lines =
+            buildList {
+                if (genre.isNotBlank()) add("Gênero: ${genre.trim()}")
+                if (era.isNotBlank()) add("Época: ${era.trim()}")
+                if (tone.isNotBlank()) add("Tom: ${tone.trim()}")
+                if (difficulty.isNotBlank()) add("Dificuldade: ${difficulty.trim()}")
+                val t = themes.map { it.trim() }.filter { it.isNotEmpty() }
+                if (t.isNotEmpty()) add("Temas: ${t.joinToString(", ")}")
+                if (duration.isNotBlank()) add("Duração: ${duration.trim()}")
+                if (contentLimits.isNotBlank()) add("Limites de conteúdo que devem ser respeitados: ${contentLimits.trim()}")
+            }
         val free = freeText.trim()
         return when {
             free.isEmpty() -> lines.joinToString("\n")

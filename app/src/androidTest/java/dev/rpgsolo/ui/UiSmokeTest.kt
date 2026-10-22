@@ -44,18 +44,19 @@ class UiSmokeTest {
 
     @Test
     fun cartaoDeRolagem_temDescricaoAcessivelEPodeSerCapturado() {
-        val view = RollView(
-            label = "Perceber a passagem",
-            sides = 6,
-            dice = listOf(5),
-            modifier = 0,
-            total = 5,
-            difficulty = 4,
-            outcome = Outcome.SUCCESS,
-            outcomeWord = "sucesso por pouco",
-            margin = 1,
-            chance = 0.5
-        )
+        val view =
+            RollView(
+                label = "Perceber a passagem",
+                sides = 6,
+                dice = listOf(5),
+                modifier = 0,
+                total = 5,
+                difficulty = 4,
+                outcome = Outcome.SUCCESS,
+                outcomeWord = "sucesso por pouco",
+                margin = 1,
+                chance = 0.5,
+            )
         composeRule.setContent {
             RpgTheme {
                 RollCard(view = view, revealed = true, onRevealed = {})

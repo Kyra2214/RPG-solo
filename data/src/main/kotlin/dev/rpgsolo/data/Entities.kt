@@ -14,7 +14,7 @@ data class CampanhaRow(
     /** CP-02: `ATIVA`, `PAUSADA` ou `CONCLUIDA` (ver [EstadoCampanha]). */
     @androidx.room.ColumnInfo(defaultValue = "'ATIVA'") val estado: String = "ATIVA",
     @androidx.room.ColumnInfo(defaultValue = "0") val criadaEm: Long = 0,
-    @androidx.room.ColumnInfo(defaultValue = "0") val atualizadaEm: Long = 0
+    @androidx.room.ColumnInfo(defaultValue = "0") val atualizadaEm: Long = 0,
 )
 
 enum class EstadoCampanha { ATIVA, PAUSADA, CONCLUIDA }
@@ -26,15 +26,22 @@ data class CampanhaInfo(
     val estado: EstadoCampanha,
     val criadaEm: Long,
     val atualizadaEm: Long,
-    val eventos: Int
+    val eventos: Int,
 )
 
 /** Um evento do log append-only. [seq] começa em 0 e não tem buracos. */
 @Entity(
     tableName = "eventos",
     primaryKeys = ["campanhaId", "seq"],
-    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("campanhaId")]
+    foreignKeys = [
+        ForeignKey(
+            entity = CampanhaRow::class,
+            parentColumns = ["id"],
+            childColumns = ["campanhaId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("campanhaId")],
 )
 data class EventoRow(val campanhaId: String, val seq: Int, val payload: String)
 
@@ -44,7 +51,7 @@ data class FichaRow(
     @androidx.room.PrimaryKey val id: String,
     val nome: String,
     val json: String,
-    val arquivada: Boolean = false
+    val arquivada: Boolean = false,
 )
 
 @Entity(tableName = "campanha_meta")
@@ -57,15 +64,22 @@ data class CampanhaMetaRow(
     val fichaId: String? = null,
     val packageId: String? = null,
     val systemId: String? = null,
-    val editionId: String? = null
+    val editionId: String? = null,
 )
 
 /** Capítulo de uma campanha (M-08). [json] é um `Chapter` codificado; [numero] ordena e identifica. */
 @Entity(
     tableName = "capitulos",
     primaryKeys = ["campanhaId", "numero"],
-    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("campanhaId")]
+    foreignKeys = [
+        ForeignKey(
+            entity = CampanhaRow::class,
+            parentColumns = ["id"],
+            childColumns = ["campanhaId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("campanhaId")],
 )
 data class CapituloRow(val campanhaId: String, val numero: Int, val json: String)
 
@@ -73,24 +87,49 @@ data class CapituloRow(val campanhaId: String, val numero: Int, val json: String
 @Entity(
     tableName = "missoes",
     primaryKeys = ["campanhaId", "missaoId"],
-    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("campanhaId")]
+    foreignKeys = [
+        ForeignKey(
+            entity = CampanhaRow::class,
+            parentColumns = ["id"],
+            childColumns = ["campanhaId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("campanhaId")],
 )
 data class MissaoRow(val campanhaId: String, val missaoId: String, val ordem: Int, val json: String)
 
 /** Último snapshot do estado de uma campanha (M-08.3): estado após [eventCount] eventos; reabrir aplica só a cauda do log. */
 @Entity(
     tableName = "snapshots",
-    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)]
+    foreignKeys = [
+        ForeignKey(
+            entity = CampanhaRow::class,
+            parentColumns = ["id"],
+            childColumns = ["campanhaId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
 )
-data class SnapshotRow(@androidx.room.PrimaryKey val campanhaId: String, val eventCount: Int, val stateJson: String)
+data class SnapshotRow(
+    @androidx.room.PrimaryKey val campanhaId: String,
+    val eventCount: Int,
+    val stateJson: String,
+)
 
 /** Linha do tempo derivada do log (CP-01.2): [eventoIndice] é o índice do evento de origem, [ordem] preserva a ordem. */
 @Entity(
     tableName = "linha_tempo",
     primaryKeys = ["campanhaId", "ordem"],
-    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campanhaId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("campanhaId")]
+    foreignKeys = [
+        ForeignKey(
+            entity = CampanhaRow::class,
+            parentColumns = ["id"],
+            childColumns = ["campanhaId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("campanhaId")],
 )
 data class LinhaTempoRow(val campanhaId: String, val ordem: Int, val eventoIndice: Int, val texto: String)
 

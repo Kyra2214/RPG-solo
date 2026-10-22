@@ -8,9 +8,10 @@ data class RollResult(
     val dice: List<Int>,
     val modifier: Int,
     /** Quantidade de dados iniciais; explosões aumentam [dice], mas não alteram o valor natural para críticos. */
-    val initialDiceCount: Int = dice.size
+    val initialDiceCount: Int = dice.size,
 ) {
     val total: Int get() = dice.sum() + modifier
+
     /** Soma dos dados iniciais sem modificador (usada para críticos); dados extras explosivos só afetam o total. */
     val natural: Int get() = dice.take(initialDiceCount.coerceIn(0, dice.size)).sum()
 }
@@ -29,7 +30,12 @@ class Dice(val seed: Long, startAt: Long = 0) {
         position = newPosition
     }
 
-    fun roll(count: Int, sides: Int, modifier: Int = 0, explodeOnMax: Boolean = false): RollResult {
+    fun roll(
+        count: Int,
+        sides: Int,
+        modifier: Int = 0,
+        explodeOnMax: Boolean = false,
+    ): RollResult {
         require(count in 1..100) { "count fora do limite" }
         require(sides >= 2) { "sides inválido" }
         val random = Random(seed xor (position * -7046029254386353131L))
@@ -46,7 +52,14 @@ class Dice(val seed: Long, startAt: Long = 0) {
                 explosions++
             }
         }
-        val mod = if (modifier == 0) "" else if (modifier > 0) "+$modifier" else "$modifier"
+        val mod =
+            if (modifier == 0) {
+                ""
+            } else if (modifier > 0) {
+                "+$modifier"
+            } else {
+                "$modifier"
+            }
         val expression = "${count}d$sides${if (explodeOnMax) "!" else ""}$mod"
         return RollResult(expression, rolled, modifier, initialDiceCount = count)
     }

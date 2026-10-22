@@ -8,10 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import dev.rpgsolo.R
 import dev.rpgsolo.engine.ClashReport
 
@@ -20,12 +20,17 @@ import dev.rpgsolo.engine.ClashReport
  * não recalcula valores, dados nem dano. Sem animação: vale igual para jogador e IA e para o histórico.
  */
 @Composable
-fun ClashCard(report: ClashReport, attackerName: String = report.attackerId, targetName: String = report.targetId) {
+fun ClashCard(
+    report: ClashReport,
+    attackerName: String = report.attackerId,
+    targetName: String = report.targetId,
+) {
     val lines = report.lines(attackerName, targetName)
-    val tint = when {
-        report.damage > 0 -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.primary
-    }
+    val tint =
+        when {
+            report.damage > 0 -> MaterialTheme.colorScheme.error
+            else -> MaterialTheme.colorScheme.primary
+        }
     AppCard(modifier = Modifier.semantics { contentDescription = lines.joinToString(". ") }, accent = tint) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(lines.first(), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
