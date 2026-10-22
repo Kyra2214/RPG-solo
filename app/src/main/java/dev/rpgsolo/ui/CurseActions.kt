@@ -31,6 +31,8 @@ class CurseActions(
     }
 
     fun all(): List<CurseDefinition> = catalog
+    fun defaultTargetId(): String = playerId()
+    fun defaultSourceId(): String = "personagem:" + playerId()
 
     fun targets(): List<Pair<String, String>> = session().state.entities.values
         .filter { it.alive }
