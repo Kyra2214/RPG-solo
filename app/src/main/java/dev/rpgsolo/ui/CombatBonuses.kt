@@ -84,15 +84,14 @@ class CombatBonuses(
     }
 
     /** Bônus passivos da árvore + buffs temporários já validados pelo motor. */
-    fun skillTreeAndActiveBonus(entityId: String, scope: String): Int {
-        val state = session().state
-        val entity = state.entities[entityId] ?: return 0
-        val passive = dev.rpgsolo.engine.SkillTreeModifierProvider(skillTreeDefinitions)
-            .modifiers(state, entity, scope).sumOf { it.value }
-        val active = state.activeEffects[entityId].orEmpty().filter { it.target == scope }.sumOf { it.value }
-        return externalSkillAndCurseBonuses(entityId, setOf(scope)).sumOf { it.bonus }
-    }
-    fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> = catalogBonuses(pkg)
+    fun skillTreeAndActiveBonus(entityId: String, scope: String): Int =
+        externalSkillAndCurseBonuses(entityId, setOf(scope)).sumOf { it.bonus }
+
+    /** Bônus equivalentes do catálogo de raça/classe/profissão não acumulam: prevalece o maior efeito por escopo. */
+    fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> =
+        catalogBonuses(pkg).groupBy { it.scope }.mapNotNull { (_, effects) ->
+            effects.maxWithOrNull(compareBy<dev.rpgsolo.rules.ExternalBonus>({ kotlin.math.abs(it.bonus) }, { it.bonus }))
+        }
 
     fun approvedRuleBonus(scope: String): Int =
         session().state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
@@ -134,11 +133,11 @@ class CombatBonuses(
             if (entityId == playerId()) activeFicha()?.traits.orEmpty() else emptyList()).distinct()
 
     fun selectedCatalogBonus(pkg: RulePackage, scope: String): Int =
-        catalogBonuses(pkg).filter { it.scope == scope }.sumOf { it.bonus }
+        selectedCatalogBonuses(pkg).filter { it.scope == scope }.sumOf { it.bonus }
 
     /** Explica os efeitos por escopo, sem somar bônus que modificam cálculos diferentes. */
     fun selectedCatalogBonusSummary(pkg: RulePackage, scopes: Collection<String>): String {
-        val applied = catalogBonuses(pkg).filter { it.scope in scopes && it.bonus != 0 }
+        val applied = selectedCatalogBonuses(pkg).filter { it.scope in scopes && it.bonus != 0 }
         if (applied.isEmpty()) return ""
         val details = applied.groupBy { it.scope }.entries.joinToString("; ") { (scope, effects) ->
             val total = effects.sumOf { it.bonus }
