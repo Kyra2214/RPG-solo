@@ -178,6 +178,40 @@ class SkillTreeCatalogTest {
         }
     }
 
+    @Test fun preRequisitosExistemNaMesmaArvoreENaoCriamCiclos() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val byId = result.skills.associateBy { it.id }
+        assertEquals("IDs de habilidade devem ser únicos", result.skills.size, byId.size)
+
+        result.skills.forEach { skill ->
+            skill.prerequisiteSkillIds.forEach { prerequisiteId ->
+                val prerequisite = byId[prerequisiteId]
+                assertTrue("${skill.id} referencia pré-requisito ausente: $prerequisiteId", prerequisite != null)
+                assertEquals(
+                    "pré-requisito de ${skill.id} deve pertencer à mesma árvore",
+                    skill.treeId,
+                    prerequisite!!.treeId
+                )
+                assertTrue(
+                    "habilidade ${skill.id} não pode exigir nível abaixo do pré-requisito $prerequisiteId",
+                    skill.requiredCharacterLevel >= prerequisite.requiredCharacterLevel
+                )
+            }
+        }
+
+        val visiting = mutableSetOf<String>()
+        val visited = mutableSetOf<String>()
+        fun visit(skillId: String) {
+            if (skillId in visited) return
+            assertTrue("ciclo de pré-requisitos detectado em $skillId", visiting.add(skillId))
+            byId.getValue(skillId).prerequisiteSkillIds.forEach(::visit)
+            visiting.remove(skillId)
+            visited.add(skillId)
+        }
+        byId.keys.forEach(::visit)
+    }
+
     @Test fun nenhumaHabilidadeDeClasseTemAutoDependencia() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.valid)
