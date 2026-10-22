@@ -84,8 +84,8 @@ fun SkillTreePanel(
         } else {
             entries.forEach { entry ->
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
-                    Text(entry.skill.name, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
-                    Muted("${categoryLabel(entry.skill.category)} · nível ${entry.currentLevel} · ${entry.skill.element.takeUnless { it.name == "NONE" } ?: "sem elemento fixo"}")
+                    Text(entry.displayName, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
+                    Muted("${categoryLabel(entry.skill.category)} · nível ${entry.currentLevel} · ${if (entry.skill.requiredElement != null) "exige ${elementLabelUi(entry.skill.requiredElement)}" else if (entry.skill.affinityBound) "afinidade ${elementLabelUi(entry.skill.element)}" else "neutra"}")
                     entry.reason?.let { Muted("Requisitos: $it") }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         if (entry.skill.freeBaseSkill && entry.currentLevel == 0) {
@@ -167,6 +167,17 @@ fun SkillTreePanel(
         }
         message?.let { Muted(it) }
     }
+}
+
+private fun elementLabelUi(element: dev.rpgsolo.engine.ElementPath): String = when (element) {
+    dev.rpgsolo.engine.ElementPath.WATER -> "Água"
+    dev.rpgsolo.engine.ElementPath.FIRE -> "Fogo"
+    dev.rpgsolo.engine.ElementPath.WIND -> "Vento"
+    dev.rpgsolo.engine.ElementPath.EARTH -> "Terra"
+    dev.rpgsolo.engine.ElementPath.METAL -> "Metal"
+    dev.rpgsolo.engine.ElementPath.YIN -> "Yin"
+    dev.rpgsolo.engine.ElementPath.YANG -> "Yang"
+    dev.rpgsolo.engine.ElementPath.NONE -> "não definida"
 }
 
 private fun categoryLabel(category: SkillCategory): String = when (category) {
