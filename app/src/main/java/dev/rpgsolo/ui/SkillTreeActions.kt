@@ -26,6 +26,7 @@ class SkillTreeActions(
     private val classTreeUnlockLevel: (treeId: String) -> Int,
     private val element: () -> ElementPath,
     private val weaponTags: () -> Set<String>,
+    private val questCompleted: (questId: String) -> Boolean,
     private val multiHitAction: (targetId: String, hitCount: Int, damageBonus: Int) -> String?,
     private val onChanged: () -> Unit
 ) {
@@ -112,6 +113,26 @@ class SkillTreeActions(
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
       catch (e: ArithmeticException) { "preço do pergaminho excede o limite suportado" }
+
+    /** Resgata um pergaminho como recompensa de uma missão concluída, sem cobrar prata. */
+    fun rewardScrollFromQuest(skillId: String, questId: String): String? = try {
+        val skill = requireSkill(skillId)
+        require(questId.isNotBlank()) { "informe o id da missão concluída" }
+        require(questCompleted(questId)) { "a missão '$questId' não está concluída" }
+        require(skill.treeId in selectedTreeIds()) { "esta árvore não pertence às escolhas atuais do personagem" }
+        require(!skill.freeBaseSkill && skill.scrollRank != null) { "esta habilidade não usa pergaminho" }
+        require(session().state.combat == null) { "não é possível resgatar pergaminhos durante o combate" }
+        val wallet = session().state.inventory[playerId()].orEmpty()
+        val scrollId = scrollItemId(skill.id)
+        require((wallet[scrollId] ?: 0) == 0) { "o pergaminho desta habilidade já está no inventário" }
+        val claimId = "recompensa-pergaminho-$questId-${skill.id}"
+        require((wallet[claimId] ?: 0) == 0) { "esta missão já foi usada para resgatar esse pergaminho" }
+        execute(listOf(
+            AddItem(playerId(), scrollId, 1),
+            AddItem(playerId(), claimId, 1)
+        ))
+    } catch (e: IllegalArgumentException) { e.message }
+      catch (e: IllegalStateException) { e.message }
 
     fun unlockOrUpgrade(skillId: String): String? = try {
         val skill = requireSkill(skillId)
