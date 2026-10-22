@@ -2,6 +2,8 @@ package dev.rpgsolo.ui
 
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.EntityKind
+import dev.rpgsolo.engine.NextTurn
+import dev.rpgsolo.engine.AttackSpec
 import dev.rpgsolo.rules.RulePackage
 import kotlin.math.roundToInt
 
@@ -151,8 +153,8 @@ class CombatActions(
                 else -> null
             }
         } else null
-        val attackStat = pkg.data.rules.firstOrNull { it.id == "combate_atributo_ataque" }?.value ?: "poder"
-        val defenseStat = pkg.data.rules.firstOrNull { it.id == "combate_atributo_defesa" }?.value ?: "defesa"
+        val attackStat = pkg.data.creation["combate_atributo_ataque"] ?: "poder"
+        val defenseStat = pkg.data.creation["combate_atributo_defesa"] ?: "defesa"
         val attackConditionShift = bonuses.conditionDiceShift(attacker.id, attackStat)
         val targetConditionShift = bonuses.conditionDiceShift(targetId, defenseStat)
         val attackMark = session().mark()
@@ -175,7 +177,7 @@ class CombatActions(
                 pkg.traitBonus(bonuses.combatTraitIds(targetId), defenseStat),
             damageDef = pkg.data.damage.firstOrNull { it.id == "corte" }
                 ?: pkg.data.damage.firstOrNull() ?: return "O pacote não possui perfil de dano.",
-            damageStat = pkg.data.rules.firstOrNull { it.id == "combate_atributo_dano" }?.value ?: attackStat,
+            damageStat = pkg.data.creation["combate_atributo_dano"] ?: attackStat,
             damageBonus = pkg.traitBonus(bonuses.combatTraitIds(attacker.id), "dano") +
                 bonuses.skillTreeAndActiveBonus(attacker.id, "dano") +
                 skillDamageBonus +
@@ -187,16 +189,16 @@ class CombatActions(
                     pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_$scope") +
                         bonuses.skillTreeAndActiveBonus(targetId, "resistencia_$scope")
                 } ?: 0),
-            attackDiceCount = (pkg.data.rules.firstOrNull { it.id == "combate_dados_ataque" }?.value?.toIntOrNull() ?: 1) + attackConditionShift,
-            defenseDiceCount = (pkg.data.rules.firstOrNull { it.id == "combate_dados_defesa" }?.value?.toIntOrNull() ?: 1) + targetConditionShift
+            attackDiceCount = (pkg.data.creation["combate_dados_ataque"]?.toIntOrNull() ?: 1) + attackConditionShift,
+            defenseDiceCount = (pkg.data.creation["combate_dados_defesa"]?.toIntOrNull() ?: 1) + targetConditionShift
         )
         val results = mutableListOf<dev.rpgsolo.engine.AttackResult.Resolved>()
         var rejection: String? = null
         repeat(strikeCount) {
             if (rejection != null || session().state.entities[targetId]?.alive != true) return@repeat
             when (val attack = session().attack(spec)) {
-                is dev.rpgsolo.engine.ExecResult.Accepted -> results += attack.value
-                is dev.rpgsolo.engine.ExecResult.Rejected -> rejection = attack.reason
+                is dev.rpgsolo.engine.AttackResult.Resolved -> results += attack
+                is dev.rpgsolo.engine.AttackResult.Rejected -> rejection = attack.reason
             }
         }
         if (rejection != null) {
@@ -214,7 +216,13 @@ class CombatActions(
         onChanged()
         val skillPrefix = skill?.first?.name?.let { "$it — " }.orEmpty()
         val strikeSummary = results.mapIndexed { index, result ->
-            "Golpe ${index + 1}: ${result.outcome}; dano ${result.damageRoll.total} - defesa ${result.defenseRoll.total} = ${result.damage}."
+            val attackText = "${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}"
+            if (result.hit) {
+                val damageText = result.damageRoll?.let {
+                    " Dano rolado: ${it.expression} [${it.dice.joinToString(", ")}] = ${it.total}."
+                }.orEmpty()
+                "Golpe ${index + 1}: acertou e causou ${result.damage} de dano.$damageText"
+            } else "Golpe ${index + 1}: errou (ataque $attackText)."
         }.joinToString(" ")
         val elementPrefix = elementalScope?.let { "Ataque elemental de $it. " }.orEmpty()
         return "$skillPrefix$elementPrefix${attacker.name} ataca ${target.name}. $strikeSummary"
