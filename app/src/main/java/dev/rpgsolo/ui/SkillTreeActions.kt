@@ -86,8 +86,9 @@ class SkillTreeActions(
         }
         execute(pending.map { ProgressSkillTree(playerId(), it.id, 0, freeBase = true) })
 
-    }    } catch (e: IllegalArgumentException) { e.message }
+    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
+    }
 
     fun grantFreeBaseSkill(skillId: String): String? { return try {
         val skill = requireSkill(skillId)
@@ -100,8 +101,9 @@ class SkillTreeActions(
         require(validation.allowed) { validation.reasons.joinToString("; ") }
         execute(listOf(ProgressSkillTree(playerId(), skill.id, 0, freeBase = true)))
 
-    }    } catch (e: IllegalArgumentException) { e.message }
+    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
+    }
 
     fun buyScroll(skillId: String): String? { return try {
         val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
@@ -124,7 +126,7 @@ class SkillTreeActions(
         }
         execute(commands)
 
-    }    } catch (e: IllegalArgumentException) { e.message }
+    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
       catch (e: ArithmeticException) { "preço do pergaminho excede o limite suportado" }
 
@@ -142,8 +144,9 @@ class SkillTreeActions(
         require((session().state.inventory[playerId()]?.get(scrollId) ?: 0) == 0) { "o pergaminho desta habilidade já está no inventário" }
         execute(listOf(ClaimQuestScroll(playerId(), questId, skill.id, scrollId)))
 
-    }    } catch (e: IllegalArgumentException) { e.message }
+    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
+    }
 
     fun unlockOrUpgrade(skillId: String): String? { return try {
         val skill = requireSkill(skillId)
@@ -162,8 +165,9 @@ class SkillTreeActions(
             execute(listOf(ProgressSkillTree(playerId(), skill.id, SkillTreeProgression.upgradeCost(currentLevel))))
         }
 
-    }    } catch (e: IllegalArgumentException) { e.message }
+    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
+    }
 
     fun targets(): List<Pair<String, String>> {
         val state = session().state
@@ -249,8 +253,9 @@ class SkillTreeActions(
         require(commands.isNotEmpty()) { "habilidade sem efeito ativável" }
         execute(commands)
 
-    }    } catch (e: IllegalArgumentException) { e.message }
+    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
+    }
 
     fun reset(): String? { return try {
         val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
@@ -272,9 +277,10 @@ class SkillTreeActions(
         }
         execute(commands)
 
-    }    } catch (e: IllegalArgumentException) { e.message }
+    } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
       catch (e: ArithmeticException) { "preço do reset excede o limite suportado" }
+    }
 
     private fun context(levels: Map<String, Int>) = SkillTreeCharacterContext(
         characterLevel = session().state.entities[playerId()]?.level ?: 1,
