@@ -153,44 +153,70 @@ class CombatActions(
                 else -> null
             }
         } else null
-        val attackStat = pkg.data.creation["combate_atributo_ataque"] ?: "poder"
-        val defenseStat = pkg.data.creation["combate_atributo_defesa"] ?: "defesa"
+        val resource = pkg.manifest.deathResource
+            ?: return "o pacote não define o recurso de vida usado no combate"
+        val attackStat = pkg.data.creation["combate_atributo_ataque"]
+            ?: return "o pacote não define o atributo de ataque"
+        val defenseStat = pkg.data.creation["combate_atributo_defesa"]
+            ?: return "o pacote não define o atributo de defesa"
+        val attackDiceCount = pkg.data.creation["combate_dados_ataque"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dados_ataque"
+        val attackDiceSides = pkg.data.creation["combate_lados_ataque"]?.toIntOrNull()
+            ?: return "o pacote não define combate_lados_ataque"
+        val attackComparison = pkg.data.creation["combate_comparacao_ataque"]?.let {
+            runCatching { dev.rpgsolo.engine.Comparison.valueOf(it) }.getOrNull()
+        } ?: return "o pacote não define uma comparação de ataque válida"
+        val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
+            ?: return "o pacote não define combate_dano_base"
+        val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
+            ?: return "o pacote não define combate_defesa_base"
+        val damageDef = pkg.data.creation["combate_dano"]?.let { id ->
+            pkg.data.damage.firstOrNull { it.id == id }
+                ?: return "o pacote referencia um perfil de dano inexistente: $id"
+        }
+        val attackerEquipment = session().state.equipped[attacker.id].orEmpty().values
+        val targetEquipment = session().state.equipped[targetId].orEmpty().values
         val attackConditionShift = bonuses.conditionDiceShift(attacker.id, attackStat)
         val targetConditionShift = bonuses.conditionDiceShift(targetId, defenseStat)
+        val combatantsBefore = combat.order
         val attackMark = session().mark()
         val spec = AttackSpec(
             attackerId = attacker.id,
             targetId = targetId,
             attackStat = attackStat,
-            attackBonus = pkg.traitBonus(bonuses.combatTraitIds(attacker.id), "ataque") +
+            defenseStat = defenseStat,
+            attackDiceCount = attackDiceCount,
+            attackDiceSides = attackDiceSides,
+            attackComparison = attackComparison,
+            damageResource = resource,
+            damage = baseDamage,
+            defenseDefault = baseDefense,
+            attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
+                pkg.traitBonus(bonuses.combatTraitIds(attacker.id), "ataque") +
                 bonuses.skillTreeAndActiveBonus(attacker.id, "ataque") +
                 bonuses.skillTreeAndActiveBonus(attacker.id, "precisao") +
                 bonuses.skillTreeAndActiveBonus(attacker.id, "velocidade") +
-                attackConditionShift +
-                pkg.traitBonus(bonuses.combatTraitIds(attacker.id), attackStat),
-            defenseStat = defenseStat,
-            defenseBonus = pkg.traitBonus(bonuses.combatTraitIds(targetId), "defesa") +
-                bonuses.skillTreeAndActiveBonus(targetId, "defesa") +
-                bonuses.skillTreeAndActiveBonus(targetId, "velocidade") +
-                bonuses.approvedRuleBonus("defesa") +
-                targetConditionShift +
-                pkg.traitBonus(bonuses.combatTraitIds(targetId), defenseStat),
-            damageDef = pkg.data.damage.firstOrNull { it.id == "corte" }
-                ?: pkg.data.damage.firstOrNull() ?: return "O pacote não possui perfil de dano.",
-            damageStat = pkg.data.creation["combate_atributo_dano"] ?: attackStat,
-            damageBonus = pkg.traitBonus(bonuses.combatTraitIds(attacker.id), "dano") +
+                bonuses.approvedRuleBonus("ataque") +
+                bonuses.approvedRuleBonus(attackStat) + attackConditionShift,
+            damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
+                pkg.traitBonus(bonuses.combatTraitIds(attacker.id), "dano") +
                 bonuses.skillTreeAndActiveBonus(attacker.id, "dano") +
                 skillDamageBonus +
                 bonuses.approvedRuleBonus("dano") +
-                pkg.traitBonus(bonuses.combatTraitIds(attacker.id), pkg.data.rules.firstOrNull { it.id == "combate_atributo_dano" }?.value ?: attackStat),
+                (damageDef?.bonusStat?.let(bonuses::approvedRuleBonus) ?: 0),
+            defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
+                pkg.traitBonus(bonuses.combatTraitIds(targetId), "defesa") +
+                bonuses.skillTreeAndActiveBonus(targetId, "defesa") +
+                bonuses.skillTreeAndActiveBonus(targetId, "velocidade") + targetConditionShift,
             damageReduction = pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_dano") +
                 bonuses.skillTreeAndActiveBonus(targetId, "resistencia_dano") +
                 (elementalScope?.let { scope ->
                     pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_$scope") +
                         bonuses.skillTreeAndActiveBonus(targetId, "resistencia_$scope")
                 } ?: 0),
-            attackDiceCount = (pkg.data.creation["combate_dados_ataque"]?.toIntOrNull() ?: 1) + attackConditionShift,
-            defenseDiceCount = (pkg.data.creation["combate_dados_defesa"]?.toIntOrNull() ?: 1) + targetConditionShift
+            damageDiceCount = damageDef?.diceCount ?: 0,
+            damageDiceSides = damageDef?.diceSides ?: 0,
+            damageStat = damageDef?.bonusStat
         )
         val results = mutableListOf<dev.rpgsolo.engine.AttackResult.Resolved>()
         var rejection: String? = null
@@ -213,6 +239,7 @@ class CombatActions(
                 return advance.reason
             }
         }
+        val victoryXp = awardCombatVictoryXp(combatantsBefore)
         onChanged()
         val skillPrefix = skill?.first?.name?.let { "$it — " }.orEmpty()
         val strikeSummary = results.mapIndexed { index, result ->
@@ -225,7 +252,8 @@ class CombatActions(
             } else "Golpe ${index + 1}: errou (ataque $attackText)."
         }.joinToString(" ")
         val elementPrefix = elementalScope?.let { "Ataque elemental de $it. " }.orEmpty()
-        return "$skillPrefix$elementPrefix${attacker.name} ataca ${target.name}. $strikeSummary"
+        val summary = "$skillPrefix$elementPrefix${attacker.name} ataca ${target.name}. $strikeSummary"
+        return if (victoryXp > 0) "$summary Vitória! Você recebeu $victoryXp XP." else summary
     }
 
     /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
