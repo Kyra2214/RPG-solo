@@ -75,6 +75,9 @@ data class SkillTreeSkill(
         require(actionKind != SkillActionKind.MULTI_HIT || hitCount >= 2) { "multiataque exige ao menos dois golpes" }
         require(scrollRank == null || scrollRank in 1..7) { "posição de pergaminho deve ficar entre 1 e 7" }
         require(!freeBaseSkill || unlockPointCost == 0) { "habilidade básica gratuita não pode cobrar desbloqueio" }
+        require(!freeBaseSkill || origin in setOf(SkillOrigin.RACE, SkillOrigin.SUBRACE, SkillOrigin.CURSED_CLASS)) {
+            "habilidade básica gratuita exige origem raça, sub-raça ou Classe de Malditos"
+        }
         require(prerequisiteSkillIds.none { it == id }) { "habilidade não pode depender de si mesma" }
     }
 }
