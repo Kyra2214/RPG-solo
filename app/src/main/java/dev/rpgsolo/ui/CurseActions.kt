@@ -3,6 +3,7 @@ package dev.rpgsolo.ui
 import dev.rpgsolo.engine.ApplyCurse
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.RemoveCurse
+import dev.rpgsolo.engine.isSuccess
 import dev.rpgsolo.rules.CurseCatalogLoader
 import dev.rpgsolo.rules.CurseDefinition
 import dev.rpgsolo.rules.RulePackage
