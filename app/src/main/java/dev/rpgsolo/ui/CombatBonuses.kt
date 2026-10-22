@@ -17,7 +17,7 @@ class CombatBonuses(
 ) {
     private val skillTreeDefinitions: List<dev.rpgsolo.engine.SkillTreeSkill> by lazy {
         val stream = CombatBonuses::class.java.classLoader
-            ?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")
+            ?.getResourceAsStream("catalogs/sistema-proprio/habilidades-arvore.txt")
             ?: return@lazy emptyList()
         val text = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
         val loaded = dev.rpgsolo.rules.SkillTreeCatalogLoader.load(text)
@@ -27,7 +27,7 @@ class CombatBonuses(
 
     private val curseDefinitions: List<dev.rpgsolo.rules.CurseDefinition> by lazy {
         val stream = CombatBonuses::class.java.classLoader
-            ?.getResourceAsStream("packages/sistema-proprio/maldicoes-lancadas.txt")
+            ?.getResourceAsStream("catalogs/sistema-proprio/maldicoes-lancadas.txt")
             ?: return@lazy emptyList()
         val raw = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
         val loaded = dev.rpgsolo.rules.CurseCatalogLoader.load(raw)
