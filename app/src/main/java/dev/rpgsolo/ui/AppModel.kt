@@ -88,6 +88,7 @@ data class ShopView(
 data class AdvancementChoice(val id: String, val name: String, val current: Int, val max: Int, val skill: Boolean)
 data class AdvancementState(val pointsAvailable: Int, val choices: List<AdvancementChoice>)
 data class StatPointsState(val statPoints: Int, val abilityPoints: Int, val choices: List<AdvancementChoice>)
+data class InitialBuildState(val allocated: Boolean, val stats: List<AdvancementChoice>)
 data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val campaignReady: Boolean) {
     val complete: Boolean get() = providerReady && heroReady && campaignReady
 }
@@ -1559,6 +1560,22 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
         return StatPointsState(player.statPoints, player.abilityPoints, stats)
     }
+
+    /** Estado da distribuição única de 12 pontos iniciais. */
+    fun initialBuildState(): InitialBuildState {
+        val player = session.state.entities[playerId] ?: return InitialBuildState(false, emptyList())
+        val stats = activePackage?.data?.stats.orEmpty().filter { it.id in player.stats }.map { stat ->
+            AdvancementChoice(stat.id, stat.name, player.stats[stat.id] ?: stat.default, 0, skill = false)
+        }
+        return InitialBuildState(player.initialBuildAllocated, stats)
+    }
+
+    /** O motor exige exatamente 12 pontos e impede repetir a distribuição inicial. */
+    fun allocateInitialBuild(statIncreases: Map<String, Int>, skillPoints: Int): String? =
+        when (val result = session.execute(dev.rpgsolo.engine.AllocateInitialBuild(playerId, statIncreases, skillPoints))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
 
     /** Ações da árvore vinculadas às escolhas salvas na ficha ativa. */
     fun skillTreeActions(): SkillTreeActions {
