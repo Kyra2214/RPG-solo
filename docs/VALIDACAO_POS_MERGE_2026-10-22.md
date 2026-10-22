@@ -23,6 +23,14 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 - Adicionado em `ai/src/test/kotlin/dev/rpgsolo/ai/ProposalParserTest.kt` um teste que garante rejeição explícita de propostas de evolução/loadout de árvore, ativação de habilidade e aplicação/remoção de maldição pela IA.
 - O teste foi escrito, mas **não foi executado**. A execução da suíte completa fica reservada para o fim da fase 17 conforme solicitado.
 
+## Auditoria de efeitos profissionais — defeito encontrado e corrigido na branch
+
+- A comparação de escopo/grupo entre ranks 1–7 das árvores profissionais passivas encontrou um único desvio: `profissao-criptoanalista-7` usava alvo `criptoanalista` e grupo `profession-skill-criptoanalista`, enquanto os ranks 1–6 usavam `criptoanalise` e `profession-skill-criptoanalise`.
+- Isso fazia a culminância sair do grupo de acúmulo da própria profissão; dependendo do escopo pedido pelo teste, o rank 7 podia não ser somado junto ao bônus de Criptoanálise como esperado.
+- Corrigido na branch: a culminância agora usa `criptoanalise` e `profession-skill-criptoanalise`, preservando a identidade da profissão e a regra de não acumular cópias equivalentes.
+- Adicionado teste de catálogo para exigir que as habilidades das árvores profissionais totalmente passivas mantenham os mesmos alvos/grupos de efeito do rank 1 até o rank 7.
+- A alteração e o teste ainda não foram executados pela CI, conforme a instrução de só dispará-la ao concluir a fase.
+
 ## Integridade das ações e paridade IA/jogador
 
 1. `ProgressSkillTree` no motor valida saldo/custo/progressão, mas não recebe o catálogo canônico; árvore, afinidade e pré-requisitos são validados em `SkillTreeActions`.
