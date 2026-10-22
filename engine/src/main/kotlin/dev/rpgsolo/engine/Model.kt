@@ -17,15 +17,15 @@ data class Resource(val current: Int, val max: Int) {
     }
 }
 
-/** Entidade genérica (jogador ou NPC). Os nomes de atributos/recursos vêm do pacote de regras. */
 @Serializable
-@kotlinx.serialization.Serializable
 data class AppliedCurseState(
     val curseId: String,
     val sourceId: String,
     val remainingRounds: Int? = null
 )
 
+/** Entidade genérica (jogador ou NPC). Os nomes de atributos/recursos vêm do pacote de regras. */
+@Serializable
 data class Entity(
     val id: String,
     val name: String,
