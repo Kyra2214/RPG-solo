@@ -128,13 +128,20 @@ class SkillTreeActions(
     } catch (e: IllegalArgumentException) { e.message }
       catch (e: IllegalStateException) { e.message }
 
-    fun targets(): List<Pair<String, String>> =
-        session().state.entities.values.filter { it.id != playerId() && it.alive && !it.downed }
-            .map { it.id to it.name }.sortedBy { it.second }
+    fun targets(): List<Pair<String, String>> {
+        val state = session().state
+        val combatOrder = state.combat?.order
+        return state.entities.values.filter {
+            it.id != playerId() && it.alive && !it.downed && (combatOrder == null || it.id in combatOrder)
+        }.map { it.id to it.name }.sortedBy { it.second }
+    }
 
-    fun revivableTargets(): List<Pair<String, String>> =
-        session().state.entities.values.filter { !it.alive }
+    fun revivableTargets(): List<Pair<String, String>> {
+        val state = session().state
+        val combatOrder = state.combat?.order
+        return state.entities.values.filter { !it.alive && (combatOrder == null || it.id in combatOrder) }
             .map { it.id to it.name }.sortedBy { it.second }
+    }
 
     fun activate(skillId: String, targetId: String? = null): String? = try {
         val skill = requireSkill(skillId)
