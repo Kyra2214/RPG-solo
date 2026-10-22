@@ -35,9 +35,7 @@ import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.SourceDocumentStore
-import dev.rpgsolo.engine.advanceClocksAfterChapterClosure
 import dev.rpgsolo.engine.CampaignRecord
-import dev.rpgsolo.engine.advanceClocksAfterQuestClosure
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CanonFacts
 import dev.rpgsolo.engine.ChapterBook
@@ -47,7 +45,6 @@ import dev.rpgsolo.engine.Entity
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Ficha
 import dev.rpgsolo.engine.PipelineState
-import dev.rpgsolo.engine.journal
 import dev.rpgsolo.engine.Quest
 import dev.rpgsolo.engine.QuestLog
 import dev.rpgsolo.engine.Resource
@@ -57,6 +54,9 @@ import dev.rpgsolo.engine.SourceIndex
 import dev.rpgsolo.engine.SourceLibrary
 import dev.rpgsolo.engine.SourceStatus
 import dev.rpgsolo.engine.SpellSlots
+import dev.rpgsolo.engine.advanceClocksAfterChapterClosure
+import dev.rpgsolo.engine.advanceClocksAfterQuestClosure
+import dev.rpgsolo.engine.journal
 import dev.rpgsolo.rules.CampaignStarter
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.StartResult
@@ -500,11 +500,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val canConfigure = privacyConfirmed && index.size > 0
         val contextFacts =
             if (canConfigure) {
-            val persisted = store.canonFacts(campaignId).forCampaign(campaignId)
-            CanonFacts((facts.forCampaign(campaignId) + persisted).distinctBy { it.id })
-        } else {
-            CanonFacts()
-        }
+                val persisted = store.canonFacts(campaignId).forCampaign(campaignId)
+                CanonFacts((facts.forCampaign(campaignId) + persisted).distinctBy { it.id })
+            } else {
+                CanonFacts()
+            }
         synchronized(sourceContextLock) {
             if (!canConfigure) {
                 campaignSourceContexts.remove(campaignId)
@@ -794,15 +794,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Grava a biblioteca e os vínculos como uma unidade transacional. */
     fun saveSourceLibrary(library: SourceLibrary): String? =
         try {
-        val previousIds = store.sourceLibrary().entries.map { it.id }.toSet()
-        store.saveSourceLibrary(library)
-        val retainedIds = library.entries.map { it.id }.toSet()
-        (previousIds - retainedIds).forEach { sourceDocuments.delete(it) }
-        sourceLibraryVersion++
-        null
-    } catch (e: Exception) {
-        e.message ?: "falha ao salvar a biblioteca de fontes"
-    }
+            val previousIds = store.sourceLibrary().entries.map { it.id }.toSet()
+            store.saveSourceLibrary(library)
+            val retainedIds = library.entries.map { it.id }.toSet()
+            (previousIds - retainedIds).forEach { sourceDocuments.delete(it) }
+            sourceLibraryVersion++
+            null
+        } catch (e: Exception) {
+            e.message ?: "falha ao salvar a biblioteca de fontes"
+        }
 
     /** DC-03: estados e progresso da indexação persistidos no Room. */
     fun sourcePipelineStates(): List<PipelineState> = store.sourcePipelineStates()
@@ -815,21 +815,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         facts: CanonFacts,
     ): String? =
         try {
-        store.saveCanonFacts(campaignId, facts)
-        canonFactsVersion++
-        null
-    } catch (e: Exception) {
-        e.message ?: "falha ao salvar fatos canônicos"
-    }
+            store.saveCanonFacts(campaignId, facts)
+            canonFactsVersion++
+            null
+        } catch (e: Exception) {
+            e.message ?: "falha ao salvar fatos canônicos"
+        }
 
     fun saveSourcePipelineState(state: PipelineState): String? =
         try {
-        store.saveSourcePipelineState(state)
-        sourceLibraryVersion++
-        null
-    } catch (e: Exception) {
-        e.message ?: "falha ao salvar o progresso de indexação"
-    }
+            store.saveSourcePipelineState(state)
+            sourceLibraryVersion++
+            null
+        } catch (e: Exception) {
+            e.message ?: "falha ao salvar o progresso de indexação"
+        }
 
     /** Reconstrói o índice apenas das fontes prontas vinculadas à campanha e dos trechos já indexados. */
     fun sourceIndexForCampaign(campaignId: String): SourceIndex {
