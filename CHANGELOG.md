@@ -858,3 +858,6 @@
 - Maldições: documentação corrigida para refletir os 100 registros aplicados atuais e separar catálogo/conceitos da Classe de Malditos.
 - CI confirmado verde no commit `7c2aecb3145e768ffee372ba94d61045a64ac385` (testes JVM/Android e APK debug; E2E ignorado). As correções posteriores estão aguardando a própria execução de CI; não considerar o resultado anterior como validação desses novos commits.
 - Pendências: auditoria ponta a ponta de todos os escopos/efeitos, persistência de maldições após salvar e reabrir campanha e validação de cada habilidade de rank 7.
+
+
+- Motor de maldições: adicionados testes para resistência pendente/sucesso/falha, expiração após rodadas completas, remoção com motivo e reconstrução do estado pelo log de eventos. A validação CI desses testes novos ainda está pendente.
