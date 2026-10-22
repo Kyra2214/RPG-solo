@@ -49,6 +49,7 @@ object CurseCatalogLoader {
                 require(difficulty == null || difficulty > 0) { "dificuldade de resistência inválida" }
                 require(duration == null || duration > 0) { "duração inválida" }
                 val removal = fields[7].split(",").map(String::trim).filter { it.isNotBlank() && it != "-" }
+                require(removal.isNotEmpty()) { "maldição precisa declarar ao menos um método de remoção" }
                 val effects = fields[8].takeUnless { it.isBlank() || it == "-" }?.split(";")?.map { rawEffect ->
                     val parts = rawEffect.split(",").map(String::trim)
                     require(parts.size == 7) { "efeito '$rawEffect' precisa de 7 partes" }
