@@ -218,58 +218,60 @@ class CombatActions(
     }
 
     /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
-    fun attack(targetId: String): String? {
+    fun attack(targetId: String, strikeCount: Int = 1, extraDamageBonus: Int = 0): String? {
         return try {
-        require(isPlayerCombatTurn()) { "não é o turno do jogador" }
-        val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
-        val resource = pkg.manifest.deathResource
-            ?: return "o pacote não define o recurso de vida usado no combate"
-        val attackStat = pkg.data.creation["combate_atributo_ataque"]
-            ?: return "o pacote não define o atributo de ataque"
-        val defenseStat = pkg.data.creation["combate_atributo_defesa"]
-            ?: return "o pacote não define o atributo de defesa"
-        val attackDiceCount = pkg.data.creation["combate_dados_ataque"]?.toIntOrNull()
-            ?: return "o pacote não define combate_dados_ataque"
-        val attackDiceSides = pkg.data.creation["combate_lados_ataque"]?.toIntOrNull()
-            ?: return "o pacote não define combate_lados_ataque"
-        val attackComparison = pkg.data.creation["combate_comparacao_ataque"]?.let {
-            runCatching { dev.rpgsolo.engine.Comparison.valueOf(it) }.getOrNull()
-        } ?: return "o pacote não define uma comparação de ataque válida"
-        val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
-            ?: return "o pacote não define combate_dano_base"
-        val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
-            ?: return "o pacote não define combate_defesa_base"
-        val damageDef = pkg.data.creation["combate_dano"]?.let { id ->
-            pkg.data.damage.firstOrNull { it.id == id }
-                ?: return "o pacote referencia um perfil de dano inexistente: $id"
-        }
-        val attackerEquipment = session().state.equipped[playerId()].orEmpty().values
-        val targetEquipment = session().state.equipped[targetId].orEmpty().values
-        val attackConditionShift = bonuses.conditionDiceShift(playerId(), attackStat)
-        val targetConditionShift = bonuses.conditionDiceShift(targetId, defenseStat)
-        // Condições modificam bônus/limiar; a quantidade de dados vem exclusivamente do pacote.
-        val effectiveAttackDice = attackDiceCount
-        val combatantsBefore = session().state.combat?.order.orEmpty()
-        val attackMark = session().mark()
-        when (val result = session().attack(
-            dev.rpgsolo.engine.AttackSpec(
+            require(isPlayerCombatTurn()) { "não é o turno do jogador" }
+            require(strikeCount in 1..20) { "quantidade de golpes inválida" }
+            if (strikeCount > 1) require(session().state.combat != null) { "multiataque só pode ser usado durante combate" }
+            val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
+            val resource = pkg.manifest.deathResource
+                ?: return "o pacote não define o recurso de vida usado no combate"
+            val attackStat = pkg.data.creation["combate_atributo_ataque"]
+                ?: return "o pacote não define o atributo de ataque"
+            val defenseStat = pkg.data.creation["combate_atributo_defesa"]
+                ?: return "o pacote não define o atributo de defesa"
+            val attackDiceCount = pkg.data.creation["combate_dados_ataque"]?.toIntOrNull()
+                ?: return "o pacote não define combate_dados_ataque"
+            val attackDiceSides = pkg.data.creation["combate_lados_ataque"]?.toIntOrNull()
+                ?: return "o pacote não define combate_lados_ataque"
+            val attackComparison = pkg.data.creation["combate_comparacao_ataque"]?.let {
+                runCatching { dev.rpgsolo.engine.Comparison.valueOf(it) }.getOrNull()
+            } ?: return "o pacote não define uma comparação de ataque válida"
+            val baseDamage = pkg.data.creation["combate_dano_base"]?.toIntOrNull()
+                ?: return "o pacote não define combate_dano_base"
+            val baseDefense = pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
+                ?: return "o pacote não define combate_defesa_base"
+            val damageDef = pkg.data.creation["combate_dano"]?.let { id ->
+                pkg.data.damage.firstOrNull { it.id == id }
+                    ?: return "o pacote referencia um perfil de dano inexistente: $id"
+            }
+            val attackerEquipment = session().state.equipped[playerId()].orEmpty().values
+            val targetEquipment = session().state.equipped[targetId].orEmpty().values
+            val attackConditionShift = bonuses.conditionDiceShift(playerId(), attackStat)
+            val targetConditionShift = bonuses.conditionDiceShift(targetId, defenseStat)
+            val combatantsBefore = session().state.combat?.order.orEmpty()
+            val attackMark = session().mark()
+            val spec = dev.rpgsolo.engine.AttackSpec(
                 attackerId = playerId(),
                 targetId = targetId,
                 attackStat = attackStat,
                 defenseStat = defenseStat,
-                attackDiceCount = effectiveAttackDice,
+                attackDiceCount = attackDiceCount,
                 attackDiceSides = attackDiceSides,
                 attackComparison = attackComparison,
                 damageResource = resource,
                 damage = baseDamage,
                 defenseDefault = baseDefense,
-                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(bonuses.combatTraitIds(playerId()), "ataque") +
+                attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
+                    pkg.traitBonus(bonuses.combatTraitIds(playerId()), "ataque") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "ataque") +
-                    bonuses.selectedCatalogBonus(pkg, "ataque") + bonuses.approvedRuleBonus("ataque") + bonuses.approvedRuleBonus(attackStat) +
-                    attackConditionShift,
-                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(bonuses.combatTraitIds(playerId()), "dano") +
+                    bonuses.selectedCatalogBonus(pkg, "ataque") + bonuses.approvedRuleBonus("ataque") +
+                    bonuses.approvedRuleBonus(attackStat) + attackConditionShift,
+                damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
+                    pkg.traitBonus(bonuses.combatTraitIds(playerId()), "dano") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "dano") +
-                    bonuses.selectedCatalogBonus(pkg, "dano") + bonuses.approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(bonuses::approvedRuleBonus) ?: 0),
+                    bonuses.selectedCatalogBonus(pkg, "dano") + bonuses.approvedRuleBonus("dano") +
+                    (damageDef?.bonusStat?.let(bonuses::approvedRuleBonus) ?: 0) + extraDamageBonus,
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(bonuses.combatTraitIds(targetId), "defesa") +
                     bonuses.skillTreeAndActiveBonus(targetId, "defesa") + targetConditionShift,
@@ -279,35 +281,45 @@ class CombatActions(
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
             )
-        )) {
-            is dev.rpgsolo.engine.AttackResult.Resolved -> {
-                if (session().state.combat != null) {
-                    when (val advance = session().execute(dev.rpgsolo.engine.NextTurn)) {
-                        is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
-                        is dev.rpgsolo.engine.ExecResult.Rejected -> {
-                            session().rollbackTo(attackMark)
-                            return advance.reason
-                        }
+            val results = mutableListOf<dev.rpgsolo.engine.AttackResult.Resolved>()
+            repeat(strikeCount) {
+                if (session().state.entities[targetId]?.alive != true) return@repeat
+                when (val result = session().attack(spec)) {
+                    is dev.rpgsolo.engine.AttackResult.Resolved -> results += result
+                    is dev.rpgsolo.engine.AttackResult.Rejected -> {
+                        session().rollbackTo(attackMark)
+                        return result.reason
                     }
                 }
-                val victoryXp = awardCombatVictoryXp(combatantsBefore)
-                onChanged()
-                val attackText = "${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}"
-                val outcome = if (result.hit) {
-                    val damageText = result.damageRoll?.let {
-                        " Dano: ${it.expression} [${it.dice.joinToString(", ")}] = ${it.total}."
-                    }.orEmpty()
-                    "Ataque: $attackText. Acertou e causou ${result.damage} de dano.$damageText"
-                } else "Ataque: $attackText. Errou."
-                val withSources = outcome +
-                    bonuses.selectedCatalogBonusSummary(pkg, if (result.hit) listOf("ataque", "dano") else listOf("ataque")) +
-                    bonuses.approvedRuleBonusSummary(
-                        if (result.hit) listOf("ataque", attackStat, "dano", damageDef?.bonusStat ?: "") else listOf("ataque", attackStat)
-                    )
-                if (victoryXp > 0) "$withSources Vitória! Você recebeu $victoryXp XP." else withSources
             }
-            is dev.rpgsolo.engine.AttackResult.Rejected -> result.reason
-        }
+            if (results.isEmpty()) {
+                session().rollbackTo(attackMark)
+                return "nenhum golpe foi resolvido"
+            }
+            if (session().state.combat != null) {
+                when (val advance = session().execute(dev.rpgsolo.engine.NextTurn)) {
+                    is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+                    is dev.rpgsolo.engine.ExecResult.Rejected -> {
+                        session().rollbackTo(attackMark)
+                        return advance.reason
+                    }
+                }
+            }
+            val victoryXp = awardCombatVictoryXp(combatantsBefore)
+            onChanged()
+            val outcome = results.mapIndexed { index, result ->
+                val attackText = "\${result.roll.expression} [\${result.roll.dice.joinToString(", ")}] = \${result.roll.total}"
+                if (result.hit) {
+                    val damageText = result.damageRoll?.let {
+                        " Dano rolado: \${it.expression} [\${it.dice.joinToString(", ")}] = \${it.total}."
+                    }.orEmpty()
+                    "Golpe \${index + 1}: acertou e causou \${result.damage} de dano.$damageText"
+                } else "Golpe \${index + 1}: errou (ataque $attackText)."
+            }.joinToString(" ")
+            val withSources = outcome +
+                bonuses.selectedCatalogBonusSummary(pkg, listOf("ataque", "dano")) +
+                bonuses.approvedRuleBonusSummary(listOf("ataque", attackStat, "dano", damageDef?.bonusStat ?: ""))
+            if (victoryXp > 0) "$withSources Vitória! Você recebeu $victoryXp XP." else withSources
         } catch (e: IllegalArgumentException) { e.message }
           catch (e: IllegalStateException) { e.message }
     }
