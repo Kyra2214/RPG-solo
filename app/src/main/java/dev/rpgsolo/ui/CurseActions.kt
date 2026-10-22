@@ -53,10 +53,10 @@ class CurseActions(
         val curse = catalog.firstOrNull { it.id == curseId } ?: throw IllegalArgumentException("maldição não existe: $curseId")
         val target = session().state.entities[targetId] ?: throw IllegalArgumentException("alvo inexistente: $targetId")
         require(pkg.checkChoices(target.stats, skills = target.skills).any { it.id == curse.resistanceCheckId } || curse.resistanceCheckId == null) {
-            "o pacote ativo não define o teste de resistência '\${curse.resistanceCheckId}'"
+            "o pacote ativo não define o teste de resistência '${curse.resistanceCheckId}'"
         }
         if (curse.resistanceCheckId != null && resistanceSucceeded == null) {
-            return "resolva o teste '\${curse.resistanceCheckId}' contra dificuldade \${curse.resistanceDifficulty} antes de aplicar a maldição"
+            return "resolva o teste '${curse.resistanceCheckId}' contra dificuldade ${curse.resistanceDifficulty} antes de aplicar a maldição"
         }
         if (resistanceSucceeded == true) return "o alvo resistiu à maldição"
         when (val result = session().execute(
