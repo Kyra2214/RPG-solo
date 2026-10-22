@@ -65,6 +65,14 @@ data class InitialBuildAllocated(
     val statIncreases: Map<String, Int>,
     val skillPointsGranted: Int
 ) : Event
+/** Pergaminho de habilidade resgatado como recompensa de missão concluída. */
+@Serializable
+data class QuestScrollClaimed(
+    val entityId: String,
+    val questId: String,
+    val skillId: String,
+    val scrollId: String
+) : Event
 /** Maldição aplicada a uma entidade por personagem, criatura, ritual ou artefato. */
 @Serializable
 data class CurseApplied(
@@ -287,6 +295,14 @@ fun GameState.apply(e: Event): GameState {
                 abilityPoints = current.abilityPoints + e.skillPointsGranted,
                 initialBuildAllocated = true
             )))
+        }
+        is QuestScrollClaimed -> {
+            val current = entity(e.entityId)
+            val claim = "${e.questId}:${e.skillId}"
+            copy(
+                entities = entities + (current.id to current.copy(claimedQuestRewards = current.claimedQuestRewards + claim)),
+                inventory = inventory + (current.id to (inventory[current.id].orEmpty() + (e.scrollId to ((inventory[current.id]?.get(e.scrollId) ?: 0) + 1))))
+            )
         }
         is CurseApplied -> {
             val current = entity(e.targetId)
