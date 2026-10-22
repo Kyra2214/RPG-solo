@@ -233,9 +233,16 @@ class SkillTreeActions(
         val targetEffects = targetSpecs.map { effect ->
             ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
         }
+        require(combat != null || skill.effects.none { it.durationRounds != null }) {
+            "habilidades com duração em rodadas só podem ser ativadas durante combate"
+        }
         val commands = buildList<Command> {
+            if (skill.actionCost > 0) {
+                add(SpendResource(playerId(), requireNotNull(skill.actionResource), skill.actionCost))
+            }
             if (selfEffects.isNotEmpty()) add(ActivateAbility(playerId(), skill.id, AbilityTrigger.MANUAL, AbilityTrigger.MANUAL, selfEffects))
             if (targetEffects.isNotEmpty()) add(ApplyTargetSkillEffects(playerId(), requireNotNull(targetId), skill.id, targetEffects))
+            if (combat != null) add(NextTurn)
         }
         require(commands.isNotEmpty()) { "habilidade sem efeito ativável" }
         execute(commands)
