@@ -177,11 +177,9 @@ class CombatActions(
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(bonuses.combatTraitIds(playerId()), "defesa") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "defesa") +
-                    bonuses.selectedCatalogBonus(pkg, "defesa") +
                     bonuses.approvedRuleBonus("defesa") + bonuses.approvedRuleBonus(defenseStat) + targetConditionShift,
                 damageReduction = pkg.traitBonus(bonuses.combatTraitIds(playerId()), "resistencia_dano") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "resistencia_dano") +
-                    bonuses.selectedCatalogBonus(pkg, "resistencia_dano") +
                     bonuses.approvedRuleBonus("resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
@@ -265,12 +263,12 @@ class CombatActions(
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(bonuses.combatTraitIds(playerId()), "ataque") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "ataque") +
-                    bonuses.selectedCatalogBonus(pkg, "ataque") + bonuses.approvedRuleBonus("ataque") +
+                    bonuses.approvedRuleBonus("ataque") +
                     bonuses.approvedRuleBonus(attackStat) + attackConditionShift,
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
                     pkg.traitBonus(bonuses.combatTraitIds(playerId()), "dano") +
                     bonuses.skillTreeAndActiveBonus(playerId(), "dano") +
-                    bonuses.selectedCatalogBonus(pkg, "dano") + bonuses.approvedRuleBonus("dano") +
+                    bonuses.approvedRuleBonus("dano") +
                     (damageDef?.bonusStat?.let(bonuses::approvedRuleBonus) ?: 0) + extraDamageBonus,
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(bonuses.combatTraitIds(targetId), "defesa") +
