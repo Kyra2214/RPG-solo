@@ -201,7 +201,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             append("Não conceda bônus, penalidades, poderes, resistências ou alterações de atributos a partir dele. ")
             append("Use apenas como contexto narrativo; os efeitos mecânicos válidos vêm da ficha e do pacote de regras.\n")
             append("Classe principal: ").append(CharacterCreationCatalog.find(choices.classId)?.name ?: "não definida").append(". ")
-            append("Classes adicionais, nesta ordem: ").append(choices.additionalClassIds.mapNotNull(CharacterCreationCatalog::find).joinToString(" + ") { it.name }.ifBlank { "nenhuma" }).append(". ")
+            append("Classes adicionais, nesta ordem: ").append(choices.additionalClassIds.mapNotNull { CharacterCreationCatalog.find(it) }.joinToString(" + ") { it.name }.ifBlank { "nenhuma" }).append(". ")
             append("Aparência híbrida: ").append(appearance).append(". ")
             append("Afinidade elemental: ").append(affinityName).append(". Habilidades mágicas devem respeitar essa afinidade. ")
             append("Despertar das classes: principal nível 1, segunda nível 10, terceira nível 20, quarta nível 30.\n")
