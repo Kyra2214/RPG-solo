@@ -1,5 +1,7 @@
 ## 2026-10-22 — Contexto privado de NPCs
 
+- `engine/AutomaticTimeline.kt`: XP, nível alcançado, magia/habilidade aprendida, domínio de perícia e alocação de pontos agora geram registros legíveis na timeline. Promessas de NPC permanecem fora da timeline automática porque o evento não comprova que o jogador presenciou a promessa.
+
 - `ai/PowerMenu.kt`: valida novamente o par efeito/alvo no ponto de execução, como defesa em profundidade caso uma definição incoerente escape da validação do pacote.
 
 - `engine/AutomaticTimeline.kt`: promessas continuam fora da timeline automática porque o log atual não prova que o jogador presenciou a promessa; evita vazar compromissos de NPCs fora de cena. Mudanças de relação com o personagem aparecem em linguagem neutra.
