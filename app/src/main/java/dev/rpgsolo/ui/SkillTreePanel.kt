@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,12 +26,53 @@ fun SkillTreePanel(
 ) {
     var version by remember { mutableIntStateOf(0) }
     var message by remember { mutableStateOf<String?>(null) }
-    val actions = remember(model, version) { model.skillTreeActions() }
-    val entries = remember(version, model.campaignVersion) { actions.view() }
+    var initialInputs by remember { mutableStateOf(emptyMap<String, String>()) }
+    var initialSkillPoints by remember { mutableStateOf("0") }
+    val initial = model.initialBuildState()
+    val initialValuesValid = initialInputs.values.all { it.toIntOrNull()?.let { value -> value >= 0 } == true } &&
+        initialSkillPoints.toIntOrNull()?.let { it >= 0 } == true
+    val initialTotal = initialInputs.values.sumOf { it.toIntOrNull()?.toLong() ?: 0L } +
+        (initialSkillPoints.toIntOrNull()?.toLong() ?: 0L)
+    val actions = remember(model, version, model.campaignVersion, model.packageVersion) { model.skillTreeActions() }
+    val entries = remember(version, model.campaignVersion, model.packageVersion) { actions.view() }
     val state = model.statPointsState()
 
     AppCard {
         SectionTitle("Árvore de habilidades", "Pontos disponíveis: \${state.abilityPoints}. Habilidades básicas de raça/sub-raça são gratuitas; evolução custa pontos.")
+        if (!initial.allocated) {
+            SectionTitle("Distribuir os 12 pontos iniciais", "Divida livremente entre atributos e pontos de habilidade. A distribuição só pode ser feita uma vez.")
+            initial.stats.forEach { stat ->
+                OutlinedTextField(
+                    value = initialInputs[stat.id] ?: "0",
+                    onValueChange = { value -> initialInputs = initialInputs + (stat.id to value.filter { it.isDigit() }) },
+                    label = { Text("${stat.name} (atual: ${stat.current})") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            OutlinedTextField(
+                value = initialSkillPoints,
+                onValueChange = { initialSkillPoints = it.filter { ch -> ch.isDigit() } },
+                label = { Text("Pontos para habilidades") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Muted("Distribuídos: $initialTotal/12")
+            Button(
+                enabled = enabled && initialValuesValid && initialTotal == 12L && initial.stats.isNotEmpty(),
+                onClick = {
+                    val statIncreases = initial.stats.associate { stat -> stat.id to (initialInputs[stat.id]?.toIntOrNull() ?: 0) }
+                        .filterValues { it > 0 }
+                    act({ model.allocateInitialBuild(statIncreases, initialSkillPoints.toIntOrNull() ?: 0) }) { result ->
+                        message = result ?: "Os 12 pontos iniciais foram distribuídos."
+                        version++
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Confirmar distribuição") }
+        } else {
+            Muted("Distribuição inicial concluída.")
+        }
         if (entries.isEmpty()) {
             Muted("Escolha uma raça/sub-raça, classe ou profissão na ficha ativa para ver suas árvores.")
         } else {
