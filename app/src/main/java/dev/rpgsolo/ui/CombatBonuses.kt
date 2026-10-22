@@ -117,14 +117,17 @@ class CombatBonuses(
         val catalog = if (entityId == playerId()) {
             activePackage()?.let { selectedCatalogBonuses(it) }.orEmpty().filter { it.scope in scopes }
         } else emptyList()
-        val hybridPenalty = dev.rpgsolo.engine.HybridClassRules.socialPenalty(entity.skillTreeClassOrder.size)
+        val unlockedClassCount = dev.rpgsolo.engine.HybridClassRules.unlockedClassCount(
+            entity.skillTreeClassOrder, entity.level
+        )
+        val hybridPenalty = dev.rpgsolo.engine.HybridClassRules.socialPenalty(unlockedClassCount)
         val hybridAppearance = if (hybridPenalty == 0) emptyList() else scopes
             .filter { it in dev.rpgsolo.engine.HybridClassRules.socialPenaltyScopes }
             .map { scope ->
                 dev.rpgsolo.rules.ExternalBonus(
                     scope,
                     hybridPenalty,
-                    "aparência híbrida (${entity.skillTreeClassOrder.size} classes)",
+                    "aparência híbrida ($unlockedClassCount classes desbloqueadas)",
                     "hybrid-appearance:$entityId:$scope"
                 )
             }
