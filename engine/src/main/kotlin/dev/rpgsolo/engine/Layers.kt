@@ -36,7 +36,11 @@ data class Ficha(
      * serializadas como JSON versionável. Não são bônus nem traços mecânicos.
      * Campo vazio mantém compatibilidade com fichas antigas.
      */
-    val editorialChoicesJson: String = ""
+    val editorialChoicesJson: String = "",
+    /** História pessoal aprovada pelo jogador; texto narrativo, nunca regra executável. */
+    val approvedLore: String = "",
+    /** Referência persistida do retrato gerado; não é inventário nem altera a ficha mecânica. */
+    val portraitRef: String = ""
 ) {
     fun toEntity(kind: EntityKind = EntityKind.PLAYER): Entity =
         Entity(
