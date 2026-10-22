@@ -85,6 +85,18 @@ class SkillTreeCatalogTest {
         assertEquals(dev.rpgsolo.engine.SkillActionKind.REVIVE, capstones.single { it.treeId == "sacerdote" }.actionKind)
     }
 
+    @Test fun culminanciasDaClasseDeMalditosTemNomesTematicos() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val capstones = result.skills.filter { it.origin == SkillOrigin.CURSED_CLASS && it.scrollRank == 7 }
+        assertTrue("esperadas pelo menos 40 culminâncias amaldiçoadas", capstones.size >= 40)
+        assertEquals(capstones.size, capstones.map { it.name }.distinct().size)
+        assertTrue("culminâncias não podem usar nome genérico de placeholder", capstones.none {
+            it.name.startsWith("Técnica Suprema de") || it.name.contains("maldito-vampiro-") ||
+                it.name.contains("maldito-lobisomem-") || it.name.contains("maldito-necromante-")
+        })
+    }
+
     @Test fun culminanciasDeProfissaoSaoUnicasENaoForcamTodoOficioACombater() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
