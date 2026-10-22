@@ -160,7 +160,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     }
 
     // ---------- 2. Origem e identidade de aventura ----------
-    SectionTitle("Raça, linhagem, classe e profissão", "Escolhas editoriais do catálogo. Híbridos são combinações catalogadas, não sub-raças. Nenhuma opção aplica bônus automaticamente.")
+    SectionTitle("Raça, linhagem, classe e profissão", "Escolhas do catálogo. Híbridos de raça são separados das combinações de classes; habilidades e efeitos declarados são validados pelo motor.")
     val catalogErrors = CharacterCreationCatalog.validationErrors()
     if (catalogErrors.isNotEmpty()) AppCard { Text("Catálogo com referências inválidas", color = MaterialTheme.colorScheme.error); catalogErrors.take(5).forEach { Muted(it) } }
     if (choiceErrors.isNotEmpty()) AppCard { Text("Revise as escolhas", color = MaterialTheme.colorScheme.error); choiceErrors.forEach { Muted(it) } }
@@ -220,8 +220,8 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     }
     CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, { professionId = it; version++ }, allowNone = true)
 
-    SectionTitle("Maldições", "Podem trazer benefícios e custos narrativos. Os efeitos ainda não são aplicados pelo motor.")
-    CatalogPicker("Classe de Malditos / vertente", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, { cursedClassBranchId = it; version++ }, allowNone = true)
+    SectionTitle("Classe de Malditos", "Escolha uma vertente sobrenatural; sua habilidade básica é concedida gratuitamente.")
+    CatalogPicker("Família / vertente de Malditos", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, { cursedClassBranchId = it; version++ }, allowNone = true)
 
     val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + additionalClassIds + curseIds.toList())
         .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
@@ -243,7 +243,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                     Muted("Custo descrito (não aplicado): " + entry.drawback)
                 }
                 entry.mechanicalEffects.forEach {
-                    Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                    Muted("Efeito mecânico declarado (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
                 }
             }
         }
