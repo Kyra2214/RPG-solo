@@ -80,7 +80,15 @@ class CombatBonuses(
                     effect.target, effect.baseValue, "Maldição: ${curse.name}", "curse-group:$groupId"
                 )
             }
-        return dev.rpgsolo.rules.distinctExternalBonuses(passive + active + curseEffects)
+        val catalog = if (entityId == playerId()) {
+            activePackage()?.let { selectedCatalogBonuses(it) }.orEmpty().filter { it.scope in scopes }
+        } else emptyList()
+        val passiveAndCatalog = (passive + catalog)
+            .groupBy { it.scope to (it.bonus > 0) }
+            .mapNotNull { (_, group) ->
+                group.maxWithOrNull(compareBy<dev.rpgsolo.rules.ExternalBonus>({ kotlin.math.abs(it.bonus) }, { it.bonus }))
+            }
+        return dev.rpgsolo.rules.distinctExternalBonuses(passiveAndCatalog + active + curseEffects)
     }
 
     /** Bônus passivos da árvore + buffs temporários já validados pelo motor. */
