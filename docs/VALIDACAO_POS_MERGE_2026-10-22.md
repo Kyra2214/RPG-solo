@@ -51,6 +51,12 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 - Já existem testes de motor escritos para exigir a resolução de resistência, aceitar aplicação após falha, expirar a duração e remover com motivo explícito; o teste novo cobre persistência em salvar/reabrir. Todos ainda aguardam execução nesta fase.
 - Achado de cobertura que permanece aberto: 665 efeitos de profissões usam 84 escopos que não aparecem como IDs de teste, atributos ou escopos das perícias/traços do pacote atual. A inspeção de `GameLoop.adjusted` confirmou que `PendingCheck` repassa `request.skill` como escopo externo. Adicionado teste unitário de `prepareAdvancedCheck` que prova que o bônus contextual de `criptoanalise` altera o modificador e aparece no registro/descrição do teste. Isso valida o encanamento do escopo ao resultado preparado, mas ainda não é teste ponta a ponta do catálogo real → pedido do mestre → rolagem persistida. Não remapeei os outros alvos automaticamente para não mudar as regras sem confirmação.
 
+## Híbridos — cobertura dos escopos sociais
+
+- A revisão do conjunto `HybridClassRules.socialPenaltyScopes` contra os escopos reais do catálogo e as perícias do pacote próprio encontrou lacunas: `intimidacao` não estava incluído, e as árvores usam também `argumentacao`, `mediacao` e `comerciante`. Nesses testes contextuais, a penalidade de aparência híbrida poderia não ser aplicada mesmo quando o teste usava o escopo correspondente.
+- Corrigido nesta branch: incluídos esses quatro escopos, mantendo os escopos sociais existentes e sem adicionar alvos de combate. Adicionado teste de regressão para cobertura dos escopos sociais e para garantir que a penalidade não contamine `ataque`, `dano`, `defesa`, `resistencia_dano`, `velocidade` ou `precisao`.
+- O teste foi escrito, mas não executado. Ainda é necessário validar por execução o caminho real do teste social e confirmar que os pacotes adicionais podem declarar seus próprios escopos sem pressupor equivalência automática.
+
 ## Integridade das ações e paridade IA/jogador
 
 1. `ProgressSkillTree` no motor valida saldo/custo/progressão, mas não recebe o catálogo canônico; árvore, afinidade e pré-requisitos são validados em `SkillTreeActions`.
