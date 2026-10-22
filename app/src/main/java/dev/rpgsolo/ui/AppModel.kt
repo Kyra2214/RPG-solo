@@ -27,55 +27,47 @@ import dev.rpgsolo.ai.ProviderConfig
 import dev.rpgsolo.ai.ProviderFactory
 import dev.rpgsolo.ai.ProviderKind
 import dev.rpgsolo.ai.Role
+import dev.rpgsolo.ai.SourceContext
 import dev.rpgsolo.ai.TurnRunner
 import dev.rpgsolo.ai.UsageTracker
 import dev.rpgsolo.data.CampanhaMetaRow
 import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.data.RoomEventStore
 import dev.rpgsolo.data.RpgDatabase
-import dev.rpgsolo.engine.CampaignRecord
-import dev.rpgsolo.engine.ChapterBook
-import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.data.SourceDocumentStore
 import dev.rpgsolo.engine.advanceClocksAfterChapterClosure
 import dev.rpgsolo.engine.advanceClocksAfterQuestClosure
-import dev.rpgsolo.engine.Quest
-import dev.rpgsolo.engine.QuestLog
-import dev.rpgsolo.engine.journal
+import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
+import dev.rpgsolo.engine.CanonFacts
 import dev.rpgsolo.engine.ChapterBook
+import dev.rpgsolo.engine.chapterClocks
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.engine.journal
+import dev.rpgsolo.engine.PipelineState
 import dev.rpgsolo.engine.Quest
 import dev.rpgsolo.engine.QuestLog
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SetSkillTreeLoadout
-import dev.rpgsolo.engine.SpellSlots
-import dev.rpgsolo.engine.CanonFacts
+import dev.rpgsolo.engine.SourceEntry
 import dev.rpgsolo.engine.SourceIndex
 import dev.rpgsolo.engine.SourceLibrary
-import dev.rpgsolo.engine.PipelineState
-import dev.rpgsolo.engine.SourceEntry
 import dev.rpgsolo.engine.SourceStatus
-import dev.rpgsolo.data.RpgDatabase
-import dev.rpgsolo.data.RoomEventStore
-import dev.rpgsolo.data.CampanhaMetaRow
-import dev.rpgsolo.data.FichaRow
-import dev.rpgsolo.data.SourceDocumentStore
+import dev.rpgsolo.engine.SpellSlots
 import dev.rpgsolo.rules.CampaignStarter
-import dev.rpgsolo.ai.SourceContext
-data class ConnectionTestResult(val success: Boolean, val message: String)
-data class SourceDocumentImportOutcome(val entry: SourceEntry?, val error: String? = null)
-import dev.rpgsolo.engine.chapterClocks
-import dev.rpgsolo.engine.journal
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.StartResult
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+
+data class ConnectionTestResult(val success: Boolean, val message: String)
+data class SourceDocumentImportOutcome(val entry: SourceEntry?, val error: String? = null)
 data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true, val condition: String = "")
 
 data class PlaceView(val id: String, val name: String, val description: String, val current: Boolean, val exits: List<Pair<String, String>>)
