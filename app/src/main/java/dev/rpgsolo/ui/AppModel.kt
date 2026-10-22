@@ -1478,7 +1478,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 dossier?.personality?.takeIf { it.isNotBlank() }?.let { append("; personalidade: ").append(it) }
                 dossier?.goals?.takeIf { it.isNotEmpty() }?.let { append("; objetivos: ").append(it.joinToString(", ")) }
                 dossier?.motivations?.takeIf { it.isNotEmpty() }?.let { append("; motivações: ").append(it.joinToString(", ")) }
-                dossier?.relations?.takeIf { it.isNotEmpty() }?.let { append("; relações privadas: ").append(it.entries.joinToString(", ") { pair -> "${pair.key}: ${pair.value}" }) }
+                dossier?.relations?.takeIf { it.isNotEmpty() }?.let { append("; relações privadas: ").append(it.toSortedMap().entries.joinToString(", ") { pair -> "${pair.key}: ${pair.value}" }) }
                 if (dossier?.secrets?.isNotEmpty() == true) {
                     val undiscovered = dossier.secrets.filterNot { secret ->
                         session.state.knowledge.containsKey("npc-secret:$id:${secret.id}")
