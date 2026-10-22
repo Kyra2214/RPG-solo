@@ -151,7 +151,7 @@ fun automaticTimeline(
                 AutomaticTimelineEntry(index, "progressão", "Você distribuiu pontos de atributo.")
             } else null
             is AdvancementAllocated -> if (event.entityId == playerId) {
-                AutomaticTimelineEntry(index, "progressão", "Você investiu pontos em atributos e perícias.")
+                AutomaticTimelineEntry(index, "progressão", "Você investiu pontos de evolução em atributos e perícias.")
             } else null
             is SkillTreeProgressed -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você avançou uma habilidade da sua árvore de habilidades.")
