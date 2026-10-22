@@ -308,13 +308,13 @@ class CombatActions(
             val victoryXp = awardCombatVictoryXp(combatantsBefore)
             onChanged()
             val outcome = results.mapIndexed { index, result ->
-                val attackText = "\${result.roll.expression} [\${result.roll.dice.joinToString(", ")}] = \${result.roll.total}"
+                val attackText = "${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}"
                 if (result.hit) {
                     val damageText = result.damageRoll?.let {
-                        " Dano rolado: \${it.expression} [\${it.dice.joinToString(", ")}] = \${it.total}."
+                        " Dano rolado: ${it.expression} [${it.dice.joinToString(", ")}] = ${it.total}."
                     }.orEmpty()
-                    "Golpe \${index + 1}: acertou e causou \${result.damage} de dano.$damageText"
-                } else "Golpe \${index + 1}: errou (ataque $attackText)."
+                    "Golpe ${index + 1}: acertou e causou ${result.damage} de dano.$damageText"
+                } else "Golpe ${index + 1}: errou (ataque $attackText)."
             }.joinToString(" ")
             val withSources = outcome +
                 bonuses.selectedCatalogBonusSummary(pkg, listOf("ataque", "dano")) +
