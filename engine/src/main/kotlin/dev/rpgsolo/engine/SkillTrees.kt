@@ -10,6 +10,7 @@ package dev.rpgsolo.engine
 enum class SkillCategory { OFFENSE, DEFENSE, BUFF, SUPPORT, PASSIVE, UTILITY, CONTROL }
 enum class ElementPath { WATER, FIRE, WIND, EARTH, METAL, YIN, YANG, NONE }
 enum class SkillOrigin { RACE, SUBRACE, CLASS, PROFESSION, HYBRID, CURSED_CLASS, SHARED, CURSE }
+enum class SkillEffectRecipient { SELF, TARGET }
 
 data class SkillEffectSpec(
     val id: String,
@@ -18,7 +19,8 @@ data class SkillEffectSpec(
     val perLevel: Int = 0,
     val stackingGroup: String = id,
     val durationRounds: Int? = null,
-    val conditionId: String? = null
+    val conditionId: String? = null,
+    val recipient: SkillEffectRecipient = SkillEffectRecipient.SELF
 ) {
     init {
         require(id.isNotBlank()) { "efeito de habilidade exige id" }
