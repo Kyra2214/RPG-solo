@@ -15,6 +15,25 @@ class CombatBonuses(
     private val playerId: () -> String,
     private val catalogBonuses: (RulePackage) -> List<dev.rpgsolo.rules.ExternalBonus>
 ) {
+    private val skillTreeDefinitions: List<dev.rpgsolo.engine.SkillTreeSkill> by lazy {
+        val stream = CombatBonuses::class.java.classLoader
+            ?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")
+            ?: return@lazy emptyList()
+        val text = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        val loaded = dev.rpgsolo.rules.SkillTreeCatalogLoader.load(text)
+        require(loaded.valid) { loaded.errors.joinToString("; ") }
+        loaded.skills
+    }
+
+    /** Bônus passivos da árvore + buffs temporários já validados pelo motor. */
+    fun skillTreeAndActiveBonus(entityId: String, scope: String): Int {
+        val state = session().state
+        val entity = state.entities[entityId] ?: return 0
+        val passive = dev.rpgsolo.engine.SkillTreeModifierProvider(skillTreeDefinitions)
+            .modifiers(state, entity, scope).sumOf { it.value }
+        val active = state.activeEffects[entityId].orEmpty().filter { it.target == scope }.sumOf { it.value }
+        return passive + active
+    }
     fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> = catalogBonuses(pkg)
 
     fun approvedRuleBonus(scope: String): Int =
