@@ -7,6 +7,7 @@
 - `engine/AutomaticTimeline.kt`: promessas continuam fora da timeline automática porque o log atual não prova que o jogador presenciou a promessa; evita vazar compromissos de NPCs fora de cena. Mudanças de relação com o personagem aparecem em linguagem neutra.
 - `engine/AutomaticTimeline.kt`: registra mudanças de relação envolvendo o personagem em linguagem neutra, sem expor valores numéricos ou motivos privados.
 - `engine/AutomaticTimeline.kt`: remove IDs internos de itens, espaços de equipamento e condições da timeline; os registros usam descrições neutras quando o personagem não tem um nome público disponível.
+- `engine/AutomaticTimeline.kt`: consolida ramificações duplicadas de XP, nível, alocação, magias e habilidades; registros de progressão não exibem IDs internos de magia, habilidade ou perícia.
 - `engine/AutomaticTimeline.kt`: inclui falhas de sobrevivência e gasto/recuperação de usos limitados na timeline, sem expor IDs internos de traços.
 - `engine/AutomaticTimeline.kt`: registra recuperação positiva de recursos na timeline sem expor o identificador interno do recurso.
 
