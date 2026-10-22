@@ -587,8 +587,13 @@ object PackageValidator {
                     if (power.target != PowerTarget.ENEMY) p += "poder ${power.id}: dano só pode ter alvo inimigo"
                     if (d.damage.none { it.id == power.param }) p += "poder ${power.id}: perfil de dano inexistente ${power.param}"
                 }
-                PowerEffectKind.APPLY_CONDITION, PowerEffectKind.REMOVE_CONDITION ->
+                PowerEffectKind.APPLY_CONDITION -> {
                     if (d.conditions.none { it.id == power.param }) p += "poder ${power.id}: condição inexistente ${power.param}"
+                }
+                PowerEffectKind.REMOVE_CONDITION -> {
+                    if (power.target != PowerTarget.SELF) p += "poder ${power.id}: remover-condicao só pode ter alvo self"
+                    if (d.conditions.none { it.id == power.param }) p += "poder ${power.id}: condição inexistente ${power.param}"
+                }
             }
         }
         d.damage.filter { it.bonusStat != null && it.bonusStat !in stats }.forEach { p += "dano ${it.id}: atributo inexistente ${it.bonusStat}" }
