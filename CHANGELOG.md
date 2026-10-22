@@ -1,3 +1,59 @@
+## 2026-10-22 — GitHub Actions #39829094817 (falhou no ktlint)
+
+- Disparo manual em `feature/dc-05-1-source-context-app`, commit `cee31e7`. `Check Kotlin style` falhou com 1.331 violações reportadas em 26 arquivos de `ai/src/main/kotlin`.
+- As etapas de testes JVM/Android, E2E e build/upload do APK foram ignoradas pela falha anterior. Não há resultado de testes nesta execução.
+- Run: https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817. Log completo sem ANSI e com caminho do runner normalizado: `docs/ci/android-ci-39829094817-ktlint-failure.log`.
+- **Ação:** nenhuma correção de código ou repetição automática foi feita.
+
+## 2026-10-22 — atualização documental do estado do projeto
+
+- `README.md`, `PLANO_RPG_SOLO.md` e `docs/VALIDACAO_CI.md` sincronizados com as entregas até DC-01.4, Room v10, lacunas de interface/backup e estado não validado da branch.
+- Corrigido também o status M-02 do catálogo para refletir as declarações de efeitos já registradas no plano e no histórico.
+- **Validação:** alteração apenas documental; nenhum teste, build ou CI executado.
+
+## 2026-10-22 — DC-01.4: persistência dos documentos originais (não validado)
+
+- `data/SourceDocumentStore.kt`: gravação atômica em armazenamento privado e leitura com conferência de tamanho e SHA-256.
+- `app/AppModel.kt`: importação liga o documento original à entrada da biblioteca, evita duplicação por hash e expõe leitura verificada.
+- Os bytes não entram no Room nem no log/backup da campanha; arquivos com importação inválida mantêm somente o estado `FAILED` e o motivo.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — DC-04: persistência de fatos canônicos (não validado)
+
+- `data`: tabela `fatos_canonicos` e migração Room explícita 9→10; os fatos são removidos junto com a campanha e copiados ao duplicá-la.
+- `RoomEventStore`: valida os fatos e grava o conjunto da campanha atomicamente.
+- `app/AppModel.kt`: APIs de leitura/gravação; fatos salvos entram no contexto narrativo apenas após `privacyConfirmed = true`.
+- **Validação:** nenhum teste, build, lint ou CI executado; schema Room v10 não gerado nesta etapa.
+
+## 2026-10-22 — DC-03: persistência do progresso de indexação (não validado)
+
+- `engine/SourceIndex.kt`: adicionadas funções de serialização para `PipelineState`.
+- `data`: tabela `fonte_pipeline` e migração explícita 8→9; estados por fonte são lidos e gravados no Room.
+- `app/AppModel.kt`: APIs para persistir/restaurar estados e reconstruir o índice por campanha a partir de trechos já indexados.
+- Os bytes originais ainda não persistem; estado anterior à geração dos trechos requer nova importação. Sem tela de progresso.
+- **Validação:** nenhum teste, build, lint ou CI executado; schema Room v9 não gerado nesta etapa.
+
+## 2026-10-22 — DC-02: persistência da biblioteca de fontes (não validado)
+
+- `data`: novas tabelas Room `fontes` e `fonte_vinculos`, com migração explícita 7→8; apagar campanha remove só vínculos por FK e duplicar campanha copia seus vínculos.
+- `RoomEventStore` e `AppModel`: API de leitura e gravação transacional da `SourceLibrary`.
+- Os bytes originais, `PipelineState` e `CanonFacts` permanecem fora deste módulo; o schema exportado v8 depende da geração do Room em build.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — DC-05.2: seletor de modo das fontes (não validado)
+
+- `app/CampaignsScreen.kt`: adicionadas opções de História fiel, História alternativa e Universo inspirado na aba Campanhas.
+- `app/AppModel.kt`: o modo selecionado é enviado como `SetSourceMode` ao motor e registrado no log da campanha.
+- `PLANO_RPG_SOLO.md`: atualizado DC-05.2; importação, biblioteca, persistência e consentimento de privacidade continuam pendentes.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — DC-05.1: integração de contexto de fontes (não validado)
+
+- `app/AppModel.kt`: conectado o callback de contexto do `PlayController` ao `SourceIndex`, fatos canônicos e modo da campanha.
+- O contexto é por campanha, permanece em memória e é opt-in: sem `privacyConfirmed = true`, nenhum trecho é disponibilizado à IA remota; há API para revogar a configuração.
+- `PLANO_RPG_SOLO.md`: atualizado o status de DC-05.1 e mantidas como pendentes a persistência, a interface e a tela de consentimento Q-09.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — U-02: strings do cartão de conflito (não validado)
 
 - `app/ClashCard.kt`: rótulos de defesa ignorada, acerto crítico e dano final passaram a usar recursos Android.

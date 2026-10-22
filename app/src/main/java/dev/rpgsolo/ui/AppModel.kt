@@ -53,18 +53,29 @@ import dev.rpgsolo.engine.QuestLog
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SetSkillTreeLoadout
 import dev.rpgsolo.engine.SpellSlots
+import dev.rpgsolo.engine.CanonFacts
+import dev.rpgsolo.engine.SourceIndex
+import dev.rpgsolo.engine.SourceLibrary
+import dev.rpgsolo.engine.PipelineState
+import dev.rpgsolo.engine.SourceEntry
+import dev.rpgsolo.engine.SourceStatus
+import dev.rpgsolo.data.RpgDatabase
+import dev.rpgsolo.data.RoomEventStore
+import dev.rpgsolo.data.CampanhaMetaRow
+import dev.rpgsolo.data.FichaRow
+import dev.rpgsolo.data.SourceDocumentStore
+import dev.rpgsolo.rules.CampaignStarter
+import dev.rpgsolo.ai.SourceContext
+data class ConnectionTestResult(val success: Boolean, val message: String)
+data class SourceDocumentImportOutcome(val entry: SourceEntry?, val error: String? = null)
 import dev.rpgsolo.engine.chapterClocks
 import dev.rpgsolo.engine.journal
-import dev.rpgsolo.rules.CampaignStarter
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.StartResult
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-
-data class ConnectionTestResult(val success: Boolean, val message: String)
-
 data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true, val condition: String = "")
 
 data class PlaceView(val id: String, val name: String, val description: String, val current: Boolean, val exits: List<Pair<String, String>>)
@@ -122,11 +133,19 @@ data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val c
     val complete: Boolean get() = providerReady && heroReady && campaignReady
 }
 
+private data class CampaignSourceContext(
+    val index: SourceIndex,
+    val facts: CanonFacts,
+    val sourceIds: Set<String>?
+)
+
+
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
  * A configuração do provedor é restaurada e a chave fica cifrada pelo Android Keystore.
  */
 class AppModel(application: Application) : AndroidViewModel(application) {
+    private val sourceDocuments = SourceDocumentStore(File(application.filesDir, "source-documents"))
     val usage = UsageTracker()
     val content: Content = BundledContent.load(application)
     private val secureSettings = SecureSettings(application)
@@ -417,6 +436,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Sobe a cada mudança de capítulo/missão para a tela de campanhas redesenhar. */
     var campaignVersion by mutableIntStateOf(0)
         private set
+    var sourceLibraryVersion by mutableIntStateOf(0)
+        private set
+    var canonFactsVersion by mutableIntStateOf(0)
+        private set
     var packageVersion by mutableIntStateOf(0)
         private set
     var chapterNotice by mutableStateOf<String?>(null)
@@ -456,6 +479,59 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** null enquanto não houver provedor configurado. */
     var controller: PlayController? by mutableStateOf(null)
         private set
+
+    /** DC-05.1: só mantém índice em memória depois de confirmação explícita de envio à IA remota. */
+    private val sourceContextLock = Any()
+    private val campaignSourceContexts = mutableMapOf<String, CampaignSourceContext>()
+
+    /**
+     * Disponibiliza fontes e fatos de uma campanha ao contexto narrativo. A tela chamadora deve
+     * apresentar o aviso de privacidade e passar [privacyConfirmed] como true; qualquer chamada
+     * sem confirmação revoga o contexto e impede o envio de trechos à IA.
+     */
+    fun configureCampaignSourceContext(
+        campaignId: String,
+        index: SourceIndex,
+        facts: CanonFacts = CanonFacts(),
+        sourceIds: Set<String>? = null,
+        privacyConfirmed: Boolean = false
+    ) {
+        if (campaignId.isBlank()) return
+        val canConfigure = privacyConfirmed && index.size > 0
+        val contextFacts = if (canConfigure) {
+            val persisted = store.canonFacts(campaignId).forCampaign(campaignId)
+            CanonFacts((facts.forCampaign(campaignId) + persisted).distinctBy { it.id })
+        } else {
+            CanonFacts()
+        }
+        synchronized(sourceContextLock) {
+            if (!canConfigure) {
+                campaignSourceContexts.remove(campaignId)
+            } else {
+                campaignSourceContexts[campaignId] = CampaignSourceContext(index, contextFacts, sourceIds?.toSet())
+            }
+        }
+    }
+
+    /** Revoga a autorização de contexto documental para a campanha. */
+    fun clearCampaignSourceContext(campaignId: String) {
+        synchronized(sourceContextLock) { campaignSourceContexts.remove(campaignId) }
+    }
+
+    private fun sourceContextForScene(sceneText: String): String? {
+        val campaignId = session.campaignId
+        val mode = session.state.sourceMode
+        return synchronized(sourceContextLock) {
+            val configured = campaignSourceContexts[campaignId] ?: return@synchronized null
+            SourceContext.build(
+                index = configured.index,
+                sceneText = sceneText,
+                facts = configured.facts.forCampaign(campaignId),
+                sourceIds = configured.sourceIds,
+                mode = mode
+            )
+        }
+    }
 
     /** Roda uma ação de combate/inventário/lugar com exclusividade de turno (R-01). Chamar fora da thread principal. */
     fun <T> exclusiveTurn(block: () -> T): T = controller?.exclusiveTurn(block) ?: block()
@@ -677,6 +753,93 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
     fun activeCampaignId(): String = session.campaignId
+
+    /** DC-02: biblioteca persistida no Room; o texto dos arquivos não é mantido nesta estrutura. */
+    fun sourceLibrary(): SourceLibrary = store.sourceLibrary()
+
+    /** Importa metadados e guarda bytes originais. Executar fora da thread principal. */
+    fun importSourceDocument(fileName: String, bytes: ByteArray): SourceDocumentImportOutcome = try {
+        val current = store.sourceLibrary()
+        val (updated, entry) = current.addImport(fileName, bytes, System.currentTimeMillis())
+        val alreadyRegistered = current.get(entry.id) != null
+        if (entry.status == SourceStatus.READY) {
+            sourceDocuments.save(entry.id, bytes, entry.sha256)
+        }
+        try {
+            store.saveSourceLibrary(updated)
+        } catch (e: Exception) {
+            if (!alreadyRegistered && entry.status == SourceStatus.READY) sourceDocuments.delete(entry.id)
+            throw e
+        }
+        sourceLibraryVersion++
+        SourceDocumentImportOutcome(entry)
+    } catch (e: Exception) {
+        SourceDocumentImportOutcome(null, e.message ?: "falha ao importar documento-fonte")
+    }
+
+    /** Lê somente fonte pronta e verifica tamanho e SHA-256 antes de devolver os bytes; executar em IO. */
+    fun sourceDocumentBytes(sourceId: String): ByteArray? {
+        val entry = store.sourceLibrary().get(sourceId) ?: return null
+        if (entry.status != SourceStatus.READY) return null
+        return sourceDocuments.read(entry.id, entry.sha256, entry.byteSize)
+    }
+
+    /** Grava a biblioteca e os vínculos como uma unidade transacional. */
+    fun saveSourceLibrary(library: SourceLibrary): String? = try {
+        val previousIds = store.sourceLibrary().entries.map { it.id }.toSet()
+        store.saveSourceLibrary(library)
+        val retainedIds = library.entries.map { it.id }.toSet()
+        (previousIds - retainedIds).forEach { sourceDocuments.delete(it) }
+        sourceLibraryVersion++
+        null
+    } catch (e: Exception) {
+        e.message ?: "falha ao salvar a biblioteca de fontes"
+    }
+
+    /** DC-03: estados e progresso da indexação persistidos no Room. */
+    fun sourcePipelineStates(): List<PipelineState> = store.sourcePipelineStates()
+
+    /** DC-04: lê os fatos narrativos da campanha ativa ou indicada. */
+    fun canonFacts(campaignId: String): CanonFacts = store.canonFacts(campaignId)
+
+    fun saveCanonFacts(campaignId: String, facts: CanonFacts): String? = try {
+        store.saveCanonFacts(campaignId, facts)
+        canonFactsVersion++
+        null
+    } catch (e: Exception) {
+        e.message ?: "falha ao salvar fatos canônicos"
+    }
+
+    fun saveSourcePipelineState(state: PipelineState): String? = try {
+        store.saveSourcePipelineState(state)
+        sourceLibraryVersion++
+        null
+    } catch (e: Exception) {
+        e.message ?: "falha ao salvar o progresso de indexação"
+    }
+
+    /** Reconstrói o índice apenas das fontes prontas vinculadas à campanha e dos trechos já indexados. */
+    fun sourceIndexForCampaign(campaignId: String): SourceIndex {
+        val library = store.sourceLibrary()
+        val linkedIds = library.forCampaign(campaignId).map { it.sourceId }.toSet()
+        val readyIds = library.entries.filter { it.id in linkedIds && it.status == dev.rpgsolo.engine.SourceStatus.READY }
+            .map { it.id }.toSet()
+        return SourceIndex().also { index ->
+            store.sourcePipelineStates().filter { it.sourceId in readyIds }.forEach { state ->
+                index.addAll(state.chunks.take(state.indexedCount))
+            }
+        }
+    }
+
+    /** DC-05.2: modo de fidelidade documental da campanha ativa, derivado do log do motor. */
+    fun sourceMode(): dev.rpgsolo.engine.SourceMode? = session.state.sourceMode
+
+    /** Define o modo por comando/evento canônico; o próprio motor recusa repetir o modo atual. */
+    fun setSourceMode(mode: dev.rpgsolo.engine.SourceMode): String? =
+        when (val result = session.execute(dev.rpgsolo.engine.SetSourceMode(mode))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
 
     fun activePackageId(): String? = activePackage?.manifest?.id
 
@@ -1671,6 +1834,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             },
             chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
             resumeBriefing = { dev.rpgsolo.ai.ResumeBriefing.build(quests.all(), quests.timeline(), chapters.summaries()) },
+            sourceContext = { text -> sourceContextForScene(text) },
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
             generationPreferences = {

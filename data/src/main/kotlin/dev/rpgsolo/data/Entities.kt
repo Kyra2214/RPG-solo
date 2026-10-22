@@ -132,3 +132,46 @@ data class SnapshotRow(
     indices = [Index("campanhaId")],
 )
 data class LinhaTempoRow(val campanhaId: String, val ordem: Int, val eventoIndice: Int, val texto: String)
+
+/** Metadados de um documento-fonte importado (DC-02); o conteúdo binário é armazenado separadamente. */
+@Entity(tableName = "fontes")
+data class FonteRow(
+    @androidx.room.PrimaryKey val id: String,
+    val fileName: String,
+    val format: String?,
+    val title: String,
+    val sha256: String,
+    val byteSize: Int,
+    val status: String,
+    val error: String?,
+    val importedAt: Long
+)
+
+/** Vínculo fonte-campanha; a FK apaga somente o vínculo ao excluir a campanha, nunca a fonte. */
+@Entity(
+    tableName = "fonte_vinculos",
+    primaryKeys = ["campaignId", "sourceId"],
+    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campaignId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("campaignId")]
+)
+data class FonteVinculoRow(
+    val campaignId: String,
+    val sourceId: String,
+    val sha256: String,
+    val fileName: String,
+    val linkedAt: Long
+)
+
+/** Estado retomável da indexação (DC-03), serializado para aceitar evolução do modelo. */
+@Entity(
+    tableName = "fonte_pipeline",
+    foreignKeys = [ForeignKey(entity = FonteRow::class, parentColumns = ["id"], childColumns = ["sourceId"], onDelete = ForeignKey.CASCADE)]
+)
+data class FontePipelineRow(@androidx.room.PrimaryKey val sourceId: String, val stateJson: String)
+
+/** Fatos canônicos narrativos de uma campanha; permanecem separados do log mecânico. */
+@Entity(
+    tableName = "fatos_canonicos",
+    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campaignId"], onDelete = ForeignKey.CASCADE)]
+)
+data class CanonFactsRow(@androidx.room.PrimaryKey val campaignId: String, val factsJson: String)

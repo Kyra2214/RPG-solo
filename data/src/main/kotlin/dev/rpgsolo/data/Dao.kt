@@ -154,3 +154,54 @@ interface LinhaTempoDao {
     @Query("DELETE FROM linha_tempo WHERE campanhaId = :id")
     fun apagar(id: String)
 }
+
+@Dao
+interface FonteDao {
+    @Query("SELECT * FROM fontes ORDER BY importedAt, id")
+    fun listarFontes(): List<FonteRow>
+
+    @Query("SELECT * FROM fonte_vinculos ORDER BY campaignId, linkedAt, sourceId")
+    fun listarVinculos(): List<FonteVinculoRow>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvarFontes(rows: List<FonteRow>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvarVinculos(rows: List<FonteVinculoRow>)
+
+    @Query("DELETE FROM fonte_vinculos")
+    fun apagarVinculos()
+
+    @Query("DELETE FROM fontes")
+    fun apagarFontes()
+
+    @Query("DELETE FROM fontes WHERE id = :id")
+    fun apagarFonte(id: String)
+}
+
+@Dao
+interface FontePipelineDao {
+    @Query("SELECT * FROM fonte_pipeline WHERE sourceId = :id")
+    fun buscar(id: String): FontePipelineRow?
+
+    @Query("SELECT * FROM fonte_pipeline ORDER BY sourceId")
+    fun listar(): List<FontePipelineRow>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: FontePipelineRow)
+
+    @Query("DELETE FROM fonte_pipeline WHERE sourceId = :id")
+    fun apagar(id: String)
+}
+
+@Dao
+interface CanonFactsDao {
+    @Query("SELECT * FROM fatos_canonicos WHERE campaignId = :id")
+    fun buscar(id: String): CanonFactsRow?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: CanonFactsRow)
+
+    @Query("DELETE FROM fatos_canonicos WHERE campaignId = :id")
+    fun apagar(id: String)
+}

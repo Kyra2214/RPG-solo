@@ -9,7 +9,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-O último CI verde registrado foi em 19/10/2026 (commit `85b58ce`; detalhes em [`docs/VALIDACAO_CI.md`](docs/VALIDACAO_CI.md)). Desde então a branch recebeu alterações de código (remoção de conteúdo de terceiros, trava de sessão e exclusividade de turno, Room fora da thread principal e transporte HTTP cancelável). **Builds, testes, lint e CI não foram executados depois dessas alterações**, conforme a orientação de consolidar a implementação antes da validação. O estado atual da branch ainda não está validado e não deve ser tratado como APK pronto para uso.
+O último CI verde registrado foi em 19/10/2026 (commit `85b58ce`; detalhes em [`docs/VALIDACAO_CI.md`](docs/VALIDACAO_CI.md)). A execução manual [Android CI #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817), no commit documental `cee31e7`, falhou em `Check Kotlin style` (1.331 violações ktlint em 26 arquivos do módulo `ai`); testes, E2E e build do APK foram ignorados. O [log completo](docs/ci/android-ci-39829094817-ktlint-failure.log) e o resultado por etapa estão documentados. **A branch continua sem validação de testes/build e não deve ser tratada como APK pronto para uso.**
 
 ## Funcionalidades implementadas no código
 
@@ -21,9 +21,9 @@ O último CI verde registrado foi em 19/10/2026 (commit `85b58ce`; detalhes em [
 - Primeiro uso transacional: a tela Jogar acompanha provedor, ficha disponível e campanha ativa e não abre o chat antes das três etapas estarem prontas.
 - Camada de IA com provedores configuráveis, teste de conexão, classificação de intenção, contexto, propostas validadas, sugestões e ações locais sem chamada de IA.
 - Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; Config permite ativar/desativar o cache, mostra contagens de tokens lidos/criados e aceita preços por milhão com tarifas separadas para estimar custo na moeda informada. O uso real ainda não foi validado em rede. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas, incluindo acontecimentos de combate com participação do jogador. O sistema próprio declara sorte/destino global: 1 PA permite repetir a rolagem ou somar uma face após o resultado, quando o teste não define uma política específica.
-- Persistência via Room para campanhas, eventos, fichas e metadados; sessão principal mantida em `ViewModel`.
+- Persistência via Room v10 para campanhas, eventos, fichas, metadados, biblioteca de fontes, progresso de pipeline e fatos canônicos; documentos originais ficam em armazenamento privado do app, com verificação de hash.
 - Chave do provedor protegida pelo Android Keystore e excluída do backup.
-- Backup JSON local com eventos/configuração do motor e metadados de capítulos, missões e linha do tempo, por seletor de arquivos Android (SAF) ou copiar/colar texto.
+- Backup JSON local com eventos/configuração do motor e metadados de capítulos, missões e linha do tempo, por seletor de arquivos Android (SAF) ou texto. Fatos canônicos e bytes originais de fontes não entram no backup atual.
 - Importação ZIP de pacotes de regras pela interface, com validação, limite de tamanho e restauração de pacotes importados ao reabrir o app.
 - Biblioteca de fichas com consulta, duplicação, arquivamento/restauração, exclusão de arquivadas e cópia do JSON.
 - Acessibilidade inicial: escala global de fonte ajustável (85%–140%) e descrições TalkBack para os dados, mantendo os resultados ocultos até serem revelados.
@@ -34,7 +34,7 @@ O último CI verde registrado foi em 19/10/2026 (commit `85b58ce`; detalhes em [
 - `engine` — estado canônico, comandos/eventos, dados, capítulos, diário e backup.
 - `rules` — catálogo, pacotes de regras, validação de fichas e criação de campanha.
 - `ai` — provedores, loop de jogo, contexto e parsing das propostas.
-- `data` — banco Room e adaptador de armazenamento de eventos.
+- `data` — banco Room, adaptador de eventos e armazenamento privado dos documentos-fonte.
 
 ## Como compilar e testar
 
@@ -60,13 +60,13 @@ Abra a pasta do repositório no Android Studio para executar o app em emulador o
 
 ## Lacunas conhecidas
 
-- Fase 14 concluída em código (testes escritos e nunca executados; sem tela nem persistência): DC-01 a DC-04 (importação, biblioteca, pipeline com busca local e fatos canônicos) no `engine` e DC-05 a DC-07 (contexto por cena, modos da fonte, resumo por título e regras detectadas) no `engine`/`ai`, escritos, sem tela, sem compilar e sem testes.
+- Fase 14 parcialmente implementada e não validada: DC-01 a DC-05 têm lógica no `engine`/`data`/`app`, incluindo Room v10 e bytes de fonte no armazenamento privado; DC-06/DC-07 têm helpers de resumo e propostas de regras. Falta a interface completa de importação/biblioteca/progresso/fatos, a execução/retomada automática da pipeline após reiniciar e a tela de consentimento Q-09. PDF não tem OCR e há limites de extração; DOCX não processa tabelas estruturadas.
 - Fase 12 (motor unificado) concluída em código, com testes escritos mas nunca executados (`EffectiveValueTest`, `UnifiedCombatTest`, `AiParityTest`); lacunas listadas no plano (3.7, MU-08.4).
-- Esta branch ainda precisa de compilação, testes unitários, validação visual em aparelho/emulador e teste instrumentado das migrações Room.
+- Esta branch ainda precisa de compilação, testes unitários, validação visual em aparelho/emulador e teste instrumentado das migrações Room; o schema exportado v10 também não foi gerado por build.
 - O streaming progressivo agora está ligado do transporte SSE até a interface; permanece sem validação de execução nesta etapa. Provedores compatíveis podem variar no suporte a SSE e JSON mode.
 - Permanecem melhorias de mecânica fora do fluxo principal: a API do motor e os fluxos do `PlayController` para rolagens opostas/em grupo foram adicionados, com resultados exibidos no chat e suporte a desfazer; vantagem/desvantagem pode ser declarada em `testes.txt` (`NORMAL`, `ADVANTAGE`, `DISADVANTAGE`). Há controles na aba Jogar para disputar um teste entre o herói e um NPC vivo. A interface também oferece teste de grupo com participantes e limiar de sucessos selecionados. O mestre também pode pedir disputa ou teste de grupo por `request_check` (com `opposed`/`group`), validado pelo motor e resolvido como pedido pendente; não há sintaxe de pacote própria para essas modalidades (usam os testes de `testes.txt`). A progressão básica por pontos por nível e gasto em atributo/perícia está implementada no motor e na aba Campanhas; poderes ativáveis com efeitos tipados (`poderes.txt`) existem no código, na aba Jogar e por `request_power` da IA (sem execução); sorte/destino gasta depois de rolar (repetir rolagem ou somar face, declarada globalmente em `criacao.txt` ou por teste em `testes.txt`) existe no código e na aba Jogar, e o sistema próprio já oferece ambas as formas por 1 PA; recompensas adicionais e magias adicionais seguem pendentes. Bônus numéricos de traços, incluindo resistência/vulnerabilidade a dano, só são aplicados quando o pacote declara um efeito explícito; descrições condicionais ainda não são gatilhos automáticos.
 - A escala global da fonte e descrições TalkBack dos dados foram implementadas no código; revisão completa de TalkBack, contraste e layout em aparelho ainda falta. Também faltam relatório de diagnóstico exportável e configuração comprovada de um provedor gratuito padrão.
-- Catálogo de personagem: as 50 raças, 50 sub-raças, 50 classes, 103 profissões e 20 híbridos declaram efeito mecânico (+1 em uma perícia); o restante é editorial, sem bônus (M-02 em andamento).
+- Catálogo de personagem: as 50 raças, 50 sub-raças, 50 classes, 103 profissões e 20 híbridos declaram +1 em uma perícia; 4 das 100 maldições declaram +1 em Intimidação. M-02 está concluído em código, mas ainda sem validação por testes/CI; outros efeitos de maldição permanecem narrativos/condicionais.
 - O pacote próprio contém fórmulas e regras marcadas como rascunho/incertas; consulte o tutorial e as notas do pacote antes de tratá-las como definitivas.
 
 ## Princípios de conteúdo e licença

@@ -9,17 +9,24 @@ import dev.rpgsolo.engine.Chapter
 import dev.rpgsolo.engine.Codec
 import dev.rpgsolo.engine.EventStore
 import dev.rpgsolo.engine.Quest
+import dev.rpgsolo.engine.SourceEntry
+import dev.rpgsolo.engine.SourceLibrary
+import dev.rpgsolo.engine.SourceLink
+import dev.rpgsolo.engine.SourceStatus
+import dev.rpgsolo.engine.PipelineState
+import dev.rpgsolo.engine.SourcePipeline
+import dev.rpgsolo.engine.CanonFacts
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
 /**
- * Versão 7. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
+ * Versão 10. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
  * os esquemas exportados ficam em `data/schemas/` (3.1.2). Nunca use fallbackToDestructiveMigration:
  * apagaria as campanhas do jogador.
  */
 @Database(
-    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class],
+    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class, FontePipelineRow::class, CanonFactsRow::class],
     version = RpgDatabase.VERSION,
     exportSchema = true,
 )
@@ -39,10 +46,13 @@ abstract class RpgDatabase : RoomDatabase() {
     abstract fun snapshots(): SnapshotDao
 
     abstract fun linhaTempo(): LinhaTempoDao
+    abstract fun fontes(): FonteDao
+    abstract fun fontePipeline(): FontePipelineDao
+    abstract fun fatosCanonicos(): CanonFactsDao
 
     companion object {
         /** Versão atual do esquema; a mesma da anotação [Database]. */
-        const val VERSION = 7
+        const val VERSION = 10
 
         val MIGRATIONS =
             arrayOf(
@@ -121,15 +131,33 @@ abstract class RpgDatabase : RoomDatabase() {
                             }
                         }
                     }
-                },
-                object : androidx.room.migration.Migration(6, 7) {
-                    override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
-                        db.execSQL("ALTER TABLE campanhas ADD COLUMN estado TEXT NOT NULL DEFAULT 'ATIVA'")
-                        db.execSQL("ALTER TABLE campanhas ADD COLUMN criadaEm INTEGER NOT NULL DEFAULT 0")
-                        db.execSQL("ALTER TABLE campanhas ADD COLUMN atualizadaEm INTEGER NOT NULL DEFAULT 0")
-                    }
-                },
-            )
+                }
+            },
+            object : androidx.room.migration.Migration(6, 7) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE campanhas ADD COLUMN estado TEXT NOT NULL DEFAULT 'ATIVA'")
+                    db.execSQL("ALTER TABLE campanhas ADD COLUMN criadaEm INTEGER NOT NULL DEFAULT 0")
+                    db.execSQL("ALTER TABLE campanhas ADD COLUMN atualizadaEm INTEGER NOT NULL DEFAULT 0")
+                }
+            },
+            object : androidx.room.migration.Migration(7, 8) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("CREATE TABLE IF NOT EXISTS `fontes` (`id` TEXT NOT NULL, `fileName` TEXT NOT NULL, `format` TEXT, `title` TEXT NOT NULL, `sha256` TEXT NOT NULL, `byteSize` INTEGER NOT NULL, `status` TEXT NOT NULL, `error` TEXT, `importedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                    db.execSQL("CREATE TABLE IF NOT EXISTS `fonte_vinculos` (`campaignId` TEXT NOT NULL, `sourceId` TEXT NOT NULL, `sha256` TEXT NOT NULL, `fileName` TEXT NOT NULL, `linkedAt` INTEGER NOT NULL, PRIMARY KEY(`campaignId`, `sourceId`), FOREIGN KEY(`campaignId`) REFERENCES `campanhas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_fonte_vinculos_campaignId` ON `fonte_vinculos` (`campaignId`)")
+                }
+            },
+            object : androidx.room.migration.Migration(8, 9) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("CREATE TABLE IF NOT EXISTS `fonte_pipeline` (`sourceId` TEXT NOT NULL, `stateJson` TEXT NOT NULL, PRIMARY KEY(`sourceId`), FOREIGN KEY(`sourceId`) REFERENCES `fontes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                }
+            },
+            object : androidx.room.migration.Migration(9, 10) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("CREATE TABLE IF NOT EXISTS `fatos_canonicos` (`campaignId` TEXT NOT NULL, `factsJson` TEXT NOT NULL, PRIMARY KEY(`campaignId`), FOREIGN KEY(`campaignId`) REFERENCES `campanhas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                }
+            }
+        )
 
         fun build(
             context: Context,
@@ -372,6 +400,109 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
 
     fun saveMetadata(row: CampanhaMetaRow) = io { db.meta().salvar(row) }
 
+    /** DC-02: biblioteca local de fontes; remover uma campanha apaga seus vínculos pela FK, não as fontes. */
+    fun sourceLibrary(): SourceLibrary = io {
+        val dao = db.fontes()
+        SourceLibrary(
+            entries = dao.listarFontes().map { row ->
+                SourceEntry(
+                    id = row.id,
+                    fileName = row.fileName,
+                    format = row.format,
+                    title = row.title,
+                    sha256 = row.sha256,
+                    byteSize = row.byteSize,
+                    status = SourceStatus.values().firstOrNull { it.name == row.status } ?: SourceStatus.FAILED,
+                    error = row.error,
+                    importedAt = row.importedAt
+                )
+            },
+            links = dao.listarVinculos().map { row ->
+                SourceLink(row.campaignId, row.sourceId, row.sha256, row.fileName, row.linkedAt)
+            }
+        )
+    }
+
+    /** Substitui a biblioteca inteira numa única transação; vínculos precisam referir campanhas existentes. */
+    fun saveSourceLibrary(library: SourceLibrary) = io {
+        db.runInTransaction {
+            val dao = db.fontes()
+            dao.apagarVinculos()
+            val retainedIds = library.entries.map { it.id }.toSet()
+            dao.listarFontes().filterNot { it.id in retainedIds }.forEach { dao.apagarFonte(it.id) }
+            if (library.entries.isNotEmpty()) {
+                dao.salvarFontes(library.entries.map { entry ->
+                    FonteRow(
+                        entry.id, entry.fileName, entry.format, entry.title, entry.sha256,
+                        entry.byteSize, entry.status.name, entry.error, entry.importedAt
+                    )
+                })
+            }
+            if (library.links.isNotEmpty()) {
+                dao.salvarVinculos(library.links.map { link ->
+                    FonteVinculoRow(link.campaignId, link.sourceId, link.sha256, link.fileName, link.linkedAt)
+                })
+            }
+        }
+    }
+
+    /** Estados de pipeline persistidos, usados para retomar importação/indexação depois de reabrir o app. */
+    fun sourcePipelineStates(): List<PipelineState> = io {
+        db.fontePipeline().listar().map { row ->
+            try {
+                SourcePipeline.decode(row.stateJson)
+            } catch (e: Exception) {
+                throw IllegalStateException("estado de indexação da fonte ${row.sourceId} ilegível", e)
+            }
+        }
+    }
+
+    fun sourcePipelineState(sourceId: String): PipelineState? = io {
+        db.fontePipeline().buscar(sourceId)?.let { row ->
+            try {
+                SourcePipeline.decode(row.stateJson)
+            } catch (e: Exception) {
+                throw IllegalStateException("estado de indexação da fonte ${row.sourceId} ilegível", e)
+            }
+        }
+    }
+
+    fun saveSourcePipelineState(state: PipelineState) = io {
+        db.runInTransaction {
+            require(db.fontes().listarFontes().any { it.id == state.sourceId }) { "fonte não encontrada: ${state.sourceId}" }
+            db.fontePipeline().salvar(FontePipelineRow(state.sourceId, SourcePipeline.encode(state)))
+        }
+    }
+
+    /** Fatos canônicos narrativos, independentes do log de comandos da campanha. */
+    fun canonFacts(campaignId: String): CanonFacts = io {
+        val row = db.fatosCanonicos().buscar(campaignId) ?: return@io CanonFacts()
+        val facts = try {
+            CanonFacts.fromJson(row.factsJson)
+        } catch (e: Exception) {
+            throw IllegalStateException("fatos canônicos da campanha $campaignId ilegíveis", e)
+        }
+        check(facts.facts.all { it.campaignId == campaignId }) {
+            "fatos canônicos contêm campanha divergente: $campaignId"
+        }
+        facts
+    }
+
+    /** Valida IDs, conteúdo e campanha antes de substituir todo o conjunto de forma atômica. */
+    fun saveCanonFacts(campaignId: String, facts: CanonFacts) = io {
+        require(campaignId.isNotBlank()) { "campanha inválida" }
+        var validated = CanonFacts()
+        facts.facts.forEach { fact ->
+            require(fact.campaignId == campaignId) { "fato ${fact.id} pertence a outra campanha" }
+            validated = requireNotNull(validated.add(fact)) { "fato inválido ou duplicado: ${fact.id}" }
+        }
+        db.runInTransaction {
+            require(db.campanhas().buscar(campaignId) != null) { "campanha não encontrada: $campaignId" }
+            if (validated.facts.isEmpty()) db.fatosCanonicos().apagar(campaignId)
+            else db.fatosCanonicos().salvar(CanonFactsRow(campaignId, validated.toJson()))
+        }
+    }
+
     fun fichas(): List<FichaRow> = io { db.fichas().listar() }
 
     fun fichasArquivadas(): List<FichaRow> = io { db.fichas().listarArquivadas() }
@@ -412,6 +543,14 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
                 db.capitulos().salvar(db.capitulos().listar(sourceId).map { it.copy(campanhaId = newId) })
                 db.missoes().salvar(db.missoes().listar(sourceId).map { it.copy(campanhaId = newId) })
                 db.linhaTempo().salvar(db.linhaTempo().listar(sourceId).map { it.copy(campanhaId = newId) })
+                val copiedFacts = canonFacts(sourceId).facts.map { it.copy(campaignId = newId) }
+                if (copiedFacts.isNotEmpty()) {
+                    db.fatosCanonicos().salvar(CanonFactsRow(newId, CanonFacts(copiedFacts).toJson()))
+                }
+                val copiedSourceLinks = db.fontes().listarVinculos()
+                    .filter { it.campaignId == sourceId }
+                    .map { it.copy(campaignId = newId) }
+                if (copiedSourceLinks.isNotEmpty()) db.fontes().salvarVinculos(copiedSourceLinks)
             }
         }
         return copy
