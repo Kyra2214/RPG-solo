@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_brand">RPG SOLO</string>
+    <string name="tab_jogar">Jogar</string>
+    <string name="tab_personagens">Heróis</string>
+    <string name="tab_regras">Regras</string>
+    <string name="tab_campanhas">Campanhas</string>
+    <string name="tab_sistemas">Sistemas</string>
+    <string name="tab_config">Config</string>
+    <string name="title_jogar">A mesa</string>
+    <string name="title_personagens">Personagens</string>
+    <string name="title_regras">Livro de regras</string>
+    <string name="title_campanhas">Campanhas</string>
+    <string name="title_sistemas">Sistemas</string>
+    <string name="title_config">Configuração</string>
+    <string name="startup_loading">Abrindo sua campanha…</string>
+    <string name="startup_error">Não foi possível abrir os dados: %1$s</string>
+    <string name="navigation_label">Navegação: %1$s</string>
+    <string name="crossfade_tab">aba</string>
+</resources>

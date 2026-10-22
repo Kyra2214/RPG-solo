@@ -1,3 +1,10 @@
+## 2026-10-22 — U-02: strings da navegação principal (não validado)
+
+- `app/src/main/res/values/strings.xml`: criado o primeiro catálogo de textos do app.
+- `app/RpgSoloApp.kt`: rótulos e títulos das seis abas, marca do app, carregamento, erro de inicialização e descrição semântica da navegação passaram a usar recursos Android, preservando o comportamento existente.
+- `PLANO_RPG_SOLO.md`: registrada a primeira fatia de U-02; os demais textos fixos permanecem pendentes.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — U-01: rótulos acessíveis na criação e navegação (não validado)
 
 - `app/CharactersScreen.kt`: botões `+` e `−` de atributos e perícias agora expõem a ação e o nome do campo ao TalkBack.
