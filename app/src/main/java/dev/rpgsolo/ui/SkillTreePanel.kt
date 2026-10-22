@@ -127,7 +127,7 @@ fun SkillTreePanel(
                                     }
                                 }
                             ) { Text("Evoluir (${entry.pointCost} ponto)") }
-                            if (entry.skill.effects.any { it.recipient == SkillEffectRecipient.TARGET } || entry.skill.actionKind == SkillActionKind.REVIVE || entry.skill.actionKind == SkillActionKind.MULTI_HIT) {
+                            if (entry.skill.effects.any { it.recipient == SkillEffectRecipient.TARGET } || entry.skill.actionKind == SkillActionKind.REVIVE || entry.skill.actionKind == SkillActionKind.MULTI_HIT || entry.skill.actionKind == SkillActionKind.POWER_STRIKE) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
                                     (if (entry.skill.actionKind == SkillActionKind.REVIVE) revivableTargets else targets).forEach { (targetId, targetName) ->
                                         FilterChip(
@@ -141,7 +141,7 @@ fun SkillTreePanel(
                             }
                             if (entry.skill.category != SkillCategory.PASSIVE) {
                                 OutlinedButton(
-                                    enabled = enabled && (entry.skill.effects.none { it.recipient == SkillEffectRecipient.TARGET } && entry.skill.actionKind != SkillActionKind.REVIVE && entry.skill.actionKind != SkillActionKind.MULTI_HIT || selectedTargets[entry.skill.id] != null),
+                                    enabled = enabled && (entry.skill.effects.none { it.recipient == SkillEffectRecipient.TARGET } && entry.skill.actionKind != SkillActionKind.REVIVE && entry.skill.actionKind != SkillActionKind.MULTI_HIT && entry.skill.actionKind != SkillActionKind.POWER_STRIKE || selectedTargets[entry.skill.id] != null),
                                     onClick = {
                                         act({ actions.activate(entry.skill.id, selectedTargets[entry.skill.id]) }) { result ->
                                             message = result ?: "Habilidade ativada."
