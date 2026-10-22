@@ -864,3 +864,6 @@
  
 
 - Classe de Malditos: substituídos os 42 nomes genéricos das habilidades culminantes de rank 7 por nomes temáticos específicos das famílias/vertentes; adicionado teste contra regressão para placeholders.
+ 
+
+- Classe de Malditos: além dos nomes próprios, as 42 culminâncias agora diferenciam mecânicas por família (multiataque, controle direcionado ou golpe culminante), e vertentes mágicas declaram vínculo com afinidade. Adicionados testes para esses contratos; balanceamento de jogo segue pendente.
