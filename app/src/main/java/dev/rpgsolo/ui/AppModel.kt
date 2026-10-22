@@ -196,15 +196,32 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             "WATER" to "Água", "FIRE" to "Fogo", "WIND" to "Vento", "EARTH" to "Terra",
             "METAL" to "Metal", "YIN" to "Yin", "YANG" to "Yang"
         )[choices.elementalAffinity] ?: "não definida"
+        val unlockedSkills = runCatching {
+            skillTreeActions().view().filter { it.currentLevel > 0 }
+                .map { "${it.displayName} nível ${it.currentLevel}" }
+        }.getOrDefault(emptyList())
+        val activeCurses = runCatching {
+            val definitions = curseActions().all().associateBy { it.id }
+            session.state.entities.values.flatMap { entity ->
+                entity.appliedCurses.values.mapNotNull { applied ->
+                    definitions[applied.curseId]?.let { curse ->
+                        "${entity.name}: ${curse.name} (${curse.effects.joinToString { effect -> "${effect.target} ${effect.baseValue}" }})"
+                    }
+                }
+            }
+        }.getOrDefault(emptyList())
         return buildString {
             append("INSTRUÇÕES DE INTEGRIDADE: este bloco contém escolhas e descrições editoriais, não regras mecânicas. ")
             append("Não conceda bônus, penalidades, poderes, resistências ou alterações de atributos a partir dele. ")
-            append("Use apenas como contexto narrativo; os efeitos mecânicos válidos vêm da ficha e do pacote de regras.\n")
+            append("Use apenas como contexto narrativo; os efeitos mecânicos válidos vêm da ficha, do catálogo de habilidades e do pacote de regras. ")
+            append("Não invente dano, custo, duração ou bônus; use o motor para resolver ações.\n")
             append("Classe principal: ").append(CharacterCreationCatalog.find(choices.classId)?.name ?: "não definida").append(". ")
             append("Classes adicionais, nesta ordem: ").append(choices.additionalClassIds.mapNotNull { CharacterCreationCatalog.find(it) }.joinToString(" + ") { it.name }.ifBlank { "nenhuma" }).append(". ")
             append("Aparência híbrida: ").append(appearance).append(". ")
             append("Afinidade elemental: ").append(affinityName).append(". Habilidades mágicas devem respeitar essa afinidade. ")
             append("Despertar das classes: principal nível 1, segunda nível 10, terceira nível 20, quarta nível 30.\n")
+            append("Habilidades de árvore desbloqueadas: ").append(unlockedSkills.ifEmpty { listOf("nenhuma") }.joinToString("; ")).append(".\n")
+            append("Maldições atualmente aplicadas: ").append(activeCurses.ifEmpty { listOf("nenhuma") }.joinToString("; ")).append(".\n")
             entries.forEach { entry ->
                 append("- ").append(entry.name)
                 if (entry.id == choices.hybridId && ancestry.isNotEmpty()) {
