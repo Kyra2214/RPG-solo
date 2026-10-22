@@ -119,6 +119,19 @@ class GameEngineTest {
         assertTrue(result is ExecResult.Rejected)
     }
 
+    @Test fun efeitoDirecionadoExigeCombateETurnoDoUsuario() {
+        val e = GameEngine(seed = 2)
+        val hero = hero().copy(skillTreeLevels = mapOf("skill-test" to 1))
+        assertTrue(e.executeAll(listOf(CreateEntity(hero), CreateEntity(orc()))) is ExecResult.Accepted)
+        val effect = ActiveEffect("habilidade:skill-test", "Teste", "defesa", -3, 2)
+        assertTrue(e.execute(ApplyTargetSkillEffects("hero", "orc", "skill-test", listOf(effect))) is ExecResult.Rejected)
+        assertTrue(e.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
+        assertTrue(e.execute(ApplyTargetSkillEffects("hero", "orc", "skill-test", listOf(effect))) is ExecResult.Accepted)
+        assertTrue(e.execute(NextTurn) is ExecResult.Accepted)
+        assertTrue(e.execute(ApplyTargetSkillEffects("hero", "orc", "skill-test", listOf(effect))) is ExecResult.Rejected)
+        assertEquals(e.state, replay(e.events))
+    }
+
     @Test fun semRecursoDeMorteNaoMorreAutomaticamente() {
         val e = GameEngine(1, EngineConfig(deathResource = null))
         e.execute(CreateEntity(orc()))
