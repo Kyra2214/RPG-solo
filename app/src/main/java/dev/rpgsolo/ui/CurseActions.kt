@@ -3,7 +3,6 @@ package dev.rpgsolo.ui
 import dev.rpgsolo.engine.ApplyCurse
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.RemoveCurse
-import dev.rpgsolo.engine.isSuccess
 import dev.rpgsolo.rules.CurseCatalogLoader
 import dev.rpgsolo.rules.CurseDefinition
 import dev.rpgsolo.rules.RulePackage
@@ -86,19 +85,20 @@ class CurseActions(
             }
             var resistanceSummary = ""
             var resistanceSucceeded: Boolean? = null
-            if (curse.resistanceCheckId != null) {
+            val resistanceCheckId = curse.resistanceCheckId
+            if (resistanceCheckId != null) {
                 val difficulty = requireNotNull(curse.resistanceDifficulty)
-                val base = pkg.check(curse.resistanceCheckId, target.stats, difficulty, target.skills)
+                val base = pkg.check(resistanceCheckId, target.stats, difficulty, target.skills)
                 val adjusted = pkg.adjustCheck(
                     base,
                     conditions = session().state.conditions[targetId].orEmpty(),
                     traits = target.traits,
-                    skill = curse.resistanceCheckId,
-                    additionalBonuses = checkBonuses(targetId, setOf(curse.resistanceCheckId, base.stat ?: "").filter { it.isNotBlank() }.toSet())
+                    skill = resistanceCheckId,
+                    additionalBonuses = checkBonuses(targetId, setOf(resistanceCheckId, base.stat ?: "").filter { it.isNotBlank() }.toSet())
                 )
                 val result = session().check(adjusted)
                 onChanged()
-                resistanceSucceeded = result.outcome.isSuccess
+                resistanceSucceeded = result.outcome in setOf(dev.rpgsolo.engine.Outcome.SUCCESS, dev.rpgsolo.engine.Outcome.CRITICAL_SUCCESS)
                 resistanceSummary = "Teste ${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}; dificuldade ${result.spec.difficulty}. "
                 if (resistanceSucceeded == true) {
                     if (combat != null) {
