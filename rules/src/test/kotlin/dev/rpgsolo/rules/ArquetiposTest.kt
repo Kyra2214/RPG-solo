@@ -19,8 +19,10 @@ class ArquetiposTest {
 
     private fun install(f: Map<String, String>): InstallResult = PackageRegistry().install(f)
 
-    private fun pkg(): RulePackage =
-        (install(proprio()) as InstallResult.Success).pkg
+    private fun pkg(): RulePackage = when (val result = install(proprio())) {
+        is InstallResult.Success -> result.pkg
+        is InstallResult.Failure -> throw AssertionError("pacote próprio inválido: ${result.errors.joinToString("; ")}")
+    }
 
     @Test fun pacoteProprioCarregaComArquetipos() {
         val p = pkg()
