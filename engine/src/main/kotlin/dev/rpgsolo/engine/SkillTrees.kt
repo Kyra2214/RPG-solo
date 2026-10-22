@@ -11,7 +11,7 @@ enum class SkillCategory { OFFENSE, DEFENSE, BUFF, SUPPORT, PASSIVE, UTILITY, CO
 enum class ElementPath { WATER, FIRE, WIND, EARTH, METAL, YIN, YANG, NONE }
 enum class SkillOrigin { RACE, SUBRACE, CLASS, PROFESSION, HYBRID, CURSED_CLASS, SHARED, CURSE }
 enum class SkillEffectRecipient { SELF, TARGET }
-enum class SkillActionKind { MODIFIER, REVIVE, MULTI_HIT }
+enum class SkillActionKind { MODIFIER, REVIVE, POWER_STRIKE, MULTI_HIT }
 
 data class SkillEffectSpec(
     val id: String,
