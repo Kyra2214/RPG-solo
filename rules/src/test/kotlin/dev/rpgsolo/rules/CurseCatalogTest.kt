@@ -13,7 +13,8 @@ class CurseCatalogTest {
     @Test fun catalogoDeMaldicoesAplicadasCarregaSemErros() {
         val result = CurseCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
-        assertTrue("catálogo deve conter maldições reais, não apenas conceitos", result.curses.size >= 20)
+        assertTrue("catálogo deve conter maldições reais, não apenas conceitos", result.curses.size >= 100)
+        assertEquals(100, result.curses.size)
         assertEquals(result.curses.size, result.curses.map { it.id }.distinct().size)
     }
 
