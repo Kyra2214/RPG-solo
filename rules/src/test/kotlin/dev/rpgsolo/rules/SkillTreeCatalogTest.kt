@@ -205,7 +205,7 @@ class SkillTreeCatalogTest {
         fun visit(skillId: String) {
             if (skillId in visited) return
             assertTrue("ciclo de pré-requisitos detectado em $skillId", visiting.add(skillId))
-            byId.getValue(skillId).prerequisiteSkillIds.forEach(::visit)
+            byId.getValue(skillId).prerequisiteSkillIds.forEach { visit(it) }
             visiting.remove(skillId)
             visited.add(skillId)
         }
