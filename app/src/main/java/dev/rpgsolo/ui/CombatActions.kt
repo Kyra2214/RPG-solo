@@ -167,16 +167,20 @@ class CombatActions(
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") +
                     pkg.traitBonus(bonuses.combatTraitIds(attacker), "ataque") +
+                    bonuses.skillTreeAndActiveBonus(attacker, "ataque") +
                     attackConditionShift +
                     ((session().state.campaignStyle?.difficultyParams?.get("enemy_tactics") ?: 5.0)
                         .roundToInt().coerceIn(0, 10) - 5),
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") +
-                    pkg.traitBonus(bonuses.combatTraitIds(attacker), "dano"),
+                    pkg.traitBonus(bonuses.combatTraitIds(attacker), "dano") +
+                    bonuses.skillTreeAndActiveBonus(attacker, "dano"),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
                     pkg.traitBonus(bonuses.combatTraitIds(playerId()), "defesa") +
+                    bonuses.skillTreeAndActiveBonus(playerId(), "defesa") +
                     bonuses.selectedCatalogBonus(pkg, "defesa") +
                     bonuses.approvedRuleBonus("defesa") + bonuses.approvedRuleBonus(defenseStat) + targetConditionShift,
                 damageReduction = pkg.traitBonus(bonuses.combatTraitIds(playerId()), "resistencia_dano") +
+                    bonuses.skillTreeAndActiveBonus(playerId(), "resistencia_dano") +
                     bonuses.selectedCatalogBonus(pkg, "resistencia_dano") +
                     bonuses.approvedRuleBonus("resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
@@ -260,13 +264,17 @@ class CombatActions(
                 damage = baseDamage,
                 defenseDefault = baseDefense,
                 attackBonus = pkg.equipmentBonus(attackerEquipment, "ataque") + pkg.traitBonus(bonuses.combatTraitIds(playerId()), "ataque") +
+                    bonuses.skillTreeAndActiveBonus(playerId(), "ataque") +
                     bonuses.selectedCatalogBonus(pkg, "ataque") + bonuses.approvedRuleBonus("ataque") + bonuses.approvedRuleBonus(attackStat) +
                     attackConditionShift,
                 damageBonus = pkg.equipmentBonus(attackerEquipment, "dano") + pkg.traitBonus(bonuses.combatTraitIds(playerId()), "dano") +
+                    bonuses.skillTreeAndActiveBonus(playerId(), "dano") +
                     bonuses.selectedCatalogBonus(pkg, "dano") + bonuses.approvedRuleBonus("dano") + (damageDef?.bonusStat?.let(bonuses::approvedRuleBonus) ?: 0),
                 defenseBonus = pkg.equipmentBonus(targetEquipment, "defesa") +
-                    pkg.traitBonus(bonuses.combatTraitIds(targetId), "defesa") + targetConditionShift,
-                damageReduction = pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_dano"),
+                    pkg.traitBonus(bonuses.combatTraitIds(targetId), "defesa") +
+                    bonuses.skillTreeAndActiveBonus(targetId, "defesa") + targetConditionShift,
+                damageReduction = pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_dano") +
+                    bonuses.skillTreeAndActiveBonus(targetId, "resistencia_dano"),
                 damageDiceCount = damageDef?.diceCount ?: 0,
                 damageDiceSides = damageDef?.diceSides ?: 0,
                 damageStat = damageDef?.bonusStat
