@@ -5,6 +5,17 @@ import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.SkillTreeCatalogLoader
 import dev.rpgsolo.engine.SkillActionKind
 
+private fun skillElementLabel(element: ElementPath): String = when (element) {
+    ElementPath.WATER -> "Água"
+    ElementPath.FIRE -> "Fogo"
+    ElementPath.WIND -> "Vento"
+    ElementPath.EARTH -> "Terra"
+    ElementPath.METAL -> "Metal"
+    ElementPath.YIN -> "Yin"
+    ElementPath.YANG -> "Yang"
+    ElementPath.NONE -> "sem afinidade"
+}
+
 data class SkillTreeEntryView(
     val skill: SkillTreeSkill,
     val currentLevel: Int,
@@ -14,7 +25,7 @@ data class SkillTreeEntryView(
     val canUse: Boolean,
     val reason: String?
 ) {
-    val displayName: String get() = if (skill.affinityBound && skill.element != ElementPath.NONE) "${skill.name} — ${elementLabel(skill.element)}" else skill.name
+    val displayName: String get() = if (skill.affinityBound && skill.element != ElementPath.NONE) "${skill.name} — ${skillElementLabel(skill.element)}" else skill.name
 }
 
 /** Operações transacionais de compra, desbloqueio, evolução, ativação e reset da árvore. */
