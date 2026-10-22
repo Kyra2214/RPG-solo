@@ -81,7 +81,7 @@ class GameLoopTest {
                         scope = it,
                         bonus = 3,
                         source = "Especialista em Criptoanálise",
-                        sourceId = "profession-skill-criptoanalise"
+                        effectId = "profession-skill-criptoanalise"
                     )
                 }
             }
