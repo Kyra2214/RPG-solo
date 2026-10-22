@@ -50,7 +50,6 @@ jobs:
       - name: Run Android E2E on emulator
         if: github.event_name != 'pull_request'
         id: e2e
-        continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -82,7 +81,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      # E2E é diagnóstico e não bloqueia o CI principal; o gate é o conjunto de testes JVM/Android acima.
+      # O E2E é gate do CI; os diagnósticos acima continuam sendo publicados em caso de falha.
 
       - name: Build debug APK
         run: ./gradlew :app:assembleDebug --stacktrace
