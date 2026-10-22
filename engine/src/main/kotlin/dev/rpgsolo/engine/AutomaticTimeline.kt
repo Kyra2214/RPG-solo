@@ -106,12 +106,6 @@ fun automaticTimeline(
                     AutomaticTimelineEntry(index, "equipamento", "Você equipou ${event.itemId} no espaço ${event.slot}.")
                 }
             } else null
-            is CurseApplied -> if (event.targetId == playerId) {
-                AutomaticTimelineEntry(index, "condição", "Uma maldição passou a afetar seu personagem.")
-            } else null
-            is CurseRemoved -> if (event.targetId == playerId) {
-                AutomaticTimelineEntry(index, "condição", "Uma maldição deixou de afetar seu personagem.")
-            } else null
             is SkillTreeProgressed -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você avançou uma habilidade da sua árvore de habilidades.")
             } else null
