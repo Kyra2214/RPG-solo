@@ -30,6 +30,7 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 - Corrigido na branch: a culminância agora usa `criptoanalise` e `profession-skill-criptoanalise`, preservando a identidade da profissão e a regra de não acumular cópias equivalentes.
 - Adicionado teste de catálogo para exigir que as habilidades das árvores profissionais totalmente passivas mantenham os mesmos alvos/grupos de efeito do rank 1 até o rank 7.
 - A alteração e o teste ainda não foram executados pela CI, conforme a instrução de só dispará-la ao concluir a fase.
+- Reanálise estática após a correção: 1.507 registros em 295 árvores, zero linhas malformadas; nenhuma culminância rank 7 sem efeito tipado (exceto REVIVE, que é resolvida pela ação de ressurreição); nenhum ataque especial com custo de recurso diferente de zero, evitando o caminho de rejeição atual da UI; zero divergências restantes entre alvos/grupos nas árvores profissionais integralmente passivas.
 
 ## Integridade das ações e paridade IA/jogador
 
