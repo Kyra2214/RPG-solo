@@ -1,3 +1,10 @@
+## 2026-10-22 — Árvores de habilidades e maldições: revisão de conteúdo (ainda não validada)
+
+- `rules/.../habilidades-arvore.txt`: revisadas as seis primeiras habilidades das 50 árvores de classe e das 103 árvores de profissão; as culminâncias das 103 profissões receberam nomes e efeitos por ofício. Foram adicionados testes de catálogo para distinção de nomes, categorias, afinidade e progressão.
+- `rules/.../maldicoes-lancadas.txt`: catálogo de maldições lançadas ampliado de 20 para 100 registros, separado dos conceitos/vertentes da Classe de Malditos. Cada registro declara efeitos positivos e negativos, resistência, duração e remoção.
+- `engine/SkillTrees.kt` e `app/CombatBonuses.kt`: regra mecânica para penalidade social crescente de classes híbridas, com teste unitário.
+- **Estado de validação:** alterações e testes foram escritos na branch `feature/arvores-habilidades`, mas ainda não há confirmação de que a suíte final, o build Android e a CI passaram para o conjunto mais recente. Nenhum resultado verde é declarado aqui. A auditoria de integração de efeitos, persistência e fluxo real das maldições continua pendente.
+
 # Changelog
 
 ## 2026-10-21 — I-02.3: memórias narrativas por cena
@@ -842,3 +849,27 @@
 - IA: a API oficial Anthropic recebe `cache_control: ephemeral` no prefixo de sistema por padrão; endpoints compatíveis não presumem suporte. O cache ainda precisa ser validado em rede real e pode ser desativado pela configuração.
 - Uso/cache: a resposta Anthropic captura tokens lidos/criados no cache também via SSE; `UsageTracker` separa as contagens, permite estimar custos com tarifas de cache distintas e Config mostra as métricas. A confirmação de cache-hit real ainda depende de chamada de rede. A Config agora permite ativar/desativar o cache e persiste a escolha com as configurações do provedor. Também aceita preços por milhão para entrada/saída e tarifas de cache separadas, exibindo custo estimado na moeda informada.
 - Testes: adicionados casos unitários para essas APIs e para evitar exposição de dados privados na linha do tempo. **Não foram executados**, conforme a etapa code-first.
+
+
+## 2026-10-22 — auditoria incremental de árvores e maldições
+
+- Híbridos: a penalidade social passou a contar somente as classes desbloqueadas pelo nível do personagem (1/10/20/30), e não todas as classes selecionadas antecipadamente.
+- Motor: o comando de loadout agora rejeita combinações com mais de quatro classes; testes unitários cobrem desbloqueio por nível e limite de classes.
+- Maldições: documentação corrigida para refletir os 100 registros aplicados atuais e separar catálogo/conceitos da Classe de Malditos.
+- CI confirmado verde no commit `7c2aecb3145e768ffee372ba94d61045a64ac385` (testes JVM/Android e APK debug; E2E ignorado). As correções posteriores estão aguardando a própria execução de CI; não considerar o resultado anterior como validação desses novos commits.
+- Pendências: auditoria ponta a ponta de todos os escopos/efeitos, persistência de maldições após salvar e reabrir campanha e validação de cada habilidade de rank 7.
+
+
+- Motor de maldições: adicionados testes para resistência pendente/sucesso/falha, expiração após rodadas completas, remoção com motivo e reconstrução do estado pelo log de eventos. A validação CI desses testes novos ainda está pendente.
+ 
+
+- Classe de Malditos: substituídos os 42 nomes genéricos das habilidades culminantes de rank 7 por nomes temáticos específicos das famílias/vertentes; adicionado teste contra regressão para placeholders.
+ 
+
+- Classe de Malditos: além dos nomes próprios, as 42 culminâncias agora diferenciam mecânicas por família (multiataque, controle direcionado ou golpe culminante), e vertentes mágicas declaram vínculo com afinidade. Adicionados testes para esses contratos; balanceamento de jogo segue pendente.
+ 
+
+- Motor: efeitos ativos direcionados de habilidades agora exigem combate ativo, participação de usuário/alvo na iniciativa e turno do usuário; teste de motor cobre as recusas e o replay.
+
+
+- Auditoria de habilidades ofensivas: 42 habilidades iniciais de Classe de Malditos agora executam `POWER_STRIKE` real com efeito de dano tipado; o rank 7 físico do arqueiro deixou de exigir afinidade elemental. Testes de regressão passaram no workflow #243 (commit `5205b037ebd45ed71d633f40c0ce08ba3c7ecc2d`): testes JVM/Android e build do APK debug verdes; E2E ignorado.

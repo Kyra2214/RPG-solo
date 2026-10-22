@@ -194,6 +194,8 @@ private fun PlayContent(c: PlayController, model: AppModel, classifierWarning: S
         InventoryPanel(model, enabled = !busy, act = ::act)
         ShopPanel(model, enabled = !busy, act = ::act)
         PowersPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
+        SkillTreePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
+        CursePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
         TraitUsesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
         ConditionRemovalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
         SurvivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)

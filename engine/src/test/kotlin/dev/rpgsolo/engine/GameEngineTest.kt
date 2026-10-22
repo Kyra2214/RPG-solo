@@ -37,6 +37,30 @@ class GameEngineTest {
         assertFalse(e.state.entities.getValue("orc").alive)
     }
 
+    @Test fun maldicaoExigeResistenciaResolvidaExpiraEPermaneceNoReplay() {
+        val e = engine()
+        assertTrue(e.execute(ApplyCurse("orc", "curse-test", "hero", 2, true, null)) is ExecResult.Rejected)
+        assertTrue(e.execute(ApplyCurse("orc", "curse-test", "hero", 2, true, true)) is ExecResult.Rejected)
+        assertTrue(e.execute(ApplyCurse("orc", "curse-test", "hero", 2, true, false)) is ExecResult.Accepted)
+        assertEquals(2, e.state.entities.getValue("orc").appliedCurses.getValue("curse-test").remainingRounds)
+        assertTrue(e.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertEquals(1, e.state.entities.getValue("orc").appliedCurses.getValue("curse-test").remainingRounds)
+        e.execute(NextTurn)
+        e.execute(NextTurn)
+        assertFalse(e.state.entities.getValue("orc").appliedCurses.containsKey("curse-test"))
+        assertEquals(e.state, replay(e.events))
+    }
+
+    @Test fun maldicaoPodeSerRemovidaComMotivoExplicito() {
+        val e = engine()
+        assertTrue(e.execute(ApplyCurse("orc", "curse-test", "ritual:purificacao")) is ExecResult.Accepted)
+        assertTrue(e.execute(RemoveCurse("orc", "curse-test", "purificação concluída")) is ExecResult.Accepted)
+        assertFalse(e.state.entities.getValue("orc").appliedCurses.containsKey("curse-test"))
+        assertEquals(e.state, replay(e.events))
+    }
+
     @Test fun curaNaoPassaDoMaximo() {
         val e = engine()
         e.execute(Damage("hero", "hp", 3))
@@ -86,6 +110,26 @@ class GameEngineTest {
 
     @Test fun entidadeDuplicadaERejeitada() {
         assertTrue(engine().execute(CreateEntity(hero())) is ExecResult.Rejected)
+    }
+
+    @Test fun loadoutRejeitaMaisDeQuatroClassesHibridas() {
+        val e = engine()
+        val classes = listOf("guerreiro", "mago", "ladino", "clerigo", "druida")
+        val result = e.execute(SetSkillTreeLoadout("hero", classes.toSet(), classes, "FIRE"))
+        assertTrue(result is ExecResult.Rejected)
+    }
+
+    @Test fun efeitoDirecionadoExigeCombateETurnoDoUsuario() {
+        val e = GameEngine(seed = 2)
+        val hero = hero().copy(skillTreeLevels = mapOf("skill-test" to 1))
+        assertTrue(e.executeAll(listOf(CreateEntity(hero), CreateEntity(orc()))) is ExecResult.Accepted)
+        val effect = ActiveEffect("habilidade:skill-test", "Teste", "defesa", -3, 2)
+        assertTrue(e.execute(ApplyTargetSkillEffects("hero", "orc", "skill-test", listOf(effect))) is ExecResult.Rejected)
+        assertTrue(e.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
+        assertTrue(e.execute(ApplyTargetSkillEffects("hero", "orc", "skill-test", listOf(effect))) is ExecResult.Accepted)
+        assertTrue(e.execute(NextTurn) is ExecResult.Accepted)
+        assertTrue(e.execute(ApplyTargetSkillEffects("hero", "orc", "skill-test", listOf(effect))) is ExecResult.Rejected)
+        assertEquals(e.state, replay(e.events))
     }
 
     @Test fun semRecursoDeMorteNaoMorreAutomaticamente() {

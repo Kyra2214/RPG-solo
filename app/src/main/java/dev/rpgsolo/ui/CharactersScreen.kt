@@ -107,7 +107,10 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var professionId by remember(key) { mutableStateOf("") }
     var hybridId by remember(key) { mutableStateOf("") }
     var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
-    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId)
+    var elementalAffinity by remember(key) { mutableStateOf("") }
+    var cursedClassBranchId by remember(key) { mutableStateOf("") }
+    var additionalClassIds by remember(key) { mutableStateOf(emptyList<String>()) }
+    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId, additionalClassIds)
     val choiceErrors = (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct()
     @Suppress("UNUSED_EXPRESSION") version
 
@@ -157,7 +160,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     }
 
     // ---------- 2. Origem e identidade de aventura ----------
-    SectionTitle("Raça, linhagem, classe e profissão", "Escolhas editoriais do catálogo. Híbridos são combinações catalogadas, não sub-raças. Nenhuma opção aplica bônus automaticamente.")
+    SectionTitle("Raça, linhagem, classe e profissão", "Escolhas do catálogo. Híbridos de raça são separados das combinações de classes; habilidades e efeitos declarados são validados pelo motor.")
     val catalogErrors = CharacterCreationCatalog.validationErrors()
     if (catalogErrors.isNotEmpty()) AppCard { Text("Catálogo com referências inválidas", color = MaterialTheme.colorScheme.error); catalogErrors.take(5).forEach { Muted(it) } }
     if (choiceErrors.isNotEmpty()) AppCard { Text("Revise as escolhas", color = MaterialTheme.colorScheme.error); choiceErrors.forEach { Muted(it) } }
@@ -186,15 +189,41 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             }
         }
     }
-    CatalogPicker("Classe", CharacterCreationCatalog.classes, classId, { classId = it; version++ }, allowNone = true)
+    CatalogPicker("Classe principal", CharacterCreationCatalog.classes, classId, { classId = it; additionalClassIds = additionalClassIds - it; version++ }, allowNone = true)
+    SectionTitle("Classes adicionais (híbrido)", "Até três classes adicionais além da principal. Quanto mais classes combinadas, mais monstruosa fica a aparência.")
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        CharacterCreationCatalog.classes.filter { it.id != classId }.forEach { option ->
+            FilterChip(
+                selected = option.id in additionalClassIds,
+                onClick = {
+                    additionalClassIds = if (option.id in additionalClassIds) additionalClassIds - option.id
+                    else if (additionalClassIds.size < 3) additionalClassIds + option.id else additionalClassIds
+                    version++
+                },
+                label = { Text(option.name) }
+            )
+        }
+    }
+    val totalClasses = (if (classId.isBlank()) 0 else 1) + additionalClassIds.size
+    val hybridAppearance = when (totalClasses) {
+        0, 1 -> "Aparência normal"
+        2 -> "Traços híbridos visíveis"
+        3 -> "Aparência monstruosa evidente"
+        else -> "Aparência extremamente monstruosa; forte desvantagem social"
+    }
+    Muted("Classes combinadas: $totalClasses/4 — $hybridAppearance")
+    SectionTitle("Afinidade elemental", "Opcional para técnicas físicas; habilidades mágicas exigem compatibilidade com a afinidade escolhida.")
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf("WATER" to "Água", "FIRE" to "Fogo", "WIND" to "Vento", "EARTH" to "Terra", "METAL" to "Metal", "YIN" to "Yin", "YANG" to "Yang").forEach { (id, label) ->
+            FilterChip(selected = elementalAffinity == id, onClick = { elementalAffinity = if (elementalAffinity == id) "" else id; version++ }, label = { Text(label) })
+        }
+    }
     CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, { professionId = it; version++ }, allowNone = true)
 
-    SectionTitle("Maldições", "Podem trazer benefícios e custos narrativos. Os efeitos ainda não são aplicados pelo motor.")
-    CatalogMultiPicker("Escolha as maldições", CharacterCreationCatalog.curses, curseIds, { id ->
-        curseIds = if (id in curseIds) curseIds - id else curseIds + id
-        version++
-    })
-    val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, classId, professionId) + curseIds.toList())
+    SectionTitle("Classe de Malditos", "Escolha uma vertente sobrenatural; sua habilidade básica é concedida gratuitamente.")
+    CatalogPicker("Família / vertente de Malditos", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, { cursedClassBranchId = it; version++ }, allowNone = true)
+
+    val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + additionalClassIds + curseIds.toList())
         .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
     if (chosenCatalogEntries.isNotEmpty()) {
         AppCard {
@@ -214,7 +243,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
                     Muted("Custo descrito (não aplicado): " + entry.drawback)
                 }
                 entry.mechanicalEffects.forEach {
-                    Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                    Muted("Efeito mecânico declarado (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
                 }
             }
         }
@@ -348,7 +377,9 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         }
         Muted("Classe: " + (CharacterCreationCatalog.find(classId)?.name ?: "não selecionada"))
         Muted("Profissão: " + (CharacterCreationCatalog.find(professionId)?.name ?: "não selecionada"))
-        Muted("Maldições: " + curseIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(", "))
+        Muted("Classe de Malditos: " + (CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: "nenhuma"))
+        Muted("Classes híbridas: " + (listOf(classId).filter { it.isNotBlank() } + additionalClassIds).mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(" + "))
+        Muted("Maldições lançadas são aplicadas durante a aventura, não escolhidas na criação da ficha.")
         Muted("Traços mecânicos do pacote: " + draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf("nenhum") }.joinToString(", "))
         Muted("Atributos: " + draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" })
     }

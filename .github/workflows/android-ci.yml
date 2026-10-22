@@ -45,6 +45,7 @@ jobs:
           retention-days: 14
 
       - name: Run Android E2E on emulator
+        if: github.event_name != 'pull_request'
         id: e2e
         continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2
@@ -68,7 +69,7 @@ jobs:
             exit $result
 
       - name: Upload E2E diagnostics
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: rpgsolo-e2e-diagnostics

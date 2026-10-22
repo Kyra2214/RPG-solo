@@ -48,6 +48,7 @@ import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
+import dev.rpgsolo.engine.SetSkillTreeLoadout
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.engine.SpellSlots
@@ -88,6 +89,7 @@ data class ShopView(
 data class AdvancementChoice(val id: String, val name: String, val current: Int, val max: Int, val skill: Boolean)
 data class AdvancementState(val pointsAvailable: Int, val choices: List<AdvancementChoice>)
 data class StatPointsState(val statPoints: Int, val abilityPoints: Int, val choices: List<AdvancementChoice>)
+data class InitialBuildState(val allocated: Boolean, val stats: List<AdvancementChoice>)
 data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val campaignReady: Boolean) {
     val complete: Boolean get() = providerReady && heroReady && campaignReady
 }
@@ -178,16 +180,62 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
-        val choices = characterChoices(fichaId)
-        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
+        val editorialChoices = characterChoices(fichaId)
+        val storedLoadout = runCatching { session.state.entities[playerId] }.getOrNull()
+        val loadoutIds = storedLoadout?.skillTreeTreeIds.orEmpty()
+        val classOrder = storedLoadout?.skillTreeClassOrder.orEmpty()
+        val choices = if (loadoutIds.isEmpty()) editorialChoices else editorialChoices.copy(
+            raceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.races.any { it.id == id } }.orEmpty(),
+            subraceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.subraces.any { it.id == id } }.orEmpty(),
+            classId = classOrder.firstOrNull().orEmpty(),
+            professionId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.professions.any { it.id == id } }.orEmpty(),
+            hybridId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.hybrids.any { it.id == id } }.orEmpty(),
+            cursedClassBranchId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.cursedClassBranches.any { it.id == id } }.orEmpty(),
+            additionalClassIds = classOrder.drop(1),
+            elementalAffinity = storedLoadout?.skillTreeElement.orEmpty()
+        )
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds
         val selected = selectedIds.filter { it.isNotBlank() }.distinct().mapNotNull(CharacterCreationCatalog::find)
         val ancestryIds = selected.filter { it.id == choices.hybridId }.flatMap { it.hybridRaceIds }
         val ancestry = ancestryIds.mapNotNull(CharacterCreationCatalog::find)
         val entries = (selected + ancestry).distinctBy { it.id }
+        val orderedClasses = (listOf(choices.classId).filter { it.isNotBlank() } + choices.additionalClassIds).distinct()
+        val appearance = when (orderedClasses.size) {
+            0, 1 -> "aparência normal para sua raça"
+            2 -> "traços híbridos visíveis; possíveis reações sociais negativas"
+            3 -> "aparência monstruosa evidente; desvantagem social significativa"
+            else -> "aparência extremamente monstruosa; forte desvantagem social"
+        }
+        val affinityName = mapOf(
+            "WATER" to "Água", "FIRE" to "Fogo", "WIND" to "Vento", "EARTH" to "Terra",
+            "METAL" to "Metal", "YIN" to "Yin", "YANG" to "Yang"
+        )[choices.elementalAffinity] ?: "não definida"
+        val unlockedSkills = runCatching {
+            skillTreeActions().view().filter { it.currentLevel > 0 }
+                .map { "${it.displayName} nível ${it.currentLevel}" }
+        }.getOrDefault(emptyList())
+        val activeCurses = runCatching {
+            val definitions = curseActions().all().associateBy { it.id }
+            session.state.entities.values.flatMap { entity ->
+                entity.appliedCurses.values.mapNotNull { applied ->
+                    definitions[applied.curseId]?.let { curse ->
+                        "${entity.name}: ${curse.name} (${curse.effects.joinToString { effect -> "${effect.target} ${effect.baseValue}" }})"
+                    }
+                }
+            }
+        }.getOrDefault(emptyList())
         return buildString {
             append("INSTRUÇÕES DE INTEGRIDADE: este bloco contém escolhas e descrições editoriais, não regras mecânicas. ")
             append("Não conceda bônus, penalidades, poderes, resistências ou alterações de atributos a partir dele. ")
-            append("Use apenas como contexto narrativo; os efeitos mecânicos válidos vêm da ficha e do pacote de regras.\n")
+            append("Use apenas como contexto narrativo; os efeitos mecânicos válidos vêm da ficha, do catálogo de habilidades e do pacote de regras. ")
+            append("Não invente dano, custo, duração ou bônus; use o motor para resolver ações.\n")
+            append("Classe principal: ").append(CharacterCreationCatalog.find(choices.classId)?.name ?: "não definida").append(". ")
+            append("Classes adicionais, nesta ordem: ").append(choices.additionalClassIds.mapNotNull { CharacterCreationCatalog.find(it) }.joinToString(" + ") { it.name }.ifBlank { "nenhuma" }).append(". ")
+            append("Aparência híbrida: ").append(appearance).append(". ")
+            append("Afinidade elemental: ").append(affinityName).append(". Habilidades mágicas devem respeitar essa afinidade. ")
+            append("Despertar das classes: principal nível 1, segunda nível 10, terceira nível 20, quarta nível 30.\n")
+            append("Habilidades de árvore desbloqueadas: ").append(unlockedSkills.ifEmpty { listOf("nenhuma") }.joinToString("; ")).append(".\n")
+            append("Maldições atualmente aplicadas: ").append(activeCurses.ifEmpty { listOf("nenhuma") }.joinToString("; ")).append(".\n")
             entries.forEach { entry ->
                 append("- ").append(entry.name)
                 if (entry.id == choices.hybridId && ancestry.isNotEmpty()) {
@@ -799,7 +847,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             is dev.rpgsolo.ai.PowerBuild.Invalid -> built.reason
             is dev.rpgsolo.ai.PowerBuild.Ready -> {
                 val targetName = built.spec.targetId?.let { session.state.entities[it]?.name }
-                when (val result = controller?.activatePower(built.spec, built.def.name, user.name, targetName)
+                val spec = when (val effect = built.spec.effect) {
+                    is dev.rpgsolo.engine.PowerEffect.Cure -> {
+                        val receiverId = built.spec.targetId ?: built.spec.userId
+                        val recovery = bonuses.skillTreeAndActiveBonus(receiverId, "recuperacao")
+                        built.spec.copy(effect = effect.copy(amount = (effect.amount + recovery).coerceAtLeast(0)))
+                    }
+                    else -> built.spec
+                }
+                when (val result = controller?.activatePower(spec, built.def.name, user.name, targetName)
                     ?: return "O controlador da campanha não está disponível.") {
                     is dev.rpgsolo.ai.PlayResult.Played -> { campaignVersion++; null }
                     is dev.rpgsolo.ai.PlayResult.Failed -> result.reason
@@ -1297,7 +1353,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             playerTraits = { activeFicha?.traits.orEmpty() },
             additionalBonus = { scope -> approvedRuleBonus(scope) },
             externalBonuses = { scopes ->
-                activePackage?.let { pkg -> selectedCatalogBonuses(pkg).filter { it.scope in scopes } }.orEmpty()
+                bonuses.externalSkillAndCurseBonuses(playerId, scopes.toSet())
             },
             additionalBonusSources = { scopes -> approvedRuleEffects(scopes) }
         )
@@ -1460,6 +1516,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         activeFichaId = started.campanha.fichaId
         activeSystemId = started.campanha.system.systemId
         activeEditionId = started.campanha.system.editionId
+        val loadoutChoices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
+        val loadoutClassOrder = (listOf(loadoutChoices.classId).filter { it.isNotBlank() } + loadoutChoices.additionalClassIds).distinct()
+        val loadoutTreeIds = (listOf(
+            loadoutChoices.raceId, loadoutChoices.subraceId, loadoutChoices.hybridId,
+            loadoutChoices.classId, loadoutChoices.professionId, loadoutChoices.cursedClassBranchId
+        ) + loadoutChoices.additionalClassIds).filter { it.isNotBlank() }.toSet()
+        when (val loadoutResult = session.execute(SetSkillTreeLoadout(
+            playerId, loadoutTreeIds, loadoutClassOrder, loadoutChoices.elementalAffinity
+        ))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+            is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "loadout de habilidades inválido: ${loadoutResult.reason}"
+        }
+        runCatching { skillTreeActions().grantSelectedFreeBaseSkills() }
+            .onFailure { configError = "falha ao conceder habilidades básicas: ${it.message}" }
+            .getOrNull()?.let { configError = "habilidades básicas não concedidas: $it" }
         when (val setting = session.execute(dev.rpgsolo.engine.SetAmbientacao(started.campanha.ambientacao))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
             is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "ambientação não salva: ${setting.reason}"
@@ -1551,6 +1622,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         session.engine.config.takeIf { it.spellSlotLevels.isNotEmpty() }?.let { session.engine.spellSlots(playerId) }
 
     /** MU-05.3: pontos de status e habilidade do herói; atributos do pacote ativo, sem teto (max = 0 indica ilimitado). */
+    fun hasActiveCombat(): Boolean = session.state.combat != null
+
     fun statPointsState(): StatPointsState {
         val player = session.state.entities[playerId] ?: return StatPointsState(0, 0, emptyList())
         val pkg = activePackage ?: return StatPointsState(player.statPoints, player.abilityPoints, emptyList())
@@ -1558,6 +1631,77 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             AdvancementChoice(stat.id, stat.name, player.stats[stat.id] ?: stat.default, 0, skill = false)
         }
         return StatPointsState(player.statPoints, player.abilityPoints, stats)
+    }
+
+    /** Ações do catálogo de maldições lançadas durante a aventura. */
+    fun curseActions(): CurseActions = CurseActions(
+        session = { session },
+        activePackage = { activePackage },
+        playerId = { playerId },
+        checkBonuses = { entityId, scopes -> bonuses.externalSkillAndCurseBonuses(entityId, scopes) },
+        onChanged = { campaignVersion++ }
+    )
+
+    /** Estado da distribuição única de 12 pontos iniciais. */
+    fun initialBuildState(): InitialBuildState {
+        val player = session.state.entities[playerId] ?: return InitialBuildState(false, emptyList())
+        val statCaps = activePackage?.engineConfig()?.statCaps.orEmpty()
+        val stats = activePackage?.data?.stats.orEmpty().filter { it.id in player.stats }.map { stat ->
+            AdvancementChoice(
+                stat.id, stat.name, player.stats[stat.id] ?: stat.default,
+                statCaps[stat.id] ?: (player.stats[stat.id] ?: stat.default),
+                skill = false
+            )
+        }
+        return InitialBuildState(player.initialBuildAllocated, stats)
+    }
+
+    /** O motor exige exatamente 12 pontos e impede repetir a distribuição inicial. */
+    fun allocateInitialBuild(statIncreases: Map<String, Int>, skillPoints: Int): String? =
+        when (val result = session.execute(dev.rpgsolo.engine.AllocateInitialBuild(playerId, statIncreases, skillPoints))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+
+    /** Ações da árvore vinculadas às escolhas salvas na ficha ativa. */
+    fun skillTreeActions(): SkillTreeActions {
+        val choices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
+        val orderedClasses = (listOf(choices.classId).filter { it.isNotBlank() } + choices.additionalClassIds).distinct()
+        val selected = (listOf(
+            choices.raceId, choices.subraceId, choices.classId, choices.professionId, choices.hybridId, choices.cursedClassBranchId
+        ) + choices.additionalClassIds).filter { it.isNotBlank() }.toSet()
+        val affinity = runCatching {
+            if (choices.elementalAffinity.isBlank()) dev.rpgsolo.engine.ElementPath.NONE
+            else dev.rpgsolo.engine.ElementPath.valueOf(choices.elementalAffinity)
+        }.getOrDefault(dev.rpgsolo.engine.ElementPath.NONE)
+        val equippedIds = session.state.equipped[playerId].orEmpty().values
+        val weaponTags = equippedIds.flatMap { id -> listOf(id, id.substringBefore('-')) }.toSet()
+        return SkillTreeActions(
+            session = { session },
+            activePackage = { activePackage },
+            playerId = { playerId },
+            selectedTreeIds = {
+                session.state.entities[playerId]?.skillTreeTreeIds?.takeIf { it.isNotEmpty() } ?: selected
+            },
+            classTreeUnlockLevel = { treeId ->
+                val classOrder = session.state.entities[playerId]?.skillTreeClassOrder?.takeIf { it.isNotEmpty() } ?: orderedClasses
+                when (classOrder.indexOf(treeId)) {
+                    0 -> 1
+                    1 -> 10
+                    2 -> 20
+                    3 -> 30
+                    else -> 1
+                }
+            },
+            element = {
+                val savedElement = session.state.entities[playerId]?.skillTreeElement.orEmpty()
+                if (savedElement.isBlank()) affinity else runCatching { dev.rpgsolo.engine.ElementPath.valueOf(savedElement) }.getOrDefault(affinity)
+            },
+            weaponTags = { weaponTags },
+            questCompleted = { questId -> quests.get(questId)?.status == dev.rpgsolo.engine.QuestStatus.DONE },
+            multiHitAction = { targetId, hitCount, damageBonus, elementalScope -> combatActions.attack(targetId, hitCount, damageBonus, elementalScope) },
+            onChanged = { campaignVersion++ }
+        )
     }
 
     /** MU-05.3: gasta um ponto de status em um atributo; o motor valida saldo e atributo. */

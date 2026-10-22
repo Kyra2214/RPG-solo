@@ -49,6 +49,59 @@ data class SpellLearned(val entityId: String, val spellId: String) : Event
 /** MU-06.3: habilidade aprendida. */
 @Serializable
 data class AbilityLearned(val entityId: String, val abilityId: String, val cost: Int) : Event
+/** Evolução da árvore; registra investimento real e origem gratuita. */
+@Serializable
+data class SkillTreeProgressed(
+    val entityId: String,
+    val skillId: String,
+    val newLevel: Int,
+    val pointsSpent: Int,
+    val freeBase: Boolean
+) : Event
+/** Distribuição inicial única de 12 pontos entre atributos e pontos de habilidade. */
+@Serializable
+data class InitialBuildAllocated(
+    val entityId: String,
+    val statIncreases: Map<String, Int>,
+    val skillPointsGranted: Int
+) : Event
+/** Loadout de árvores e afinidade usado pela resolução mecânica da campanha. */
+@Serializable
+data class SkillTreeLoadoutSet(
+    val entityId: String,
+    val treeIds: Set<String>,
+    val classOrder: List<String>,
+    val elementalAffinity: String
+) : Event
+/** Pergaminho de habilidade resgatado como recompensa de missão concluída. */
+@Serializable
+data class QuestScrollClaimed(
+    val entityId: String,
+    val questId: String,
+    val skillId: String,
+    val scrollId: String
+) : Event
+/** Maldição aplicada a uma entidade por personagem, criatura, ritual ou artefato. */
+@Serializable
+data class CurseApplied(
+    val targetId: String,
+    val curseId: String,
+    val sourceId: String,
+    val remainingRounds: Int? = null
+) : Event
+@Serializable
+data class CurseRemoved(val targetId: String, val curseId: String, val reason: String) : Event
+/** Efeito de habilidade aplicado pelo usuário da habilidade a outro combatente. */
+@Serializable
+data class TargetSkillEffectsApplied(
+    val actorId: String,
+    val targetId: String,
+    val skillId: String,
+    val effects: List<ActiveEffect>
+) : Event
+/** Reset de árvore: devolve exatamente os pontos investidos e mantém habilidades básicas no nível 1. */
+@Serializable
+data class SkillTreeProgressReset(val entityId: String, val pointsRefunded: Int) : Event
 /** MU-06.3: habilidade ativada; substitui os efeitos anteriores da mesma habilidade. */
 @Serializable
 data class AbilityActivated(val entityId: String, val abilityId: String, val effects: List<ActiveEffect>) : Event
@@ -233,14 +286,82 @@ fun GameState.apply(e: Event): GameState {
                 abilityPoints = current.abilityPoints - e.cost
             )))
         }
+        is SkillTreeProgressed -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (current.id to current.copy(
+                skillTreeLevels = current.skillTreeLevels + (e.skillId to e.newLevel),
+                skillTreeInvestments = current.skillTreeInvestments +
+                    (e.skillId to ((current.skillTreeInvestments[e.skillId] ?: 0) + e.pointsSpent)),
+                freeSkillIds = if (e.freeBase) current.freeSkillIds + e.skillId else current.freeSkillIds,
+                abilityPoints = current.abilityPoints - e.pointsSpent
+            )))
+        }
+        is InitialBuildAllocated -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (current.id to current.copy(
+                stats = current.stats + e.statIncreases.mapValues { (key, increase) -> (current.stats[key] ?: 0) + increase },
+                abilityPoints = current.abilityPoints + e.skillPointsGranted,
+                initialBuildAllocated = true
+            )))
+        }
+        is SkillTreeLoadoutSet -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (current.id to current.copy(
+                skillTreeTreeIds = e.treeIds,
+                skillTreeClassOrder = e.classOrder,
+                skillTreeElement = e.elementalAffinity
+            )))
+        }
+        is QuestScrollClaimed -> {
+            val current = entity(e.entityId)
+            val claim = "${e.questId}:${e.skillId}"
+            copy(
+                entities = entities + (current.id to current.copy(claimedQuestRewards = current.claimedQuestRewards + claim)),
+                inventory = inventory + (current.id to (inventory[current.id].orEmpty() + (e.scrollId to ((inventory[current.id]?.get(e.scrollId) ?: 0) + 1))))
+            )
+        }
+        is CurseApplied -> {
+            val current = entity(e.targetId)
+            val curse = AppliedCurseState(e.curseId, e.sourceId, e.remainingRounds)
+            copy(entities = entities + (current.id to current.copy(appliedCurses = current.appliedCurses + (e.curseId to curse))))
+        }
+        is CurseRemoved -> {
+            val current = entity(e.targetId)
+            copy(entities = entities + (current.id to current.copy(appliedCurses = current.appliedCurses - e.curseId)))
+        }
+        is TargetSkillEffectsApplied -> {
+            val source = "habilidade:${e.skillId}"
+            val kept = activeEffects[e.targetId].orEmpty().filter { it.sourceId != source && it.sourceId != "$source:desvantagem" }
+            copy(activeEffects = activeEffects + (e.targetId to (kept + e.effects)))
+        }
+        is SkillTreeProgressReset -> {
+            val current = entity(e.entityId)
+            copy(entities = entities + (current.id to current.copy(
+                skillTreeLevels = current.freeSkillIds.associateWith { 1 },
+                skillTreeInvestments = emptyMap(),
+                abilityPoints = current.abilityPoints + e.pointsRefunded
+            )))
+        }
         is AbilityActivated -> {
             val source = "habilidade:${e.abilityId}"
             val kept = activeEffects[e.entityId].orEmpty().filter { it.sourceId != source && it.sourceId != "$source:desvantagem" }
             copy(activeEffects = activeEffects + (e.entityId to (kept + e.effects)))
         }
-        is EffectsRoundEnded -> copy(activeEffects = activeEffects.mapValues { (_, list) ->
-            list.map { it.copy(remainingRounds = it.remainingRounds - 1) }.filter { it.remainingRounds > 0 }
-        }.filterValues { it.isNotEmpty() })
+        is EffectsRoundEnded -> copy(
+            activeEffects = activeEffects.mapValues { (_, list) ->
+                list.map { it.copy(remainingRounds = it.remainingRounds - 1) }.filter { it.remainingRounds > 0 }
+            }.filterValues { it.isNotEmpty() },
+            entities = entities.mapValues { (_, current) ->
+                current.copy(appliedCurses = current.appliedCurses.mapNotNull { (id, curse) ->
+                    val remaining = curse.remainingRounds
+                    when {
+                        remaining == null -> id to curse
+                        remaining > 1 -> id to curse.copy(remainingRounds = remaining - 1)
+                        else -> null
+                    }
+                }.toMap())
+            }
+        )
         is SkillMastered -> {
             val current = entity(e.entityId)
             copy(entities = entities + (e.entityId to current.copy(masteredSkills = current.masteredSkills + e.skillId)))

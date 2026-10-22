@@ -35,6 +35,28 @@ data class MasterSkill(val entityId: String, val skillId: String) : Command
 data class LearnSpell(val entityId: String, val spellId: String) : Command
 /** MU-06.3: aprende uma habilidade gastando [cost] pontos de habilidade. */
 data class LearnAbility(val entityId: String, val abilityId: String, val cost: Int) : Command
+/** Distribui uma única vez 12 pontos iniciais entre aumentos de atributo e pontos de habilidade. */
+data class AllocateInitialBuild(
+    val entityId: String,
+    val statIncreases: Map<String, Int>,
+    val skillPoints: Int
+) : Command
+/** Evolui uma habilidade da árvore; o catálogo valida origem, afinidade e pré-requisitos antes da chamada. */
+data class ProgressSkillTree(
+    val entityId: String,
+    val skillId: String,
+    val pointCost: Int,
+    val freeBase: Boolean = false
+) : Command
+/** Aplica efeitos de uma habilidade desbloqueada a outro alvo, validando ambos no motor. */
+data class ApplyTargetSkillEffects(
+    val actorId: String,
+    val targetId: String,
+    val skillId: String,
+    val effects: List<ActiveEffect>
+) : Command
+/** Reseta investimentos da árvore sem criar pontos extras. */
+data class ResetSkillTreeProgress(val entityId: String) : Command
 /** MU-06.3: ativa uma habilidade aprendida; [effects] já trazem a duração (fixa ou sorteada). */
 data class ActivateAbility(
     val entityId: String,
@@ -45,6 +67,31 @@ data class ActivateAbility(
 ) : Command
 /** MU-06.3: fim de rodada; desconta 1 de cada efeito temporário e remove os expirados. */
 object EndEffectsRound : Command
+/** Define as árvores escolhidas na ficha para que as regras sejam canônicas na campanha. */
+data class SetSkillTreeLoadout(
+    val entityId: String,
+    val treeIds: Set<String>,
+    val classOrder: List<String>,
+    val elementalAffinity: String
+) : Command
+/** Resgata um pergaminho de uma missão concluída; a camada de aplicação valida o estado da missão. */
+data class ClaimQuestScroll(
+    val entityId: String,
+    val questId: String,
+    val skillId: String,
+    val scrollId: String
+) : Command
+/** Aplica uma maldição validada pelo catálogo; resistência deve ser resolvida antes quando exigida. */
+data class ApplyCurse(
+    val targetId: String,
+    val curseId: String,
+    val sourceId: String,
+    val durationRounds: Int? = null,
+    val requiresResistance: Boolean = false,
+    val resistanceSucceeded: Boolean? = null
+) : Command
+/** Remove uma maldição aplicada, por efeito, ritual, item ou condição narrativa válida. */
+data class RemoveCurse(val targetId: String, val curseId: String, val reason: String) : Command
 /** Ressurreição exige justificativa explícita. */
 /** M-04: registra uma falha de sobrevivência do caído; ao atingir [limit] falhas, a entidade morre. */
 data class FailSurvival(val entityId: String, val limit: Int) : Command
@@ -409,10 +456,76 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             return Decision.Ok(listOf(AbilityLearned(ent.id, cmd.abilityId, cmd.cost)))
         }
 
+        is AllocateInitialBuild -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (ent.initialBuildAllocated) return no("os 12 pontos iniciais já foram distribuídos")
+            if (cmd.skillPoints < 0 || cmd.statIncreases.values.any { it < 0 }) return no("a distribuição não pode conter valores negativos")
+            if (cmd.statIncreases.keys.any { it !in ent.stats }) return no("atributo inexistente na ficha")
+            val statTotal = cmd.statIncreases.values.sumOf { it.toLong() }
+            if (statTotal + cmd.skillPoints.toLong() != 12L) return no("distribua exatamente 12 pontos entre atributos e habilidades")
+            for ((key, increase) in cmd.statIncreases) {
+                val current = ent.stats[key] ?: return no("atributo inexistente na ficha: $key")
+                val cap = config.statCaps[key] ?: return no("o pacote não define limite para o atributo: $key")
+                if (current.toLong() + increase.toLong() > cap.toLong()) return no("o atributo $key ultrapassaria o limite $cap")
+            }
+            if (ent.abilityPoints.toLong() + cmd.skillPoints.toLong() > Int.MAX_VALUE) return no("pontos de habilidade excedem o limite suportado")
+            return Decision.Ok(listOf(InitialBuildAllocated(ent.id, cmd.statIncreases.filterValues { it > 0 }, cmd.skillPoints)))
+        }
+
+        is ProgressSkillTree -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.skillId.isBlank()) return no("habilidade sem id")
+            if (cmd.pointCost < 0) return no("custo de pontos negativo")
+            val currentLevel = ent.skillTreeLevels[cmd.skillId] ?: 0
+            if (cmd.freeBase) {
+                if (currentLevel != 0) return no("habilidade básica já foi concedida: ${cmd.skillId}")
+                if (cmd.pointCost != 0) return no("habilidade básica deve ser gratuita")
+            } else {
+                if (cmd.pointCost <= 0) return no("desbloqueio/evolução deve custar ao menos 1 ponto")
+                if (cmd.pointCost > ent.abilityPoints) return no("pontos de habilidade insuficientes: ${ent.abilityPoints}/${cmd.pointCost}")
+                if (currentLevel == 0 && cmd.pointCost != 1) return no("desbloquear uma habilidade custa 1 ponto")
+                if (currentLevel > 0 && cmd.pointCost != SkillTreeProgression.upgradeCost(currentLevel)) {
+                    return no("custo de evolução inválido")
+                }
+            }
+            val next = try { SkillTreeProgression.nextLevel(currentLevel) }
+                catch (e: IllegalArgumentException) { return no(e.message ?: "nível de habilidade inválido") }
+            return Decision.Ok(listOf(SkillTreeProgressed(ent.id, cmd.skillId, next, cmd.pointCost, cmd.freeBase)))
+        }
+
+        is ApplyTargetSkillEffects -> {
+            val actor = entity(cmd.actorId) ?: return no("usuário inexistente: ${cmd.actorId}")
+            val target = entity(cmd.targetId) ?: return no("alvo inexistente: ${cmd.targetId}")
+            if (!actor.alive || actor.downed) return no("usuário da habilidade está fora de combate")
+            if (!target.alive || target.downed) return no("alvo está fora de combate")
+            if (actor.id == target.id) return no("efeito de alvo não pode apontar para o próprio usuário")
+            if ((actor.skillTreeLevels[cmd.skillId] ?: 0) <= 0 && cmd.skillId !in actor.abilities) return no("habilidade não aprendida: ${cmd.skillId}")
+            val combat = state.combat ?: return no("efeitos ativos de habilidade exigem combate")
+            if (combat.current != actor.id) return no("não é o turno de quem usa a habilidade")
+            if (actor.id !in combat.order || target.id !in combat.order) return no("usuário e alvo precisam participar do combate")
+            if (cmd.effects.isEmpty()) return no("habilidade sem efeitos para o alvo")
+            if (cmd.effects.any { it.remainingRounds <= 0 || it.target.isBlank() || it.value == 0 || !it.sourceId.startsWith("habilidade:") }) {
+                return no("efeito de alvo inválido")
+            }
+            return Decision.Ok(listOf(TargetSkillEffectsApplied(actor.id, target.id, cmd.skillId, cmd.effects)))
+        }
+
+        is ResetSkillTreeProgress -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            val invested = ent.skillTreeInvestments.values.sumOf { it.toLong() }
+            if (invested <= 0L) return no("não há pontos investidos na árvore para devolver")
+            if (invested > Int.MAX_VALUE.toLong()) return no("investimento excede o limite numérico suportado")
+            if (ent.abilityPoints.toLong() + invested > Int.MAX_VALUE.toLong()) return no("reset excederia o limite de pontos suportado")
+            return Decision.Ok(listOf(SkillTreeProgressReset(ent.id, invested.toInt())))
+        }
+
         is ActivateAbility -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
             if (!ent.alive) return no("${ent.name} está morto")
-            if (cmd.abilityId !in ent.abilities) return no("habilidade não aprendida: ${cmd.abilityId}")
+            if (cmd.abilityId !in ent.abilities && (ent.skillTreeLevels[cmd.abilityId] ?: 0) <= 0) return no("habilidade não aprendida: ${cmd.abilityId}")
             if (cmd.declaredTrigger != cmd.trigger) return no("gatilho incorreto para ${cmd.abilityId}: exige ${cmd.declaredTrigger}")
             if (cmd.effects.isEmpty()) return no("habilidade sem bônus")
             if (cmd.effects.any { it.remainingRounds <= 0 || it.target.isBlank() || it.value == 0 }) return no("efeito de habilidade inválido")
@@ -432,6 +545,45 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val events = mutableListOf<Event>(SurvivalFailed(ent.id, failures))
             if (failures >= cmd.limit) events += EntityDied(ent.id)
             return Decision.Ok(events)
+        }
+
+        is SetSkillTreeLoadout -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (cmd.treeIds.any { it.isBlank() } || cmd.classOrder.any { it.isBlank() }) return no("loadout de habilidades inválido")
+            if (cmd.classOrder.size > 4) return no("personagem híbrido pode combinar no máximo quatro classes")
+            if (cmd.classOrder.distinct().size != cmd.classOrder.size) return no("ordem de classes repetida")
+            if (cmd.classOrder.any { it !in cmd.treeIds }) return no("a ordem de classes não corresponde às árvores escolhidas")
+            if (cmd.elementalAffinity.isNotBlank() && cmd.elementalAffinity !in setOf("WATER", "FIRE", "WIND", "EARTH", "METAL", "YIN", "YANG")) return no("afinidade elemental inválida")
+            return Decision.Ok(listOf(SkillTreeLoadoutSet(ent.id, cmd.treeIds, cmd.classOrder, cmd.elementalAffinity)))
+        }
+
+        is ClaimQuestScroll -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("personagem está morto")
+            if (state.combat != null) return no("não é possível resgatar pergaminhos durante o combate")
+            if (cmd.questId.isBlank() || cmd.skillId.isBlank() || cmd.scrollId.isBlank()) return no("recompensa de missão inválida")
+            val claim = "${cmd.questId}:${cmd.skillId}"
+            if (claim in ent.claimedQuestRewards) return no("esta missão já foi usada para resgatar esse pergaminho")
+            if ((state.inventory[ent.id]?.get(cmd.scrollId) ?: 0) > 0) return no("o pergaminho já está no inventário")
+            return Decision.Ok(listOf(QuestScrollClaimed(ent.id, cmd.questId, cmd.skillId, cmd.scrollId)))
+        }
+
+        is ApplyCurse -> {
+            val target = entity(cmd.targetId) ?: return no("alvo inexistente: ${cmd.targetId}")
+            if (!target.alive) return no("não é possível amaldiçoar uma entidade morta")
+            if (cmd.curseId.isBlank() || cmd.sourceId.isBlank()) return no("maldição exige id e origem")
+            if (cmd.durationRounds != null && cmd.durationRounds <= 0) return no("duração da maldição inválida")
+            if (cmd.curseId in target.appliedCurses) return no("esta maldição já está aplicada")
+            if (cmd.requiresResistance && cmd.resistanceSucceeded == null) return no("a resistência precisa ser resolvida antes de aplicar a maldição")
+            if (cmd.requiresResistance && cmd.resistanceSucceeded == true) return no("o alvo resistiu à maldição")
+            return Decision.Ok(listOf(CurseApplied(target.id, cmd.curseId, cmd.sourceId, cmd.durationRounds)))
+        }
+
+        is RemoveCurse -> {
+            val target = entity(cmd.targetId) ?: return no("alvo inexistente: ${cmd.targetId}")
+            if (cmd.curseId !in target.appliedCurses) return no("essa maldição não está aplicada")
+            if (cmd.reason.isBlank()) return no("remover uma maldição exige motivo explícito")
+            return Decision.Ok(listOf(CurseRemoved(target.id, cmd.curseId, cmd.reason)))
         }
 
         is Revive -> {
@@ -557,6 +709,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                     val wrapped = c.turnIndex + step >= n
                     val events = mutableListOf<Event>(TurnAdvanced(idx, if (wrapped) c.round + 1 else c.round))
                     if (wrapped) {
+                        events += EffectsRoundEnded
                         var tickState = state
                         for ((entityId, conditions) in state.conditionStates) {
                             for ((condition, effect) in conditions) {

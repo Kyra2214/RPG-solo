@@ -92,3 +92,95 @@ O item custa 25.000 prata. O escopo precisa estar explícito (habilidade, árvor
 - Catálogo de maldições separado e realmente criado.
 - Jogador e IA sujeitos às mesmas regras.
 - Testes e build executados apenas na fase 17; resultados comunicados sem alegar sucesso não verificado.
+
+## Atualização de auditoria documental — 2026-10-22
+
+Este bloco complementa o status anterior. Ele **não** declara as 17 fases concluídas; os itens abaixo são alterações feitas na branch e ainda precisam de validação automatizada integrada.
+
+### Alterações recentes registradas
+- O catálogo de habilidades de classe foi revisado para distinguir as seis primeiras habilidades de 50 árvores de classe (300 registros), com categorias/efeitos tipados e restrição de afinidade declarada para as árvores mágicas identificadas. A sétima habilidade continua sendo a culminância e deve ser auditada separadamente para confirmar que o efeito realmente é excepcional.
+- As 103 culminâncias de profissão receberam nomes distintos e efeitos voltados ao ofício; profissões não combatentes usam principalmente passivas de perícia/ofício em vez de serem forçadas a ter ataques. As seis primeiras posições de 103 árvores de profissão também foram ajustadas por perfil de ofício. Isso é conteúdo de catálogo, não prova de equilíbrio ou de integração funcional.
+- O catálogo separado `rules/src/main/resources/catalogs/sistema-proprio/maldicoes-lancadas.txt` foi expandido de 20 para 100 maldições, com origem, teste/dificuldade de resistência, duração, métodos de remoção e pelo menos um efeito positivo e um negativo tipados por registro. A validação de formato está coberta por teste escrito, ainda sem resultado executado confirmado.
+- A consequência mecânica de classes híbridas foi documentada no código como penalidade social crescente por mistura, de 0 para uma classe até -3 para quatro classes. Isso não substitui a validação de desbloqueio por nível, aparência na interface e persistência da combinação.
+- Foram acrescentados testes de catálogo para nomes distintos, categorias de profissão, habilidades de classe/afinidade, progressão de bônus e quantidade de maldições. **Testes escritos não equivalem a testes aprovados.**
+
+### Pendências obrigatórias antes de declarar conclusão
+1. Executar os testes de `engine`, `rules`, `ai` e `app`, compilar o APK e resolver todos os erros encontrados.
+2. Auditar cada efeito do catálogo contra os escopos aceitos pelo motor e contra os cálculos reais de ataque/dano/defesa; confirmar que bônus positivos e penalidades negativas não se anulam ou acumulam incorretamente por compartilharem grupos.
+3. Confirmar que as 100 maldições podem ser aplicadas, resistidas, expiradas e removidas no fluxo real da campanha — não apenas carregadas pelo parser — e que a persistência sobrevive a salvar/reabrir.
+4. Confirmar que o efeito de híbridos usa a quantidade de classes realmente desbloqueadas, não apenas a quantidade de árvores selecionadas, e que a penalidade social alcança todos os testes pertinentes sem contaminar outros escopos.
+5. Verificar a sétima habilidade de cada árvore, em especial ressurreição, multiataque e habilidades de ofício, com custos, alvos, duração e consequências executados pelo motor.
+6. Atualizar este status com o resultado real da CI e listar separadamente qualquer teste não executado. Não marcar fase 17 nem a implementação geral como concluídas antes disso.
+
+## Status da implementação code-first — antes da fase 17
+
+**Branch de trabalho:** `feature/arvores-habilidades`  
+**Validação automatizada:** ainda não executada; reservada para a fase 17, conforme pedido.
+
+Implementações adicionadas nesta branch:
+
+- Modelo persistente de níveis de habilidades, investimentos, habilidades gratuitas de origem, distribuição única dos 12 pontos iniciais e recompensas de pergaminhos por missão.
+- Distribuição inicial livre entre atributos e pontos de habilidade, com validação de exatamente 12 pontos e respeito aos limites de atributos definidos pelo pacote.
+- Árvores carregadas por catálogo tipado: habilidades raciais/sub-raciais gratuitas, árvores de classe e profissão, e vertentes da Classe de Malditos.
+- Progressão sem teto global fixo, desbloqueio por ponto, custos de evolução validados pelo motor, preços de pergaminhos em prata e reset por 25.000 prata.
+- Despertar de classes híbridas por ordem: classe principal no nível 1, segunda no nível 10, terceira no nível 20 e quarta no nível 30. A interface e o contexto da IA recebem a consequência visual/social da mistura.
+- Afinidade elemental validada; Luz tratada como expressão de Yang quando declarada. Habilidades ligadas à afinidade mostram o elemento escolhido e respeitam os requisitos.
+- Efeitos de habilidades aplicados como modificadores tipados. Passivas equivalentes do catálogo e das árvores são comparadas por escopo e sinal, mantendo o maior bônus ou a maior penalidade em vez de somar duplicatas.
+- Golpes especiais usam o resolvedor de ataque existente. A habilidade final do Espadachim executa até cinco ataques no mesmo turno; a final do Arqueiro adiciona dano ao golpe; a Ressurreição Suprema de Yang do Sacerdote custa 10 PM e consome o turno durante combate.
+- Separação explícita entre Classe de Malditos e maldições lançadas. Os 100 registros editoriais antigos foram preservados em `cursedClassConcepts`, não são mais apresentados como maldições lançadas na criação de personagem.
+- Catálogo separado com 20 maldições lançadas, efeitos positivos e negativos tipados, testes reais de resistência pelo teste `resistir` do pacote, duração, expiração no fim da rodada e remoção por métodos declarados.
+- Interface em campanha para consultar/aplicar/remover maldições, escolher alvos de habilidades e resgatar pergaminhos de missões concluídas.
+- Bônus de habilidades e maldições conectados ao cálculo de combate e ao pipeline de testes, sem trocar a fórmula-base de ataque já existente.
+
+### Limitações conhecidas antes da fase 17
+
+- A maioria das árvores foi gerada a partir de um modelo progressivo compartilhado. Os valores e a identidade de cada habilidade ainda precisam de balanceamento de conteúdo; a IA não pode improvisar parâmetros ausentes.
+- O sistema de efeitos especiais está tipado para os escopos já suportados. Novos efeitos narrativos complexos só podem ser considerados funcionais depois de terem implementação e validação próprias.
+- A interface de remoção de maldições apresenta os métodos cadastrados e pressupõe que o jogador/GM confirme narrativamente que o método foi cumprido; a elegibilidade de missões ou itens específicos ainda pode receber validação mais estrita.
+- Nenhum resultado de compilação ou suíte de testes deve ser inferido a partir deste documento. A fase 17 é necessária para confirmar compatibilidade, corrigir erros e verificar migração/persistência.
+
+
+
+## Auditoria incremental — 2026-10-22
+
+- CI anterior confirmado verde no commit `7c2aecb3145e768ffee372ba94d61045a64ac385`: testes JVM/Android e build do APK debug passaram; E2E foi ignorado.
+- Corrigido um defeito na penalidade social de híbridos: ela agora conta apenas classes cujo desbloqueio por nível já ocorreu (níveis 1, 10, 20 e 30), em vez de penalizar imediatamente por todas as classes listadas na ficha.
+- O comando canônico `SetSkillTreeLoadout` agora rejeita mais de quatro classes, impedindo que um loadout inválido cause falha posterior durante o cálculo de bônus.
+- Foram adicionados testes para a contagem por nível e para o limite de quatro classes. A CI dos commits que contêm essas correções ainda precisa concluir; o resultado verde anterior não valida automaticamente estes novos commits.
+- O catálogo atual de maldições aplicadas contém 100 registros (não 20). O carregamento, teste de resistência, aplicação, remoção e expiração têm caminhos de código e UI; ainda falta uma auditoria específica de escopos mecânicos e de persistência salvar/reabrir para confirmar todos os casos de ponta a ponta.
+- O plano continua aberto: não declarar as 17 fases concluídas até validar os efeitos de cada habilidade final, os grupos de acúmulo e a execução real das regras para jogador e IA.
+
+
+### Testes de ciclo de vida acrescentados
+
+- O teste de motor agora verifica que a maldição é recusada quando a resistência ainda não foi resolvida ou quando o alvo resiste; uma falha aplica a maldição.
+- O teste percorre duas viradas completas de combate para confirmar decremento e expiração, e compara o estado final com o replay do log.
+- Outro teste cobre remoção com motivo explícito e replay. A CI destes novos testes ainda está pendente no commit mais recente.
+
+
+### Conteúdo da Classe de Malditos — culminâncias
+
+- As 42 habilidades de rank 7 das vertentes da Classe de Malditos deixaram de usar nomes de placeholder como “Técnica Suprema de maldito-vampiro-1”. Cada uma recebeu um nome temático específico da família e da vertente.
+- Foi acrescentado teste de catálogo para impedir que esses nomes genéricos voltem a entrar. Isso melhora a identidade do conteúdo, mas ainda não substitui a revisão de mecânicas e balanceamento de cada vertente.
+
+
+### Mecânicas das culminâncias da Classe de Malditos
+
+- Além dos nomes, as 42 culminâncias receberam mecânicas diferenciadas por família/vertente: sequências de golpes para lobisomens, espectros, parasitas e mutações; efeitos de controle direcionados para possessão e praga; golpes culminantes de maior potência para outras famílias.
+- As vertentes de mago negro, lunar e corrupção elemental declaram vínculo com a afinidade elemental, para que o golpe use a afinidade escolhida pelo personagem.
+- Testes novos verificam multiataque, efeitos negativos aplicados ao alvo e vínculo elemental. O balanceamento numérico continua pendente de teste de jogo.
+
+
+### Segurança de efeitos direcionados
+
+- O motor agora rejeita efeitos ativos direcionados fora de combate, fora da iniciativa ou quando não é o turno de quem usa a habilidade. Isso fecha a diferença entre as validações da interface e o comando canônico que pode ser invocado pela IA.
+- Teste unitário cobre a rejeição fora de combate, a aplicação no turno correto, a rejeição fora do turno e o replay do estado.
+- A suíte deve validar esse commit antes de considerar a correção aprovada.
+
+
+### Auditoria de ações ofensivas — 2026-10-22
+
+- Corrigidas 42 habilidades ofensivas iniciais da Classe de Malditos que estavam tipadas como `MODIFIER`: agora são `POWER_STRIKE` e seus efeitos fornecem bônus de dano ao ataque real, em vez de apenas aplicar um bônus temporário de ataque.
+- Corrigido o rank 7 do arqueiro: `Disparo Apocalíptico` é uma técnica física e não deve exigir afinidade elemental para ser desbloqueada/usada.
+- Acrescentado teste de catálogo para impedir que as habilidades ofensivas iniciais da Classe de Malditos voltem a ser apenas modificadores.
+- CI verde no commit `5205b037ebd45ed71d633f40c0ce08ba3c7ecc2d` (workflow #243): testes JVM/Android e build do APK debug passaram; E2E foi ignorado. A asserção do arqueiro e os testes de golpes iniciais amaldiçoados passaram nessa versão. Qualquer mudança posterior exige nova validação.

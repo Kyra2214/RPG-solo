@@ -33,7 +33,10 @@ data class CharacterChoices(
     val classId: String = "",
     val professionId: String = "",
     val curseIds: List<String> = emptyList(),
-    val hybridId: String = ""
+    val hybridId: String = "",
+    val elementalAffinity: String = "",
+    val cursedClassBranchId: String = "",
+    val additionalClassIds: List<String> = emptyList()
 ) {
     fun toJson(): String = JSONObject()
         .put("raceId", raceId)
@@ -41,6 +44,9 @@ data class CharacterChoices(
         .put("classId", classId)
         .put("professionId", professionId)
         .put("hybridId", hybridId)
+        .put("elementalAffinity", elementalAffinity)
+        .put("cursedClassBranchId", cursedClassBranchId)
+        .put("additionalClassIds", org.json.JSONArray(additionalClassIds))
         .put("curseIds", org.json.JSONArray(curseIds))
         .toString()
 
@@ -56,7 +62,10 @@ data class CharacterChoices(
                     classId = obj.optString("classId"),
                     professionId = obj.optString("professionId"),
                     hybridId = obj.optString("hybridId"),
-                    curseIds = (0 until (curses?.length() ?: 0)).map { curses!!.optString(it) }.filter { it.isNotBlank() }
+                    elementalAffinity = obj.optString("elementalAffinity"),
+                    cursedClassBranchId = obj.optString("cursedClassBranchId"),
+                    additionalClassIds = (0 until (obj.optJSONArray("additionalClassIds")?.length() ?: 0)).mapNotNull { obj.optJSONArray("additionalClassIds")?.optString(it)?.takeIf(String::isNotBlank) },
+                    curseIds = emptyList() // migração: conceitos antigos da Classe de Malditos não são maldições lançadas
                 )
             }.getOrDefault(CharacterChoices())
         }
@@ -143,9 +152,24 @@ object CharacterCreationCatalog {
     val classes: List<CharacterCatalogEntry> get() = entries("classes")
     val professions: List<CharacterCatalogEntry> get() = entries("professions")
     val curses: List<CharacterCatalogEntry> get() = entries("curses")
+    val cursedClassConcepts: List<CharacterCatalogEntry> get() = entries("cursedClassConcepts")
+    val cursedClassBranches: List<CharacterCatalogEntry> by lazy {
+        val raw = CharacterCreationCatalog::class.java.classLoader
+            ?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")
+            ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+        val loaded = dev.rpgsolo.rules.SkillTreeCatalogLoader.load(raw)
+        if (!loaded.valid) emptyList() else loaded.skills
+            .filter { it.origin == dev.rpgsolo.engine.SkillOrigin.CURSED_CLASS }
+            .groupBy { it.treeId }
+            .map { (id, skills) ->
+                val first = skills.firstOrNull { it.scrollRank == 1 }?.name.orEmpty().substringBefore(" — ")
+                CharacterCatalogEntry(id, first.ifBlank { id }, "Vertente da Classe de Malditos: ${first.ifBlank { id }}")
+            }
+            .sortedBy { it.name }
+    }
 
     fun find(id: String): CharacterCatalogEntry? =
-        (races + subraces + hybrids + classes + professions + curses).firstOrNull { it.id == id }
+        (races + subraces + hybrids + classes + professions + curses + cursedClassBranches).firstOrNull { it.id == id }
 
     /**
      * Retorna somente efeitos explicitamente declarados nas escolhas atuais.
@@ -157,9 +181,10 @@ object CharacterCreationCatalog {
             choices.raceId,
             choices.subraceId,
             choices.hybridId,
+            choices.cursedClassBranchId,
             choices.classId,
             choices.professionId
-        ) + choices.curseIds
+        ) + choices.additionalClassIds
         return selectedIds
             .filter { it.isNotBlank() }
             .distinct()
@@ -185,6 +210,13 @@ object CharacterCreationCatalog {
         if (choices.hybridId.isNotBlank() && (choices.raceId.isNotBlank() || choices.subraceId.isNotBlank())) errors += "Escolha raça/sub-raça ou híbrido, não ambos"
         if (choices.classId.isNotBlank() && classes.none { it.id == choices.classId }) errors += "Classe selecionada não existe no catálogo"
         if (choices.professionId.isNotBlank() && professions.none { it.id == choices.professionId }) errors += "Profissão selecionada não existe no catálogo"
+        if (choices.elementalAffinity.isNotBlank() && choices.elementalAffinity !in setOf("WATER", "FIRE", "WIND", "EARTH", "METAL", "YIN", "YANG")) errors += "Afinidade elemental inválida"
+        if (choices.cursedClassBranchId.isNotBlank() && cursedClassBranches.none { it.id == choices.cursedClassBranchId }) errors += "Vertente da Classe de Malditos inválida"
+        if (choices.additionalClassIds.size > 3) errors += "Um híbrido pode combinar no máximo quatro classes no total"
+        if (choices.additionalClassIds.distinct().size != choices.additionalClassIds.size) errors += "Classes adicionais repetidas"
+        if (choices.additionalClassIds.any { classes.none { entry -> entry.id == it } }) errors += "Uma classe adicional não existe no catálogo"
+        if (choices.classId.isBlank() && choices.additionalClassIds.isNotEmpty()) errors += "Escolha uma classe principal antes de adicionar classes híbridas"
+        if (choices.classId in choices.additionalClassIds) errors += "A classe principal não pode ser repetida nas classes adicionais"
         choices.curseIds.distinct().filter { id -> curses.none { it.id == id } }.forEach { errors += "Maldição selecionada não existe no catálogo: $it" }
         if (choices.curseIds.size != choices.curseIds.distinct().size) errors += "Há maldições duplicadas na seleção"
         return errors.distinct()
@@ -215,7 +247,7 @@ object CharacterCreationCatalog {
      * Isto só valida compatibilidade; não aplica os efeitos ao motor.
      */
     fun validateEffectScopes(pkg: RulePackage, choices: CharacterChoices): List<String> {
-        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.classId, choices.professionId) + choices.curseIds
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds
         // O resolvedor de testes só consome escopos de atributo, teste, perícia e combate.
         // Um ID de vantagem/poder não é, por si só, um escopo executável.
         val validScopes = pkg.data.stats.map { it.id }.toSet() +
