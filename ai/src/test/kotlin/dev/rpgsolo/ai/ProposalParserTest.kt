@@ -48,4 +48,19 @@ class ProposalParserTest {
         assertEquals(1, e.size)
         assertTrue("proposals[1]" in e.single())
     }
+
+    @Test fun iaNaoPodeEnviarComandosInternosDeArvoreOuMaldicao() {
+        val forbiddenTypes = listOf(
+            "progress_skill_tree",
+            "set_skill_tree_loadout",
+            "apply_target_skill_effects",
+            "activate_ability",
+            "apply_curse",
+            "remove_curse"
+        )
+        forbiddenTypes.forEach { type ->
+            val raw = """{"narrative":"x","proposals":[{"type":"$type","skillId":"inventada","curseId":"inventada"}]}"""
+            assertTrue("$type deve ser rejeitado pelo parser da IA", errors(raw).isNotEmpty())
+        }
+    }
 }

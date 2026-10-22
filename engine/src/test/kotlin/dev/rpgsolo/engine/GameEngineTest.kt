@@ -223,4 +223,24 @@ class GameEngineTest {
         e.execute(Damage("hero", "hp", 1))
         assertEquals("pagar 10 moedas", e.state.facts["npc.ana.promessa"])
     }
+
+    @Test fun resetDevolveSomentePontosInvestidosEPreservaHabilidadeBasicaGratuita() {
+        val e = GameEngine(seed = 1)
+        assertTrue(e.execute(CreateEntity(hero().copy(abilityPoints = 5))) is ExecResult.Accepted)
+        assertTrue(e.execute(ProgressSkillTree("hero", "race-basic", pointCost = 0, freeBase = true)) is ExecResult.Accepted)
+        assertTrue(e.execute(ProgressSkillTree("hero", "race-basic", pointCost = 1)) is ExecResult.Accepted)
+        assertTrue(e.execute(ProgressSkillTree("hero", "class-skill", pointCost = 1)) is ExecResult.Accepted)
+
+        val beforeReset = e.state.entities.getValue("hero")
+        assertEquals(3, beforeReset.abilityPoints)
+        assertEquals(2, beforeReset.skillTreeInvestments.values.sum())
+
+        assertTrue(e.execute(ResetSkillTreeProgress("hero")) is ExecResult.Accepted)
+        val afterReset = e.state.entities.getValue("hero")
+        assertEquals(5, afterReset.abilityPoints)
+        assertEquals(mapOf("race-basic" to 1), afterReset.skillTreeLevels)
+        assertEquals(emptyMap<String, Int>(), afterReset.skillTreeInvestments)
+        assertEquals(setOf("race-basic"), afterReset.freeSkillIds)
+        assertTrue(validateState(e.state).isEmpty())
+    }
 }

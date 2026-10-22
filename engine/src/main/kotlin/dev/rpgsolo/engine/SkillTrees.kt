@@ -98,8 +98,10 @@ data class SkillTreeValidation(val allowed: Boolean, val reasons: List<String>)
  */
 object HybridClassRules {
     val socialPenaltyScopes: Set<String> = setOf(
-        "persuasao", "diplomacia", "negociacao", "lideranca",
-        "atuacao", "enganacao", "etiqueta", "carisma", "convencimento"
+        // IDs das perícias do pacote próprio e escopos sociais usados pelas árvores.
+        "persuasao", "diplomacia", "negociacao", "lideranca", "intimidacao",
+        "atuacao", "enganacao", "etiqueta", "carisma", "convencimento",
+        "argumentacao", "mediacao", "comerciante"
     )
 
     fun unlockedClassCount(classOrder: List<String>, characterLevel: Int): Int {

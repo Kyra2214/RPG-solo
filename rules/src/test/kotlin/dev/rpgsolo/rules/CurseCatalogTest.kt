@@ -1,6 +1,7 @@
 package dev.rpgsolo.rules
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -16,6 +17,44 @@ class CurseCatalogTest {
         assertTrue("catálogo deve conter maldições reais, não apenas conceitos", result.curses.size >= 100)
         assertEquals(100, result.curses.size)
         assertEquals(result.curses.size, result.curses.map { it.id }.distinct().size)
+    }
+
+    @Test fun duracaoDosEfeitosEstaAlinhadaComADuracaoDaMaldicao() {
+        val result = CurseCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        result.curses.forEach { curse ->
+            curse.effects.forEach { effect ->
+                assertEquals(
+                    "efeito ${effect.id} da maldição ${curse.id} deve acompanhar a duração da maldição",
+                    curse.durationRounds,
+                    effect.durationRounds
+                )
+            }
+            if (curse.durationRounds != null) {
+                assertTrue("${curse.id} temporária precisa declarar resistência", curse.resistanceCheckId != null)
+            }
+        }
+    }
+
+    @Test fun efeitosDeMaldicaoNaoMisturamSinaisNoMesmoGrupoDeAcumulo() {
+        val result = CurseCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        result.curses.forEach { curse ->
+            curse.effects.groupBy { it.target to it.stackingGroup }.forEach { (key, effects) ->
+                assertFalse(
+                    "maldição ${curse.id} mistura bônus e penalidade no mesmo alvo/grupo: $key",
+                    effects.any { it.baseValue > 0 } && effects.any { it.baseValue < 0 }
+                )
+            }
+        }
+    }
+
+    @Test fun parserRejeitaEfeitoComDuracaoDiferenteDaMaldicao() {
+        val invalid = """
+            test-curse|Maldição de teste|Descrição|ritual|resistir|10|3|purificação|fx-bonus,ataque,1,0,bonus,2,-;fx-penalty,defesa,-1,0,penalty,2,-
+        """.trimIndent()
+        val result = CurseCatalogLoader.load(invalid)
+        assertTrue("o parser deve rejeitar duração divergente", result.errors.any { it.contains("duração dos efeitos") })
     }
 
     @Test fun cadaMaldicaoDeclaraBeneficioEContrapartida() {

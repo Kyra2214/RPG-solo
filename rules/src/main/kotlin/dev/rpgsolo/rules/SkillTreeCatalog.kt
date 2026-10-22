@@ -84,6 +84,19 @@ object SkillTreeCatalogLoader {
                         recipient
                     )
                 }.orEmpty()
+                if (recipient == SkillEffectRecipient.TARGET) {
+                    val combatTargets = setOf("ataque", "dano", "defesa", "resistencia_dano", "velocidade", "precisao", "percepcao")
+                    require(effects.isNotEmpty()) { "habilidade direcionada precisa de efeito tipado" }
+                    require(effects.all { it.target in combatTargets }) { "habilidade direcionada usa escopo de combate não suportado" }
+                    require(effects.all { it.durationRounds != null }) { "efeito direcionado precisa declarar duração" }
+                }
+                if (actionKind == SkillActionKind.REVIVE) {
+                    require(actionCost > 0 && actionResource != null) { "ressurreição precisa declarar custo positivo e recurso" }
+                }
+                if (actionKind == SkillActionKind.POWER_STRIKE || actionKind == SkillActionKind.MULTI_HIT) {
+                    require(actionCost == 0) { "ataques especiais devem usar o custo suportado pelo resolvedor atual" }
+                    if (actionKind == SkillActionKind.MULTI_HIT) require(hitCount >= 2) { "multiataque precisa de ao menos dois golpes" }
+                }
                 skills += SkillTreeSkill(
                     id = skillId,
                     name = fields[2].also { require(it.isNotBlank()) { "nome vazio" } },

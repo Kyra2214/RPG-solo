@@ -5,6 +5,17 @@ import dev.rpgsolo.engine.Ficha
 import dev.rpgsolo.rules.RulePackage
 
 /**
+ * Preserva camadas distintas. As passivas já chegam deduplicadas pelo grupo tipado da habilidade,
+ * e o catálogo aplica sua própria regra de equivalência. Não colapsar tudo por escopo/sinal:
+ * isso apagaria efeitos compatíveis de origens diferentes só porque afetam o mesmo teste.
+ */
+internal fun mergePassiveAndCatalogBonuses(
+    passive: Collection<dev.rpgsolo.rules.ExternalBonus>,
+    catalog: Collection<dev.rpgsolo.rules.ExternalBonus>
+): List<dev.rpgsolo.rules.ExternalBonus> =
+    dev.rpgsolo.rules.distinctExternalBonuses(passive + catalog)
+
+/**
  * Bônus e ajustes que o combate e os testes somam (R-03): regras adicionais aprovadas, condições, traços e efeitos do catálogo.
  * Extraído do `AppModel` sem mudar cálculo nem texto. [catalogBonuses] devolve os efeitos do catálogo da ficha ativa.
  */
@@ -131,11 +142,7 @@ class CombatBonuses(
                     "hybrid-appearance:$entityId:$scope"
                 )
             }
-        val passiveAndCatalog = (passive + catalog)
-            .groupBy { it.scope to (it.bonus > 0) }
-            .mapNotNull { (_, group) ->
-                group.maxWithOrNull(compareBy<dev.rpgsolo.rules.ExternalBonus>({ kotlin.math.abs(it.bonus) }, { it.bonus }))
-            }
+        val passiveAndCatalog = mergePassiveAndCatalogBonuses(passive, catalog)
         return dev.rpgsolo.rules.distinctExternalBonuses(passiveAndCatalog + active + curseEffects + hybridAppearance)
     }
 

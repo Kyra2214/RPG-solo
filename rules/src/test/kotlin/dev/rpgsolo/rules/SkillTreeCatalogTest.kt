@@ -19,6 +19,13 @@ class SkillTreeCatalogTest {
         assertEquals(result.skills.size, result.skills.map { it.id }.distinct().size)
     }
 
+    @Test fun parserRejeitaEfeitoDirecionadoSemDuracaoOuEscopoDeCombate() {
+        val missingDuration = "bad-skill|tree|Skill|CLASS|CONTROL|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|TARGET|fx,defesa,-1,0,group,-,-"
+        val unsupportedScope = "bad-skill|tree|Skill|CLASS|CONTROL|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|TARGET|fx,escopo-inventado,-1,0,group,2,-"
+        assertFalse(SkillTreeCatalogLoader.load(missingDuration).valid)
+        assertFalse(SkillTreeCatalogLoader.load(unsupportedScope).valid)
+    }
+
     @Test fun classesProfissoesEClassesAmaldicoadasTemSeteHabilidadesCada() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
@@ -148,6 +155,117 @@ class SkillTreeCatalogTest {
             assertTrue("esperadas ao menos 50 habilidades de origem $origin", entries.size >= 50)
             assertTrue("toda habilidade racial deve ser gratuita", entries.all { it.freeBaseSkill && it.unlockPointCost == 0 })
         }
+    }
+
+    @Test fun habilidadesPassivasDeProfissaoMantemEscopoEGrupoAteACulminancia() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val passiveProfessionTrees = result.skills
+            .filter { it.origin == SkillOrigin.PROFESSION && it.scrollRank != null }
+            .groupBy { it.treeId }
+            .filterValues { skills ->
+                skills.size == 7 &&
+                    skills.mapNotNull { it.scrollRank }.sorted() == (1..7).toList() &&
+                    skills.all { it.category == dev.rpgsolo.engine.SkillCategory.PASSIVE }
+            }
+
+        assertTrue("esperadas árvores profissionais passivas", passiveProfessionTrees.isNotEmpty())
+        passiveProfessionTrees.forEach { (treeId, skills) ->
+            val baseline = skills.single { it.scrollRank == 1 }.effects
+                .map { it.target to it.stackingGroup }.sortedBy { "${it.first}|${it.second}" }
+            (2..7).forEach { rank ->
+                val current = skills.single { it.scrollRank == rank }.effects
+                    .map { it.target to it.stackingGroup }.sortedBy { "${it.first}|${it.second}" }
+                assertEquals(
+                    "árvore $treeId, rank $rank deve continuar evoluindo o mesmo efeito passivo",
+                    baseline,
+                    current
+                )
+            }
+        }
+    }
+
+    @Test fun culminanciaDoTratadorDeMontariasSuperaAMestriaProfissional() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val tree = result.tree("tratador-de-montarias")
+        val rank6 = tree.single { it.scrollRank == 6 }
+        val rank7 = tree.single { it.scrollRank == 7 }
+        val passiveMagnitude = rank6.effects.maxOf { kotlin.math.abs(it.valueAt(1)) }
+        val capstone = rank7.effects.single { it.target == "velocidade" }
+        assertEquals(dev.rpgsolo.engine.SkillCategory.BUFF, rank7.category)
+        assertEquals(dev.rpgsolo.engine.SkillEffectRecipient.SELF, capstone.recipient)
+        assertTrue("a culminância deve superar o bônus passivo do rank 6", capstone.valueAt(1) > passiveMagnitude)
+        assertTrue("a culminância deve durar ao menos três rodadas", (capstone.durationRounds ?: 0) >= 3)
+    }
+
+    @Test fun culminanciasDeControleSuperamOImpactoDoRankSeisEProlongamADuracao() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val trees = listOf(
+            "diplomata",
+            "especialista-em-toxinas",
+            "perito-em-armadilhas",
+            "maldito-praga-1",
+            "maldito-praga-2",
+            "maldito-praga-3"
+        )
+        trees.forEach { treeId ->
+            val tree = result.tree(treeId)
+            val rank6 = tree.single { it.scrollRank == 6 }
+            val rank7 = tree.single { it.scrollRank == 7 }
+            val rank6Magnitude = rank6.effects.maxOf { kotlin.math.abs(it.valueAt(1)) }
+            val targeted = rank7.effects.single { it.recipient == dev.rpgsolo.engine.SkillEffectRecipient.TARGET }
+            assertTrue("$treeId: rank 7 deve superar o efeito do rank 6", kotlin.math.abs(targeted.valueAt(1)) > rank6Magnitude)
+            assertTrue("$treeId: rank 7 deve durar mais que o rank 6", (targeted.durationRounds ?: 0) > (rank6.effects.maxOfOrNull { it.durationRounds ?: 0 } ?: 0))
+        }
+    }
+
+    @Test fun efeitosEmAlvosDeclaradosUsamEscoposDeCombateEExpiramExplicitamente() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val combatScopes = setOf("ataque", "dano", "defesa", "resistencia_dano", "velocidade", "precisao", "percepcao")
+        val targetEffects = result.skills.filter { it.effects.any { effect -> effect.recipient == dev.rpgsolo.engine.SkillEffectRecipient.TARGET } }
+            .flatMap { skill -> skill.effects.filter { it.recipient == dev.rpgsolo.engine.SkillEffectRecipient.TARGET }.map { skill to it } }
+        assertTrue("deve haver efeitos de habilidade direcionados", targetEffects.isNotEmpty())
+        targetEffects.forEach { (skill, effect) ->
+            assertTrue("${skill.id} usa escopo de alvo não suportado: ${effect.target}", effect.target in combatScopes)
+            assertTrue("${skill.id} não declara duração do efeito direcionado", effect.durationRounds != null)
+        }
+    }
+
+    @Test fun preRequisitosExistemNaMesmaArvoreENaoCriamCiclos() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        val byId = result.skills.associateBy { it.id }
+        assertEquals("IDs de habilidade devem ser únicos", result.skills.size, byId.size)
+
+        result.skills.forEach { skill ->
+            skill.prerequisiteSkillIds.forEach { prerequisiteId ->
+                val prerequisite = byId[prerequisiteId]
+                assertTrue("${skill.id} referencia pré-requisito ausente: $prerequisiteId", prerequisite != null)
+                assertEquals(
+                    "pré-requisito de ${skill.id} deve pertencer à mesma árvore",
+                    skill.treeId,
+                    prerequisite!!.treeId
+                )
+                assertTrue(
+                    "habilidade ${skill.id} não pode exigir nível abaixo do pré-requisito $prerequisiteId",
+                    skill.requiredCharacterLevel >= prerequisite.requiredCharacterLevel
+                )
+            }
+        }
+
+        val visiting = mutableSetOf<String>()
+        val visited = mutableSetOf<String>()
+        fun visit(skillId: String) {
+            if (skillId in visited) return
+            assertTrue("ciclo de pré-requisitos detectado em $skillId", visiting.add(skillId))
+            byId.getValue(skillId).prerequisiteSkillIds.forEach { visit(it) }
+            visiting.remove(skillId)
+            visited.add(skillId)
+        }
+        byId.keys.forEach(::visit)
     }
 
     @Test fun nenhumaHabilidadeDeClasseTemAutoDependencia() {
