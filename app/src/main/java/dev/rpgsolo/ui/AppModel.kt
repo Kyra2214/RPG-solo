@@ -344,6 +344,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         private set
     var sourceLibraryVersion by mutableIntStateOf(0)
         private set
+    var canonFactsVersion by mutableIntStateOf(0)
+        private set
     var packageVersion by mutableIntStateOf(0)
         private set
     var chapterNotice by mutableStateOf<String?>(null)
@@ -398,11 +400,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         privacyConfirmed: Boolean = false
     ) {
         if (campaignId.isBlank()) return
+        val canConfigure = privacyConfirmed && index.size > 0
+        val contextFacts = if (canConfigure) {
+            val persisted = store.canonFacts(campaignId).forCampaign(campaignId)
+            CanonFacts((facts.forCampaign(campaignId) + persisted).distinctBy { it.id })
+        } else {
+            CanonFacts()
+        }
         synchronized(sourceContextLock) {
-            if (!privacyConfirmed || index.size == 0) {
+            if (!canConfigure) {
                 campaignSourceContexts.remove(campaignId)
             } else {
-                campaignSourceContexts[campaignId] = CampaignSourceContext(index, facts, sourceIds?.toSet())
+                campaignSourceContexts[campaignId] = CampaignSourceContext(index, contextFacts, sourceIds?.toSet())
             }
         }
     }
@@ -632,6 +641,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** DC-03: estados e progresso da indexação persistidos no Room. */
     fun sourcePipelineStates(): List<PipelineState> = store.sourcePipelineStates()
+
+    /** DC-04: lê os fatos narrativos da campanha ativa ou indicada. */
+    fun canonFacts(campaignId: String): CanonFacts = store.canonFacts(campaignId)
+
+    fun saveCanonFacts(campaignId: String, facts: CanonFacts): String? = try {
+        store.saveCanonFacts(campaignId, facts)
+        canonFactsVersion++
+        null
+    } catch (e: Exception) {
+        e.message ?: "falha ao salvar fatos canônicos"
+    }
 
     fun saveSourcePipelineState(state: PipelineState): String? = try {
         store.saveSourcePipelineState(state)

@@ -129,3 +129,10 @@ data class FonteVinculoRow(
     foreignKeys = [ForeignKey(entity = FonteRow::class, parentColumns = ["id"], childColumns = ["sourceId"], onDelete = ForeignKey.CASCADE)]
 )
 data class FontePipelineRow(@androidx.room.PrimaryKey val sourceId: String, val stateJson: String)
+
+/** Fatos canônicos narrativos de uma campanha; permanecem separados do log mecânico. */
+@Entity(
+    tableName = "fatos_canonicos",
+    foreignKeys = [ForeignKey(entity = CampanhaRow::class, parentColumns = ["id"], childColumns = ["campaignId"], onDelete = ForeignKey.CASCADE)]
+)
+data class CanonFactsRow(@androidx.room.PrimaryKey val campaignId: String, val factsJson: String)

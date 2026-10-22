@@ -15,17 +15,18 @@ import dev.rpgsolo.engine.SourceLink
 import dev.rpgsolo.engine.SourceStatus
 import dev.rpgsolo.engine.PipelineState
 import dev.rpgsolo.engine.SourcePipeline
+import dev.rpgsolo.engine.CanonFacts
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
 /**
- * Versão 9. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
+ * Versão 10. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
  * os esquemas exportados ficam em `data/schemas/` (3.1.2). Nunca use fallbackToDestructiveMigration:
  * apagaria as campanhas do jogador.
  */
 @Database(
-    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class, FontePipelineRow::class],
+    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class, FontePipelineRow::class, CanonFactsRow::class],
     version = RpgDatabase.VERSION,
     exportSchema = true
 )
@@ -40,10 +41,11 @@ abstract class RpgDatabase : RoomDatabase() {
     abstract fun linhaTempo(): LinhaTempoDao
     abstract fun fontes(): FonteDao
     abstract fun fontePipeline(): FontePipelineDao
+    abstract fun fatosCanonicos(): CanonFactsDao
 
     companion object {
         /** Versão atual do esquema; a mesma da anotação [Database]. */
-        const val VERSION = 9
+        const val VERSION = 10
 
         val MIGRATIONS = arrayOf(
             object : androidx.room.migration.Migration(1, 2) {
@@ -126,6 +128,11 @@ abstract class RpgDatabase : RoomDatabase() {
             object : androidx.room.migration.Migration(8, 9) {
                 override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                     db.execSQL("CREATE TABLE IF NOT EXISTS `fonte_pipeline` (`sourceId` TEXT NOT NULL, `stateJson` TEXT NOT NULL, PRIMARY KEY(`sourceId`), FOREIGN KEY(`sourceId`) REFERENCES `fontes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                }
+            },
+            object : androidx.room.migration.Migration(9, 10) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("CREATE TABLE IF NOT EXISTS `fatos_canonicos` (`campaignId` TEXT NOT NULL, `factsJson` TEXT NOT NULL, PRIMARY KEY(`campaignId`), FOREIGN KEY(`campaignId`) REFERENCES `campanhas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 }
             }
         )
@@ -390,6 +397,35 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
         }
     }
 
+    /** Fatos canônicos narrativos, independentes do log de comandos da campanha. */
+    fun canonFacts(campaignId: String): CanonFacts = io {
+        val row = db.fatosCanonicos().buscar(campaignId) ?: return@io CanonFacts()
+        val facts = try {
+            CanonFacts.fromJson(row.factsJson)
+        } catch (e: Exception) {
+            throw IllegalStateException("fatos canônicos da campanha $campaignId ilegíveis", e)
+        }
+        check(facts.facts.all { it.campaignId == campaignId }) {
+            "fatos canônicos contêm campanha divergente: $campaignId"
+        }
+        facts
+    }
+
+    /** Valida IDs, conteúdo e campanha antes de substituir todo o conjunto de forma atômica. */
+    fun saveCanonFacts(campaignId: String, facts: CanonFacts) = io {
+        require(campaignId.isNotBlank()) { "campanha inválida" }
+        var validated = CanonFacts()
+        facts.facts.forEach { fact ->
+            require(fact.campaignId == campaignId) { "fato ${fact.id} pertence a outra campanha" }
+            validated = requireNotNull(validated.add(fact)) { "fato inválido ou duplicado: ${fact.id}" }
+        }
+        db.runInTransaction {
+            require(db.campanhas().buscar(campaignId) != null) { "campanha não encontrada: $campaignId" }
+            if (validated.facts.isEmpty()) db.fatosCanonicos().apagar(campaignId)
+            else db.fatosCanonicos().salvar(CanonFactsRow(campaignId, validated.toJson()))
+        }
+    }
+
     fun fichas(): List<FichaRow> = io { db.fichas().listar() }
     fun fichasArquivadas(): List<FichaRow> = io { db.fichas().listarArquivadas() }
     /** Consulta a chave primária sem depender de a ficha ter sido decodificada em memória. */
@@ -418,6 +454,10 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
                 db.capitulos().salvar(db.capitulos().listar(sourceId).map { it.copy(campanhaId = newId) })
                 db.missoes().salvar(db.missoes().listar(sourceId).map { it.copy(campanhaId = newId) })
                 db.linhaTempo().salvar(db.linhaTempo().listar(sourceId).map { it.copy(campanhaId = newId) })
+                val copiedFacts = canonFacts(sourceId).facts.map { it.copy(campaignId = newId) }
+                if (copiedFacts.isNotEmpty()) {
+                    db.fatosCanonicos().salvar(CanonFactsRow(newId, CanonFacts(copiedFacts).toJson()))
+                }
                 val copiedSourceLinks = db.fontes().listarVinculos()
                     .filter { it.campaignId == sourceId }
                     .map { it.copy(campaignId = newId) }

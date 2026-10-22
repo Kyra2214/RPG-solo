@@ -170,3 +170,15 @@ interface FontePipelineDao {
     @Query("DELETE FROM fonte_pipeline WHERE sourceId = :id")
     fun apagar(id: String)
 }
+
+@Dao
+interface CanonFactsDao {
+    @Query("SELECT * FROM fatos_canonicos WHERE campaignId = :id")
+    fun buscar(id: String): CanonFactsRow?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: CanonFactsRow)
+
+    @Query("DELETE FROM fatos_canonicos WHERE campaignId = :id")
+    fun apagar(id: String)
+}

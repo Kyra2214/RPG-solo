@@ -1,3 +1,10 @@
+## 2026-10-22 — DC-04: persistência de fatos canônicos (não validado)
+
+- `data`: tabela `fatos_canonicos` e migração Room explícita 9→10; os fatos são removidos junto com a campanha e copiados ao duplicá-la.
+- `RoomEventStore`: valida os fatos e grava o conjunto da campanha atomicamente.
+- `app/AppModel.kt`: APIs de leitura/gravação; fatos salvos entram no contexto narrativo apenas após `privacyConfirmed = true`.
+- **Validação:** nenhum teste, build, lint ou CI executado; schema Room v10 não gerado nesta etapa.
+
 ## 2026-10-22 — DC-03: persistência do progresso de indexação (não validado)
 
 - `engine/SourceIndex.kt`: adicionadas funções de serialização para `PipelineState`.
