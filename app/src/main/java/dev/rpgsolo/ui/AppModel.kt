@@ -1606,6 +1606,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             selectedTreeIds = { selected },
             element = { affinity },
             weaponTags = { weaponTags },
+            multiHitAction = { targetId, hitCount, damageBonus -> combatActions.attack(targetId, hitCount, damageBonus) },
             onChanged = { campaignVersion++ }
         )
     }
