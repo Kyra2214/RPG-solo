@@ -19,6 +19,13 @@ data class Resource(val current: Int, val max: Int) {
 
 /** Entidade genérica (jogador ou NPC). Os nomes de atributos/recursos vêm do pacote de regras. */
 @Serializable
+@kotlinx.serialization.Serializable
+data class AppliedCurseState(
+    val curseId: String,
+    val sourceId: String,
+    val remainingRounds: Int? = null
+)
+
 data class Entity(
     val id: String,
     val name: String,
@@ -58,7 +65,9 @@ data class Entity(
     /** Habilidades básicas gratuitas de origem, preservadas em nível 1 durante o reset. */
     val freeSkillIds: Set<String> = emptySet(),
     /** Marca a distribuição única dos 12 pontos iniciais do novo sistema. */
-    val initialBuildAllocated: Boolean = false
+    val initialBuildAllocated: Boolean = false,
+    /** Maldições aplicadas durante a aventura, distintas da identidade Classe de Malditos. */
+    val appliedCurses: Map<String, AppliedCurseState> = emptyMap()
 )
 
 /** MU-07.2: slots de magia de uma entidade: [total] pelos níveis-chave alcançados, [used] por magias aprendidas. */
