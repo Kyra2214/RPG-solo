@@ -96,7 +96,7 @@ class SkillTreeActions(
         val price = SkillTreeEconomy.scrollPriceSilver(skill.scrollRank)
         val wallet = session().state.inventory[playerId()]
         val payment = pkg.planPayment(wallet?.get(currencyId) ?: 0, pkg.goldItemId?.let { wallet?.get(it) } ?: 0, price.toInt())
-            ?: return "saldo insuficiente para o pergaminho (\${price} prata)"
+            ?: return "saldo insuficiente para o pergaminho (${price} prata)"
         val commands = buildList<Command> {
             if (payment.silver > 0) add(ConsumeItem(playerId(), currencyId, payment.silver))
             if (payment.gold > 0) add(ConsumeItem(playerId(), requireNotNull(pkg.goldItemId), payment.gold))
@@ -159,15 +159,15 @@ class SkillTreeActions(
         val validation = SkillTreeProgression.validate(skill, context(hero.skillTreeLevels))
         require(validation.allowed) { validation.reasons.joinToString("; ") }
         val selfEffects = skill.effects.filter { it.recipient == SkillEffectRecipient.SELF }.map { effect ->
-            ActiveEffect("habilidade:\${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
+            ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
         }
         val targetSpecs = skill.effects.filter { it.recipient == SkillEffectRecipient.TARGET }
         if (targetSpecs.isNotEmpty()) {
-            require(targetId != null) { "selecione um alvo para \${skill.name}" }
+            require(targetId != null) { "selecione um alvo para ${skill.name}" }
             require(targetId in targets().map { it.first }) { "alvo inválido ou indisponível" }
         }
         val targetEffects = targetSpecs.map { effect ->
-            ActiveEffect("habilidade:\${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
+            ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
         }
         val commands = buildList<Command> {
             if (selfEffects.isNotEmpty()) add(ActivateAbility(playerId(), skill.id, AbilityTrigger.MANUAL, AbilityTrigger.MANUAL, selfEffects))
