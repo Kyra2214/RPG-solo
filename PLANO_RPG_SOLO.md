@@ -4,7 +4,7 @@
 
 Este é o único plano do projeto (substituiu `docs/PLANO_DESENVOLVIMENTO.md` e `PLANO_MELHORIAS_RPG_SOLO.md`, já removidos). O `docs/PLANO_RACAS_E_SUBRACAS.md` continua existindo como plano de **conteúdo** do catálogo de personagem; este arquivo só aponta para ele.
 
-**Base de código desta revisão:** branch `feature/dc-05-1-source-context-app`, código até o commit `1477dad` (DC-01.4), lido por inspeção estática em 22/10/2026. Nada foi compilado ou executado depois das entregas DC-01 a DC-05; o resumo quantitativo e os estados detalhados abaixo distinguem código existente de validação aprovada.
+**Base de código desta revisão:** branch `feature/dc-05-1-source-context-app`, código até o commit `1477dad` (DC-01.4), lido por inspeção estática em 22/10/2026. A execução manual #39829094817, no commit documental `cee31e7`, falhou no ktlint antes de compilar ou testar; nenhum teste/build passou. O resumo quantitativo e os estados detalhados abaixo distinguem código existente de validação aprovada.
 
 Legenda de estado: ✅ no código · 🟡 parcial · ⬜ pendente · ❌ cancelado.
 Prioridade: 🔴 pode corromper estado, travar a UI ou criar risco legal · 🟠 muda a experiência de jogo · 🟡 melhora · 🟢 acabamento.
@@ -81,7 +81,7 @@ Ficha → Sistema/edição → Ambientação → Regras adicionais → Campanha.
 - Na branch `feature/racas-subracas`, a execução #169 (commit `44d8215`) terminou com sucesso e publicou o APK de debug. Antes dela, as execuções #146 a #168 mostram uma sequência de falhas e cancelamentos por erros de compilação e de teste, depois corrigidos.
 - A observação antiga de que a execução #170 estava em andamento é histórica e não comprova o estado da branch atual.
 - `docs/VALIDACAO_CI.md` registra o último CI verde e mantém pendentes os resultados por módulo para o código atual.
-- O último CI verde registrado continua sendo o de 19/10 (`85b58ce`). As entregas posteriores (incluindo DC-01 a DC-05) foram publicadas com `[skip ci]` por solicitação do proprietário; não há build/teste/CI após elas.
+- O último CI verde registrado continua sendo o de 19/10 (`85b58ce`). A execução manual #39829094817 no commit `cee31e7` falhou em `Check Kotlin style` com 1.331 violações em 26 arquivos do módulo `ai`; a etapa de testes, E2E e build do APK foram ignorados. Ver o [log da execução](docs/ci/android-ci-39829094817-ktlint-failure.log) e `docs/VALIDACAO_CI.md`.
 
 **A fazer quando o proprietário decidir:** colar aqui o resultado por módulo (engine, rules, ai, data, app), o resultado do E2E e a data/commit de cada um.
 

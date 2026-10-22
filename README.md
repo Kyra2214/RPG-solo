@@ -9,7 +9,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-O último CI verde registrado foi em 19/10/2026 (commit `85b58ce`; detalhes em [`docs/VALIDACAO_CI.md`](docs/VALIDACAO_CI.md)). A branch `feature/dc-05-1-source-context-app` recebeu as entregas DC-05.1/DC-05.2, persistência Room v10 para biblioteca/pipeline/fatos e armazenamento privado dos documentos originais (código de referência `1477dad`). Essas alterações foram publicadas com `[skip ci]` a pedido do proprietário. **Nenhum build, teste, lint ou CI foi executado após elas**; o estado atual não está validado e não deve ser tratado como APK pronto para uso.
+O último CI verde registrado foi em 19/10/2026 (commit `85b58ce`; detalhes em [`docs/VALIDACAO_CI.md`](docs/VALIDACAO_CI.md)). A execução manual [Android CI #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817), no commit documental `cee31e7`, falhou em `Check Kotlin style` (1.331 violações ktlint em 26 arquivos do módulo `ai`); testes, E2E e build do APK foram ignorados. O [log completo](docs/ci/android-ci-39829094817-ktlint-failure.log) e o resultado por etapa estão documentados. **A branch continua sem validação de testes/build e não deve ser tratada como APK pronto para uso.**
 
 ## Funcionalidades implementadas no código
 

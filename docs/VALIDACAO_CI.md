@@ -38,19 +38,21 @@ O bloqueio de runner descrito no histórico abaixo foi resolvido em 2026-10-19, 
 
 - 2026-10-19: execução [Android CI #39260875061](https://github.com/Kyra2214/RPG-solo/actions/runs/39260875061), commit `85b58ce`, concluída com sucesso (`./gradlew test` e `./gradlew :app:assembleDebug`; artefato `rpgsolo-debug-apk`), conforme o CHANGELOG.
 - Branch `feature/racas-subracas`: execução #169 (commit `44d8215`) com sucesso; as execuções #146 a #168 falharam ou foram canceladas por erros de compilação e de teste, depois corrigidos. A observação sobre a execução #170 permanece apenas como registro histórico; não comprova o estado da branch atual.
-- Depois disso, a branch de trabalho `feature/dc-05-1-source-context-app` recebeu remoção de conteúdo de terceiros, R-01/R-02/R-05 e as entregas DC-01.1–DC-05.2. O código está atualmente até `1477dad` (DC-01.4): Room v10 para fontes/pipeline/fatos, bytes de documentos no armazenamento privado e APIs no `AppModel`.
-- Os commits das entregas recentes foram publicados com `[skip ci]` por solicitação do proprietário. **Nenhum build, teste, lint ou CI foi executado após essas alterações**; o schema Room v10 também não foi exportado por build. Portanto não há resultado novo para preencher na tabela abaixo.
+- Depois disso, a branch de trabalho `feature/dc-05-1-source-context-app` recebeu remoção de conteúdo de terceiros, R-01/R-02/R-05 e as entregas DC-01.1–DC-05.2. O código está até `1477dad` (DC-01.4): Room v10 para fontes/pipeline/fatos, bytes de documentos no armazenamento privado e APIs no `AppModel`.
+- Em 2026-10-22 foi disparada manualmente a execução [Android CI #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) na branch, commit `cee31e7` (documentação apenas após `1477dad`). O job falhou em `Check Kotlin style` antes de chegar a compilação/testes. O log relatou 1.331 violações ktlint em 26 arquivos de `ai/src/main/kotlin`; o relatório filtrado/sem ANSI está em [`docs/ci/android-ci-39829094817-ktlint-failure.log`](ci/android-ci-39829094817-ktlint-failure.log).
+- `Run JVM and Android tests`, E2E no emulador e build/upload do APK ficaram **skipped** após a falha de estilo. O upload de relatórios foi executado pelo `if: always()`, mas não representa testes aprovados. O schema Room v10 também não foi exportado por build.
 
-**Conclusão atual: o código da branch não está validado.** Uma tentativa local anterior de `gradle :engine:test :rules:test :ai:test` falhou ao resolver plugins por falta de acesso a Maven Central/Google; nada foi executado naquela tentativa. As alterações posteriores também não foram testadas. Quando a validação for autorizada, registrar por módulo (`engine`, `rules`, `ai`, `data`, `app`) o resultado, commit, data e link; o E2E em emulador roda com `continue-on-error` e deve ser registrado à parte.
+**Conclusão atual: o código da branch não está validado.** A primeira barreira da execução manual foi o ktlint; nenhum resultado de teste ou build foi produzido. Corrigir as violações e executar novamente a workflow é necessário para obter validação de compilação/testes, E2E e APK.
 
 | Módulo | Resultado | Commit | Data | Link |
 |---|---|---|---|---|
-| engine | pendente | | | |
-| rules | pendente | | | |
-| ai | pendente | | | |
-| data | pendente | | | |
-| app | pendente | | | |
-| E2E | pendente | | | |
+| ktlint | **Falhou** — 1.331 violações em 26 arquivos do módulo `ai` | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) · [log](ci/android-ci-39829094817-ktlint-failure.log) |
+| engine | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
+| rules | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
+| ai | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
+| data | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
+| app | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
+| E2E | Ignorado após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
 
 ## Histórico: período sem runner (2026-10-18 e 2026-10-19, resolvido)
 

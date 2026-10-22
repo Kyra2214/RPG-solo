@@ -1,3 +1,10 @@
+## 2026-10-22 — GitHub Actions #39829094817 (falhou no ktlint)
+
+- Disparo manual em `feature/dc-05-1-source-context-app`, commit `cee31e7`. `Check Kotlin style` falhou com 1.331 violações reportadas em 26 arquivos de `ai/src/main/kotlin`.
+- As etapas de testes JVM/Android, E2E e build/upload do APK foram ignoradas pela falha anterior. Não há resultado de testes nesta execução.
+- Run: https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817. Log completo sem ANSI e com caminho do runner normalizado: `docs/ci/android-ci-39829094817-ktlint-failure.log`.
+- **Ação:** nenhuma correção de código ou repetição automática foi feita.
+
 ## 2026-10-22 — atualização documental do estado do projeto
 
 - `README.md`, `PLANO_RPG_SOLO.md` e `docs/VALIDACAO_CI.md` sincronizados com as entregas até DC-01.4, Room v10, lacunas de interface/backup e estado não validado da branch.
