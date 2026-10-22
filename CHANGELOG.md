@@ -4,6 +4,7 @@
 - `ai/CheckMenu.kt`: a sorte/destino pós-rolagem pode ser configurada uma única vez no pacote com `recurso_sorte`, `custo_sorte` e `formas_sorte`; configurações específicas de um teste têm prioridade.
 - `rules/PackageParser.kt` e `rules/RulePackage.kt`: validação do conjunto de propriedades globais, custo positivo, formas permitidas e existência do recurso, inclusive após herança de pacotes.
 - `docs/PLANO_DESENVOLVIMENTO.md`: corrigida a descrição do fluxo narrativo de testes opostos/em grupo e registrada a configuração global de sorte.
+- `docs/pacotes/FORMATO_PACOTE.md`: documentadas as três chaves globais e a prioridade da configuração específica por teste.
 - **Validação:** nenhum teste, build, lint ou CI executado, conforme a prioridade definida. Não declarar compilação ou integração confirmadas até a etapa final.
 
 ## 2026-10-22 — Árvores de habilidades e maldições: revisão de conteúdo (ainda não validada)
