@@ -13,7 +13,9 @@ data class SkillTreeEntryView(
     val hasScroll: Boolean,
     val canUse: Boolean,
     val reason: String?
-)
+) {
+    val displayName: String get() = if (skill.affinityBound && skill.element != ElementPath.NONE) "${skill.name} — ${elementLabel(skill.element)}" else skill.name
+}
 
 /** Operações transacionais de compra, desbloqueio, evolução, ativação e reset da árvore. */
 class SkillTreeActions(
@@ -233,8 +235,23 @@ class SkillTreeActions(
 
     /** Classes secundárias despertam em níveis 10, 20 e 30, respectivamente. */
     private fun effectiveSkill(skill: SkillTreeSkill): SkillTreeSkill {
-        if (skill.origin != SkillOrigin.CLASS) return skill
-        return skill.copy(requiredCharacterLevel = maxOf(skill.requiredCharacterLevel, classTreeUnlockLevel(skill.treeId)))
+        var effective = skill
+        if (skill.origin == SkillOrigin.CLASS) {
+            effective = effective.copy(requiredCharacterLevel = maxOf(skill.requiredCharacterLevel, classTreeUnlockLevel(skill.treeId)))
+        }
+        if (skill.affinityBound && element() != ElementPath.NONE) effective = effective.copy(element = element())
+        return effective
+    }
+
+    private fun elementLabel(element: ElementPath): String = when (element) {
+        ElementPath.WATER -> "Água"
+        ElementPath.FIRE -> "Fogo"
+        ElementPath.WIND -> "Vento"
+        ElementPath.EARTH -> "Terra"
+        ElementPath.METAL -> "Metal"
+        ElementPath.YIN -> "Yin"
+        ElementPath.YANG -> "Yang"
+        ElementPath.NONE -> "sem afinidade"
     }
 
     private fun scrollItemId(skillId: String) = "pergaminho-habilidade-$skillId"
