@@ -22,7 +22,13 @@ data class AppliedCurseState(
     val curseId: String,
     val sourceId: String,
     val remainingRounds: Int? = null
-)
+) {
+    init {
+        require(curseId.isNotBlank()) { "maldição aplicada exige id" }
+        require(sourceId.isNotBlank()) { "maldição aplicada exige origem" }
+        require(remainingRounds == null || remainingRounds > 0) { "duração de maldição aplicada inválida" }
+    }
+}
 
 /** Entidade genérica (jogador ou NPC). Os nomes de atributos/recursos vêm do pacote de regras. */
 @Serializable
