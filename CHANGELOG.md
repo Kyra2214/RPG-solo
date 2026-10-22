@@ -1,3 +1,9 @@
+## 2026-10-22 — Contexto privado de NPCs
+
+- `engine/Npc.kt`: `DossierBook.contextFor` inclui motivações e relações do dossiê privado junto de personalidade e objetivos. As relações são ordenadas por ID para manter a composição do contexto determinística; esses dados seguem restritos ao contexto do mestre e não são expostos na interface do jogador.
+- **Pendente:** avanço automático das agendas por outras passagens de tempo e geração contextual de pistas.
+- **Validação:** nenhum teste, build, lint ou CI executado; tudo permanece adiado para a etapa final.
+
 ## 2026-10-22 — Continuação code-first: testes avançados e sorte global (não validado)
 
 - `ai/PowerMenu.kt`: adicionada validação defensiva no ponto de execução para recusar poder cuja combinação efeito/alvo seja incompatível com o motor, mesmo se uma definição incoerente escapar das validações do pacote. Não foram executados testes/build/CI.
