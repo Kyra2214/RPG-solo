@@ -39,6 +39,13 @@ Por solicitação do usuário, **não disparar CI durante a execução da fase 1
 - Catálogo de maldições: 100 registros, 200 efeitos, nenhuma linha malformada, nenhum efeito com progressão por nível (perLevel diferente de zero) e nenhum grupo que misture efeitos positivos e negativos para o mesmo alvo. As durações são permanentes (45) ou temporárias de 3–6 rodadas (55), e a UI exige combate para aplicar as temporárias.
 - A revisão contextual foi concluída: seis culminâncias de controle que atingiam um alvo foram reforçadas para superar numericamente o rank 6 e durar mais tempo; a culminância do Tratador de Montarias foi reforçada para +10 no primeiro nível da habilidade, crescimento de +2 por nível e duração de 3 rodadas. As mudanças têm testes de regressão escritos. A comparação numérica isolada continua inadequada para efeitos de tipos diferentes.
 
+## Falha encontrada pela primeira execução de CI — corrigida
+
+- A primeira execução da fase 17 (run #249, commit `a5654943f739dd26c24966f9f528330372f62689`) falhou em `CurseCatalogTest.duracaoDosEfeitosEstaAlinhadaComADuracaoDaMaldicao`. A falha revelou que a auditoria estática anterior tinha verificado somente os efeitos de maldições permanentes, não a igualdade das durações temporárias.
+- Defeito real: as 55 maldições temporárias tinham duração de 3–6 rodadas na maldição, mas os 110 efeitos positivos/negativos estavam sem duração própria (`-`). Assim, o estado da maldição expirava, mas os efeitos associados não tinham a mesma duração declarada.
+- Corrigido no catálogo: as durações dos 110 efeitos foram preenchidas com a duração canônica de cada maldição. Nova varredura comparando todos os 200 efeitos com os 100 registros encontrou **zero divergências**. O teste que falhou já cobre a regressão.
+- O run #249 não chegou à etapa de build do APK porque a suíte falhou. A validação deve ser repetida com o novo commit; não declarar sucesso com base nessa execução.
+
 ## Auditoria final de efeitos e camadas — 2026-10-22
 
 - Os efeitos de habilidades direcionados a um alvo foram comparados com os escopos realmente consumidos pelo resolvedor de combate: todos usam `ataque`, `dano`, `defesa`, `resistencia_dano` ou escopos de combate suportados (`velocidade` também participa da defesa/ataque). Todos declaram duração explícita; nenhum efeito direcionado depende do fallback silencioso de uma rodada. Teste de regressão adicionado.
