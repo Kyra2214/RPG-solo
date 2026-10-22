@@ -23,6 +23,7 @@ class SkillTreeActions(
     private val selectedTreeIds: () -> Set<String>,
     private val element: () -> ElementPath,
     private val weaponTags: () -> Set<String>,
+    private val multiHitAction: (targetId: String, hitCount: Int, damageBonus: Int) -> String?,
     private val onChanged: () -> Unit
 ) {
     private val definitions: List<SkillTreeSkill> by lazy {
@@ -158,7 +159,12 @@ class SkillTreeActions(
             return execute(commands)
         }
         if (skill.actionKind == SkillActionKind.MULTI_HIT) {
-            return "multiataque ainda precisa ser integrado ao resolvedor de ataques do motor"
+            require(combat != null) { "multiataque só pode ser usado durante combate" }
+            val selectedTarget = requireNotNull(targetId) { "selecione um alvo para o multiataque" }
+            require(selectedTarget in targets().map { it.first } && selectedTarget in combat.order) { "alvo fora do combate" }
+            require(skill.actionCost == 0) { "multiataque com custo de recurso ainda não foi configurado" }
+            val bonus = skill.effects.firstOrNull { it.target == "dano" }?.valueAt(level) ?: 0
+            return multiHitAction(selectedTarget, skill.hitCount, bonus)
         }
         require(skill.effects.isNotEmpty()) { "esta habilidade ainda não tem efeito mecânico executável" }
         require(combat != null || skill.effects.none { it.durationRounds != null }) {
