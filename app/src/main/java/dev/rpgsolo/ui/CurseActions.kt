@@ -64,9 +64,11 @@ class CurseActions(
             if (curse.resistanceCheckId != null) {
                 val difficulty = requireNotNull(curse.resistanceDifficulty)
                 val base = pkg.check(curse.resistanceCheckId, target.stats, difficulty, target.skills)
-                val adjusted = base.copy(
-                    modifier = base.modifier + pkg.traitBonus(target.traits, curse.resistanceCheckId) +
-                        (base.stat?.let { pkg.traitBonus(target.traits, it) } ?: 0)
+                val adjusted = pkg.adjustCheck(
+                    base,
+                    conditions = session().state.conditions[targetId].orEmpty(),
+                    traits = target.traits,
+                    skill = curse.resistanceCheckId
                 )
                 val result = session().check(adjusted)
                 resistanceSucceeded = result.outcome.isSuccess
