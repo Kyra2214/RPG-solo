@@ -93,4 +93,35 @@ class CampaignPersistenceTest {
         assertTrue(session.isSaved)
         assertEquals(session.eventCount, store.size("c1"))
     }
+
+    @Test fun maldicaoComDuracaoSobreviveASalvarReabrirEExpiraNoMomentoCorreto() {
+        val store = InMemoryEventStore()
+        val session = create(store, "curse-persistence")
+        session.executeAll(listOf(
+            hero(),
+            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(6, 6))))
+        ))
+        assertTrue(session.execute(ApplyCurse("orc", "curse-test", "hero", 2)) is ExecResult.Accepted)
+        assertEquals(2, CampaignSession.open(store, "curse-persistence")
+            .state.entities.getValue("orc").appliedCurses.getValue("curse-test").remainingRounds)
+
+        val reopenedBeforeCombat = CampaignSession.open(store, "curse-persistence")
+        assertTrue(reopenedBeforeCombat.execute(StartCombat(listOf("hero", "orc"))) is ExecResult.Accepted)
+        reopenedBeforeCombat.execute(NextTurn)
+        reopenedBeforeCombat.execute(NextTurn)
+
+        val reopenedAfterFirstRound = CampaignSession.open(store, "curse-persistence")
+        assertEquals(1, reopenedAfterFirstRound.state.entities.getValue("orc")
+            .appliedCurses.getValue("curse-test").remainingRounds)
+        reopenedAfterFirstRound.execute(NextTurn)
+        reopenedAfterFirstRound.execute(NextTurn)
+
+        val reopenedAfterExpiry = CampaignSession.open(store, "curse-persistence")
+        assertFalse(reopenedAfterExpiry.state.entities.getValue("orc").appliedCurses.containsKey("curse-test"))
+        assertEquals(reopenedAfterExpiry.state, GameEngine.restore(
+            seed = 1L,
+            config = EngineConfig(),
+            events = reopenedAfterExpiry.engine.events
+        ).state)
+    }
 }
