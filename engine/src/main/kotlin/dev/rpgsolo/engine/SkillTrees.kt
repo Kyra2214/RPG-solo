@@ -149,7 +149,7 @@ object SkillTreeProgression {
     fun strongestEquivalentEffects(effects: Collection<Pair<SkillEffectSpec, Int>>): List<Pair<SkillEffectSpec, Int>> =
         effects.groupBy { it.first.stackingGroup }
             .values
-            .mapNotNull { group -> group.maxByOrNull { it.second } }
+            .mapNotNull { group -> group.maxWithOrNull(compareBy<Pair<SkillEffectSpec, Int>>({ kotlin.math.abs(it.second) }, { it.second })) }
 }
 
 /**
