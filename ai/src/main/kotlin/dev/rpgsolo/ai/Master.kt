@@ -170,7 +170,9 @@ object ContextAssembler {
             s.clocks.values.takeIf { it.isNotEmpty() }?.let { cs ->
                 "Relógios de agenda (privado; não mostre números, só sinais no mundo):\n" + cs.joinToString("\n") {
                     "- ${it.name}: ${it.filled}/${it.segments}" +
-                        if (it.full && it.id in input.advancedClockIds) " — COMPLETO nesta jogada: narre a consequência agora" + (if (it.consequence.isNotBlank()) " planejada: ${it.consequence}" else "")
+                        if (it.full && it.id in input.advancedClockIds) " — COMPLETO nesta jogada: narre a consequência agora" +
+                            (if (it.consequence.isNotBlank()) " planejada: ${it.consequence}" else "") +
+                            (if (it.id in input.midpointClockIds && it.midClue.isNotBlank()) "; inclua também a pista da metade: ${it.midClue}" else "")
                         else if (it.full) " — já estava completo antes desta jogada; não repita a consequência"
                         else if (it.id in input.midpointClockIds && it.midClue.isNotBlank() && it.filled >= it.midpoint) " — AVANÇOU desde sua última fala e passou da metade: deixe o jogador perceber esta pista, sem números nem o nome do relógio: ${it.midClue}"
                         else if (it.id in input.advancedClockIds) " — AVANÇOU desde sua última fala: mostre um sinal sutil no mundo, sem números nem o nome do relógio"
