@@ -328,7 +328,8 @@ object PackageParser {
                 f[8]
             } else id(f[8], "parâmetro do efeito")
             if (effect == PowerEffectKind.HEAL && target != PowerTarget.SELF) bad("cura só pode ter alvo self")
-            if ((effect == PowerEffectKind.DAMAGE) && target != PowerTarget.ENEMY) bad("dano só pode ter alvo inimigo")
+            if (effect == PowerEffectKind.DAMAGE && target != PowerTarget.ENEMY) bad("dano só pode ter alvo inimigo")
+            if (effect == PowerEffectKind.REMOVE_CONDITION && target != PowerTarget.SELF) bad("remover-condicao só pode ter alvo self")
             PowerDef(
                 id(f[0], "id"), text(f[1], "nome"), f[2], id(f[3], "traço"), id(f[4], "recurso"), cost,
                 target, effect, param, f.getOrNull(9)?.takeIf { !blank(it) }?.let { id(it, "teste") }
