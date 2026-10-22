@@ -54,6 +54,8 @@ data class ContextInput(
     val advancedClockIds: Set<String> = emptySet(),
     /** Relógios que cruzaram a metade nesta janela; evita repetir a mesma pista em avanços posteriores. */
     val midpointClockIds: Set<String> = emptySet(),
+    /** Notas mecânicas privadas da resolução atual que a narração precisa respeitar. */
+    val mechanicalNotes: List<String> = emptyList(),
     /** CP-03: briefing de retomada (ver [ResumeBriefing]); só na primeira jogada depois de abrir a campanha. */
     val resumeBriefing: String? = null,
     /** DC-05.1: trechos do documento-fonte escolhidos pelo código para esta cena (ver [SourceContext]); cortável pelo orçamento. */
@@ -195,7 +197,9 @@ object ContextAssembler {
             input.playerSheet?.takeIf { it.isNotBlank() },
             input.checkMenu?.takeIf { it.isNotBlank() },
             input.worldContext?.takeIf { it.isNotBlank() },
-            input.resumeBriefing?.takeIf { it.isNotBlank() }
+            input.resumeBriefing?.takeIf { it.isNotBlank() },
+            input.mechanicalNotes.takeIf { it.isNotEmpty() }
+                ?.let { "Notas mecânicas desta resolução (obrigatórias; não exponha termos técnicos):\n" + it.joinToString("\n") { note -> "- $note" } }
         ) + input.npcPrivate
         var used = TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required) +
             always.sumOf { TokenEstimator.estimate(it) }
