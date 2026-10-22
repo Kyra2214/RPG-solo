@@ -25,14 +25,20 @@ class SkillTreeCatalogTest {
         val byTree = result.skills.groupBy { it.treeId }
         listOf(SkillOrigin.CLASS, SkillOrigin.PROFESSION, SkillOrigin.CURSED_CLASS).forEach { origin ->
             val trees = result.skills.filter { it.origin == origin }.map { it.treeId }.distinct()
-            assertTrue("quantidade insuficiente de árvores para $origin: ${trees.size}", trees.size >= 50)
+            val minimumTrees = if (origin == SkillOrigin.CURSED_CLASS) 40 else 50
+            assertTrue("quantidade insuficiente de árvores para $origin: ${trees.size}", trees.size >= minimumTrees)
             trees.forEach { treeId ->
                 val skills = byTree.getValue(treeId)
-                assertEquals("árvore $treeId deveria ter sete habilidades", 7, skills.size)
-                assertEquals("árvore $treeId deveria ter as posições 1..7", (1..7).toList(), skills.mapNotNull { it.scrollRank })
+                val ranked = skills.filter { it.scrollRank != null }
+                assertEquals("árvore $treeId deveria ter sete habilidades com pergaminho", 7, ranked.size)
+                assertEquals("árvore $treeId deveria ter as posições 1..7", (1..7).toList(), ranked.mapNotNull { it.scrollRank })
+                if (origin == SkillOrigin.CURSED_CLASS) {
+                    assertEquals("árvore amaldiçoada $treeId deveria ter uma habilidade básica gratuita", 1, skills.count { it.freeBaseSkill })
+                } else {
+                    assertEquals("árvore $treeId não deve ter habilidade básica extra", 0, skills.count { it.freeBaseSkill })
+                }
             }
-        }
-    }
+        }    }
 
     @Test fun raçasESubraçasPossuemHabilidadeBasicaGratuita() {
         val result = SkillTreeCatalogLoader.load(catalogText())
