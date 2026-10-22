@@ -8,6 +8,7 @@
 - `engine/AutomaticTimeline.kt`: registra mudanças de relação envolvendo o personagem em linguagem neutra, sem expor valores numéricos ou motivos privados.
 - `engine/AutomaticTimeline.kt`: remove IDs internos de itens, espaços de equipamento e condições da timeline; os registros usam descrições neutras quando o personagem não tem um nome público disponível.
 - `engine/AutomaticTimeline.kt`: consolida ramificações duplicadas de XP, nível, alocação, magias e habilidades; registros de progressão não exibem IDs internos de magia, habilidade ou perícia.
+- `ai/GameLoop.kt`, `ai/Master.kt` e `engine/AutomaticTimeline.kt`: quando um avanço cruza a metade e completa o mesmo relógio de uma vez, a pista intermediária e a pista pública/consequência não se perdem; continuam sem expor o nome ou as casas do relógio.
 - `engine/AutomaticTimeline.kt`: inclui falhas de sobrevivência e gasto/recuperação de usos limitados na timeline, sem expor IDs internos de traços.
 - `engine/AutomaticTimeline.kt`: registra recuperação positiva de recursos na timeline sem expor o identificador interno do recurso.
 
