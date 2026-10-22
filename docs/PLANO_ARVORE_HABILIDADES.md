@@ -162,3 +162,10 @@ Implementações adicionadas nesta branch:
 
 - As 42 habilidades de rank 7 das vertentes da Classe de Malditos deixaram de usar nomes de placeholder como “Técnica Suprema de maldito-vampiro-1”. Cada uma recebeu um nome temático específico da família e da vertente.
 - Foi acrescentado teste de catálogo para impedir que esses nomes genéricos voltem a entrar. Isso melhora a identidade do conteúdo, mas ainda não substitui a revisão de mecânicas e balanceamento de cada vertente.
+
+
+### Mecânicas das culminâncias da Classe de Malditos
+
+- Além dos nomes, as 42 culminâncias receberam mecânicas diferenciadas por família/vertente: sequências de golpes para lobisomens, espectros, parasitas e mutações; efeitos de controle direcionados para possessão e praga; golpes culminantes de maior potência para outras famílias.
+- As vertentes de mago negro, lunar e corrupção elemental declaram vínculo com a afinidade elemental, para que o golpe use a afinidade escolhida pelo personagem.
+- Testes novos verificam multiataque, efeitos negativos aplicados ao alvo e vínculo elemental. O balanceamento numérico continua pendente de teste de jogo.
