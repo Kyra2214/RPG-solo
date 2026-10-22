@@ -450,8 +450,10 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.statIncreases.keys.any { it !in ent.stats }) return no("atributo inexistente na ficha")
             val statTotal = cmd.statIncreases.values.sumOf { it.toLong() }
             if (statTotal + cmd.skillPoints.toLong() != 12L) return no("distribua exatamente 12 pontos entre atributos e habilidades")
-            if (cmd.statIncreases.any { (key, value) -> (ent.stats[key] ?: 0).toLong() + value.toLong() > Int.MAX_VALUE }) {
-                return no("aumento inicial excede o limite numérico suportado")
+            for ((key, increase) in cmd.statIncreases) {
+                val current = ent.stats[key] ?: return no("atributo inexistente na ficha: $key")
+                val cap = config.statCaps[key] ?: return no("o pacote não define limite para o atributo: $key")
+                if (current.toLong() + increase.toLong() > cap.toLong()) return no("o atributo $key ultrapassaria o limite $cap")
             }
             if (ent.abilityPoints.toLong() + cmd.skillPoints.toLong() > Int.MAX_VALUE) return no("pontos de habilidade excedem o limite suportado")
             return Decision.Ok(listOf(InitialBuildAllocated(ent.id, cmd.statIncreases.filterValues { it > 0 }, cmd.skillPoints)))
