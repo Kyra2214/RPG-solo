@@ -88,14 +88,6 @@ fun automaticTimeline(
             is KnowledgeGained ->
                 AutomaticTimelineEntry(index, "descoberta",
                     if (event.believed) "Você passou a acreditar: ${event.text}" else "Você descobriu: ${event.text}")
-            is PromiseMade -> finalState.entities[event.npcId]?.let { npc ->
-                AutomaticTimelineEntry(index, "promessa", "${npc.name} prometeu: ${event.text}")
-            }
-            is PromiseKept -> finalState.promises[event.id]?.let { promise ->
-                finalState.entities[promise.npcId]?.let { npc ->
-                    AutomaticTimelineEntry(index, "promessa", "A promessa de ${npc.name} foi cumprida.")
-                }
-            }
             is PromiseMade -> finalState.entities[event.npcId]
                 ?.takeIf { it.kind == EntityKind.NPC }
                 ?.let { npc ->
