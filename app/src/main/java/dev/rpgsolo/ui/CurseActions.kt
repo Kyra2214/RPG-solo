@@ -59,6 +59,14 @@ class CurseActions(
             require(target.alive) { "não é possível amaldiçoar uma entidade morta" }
             require(sourceId.isNotBlank()) { "a maldição precisa identificar sua origem" }
             require(curse.id !in target.appliedCurses) { "esta maldição já está aplicada" }
+            val combat = session().state.combat
+            val sourceEntityId = sourceId.takeIf { it.startsWith("personagem:") }?.removePrefix("personagem:")
+            if (combat != null) {
+                require(sourceEntityId != null && sourceEntityId in session().state.entities) {
+                    "durante o combate, a origem da maldição precisa ser um personagem na iniciativa"
+                }
+                require(combat.current == sourceEntityId) { "não é o turno de quem lança a maldição" }
+            }
             var resistanceSummary = ""
             var resistanceSucceeded: Boolean? = null
             if (curse.resistanceCheckId != null) {
@@ -74,19 +82,27 @@ class CurseActions(
                 resistanceSucceeded = result.outcome.isSuccess
                 resistanceSummary = "Teste ${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}; dificuldade ${result.spec.difficulty}. "
                 if (resistanceSucceeded == true) {
+                    if (combat != null) {
+                        when (val advance = session().execute(dev.rpgsolo.engine.NextTurn)) {
+                            is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+                            is dev.rpgsolo.engine.ExecResult.Rejected -> return@atomically advance.reason
+                        }
+                    }
                     return@atomically "O alvo resistiu à maldição. $resistanceSummary"
                 }
             }
-            when (val result = session().execute(
-                ApplyCurse(
+            val commands = buildList<dev.rpgsolo.engine.Command> {
+                add(ApplyCurse(
                     targetId = targetId,
                     curseId = curse.id,
                     sourceId = sourceId,
                     durationRounds = curse.durationRounds,
                     requiresResistance = curse.resistanceCheckId != null,
                     resistanceSucceeded = resistanceSucceeded
-                )
-            )) {
+                ))
+                if (combat != null) add(dev.rpgsolo.engine.NextTurn)
+            }
+            when (val result = session().executeAll(commands)) {
                 is dev.rpgsolo.engine.ExecResult.Accepted -> {
                     onChanged()
                     "$resistanceSummary Maldição '${curse.name}' aplicada."
