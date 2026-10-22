@@ -165,16 +165,16 @@ class SkillTreeActions(
             "habilidades com duração em rodadas só podem ser ativadas durante combate"
         }
         val selfEffects = skill.effects.filter { it.recipient == SkillEffectRecipient.SELF }.map { effect ->
-            ActiveEffect("habilidade:\${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
+            ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
         }
         val targetSpecs = skill.effects.filter { it.recipient == SkillEffectRecipient.TARGET }
         if (targetSpecs.isNotEmpty()) {
-            require(targetId != null) { "selecione um alvo para \${skill.name}" }
+            require(targetId != null) { "selecione um alvo para ${skill.name}" }
             require(targetId in targets().map { it.first }) { "alvo inválido ou indisponível" }
             if (combat != null) require(targetId in combat.order) { "alvo fora do combate" }
         }
         val targetEffects = targetSpecs.map { effect ->
-            ActiveEffect("habilidade:\${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
+            ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
         }
         val commands = buildList<Command> {
             if (selfEffects.isNotEmpty()) add(ActivateAbility(playerId(), skill.id, AbilityTrigger.MANUAL, AbilityTrigger.MANUAL, selfEffects))
