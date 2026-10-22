@@ -216,6 +216,10 @@ class CheckMenu(private val pkg: RulePackage) {
     fun isImmune(entityId: String, conditionId: String, traitIds: Collection<String>): Boolean =
         pkg.isImmuneToCondition(traitIds, conditionId)
 
+    /** Nome legível da condição para notas privadas de resolução; não inventa nomes ausentes no pacote. */
+    fun conditionName(conditionId: String): String? =
+        pkg.data.conditions.firstOrNull { it.id == conditionId }?.name
+
     /** Mensagem de erro (para a IA corrigir) ou null se o pedido é válido. */
     fun validate(req: CheckRequest): String? {
         if (checks.none { it.id == req.checkId }) {
