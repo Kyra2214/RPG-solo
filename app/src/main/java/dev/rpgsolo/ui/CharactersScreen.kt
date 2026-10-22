@@ -109,7 +109,8 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
     var elementalAffinity by remember(key) { mutableStateOf("") }
     var cursedClassBranchId by remember(key) { mutableStateOf("") }
-    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId)
+    var additionalClassIds by remember(key) { mutableStateOf(emptyList<String>()) }
+    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId, additionalClassIds)
     val choiceErrors = (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct()
     @Suppress("UNUSED_EXPRESSION") version
 
@@ -188,7 +189,29 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
             }
         }
     }
-    CatalogPicker("Classe", CharacterCreationCatalog.classes, classId, { classId = it; version++ }, allowNone = true)
+    CatalogPicker("Classe principal", CharacterCreationCatalog.classes, classId, { classId = it; additionalClassIds = additionalClassIds - it; version++ }, allowNone = true)
+    SectionTitle("Classes adicionais (híbrido)", "Até três classes adicionais além da principal. Quanto mais classes combinadas, mais monstruosa fica a aparência.")
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        CharacterCreationCatalog.classes.filter { it.id != classId }.forEach { option ->
+            FilterChip(
+                selected = option.id in additionalClassIds,
+                onClick = {
+                    additionalClassIds = if (option.id in additionalClassIds) additionalClassIds - option.id
+                    else if (additionalClassIds.size < 3) additionalClassIds + option.id else additionalClassIds
+                    version++
+                },
+                label = { Text(option.name) }
+            )
+        }
+    }
+    val totalClasses = (if (classId.isBlank()) 0 else 1) + additionalClassIds.size
+    val hybridAppearance = when (totalClasses) {
+        0, 1 -> "Aparência normal"
+        2 -> "Traços híbridos visíveis"
+        3 -> "Aparência monstruosa evidente"
+        else -> "Aparência extremamente monstruosa; forte desvantagem social"
+    }
+    Muted("Classes combinadas: $totalClasses/4 — $hybridAppearance")
     SectionTitle("Afinidade elemental", "Opcional para técnicas físicas; habilidades mágicas exigem compatibilidade com a afinidade escolhida.")
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf("WATER" to "Água", "FIRE" to "Fogo", "WIND" to "Vento", "EARTH" to "Terra", "METAL" to "Metal", "YIN" to "Yin", "YANG" to "Yang").forEach { (id, label) ->
@@ -200,7 +223,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     SectionTitle("Maldições", "Podem trazer benefícios e custos narrativos. Os efeitos ainda não são aplicados pelo motor.")
     CatalogPicker("Classe de Malditos / vertente", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, { cursedClassBranchId = it; version++ }, allowNone = true)
 
-    val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + curseIds.toList())
+    val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + additionalClassIds + curseIds.toList())
         .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
     if (chosenCatalogEntries.isNotEmpty()) {
         AppCard {
@@ -355,6 +378,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         Muted("Classe: " + (CharacterCreationCatalog.find(classId)?.name ?: "não selecionada"))
         Muted("Profissão: " + (CharacterCreationCatalog.find(professionId)?.name ?: "não selecionada"))
         Muted("Classe de Malditos: " + (CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: "nenhuma"))
+        Muted("Classes híbridas: " + (listOf(classId).filter { it.isNotBlank() } + additionalClassIds).mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(" + "))
         Muted("Maldições lançadas são aplicadas durante a aventura, não escolhidas na criação da ficha.")
         Muted("Traços mecânicos do pacote: " + draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf("nenhum") }.joinToString(", "))
         Muted("Atributos: " + draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" })
