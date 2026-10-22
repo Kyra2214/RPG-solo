@@ -44,7 +44,7 @@ class SkillTreeCatalogTest {
     @Test fun classesTemSeisHabilidadesDistintivasAntesDaCulminancia() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
-        val starters = result.skills.filter { it.origin == SkillOrigin.CLASS && it.scrollRank in 1..6 }
+        val starters = result.skills.filter { it.origin == SkillOrigin.CLASS && it.scrollRank != null && it.scrollRank in 1..6 }
         assertEquals(300, starters.size)
         assertEquals(starters.size, starters.map { it.name }.distinct().size)
         assertTrue(starters.filter { it.scrollRank == 1 }.all {
