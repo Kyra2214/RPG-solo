@@ -12,9 +12,17 @@ data class SearchHit(val chunk: SourceChunk, val score: Double)
 
 /** DC-03: divide a fonte em trechos por seção e parágrafo. */
 object SourceChunker {
-    fun chunk(sourceId: String, source: ImportedSource, maxChars: Int = 1200): List<SourceChunk> {
+    fun chunk(
+        sourceId: String,
+        source: ImportedSource,
+        maxChars: Int = 1200,
+    ): List<SourceChunk> {
         val out = ArrayList<SourceChunk>()
-        fun emit(heading: String, text: String) {
+
+        fun emit(
+            heading: String,
+            text: String,
+        ) {
             val t = text.trim()
             if (t.isNotEmpty()) out.add(SourceChunk("$sourceId#${out.size}", sourceId, out.size, heading, t))
         }
@@ -23,7 +31,8 @@ object SourceChunker {
             for (p in sec.text.split("\n\n")) {
                 for (piece in hardSplit(p.trim(), maxChars)) {
                     if (buf.isNotEmpty() && buf.length + piece.length + 2 > maxChars) {
-                        emit(sec.heading, buf.toString()); buf.clear()
+                        emit(sec.heading, buf.toString())
+                        buf.clear()
                     }
                     if (buf.isNotEmpty()) buf.append("\n\n")
                     buf.append(piece)
@@ -34,7 +43,10 @@ object SourceChunker {
         return out
     }
 
-    private fun hardSplit(p: String, max: Int): List<String> {
+    private fun hardSplit(
+        p: String,
+        max: Int,
+    ): List<String> {
         if (p.length <= max) return listOf(p).filter { it.isNotEmpty() }
         val parts = ArrayList<String>()
         var rest = p
@@ -67,13 +79,19 @@ class SourceIndex {
 
     fun remove(sourceId: String) {
         val keep = chunks.filter { it.sourceId != sourceId }
-        chunks.clear(); ids.clear(); postings.clear()
+        chunks.clear()
+        ids.clear()
+        postings.clear()
         addAll(keep)
     }
 
     fun get(chunkId: String): SourceChunk? = chunks.firstOrNull { it.id == chunkId }
 
-    fun search(query: String, limit: Int = 5, sourceIds: Set<String>? = null): List<SearchHit> {
+    fun search(
+        query: String,
+        limit: Int = 5,
+        sourceIds: Set<String>? = null,
+    ): List<SearchHit> {
         val terms = tokens(query).distinct()
         if (terms.isEmpty() || chunks.isEmpty()) return emptyList()
         val scores = HashMap<Int, Double>()
@@ -89,11 +107,12 @@ class SourceIndex {
     }
 
     companion object {
-        private val stop = setOf(
-            "que", "uma", "uns", "umas", "com", "para", "por", "dos", "das", "nos", "nas", "mas", "como", "mais", "seu", "sua",
-            "seus", "suas", "ele", "ela", "eles", "elas", "este", "esta", "esse", "essa", "isso", "ao", "aos", "pelo", "pela",
-            "the", "and", "for", "with", "was", "his", "her", "that", "this", "are", "you"
-        )
+        private val stop =
+            setOf(
+                "que", "uma", "uns", "umas", "com", "para", "por", "dos", "das", "nos", "nas", "mas", "como", "mais", "seu", "sua",
+                "seus", "suas", "ele", "ela", "eles", "elas", "este", "esta", "esse", "essa", "isso", "ao", "aos", "pelo", "pela",
+                "the", "and", "for", "with", "was", "his", "her", "that", "this", "are", "you",
+            )
 
         fun tokens(text: String): List<String> =
             Normalizer.normalize(text.lowercase(), Normalizer.Form.NFD)
@@ -113,15 +132,16 @@ data class PipelineState(
     val stage: PipelineStage = PipelineStage.IMPORTED,
     val chunks: List<SourceChunk> = emptyList(),
     val indexedCount: Int = 0,
-    val error: String? = null
+    val error: String? = null,
 ) {
     val progress: Float
-        get() = when (stage) {
-            PipelineStage.IMPORTED -> 0f
-            PipelineStage.CHUNKED -> if (chunks.isEmpty()) 0f else 0.1f + 0.9f * indexedCount / chunks.size
-            PipelineStage.INDEXED -> 1f
-            PipelineStage.FAILED -> 0f
-        }
+        get() =
+            when (stage) {
+                PipelineStage.IMPORTED -> 0f
+                PipelineStage.CHUNKED -> if (chunks.isEmpty()) 0f else 0.1f + 0.9f * indexedCount / chunks.size
+                PipelineStage.INDEXED -> 1f
+                PipelineStage.FAILED -> 0f
+            }
     val done: Boolean get() = stage == PipelineStage.INDEXED || stage == PipelineStage.FAILED
 }
 
@@ -130,34 +150,42 @@ object SourcePipeline {
     fun start(sourceId: String) = PipelineState(sourceId)
 
     /** Reconstrói o índice em memória com o que a pipeline já indexou. */
-    fun resume(state: PipelineState): SourceIndex =
-        SourceIndex().also { it.addAll(state.chunks.take(state.indexedCount)) }
+    fun resume(state: PipelineState): SourceIndex = SourceIndex().also { it.addAll(state.chunks.take(state.indexedCount)) }
 
-    fun step(state: PipelineState, source: ImportedSource?, index: SourceIndex, batch: Int = 50): PipelineState = try {
-        when (state.stage) {
-            PipelineStage.IMPORTED -> {
-                val src = source ?: return state.copy(stage = PipelineStage.FAILED, error = "Fonte indisponível.")
-                val chunks = SourceChunker.chunk(state.sourceId, src)
-                if (chunks.isEmpty()) state.copy(stage = PipelineStage.FAILED, error = "Fonte sem trechos.")
-                else state.copy(stage = PipelineStage.CHUNKED, chunks = chunks, indexedCount = 0)
+    fun step(
+        state: PipelineState,
+        source: ImportedSource?,
+        index: SourceIndex,
+        batch: Int = 50,
+    ): PipelineState =
+        try {
+            when (state.stage) {
+                PipelineStage.IMPORTED -> {
+                    val src = source ?: return state.copy(stage = PipelineStage.FAILED, error = "Fonte indisponível.")
+                    val chunks = SourceChunker.chunk(state.sourceId, src)
+                    if (chunks.isEmpty()) {
+                        state.copy(stage = PipelineStage.FAILED, error = "Fonte sem trechos.")
+                    } else {
+                        state.copy(stage = PipelineStage.CHUNKED, chunks = chunks, indexedCount = 0)
+                    }
+                }
+                PipelineStage.CHUNKED -> {
+                    val end = minOf(state.chunks.size, state.indexedCount + batch.coerceAtLeast(1))
+                    index.addAll(state.chunks.subList(state.indexedCount, end))
+                    state.copy(indexedCount = end, stage = if (end >= state.chunks.size) PipelineStage.INDEXED else PipelineStage.CHUNKED)
+                }
+                else -> state
             }
-            PipelineStage.CHUNKED -> {
-                val end = minOf(state.chunks.size, state.indexedCount + batch.coerceAtLeast(1))
-                index.addAll(state.chunks.subList(state.indexedCount, end))
-                state.copy(indexedCount = end, stage = if (end >= state.chunks.size) PipelineStage.INDEXED else PipelineStage.CHUNKED)
-            }
-            else -> state
+        } catch (e: Exception) {
+            state.copy(stage = PipelineStage.FAILED, error = e.message ?: "Falha ao indexar.")
         }
-    } catch (e: Exception) {
-        state.copy(stage = PipelineStage.FAILED, error = e.message ?: "Falha ao indexar.")
-    }
 
     fun run(
         state: PipelineState,
         source: ImportedSource?,
         index: SourceIndex,
         shouldStop: () -> Boolean = { false },
-        onProgress: (PipelineState) -> Unit = {}
+        onProgress: (PipelineState) -> Unit = {},
     ): PipelineState {
         var s = state
         while (!s.done && !shouldStop()) {

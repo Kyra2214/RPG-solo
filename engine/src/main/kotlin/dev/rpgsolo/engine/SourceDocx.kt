@@ -36,36 +36,41 @@ object DocxText {
         return out.joinToString("\n\n")
     }
 
-    private fun readDocumentXml(bytes: ByteArray): String? = try {
-        ZipInputStream(ByteArrayInputStream(bytes)).use { zip ->
-            var result: String? = null
-            while (true) {
-                val e = zip.nextEntry ?: break
-                if (e.name == "word/document.xml") {
-                    val buf = java.io.ByteArrayOutputStream()
-                    val chunk = ByteArray(8192)
-                    var total = 0
-                    while (true) {
-                        val n = zip.read(chunk)
-                        if (n < 0) break
-                        total += n
-                        if (total > MAX_XML_BYTES) return null
-                        buf.write(chunk, 0, n)
+    private fun readDocumentXml(bytes: ByteArray): String? =
+        try {
+            ZipInputStream(ByteArrayInputStream(bytes)).use { zip ->
+                var result: String? = null
+                while (true) {
+                    val e = zip.nextEntry ?: break
+                    if (e.name == "word/document.xml") {
+                        val buf = java.io.ByteArrayOutputStream()
+                        val chunk = ByteArray(8192)
+                        var total = 0
+                        while (true) {
+                            val n = zip.read(chunk)
+                            if (n < 0) break
+                            total += n
+                            if (total > MAX_XML_BYTES) return null
+                            buf.write(chunk, 0, n)
+                        }
+                        result = buf.toString(Charsets.UTF_8.name())
+                        break
                     }
-                    result = buf.toString(Charsets.UTF_8.name())
-                    break
                 }
+                result
             }
-            result
+        } catch (_: Exception) {
+            null
         }
-    } catch (_: Exception) {
-        null
-    }
 
     private fun unescape(s: String): String =
         Regex("&(#x?[0-9A-Fa-f]+|amp|lt|gt|quot|apos);").replace(s) { m ->
             when (val k = m.groupValues[1]) {
-                "amp" -> "&"; "lt" -> "<"; "gt" -> ">"; "quot" -> "\""; "apos" -> "'"
+                "amp" -> "&"
+                "lt" -> "<"
+                "gt" -> ">"
+                "quot" -> "\""
+                "apos" -> "'"
                 else -> {
                     val code = if (k[1] == 'x' || k[1] == 'X') k.drop(2).toIntOrNull(16) else k.drop(1).toIntOrNull()
                     if (code != null && code in 1..0x10FFFF) String(Character.toChars(code)) else m.value

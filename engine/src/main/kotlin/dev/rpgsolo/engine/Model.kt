@@ -21,7 +21,7 @@ data class Resource(val current: Int, val max: Int) {
 data class AppliedCurseState(
     val curseId: String,
     val sourceId: String,
-    val remainingRounds: Int? = null
+    val remainingRounds: Int? = null,
 ) {
     init {
         require(curseId.isNotBlank()) { "maldição aplicada exige id" }
@@ -79,7 +79,7 @@ data class Entity(
     /** Árvores e afinidade persistidas para que jogador e IA usem o mesmo loadout. */
     val skillTreeTreeIds: Set<String> = emptySet(),
     val skillTreeClassOrder: List<String> = emptyList(),
-    val skillTreeElement: String = ""
+    val skillTreeElement: String = "",
 )
 
 /** MU-07.2: slots de magia de uma entidade: [total] pelos níveis-chave alcançados, [used] por magias aprendidas. */
@@ -131,7 +131,7 @@ data class GameState(
     /** I-02.1: NPC/lugar -> notas do que importa lembrar (as mais recentes, até [MEMORY_NOTES_PER_SUBJECT]). */
     val memories: Map<String, List<String>> = emptyMap(),
     /** MU-06.3: entidade -> efeitos temporários de habilidades, com duração em rodadas gravada. */
-    val activeEffects: Map<String, List<ActiveEffect>> = emptyMap()
+    val activeEffects: Map<String, List<ActiveEffect>> = emptyMap(),
 )
 
 const val MEMORY_NOTES_PER_SUBJECT = 5
@@ -149,7 +149,7 @@ data class Knowledge(val key: String, val text: String, val source: String, val 
 data class ConditionState(
     val remainingRounds: Int?,
     val damagePerRound: Int = 0,
-    val damageResource: String = "hp"
+    val damageResource: String = "hp",
 ) {
     init {
         require(remainingRounds == null || remainingRounds > 0) { "duração de condição inválida" }
@@ -165,11 +165,10 @@ data class CombatState(
     val round: Int = 1,
     val turnIndex: Int = 0,
     /** Entidades protegidas contra o próximo ataque recebido. */
-    val defending: Set<String> = emptySet()
+    val defending: Set<String> = emptySet(),
 ) {
     val current: String get() = order[turnIndex]
 }
-
 
 /** Relógio de agenda com preenchimento validado pelo motor. */
 @Serializable
@@ -189,7 +188,7 @@ data class Clock(
     /** Pista pública opcional de meio caminho (M-07): revelada ao preenchimento cruzar a metade das casas; vazia = sem pista. */
     val midClue: String = "",
     /** Consequência privada (M-07): orientação ao mestre para quando o relógio completar; nunca vai ao jogador pelo app. */
-    val consequence: String = ""
+    val consequence: String = "",
 ) {
     init {
         require(id.isNotBlank() && id.length <= 80) { "id de relógio inválido" }
@@ -215,6 +214,8 @@ data class Clock(
  * [believed] = true guarda informação falsa/incerta como "acreditada", nunca como verdade.
  */
 
-
 /** Chave não ambígua para a relação direcional entre duas entidades. */
-internal fun relationKey(fromId: String, toId: String): String = "$fromId\u0000$toId"
+internal fun relationKey(
+    fromId: String,
+    toId: String,
+): String = "$fromId\u0000$toId"

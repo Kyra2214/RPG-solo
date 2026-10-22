@@ -9,8 +9,7 @@ import java.io.File
 
 /** `arquetipos.txt`: formato, validação pelo pacote e ordem alfabética sem acento. */
 class ArquetiposTest {
-    private fun dir(path: String): File =
-        listOf("src/$path", "rules/src/$path").map(::File).first { it.exists() }
+    private fun dir(path: String): File = listOf("src/$path", "rules/src/$path").map(::File).first { it.exists() }
 
     private fun files(path: String): MutableMap<String, String> =
         dir(path).listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }.toMutableMap()
@@ -19,10 +18,11 @@ class ArquetiposTest {
 
     private fun install(f: Map<String, String>): InstallResult = PackageRegistry().install(f)
 
-    private fun pkg(): RulePackage = when (val result = install(proprio())) {
-        is InstallResult.Success -> result.pkg
-        is InstallResult.Failure -> throw AssertionError("pacote próprio inválido: ${result.errors.joinToString("; ")}")
-    }
+    private fun pkg(): RulePackage =
+        when (val result = install(proprio())) {
+            is InstallResult.Success -> result.pkg
+            is InstallResult.Failure -> throw AssertionError("pacote próprio inválido: ${result.errors.joinToString("; ")}")
+        }
 
     @Test fun pacoteProprioCarregaComArquetipos() {
         val p = pkg()
@@ -121,10 +121,11 @@ class ArquetiposTest {
 
     @Test fun filhoSobrescreveArquetipoDoPaiPorId() {
         val base = proprio()
-        val filho = mutableMapOf(
-            "manifest.txt" to "id|proprio-ext\nsistema|proprio\nedicao|sistema-proprio\nversao|0.1.0\norigem|autoral\nlicenca|x\nlicenca_status|VERIFICADA\ntipo|TESTE\nestende|sistema-proprio\n",
-            "arquetipos.txt" to "guardiao|Guardião Veterano|Mais calejado.|poder=2,habilidade=1,resistencia=3|escudo-vivo,dever-de-proteger"
-        )
+        val filho =
+            mutableMapOf(
+                "manifest.txt" to "id|proprio-ext\nsistema|proprio\nedicao|sistema-proprio\nversao|0.1.0\norigem|autoral\nlicenca|x\nlicenca_status|VERIFICADA\ntipo|TESTE\nestende|sistema-proprio\n",
+                "arquetipos.txt" to "guardiao|Guardião Veterano|Mais calejado.|poder=2,habilidade=1,resistencia=3|escudo-vivo,dever-de-proteger",
+            )
         val reg = PackageRegistry()
         assertTrue(reg.install(base) is InstallResult.Success)
         assertTrue(reg.install(filho) is InstallResult.Success)

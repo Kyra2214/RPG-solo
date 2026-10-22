@@ -30,7 +30,14 @@ class ModelRoutingTest {
     }
 
     @Test fun modeloIgualAoPrincipalNaoCriaOutroProvedor() {
-        val r = ProviderFactory.buildRoles(ProviderKind.OPENAI_COMPATIBLE, cfg, "principal", "principal", transport = FakeTransport(emptyList()))
+        val r =
+            ProviderFactory.buildRoles(
+                ProviderKind.OPENAI_COMPATIBLE,
+                cfg,
+                "principal",
+                "principal",
+                transport = FakeTransport(emptyList()),
+            )
         assertSame(r.narrator, r.cheap)
         assertFalse(r.hasPremium)
     }
@@ -40,9 +47,12 @@ class ModelRoutingTest {
         val r = ProviderFactory.buildRoles(ProviderKind.OPENAI_COMPATIBLE, cfg, "barato", "premium", transport = t)
         assertTrue(r.hasPremium)
         val q = AiRequest(listOf(AiMessage(Role.USER, "oi")))
-        r.cheap.complete(q); assertTrue("\"model\":\"barato\"" in t.lastBody)
-        r.narrator.complete(q); assertTrue("\"model\":\"principal\"" in t.lastBody)
-        r.premium.complete(q); assertTrue("\"model\":\"premium\"" in t.lastBody)
+        r.cheap.complete(q)
+        assertTrue("\"model\":\"barato\"" in t.lastBody)
+        r.narrator.complete(q)
+        assertTrue("\"model\":\"principal\"" in t.lastBody)
+        r.premium.complete(q)
+        assertTrue("\"model\":\"premium\"" in t.lastBody)
         assertEquals("Bearer sk-chave-1234", t.lastHeaders["Authorization"])
     }
 
@@ -55,9 +65,10 @@ class ModelRoutingTest {
         assertEquals(NarrationTier.STANDARD, Importance.of(null))
     }
 
-    private fun session() = CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 3L, EngineConfig())).also {
-        it.execute(CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))))
-    }
+    private fun session() =
+        CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 3L, EngineConfig())).also {
+            it.execute(CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))))
+        }
 
     private fun ok(n: String) = """{"narrative":"$n"}"""
 

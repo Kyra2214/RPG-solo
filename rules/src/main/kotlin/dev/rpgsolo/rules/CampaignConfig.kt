@@ -26,7 +26,7 @@ data class CampaignConfig(
     val difficulty: DifficultySetting,
     val progressionId: String? = null,
     /** Limites de conteúdo: independentes de gênero, dificuldade e regras. */
-    val contentLimits: List<String> = emptyList()
+    val contentLimits: List<String> = emptyList(),
 )
 
 sealed interface ConfigResult {
@@ -34,21 +34,37 @@ sealed interface ConfigResult {
         val edition: SystemEdition,
         val compatibility: Compatibility,
         /** Notas que o jogador deve ver antes de começar (adaptações, combinações não verificadas). */
-        val notes: List<String>
+        val notes: List<String>,
     ) : ConfigResult
+
     /** Falta uma informação que muda as regras: perguntar ao jogador. */
     data class NeedsQuestion(val question: String, val options: List<String>) : ConfigResult
+
     data class Invalid(val errors: List<String>) : ConfigResult
 }
 
-fun resolveConfig(catalog: Catalog, c: CampaignConfig): ConfigResult {
+fun resolveConfig(
+    catalog: Catalog,
+    c: CampaignConfig,
+): ConfigResult {
     val errors = mutableListOf<String>()
-    fun check(ids: List<String>, dim: String) = ids.forEach {
+
+    fun check(
+        ids: List<String>,
+        dim: String,
+    ) = ids.forEach {
         val e = catalog.entry(it)
-        if (e == null) errors += "id inexistente: $it" else if (e.dimension != dim) errors += "$it não é da dimensão $dim"
+        if (e == null) {
+            errors += "id inexistente: $it"
+        } else if (e.dimension != dim) {
+            errors += "$it não é da dimensão $dim"
+        }
     }
-    check(c.settingIds, "setting"); check(c.structureIds, "structure"); check(c.philosophyIds, "philosophy")
-    check(c.toneIds, "tone"); check(listOf(c.difficulty.levelId), "difficulty")
+    check(c.settingIds, "setting")
+    check(c.structureIds, "structure")
+    check(c.philosophyIds, "philosophy")
+    check(c.toneIds, "tone")
+    check(listOf(c.difficulty.levelId), "difficulty")
     c.progressionId?.let { check(listOf(it), "progression") }
     c.difficulty.params.keys.filter { it !in ALLOWED_DIFFICULTY_PARAMS }
         .forEach { errors += "parâmetro de dificuldade não permitido: $it" }
@@ -65,15 +81,17 @@ fun resolveConfig(catalog: Catalog, c: CampaignConfig): ConfigResult {
     if (editions.isEmpty()) errors += "sistema desconhecido: ${c.systemFamily}"
     if (errors.isNotEmpty()) return ConfigResult.Invalid(errors)
 
-    val edition = when {
-        c.editionId != null -> editions.firstOrNull { it.id == c.editionId }
-            ?: return ConfigResult.Invalid(listOf("a edição ${c.editionId} não pertence ao sistema ${c.systemFamily}"))
-        editions.size == 1 -> editions.first()
-        else -> return ConfigResult.NeedsQuestion(
-            "Qual edição de ${editions.first().name} você quer usar? As regras mudam entre elas.",
-            editions.map { it.id }
-        )
-    }
+    val edition =
+        when {
+            c.editionId != null ->
+                editions.firstOrNull { it.id == c.editionId }
+                    ?: return ConfigResult.Invalid(listOf("a edição ${c.editionId} não pertence ao sistema ${c.systemFamily}"))
+            editions.size == 1 -> editions.first()
+            else -> return ConfigResult.NeedsQuestion(
+                "Qual edição de ${editions.first().name} você quer usar? As regras mudam entre elas.",
+                editions.map { it.id },
+            )
+        }
 
     val notes = mutableListOf<String>()
     var worst = Compatibility.NATIVE

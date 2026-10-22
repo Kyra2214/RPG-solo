@@ -10,27 +10,29 @@ import dev.rpgsolo.engine.InMemoryEventStore
 import dev.rpgsolo.engine.Resource
 import dev.rpgsolo.rules.InstallResult
 import dev.rpgsolo.rules.PackageRegistry
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 /** F2.3: tradução PowerDef → PowerSpec (PowerMenu) e ativação pelo PlayController, com desfazer. */
 class PowerActivationFlowTest {
-    private val powers = """
+    private val powers =
+        """
         cura-rapida|Cura rápida|Fecha ferimentos.|arcano|mana|1|self|cura|2
         raio|Raio|Descarga contra um inimigo.|arcano|mana|1|inimigo|dano|arma-leve|ataque
         veneno|Veneno|Envenena um inimigo.|arcano|mana|1|inimigo|condicao|envenenado
         purgar|Purgar|Remove veneno.|arcano|mana|0|self|remover-condicao|envenenado
-    """.trimIndent()
+        """.trimIndent()
 
     private fun pkg(): dev.rpgsolo.rules.RulePackage {
-        val root = listOf(
-            "rules/src/test/resources/packages/teste-basico",
-            "../rules/src/test/resources/packages/teste-basico",
-            "src/test/resources/packages/teste-basico"
-        ).map(::File).first { it.exists() }
+        val root =
+            listOf(
+                "rules/src/test/resources/packages/teste-basico",
+                "../rules/src/test/resources/packages/teste-basico",
+                "src/test/resources/packages/teste-basico",
+            ).map(::File).first { it.exists() }
         val files = root.listFiles()!!.filter { it.name.endsWith(".txt") }.associate { it.name to it.readText() }.toMutableMap()
         files["poderes.txt"] = powers
         val installed = PackageRegistry().install(files)
@@ -38,13 +40,23 @@ class PowerActivationFlowTest {
         return (installed as InstallResult.Success).pkg
     }
 
-    private fun session() = CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 11L, EngineConfig(deathResource = "hp"))).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, stats = mapOf("forca" to 2, "mente" to 3),
-                resources = mapOf("hp" to Resource(4, 10), "mana" to Resource(4, 4)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(30, 30))))
-        ))
-    }
+    private fun session() =
+        CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 11L, EngineConfig(deathResource = "hp"))).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(
+                        Entity(
+                            "hero",
+                            "Herói",
+                            EntityKind.PLAYER,
+                            stats = mapOf("forca" to 2, "mente" to 3),
+                            resources = mapOf("hp" to Resource(4, 10), "mana" to Resource(4, 4)),
+                        ),
+                    ),
+                    CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("hp" to Resource(30, 30)))),
+                ),
+            )
+        }
 
     private val traits = listOf("arcano")
 
@@ -60,9 +72,11 @@ class PowerActivationFlowTest {
         val raio = menu.build("raio", "hero", "orc", s.state, traits) as PowerBuild.Ready
         val strike = raio.spec.effect as dev.rpgsolo.engine.PowerEffect.Strike
         assertEquals("hp", strike.resource)
-        assertEquals(1, strike.diceCount); assertEquals(4, strike.diceSides)
+        assertEquals(1, strike.diceCount)
+        assertEquals(4, strike.diceSides)
         assertEquals(2, strike.bonus)
-        assertEquals("mana", raio.spec.resource); assertEquals(1, raio.spec.cost)
+        assertEquals("mana", raio.spec.resource)
+        assertEquals(1, raio.spec.cost)
         assertEquals("ataque", raio.spec.check?.checkId)
         val cura = menu.build("cura-rapida", "hero", null, s.state, traits) as PowerBuild.Ready
         assertEquals(dev.rpgsolo.engine.PowerEffect.Cure("hp", 2), cura.spec.effect)

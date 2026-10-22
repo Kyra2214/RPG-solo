@@ -7,16 +7,26 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PowerActivationTest {
-    private fun session() = CampaignSession.create(
-        InMemoryEventStore(), CampaignRecord("c", "T", 5L, EngineConfig(deathResource = "pv"))
-    ).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(5, 10), "pm" to Resource(3, 3)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(30, 30))))
-        ))
-    }
+    private fun session() =
+        CampaignSession.create(
+            InMemoryEventStore(),
+            CampaignRecord("c", "T", 5L, EngineConfig(deathResource = "pv")),
+        ).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(
+                        Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(5, 10), "pm" to Resource(3, 3))),
+                    ),
+                    CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(30, 30)))),
+                ),
+            )
+        }
 
-    private fun res(s: CampaignSession, id: String, r: String) = s.state.entities.getValue(id).resources.getValue(r).current
+    private fun res(
+        s: CampaignSession,
+        id: String,
+        r: String,
+    ) = s.state.entities.getValue(id).resources.getValue(r).current
 
     @Test fun curaGastaCustoEAumentaRecurso() {
         val s = session()
@@ -95,16 +105,22 @@ class PowerActivationTest {
         val cleanse = s.activatePower(PowerSpec("purificar", "hero", null, "pm", 0, PowerEffect.Cleanse("envenenado")))
         assertTrue(cleanse is PowerResult.Activated)
         assertFalse("envenenado" in s.state.conditions["hero"].orEmpty())
-        assertTrue(s.activatePower(PowerSpec("purificar", "hero", null, "pm", 0, PowerEffect.Cleanse("envenenado"))) is PowerResult.Rejected)
+        assertTrue(
+            s.activatePower(PowerSpec("purificar", "hero", null, "pm", 0, PowerEffect.Cleanse("envenenado"))) is PowerResult.Rejected,
+        )
     }
 
     @Test fun logSalvoAcompanhaOMotor() {
         val store = InMemoryEventStore()
         val s = CampaignSession.create(store, CampaignRecord("c", "T", 5L, EngineConfig(deathResource = "pv")))
-        s.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(5, 10), "pm" to Resource(3, 3)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(30, 30))))
-        ))
+        s.executeAll(
+            listOf(
+                CreateEntity(
+                    Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(5, 10), "pm" to Resource(3, 3))),
+                ),
+                CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(30, 30)))),
+            ),
+        )
         s.activatePower(PowerSpec("rajada", "hero", "orc", "pm", 1, PowerEffect.Strike("pv", 1, 6)))
         assertEquals(s.eventCount, store.size("c"))
         val reopened = CampaignSession.open(store, "c")

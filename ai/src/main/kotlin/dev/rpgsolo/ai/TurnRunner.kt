@@ -17,7 +17,7 @@ sealed interface TurnOutcome {
         /** O mestre pediu uma rolagem com tabela: nada foi aplicado ainda; o jogo espera o jogador rolar. */
         val rollRequest: RollRequest? = null,
         /** Poder pedido pela IA e já resolvido pelo motor nesta jogada. */
-        val powerUse: PowerUse? = null
+        val powerUse: PowerUse? = null,
     ) : TurnOutcome
 
     /** A IA respondeu, mas o motor recusou as propostas mesmo após a correção. Nada foi alterado. */
@@ -35,7 +35,7 @@ class TurnRunner(
     private val provider: AiProvider,
     private val maxCorrections: Int = 1,
     /** Permite criar NPCs sem pacote, desde que o app forneça uma edição e marque a ficha como não validada. */
-    private val npcCreator: ((NpcProposal) -> NpcResult)? = null
+    private val npcCreator: ((NpcProposal) -> NpcResult)? = null,
 ) {
     init {
         require(maxCorrections >= 0) { "maxCorrections deve ser >= 0" }
@@ -43,6 +43,7 @@ class TurnRunner(
 
     private sealed interface Attempt {
         data class Done(val outcome: TurnOutcome.Applied) : Attempt
+
         data class Retry(val problem: String, val fromEngine: Boolean) : Attempt
     }
 
@@ -55,7 +56,7 @@ class TurnRunner(
         playerEntityId: String? = null,
         sceneNpcIds: Set<String> = emptySet(),
         onNarrativeChunk: (String) -> Unit = {},
-        powers: PowerContext? = null
+        powers: PowerContext? = null,
     ): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
@@ -63,19 +64,20 @@ class TurnRunner(
         var lastFromEngine = false
 
         for (i in 0..maxCorrections) {
-            val response = try {
-                val decoder = NarrativeJsonStream()
-                var emitted = ""
-                provider.stream(request.copy(messages = messages, jsonMode = true)) { chunk ->
-                    val narrative = decoder.accept(chunk)
-                    if (narrative.length > emitted.length) {
-                        emitted = narrative
-                        runCatching { onNarrativeChunk(narrative) }
+            val response =
+                try {
+                    val decoder = NarrativeJsonStream()
+                    var emitted = ""
+                    provider.stream(request.copy(messages = messages, jsonMode = true)) { chunk ->
+                        val narrative = decoder.accept(chunk)
+                        if (narrative.length > emitted.length) {
+                            emitted = narrative
+                            runCatching { onNarrativeChunk(narrative) }
+                        }
                     }
+                } catch (e: AiError) {
+                    return TurnOutcome.Failed(e.message ?: "erro de IA", e)
                 }
-            } catch (e: AiError) {
-                return TurnOutcome.Failed(e.message ?: "erro de IA", e)
-            }
             when (val a = attempt(session, response.text, menu, canRequest, playerEntityId, sceneNpcIds, powers)) {
                 is Attempt.Done -> return a.outcome
                 is Attempt.Retry -> {
@@ -86,7 +88,7 @@ class TurnRunner(
                         AiMessage(
                             Role.USER,
                             "Sua resposta foi recusada: ${a.problem}. " +
-                                "Responda de novo apenas com o JSON no formato pedido, corrigindo o problema."
+                                "Responda de novo apenas com o JSON no formato pedido, corrigindo o problema.",
                         )
                 }
             }
@@ -99,6 +101,7 @@ class TurnRunner(
     /** Extrai incrementalmente apenas o campo narrative do JSON; nunca mostra o restante do payload. */
     private class NarrativeJsonStream {
         private val raw = StringBuilder()
+
         fun accept(chunk: String): String {
             raw.append(chunk)
             val source = raw.toString()
@@ -114,7 +117,10 @@ class TurnRunner(
             while (i < source.length) {
                 val ch = source[i++]
                 if (ch == '"') break
-                if (ch != '\\') { out.append(ch); continue }
+                if (ch != '\\') {
+                    out.append(ch)
+                    continue
+                }
                 if (i >= source.length) break
                 when (val esc = source[i++]) {
                     '"' -> out.append('"')
@@ -128,7 +134,8 @@ class TurnRunner(
                     'u' -> {
                         if (i + 4 > source.length) break
                         val code = source.substring(i, i + 4).toIntOrNull(16) ?: break
-                        out.append(code.toChar()); i += 4
+                        out.append(code.toChar())
+                        i += 4
                     }
                     else -> out.append(esc)
                 }
@@ -138,38 +145,56 @@ class TurnRunner(
     }
 
     /** request_power: valida pelo pacote e deixa o motor gastar custo, rolar e aplicar o efeito. Recusa volta à IA. */
-    private fun attemptPower(session: CampaignSession, out: TurnOutput, powers: PowerContext?, playerEntityId: String?): Attempt {
+    private fun attemptPower(
+        session: CampaignSession,
+        out: TurnOutput,
+        powers: PowerContext?,
+        playerEntityId: String?,
+    ): Attempt {
         val request = out.powerRequest!!
         val context = powers ?: return Attempt.Retry("este jogo não oferece poderes; não use request_power", false)
         val playerId = playerEntityId ?: return Attempt.Retry("o jogador não foi identificado para usar o poder", false)
         val targetTraits = request.targetId?.let { session.state.entities[it]?.traits.orEmpty() }.orEmpty()
         val built = context.menu.build(request.powerId, playerId, request.targetId, session.state, context.traitIds(), targetTraits)
-        val ready = when (built) {
-            is PowerBuild.Invalid -> return Attempt.Retry("poder recusado: ${built.reason}", false)
-            is PowerBuild.Ready -> built
-        }
+        val ready =
+            when (built) {
+                is PowerBuild.Invalid -> return Attempt.Retry("poder recusado: ${built.reason}", false)
+                is PowerBuild.Ready -> built
+            }
         val mark = session.mark()
         return when (val r = session.activatePower(ready.spec)) {
             is dev.rpgsolo.engine.PowerResult.Rejected -> {
                 if (session.eventCount != mark) session.rollbackTo(mark)
                 Attempt.Retry("o motor recusou o poder: ${r.reason}", true)
             }
-            is dev.rpgsolo.engine.PowerResult.Activated -> Attempt.Done(TurnOutcome.Applied(
-                out.narrative,
-                session.events.drop(mark),
-                out.suggestions,
-                powerUse = PowerUse(
-                    ready.def.name,
-                    session.state.entities[playerId]?.name ?: playerId,
-                    ready.spec.targetId?.let { session.state.entities[it]?.name },
-                    ready.spec,
-                    r
+            is dev.rpgsolo.engine.PowerResult.Activated ->
+                Attempt.Done(
+                    TurnOutcome.Applied(
+                        out.narrative,
+                        session.events.drop(mark),
+                        out.suggestions,
+                        powerUse =
+                            PowerUse(
+                                ready.def.name,
+                                session.state.entities[playerId]?.name ?: playerId,
+                                ready.spec.targetId?.let { session.state.entities[it]?.name },
+                                ready.spec,
+                                r,
+                            ),
+                    ),
                 )
-            ))
         }
     }
 
-    private fun attempt(session: CampaignSession, text: String, menu: CheckMenu?, canRequest: Boolean, playerEntityId: String?, sceneNpcIds: Set<String>, powers: PowerContext?): Attempt {
+    private fun attempt(
+        session: CampaignSession,
+        text: String,
+        menu: CheckMenu?,
+        canRequest: Boolean,
+        playerEntityId: String?,
+        sceneNpcIds: Set<String>,
+        powers: PowerContext?,
+    ): Attempt {
         return when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
                 Attempt.Retry("formato inválido: " + parsed.errors.joinToString("; "), false)
@@ -180,28 +205,34 @@ class TurnRunner(
                 val roll = out.rollRequest
                 if (req != null || roll != null) {
                     // Teste ou rolagem pedidos: valida contra o pacote e só guarda o pedido. Mudanças de estado esperam o resultado.
-                    val invalid = when {
-                        menu == null -> "este jogo não oferece testes nem rolagens"
-                        req != null -> menu.validate(req)
-                        roll != null -> menu.validateRoll(roll, session.state)
-                        else -> null
-                    }
+                    val invalid =
+                        when {
+                            menu == null -> "este jogo não oferece testes nem rolagens"
+                            req != null -> menu.validate(req)
+                            roll != null -> menu.validateRoll(roll, session.state)
+                            else -> null
+                        }
                     val secretInvalid = req?.let { menu?.validateSecretRequest(it, session.state) }
-                    val advancedInvalid = req?.let { request ->
-                        val playerId = playerEntityId ?: return@let "o jogador não foi identificado para o teste avançado"
-                        menu?.validateAdvancedRequest(request, session.state, playerId, sceneNpcIds)
+                    val advancedInvalid =
+                        req?.let { request ->
+                            val playerId = playerEntityId ?: return@let "o jogador não foi identificado para o teste avançado"
+                            menu?.validateAdvancedRequest(request, session.state, playerId, sceneNpcIds)
+                        }
+                    val problem: String? =
+                        when {
+                            menu == null -> "este jogo não oferece testes nem rolagens; não use request_check nem request_roll"
+                            !canRequest -> "você já pediu testes demais em sequência; narre o desfecho agora, sem request_check nem request_roll"
+                            invalid != null -> "pedido inválido: $invalid"
+                            secretInvalid != null -> "pedido de segredo inválido: $secretInvalid"
+                            advancedInvalid != null -> "pedido de teste avançado inválido: $advancedInvalid"
+                            out.proposals.isNotEmpty() || out.npcProposal != null -> "com request_check/request_roll não envie proposals nem create_npc; proponha mudanças só depois do resultado"
+                            else -> null
+                        }
+                    if (problem != null) {
+                        Attempt.Retry(problem, false)
+                    } else {
+                        Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), emptyList(), req, roll))
                     }
-                    val problem: String? = when {
-                        menu == null -> "este jogo não oferece testes nem rolagens; não use request_check nem request_roll"
-                        !canRequest -> "você já pediu testes demais em sequência; narre o desfecho agora, sem request_check nem request_roll"
-                        invalid != null -> "pedido inválido: $invalid"
-                        secretInvalid != null -> "pedido de segredo inválido: $secretInvalid"
-                        advancedInvalid != null -> "pedido de teste avançado inválido: $advancedInvalid"
-                        out.proposals.isNotEmpty() || out.npcProposal != null -> "com request_check/request_roll não envie proposals nem create_npc; proponha mudanças só depois do resultado"
-                        else -> null
-                    }
-                    if (problem != null) Attempt.Retry(problem, false)
-                    else Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), emptyList(), req, roll))
                 } else if (out.proposals.isEmpty() && out.npcProposal == null) {
                     Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), out.suggestions))
                 } else {
@@ -213,42 +244,46 @@ class TurnRunner(
                     val transactionMark = session.mark()
                     val normalized = mutableListOf<dev.rpgsolo.engine.Command>()
                     for (command in out.proposals) {
-                        val playerTarget = when (command) {
-                            is dev.rpgsolo.engine.Damage -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
-                            is dev.rpgsolo.engine.Heal -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
-                            is dev.rpgsolo.engine.SpendResource -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
-                            is dev.rpgsolo.engine.GainXp -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
-                            is dev.rpgsolo.engine.ConsumeItem -> session.state.entities[command.ownerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
-                            is dev.rpgsolo.engine.AddCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
-                            is dev.rpgsolo.engine.RemoveCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
-                            else -> false
-                        }
-                        val combatantId = when (command) {
-                            is dev.rpgsolo.engine.Damage -> command.entityId
-                            is dev.rpgsolo.engine.Heal -> command.entityId
-                            is dev.rpgsolo.engine.SpendResource -> command.entityId
-                            is dev.rpgsolo.engine.AddCondition -> command.entityId
-                            is dev.rpgsolo.engine.RemoveCondition -> command.entityId
-                            else -> null
-                        }
+                        val playerTarget =
+                            when (command) {
+                                is dev.rpgsolo.engine.Damage -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                                is dev.rpgsolo.engine.Heal -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                                is dev.rpgsolo.engine.SpendResource -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                                is dev.rpgsolo.engine.GainXp -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                                is dev.rpgsolo.engine.ConsumeItem -> session.state.entities[command.ownerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                                is dev.rpgsolo.engine.AddCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                                is dev.rpgsolo.engine.RemoveCondition -> session.state.entities[command.entityId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
+                                else -> false
+                            }
+                        val combatantId =
+                            when (command) {
+                                is dev.rpgsolo.engine.Damage -> command.entityId
+                                is dev.rpgsolo.engine.Heal -> command.entityId
+                                is dev.rpgsolo.engine.SpendResource -> command.entityId
+                                is dev.rpgsolo.engine.AddCondition -> command.entityId
+                                is dev.rpgsolo.engine.RemoveCondition -> command.entityId
+                                else -> null
+                            }
                         if (combatantId != null && session.state.combat?.order?.contains(combatantId) == true) {
                             return Attempt.Retry(
                                 "durante o combate PV, custos e condições de quem luta só mudam por ações do motor (ataque, poder, condição do pacote); proponha apenas a intenção e narre o resultado",
-                                false
+                                false,
                             )
                         }
                         if (playerTarget) {
                             return Attempt.Retry(
                                 "esta proposta alteraria diretamente recursos, XP, inventário ou condições do jogador; use uma ação local ou uma rolagem mecânica do motor",
-                                false
+                                false,
                             )
                         }
                         when (command) {
                             is dev.rpgsolo.engine.AddCondition -> {
-                                val conditionMenu = menu
-                                    ?: return Attempt.Retry("não há pacote ativo para validar condições mecânicas", false)
-                                val configured = conditionMenu.conditionCommand(command.entityId, command.condition)
-                                    ?: return Attempt.Retry("condição '${command.condition}' não existe no pacote ativo", false)
+                                val conditionMenu =
+                                    menu
+                                        ?: return Attempt.Retry("não há pacote ativo para validar condições mecânicas", false)
+                                val configured =
+                                    conditionMenu.conditionCommand(command.entityId, command.condition)
+                                        ?: return Attempt.Retry("condição '${command.condition}' não existe no pacote ativo", false)
                                 val targetTraits = session.state.entities[command.entityId]?.traits.orEmpty()
                                 if (conditionMenu.isImmune(command.entityId, command.condition, targetTraits)) {
                                     return Attempt.Retry("o alvo é imune à condição '${command.condition}'", false)
@@ -256,21 +291,24 @@ class TurnRunner(
                                 normalized += configured
                             }
                             is dev.rpgsolo.engine.AddItem, is dev.rpgsolo.engine.ConsumeItem -> {
-                                val itemMenu = menu
-                                    ?: return Attempt.Retry("não há pacote ativo para validar itens", false)
-                                val itemId = when (command) {
-                                    is dev.rpgsolo.engine.AddItem -> command.itemId
-                                    is dev.rpgsolo.engine.ConsumeItem -> command.itemId
-                                    else -> error("comando não é item")
-                                }
+                                val itemMenu =
+                                    menu
+                                        ?: return Attempt.Retry("não há pacote ativo para validar itens", false)
+                                val itemId =
+                                    when (command) {
+                                        is dev.rpgsolo.engine.AddItem -> command.itemId
+                                        is dev.rpgsolo.engine.ConsumeItem -> command.itemId
+                                        else -> error("comando não é item")
+                                    }
                                 if (!itemMenu.hasItem(itemId)) {
                                     return Attempt.Retry("item '$itemId' não existe no pacote ativo", false)
                                 }
                                 normalized += command
                             }
                             is dev.rpgsolo.engine.ProposeRuleAddition -> {
-                                val ruleMenu = menu
-                                    ?: return Attempt.Retry("adaptação exige um pacote de regras ativo", false)
+                                val ruleMenu =
+                                    menu
+                                        ?: return Attempt.Retry("adaptação exige um pacote de regras ativo", false)
                                 val invalid = ruleMenu.validateRuleAddition(command.rule)
                                 if (invalid != null) return Attempt.Retry("adaptação recusada: $invalid", false)
                                 normalized += command
@@ -284,50 +322,57 @@ class TurnRunner(
                         if (npcMenu == null && npcCreator == null) {
                             return Attempt.Retry("não há pacote nem contexto de sistema para criar a ficha de NPC", false)
                         }
-                        val npcId = if (proposal.id == "pending") {
-                            "npc-${transactionMark}-${proposal.name.trim().lowercase().hashCode()}"
-                        } else {
-                            if (proposal.id in session.state.entities || proposal.id == playerEntityId || proposal.id == "player") {
-                                return Attempt.Retry("o id '${proposal.id}' do NPC já está em uso; escolha outro", false)
+                        val npcId =
+                            if (proposal.id == "pending") {
+                                "npc-$transactionMark-${proposal.name.trim().lowercase().hashCode()}"
+                            } else {
+                                if (proposal.id in session.state.entities || proposal.id == playerEntityId || proposal.id == "player") {
+                                    return Attempt.Retry("o id '${proposal.id}' do NPC já está em uso; escolha outro", false)
+                                }
+                                proposal.id
                             }
-                            proposal.id
-                        }
                         combatNpcId = npcId
                         val candidate = proposal.copy(id = npcId)
-                        val result = npcCreator?.invoke(candidate)
-                            ?: npcMenu?.createNpc(candidate)
-                            ?: return Attempt.Retry("não há pacote ativo para validar a ficha de NPC", false)
-                        val sheet = when (result) {
-                            is NpcResult.Created -> result.sheet
-                            is NpcResult.Rejected ->
-                                return Attempt.Retry("ficha de NPC recusada: ${result.errors.joinToString("; ")}", false)
-                        }
+                        val result =
+                            npcCreator?.invoke(candidate)
+                                ?: npcMenu?.createNpc(candidate)
+                                ?: return Attempt.Retry("não há pacote ativo para validar a ficha de NPC", false)
+                        val sheet =
+                            when (result) {
+                                is NpcResult.Created -> result.sheet
+                                is NpcResult.Rejected ->
+                                    return Attempt.Retry("ficha de NPC recusada: ${result.errors.joinToString("; ")}", false)
+                            }
                         normalized += dev.rpgsolo.engine.CreateEntity(sheet.toEntity())
                         sheet.dossier?.let { normalized += dev.rpgsolo.engine.SetNpcDossier(it) }
                     }
                     when (val r = session.executeAll(normalized)) {
                         is ExecResult.Accepted -> {
                             if (out.requestCombat) {
-                                val npcId = combatNpcId
-                                    ?: run {
-                                        session.rollbackTo(transactionMark)
-                                        return Attempt.Retry("request_combat não produziu um adversário", false)
-                                    }
-                                val activeMenu = menu
-                                    ?: run {
-                                        session.rollbackTo(transactionMark)
-                                        return Attempt.Retry("request_combat exige pacote de regras ativo", false)
-                                    }
+                                val npcId =
+                                    combatNpcId
+                                        ?: run {
+                                            session.rollbackTo(transactionMark)
+                                            return Attempt.Retry("request_combat não produziu um adversário", false)
+                                        }
+                                val activeMenu =
+                                    menu
+                                        ?: run {
+                                            session.rollbackTo(transactionMark)
+                                            return Attempt.Retry("request_combat exige pacote de regras ativo", false)
+                                        }
                                 val startError = activeMenu.startCombat(session, playerEntityId!!, npcId)
                                 if (startError != null) {
                                     session.rollbackTo(transactionMark)
                                     return Attempt.Retry("não foi possível iniciar o combate: $startError", true)
                                 }
-                                Attempt.Done(TurnOutcome.Applied(
-                                    out.narrative,
-                                    session.events.drop(transactionMark),
-                                    out.suggestions
-                                ))
+                                Attempt.Done(
+                                    TurnOutcome.Applied(
+                                        out.narrative,
+                                        session.events.drop(transactionMark),
+                                        out.suggestions,
+                                    ),
+                                )
                             } else {
                                 Attempt.Done(TurnOutcome.Applied(out.narrative, r.events, out.suggestions))
                             }

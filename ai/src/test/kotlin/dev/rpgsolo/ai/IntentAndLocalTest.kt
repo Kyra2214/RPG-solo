@@ -1,12 +1,12 @@
 package dev.rpgsolo.ai
 
+import dev.rpgsolo.engine.AddCondition
+import dev.rpgsolo.engine.AddItem
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.Damage
-import dev.rpgsolo.engine.AddItem
-import dev.rpgsolo.engine.AddCondition
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
 import dev.rpgsolo.engine.EntityKind
@@ -24,14 +24,26 @@ class IntentAndLocalTest {
     private val atacar = CheckOption("ataque", "atacar um inimigo", CheckSpec("ataque", 1, 20, 2, 10))
     private val options = listOf(furtar, atacar)
 
-    private fun session() = CampaignSession.create(
-        InMemoryEventStore(), CampaignRecord("c", "T", 5L, EngineConfig(deathResource = "pv"))
-    ).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, stats = mapOf("forca" to 3), resources = mapOf("pv" to Resource(10, 10)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(6, 6))))
-        ))
-    }
+    private fun session() =
+        CampaignSession.create(
+            InMemoryEventStore(),
+            CampaignRecord("c", "T", 5L, EngineConfig(deathResource = "pv")),
+        ).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(
+                        Entity(
+                            "hero",
+                            "Herói",
+                            EntityKind.PLAYER,
+                            stats = mapOf("forca" to 3),
+                            resources = mapOf("pv" to Resource(10, 10)),
+                        ),
+                    ),
+                    CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(6, 6)))),
+                ),
+            )
+        }
 
     // ---- 7.1.2 classificador ----
 
@@ -48,7 +60,10 @@ class IntentAndLocalTest {
     }
 
     @Test fun nullSignificaSemTeste() {
-        assertEquals(Intent.NoCheck, IntentClassifier(ScriptedProvider(listOf("""{"check":null}"""))).classify("converso com o taverneiro", options))
+        assertEquals(
+            Intent.NoCheck,
+            IntentClassifier(ScriptedProvider(listOf("""{"check":null}"""))).classify("converso com o taverneiro", options),
+        )
     }
 
     @Test fun idInventadoPelaIaViraSemTeste() {
@@ -132,8 +147,10 @@ class IntentAndLocalTest {
 
     // ---- PlayController: local + sugestões ----
 
-    private fun ctrl(s: CampaignSession, ai: ScriptedProvider) =
-        PlayController(s, GameLoop(ai), "hero", "pv", { null })
+    private fun ctrl(
+        s: CampaignSession,
+        ai: ScriptedProvider,
+    ) = PlayController(s, GameLoop(ai), "hero", "pv", { null })
 
     @Test fun acaoLocalNaoChamaIANemRola() {
         val ai = ScriptedProvider(emptyList())
@@ -180,10 +197,13 @@ class IntentAndLocalTest {
     }
 
     @Test fun sugestoesVemDaNarracaoSaoLimitadasEOpcionais() {
-        val ai = ScriptedProvider(listOf(
-            """{"narrative":"Um corredor escuro.","suggestions":["Acender a tocha","Escutar na porta","Voltar","Gritar","Acender a tocha",7]}""",
-            """{"narrative":"Silêncio."}"""
-        ))
+        val ai =
+            ScriptedProvider(
+                listOf(
+                    """{"narrative":"Um corredor escuro.","suggestions":["Acender a tocha","Escutar na porta","Voltar","Gritar","Acender a tocha",7]}""",
+                    """{"narrative":"Silêncio."}""",
+                ),
+            )
         val c = ctrl(session(), ai)
         c.submit("entro")
         assertEquals(listOf("Acender a tocha", "Escutar na porta", "Voltar"), c.suggestions())

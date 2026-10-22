@@ -48,10 +48,10 @@ import dev.rpgsolo.ai.RollView
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.random.Random
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.math.PI
+import kotlin.random.Random
 
 /** Duração da rolagem de cada dado: o primeiro assenta antes, os outros em sequência. */
 private fun spinMs(index: Int) = 950 + index * 230
@@ -59,15 +59,24 @@ private fun spinMs(index: Int) = 950 + index * 230
 /** Tempo total até todos os dados assentarem (com folga para o "pulo" final). */
 fun rollDurationMs(diceCount: Int) = (spinMs((diceCount - 1).coerceAtLeast(0)) + 650).toLong()
 
-private val PIPS: Map<Int, List<Pair<Float, Float>>> = run {
-    val tl = 0.27f to 0.27f; val tr = 0.73f to 0.27f
-    val ml = 0.27f to 0.5f; val mr = 0.73f to 0.5f; val c = 0.5f to 0.5f
-    val bl = 0.27f to 0.73f; val br = 0.73f to 0.73f
-    mapOf(
-        1 to listOf(c), 2 to listOf(tl, br), 3 to listOf(tl, c, br), 4 to listOf(tl, tr, bl, br),
-        5 to listOf(tl, tr, c, bl, br), 6 to listOf(tl, tr, ml, mr, bl, br)
-    )
-}
+private val PIPS: Map<Int, List<Pair<Float, Float>>> =
+    run {
+        val tl = 0.27f to 0.27f
+        val tr = 0.73f to 0.27f
+        val ml = 0.27f to 0.5f
+        val mr = 0.73f to 0.5f
+        val c = 0.5f to 0.5f
+        val bl = 0.27f to 0.73f
+        val br = 0.73f to 0.73f
+        mapOf(
+            1 to listOf(c),
+            2 to listOf(tl, br),
+            3 to listOf(tl, c, br),
+            4 to listOf(tl, tr, bl, br),
+            5 to listOf(tl, tr, c, bl, br),
+            6 to listOf(tl, tr, ml, mr, bl, br),
+        )
+    }
 
 /**
  * Um dado. Enquanto [rolling], gira, quica e troca de número; ao fim assenta em [final] com um pulinho.
@@ -75,7 +84,14 @@ private val PIPS: Map<Int, List<Pair<Float, Float>>> = run {
  * O valor final vem do motor: a animação só enfeita, nunca decide.
  */
 @Composable
-private fun Die(sides: Int, final: Int, index: Int, rolling: Boolean, done: Boolean, tint: Color) {
+private fun Die(
+    sides: Int,
+    final: Int,
+    index: Int,
+    rolling: Boolean,
+    done: Boolean,
+    tint: Color,
+) {
     var shown by remember { mutableIntStateOf(if (done) final else 0) }
     val rot = remember { Animatable(0f) }
     val lift = remember { Animatable(0f) }
@@ -110,22 +126,24 @@ private fun Die(sides: Int, final: Int, index: Int, rolling: Boolean, done: Bool
     val face = MaterialTheme.colorScheme.surfaceContainerHighest
     val ink = MaterialTheme.colorScheme.onSurface
     Surface(
-        modifier = Modifier.size(58.dp).semantics {
-            contentDescription = when {
-                rolling -> "Dado de $sides lados, rolando"
-                !done -> "Dado de $sides lados, resultado oculto"
-                else -> "Dado de $sides lados, resultado $final"
-            }
-        }.graphicsLayer {
-            rotationZ = rot.value
-            translationY = lift.value
-            scaleX = pop.value
-            scaleY = pop.value
-        },
+        modifier =
+            Modifier.size(58.dp).semantics {
+                contentDescription =
+                    when {
+                        rolling -> "Dado de $sides lados, rolando"
+                        !done -> "Dado de $sides lados, resultado oculto"
+                        else -> "Dado de $sides lados, resultado $final"
+                    }
+            }.graphicsLayer {
+                rotationZ = rot.value
+                translationY = lift.value
+                scaleX = pop.value
+                scaleY = pop.value
+            },
         shape = RoundedCornerShape(14.dp),
         color = face,
         border = BorderStroke(2.dp, if (done || shown != 0) tint else MaterialTheme.colorScheme.outline),
-        shadowElevation = 6.dp
+        shadowElevation = 6.dp,
     ) {
         val pips = if (sides == 6) PIPS[shown] else null
         if (pips != null) {
@@ -137,33 +155,38 @@ private fun Die(sides: Int, final: Int, index: Int, rolling: Boolean, done: Bool
         } else {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize().padding(5.dp)) {
-                    val polygonSides = when (sides) {
-                        4 -> 3
-                        20 -> 6
-                        else -> sides.coerceIn(4, 12)
-                    }
+                    val polygonSides =
+                        when (sides) {
+                            4 -> 3
+                            20 -> 6
+                            else -> sides.coerceIn(4, 12)
+                        }
                     val radius = size.minDimension * 0.43f
                     val center = Offset(size.width / 2f, size.height / 2f)
                     val path = Path()
                     repeat(polygonSides) { n ->
                         val angle = -PI / 2.0 + (2.0 * PI * n / polygonSides)
-                        val point = Offset(
-                            center.x + radius * cos(angle).toFloat(),
-                            center.y + radius * sin(angle).toFloat()
-                        )
+                        val point =
+                            Offset(
+                                center.x + radius * cos(angle).toFloat(),
+                                center.y + radius * sin(angle).toFloat(),
+                            )
                         if (n == 0) path.moveTo(point.x, point.y) else path.lineTo(point.x, point.y)
                     }
                     path.close()
                     drawPath(path, color = face, style = androidx.compose.ui.graphics.drawscope.Fill)
                     drawPath(
-                        path, color = tint,
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.dp.toPx())
+                        path,
+                        color = tint,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.dp.toPx()),
                     )
                 }
                 Text(
                     if (shown == 0) "?" else shown.toString(),
-                    fontSize = if (shown >= 100) 18.sp else 24.sp, fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Serif, color = ink
+                    fontSize = if (shown >= 100) 18.sp else 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Serif,
+                    color = ink,
                 )
             }
         }
@@ -176,7 +199,11 @@ private fun Die(sides: Int, final: Int, index: Int, rolling: Boolean, done: Bool
  * [revealed] vem de fora para a rolagem não ser refeita ao rolar a lista nem ao reabrir a aba.
  */
 @Composable
-fun RollCard(view: RollView, revealed: Boolean, onRevealed: () -> Unit) {
+fun RollCard(
+    view: RollView,
+    revealed: Boolean,
+    onRevealed: () -> Unit,
+) {
     var rolling by remember { mutableStateOf(false) }
     val tint = if (revealed && !view.plain) outcomeColor(view.outcome) else MaterialTheme.colorScheme.primary
 
@@ -195,14 +222,20 @@ fun RollCard(view: RollView, revealed: Boolean, onRevealed: () -> Unit) {
                 when {
                     view.plain -> "rolagem"
                     view.label.contains("acerta com") -> "faces de sucesso"
-                    else -> "d${view.sides}${if (view.modifier == 0) "" else " ${if (view.modifier > 0) "+" else "−"}${kotlin.math.abs(view.modifier)}"} contra ${view.difficulty}"
-                }
+                    else -> "d${view.sides}${if (view.modifier == 0) {
+                        ""
+                    } else {
+                        " ${if (view.modifier > 0) "+" else "−"}${kotlin.math.abs(
+                            view.modifier,
+                        )}"
+                    }} contra ${view.difficulty}"
+                },
             )
         }
         view.chance?.let { Muted("chance de sucesso: ${kotlin.math.round(it * 100).toInt()}%") }
         Row(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 52.dp, bottom = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
         ) {
             view.dice.forEachIndexed { i, v ->
                 Die(view.sides, v, i, rolling = rolling, done = revealed, tint = tint)
@@ -214,24 +247,31 @@ fun RollCard(view: RollView, revealed: Boolean, onRevealed: () -> Unit) {
             }
         }
         AnimatedVisibility(visible = revealed, enter = fadeIn(tween(300)) + expandVertically(tween(300))) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                val mod = when {
-                    view.modifier > 0 -> " + ${view.modifier}"
-                    view.modifier < 0 -> " − ${-view.modifier}"
-                    else -> ""
-                }
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                val mod =
+                    when {
+                        view.modifier > 0 -> " + ${view.modifier}"
+                        view.modifier < 0 -> " − ${-view.modifier}"
+                        else -> ""
+                    }
                 Text(
                     if (view.plain) "${view.total}" else "${view.dice.joinToString(" + ")}$mod = ${view.total}",
-                    style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f)
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
                 )
                 if (!view.plain) Pill(view.outcomeWord.uppercase(), tint)
             }
             if (!view.plain) {
-                val marginText = when {
-                    view.margin > 0 -> "passou por ${view.margin}"
-                    view.margin < 0 -> "faltou ${-view.margin}"
-                    else -> "no limite"
-                }
+                val marginText =
+                    when {
+                        view.margin > 0 -> "passou por ${view.margin}"
+                        view.margin < 0 -> "faltou ${-view.margin}"
+                        else -> "no limite"
+                    }
                 Muted(marginText)
             }
         }

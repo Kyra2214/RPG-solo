@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -18,16 +17,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.nio.charset.StandardCharsets
 import java.io.ByteArrayOutputStream
+import java.nio.charset.StandardCharsets
 
 /** Aba Campanhas (10.4): capítulos e resumos, missões, diário (só o descoberto). */
 @Composable
@@ -46,126 +46,143 @@ fun CampaignsScreen(model: AppModel) {
     var busy by remember { mutableStateOf(false) }
 
     /** Ações que gravam no banco/sessão rodam em IO, com exclusividade de turno, e desabilitam os botões enquanto duram (R-02). */
-    fun io(work: () -> String?, done: (String?) -> Unit) {
+    fun io(
+        work: () -> String?,
+        done: (String?) -> Unit,
+    ) {
         if (busy) return
         busy = true
         scope.launch {
-            val result = try {
-                withContext(Dispatchers.IO) { model.exclusiveTurn(work) }
-            } catch (e: Exception) {
-                e.message ?: "A ação falhou inesperadamente."
-            } finally {
-                busy = false
-            }
+            val result =
+                try {
+                    withContext(Dispatchers.IO) { model.exclusiveTurn(work) }
+                } catch (e: Exception) {
+                    e.message ?: "A ação falhou inesperadamente."
+                } finally {
+                    busy = false
+                }
             done(result)
         }
     }
 
-    val exportFile = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        if (uri == null) {
-            backupStatus = "Exportação cancelada."
-        } else {
-            busy = true
-            backupStatus = null
-            scope.launch {
-                backupStatus = runCatching {
-                    withContext(Dispatchers.IO) {
-                        val contents = model.exportBackup()
-                        val output = context.contentResolver.openOutputStream(uri)
-                            ?: error("não foi possível abrir o arquivo para gravação")
-                        output.use { it.write(contents.toByteArray(StandardCharsets.UTF_8)) }
-                    }
-                    "Backup salvo no arquivo escolhido."
-                }.getOrElse { "Falha ao exportar: ${it.message ?: "erro de gravação"}" }
-                busy = false
+    val exportFile =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+            if (uri == null) {
+                backupStatus = "Exportação cancelada."
+            } else {
+                busy = true
+                backupStatus = null
+                scope.launch {
+                    backupStatus =
+                        runCatching {
+                            withContext(Dispatchers.IO) {
+                                val contents = model.exportBackup()
+                                val output =
+                                    context.contentResolver.openOutputStream(uri)
+                                        ?: error("não foi possível abrir o arquivo para gravação")
+                                output.use { it.write(contents.toByteArray(StandardCharsets.UTF_8)) }
+                            }
+                            "Backup salvo no arquivo escolhido."
+                        }.getOrElse { "Falha ao exportar: ${it.message ?: "erro de gravação"}" }
+                    busy = false
+                }
             }
         }
-    }
 
     // CP-04.3: PDF do livro (false) ou do arquivo completo (true); gerado só depois de o jogador escolher onde salvar.
     var pdfComplete by remember { mutableStateOf(false) }
     var pdfStatus by remember { mutableStateOf<String?>(null) }
-    val savePdf = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
-        if (uri == null) {
-            pdfStatus = "Exportação do PDF cancelada."
-        } else {
-            busy = true
-            pdfStatus = null
-            val complete = pdfComplete
-            scope.launch {
-                pdfStatus = runCatching {
-                    withContext(Dispatchers.IO) {
-                        val bytes = if (complete) model.campaignArchivePdf() else model.adventureBookPdf()
-                        val output = context.contentResolver.openOutputStream(uri)
-                            ?: error("não foi possível abrir o arquivo para gravação")
-                        output.use { it.write(bytes) }
-                    }
-                    "PDF salvo no arquivo escolhido."
-                }.getOrElse { "Falha ao salvar o PDF: ${it.message ?: "erro de gravação"}" }
-                busy = false
+    val savePdf =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
+            if (uri == null) {
+                pdfStatus = "Exportação do PDF cancelada."
+            } else {
+                busy = true
+                pdfStatus = null
+                val complete = pdfComplete
+                scope.launch {
+                    pdfStatus =
+                        runCatching {
+                            withContext(Dispatchers.IO) {
+                                val bytes = if (complete) model.campaignArchivePdf() else model.adventureBookPdf()
+                                val output =
+                                    context.contentResolver.openOutputStream(uri)
+                                        ?: error("não foi possível abrir o arquivo para gravação")
+                                output.use { it.write(bytes) }
+                            }
+                            "PDF salvo no arquivo escolhido."
+                        }.getOrElse { "Falha ao salvar o PDF: ${it.message ?: "erro de gravação"}" }
+                    busy = false
+                }
             }
         }
-    }
 
     fun sharePdf(complete: Boolean) {
         busy = true
         pdfStatus = null
         scope.launch {
-            pdfStatus = runCatching {
-                val (bytes, title) = withContext(Dispatchers.IO) {
-                    (if (complete) model.campaignArchivePdf() else model.adventureBookPdf()) to model.adventureBook().title
-                }
-                val name = PdfShare.fileName(title, if (complete) "arquivo" else "livro")
-                context.startActivity(PdfShare.chooser(context, bytes, name, title))
-                null
-            }.getOrElse { "Falha ao compartilhar o PDF: ${it.message ?: "erro inesperado"}" }
+            pdfStatus =
+                runCatching {
+                    val (bytes, title) =
+                        withContext(Dispatchers.IO) {
+                            (if (complete) model.campaignArchivePdf() else model.adventureBookPdf()) to model.adventureBook().title
+                        }
+                    val name = PdfShare.fileName(title, if (complete) "arquivo" else "livro")
+                    context.startActivity(PdfShare.chooser(context, bytes, name, title))
+                    null
+                }.getOrElse { "Falha ao compartilhar o PDF: ${it.message ?: "erro inesperado"}" }
             busy = false
         }
     }
 
-    val importFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri == null) {
-            backupStatus = "Restauração cancelada."
-        } else {
-            busy = true
-            backupStatus = null
-            scope.launch {
-                val importedText = runCatching {
-                    withContext(Dispatchers.IO) {
-                        val input = context.contentResolver.openInputStream(uri)
-                            ?: error("não foi possível abrir o arquivo")
-                        input.use { stream ->
-                            val output = ByteArrayOutputStream()
-                            val buffer = ByteArray(8192)
-                            var total = 0
-                            while (true) {
-                                val count = stream.read(buffer)
-                                if (count < 0) break
-                                total += count
-                                require(total <= dev.rpgsolo.engine.Backup.MAX_BACKUP_CHARS) {
-                                    "backup excede o limite de 50 MiB; arquivo recusado durante a leitura"
+    val importFile =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri == null) {
+                backupStatus = "Restauração cancelada."
+            } else {
+                busy = true
+                backupStatus = null
+                scope.launch {
+                    val importedText =
+                        runCatching {
+                            withContext(Dispatchers.IO) {
+                                val input =
+                                    context.contentResolver.openInputStream(uri)
+                                        ?: error("não foi possível abrir o arquivo")
+                                input.use { stream ->
+                                    val output = ByteArrayOutputStream()
+                                    val buffer = ByteArray(8192)
+                                    var total = 0
+                                    while (true) {
+                                        val count = stream.read(buffer)
+                                        if (count < 0) break
+                                        total += count
+                                        require(total <= dev.rpgsolo.engine.Backup.MAX_BACKUP_CHARS) {
+                                            "backup excede o limite de 50 MiB; arquivo recusado durante a leitura"
+                                        }
+                                        output.write(buffer, 0, count)
+                                    }
+                                    String(output.toByteArray(), StandardCharsets.UTF_8)
                                 }
-                                output.write(buffer, 0, count)
                             }
-                            String(output.toByteArray(), StandardCharsets.UTF_8)
                         }
-                    }
+                    backupStatus =
+                        importedText.fold(
+                            onSuccess = { contents ->
+                                val failure =
+                                    try {
+                                        withContext(Dispatchers.IO) { model.exclusiveTurn { model.importBackup(contents) } }
+                                    } catch (e: Exception) {
+                                        e.message ?: "erro inesperado"
+                                    }
+                                failure?.let { "Falha ao restaurar: $it" } ?: "Backup restaurado como uma nova campanha."
+                            },
+                            onFailure = { "Falha ao ler o arquivo: ${it.message ?: "erro de leitura"}" },
+                        )
+                    busy = false
                 }
-                backupStatus = importedText.fold(
-                    onSuccess = { contents ->
-                        val failure = try {
-                            withContext(Dispatchers.IO) { model.exclusiveTurn { model.importBackup(contents) } }
-                        } catch (e: Exception) {
-                            e.message ?: "erro inesperado"
-                        }
-                        failure?.let { "Falha ao restaurar: $it" } ?: "Backup restaurado como uma nova campanha."
-                    },
-                    onFailure = { "Falha ao ler o arquivo: ${it.message ?: "erro de leitura"}" }
-                )
-                busy = false
             }
         }
-    }
 
     val v = model.campaignVersion
     val chapters = remember(v) { model.chapters.chapters }
@@ -186,12 +203,19 @@ fun CampaignsScreen(model: AppModel) {
 
         model.saveError?.let { failure ->
             AppCard(accent = MaterialTheme.colorScheme.error) {
-                Text("Alterações ainda não gravadas: $failure", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = { io({ model.retrySave() }) { message = it ?: "Gravação confirmada." } }) { Text("Tentar gravar de novo") }
+                Text(
+                    "Alterações ainda não gravadas: $failure",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
+                    io({ model.retrySave() }) { message = it ?: "Gravação confirmada." }
+                }) { Text("Tentar gravar de novo") }
             }
         }
         SectionTitle("Campanhas salvas")
         val dateFormat = remember { java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale("pt", "BR")) }
+
         fun date(ms: Long) = if (ms <= 0L) "—" else dateFormat.format(java.util.Date(ms))
         model.campaignInfos.forEach { campaign ->
             val isActive = campaign.id == model.activeCampaignId()
@@ -205,7 +229,7 @@ fun CampaignsScreen(model: AppModel) {
                             dev.rpgsolo.data.EstadoCampanha.PAUSADA -> "pausada"
                             dev.rpgsolo.data.EstadoCampanha.CONCLUIDA -> "concluída"
                         },
-                        MaterialTheme.colorScheme.secondary
+                        MaterialTheme.colorScheme.secondary,
                     )
                 }
                 Muted("Criada em ${date(campaign.criadaEm)} · última jogada ${date(campaign.atualizadaEm)} · ${campaign.eventos} eventos")
@@ -215,34 +239,56 @@ fun CampaignsScreen(model: AppModel) {
                     onClick = {
                         io({
                             model.activateCampaign(campaign.id)
-                                ?: if (campaign.estado == dev.rpgsolo.data.EstadoCampanha.PAUSADA)
+                                ?: if (campaign.estado == dev.rpgsolo.data.EstadoCampanha.PAUSADA) {
                                     model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.ATIVA)
-                                else null
+                                } else {
+                                    null
+                                }
                         }) { campaignStatus = it ?: "Campanha ${campaign.nome} reaberta." }
-                    }
+                    },
                 ) { Text(if (isActive) "Campanha aberta" else "Continuar campanha") }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     when (campaign.estado) {
                         dev.rpgsolo.data.EstadoCampanha.ATIVA -> {
                             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
-                                io({ model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.PAUSADA) }) { campaignStatus = it ?: "Campanha ${campaign.nome} pausada." }
+                                io({
+                                    model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.PAUSADA)
+                                }) { campaignStatus = it ?: "Campanha ${campaign.nome} pausada." }
                             }) { Text("Pausar") }
                             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
-                                io({ model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.CONCLUIDA) }) { campaignStatus = it ?: "Campanha ${campaign.nome} concluída." }
+                                io({
+                                    model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.CONCLUIDA)
+                                }) { campaignStatus = it ?: "Campanha ${campaign.nome} concluída." }
                             }) { Text("Concluir") }
                         }
-                        else -> Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
-                            io({ model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.ATIVA) }) { campaignStatus = it ?: "Campanha ${campaign.nome} reativada." }
-                        }) { Text("Reativar") }
+                        else ->
+                            Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
+                                io({
+                                    model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.ATIVA)
+                                }) { campaignStatus = it ?: "Campanha ${campaign.nome} reativada." }
+                            }) { Text("Reativar") }
                     }
                 }
             }
         }
         campaignStatus?.let { Text(it, color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodySmall) }
-        OutlinedTextField(newName, { newName = it }, Modifier.fillMaxWidth(), label = { Text("Novo nome da campanha ativa") }, singleLine = true)
+        OutlinedTextField(
+            newName,
+            { newName = it },
+            Modifier.fillMaxWidth(),
+            label = { Text("Novo nome da campanha ativa") },
+            singleLine = true,
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { io({ model.renameCampaign(newName) }) { message = it; if (it == null) newName = "" } }) { Text("Renomear") }
-            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { io({ model.duplicateCampaign() }) { message = it } }) { Text("Duplicar") }
+            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
+                io({ model.renameCampaign(newName) }) {
+                    message = it
+                    if (it == null) newName = ""
+                }
+            }) { Text("Renomear") }
+            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
+                io({ model.duplicateCampaign() }) { message = it }
+            }) { Text("Duplicar") }
         }
         var confirmDelete by remember { mutableStateOf(false) }
         Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = { confirmDelete = true }) { Text("Apagar campanha ativa") }
@@ -250,25 +296,33 @@ fun CampaignsScreen(model: AppModel) {
             androidx.compose.material3.AlertDialog(
                 onDismissRequest = { confirmDelete = false },
                 title = { Text("Apagar campanha?") },
-                text = { Text("A campanha aberta, com todo o histórico, capítulos, missões e linha do tempo, será apagada e não poderá ser recuperada. Faça um backup antes se quiser guardá-la.") },
+                text = {
+                    Text(
+                        "A campanha aberta, com todo o histórico, capítulos, missões e linha do tempo, será apagada e não poderá ser recuperada. Faça um backup antes se quiser guardá-la.",
+                    )
+                },
                 confirmButton = {
                     androidx.compose.material3.TextButton(onClick = {
                         confirmDelete = false
                         io({ model.deleteCurrentCampaign() }) { message = it }
                     }) { Text("Apagar") }
                 },
-                dismissButton = { androidx.compose.material3.TextButton(onClick = { confirmDelete = false }) { Text("Cancelar") } }
+                dismissButton = { androidx.compose.material3.TextButton(onClick = { confirmDelete = false }) { Text("Cancelar") } },
             )
         }
 
         SectionTitle("Exportar em PDF")
-        Muted("O livro traz capítulos, missões e diário. O arquivo completo soma ficha, inventário, descobertas, lugares e relações. Nenhum dos dois traz segredos do mestre nem serve como backup; para restaurar use o backup abaixo.")
+        Muted(
+            "O livro traz capítulos, missões e diário. O arquivo completo soma ficha, inventário, descobertas, lugares e relações. Nenhum dos dois traz segredos do mestre nem serve como backup; para restaurar use o backup abaixo.",
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
-                pdfComplete = false; savePdf.launch(PdfShare.fileName(model.adventureBook().title, "livro"))
+                pdfComplete = false
+                savePdf.launch(PdfShare.fileName(model.adventureBook().title, "livro"))
             }) { Text("Salvar livro") }
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
-                pdfComplete = true; savePdf.launch(PdfShare.fileName(model.adventureBook().title, "arquivo"))
+                pdfComplete = true
+                savePdf.launch(PdfShare.fileName(model.adventureBook().title, "arquivo"))
             }) { Text("Salvar arquivo completo") }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -278,29 +332,38 @@ fun CampaignsScreen(model: AppModel) {
         pdfStatus?.let { Text(it, color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodySmall) }
 
         SectionTitle("Backup local")
-        Muted("Inclui log de eventos, configuração do motor, capítulos, missões, linha do tempo e fichas salvas. A chave de API e preferências secretas nunca entram no arquivo. Restaurar cria uma nova campanha.")
+        Muted(
+            "Inclui log de eventos, configuração do motor, capítulos, missões, linha do tempo e fichas salvas. A chave de API e preferências secretas nunca entram no arquivo. Restaurar cria uma nova campanha.",
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
                 message = null
                 busy = true
                 scope.launch {
-                    backup = try {
-                        withContext(Dispatchers.IO) { model.exportBackup() }
-                    } catch (e: Exception) {
-                        message = "Falha ao gerar o backup: ${e.message ?: "erro inesperado"}"
-                        backup
-                    }
+                    backup =
+                        try {
+                            withContext(Dispatchers.IO) { model.exportBackup() }
+                        } catch (e: Exception) {
+                            message = "Falha ao gerar o backup: ${e.message ?: "erro inesperado"}"
+                            backup
+                        }
                     busy = false
                 }
             }) { Text("Gerar texto") }
-            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { exportFile.launch("rpg-solo-backup.json") }) { Text("Salvar arquivo") }
+            Button(
+                modifier = Modifier.weight(1f),
+                enabled = !busy,
+                onClick = { exportFile.launch("rpg-solo-backup.json") },
+            ) { Text("Salvar arquivo") }
         }
         Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
             importFile.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
         }) { Text("Restaurar de arquivo") }
         backupStatus?.let { Text(it, color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodySmall) }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(modifier = Modifier.weight(1f), enabled = backup.isNotBlank() && !busy, onClick = { io({ model.importBackup(backup) }) { message = it } }) { Text("Restaurar texto") }
+            Button(modifier = Modifier.weight(1f), enabled = backup.isNotBlank() && !busy, onClick = {
+                io({ model.importBackup(backup) }) { message = it }
+            }) { Text("Restaurar texto") }
         }
         OutlinedTextField(backup, { backup = it }, Modifier.fillMaxWidth(), label = { Text("Texto do backup") }, minLines = 3)
 
@@ -316,8 +379,19 @@ fun CampaignsScreen(model: AppModel) {
             }
         }
         if (open == null) {
-            OutlinedTextField(title, { title = it }, Modifier.fillMaxWidth(), label = { Text("Título do novo capítulo") }, singleLine = true)
-            Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = { io({ model.openChapter(title) }) { message = it; if (it == null) title = "" } }) { Text("Abrir capítulo") }
+            OutlinedTextField(
+                title,
+                { title = it },
+                Modifier.fillMaxWidth(),
+                label = { Text("Título do novo capítulo") },
+                singleLine = true,
+            )
+            Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
+                io({ model.openChapter(title) }) {
+                    message = it
+                    if (it == null) title = ""
+                }
+            }) { Text("Abrir capítulo") }
         } else {
             Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
                 busy = true
@@ -332,7 +406,7 @@ fun CampaignsScreen(model: AppModel) {
         SectionTitle("Relações")
         if (relationships.isEmpty()) Muted("As atitudes dos NPCs ainda não foram registradas.")
         relationships.forEach { relation ->
-            AppCard { 
+            AppCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(relation.npcName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                     Pill(relation.attitude, MaterialTheme.colorScheme.secondary)
@@ -359,11 +433,12 @@ fun CampaignsScreen(model: AppModel) {
                             Muted("${choice.current}/${choice.max}" + if (choice.skill) " · perícia" else " · atributo")
                         }
                         Button(
-                            modifier = Modifier.semantics {
-                                contentDescription = "Aumentar ${choice.name} em 1 ponto"
-                            },
+                            modifier =
+                                Modifier.semantics {
+                                    contentDescription = "Aumentar ${choice.name} em 1 ponto"
+                                },
                             enabled = advancement.pointsAvailable > 0 && choice.current < choice.max && !busy,
-                            onClick = { io({ model.increaseAdvancement(choice.id, choice.skill) }) { message = it } }
+                            onClick = { io({ model.increaseAdvancement(choice.id, choice.skill) }) { message = it } },
                         ) { Text("+1") }
                     }
                 }
@@ -372,12 +447,16 @@ fun CampaignsScreen(model: AppModel) {
 
         spellSlots?.let { slots ->
             SectionTitle("Slots de magia")
-            Muted("Usados: ${slots.used} de ${slots.total}. Um novo slot surge em cada nível-chave do pacote; magias novas entram só por missão ou compra.")
+            Muted(
+                "Usados: ${slots.used} de ${slots.total}. Um novo slot surge em cada nível-chave do pacote; magias novas entram só por missão ou compra.",
+            )
         }
 
         if (statPoints.statPoints > 0 || statPoints.abilityPoints > 0) {
             SectionTitle("Pontos de status e habilidade")
-            Muted("Status: ${statPoints.statPoints} · Habilidade: ${statPoints.abilityPoints}. Cada aumento de status custa 1 ponto e não tem teto.")
+            Muted(
+                "Status: ${statPoints.statPoints} · Habilidade: ${statPoints.abilityPoints}. Cada aumento de status custa 1 ponto e não tem teto.",
+            )
             if (statPoints.statPoints > 0) {
                 statPoints.choices.forEach { choice ->
                     AppCard {
@@ -389,7 +468,7 @@ fun CampaignsScreen(model: AppModel) {
                             Button(
                                 modifier = Modifier.semantics { contentDescription = "Aumentar ${choice.name} em 1 ponto de status" },
                                 enabled = !busy,
-                                onClick = { io({ model.increaseStatPoint(choice.id) }) { message = it } }
+                                onClick = { io({ model.increaseStatPoint(choice.id) }) { message = it } },
                             ) { Text("+1") }
                         }
                     }
@@ -408,20 +487,27 @@ fun CampaignsScreen(model: AppModel) {
                         Text(
                             (if (objective.done) "✓ " else "○ ") + objective.text,
                             modifier = Modifier.weight(1f),
-                            color = if (objective.done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface
+                            color = if (objective.done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface,
                         )
                         if (!objective.done) {
-                            TextButton(enabled = !busy, onClick = { io({ model.completeQuestObjective(currentQuest.id, index) }) { message = it } }) {
+                            TextButton(
+                                enabled = !busy,
+                                onClick = { io({ model.completeQuestObjective(currentQuest.id, index) }) { message = it } },
+                            ) {
                                 Text("Concluir")
                             }
                         }
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(enabled = !busy, onClick = { io({ model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.DONE) }) { message = it } }) {
+                    TextButton(enabled = !busy, onClick = {
+                        io({ model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.DONE) }) { message = it }
+                    }) {
                         Text("Encerrar como concluída")
                     }
-                    TextButton(enabled = !busy, onClick = { io({ model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.FAILED) }) { message = it } }) {
+                    TextButton(enabled = !busy, onClick = {
+                        io({ model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.FAILED) }) { message = it }
+                    }) {
                         Text("Marcar como falhou")
                     }
                 }
@@ -435,7 +521,7 @@ fun CampaignsScreen(model: AppModel) {
                     Text(finished.title, style = MaterialTheme.typography.bodyLarge)
                     Pill(
                         if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) "concluída" else "falhou",
-                        if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+                        if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                     )
                     finished.objectives.forEach { objective -> Muted((if (objective.done) "✓ " else "○ ") + objective.text) }
                 }
@@ -443,26 +529,39 @@ fun CampaignsScreen(model: AppModel) {
         }
         OutlinedTextField(quest, { quest = it }, Modifier.fillMaxWidth(), label = { Text("Nova missão") }, singleLine = true)
         OutlinedTextField(
-            questObjective, { questObjective = it }, Modifier.fillMaxWidth(),
-            label = { Text("Objetivo inicial (opcional)") }, singleLine = true
+            questObjective,
+            { questObjective = it },
+            Modifier.fillMaxWidth(),
+            label = { Text("Objetivo inicial (opcional)") },
+            singleLine = true,
         )
         Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
             val q = quest
             val o = questObjective
             io({ model.addQuest(q, listOf(o)) }) {
                 message = it
-                if (it == null) { quest = ""; questObjective = "" }
+                if (it == null) {
+                    quest = ""
+                    questObjective = ""
+                }
             }
         }) { Text("Adicionar missão") }
 
         SectionTitle("Linha do tempo")
         if (timeline.isEmpty()) Muted("Nenhum acontecimento importante registrado.")
         timeline.forEach { (chapterNumber, text) ->
-            AppCard { Muted("Capítulo $chapterNumber"); Text(text) }
+            AppCard {
+                Muted("Capítulo $chapterNumber")
+                Text(text)
+            }
         }
         OutlinedTextField(
-            timelineNote, { timelineNote = it }, Modifier.fillMaxWidth(),
-            label = { Text("Acontecimento importante") }, minLines = 2, maxLines = 4
+            timelineNote,
+            { timelineNote = it },
+            Modifier.fillMaxWidth(),
+            label = { Text("Acontecimento importante") },
+            minLines = 2,
+            maxLines = 4,
         )
         Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
             val note = timelineNote

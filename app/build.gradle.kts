@@ -4,8 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-val releaseTag = System.getenv("GITHUB_REF_NAME")
-    ?.takeIf { System.getenv("GITHUB_REF_TYPE") == "tag" && it.matches(Regex("v?[0-9]+\\.[0-9]+\\.[0-9]+([-.][0-9A-Za-z.-]+)?")) }
+val releaseTag =
+    System.getenv("GITHUB_REF_NAME")
+        ?.takeIf { System.getenv("GITHUB_REF_TYPE") == "tag" && it.matches(Regex("v?[0-9]+\\.[0-9]+\\.[0-9]+([-.][0-9A-Za-z.-]+)?")) }
 val configuredVersionName = System.getenv("VERSION_NAME")?.takeIf { it.isNotBlank() }
 val configuredVersionCode = System.getenv("VERSION_CODE")?.toIntOrNull()?.takeIf { it > 0 }
 
@@ -20,7 +21,10 @@ android {
         versionName = releaseTag?.removePrefix("v") ?: configuredVersionName ?: "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
     testOptions { animationsDisabled = true }
@@ -30,7 +34,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }

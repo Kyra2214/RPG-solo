@@ -22,13 +22,17 @@ class EquilibrioEOpcoesTest {
 
     // Vantagens e desvantagens gerais sem exclusões entre si, para montar fichas de qualquer tamanho.
     private val vantagens = listOf("golpe-forte", "reflexos", "pele-dura", "aliado", "sortudo")
-    private val desvantagens = listOf(
-        "atrapalhado", "audicao-ruim", "esquecido", "gago", "preguicoso", "guloso", "ganancioso", "mentiroso-compulsivo",
-        "claustrofobico", "medo-de-altura", "medo-de-fogo", "medo-de-bichos", "sono-pesado", "insonia", "estomago-fraco",
-        "alergico", "manco", "antipatico", "marcante", "procurado"
-    )
+    private val desvantagens =
+        listOf(
+            "atrapalhado", "audicao-ruim", "esquecido", "gago", "preguicoso", "guloso", "ganancioso", "mentiroso-compulsivo",
+            "claustrofobico", "medo-de-altura", "medo-de-fogo", "medo-de-bichos", "sono-pesado", "insonia", "estomago-fraco",
+            "alergico", "manco", "antipatico", "marcante", "procurado",
+        )
 
-    private fun ficha(adv: Int, dis: Int) = vantagens.take(adv) + desvantagens.take(dis)
+    private fun ficha(
+        adv: Int,
+        dis: Int,
+    ) = vantagens.take(adv) + desvantagens.take(dis)
 
     @Test fun tabelaDeEquilibrio_1x1_2x3_3x5_e_depoisDobra() {
         val p = pkg()
@@ -126,9 +130,11 @@ class EquilibrioEOpcoesTest {
 
     /** Traço específico de classe: a descrição começa com "Nome do arquétipo:" (ou Clérigo/Ladino, nomes dos pares antigos). */
     private fun nomes(p: RulePackage): Set<String> = p.data.archetypes.map { it.name }.toSet() + setOf("Clérigo", "Ladino")
+
     private class Prefixo(val nomes: Set<String>) {
         fun containsMatchIn(d: String) = d.substringBefore(":", "") in nomes
     }
+
     private fun prefixo(p: RulePackage) = Prefixo(nomes(p))
 
     @Test fun cardapioMisturaDesvantagemEspecificaEGeral() {
@@ -165,8 +171,10 @@ class EquilibrioEOpcoesTest {
         val p = pkg()
         val r = p.validateCharacter(forte, listOf("sortudo", "azarado"))
         assertTrue(r.errors.any { it.contains("não pode ser combinado") })
-        assertTrue(p.validateCharacter(forte, listOf("sentidos-agucados", "desatento", "aliado", "esquecido")).errors
-            .any { it.contains("não pode ser combinado") })
+        assertTrue(
+            p.validateCharacter(forte, listOf("sentidos-agucados", "desatento", "aliado", "esquecido")).errors
+                .any { it.contains("não pode ser combinado") },
+        )
     }
 
     @Test fun cardapioInteiroMaisGeraisFechaNaConta_paraOsSetentaEDoisArquetipos() {
@@ -188,37 +196,45 @@ class EquilibrioEOpcoesTest {
         p.data.archetypes.forEach { a ->
             val r = p.validateCharacter(a.stats, a.traits)
             assertTrue("${a.id}: ${r.errors}", r.valid)
-            if ("talento-arcano" in a.traits) assertEquals(a.id, Triple(2, 3, 3), Triple(r.advantages, r.disadvantages, r.disadvantagesRequired))
-            else assertEquals(a.id, Triple(1, 1, 1), Triple(r.advantages, r.disadvantages, r.disadvantagesRequired))
+            if ("talento-arcano" in a.traits) {
+                assertEquals(a.id, Triple(2, 3, 3), Triple(r.advantages, r.disadvantages, r.disadvantagesRequired))
+            } else {
+                assertEquals(a.id, Triple(1, 1, 1), Triple(r.advantages, r.disadvantages, r.disadvantagesRequired))
+            }
         }
     }
 
     @Test fun cardapioComMenosDeTresImpedeInstalacao() {
         val f = files()
-        f["opcoes-arquetipo.txt"] = f.getValue("opcoes-arquetipo.txt").lines().joinToString("\n") { l ->
-            if (l.startsWith("alquimista|")) "alquimista|pocoes-rapidas,bomba-de-fumaca|efeitos-colaterais,nariz-queimado,alergico" else l
-        }
+        f["opcoes-arquetipo.txt"] =
+            f.getValue("opcoes-arquetipo.txt").lines().joinToString("\n") { l ->
+                if (l.startsWith("alquimista|")) "alquimista|pocoes-rapidas,bomba-de-fumaca|efeitos-colaterais,nariz-queimado,alergico" else l
+            }
         val r = PackageRegistry().install(f) as InstallResult.Failure
         assertTrue(r.errors.any { it.contains("alquimista") && it.contains("pelo menos 3 vantagens") })
     }
 
     @Test fun cardapioComTracoQueOArquetipoNaoAlcancaImpedeInstalacao() {
         val f = files()
-        f["opcoes-arquetipo.txt"] = f.getValue("opcoes-arquetipo.txt").lines().joinToString("\n") { l ->
-            if (l.startsWith("batedor|")) "batedor|olho-de-aguia,golpe-forte,aviso-a-tempo|inquietacao-de-trilha,avesso-a-multidoes,solitario" else l
-        }
+        f["opcoes-arquetipo.txt"] =
+            f.getValue("opcoes-arquetipo.txt").lines().joinToString("\n") { l ->
+                if (l.startsWith("batedor|")) "batedor|olho-de-aguia,golpe-forte,aviso-a-tempo|inquietacao-de-trilha,avesso-a-multidoes,solitario" else l
+            }
         val r = PackageRegistry().install(f) as InstallResult.Failure
         assertTrue(r.errors.any { it.contains("batedor") && it.contains("golpe-forte") && it.contains("poder >= 2") })
     }
 
     @Test fun cardapioComTipoErradoOuTracoInexistenteImpedeInstalacao() {
         val f = files()
-        f["opcoes-arquetipo.txt"] = f.getValue("opcoes-arquetipo.txt").lines().joinToString("\n") { l ->
-            if (l.startsWith("ninja|")) "ninja|passo-de-sombra,mao-de-shuriken,escalada-silenciosa|lealdade-ao-cla,mao-de-shuriken,fantasma" else l
-        }
+        f["opcoes-arquetipo.txt"] =
+            f.getValue("opcoes-arquetipo.txt").lines().joinToString("\n") { l ->
+                if (l.startsWith("ninja|")) "ninja|passo-de-sombra,mao-de-shuriken,escalada-silenciosa|lealdade-ao-cla,mao-de-shuriken,fantasma" else l
+            }
         val r = PackageRegistry().install(f) as InstallResult.Failure
         assertTrue(r.errors.any { it.contains("ninja") && it.contains("não é desvantagem") })
-        assertTrue(r.errors.any { it.contains("ninja") && it.contains("inexistente fantasma") || it.contains("traço inexistente fantasma") })
+        assertTrue(
+            r.errors.any { it.contains("ninja") && it.contains("inexistente fantasma") || it.contains("traço inexistente fantasma") },
+        )
     }
 
     @Test fun arquetipoSemCardapioImpedeInstalacao() {
@@ -232,7 +248,8 @@ class EquilibrioEOpcoesTest {
         val p = pkg()
         val d = CharacterDraft(p, "x")
         assertTrue(d.loadArchetype("guerreiro"))
-        d.removeTrait("mestre-de-armas"); d.removeTrait("mao-pesada")
+        d.removeTrait("mestre-de-armas")
+        d.removeTrait("mao-pesada")
         assertTrue(d.allowedTraits().any { it.id == "golpe-forte" })
         assertTrue(d.whyNot("golpe-forte").isEmpty())
         d.addTrait("golpe-forte")

@@ -42,7 +42,9 @@ class ChapterSummarizerTest {
 
     @Test fun resumoVazioNaoFechaCapitulo() {
         val (s, b) = setup()
-        assertTrue(ChapterSummarizer(ScriptedProvider(listOf("   "))).closeWithSummary(s, b, emptyList()) is ChapterSummarizer.Result.Failed)
+        assertTrue(
+            ChapterSummarizer(ScriptedProvider(listOf("   "))).closeWithSummary(s, b, emptyList()) is ChapterSummarizer.Result.Failed,
+        )
         assertNotNull(b.current())
     }
 }

@@ -2,10 +2,10 @@ package dev.rpgsolo.ai
 
 import dev.rpgsolo.engine.EventStore
 import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.rules.CampaignStarter
 import dev.rpgsolo.rules.Catalog
 import dev.rpgsolo.rules.PackageRegistry
 import dev.rpgsolo.rules.StartResult
-import dev.rpgsolo.rules.CampaignStarter
 
 /**
  * Fluxo "Nova campanha" (9.1 + 5.1.4) em Kotlin puro, para a tela só desenhar o passo atual:
@@ -17,10 +17,11 @@ class NewCampaignFlow(
     private val catalog: Catalog,
     private val registry: PackageRegistry,
     private val store: EventStore,
-    private val newId: () -> String = { "c" + System.nanoTime() }
+    private val newId: () -> String = { "c" + System.nanoTime() },
 ) {
     sealed interface Step {
         data object Describe : Step
+
         data class Asking(val ask: Interpretation.Ask) : Step
 
         /** Tudo resolvido; o jogador vê [Interpretation.Ready.resolved] (avisos), escolhe a ficha e dá o nome. */
@@ -49,16 +50,22 @@ class NewCampaignFlow(
         return fichas.filter { it.system.editionId == r.resolved.edition.id }
     }
 
-    fun start(ficha: Ficha, name: String, seed: Long): Step {
+    fun start(
+        ficha: Ficha,
+        name: String,
+        seed: Long,
+    ): Step {
         val review = step as? Step.Review ?: return step
-        val result = CampaignStarter.start(
-            store, registry, catalog, review.ready.resolved, review.ready.config, ficha,
-            newId(), name, seed, review.ready.draft.customSetting
-        )
-        step = when (result) {
-            is StartResult.Started -> Step.Started(result)
-            is StartResult.Refused -> review.copy(errors = result.reasons)
-        }
+        val result =
+            CampaignStarter.start(
+                store, registry, catalog, review.ready.resolved, review.ready.config, ficha,
+                newId(), name, seed, review.ready.draft.customSetting,
+            )
+        step =
+            when (result) {
+                is StartResult.Started -> Step.Started(result)
+                is StartResult.Refused -> review.copy(errors = result.reasons)
+            }
         return step
     }
 
@@ -67,12 +74,13 @@ class NewCampaignFlow(
     }
 
     private fun move(i: Interpretation): Step {
-        step = when (i) {
-            is Interpretation.Ready -> Step.Review(i)
-            is Interpretation.Ask -> Step.Asking(i)
-            is Interpretation.Invalid -> Step.Problem(i.errors)
-            is Interpretation.Failed -> Step.Problem(listOf(i.reason))
-        }
+        step =
+            when (i) {
+                is Interpretation.Ready -> Step.Review(i)
+                is Interpretation.Ask -> Step.Asking(i)
+                is Interpretation.Invalid -> Step.Problem(i.errors)
+                is Interpretation.Failed -> Step.Problem(listOf(i.reason))
+            }
         return step
     }
 }

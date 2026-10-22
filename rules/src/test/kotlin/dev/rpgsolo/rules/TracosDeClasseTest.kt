@@ -18,8 +18,9 @@ class TracosDeClasseTest {
     /** Vantagens que exigem uma desvantagem: id da vantagem -> id da desvantagem exigida. */
     private fun pares(p: RulePackage): Map<String, String> =
         p.data.traits.filter { it.type == "vantagem" }.mapNotNull { v ->
-            val d = v.requires.filterIsInstance<Requirement.HasTrait>().map { it.traitId }
-                .firstOrNull { p.trait(it)?.type == "desvantagem" }
+            val d =
+                v.requires.filterIsInstance<Requirement.HasTrait>().map { it.traitId }
+                    .firstOrNull { p.trait(it)?.type == "desvantagem" }
             d?.let { v.id to it }
         }.toMap()
 

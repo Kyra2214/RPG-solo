@@ -4,6 +4,7 @@ package dev.rpgsolo.rules
 data class CatalogEntry(val id: String, val dimension: String, val category: String, val name: String)
 
 enum class ResearchStatus { PESQUISADO_PARCIAL, PENDENTE }
+
 enum class LicenseStatus { VERIFICADA, INDICADA, PENDENTE }
 
 /** Uma edição de um sistema. Famílias diferentes (ex.: duas famílias distintas) nunca compartilham nada automaticamente. */
@@ -15,11 +16,14 @@ data class SystemEdition(
     val category: String,
     val research: ResearchStatus,
     val licenseStatus: LicenseStatus,
-    val licenseNote: String
+    val licenseNote: String,
 )
 
 enum class Compatibility(val severity: Int) {
-    NATIVE(0), ADAPTED(1), UNVERIFIED(2), BLOCKED(3)
+    NATIVE(0),
+    ADAPTED(1),
+    UNVERIFIED(2),
+    BLOCKED(3),
 }
 
 data class CompatibilityRule(val systemId: String, val settingId: String, val status: Compatibility, val note: String)
@@ -29,18 +33,24 @@ val DIMENSIONS = setOf("setting", "structure", "philosophy", "tone", "difficulty
 class Catalog(
     val entries: List<CatalogEntry>,
     val systems: List<SystemEdition>,
-    val rules: List<CompatibilityRule>
+    val rules: List<CompatibilityRule>,
 ) {
     private val entryById = entries.associateBy { it.id }
     private val systemById = systems.associateBy { it.id }
 
     fun entry(id: String): CatalogEntry? = entryById[id]
+
     fun system(id: String): SystemEdition? = systemById[id]
+
     fun editionsOf(family: String): List<SystemEdition> = systems.filter { it.family == family }
+
     fun families(): Set<String> = systems.map { it.family }.toSet()
 
     /** Sem regra registrada, a combinação é "não verificada": nunca presumimos compatibilidade. */
-    fun compatibility(systemId: String, settingId: String): CompatibilityRule =
+    fun compatibility(
+        systemId: String,
+        settingId: String,
+    ): CompatibilityRule =
         rules.firstOrNull { it.systemId == systemId && it.settingId == settingId }
             ?: CompatibilityRule(systemId, settingId, Compatibility.UNVERIFIED, "sem regra registrada")
 
@@ -54,8 +64,11 @@ class Catalog(
         for (r in rules) {
             if (r.systemId !in systemById) p += "regra de compatibilidade aponta para sistema inexistente: ${r.systemId}"
             val s = entryById[r.settingId]
-            if (s == null) p += "regra de compatibilidade aponta para ambientação inexistente: ${r.settingId}"
-            else if (s.dimension != "setting") p += "regra de compatibilidade usa ${r.settingId}, que não é ambientação"
+            if (s == null) {
+                p += "regra de compatibilidade aponta para ambientação inexistente: ${r.settingId}"
+            } else if (s.dimension != "setting") {
+                p += "regra de compatibilidade usa ${r.settingId}, que não é ambientação"
+            }
         }
         return p
     }

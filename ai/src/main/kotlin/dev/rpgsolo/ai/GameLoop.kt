@@ -1,19 +1,17 @@
 package dev.rpgsolo.ai
 
-import kotlin.math.roundToInt
-
-import dev.rpgsolo.engine.AddCondition
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CheckResult
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.Damage
 import dev.rpgsolo.engine.ExecResult
 import dev.rpgsolo.engine.Reveal
+import dev.rpgsolo.engine.checkGroup
+import dev.rpgsolo.engine.checkOpposed
 import dev.rpgsolo.engine.checkWithFortune
 import dev.rpgsolo.engine.checkWithFortuneSpendingResource
-import dev.rpgsolo.engine.checkOpposed
-import dev.rpgsolo.engine.checkGroup
 import dev.rpgsolo.engine.spendLuck
+import kotlin.math.roundToInt
 
 data class PlayInput(
     val playerEntityId: String,
@@ -40,7 +38,7 @@ data class PlayInput(
     /** DC-05.1: trechos do documento-fonte para esta cena. */
     val sourceContext: String? = null,
     /** Notas mecânicas privadas persistidas para regenerar a mesma narração sem perder imunidades aplicadas. */
-    val mechanicalNotes: List<String> = emptyList()
+    val mechanicalNotes: List<String> = emptyList(),
 )
 
 /** Marcas do log permitem desfazer a jogada inteira ou só refazer a narração mantendo os dados (7.4). */
@@ -60,16 +58,17 @@ data class TurnRecord(
     /** Poder pedido pela IA nesta jogada e resolvido pelo motor. */
     val powerUse: PowerUse? = null,
     /** true depois que o jogador gastou sorte pós-rolagem neste teste (um uso por teste). */
-    val luckUsed: Boolean = false
+    val luckUsed: Boolean = false,
 )
 
 private data class CheckResolution(
     val chosen: CheckResult,
-    val alternatives: List<CheckResult> = emptyList()
+    val alternatives: List<CheckResult> = emptyList(),
 )
 
 sealed interface PlayResult {
     data class Played(val record: TurnRecord) : PlayResult
+
     /** Nada ficou gravado, nem a rolagem (a mesma jogada, ao repetir, rola os mesmos dados). */
     data class Failed(val reason: String, val error: AiError? = null) : PlayResult
 }
@@ -94,7 +93,7 @@ class GameLoop(
     /** Origem individual das adaptações aprovadas; o total mecânico continua vindo de additionalBonus. */
     private val additionalBonusSources: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
     /** Poderes que o mestre pode pedir por request_power (do pacote ativo). null = não pode. */
-    private val powerMenu: PowerMenu? = null
+    private val powerMenu: PowerMenu? = null,
 ) {
     /** Uma jogada por vez: protege mark() → rede → rollbackTo() (R-01). Compartilhado com o PlayController. */
     val turnGate = TurnGate()
@@ -102,27 +101,42 @@ class GameLoop(
     private val history: MutableList<TurnRecord> = java.util.Collections.synchronizedList(mutableListOf<TurnRecord>())
     private val narrations = mutableListOf<String>()
 
-    /** Tamanho do log ao fim da última narração aceita; o que entrou depois foi tempo passando fora da IA (M-07). */
-    /** -1 = ainda sem narração nesta sessão (ex.: campanha reaberta): sem marcação, para não tratar o histórico todo como novo. */
+    /** Tamanho do log ao fim da última narração aceita; -1 significa sessão reaberta sem narração (M-07). */
     private var narratedUpTo = -1
 
     val turns: List<TurnRecord> get() = history.toList()
 
-    fun play(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit = {}): PlayResult =
-        turnGate.exclusive { playLocked(session, input, onNarrativeChunk) }
+    fun play(
+        session: CampaignSession,
+        input: PlayInput,
+        onNarrativeChunk: (String) -> Unit = {},
+    ): PlayResult = turnGate.exclusive { playLocked(session, input, onNarrativeChunk) }
 
-    private fun playLocked(session: CampaignSession, input: PlayInput, onNarrativeChunk: (String) -> Unit): PlayResult {
+    private fun playLocked(
+        session: CampaignSession,
+        input: PlayInput,
+        onNarrativeChunk: (String) -> Unit,
+    ): PlayResult {
         val markBefore = session.mark()
-        val resolution = try {
-            input.check?.let { resolveCheck(session, adjusted(it, session, input.playerEntityId)) }
-        } catch (e: Exception) {
-            runCatching { session.rollbackTo(markBefore) }
-            return PlayResult.Failed(e.message ?: "falha ao resolver o teste")
-        }
+        val resolution =
+            try {
+                input.check?.let { resolveCheck(session, adjusted(it, session, input.playerEntityId)) }
+            } catch (e: Exception) {
+                runCatching { session.rollbackTo(markBefore) }
+                return PlayResult.Failed(e.message ?: "falha ao resolver o teste")
+            }
         val check = resolution?.chosen
         val markAfterRoll = session.mark()
-        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
-            fortuneAlternatives = resolution?.alternatives.orEmpty())
+        return narrate(
+            session,
+            input,
+            check,
+            markBefore,
+            markAfterRoll,
+            chainDepth(history),
+            onNarrativeChunk,
+            fortuneAlternatives = resolution?.alternatives.orEmpty(),
+        )
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
@@ -130,7 +144,10 @@ class GameLoop(
      * Respeita a política de fortuna declarada pelo pacote no próprio CheckSpec.
      * O motor grava ambas as rolagens, mas apenas o resultado escolhido afeta o fluxo do jogo.
      */
-    private fun resolveCheck(session: CampaignSession, spec: CheckSpec): CheckResolution =
+    private fun resolveCheck(
+        session: CampaignSession,
+        spec: CheckSpec,
+    ): CheckResolution =
         if (spec.fortuneMode == dev.rpgsolo.engine.FortuneMode.NORMAL) {
             CheckResolution(session.check(spec))
         } else {
@@ -140,52 +157,87 @@ class GameLoop(
             CheckResolution(result.chosen, listOfNotNull(unchosen))
         }
 
-    private fun adjusted(spec: CheckSpec, session: CampaignSession, playerId: String, skill: String? = null, traitIds: List<String> = playerTraits()): CheckSpec {
+    private fun adjusted(
+        spec: CheckSpec,
+        session: CampaignSession,
+        playerId: String,
+        skill: String? = null,
+        traitIds: List<String> = playerTraits(),
+    ): CheckSpec {
         val adjusted = menu?.adjust(spec, session.state.conditions[playerId].orEmpty(), traitIds, skill) ?: spec
         val scopes = listOfNotNull(spec.checkId, spec.stat, skill).distinct()
         // Adaptações aprovadas alteram a ficha do jogador; não devem virar bônus globais de NPC.
         val isPlayerEntity = session.state.entities[playerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
         val bonus = if (isPlayerEntity) scopes.sumOf(additionalBonus) else 0
-        val adaptationSources = if (isPlayerEntity) additionalBonusSources(scopes)
-            .filter { it.scope in scopes && it.bonus != 0 } else emptyList()
-        val withAdaptations = if (bonus == 0 && adaptationSources.isEmpty()) adjusted else {
-            val sourceLabel = if (adaptationSources.isEmpty()) "" else " · adaptações: " +
-                adaptationSources.joinToString(", ") { effect ->
-                    "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+        val adaptationSources =
+            if (isPlayerEntity) {
+                additionalBonusSources(scopes)
+                    .filter { it.scope in scopes && it.bonus != 0 }
+            } else {
+                emptyList()
+            }
+        val withAdaptations =
+            if (bonus == 0 && adaptationSources.isEmpty()) {
+                adjusted
+            } else {
+                val sourceLabel =
+                    if (adaptationSources.isEmpty()) {
+                        ""
+                    } else {
+                        " · adaptações: " +
+                            adaptationSources.joinToString(", ") { effect ->
+                                "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+                            }
+                    }
+                val totalLabel =
+                    if (bonus == 0) {
+                        ""
+                    } else {
+                        " · adaptação " + if (bonus > 0) "+$bonus" else bonus.toString()
+                    }
+                val label = adjusted.label + sourceLabel + totalLabel
+                if (bonus == 0) {
+                    adjusted.copy(label = label)
+                } else if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
+                    adjusted.copy(difficulty = adjusted.difficulty + bonus, label = label)
+                } else {
+                    adjusted.copy(modifier = adjusted.modifier + bonus, label = label)
                 }
-            val totalLabel = if (bonus == 0) "" else
-                " · adaptação " + if (bonus > 0) "+$bonus" else bonus.toString()
-            val label = adjusted.label + sourceLabel + totalLabel
-            if (bonus == 0) adjusted.copy(label = label)
-            else if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
-                adjusted.copy(difficulty = adjusted.difficulty + bonus, label = label)
-            } else {
-                adjusted.copy(modifier = adjusted.modifier + bonus, label = label)
             }
-        }
         // Efeitos da ficha escolhida pertencem somente ao jogador; nunca a NPCs ou adversários.
-        val selectedExternal = if (isPlayerEntity) {
-            dev.rpgsolo.rules.distinctExternalBonuses(
-                externalBonuses(scopes).filter { it.scope in scopes && it.bonus != 0 }
-            )
-        } else emptyList()
-        val externalTotal = selectedExternal.sumOf { it.bonus }
-        val withExternal = if (selectedExternal.isEmpty()) withAdaptations else {
-            // Mostra cada origem/escopo mesmo quando bônus diferentes se anulam no total.
-            val details = selectedExternal.joinToString(", ") { effect ->
-                "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
-            }
-            val totalSuffix = if (externalTotal == 0) "" else
-                " · efeito externo " + if (externalTotal > 0) "+$externalTotal" else externalTotal.toString()
-            val label = withAdaptations.label + " · efeitos: $details" + totalSuffix
-            if (externalTotal == 0) {
-                withAdaptations.copy(label = label)
-            } else if (withAdaptations.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
-                withAdaptations.copy(difficulty = withAdaptations.difficulty + externalTotal, label = label)
+        val selectedExternal =
+            if (isPlayerEntity) {
+                dev.rpgsolo.rules.distinctExternalBonuses(
+                    externalBonuses(scopes).filter { it.scope in scopes && it.bonus != 0 },
+                )
             } else {
-                withAdaptations.copy(modifier = withAdaptations.modifier + externalTotal, label = label)
+                emptyList()
             }
-        }
+        val externalTotal = selectedExternal.sumOf { it.bonus }
+        val withExternal =
+            if (selectedExternal.isEmpty()) {
+                withAdaptations
+            } else {
+                // Mostra cada origem/escopo mesmo quando bônus diferentes se anulam no total.
+                val details =
+                    selectedExternal.joinToString(", ") { effect ->
+                        "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+                    }
+                val totalSuffix =
+                    if (externalTotal == 0) {
+                        ""
+                    } else {
+                        " · efeito externo " + if (externalTotal > 0) "+$externalTotal" else externalTotal.toString()
+                    }
+                val label = withAdaptations.label + " · efeitos: $details" + totalSuffix
+                if (externalTotal == 0) {
+                    withAdaptations.copy(label = label)
+                } else if (withAdaptations.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
+                    withAdaptations.copy(difficulty = withAdaptations.difficulty + externalTotal, label = label)
+                } else {
+                    withAdaptations.copy(modifier = withAdaptations.modifier + externalTotal, label = label)
+                }
+            }
         val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
         val shift = danger - 5
         if (shift == 0) return withExternal
@@ -208,12 +260,13 @@ class GameLoop(
         session: CampaignSession,
         spec: CheckSpec,
         entityId: String,
-        skill: String? = null
+        skill: String? = null,
     ): CheckSpec? {
         val entity = session.state.entities[entityId] ?: return null
-        val traits = entity.traits.ifEmpty {
-            if (entity.kind == dev.rpgsolo.engine.EntityKind.PLAYER) playerTraits() else emptyList()
-        }
+        val traits =
+            entity.traits.ifEmpty {
+                if (entity.kind == dev.rpgsolo.engine.EntityKind.PLAYER) playerTraits() else emptyList()
+            }
         return adjusted(spec, session, entityId, skill, traits)
     }
 
@@ -232,163 +285,204 @@ class GameLoop(
         session: CampaignSession,
         template: PlayInput,
         useFortuneResource: Boolean = false,
-        onNarrativeChunk: (String) -> Unit = {}
+        onNarrativeChunk: (String) -> Unit = {},
     ): PlayResult = turnGate.exclusive { resolvePendingLocked(session, template, useFortuneResource, onNarrativeChunk) }
 
     private fun resolvePendingLocked(
         session: CampaignSession,
         template: PlayInput,
         useFortuneResource: Boolean,
-        onNarrativeChunk: (String) -> Unit
+        onNarrativeChunk: (String) -> Unit,
     ): PlayResult {
         val pending = pending() ?: return PlayResult.Failed("não há teste pendente")
         var resolvedPending: Pending = pending
         var advancedChecks: List<Pair<String, CheckResult>> = emptyList()
         val markBefore = session.mark()
         if (pending is PendingCheck && (pending.request.revealSecretId != null || pending.request.revealPlaceSecret)) {
-            val player = session.state.entities[template.playerEntityId]
-                ?: return PlayResult.Failed("personagem inexistente")
+            val player =
+                session.state.entities[template.playerEntityId]
+                    ?: return PlayResult.Failed("personagem inexistente")
             val required = pending.request.requiredStat ?: return PlayResult.Failed("pedido de segredo sem requiredStat")
             if (required !in player.stats && required !in player.skills) {
                 return PlayResult.Failed("o personagem não tem o atributo/perícia exigido para revelar esse segredo")
             }
         }
         // Teste do mestre leva Ganho/Perda das condições; rolagem com tabela (d6 de dano) nunca.
-        val pendingSpec = if (pending is PendingCheck) {
-            adjusted(pending.spec, session, template.playerEntityId, pending.request.skill)
-        } else pending.spec
-        val resolution = try {
-            when {
-                pending is PendingCheck && pending.request.opposed != null -> {
-                    if (useFortuneResource) return PlayResult.Failed("gasto de fortuna não é suportado em disputa")
-                    val req = pending.request
-                    val opposed = req.opposed
-                    val target = session.state.entities[opposed.entityId]
-                        ?: return PlayResult.Failed("participante oposto inexistente: ${opposed.entityId}")
-                    if (target.kind != dev.rpgsolo.engine.EntityKind.NPC || !target.alive) {
-                        return PlayResult.Failed("o participante oposto deve ser um NPC vivo")
-                    }
-                    if (template.sceneNpcIds.isNotEmpty() && opposed.entityId !in template.sceneNpcIds) {
-                        return PlayResult.Failed("o participante oposto não está presente na cena")
-                    }
-                    val targetRequest = req.copy(
-                        checkId = opposed.checkId,
-                        difficultyId = opposed.difficultyId ?: req.difficultyId,
-                        label = opposed.label ?: target.name,
-                        opposed = null, group = null,
-                        targetNpcId = null, revealSecretId = null, targetPlaceId = null,
-                        revealPlaceSecret = false, requiredStat = null
-                    )
-                    val targetSpec = menu?.build(targetRequest, target.stats, target.skills)
-                        ?: return PlayResult.Failed("não foi possível montar o teste do oponente")
-                    val challenger = prepareAdvancedCheck(session, pending.spec, template.playerEntityId, req.skill)
-                        ?: return PlayResult.Failed("personagem do jogador inexistente")
-                    val defender = prepareAdvancedCheck(session, targetSpec, target.id, req.skill)
-                        ?: return PlayResult.Failed("participante oposto inexistente")
-                    val result = session.checkOpposed(challenger, defender)
-                    advancedChecks = listOf(
-                        (session.state.entities[template.playerEntityId]?.name ?: "Jogador") to result.challenger,
-                        target.name to result.defender
-                    )
-                    val playerWon = result.challengerWins
-                    val note = if (playerWon) {
-                        "Resultado mecânico: o jogador venceu a disputa. Nota privada deste ramo: ${req.onSuccess}. Não revele o ramo alternativo."
-                    } else {
-                        "Resultado mecânico: o NPC venceu ou manteve a disputa. Nota privada deste ramo: ${req.onFailure}. Não revele o ramo alternativo."
-                    }
-                    resolvedPending = pending.copy(resultNote = note)
-                    CheckResolution(result.challenger, result.challengerAlternatives + result.defenderAlternatives)
-                }
-                pending is PendingCheck && pending.request.group != null -> {
-                    if (useFortuneResource) return PlayResult.Failed("gasto de fortuna não é suportado em teste de grupo")
-                    val req = pending.request
-                    val group = req.group
-                    val ids = group.participantIds.map { if (it == "player") template.playerEntityId else it }
-                    if (ids.size < 2) return PlayResult.Failed("teste de grupo exige pelo menos dois participantes")
-                    if (ids.distinct().size != ids.size) return PlayResult.Failed("teste de grupo não pode repetir participantes")
-                    if (template.playerEntityId !in ids) return PlayResult.Failed("teste de grupo precisa incluir o personagem do jogador")
-                    if (group.requiredSuccesses !in 1..ids.size) {
-                        return PlayResult.Failed("limiar de sucessos inválido para o tamanho do grupo")
-                    }
-                    for (id in ids) {
-                        val participant = session.state.entities[id]
-                            ?: return PlayResult.Failed("participante de grupo inexistente: $id")
-                        if (!participant.alive) return PlayResult.Failed("participante de grupo fora de combate: $id")
-                        if (id != template.playerEntityId) {
-                            if (participant.kind != dev.rpgsolo.engine.EntityKind.NPC) {
-                                return PlayResult.Failed("participante de grupo deve ser um NPC: $id")
-                            }
-                            if (template.sceneNpcIds.isNotEmpty() && id !in template.sceneNpcIds) {
-                                return PlayResult.Failed("participante de grupo fora da cena: $id")
-                            }
-                        }
-                    }
-                    val names = mutableListOf<String>()
-                    val specs = ids.mapIndexed { index, id ->
-                        val entity = session.state.entities[id]
-                            ?: return PlayResult.Failed("participante de grupo inexistente: $id")
-                        names += entity.name
-                        val base = if (id == template.playerEntityId) pending.spec else {
-                            val participantRequest = req.copy(
-                                opposed = null, group = null, targetNpcId = null, revealSecretId = null,
-                                targetPlaceId = null, revealPlaceSecret = false, requiredStat = null,
-                                label = req.label ?: entity.name
-                            )
-                            menu?.build(participantRequest, entity.stats, entity.skills)
-                                ?: return PlayResult.Failed("não foi possível montar o teste de ${entity.name}")
-                        }
-                        prepareAdvancedCheck(session, base, id, req.skill)
-                            ?: return PlayResult.Failed("participante de grupo inexistente: $id")
-                    }
-                    val result = session.checkGroup(specs, group.requiredSuccesses)
-                    advancedChecks = result.individual.mapIndexed { index, check -> names[index] to check }
-                    val playerIndex = ids.indexOf(template.playerEntityId)
-                    val note = if (result.passed) {
-                        "Resultado mecânico: o grupo atingiu o limiar de sucesso. Nota privada deste ramo: ${group.onSuccess}. Não revele o ramo alternativo."
-                    } else {
-                        "Resultado mecânico: o grupo não atingiu o limiar de sucesso. Nota privada deste ramo: ${group.onFailure}. Não revele o ramo alternativo."
-                    }
-                    resolvedPending = pending.copy(resultNote = note)
-                    CheckResolution(result.individual[playerIndex], result.alternatives.flatten())
-                }
-                !useFortuneResource -> resolveCheck(session, pendingSpec)
-                else -> {
-                    val pendingCheck = pending as? PendingCheck
-                        ?: return PlayResult.Failed("gasto de fortuna só pode ser usado em um teste")
-                    val option = pendingCheck.fortuneSpendOption
-                        ?: return PlayResult.Failed("este teste não oferece gasto de recurso para fortuna")
-                    when (val spent = session.checkWithFortuneSpendingResource(
-                        template.playerEntityId, option.resource, option.cost, pendingSpec, option.mode
-                    )) {
-                        is dev.rpgsolo.engine.FortuneSpendResult.Rejected -> {
-                            runCatching { session.rollbackTo(markBefore) }
-                            return PlayResult.Failed(spent.reason)
-                        }
-                        is dev.rpgsolo.engine.FortuneSpendResult.Resolved -> {
-                            val result = spent.result
-                            val unchosen = result.second?.let { second ->
-                                if (result.chosen.roll === result.first.roll) second else result.first
-                            }
-                            CheckResolution(result.chosen, listOfNotNull(unchosen))
-                        }
-                    }
-                }
+        val pendingSpec =
+            if (pending is PendingCheck) {
+                adjusted(pending.spec, session, template.playerEntityId, pending.request.skill)
+            } else {
+                pending.spec
             }
-        } catch (e: Exception) {
-            runCatching { session.rollbackTo(markBefore) }
-            return PlayResult.Failed(e.message ?: "falha ao resolver o teste pendente")
-        }
+        val resolution =
+            try {
+                when {
+                    pending is PendingCheck && pending.request.opposed != null -> {
+                        if (useFortuneResource) return PlayResult.Failed("gasto de fortuna não é suportado em disputa")
+                        val req = pending.request
+                        val opposed = req.opposed
+                        val target =
+                            session.state.entities[opposed.entityId]
+                                ?: return PlayResult.Failed("participante oposto inexistente: ${opposed.entityId}")
+                        if (target.kind != dev.rpgsolo.engine.EntityKind.NPC || !target.alive) {
+                            return PlayResult.Failed("o participante oposto deve ser um NPC vivo")
+                        }
+                        if (template.sceneNpcIds.isNotEmpty() && opposed.entityId !in template.sceneNpcIds) {
+                            return PlayResult.Failed("o participante oposto não está presente na cena")
+                        }
+                        val targetRequest =
+                            req.copy(
+                                checkId = opposed.checkId,
+                                difficultyId = opposed.difficultyId ?: req.difficultyId,
+                                label = opposed.label ?: target.name,
+                                opposed = null, group = null,
+                                targetNpcId = null, revealSecretId = null, targetPlaceId = null,
+                                revealPlaceSecret = false, requiredStat = null,
+                            )
+                        val targetSpec =
+                            menu?.build(targetRequest, target.stats, target.skills)
+                                ?: return PlayResult.Failed("não foi possível montar o teste do oponente")
+                        val challenger =
+                            prepareAdvancedCheck(session, pending.spec, template.playerEntityId, req.skill)
+                                ?: return PlayResult.Failed("personagem do jogador inexistente")
+                        val defender =
+                            prepareAdvancedCheck(session, targetSpec, target.id, req.skill)
+                                ?: return PlayResult.Failed("participante oposto inexistente")
+                        val result = session.checkOpposed(challenger, defender)
+                        advancedChecks =
+                            listOf(
+                                (session.state.entities[template.playerEntityId]?.name ?: "Jogador") to result.challenger,
+                                target.name to result.defender,
+                            )
+                        val playerWon = result.challengerWins
+                        val note =
+                            if (playerWon) {
+                                "Resultado mecânico: o jogador venceu a disputa. Nota privada deste ramo: ${req.onSuccess}. Não revele o ramo alternativo."
+                            } else {
+                                "Resultado mecânico: o NPC venceu ou manteve a disputa. Nota privada deste ramo: ${req.onFailure}. Não revele o ramo alternativo."
+                            }
+                        resolvedPending = pending.copy(resultNote = note)
+                        CheckResolution(result.challenger, result.challengerAlternatives + result.defenderAlternatives)
+                    }
+                    pending is PendingCheck && pending.request.group != null -> {
+                        if (useFortuneResource) return PlayResult.Failed("gasto de fortuna não é suportado em teste de grupo")
+                        val req = pending.request
+                        val group = req.group
+                        val ids = group.participantIds.map { if (it == "player") template.playerEntityId else it }
+                        if (ids.size < 2) return PlayResult.Failed("teste de grupo exige pelo menos dois participantes")
+                        if (ids.distinct().size != ids.size) return PlayResult.Failed("teste de grupo não pode repetir participantes")
+                        if (template.playerEntityId !in ids) {
+                            return PlayResult.Failed(
+                                "teste de grupo precisa incluir o personagem do jogador",
+                            )
+                        }
+                        if (group.requiredSuccesses !in 1..ids.size) {
+                            return PlayResult.Failed("limiar de sucessos inválido para o tamanho do grupo")
+                        }
+                        for (id in ids) {
+                            val participant =
+                                session.state.entities[id]
+                                    ?: return PlayResult.Failed("participante de grupo inexistente: $id")
+                            if (!participant.alive) return PlayResult.Failed("participante de grupo fora de combate: $id")
+                            if (id != template.playerEntityId) {
+                                if (participant.kind != dev.rpgsolo.engine.EntityKind.NPC) {
+                                    return PlayResult.Failed("participante de grupo deve ser um NPC: $id")
+                                }
+                                if (template.sceneNpcIds.isNotEmpty() && id !in template.sceneNpcIds) {
+                                    return PlayResult.Failed("participante de grupo fora da cena: $id")
+                                }
+                            }
+                        }
+                        val names = mutableListOf<String>()
+                        val specs =
+                            ids.mapIndexed { index, id ->
+                                val entity =
+                                    session.state.entities[id]
+                                        ?: return PlayResult.Failed("participante de grupo inexistente: $id")
+                                names += entity.name
+                                val base =
+                                    if (id == template.playerEntityId) {
+                                        pending.spec
+                                    } else {
+                                        val participantRequest =
+                                            req.copy(
+                                                opposed = null,
+                                                group = null,
+                                                targetNpcId = null,
+                                                revealSecretId = null,
+                                                targetPlaceId = null,
+                                                revealPlaceSecret = false,
+                                                requiredStat = null,
+                                                label = req.label ?: entity.name,
+                                            )
+                                        menu?.build(participantRequest, entity.stats, entity.skills)
+                                            ?: return PlayResult.Failed("não foi possível montar o teste de ${entity.name}")
+                                    }
+                                prepareAdvancedCheck(session, base, id, req.skill)
+                                    ?: return PlayResult.Failed("participante de grupo inexistente: $id")
+                            }
+                        val result = session.checkGroup(specs, group.requiredSuccesses)
+                        advancedChecks = result.individual.mapIndexed { index, check -> names[index] to check }
+                        val playerIndex = ids.indexOf(template.playerEntityId)
+                        val note =
+                            if (result.passed) {
+                                "Resultado mecânico: o grupo atingiu o limiar de sucesso. Nota privada deste ramo: ${group.onSuccess}. Não revele o ramo alternativo."
+                            } else {
+                                "Resultado mecânico: o grupo não atingiu o limiar de sucesso. Nota privada deste ramo: ${group.onFailure}. Não revele o ramo alternativo."
+                            }
+                        resolvedPending = pending.copy(resultNote = note)
+                        CheckResolution(result.individual[playerIndex], result.alternatives.flatten())
+                    }
+                    !useFortuneResource -> resolveCheck(session, pendingSpec)
+                    else -> {
+                        val pendingCheck =
+                            pending as? PendingCheck
+                                ?: return PlayResult.Failed("gasto de fortuna só pode ser usado em um teste")
+                        val option =
+                            pendingCheck.fortuneSpendOption
+                                ?: return PlayResult.Failed("este teste não oferece gasto de recurso para fortuna")
+                        when (
+                            val spent =
+                                session.checkWithFortuneSpendingResource(
+                                    template.playerEntityId,
+                                    option.resource,
+                                    option.cost,
+                                    pendingSpec,
+                                    option.mode,
+                                )
+                        ) {
+                            is dev.rpgsolo.engine.FortuneSpendResult.Rejected -> {
+                                runCatching { session.rollbackTo(markBefore) }
+                                return PlayResult.Failed(spent.reason)
+                            }
+                            is dev.rpgsolo.engine.FortuneSpendResult.Resolved -> {
+                                val result = spent.result
+                                val unchosen =
+                                    result.second?.let { second ->
+                                        if (result.chosen.roll === result.first.roll) second else result.first
+                                    }
+                                CheckResolution(result.chosen, listOfNotNull(unchosen))
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                runCatching { session.rollbackTo(markBefore) }
+                return PlayResult.Failed(e.message ?: "falha ao resolver o teste pendente")
+            }
         var input = template.copy(text = pending.playerText, check = null, resolving = resolvedPending)
         val check = resolution.chosen
         if (pending is PendingCheck && pending.request.revealSecretId != null) {
-            val npcId = pending.request.targetNpcId ?: run {
-                session.rollbackTo(markBefore)
-                return PlayResult.Failed("pedido de segredo sem targetNpc")
-            }
-            val secretId = pending.request.revealSecretId ?: run {
-                session.rollbackTo(markBefore)
-                return PlayResult.Failed("pedido de segredo sem revealSecret")
-            }
+            val npcId =
+                pending.request.targetNpcId ?: run {
+                    session.rollbackTo(markBefore)
+                    return PlayResult.Failed("pedido de segredo sem targetNpc")
+                }
+            val secretId =
+                pending.request.revealSecretId ?: run {
+                    session.rollbackTo(markBefore)
+                    return PlayResult.Failed("pedido de segredo sem revealSecret")
+                }
             when (val revealed = Reveal.discoverSecret(session, template.playerEntityId, npcId, secretId, check)) {
                 null, is ExecResult.Accepted -> Unit
                 is ExecResult.Rejected -> {
@@ -398,10 +492,11 @@ class GameLoop(
             }
         }
         if (pending is PendingCheck && pending.request.revealPlaceSecret) {
-            val placeId = pending.request.targetPlaceId ?: run {
-                session.rollbackTo(markBefore)
-                return PlayResult.Failed("pedido de segredo de local sem targetPlace")
-            }
+            val placeId =
+                pending.request.targetPlaceId ?: run {
+                    session.rollbackTo(markBefore)
+                    return PlayResult.Failed("pedido de segredo de local sem targetPlace")
+                }
             when (val revealed = Reveal.discoverPlaceSecret(session, template.playerEntityId, placeId, check)) {
                 null, is ExecResult.Accepted -> Unit
                 is ExecResult.Rejected -> {
@@ -434,11 +529,12 @@ class GameLoop(
                     mechanicalNotes += "A condição $name foi bloqueada pela imunidade de ${player.name}; não a aplique nem descreva como instalada."
                     continue
                 }
-                val configured = menu?.conditionCommand(player.id, condition)
-                    ?: run {
-                        session.rollbackTo(markBefore)
-                        return PlayResult.Failed("condição '$condition' não existe no pacote ativo")
-                    }
+                val configured =
+                    menu?.conditionCommand(player.id, condition)
+                        ?: run {
+                            session.rollbackTo(markBefore)
+                            return PlayResult.Failed("condição '$condition' não existe no pacote ativo")
+                        }
                 val r = session.execute(configured)
                 if (r is ExecResult.Rejected) {
                     session.rollbackTo(markBefore)
@@ -448,8 +544,10 @@ class GameLoop(
         }
         input = input.copy(mechanicalNotes = mechanicalNotes)
         val markAfterRoll = session.mark()
-        return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
-            fortuneAlternatives = resolution.alternatives, advancedChecks = advancedChecks)
+        return narrate(
+            session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
+            fortuneAlternatives = resolution.alternatives, advancedChecks = advancedChecks,
+        )
             .also { if (it is PlayResult.Played) history += it.record }
     }
 
@@ -457,12 +555,20 @@ class GameLoop(
      * Sorte pós-rolagem (F3) oferecida para o último teste, ou null. Só vale para teste direto da jogada (sem pedido do mestre,
      * disputa, grupo ou revelação, que gravam efeitos dependentes do dado), uma vez por teste, com recurso suficiente.
      */
-    fun luckOffer(session: CampaignSession, playerEntityId: String): LuckOption? = turnGate.exclusive {
-        val last = history.lastOrNull() ?: return@exclusive null
-        luckOfferFor(session, last, playerEntityId)
-    }
+    fun luckOffer(
+        session: CampaignSession,
+        playerEntityId: String,
+    ): LuckOption? =
+        turnGate.exclusive {
+            val last = history.lastOrNull() ?: return@exclusive null
+            luckOfferFor(session, last, playerEntityId)
+        }
 
-    private fun luckOfferFor(session: CampaignSession, last: TurnRecord, playerEntityId: String): LuckOption? {
+    private fun luckOfferFor(
+        session: CampaignSession,
+        last: TurnRecord,
+        playerEntityId: String,
+    ): LuckOption? {
         val check = last.check ?: return null
         if (last.luckUsed || last.pending != null || last.input.resolving != null || last.advancedChecks.isNotEmpty()) return null
         val option = menu?.luckOption(check.spec.checkId) ?: return null
@@ -475,38 +581,52 @@ class GameLoop(
      * e o mestre narra de novo o novo resultado. Falha ao narrar desfaz a jogada inteira, como em [regenerate].
      */
     fun spendLuck(
-        session: CampaignSession, playerEntityId: String, kind: dev.rpgsolo.engine.LuckKind, onNarrativeChunk: (String) -> Unit = {}
-    ): PlayResult = turnGate.exclusive {
-        val last = history.lastOrNull() ?: return@exclusive PlayResult.Failed("não há jogada com teste")
-        val option = luckOfferFor(session, last, playerEntityId)
-            ?: return@exclusive PlayResult.Failed("este teste não aceita sorte agora")
-        if (kind !in option.kinds) return@exclusive PlayResult.Failed("este teste não aceita essa forma de sorte")
-        val original = last.check!!
-        session.rollbackTo(last.markAfterRoll)
-        val spent = session.spendLuck(playerEntityId, option.resource, option.cost, original, kind)
-        if (spent is dev.rpgsolo.engine.LuckResult.Rejected) {
-            history.removeLast()
-            narrations.removeLastOrNull()
-            session.rollbackTo(last.markBefore)
-            return@exclusive PlayResult.Failed(spent.reason)
-        }
-        val resolved = spent as dev.rpgsolo.engine.LuckResult.Resolved
-        narrations.removeLastOrNull()
-        when (val r = narrate(
-            session, last.input, resolved.chosen, last.markBefore, session.mark(), chainDepth(history.dropLast(1)), onNarrativeChunk,
-            fortuneAlternatives = last.fortuneAlternatives + resolved.original
-        )) {
-            is PlayResult.Played -> {
-                history[history.lastIndex] = r.record.copy(luckUsed = true)
-                PlayResult.Played(history.last())
-            }
-            is PlayResult.Failed -> {
+        session: CampaignSession,
+        playerEntityId: String,
+        kind: dev.rpgsolo.engine.LuckKind,
+        onNarrativeChunk: (String) -> Unit = {},
+    ): PlayResult =
+        turnGate.exclusive {
+            val last = history.lastOrNull() ?: return@exclusive PlayResult.Failed("não há jogada com teste")
+            val option =
+                luckOfferFor(session, last, playerEntityId)
+                    ?: return@exclusive PlayResult.Failed("este teste não aceita sorte agora")
+            if (kind !in option.kinds) return@exclusive PlayResult.Failed("este teste não aceita essa forma de sorte")
+            val original = last.check!!
+            session.rollbackTo(last.markAfterRoll)
+            val spent = session.spendLuck(playerEntityId, option.resource, option.cost, original, kind)
+            if (spent is dev.rpgsolo.engine.LuckResult.Rejected) {
                 history.removeLast()
+                narrations.removeLastOrNull()
                 session.rollbackTo(last.markBefore)
-                r
+                return@exclusive PlayResult.Failed(spent.reason)
+            }
+            val resolved = spent as dev.rpgsolo.engine.LuckResult.Resolved
+            narrations.removeLastOrNull()
+            when (
+                val r =
+                    narrate(
+                        session,
+                        last.input,
+                        resolved.chosen,
+                        last.markBefore,
+                        session.mark(),
+                        chainDepth(history.dropLast(1)),
+                        onNarrativeChunk,
+                        fortuneAlternatives = last.fortuneAlternatives + resolved.original,
+                    )
+            ) {
+                is PlayResult.Played -> {
+                    history[history.lastIndex] = r.record.copy(luckUsed = true)
+                    PlayResult.Played(history.last())
+                }
+                is PlayResult.Failed -> {
+                    history.removeLast()
+                    session.rollbackTo(last.markBefore)
+                    r
+                }
             }
         }
-    }
 
     /** 7.4.1: reverte a última jogada (eventos e rolagens). false se não há o que desfazer. */
     fun undo(session: CampaignSession): Boolean = turnGate.exclusive { undoLocked(session) }
@@ -525,8 +645,19 @@ class GameLoop(
         val last = history.lastOrNull() ?: return PlayResult.Failed("não há jogada para refazer")
         session.rollbackTo(last.markAfterRoll)
         narrations.removeLastOrNull()
-        return when (val r = narrate(session, last.input, last.check, last.markBefore, last.markAfterRoll, chainDepth(history.dropLast(1)),
-            fortuneAlternatives = last.fortuneAlternatives, advancedChecks = last.advancedChecks)) {
+        return when (
+            val r =
+                narrate(
+                    session,
+                    last.input,
+                    last.check,
+                    last.markBefore,
+                    last.markAfterRoll,
+                    chainDepth(history.dropLast(1)),
+                    fortuneAlternatives = last.fortuneAlternatives,
+                    advancedChecks = last.advancedChecks,
+                )
+        ) {
             is PlayResult.Played -> {
                 history[history.lastIndex] = r.record
                 r
@@ -542,53 +673,73 @@ class GameLoop(
     }
 
     private fun narrate(
-        session: CampaignSession, input: PlayInput, check: CheckResult?, markBefore: Int, markAfterRoll: Int, depth: Int,
+        session: CampaignSession,
+        input: PlayInput,
+        check: CheckResult?,
+        markBefore: Int,
+        markAfterRoll: Int,
+        depth: Int,
         onNarrativeChunk: (String) -> Unit = {},
         fortuneAlternatives: List<CheckResult> = emptyList(),
-        advancedChecks: List<Pair<String, CheckResult>> = emptyList()
+        advancedChecks: List<Pair<String, CheckResult>> = emptyList(),
     ): PlayResult {
-        val recentClockEvents = if (narratedUpTo < 0) emptyList() else session.events
-            .let { all -> all.subList(minOf(narratedUpTo, markBefore).coerceIn(0, all.size), markBefore.coerceIn(0, all.size)) }
+        val recentClockEvents =
+            if (narratedUpTo < 0) {
+                emptyList()
+            } else {
+                session.events
+                    .let { all -> all.subList(minOf(narratedUpTo, markBefore).coerceIn(0, all.size), markBefore.coerceIn(0, all.size)) }
+            }
         val clockAdvances = recentClockEvents.filterIsInstance<dev.rpgsolo.engine.ClockAdvanced>()
         val advancedClocks = clockAdvances.map { it.id }.toSet()
-        val midpointClocks = clockAdvances.filter { event ->
-            val clock = session.state.clocks[event.id] ?: return@filter false
-            clock.midClue.isNotBlank() &&
-                event.filled - event.delta < clock.midpoint &&
-                event.filled >= clock.midpoint
-        }.map { it.id }.toSet()
-        val request = ContextAssembler.build(
-            ContextInput(
-                advancedClockIds = advancedClocks,
-                midpointClockIds = midpointClocks,
-                mechanicalNotes = input.mechanicalNotes,
-                state = session.state,
-                playerEntityId = input.playerEntityId,
-                playerText = input.text,
-                check = check,
-                healthResource = input.healthResource,
-                ruleSnippets = input.ruleSnippets,
-                chapterSummary = input.chapterSummary,
-                npcPrivate = input.npcPrivate,
-                sceneNpcIds = input.sceneNpcIds,
-                worldContext = input.worldContext,
-                generationPreferences = input.generationPreferences,
-                playerSheet = input.playerSheet,
-                checkMenu = listOfNotNull(menu?.describe(), powerMenu?.describe(playerTraits())).joinToString("\n\n").ifBlank { null },
-                resolving = input.resolving,
-                recentNarrative = narrations.toList(),
-                resumeBriefing = if (narrations.isEmpty()) input.resumeBriefing else null,
-                sourceContext = input.sourceContext,
-                budgetTokens = input.budgetTokens
+        val midpointClocks =
+            clockAdvances.filter { event ->
+                val clock = session.state.clocks[event.id] ?: return@filter false
+                clock.midClue.isNotBlank() &&
+                    event.filled - event.delta < clock.midpoint &&
+                    event.filled >= clock.midpoint
+            }.map { it.id }.toSet()
+        val request =
+            ContextAssembler.build(
+                ContextInput(
+                    advancedClockIds = advancedClocks,
+                    midpointClockIds = midpointClocks,
+                    mechanicalNotes = input.mechanicalNotes,
+                    state = session.state,
+                    playerEntityId = input.playerEntityId,
+                    playerText = input.text,
+                    check = check,
+                    healthResource = input.healthResource,
+                    ruleSnippets = input.ruleSnippets,
+                    chapterSummary = input.chapterSummary,
+                    npcPrivate = input.npcPrivate,
+                    sceneNpcIds = input.sceneNpcIds,
+                    worldContext = input.worldContext,
+                    generationPreferences = input.generationPreferences,
+                    playerSheet = input.playerSheet,
+                    checkMenu = listOfNotNull(menu?.describe(), powerMenu?.describe(playerTraits())).joinToString("\n\n").ifBlank { null },
+                    resolving = input.resolving,
+                    recentNarrative = narrations.toList(),
+                    resumeBriefing = if (narrations.isEmpty()) input.resumeBriefing else null,
+                    sourceContext = input.sourceContext,
+                    budgetTokens = input.budgetTokens,
+                ),
             )
-        )
         val chosen = if (premiumRunner != null && Importance.of(check) == NarrationTier.PREMIUM) premiumRunner else runner
         // No máximo duas resoluções seguidas pedindo coisa nova: evita o mestre prender o jogador em pedidos.
-        return when (val o = chosen.run(
-            session, request, menu, canRequest = depth < 2, playerEntityId = input.playerEntityId,
-            onNarrativeChunk = onNarrativeChunk, sceneNpcIds = input.sceneNpcIds,
-            powers = powerMenu?.let { PowerContext(it, playerTraits) }
-        )) {
+        return when (
+            val o =
+                chosen.run(
+                    session,
+                    request,
+                    menu,
+                    canRequest = depth < 2,
+                    playerEntityId = input.playerEntityId,
+                    onNarrativeChunk = onNarrativeChunk,
+                    sceneNpcIds = input.sceneNpcIds,
+                    powers = powerMenu?.let { PowerContext(it, playerTraits) },
+                )
+        ) {
             is TurnOutcome.Applied -> {
                 narrations += o.narrative
                 narratedUpTo = session.mark()
@@ -598,28 +749,40 @@ class GameLoop(
                 val checkReq = o.checkRequest
                 val rollReq = o.rollRequest
                 if (checkReq != null) {
-                    val validationError = menu?.validateSecretRequest(
-                        checkReq, session.state, allowedNpcIds = input.sceneNpcIds
-                    )
+                    val validationError =
+                        menu?.validateSecretRequest(
+                            checkReq,
+                            session.state,
+                            allowedNpcIds = input.sceneNpcIds,
+                        )
                     if (validationError != null) {
                         return fail(session, markBefore, "pedido de revelação inválido: $validationError", null)
                     }
                 }
-                val pending: Pending? = when {
-                    checkReq != null -> menu?.build(checkReq, stats, skills)?.let {
-                        PendingCheck(checkReq, it, baseText, menu.fortuneSpendOption(checkReq.checkId))
+                val pending: Pending? =
+                    when {
+                        checkReq != null ->
+                            menu?.build(checkReq, stats, skills)?.let {
+                                PendingCheck(checkReq, it, baseText, menu.fortuneSpendOption(checkReq.checkId))
+                            }
+                        rollReq != null -> menu?.let { PendingRoll(rollReq, it.buildRoll(rollReq), baseText) }
+                        else -> null
                     }
-                    rollReq != null -> menu?.let { PendingRoll(rollReq, it.buildRoll(rollReq), baseText) }
-                    else -> null
-                }
-                PlayResult.Played(TurnRecord(input, markBefore, markAfterRoll, check, o.narrative, o.suggestions, pending, fortuneAlternatives, advancedChecks, o.powerUse))
+                PlayResult.Played(
+                    TurnRecord(input, markBefore, markAfterRoll, check, o.narrative, o.suggestions, pending, fortuneAlternatives, advancedChecks, o.powerUse),
+                )
             }
             is TurnOutcome.Refused -> fail(session, markBefore, o.reason, null)
             is TurnOutcome.Failed -> fail(session, markBefore, o.reason, o.error)
         }
     }
 
-    private fun fail(session: CampaignSession, markBefore: Int, reason: String, error: AiError?): PlayResult {
+    private fun fail(
+        session: CampaignSession,
+        markBefore: Int,
+        reason: String,
+        error: AiError?,
+    ): PlayResult {
         if (session.mark() != markBefore) session.rollbackTo(markBefore)
         return PlayResult.Failed(reason, error)
     }

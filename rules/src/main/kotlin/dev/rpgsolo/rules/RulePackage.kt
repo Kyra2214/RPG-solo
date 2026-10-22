@@ -1,7 +1,7 @@
 package dev.rpgsolo.rules
 
-import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.AdvancementRequirement
+import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.Comparison
 import dev.rpgsolo.engine.DeathMode
 import dev.rpgsolo.engine.EngineConfig
@@ -19,19 +19,21 @@ data class CharacterReport(
     /** Equilíbrio vantagens x desvantagens (só tem efeito se o pacote declara `equilibrio` em criacao.txt). */
     val advantages: Int = 0,
     val disadvantages: Int = 0,
-    val disadvantagesRequired: Int = 0
+    val disadvantagesRequired: Int = 0,
 ) {
     val valid: Boolean get() = errors.isEmpty()
 }
 
 sealed interface FichaBuild {
     data class Created(val ficha: Ficha, val warnings: List<String>) : FichaBuild
+
     data class Invalid(val errors: List<String>) : FichaBuild
 }
 
 data class RuleSnippet(val kind: String, val id: String, val title: String, val text: String, val score: Int)
 
 /** Pacote já resolvido (herança aplicada) e validado. Tudo o que é específico de um sistema vem daqui. */
+
 /** Teste que o pacote oferece para ações do jogador (7.1.2). O [spec] já traz modificador e dificuldade. */
 data class CheckChoice(val id: String, val description: String, val spec: CheckSpec)
 
@@ -40,6 +42,7 @@ internal val ADVANTAGE_TYPES = setOf("vantagem", "poder")
 internal const val MAX_SKILL_POINTS = 5
 internal const val DEFAULT_SURVIVAL_FAILURES = 3
 private const val BALANCE_CAP = 1_000_000L
+
 internal fun parseBalance(s: String?): List<Int> = s?.split(",")?.mapNotNull { it.trim().toIntOrNull() } ?: emptyList()
 
 class RulePackage internal constructor(val data: PackageData) {
@@ -77,26 +80,34 @@ class RulePackage internal constructor(val data: PackageData) {
     fun isAdvantage(t: TraitDef): Boolean = t.type in ADVANTAGE_TYPES
 
     fun stat(id: String): StatDef? = statById[id]
+
     fun trait(id: String): TraitDef? = traitById[id]
+
     fun difficultyValue(id: String): Int? = difficultyById[id]?.value
+
     fun isUncertain(id: String): Boolean = id in uncertainById
+
     fun item(id: String): ItemDef? = itemById[id]
 
     /** Item de moeda declarado por `moeda_item` em criacao.txt; null = pacote sem economia. */
     val currencyItemId: String? get() = data.creation["moeda_item"]
+
     /** MU-07.3: magias compráveis, declaradas por `magia_<id>_preco` (e `magia_<id>_nome`, opcional) em criacao.txt. */
-    val spells: List<SpellDef> get() = data.creation.keys
-        .filter { it.startsWith("magia_") && it.endsWith("_preco") }
-        .map { it.removePrefix("magia_").removeSuffix("_preco") }
-        .sorted()
-        .mapNotNull { id ->
-            val price = data.creation["magia_${id}_preco"]?.toIntOrNull() ?: return@mapNotNull null
-            SpellDef(id, data.creation["magia_${id}_nome"]?.takeIf { it.isNotBlank() } ?: id, price)
-        }
+    val spells: List<SpellDef> get() =
+        data.creation.keys
+            .filter { it.startsWith("magia_") && it.endsWith("_preco") }
+            .map { it.removePrefix("magia_").removeSuffix("_preco") }
+            .sorted()
+            .mapNotNull { id ->
+                val price = data.creation["magia_${id}_preco"]?.toIntOrNull() ?: return@mapNotNull null
+                SpellDef(id, data.creation["magia_${id}_nome"]?.takeIf { it.isNotBlank() } ?: id, price)
+            }
+
     fun spell(id: String): SpellDef? = spells.firstOrNull { it.id == id }
 
     /** MU-07.1: item de ouro (`moeda_ouro`); null = sem ouro (só a moeda base, a prata). */
     val goldItemId: String? get() = data.creation["moeda_ouro"]
+
     /** MU-07.1: quantas moedas base (prata) valem 1 ouro (`prata_por_ouro`, padrão 10). */
     val silverPerGold: Int get() = data.creation["prata_por_ouro"]?.toIntOrNull() ?: 10
 
@@ -104,7 +115,11 @@ class RulePackage internal constructor(val data: PackageData) {
      * MU-07.1: plano de pagamento de [total] moedas base, gastando prata primeiro e quebrando ouro só no que faltar
      * (o troco volta em prata). Null se o saldo não cobre o total.
      */
-    fun planPayment(silverHeld: Int, goldHeld: Int, total: Int): CoinPayment? {
+    fun planPayment(
+        silverHeld: Int,
+        goldHeld: Int,
+        total: Int,
+    ): CoinPayment? {
         require(total >= 0) { "total negativo" }
         val silverPaid = minOf(silverHeld, total)
         val missing = total - silverPaid
@@ -115,30 +130,46 @@ class RulePackage internal constructor(val data: PackageData) {
         if (gold > goldHeld) return null
         return CoinPayment(silverPaid, gold, gold * ratio - missing)
     }
+
     /** Soma os efeitos dos equipamentos atualmente equipados para um escopo mecânico. */
-    fun equipmentBonus(itemIds: Collection<String>, scope: String): Int =
-        itemIds.sumOf { id -> itemById[id]?.effects.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
+    fun equipmentBonus(
+        itemIds: Collection<String>,
+        scope: String,
+    ): Int = itemIds.sumOf { id -> itemById[id]?.effects.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
 
     /** Bônus mecânico de traços para testes e combate (ataque, dano, defesa e resistência/vulnerabilidade a dano). */
-    fun traitBonus(traitIds: Collection<String>, scope: String): Int =
-        traitIds.distinct().sumOf { id -> traitById[id]?.bonuses.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
+    fun traitBonus(
+        traitIds: Collection<String>,
+        scope: String,
+    ): Int = traitIds.distinct().sumOf { id -> traitById[id]?.bonuses.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
 
     /** M-01.7: imunidade a condição por traço com escopo `imune_<condição>` e bônus positivo. */
-    fun isImmuneToCondition(traitIds: Collection<String>, conditionId: String): Boolean =
-        traitBonus(traitIds, "imune_" + conditionId) > 0
+    fun isImmuneToCondition(
+        traitIds: Collection<String>,
+        conditionId: String,
+    ): Boolean = traitBonus(traitIds, "imune_" + conditionId) > 0
 
     /** M-03.6: dano do perfil de perigo [hazardId] para quem tem [maxHealth] de vida máxima; null = perfil inexistente. */
-    fun hazardDamage(hazardId: String, maxHealth: Int): Int? {
+    fun hazardDamage(
+        hazardId: String,
+        maxHealth: Int,
+    ): Int? {
         val hazard = data.hazards.firstOrNull { it.id == hazardId } ?: return null
         if (maxHealth <= 0) return 0
         return maxOf(1, (maxHealth * hazard.percent + 99) / 100).coerceAtMost(maxHealth)
     }
 
-    fun isEquipableItem(id: String, slot: String): Boolean =
-        itemById[id]?.kind == "equipamento" && itemById[id]?.slot == slot
+    fun isEquipableItem(
+        id: String,
+        slot: String,
+    ): Boolean = itemById[id]?.kind == "equipamento" && itemById[id]?.slot == slot
 
     /** Regras de elegibilidade para comprar novos pontos de uma perícia fora da criação inicial. */
-    fun canImproveSkill(skillId: String, stats: Map<String, Int>, traitIds: Collection<String>): Boolean {
+    fun canImproveSkill(
+        skillId: String,
+        stats: Map<String, Int>,
+        traitIds: Collection<String>,
+    ): Boolean {
         val skill = traitById[skillId]?.takeIf { it.type == "pericia" } ?: return false
         val fullStats = data.stats.associate { it.id to (stats[it.id] ?: it.default) }
         val projectedTraits = (traitIds + skillId).toSet()
@@ -152,7 +183,11 @@ class RulePackage internal constructor(val data: PackageData) {
     }
 
     /** M-05: condição removível por teste (declarada em `condicoes.txt`), ou null. */
-    fun conditionRemovalSpec(conditionId: String, stats: Map<String, Int>, skills: Map<String, Int> = emptyMap()): CheckSpec? {
+    fun conditionRemovalSpec(
+        conditionId: String,
+        stats: Map<String, Int>,
+        skills: Map<String, Int> = emptyMap(),
+    ): CheckSpec? {
         val def = data.conditions.firstOrNull { it.id == conditionId } ?: return null
         val id = def.removalCheck?.takeIf { it in checkById } ?: return null
         val difficulty = def.removalDifficulty?.let { difficultyValue(it) } ?: defaultDifficulty() ?: 0
@@ -163,7 +198,10 @@ class RulePackage internal constructor(val data: PackageData) {
     val survivalFailureLimit: Int get() = manifest.survivalFailures ?: DEFAULT_SURVIVAL_FAILURES
 
     /** M-04.4: teste de sobrevivência declarado pelo pacote, ou null (sem declaração ou teste inexistente). */
-    fun survivalSpec(stats: Map<String, Int>, skills: Map<String, Int> = emptyMap()): CheckSpec? {
+    fun survivalSpec(
+        stats: Map<String, Int>,
+        skills: Map<String, Int> = emptyMap(),
+    ): CheckSpec? {
         val id = manifest.survivalCheck?.takeIf { it in checkById } ?: return null
         val difficulty = manifest.survivalDifficulty?.let { difficultyValue(it) } ?: defaultDifficulty() ?: 0
         return check(id, stats, difficulty, skills)
@@ -177,27 +215,34 @@ class RulePackage internal constructor(val data: PackageData) {
             levelThresholds = data.progression ?: emptyList(),
             defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
             advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
-            masteryLevels = data.creation["niveis_chave_pericia"]?.trim()
-                ?.takeIf { it.isNotEmpty() && it != "-" }?.split(",")?.map { it.trim().toInt() } ?: emptyList(),
-            spellSlotLevels = data.creation["niveis_slot_magia"]?.trim()
-                ?.takeIf { it.isNotEmpty() && it != "-" }?.split(",")?.map { it.trim().toInt() } ?: emptyList(),
+            masteryLevels =
+                data.creation["niveis_chave_pericia"]?.trim()
+                    ?.takeIf { it.isNotEmpty() && it != "-" }?.split(",")?.map { it.trim().toInt() } ?: emptyList(),
+            spellSlotLevels =
+                data.creation["niveis_slot_magia"]?.trim()
+                    ?.takeIf { it.isNotEmpty() && it != "-" }?.split(",")?.map { it.trim().toInt() } ?: emptyList(),
             statPointsPerLevel = data.creation["pontos_status_por_nivel"]?.toIntOrNull() ?: 0,
             abilityPointsPerLevel = data.creation["pontos_habilidade_por_nivel"]?.toIntOrNull() ?: 0,
             levelResourceRewards = parseResourceRewards(data.creation["recompensa_recurso"]),
             statCaps = data.stats.associate { it.id to it.max },
             statDefaults = data.stats.associate { it.id to it.default },
             skillCaps = data.traits.filter { it.type == "pericia" }.associate { it.id to MAX_SKILL_POINTS },
-            skillRequirements = data.traits.filter { it.type == "pericia" }.associate { skill ->
-                skill.id to AdvancementRequirement(
-                    minStats = skill.requires.filterIsInstance<Requirement.MinStat>().associate { it.stat to it.min },
-                    requiredTraits = skill.requires.filterIsInstance<Requirement.HasTrait>().map { it.traitId }.toSet(),
-                    excludedTraits = skill.requires.filterIsInstance<Requirement.Excludes>().map { it.traitId }.toSet()
-                )
-            }
+            skillRequirements =
+                data.traits.filter { it.type == "pericia" }.associate { skill ->
+                    skill.id to
+                        AdvancementRequirement(
+                            minStats = skill.requires.filterIsInstance<Requirement.MinStat>().associate { it.stat to it.min },
+                            requiredTraits = skill.requires.filterIsInstance<Requirement.HasTrait>().map { it.traitId }.toSet(),
+                            excludedTraits = skill.requires.filterIsInstance<Requirement.Excludes>().map { it.traitId }.toSet(),
+                        )
+                },
         )
 
     /** Recursos derivados dos atributos (vida, mana...), cheios. */
-    fun resourcesFor(stats: Map<String, Int>, traitIds: Collection<String> = emptyList()): Map<String, Resource> =
+    fun resourcesFor(
+        stats: Map<String, Int>,
+        traitIds: Collection<String> = emptyList(),
+    ): Map<String, Resource> =
         data.resources.associate { r ->
             val v = r.stat?.let { stats[it] ?: statById[it]?.default ?: 0 } ?: 0
             // M-01.6: traços com escopo `max_<recurso>` somam ao máximo derivado.
@@ -213,7 +258,7 @@ class RulePackage internal constructor(val data: PackageData) {
         stats: Map<String, Int>,
         traits: List<String>,
         checkBalance: Boolean = true,
-        skills: Map<String, Int> = emptyMap()
+        skills: Map<String, Int> = emptyMap(),
     ): CharacterReport {
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
@@ -229,7 +274,10 @@ class RulePackage internal constructor(val data: PackageData) {
         traits.groupBy { it }.filter { it.value.size > 1 }.keys.forEach { errors += "traço repetido: $it" }
         for (tid in traits.distinct()) {
             val t = traitById[tid]
-            if (t == null) { errors += "traço desconhecido: $tid"; continue }
+            if (t == null) {
+                errors += "traço desconhecido: $tid"
+                continue
+            }
             spent += t.cost
             for (r in t.requires) when (r) {
                 is Requirement.MinStat ->
@@ -264,8 +312,9 @@ class RulePackage internal constructor(val data: PackageData) {
                         }
                 }
             }
-            spent = (spent.toLong() + value.coerceAtLeast(0).toLong())
-                .coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+            spent =
+                (spent.toLong() + value.coerceAtLeast(0).toLong())
+                    .coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
         }
         val known = traits.distinct().mapNotNull { traitById[it] }
         val advCount = known.count { isAdvantage(it) }
@@ -288,20 +337,28 @@ class RulePackage internal constructor(val data: PackageData) {
     }
 
     /** Cria a ficha pelas regras da edição: valida, deriva recursos e marca o sistema/edição. */
-    fun buildFicha(id: String, name: String, concept: String, stats: Map<String, Int>, traits: List<String>, skills: Map<String, Int> = emptyMap()): FichaBuild {
+    fun buildFicha(
+        id: String,
+        name: String,
+        concept: String,
+        stats: Map<String, Int>,
+        traits: List<String>,
+        skills: Map<String, Int> = emptyMap(),
+    ): FichaBuild {
         val report = validateCharacter(stats, traits, skills = skills)
         if (!report.valid) return FichaBuild.Invalid(report.errors)
         val full = data.stats.associate { it.id to (stats[it.id] ?: it.default) }
-        val ficha = Ficha(
-            id = id,
-            name = name,
-            system = SystemRef(manifest.system, manifest.edition),
-            concept = concept,
-            stats = full,
-            resources = resourcesFor(full, traits),
-            traits = traits,
-            skills = skills
-        )
+        val ficha =
+            Ficha(
+                id = id,
+                name = name,
+                system = SystemRef(manifest.system, manifest.edition),
+                concept = concept,
+                stats = full,
+                resources = resourcesFor(full, traits),
+                traits = traits,
+                skills = skills,
+            )
         return FichaBuild.Created(ficha, report.warnings)
     }
 
@@ -323,7 +380,10 @@ class RulePackage internal constructor(val data: PackageData) {
      * dos dados reais (d4, d6, d8, d10, d12, d20) conforme a posição da dificuldade em relação à média.
      * Dificuldade fora da lista não muda o dado; a escada nunca passa do d4 nem do d20.
      */
-    private fun poolDie(base: Int, difficulty: Int): Int {
+    private fun poolDie(
+        base: Int,
+        difficulty: Int,
+    ): Int {
         val sorted = data.difficulties.map { it.value }.distinct().sorted()
         val i = sorted.indexOf(difficulty)
         val ref = defaultDifficulty()?.let { sorted.indexOf(it) } ?: -1
@@ -333,7 +393,12 @@ class RulePackage internal constructor(val data: PackageData) {
     }
 
     /** Monta o teste para o motor. O resultado é decidido pelo motor; aqui só se descreve o teste. */
-    fun check(checkId: String, stats: Map<String, Int>, difficulty: Int, skills: Map<String, Int> = emptyMap()): CheckSpec {
+    fun check(
+        checkId: String,
+        stats: Map<String, Int>,
+        difficulty: Int,
+        skills: Map<String, Int> = emptyMap(),
+    ): CheckSpec {
         val c = requireNotNull(checkById[checkId]) { "teste inexistente: $checkId" }
         val base = c.skill?.let { skills[it] ?: 0 } ?: c.stat?.let { (stats[it] ?: statById[it]?.default ?: 0) * c.mult } ?: 0
         // Teste de pontos não tem CD: a dificuldade escolhida troca o tamanho do dado (fácil d4, média d6, difícil d8...).
@@ -342,7 +407,7 @@ class RulePackage internal constructor(val data: PackageData) {
             label = c.name, diceCount = c.diceCount, diceSides = sides, modifier = base, difficulty = difficulty,
             comparison = c.comparison, partialMargin = c.partialMargin,
             criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure,
-            stat = c.stat, checkId = c.id, fortuneMode = c.fortuneMode, explodeOnMax = c.explodeOnMax
+            stat = c.stat, checkId = c.id, fortuneMode = c.fortuneMode, explodeOnMax = c.explodeOnMax,
         )
     }
 
@@ -356,32 +421,37 @@ class RulePackage internal constructor(val data: PackageData) {
      * somam +1/-1 ponto, em vez de mexer nos dados; as faces de sucesso ficam sempre entre 1 e (lados − 1).
      */
     fun adjustCheck(
-        spec: CheckSpec, conditions: Collection<String>,
-        traits: Collection<String> = emptyList(), skill: String? = null,
-        additionalBonuses: Collection<ExternalBonus> = emptyList()
+        spec: CheckSpec,
+        conditions: Collection<String>,
+        traits: Collection<String> = emptyList(),
+        skill: String? = null,
+        additionalBonuses: Collection<ExternalBonus> = emptyList(),
     ): CheckSpec {
         val stat: String? = spec.stat
         val uniqueExternalBonuses = distinctExternalBonuses(additionalBonuses)
-        val shift = conditions.sumOf { id ->
-            val e = data.conditions.firstOrNull { it.id == id }?.effect
-            val scope: Set<String>? = e?.stats
-            if (e != null && (scope == null || (stat != null && stat in scope))) e.dice else 0
-        }
+        val shift =
+            conditions.sumOf { id ->
+                val e = data.conditions.firstOrNull { it.id == id }?.effect
+                val scope: Set<String>? = e?.stats
+                if (e != null && (scope == null || (stat != null && stat in scope))) e.dice else 0
+            }
         // Teste de pontos: Ganho/Perda não mexem nos dados (é sempre 1 dado), mudam os pontos em +1/-1.
         val pool = spec.comparison == Comparison.POINTS
         val count = if (pool) spec.diceCount else (spec.diceCount + shift).coerceIn(1, maxOf(spec.diceCount, MAX_CONDITION_DICE))
         val checkId: String? = spec.checkId
-        val bonus = traits.distinct().sumOf { tid ->
-            traitById[tid]?.bonuses.orEmpty()
-                .filter { b -> b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill) }
-                .map { it.scope }.distinct().sumOf { sc -> traitById[tid]!!.bonuses.filter { it.scope == sc }.sumOf { it.bonus } }
-        }
+        val bonus =
+            traits.distinct().sumOf { tid ->
+                traitById[tid]?.bonuses.orEmpty()
+                    .filter { b -> b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill) }
+                    .map { it.scope }.distinct().sumOf { sc -> traitById[tid]!!.bonuses.filter { it.scope == sc }.sumOf { it.bonus } }
+            }
         // Efeitos tipados externos (ex.: raça/classe/maldição) usam o mesmo cálculo por escopo,
         // mas permanecem separados dos traços canônicos para evitar inserir cópias em Ficha.traits.
-        val externalBonus = uniqueExternalBonuses
-            .filter { b -> b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill) }
-            .map { it.scope }.distinct()
-            .sumOf { scope -> uniqueExternalBonuses.filter { it.scope == scope }.sumOf { it.bonus } }
+        val externalBonus =
+            uniqueExternalBonuses
+                .filter { b -> b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill) }
+                .map { it.scope }.distinct()
+                .sumOf { scope -> uniqueExternalBonuses.filter { it.scope == scope }.sumOf { it.bonus } }
         val totalBonus = bonus + externalBonus
         val pointShift = if (pool) shift else 0
         // O cartão do dado mostra por que mudou: "(2d6)" vira "(1d6) · Perda"; o bônus combinado aparece como "· +2".
@@ -392,13 +462,15 @@ class RulePackage internal constructor(val data: PackageData) {
         }
         if (pointShift != 0) label += if (pointShift > 0) " · Ganho" else " · Perda"
         if (totalBonus != 0) label += if (totalBonus > 0) " · +$totalBonus" else " · $totalBonus"
-        val matchingExternal = uniqueExternalBonuses.filter { b ->
-            b.bonus != 0 && (b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill))
-        }
-        if (matchingExternal.isNotEmpty()) {
-            val effectDetails = matchingExternal.joinToString(", ") { effect ->
-                "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+        val matchingExternal =
+            uniqueExternalBonuses.filter { b ->
+                b.bonus != 0 && (b.scope == checkId || (stat != null && b.scope == stat) || (skill != null && b.scope == skill))
             }
+        if (matchingExternal.isNotEmpty()) {
+            val effectDetails =
+                matchingExternal.joinToString(", ") { effect ->
+                    "${effect.source} (${effect.scope} ${if (effect.bonus > 0) "+" else ""}${effect.bonus})"
+                }
             label += " · efeitos: $effectDetails"
         }
         if (count == spec.diceCount && totalBonus == 0 && pointShift == 0 && matchingExternal.isEmpty()) return spec
@@ -416,7 +488,11 @@ class RulePackage internal constructor(val data: PackageData) {
     }
 
     /** Todos os testes do pacote, prontos para o classificador escolher um (7.1.2). [stats] = atributos do personagem. */
-    fun checkChoices(stats: Map<String, Int>, difficulty: Int? = defaultDifficulty(), skills: Map<String, Int> = emptyMap()): List<CheckChoice> {
+    fun checkChoices(
+        stats: Map<String, Int>,
+        difficulty: Int? = defaultDifficulty(),
+        skills: Map<String, Int> = emptyMap(),
+    ): List<CheckChoice> {
         val d = difficulty ?: return emptyList()
         return data.checks.map { c ->
             val using = c.skill ?: c.stat?.let { statById[it]?.name ?: it }
@@ -425,10 +501,17 @@ class RulePackage internal constructor(val data: PackageData) {
     }
 
     /** Busca por trecho de regra (4.2.3): só o necessário vai para a IA. Ignora acentos e maiúsculas. */
-    fun search(query: String, limit: Int = 5): List<RuleSnippet> {
+    fun search(
+        query: String,
+        limit: Int = 5,
+    ): List<RuleSnippet> {
         val tokens = norm(query).split(Regex("[^a-z0-9]+")).filter { it.length >= 3 }.distinct()
         if (tokens.isEmpty()) return emptyList()
-        fun score(title: String, text: String): Int {
+
+        fun score(
+            title: String,
+            text: String,
+        ): Int {
             val t = norm(title)
             val x = norm(text)
             return tokens.sumOf { (if (t.contains(it)) 2 else 0) + (if (x.contains(it)) 1 else 0) }
@@ -436,22 +519,34 @@ class RulePackage internal constructor(val data: PackageData) {
         val all = mutableListOf<RuleSnippet>()
         data.traits.forEach { all += RuleSnippet("traco", it.id, it.name, it.description, score(it.name, it.description)) }
         data.conditions.forEach {
-            val mechanics = buildString {
-                append(it.description)
-                it.effect?.let { effect -> append(" Efeito nos testes: ").append(if (effect.dice > 0) "Ganho" else "Perda") }
-                it.durationRounds?.let { rounds -> append(" Duração: ").append(rounds).append(" rodadas.") }
-                if (it.damagePerRound > 0) append(" Dano por rodada: ").append(it.damagePerRound).append(" ").append(it.damageResource).append(".")
-            }
+            val mechanics =
+                buildString {
+                    append(it.description)
+                    it.effect?.let { effect -> append(" Efeito nos testes: ").append(if (effect.dice > 0) "Ganho" else "Perda") }
+                    it.durationRounds?.let { rounds -> append(" Duração: ").append(rounds).append(" rodadas.") }
+                    if (it.damagePerRound > 0) {
+                        append(
+                            " Dano por rodada: ",
+                        ).append(it.damagePerRound).append(" ").append(it.damageResource).append(".")
+                    }
+                }
             all += RuleSnippet("condicao", it.id, it.name, mechanics, score(it.name, mechanics))
         }
-        data.stats.forEach { all += RuleSnippet("atributo", it.id, it.name, "Limites ${it.min}..${it.max}; padrão ${it.default}.", score(it.name, it.id)) }
+        data.stats.forEach {
+            all += RuleSnippet("atributo", it.id, it.name, "Limites ${it.min}..${it.max}; padrão ${it.default}.", score(it.name, it.id))
+        }
         data.resources.forEach {
             val text = "Recurso ${it.name}; base ${it.base}; atributo ${it.stat ?: "nenhum"}; multiplicador ${it.mult}."
             all += RuleSnippet("recurso", it.id, it.name, text, score(it.name, text))
         }
         data.items.forEach {
-            val mechanics = it.description + if (it.effects.isEmpty()) "" else
-                " Efeitos: " + it.effects.joinToString(", ") { e -> "${e.scope} ${if (e.bonus >= 0) "+" else ""}${e.bonus}" }
+            val mechanics =
+                it.description +
+                    if (it.effects.isEmpty()) {
+                        ""
+                    } else {
+                        " Efeitos: " + it.effects.joinToString(", ") { e -> "${e.scope} ${if (e.bonus >= 0) "+" else ""}${e.bonus}" }
+                    }
             all += RuleSnippet("item", it.id, it.name, mechanics, score(it.name, mechanics))
         }
         data.damage.forEach {
@@ -469,8 +564,7 @@ class RulePackage internal constructor(val data: PackageData) {
         return all.filter { it.score > 0 }.sortedWith(compareByDescending<RuleSnippet> { it.score }.thenBy { it.title }).take(limit)
     }
 
-    private fun norm(s: String): String =
-        Normalizer.normalize(s, Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "").lowercase()
+    private fun norm(s: String): String = Normalizer.normalize(s, Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "").lowercase()
 }
 
 /** Confere a coerência interna de um pacote já resolvido. Lista vazia = pacote válido. */
@@ -479,17 +573,18 @@ object PackageValidator {
         val p = mutableListOf<String>()
         val stats = d.stats.map { it.id }.toSet()
         val traits = d.traits.map { it.id }.toSet()
-        val idGroups = listOf(
-            "atributo" to d.stats.map { it.id },
-            "recurso" to d.resources.map { it.id },
-            "traço" to d.traits.map { it.id },
-            "teste" to d.checks.map { it.id },
-            "dificuldade" to d.difficulties.map { it.id },
-            "condição" to d.conditions.map { it.id },
-            "perfil de dano" to d.damage.map { it.id },
-            "item" to d.items.map { it.id },
-            "poder" to d.powers.map { it.id }
-        )
+        val idGroups =
+            listOf(
+                "atributo" to d.stats.map { it.id },
+                "recurso" to d.resources.map { it.id },
+                "traço" to d.traits.map { it.id },
+                "teste" to d.checks.map { it.id },
+                "dificuldade" to d.difficulties.map { it.id },
+                "condição" to d.conditions.map { it.id },
+                "perfil de dano" to d.damage.map { it.id },
+                "item" to d.items.map { it.id },
+                "poder" to d.powers.map { it.id },
+            )
         idGroups.forEach { (kind, ids) ->
             ids.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.forEach { id ->
                 p += "$kind duplicado: $id"
@@ -517,12 +612,13 @@ object PackageValidator {
                 p += "criacao.txt: formas_sorte inválidas (use REROLL, ADD_FACE ou REROLL+ADD_FACE, sem repetição)"
             }
         }
-        val levelRewards = try {
-            parseResourceRewards(d.creation["recompensa_recurso"])
-        } catch (e: IllegalArgumentException) {
-            p += "criacao.txt: ${e.message}"
-            emptyMap()
-        }
+        val levelRewards =
+            try {
+                parseResourceRewards(d.creation["recompensa_recurso"])
+            } catch (e: IllegalArgumentException) {
+                p += "criacao.txt: ${e.message}"
+                emptyMap()
+            }
         levelRewards.keys.filter { reward -> d.resources.none { it.id == reward } }
             .forEach { p += "criacao.txt: recompensa por nível referencia recurso inexistente $it" }
         if (levelRewards.isNotEmpty() && d.progression.isNullOrEmpty()) {
@@ -561,7 +657,10 @@ object PackageValidator {
                 p += "teste ${check.id}: recurso, custo e formas de sorte devem ser declarados juntos"
             }
         }
-        d.conditions.forEach { c -> c.effect?.stats?.filter { it !in stats }?.forEach { p += "condição ${c.id}: atributo inexistente no efeito $it" } }
+        d.conditions.forEach {
+                c ->
+            c.effect?.stats?.filter { it !in stats }?.forEach { p += "condição ${c.id}: atributo inexistente no efeito $it" }
+        }
         d.conditions.forEach { c ->
             if (c.durationRounds != null && c.durationRounds <= 0) p += "condição ${c.id}: duração deve ser positiva"
             if (c.damageResource.isBlank()) p += "condição ${c.id}: recurso de dano vazio"
@@ -572,8 +671,11 @@ object PackageValidator {
         }
         d.powers.forEach { power ->
             val trait = d.traits.firstOrNull { it.id == power.traitId }
-            if (trait == null) p += "poder ${power.id}: traço inexistente ${power.traitId}"
-            else if (trait.type != "poder") p += "poder ${power.id}: traço ${trait.id} não é do tipo poder"
+            if (trait == null) {
+                p += "poder ${power.id}: traço inexistente ${power.traitId}"
+            } else if (trait.type != "poder") {
+                p += "poder ${power.id}: traço ${trait.id} não é do tipo poder"
+            }
             if (d.resources.none { it.id == power.resource }) p += "poder ${power.id}: recurso inexistente ${power.resource}"
             if (power.cost < 0) p += "poder ${power.id}: custo negativo"
             if (power.checkId != null && d.checks.none { it.id == power.checkId }) p += "poder ${power.id}: teste inexistente ${power.checkId}"
@@ -617,9 +719,18 @@ object PackageValidator {
             trait.bonuses.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
                 .forEach { p += "traço ${trait.id}: escopo ou bônus inválido" }
         }
-        val validTraitScopes = stats + d.checks.map { it.id } + traits + setOf("ataque", "dano", "defesa", "resistencia_dano") + d.resources.map { "max_" + it.id } + d.conditions.map { "imune_" + it.id }
+        val validTraitScopes =
+            stats +
+                d.checks.map {
+                    it.id
+                } + traits + setOf("ataque", "dano", "defesa", "resistencia_dano") +
+                d.resources.map {
+                    "max_" + it.id
+                } + d.conditions.map { "imune_" + it.id }
         d.traits.forEach { trait ->
-            trait.bonuses.filter { it.scope !in validTraitScopes }.forEach { p += "traço " + trait.id + ": escopo de bônus sem regra mecânica: " + it.scope }
+            trait.bonuses.filter {
+                it.scope !in validTraitScopes
+            }.forEach { p += "traço " + trait.id + ": escopo de bônus sem regra mecânica: " + it.scope }
         }
         d.conditions.forEach { condition ->
             condition.effect?.let { effect ->
@@ -645,13 +756,14 @@ object PackageValidator {
         val initiativeOrder = d.creation["combate_ordem_iniciativa"]
         val hasCombatProfile = combatAttack != null || combatDefense != null || combatInitiative != null
         if (listOf(combatAttack, combatDefense, combatInitiative).any { it != null } &&
-            listOf(combatAttack, combatDefense, combatInitiative).any { it == null }) {
+            listOf(combatAttack, combatDefense, combatInitiative).any { it == null }
+        ) {
             p += "criacao.txt: perfil de combate incompleto; ataque, defesa e iniciativa devem ser definidos juntos"
         }
         listOf(
             "combate_atributo_ataque" to combatAttack,
             "combate_atributo_defesa" to combatDefense,
-            "combate_atributo_iniciativa" to combatInitiative
+            "combate_atributo_iniciativa" to combatInitiative,
         ).filter { it.second != null && it.second !in stats }
             .forEach { p += "criacao.txt: ${it.first} referencia atributo inexistente ${it.second}" }
         if (hasCombatProfile) {
@@ -687,7 +799,7 @@ object PackageValidator {
         listOf(
             "combate_atributo_ataque" to combatAttack,
             "combate_atributo_defesa" to combatDefense,
-            "combate_atributo_iniciativa" to combatInitiative
+            "combate_atributo_iniciativa" to combatInitiative,
         ).forEach { (key, value) ->
             if (value != null && value !in stats) p += "criacao.txt: '$key' referencia atributo inexistente: $value"
         }
@@ -742,8 +854,9 @@ object PackageValidator {
         val currencyId = d.creation["moeda_item"]
         if (currencyId != null) {
             val currency = d.items.firstOrNull { it.id == currencyId }
-            if (currency == null) p += "criacao.txt: moeda_item referencia item inexistente: $currencyId"
-            else {
+            if (currency == null) {
+                p += "criacao.txt: moeda_item referencia item inexistente: $currencyId"
+            } else {
                 if (currency.kind != "narrativo") p += "criacao.txt: moeda_item deve ser item narrativo: $currencyId"
                 if (currency.price != null) p += "item $currencyId: a moeda não pode ter preço"
             }
@@ -776,14 +889,18 @@ object PackageValidator {
         d.creation["equilibrio"]?.let { raw ->
             val parts = raw.split(",").map { it.trim() }
             val nums = parts.mapNotNull { it.toIntOrNull() }
-            if (nums.size != parts.size || nums.isEmpty() || nums.any { it < 1 } || nums.zipWithNext().any { (a, b) -> b < a })
+            if (nums.size != parts.size || nums.isEmpty() || nums.any { it < 1 } || nums.zipWithNext().any { (a, b) -> b < a }) {
                 p += "criacao.txt: 'equilibrio' inválido (use números crescentes, ex.: 1,3,5)"
+            }
         }
-        d.creation["equilibrio_apos"]?.let { if (it != "dobrar" && it != "manter") p += "criacao.txt: 'equilibrio_apos' inválido (dobrar ou manter)" }
+        d.creation["equilibrio_apos"]?.let {
+            if (it != "dobrar" && it != "manter") p += "criacao.txt: 'equilibrio_apos' inválido (dobrar ou manter)"
+        }
         if (d.creation.containsKey("equilibrio_apos") && !d.creation.containsKey("equilibrio")) p += "criacao.txt: 'equilibrio_apos' sem 'equilibrio'"
         d.creation["minimo_opcoes"]?.let { if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'minimo_opcoes' inválido" }
-        val everyId = stats + traits + d.resources.map { it.id } + d.checks.map { it.id } +
-            d.difficulties.map { it.id } + d.conditions.map { it.id } + d.damage.map { it.id }
+        val everyId =
+            stats + traits + d.resources.map { it.id } + d.checks.map { it.id } +
+                d.difficulties.map { it.id } + d.conditions.map { it.id } + d.damage.map { it.id }
         d.uncertain.filter { it.id !in everyId }.forEach { p += "incerto.txt: id inexistente ${it.id}" }
         if (p.isNotEmpty()) return p
         // Exemplos do próprio pacote precisam passar nas regras dele (autoteste do formato).
@@ -802,17 +919,26 @@ object PackageValidator {
         val archById = d.archetypes.associateBy { it.id }
         for (o in d.archetypeOptions) {
             val a = archById[o.archetype]
-            if (a == null) { p += "opções: arquétipo inexistente ${o.archetype}"; continue }
+            if (a == null) {
+                p += "opções: arquétipo inexistente ${o.archetype}"
+                continue
+            }
             val chosen = o.advantages + o.disadvantages
             chosen.groupBy { it }.filter { it.value.size > 1 }.keys.forEach { p += "opções de ${o.archetype}: traço repetido $it" }
             for (id in o.advantages) {
                 val t = traitById[id]
-                if (t == null) { p += "opções de ${o.archetype}: traço inexistente $id"; continue }
+                if (t == null) {
+                    p += "opções de ${o.archetype}: traço inexistente $id"
+                    continue
+                }
                 if (t.type !in ADVANTAGE_TYPES) p += "opções de ${o.archetype}: $id não é vantagem (é ${t.type})"
             }
             for (id in o.disadvantages) {
                 val t = traitById[id]
-                if (t == null) { p += "opções de ${o.archetype}: traço inexistente $id"; continue }
+                if (t == null) {
+                    p += "opções de ${o.archetype}: traço inexistente $id"
+                    continue
+                }
                 if (t.type != "desvantagem") p += "opções de ${o.archetype}: $id não é desvantagem (é ${t.type})"
             }
             // Todo item do cardápio precisa ser escolhível por quem tem os atributos do arquétipo.
@@ -820,8 +946,9 @@ object PackageValidator {
                 val t = traitById[id] ?: continue
                 for (r in t.requires) when (r) {
                     is Requirement.MinStat ->
-                        if ((a.stats[r.stat] ?: d.stats.firstOrNull { it.id == r.stat }?.default ?: 0) < r.min)
+                        if ((a.stats[r.stat] ?: d.stats.firstOrNull { it.id == r.stat }?.default ?: 0) < r.min) {
                             p += "opções de ${o.archetype}: $id exige ${r.stat} >= ${r.min}, mais do que o arquétipo tem"
+                        }
                     is Requirement.HasTrait ->
                         if (r.traitId !in chosen) p += "opções de ${o.archetype}: $id exige ${r.traitId}, que não está no cardápio"
                     is Requirement.Excludes ->

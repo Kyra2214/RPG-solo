@@ -16,15 +16,21 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GameLoopTest {
-    private fun session() = CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 7L, EngineConfig(deathResource = "pv"))).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))),
-            CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(3, 6))))
-        ))
-    }
+    private fun session() =
+        CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 7L, EngineConfig(deathResource = "pv"))).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("pv" to Resource(10, 10)))),
+                    CreateEntity(Entity("orc", "Orc", EntityKind.NPC, resources = mapOf("pv" to Resource(3, 6)))),
+                ),
+            )
+        }
+
     private val teste = CheckSpec("furtividade", 1, 20, 0, 10)
     private val input = PlayInput("hero", "tento passar escondido", teste, healthResource = "pv")
+
     private fun dano(n: Int) = """{"narrative":"ok $n","proposals":[{"type":"damage","entityId":"orc","resource":"pv","amount":$n}]}"""
+
     private fun orcPv(s: CampaignSession) = s.state.entities.getValue("orc").resources.getValue("pv").current
 
     @Test fun contextoDescreveSaudeSemNumerosEPoeResultadoDoMotor() {
@@ -41,7 +47,10 @@ class GameLoopTest {
     @Test fun orcamentoCortaOpcionaisMasMantemAcaoEPrompt() {
         val s = session()
         s.execute(RecordFact("local", "taverna ".repeat(500)))
-        val req = ContextAssembler.build(ContextInput(s.state, "hero", "olho ao redor", budgetTokens = TokenEstimator.estimate(MasterPrompt.SYSTEM) + 200))
+        val req =
+            ContextAssembler.build(
+                ContextInput(s.state, "hero", "olho ao redor", budgetTokens = TokenEstimator.estimate(MasterPrompt.SYSTEM) + 200),
+            )
         val user = req.messages.last().content
         assertTrue("olho ao redor" in user)
         assertFalse("taverna taverna" in user)
@@ -73,26 +82,28 @@ class GameLoopTest {
 
     @Test fun bonusDePericiaContextualEntraNoTesteAvancadoDoJogador() {
         val s = session()
-        val loop = GameLoop(
-            ScriptedProvider(emptyList()),
-            externalBonuses = { scopes ->
-                scopes.filter { it == "criptoanalise" }.map {
-                    dev.rpgsolo.rules.ExternalBonus(
-                        scope = it,
-                        bonus = 3,
-                        source = "Especialista em Criptoanálise",
-                        effectId = "profession-skill-criptoanalise"
-                    )
-                }
-            }
-        )
+        val loop =
+            GameLoop(
+                ScriptedProvider(emptyList()),
+                externalBonuses = { scopes ->
+                    scopes.filter { it == "criptoanalise" }.map {
+                        dev.rpgsolo.rules.ExternalBonus(
+                            scope = it,
+                            bonus = 3,
+                            source = "Especialista em Criptoanálise",
+                            effectId = "profession-skill-criptoanalise",
+                        )
+                    }
+                },
+            )
 
-        val adjusted = loop.prepareAdvancedCheck(
-            session = s,
-            spec = teste.copy(modifier = 0),
-            entityId = "hero",
-            skill = "criptoanalise"
-        )
+        val adjusted =
+            loop.prepareAdvancedCheck(
+                session = s,
+                spec = teste.copy(modifier = 0),
+                entityId = "hero",
+                skill = "criptoanalise",
+            )
 
         assertTrue("teste avançado do jogador deve ser preparado", adjusted != null)
         assertEquals(3, adjusted!!.modifier)

@@ -6,15 +6,24 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class NpcTest {
-    private fun session() = CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 3L, EngineConfig())).also {
-        it.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, stats = mapOf("analise" to 2))),
-            CreateEntity(Entity("sem", "Sem perícia", EntityKind.PLAYER)),
-            CreateEntity(Entity("guarda", "Guarda", EntityKind.NPC))
-        ))
-    }
-    private val plan = RevealPlan("guarda", "analise", CheckSpec("analise", 1, 20, 0, 1),
-        listOf("parece forte", "está ferido na perna", "esconde uma chave"))
+    private fun session() =
+        CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 3L, EngineConfig())).also {
+            it.executeAll(
+                listOf(
+                    CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, stats = mapOf("analise" to 2))),
+                    CreateEntity(Entity("sem", "Sem perícia", EntityKind.PLAYER)),
+                    CreateEntity(Entity("guarda", "Guarda", EntityKind.NPC)),
+                ),
+            )
+        }
+
+    private val plan =
+        RevealPlan(
+            "guarda",
+            "analise",
+            CheckSpec("analise", 1, 20, 0, 1),
+            listOf("parece forte", "está ferido na perna", "esconde uma chave"),
+        )
 
     @Test fun semAHabilidadeNadaEhRoladoNemLiberado() {
         val s = session()
@@ -42,8 +51,14 @@ class NpcTest {
 
     @Test fun contextoSoComSegredoQueACenaExigeOuFoiLiberado() {
         val book = DossierBook()
-        book.put(NpcDossier("guarda", "desconfiado", goals = listOf("proteger o portão"),
-            secrets = listOf(Secret("s1", "vende informações"), Secret("s2", "o rei morreu", falseInfo = true))))
+        book.put(
+            NpcDossier(
+                "guarda",
+                "desconfiado",
+                goals = listOf("proteger o portão"),
+                secrets = listOf(Secret("s1", "vende informações"), Secret("s2", "o rei morreu", falseInfo = true)),
+            ),
+        )
         val sem = book.contextFor(listOf("guarda")).single()
         assertFalse("vende" in sem)
         val com = book.contextFor(listOf("guarda"), exposed = setOf("s1")).single()

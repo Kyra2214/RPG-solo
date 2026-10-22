@@ -1,22 +1,25 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.ElementPath
-import dev.rpgsolo.engine.SkillCategory
-import dev.rpgsolo.engine.SkillEffectSpec
-import dev.rpgsolo.engine.SkillEffectRecipient
 import dev.rpgsolo.engine.SkillActionKind
+import dev.rpgsolo.engine.SkillCategory
+import dev.rpgsolo.engine.SkillEffectRecipient
+import dev.rpgsolo.engine.SkillEffectSpec
 import dev.rpgsolo.engine.SkillOrigin
 import dev.rpgsolo.engine.SkillTreeSkill
 
 data class SkillTreeCatalogResult(
     val skills: List<SkillTreeSkill>,
-    val errors: List<String>
+    val errors: List<String>,
 ) {
     val valid: Boolean get() = errors.isEmpty()
+
     fun skill(id: String): SkillTreeSkill? = skills.firstOrNull { it.id == id }
-    fun tree(id: String): List<SkillTreeSkill> = skills.filter { it.treeId == id }.sortedWith(
-        compareBy<SkillTreeSkill>({ it.scrollRank ?: 99 }, { it.name })
-    )
+
+    fun tree(id: String): List<SkillTreeSkill> =
+        skills.filter { it.treeId == id }.sortedWith(
+            compareBy<SkillTreeSkill>({ it.scrollRank ?: 99 }, { it.name }),
+        )
 }
 
 /**
@@ -46,11 +49,16 @@ object SkillTreeCatalogLoader {
                 return@forEachIndexed
             }
             try {
-                fun id(value: String, label: String, optional: Boolean = false): String {
+                fun id(
+                    value: String,
+                    label: String,
+                    optional: Boolean = false,
+                ): String {
                     if (optional && (value.isEmpty() || value == "-")) return ""
                     require(ID.matches(value)) { "$label inválido: '$value'" }
                     return value
                 }
+
                 fun opt(value: String) = value.takeUnless { it.isEmpty() || it == "-" }
                 val skillId = id(fields[0], "id da habilidade")
                 val treeId = id(fields[1], "id da árvore")
@@ -70,20 +78,21 @@ object SkillTreeCatalogLoader {
                 val actionResource = opt(fields[16])
                 val hitCount = fields[17].toInt().also { require(it >= 1) { "quantidade de golpes inválida" } }
                 val recipient = SkillEffectRecipient.valueOf(fields[18].uppercase())
-                val effects = opt(fields[19])?.split(";")?.map { rawEffect ->
-                    val parts = rawEffect.split(",").map(String::trim)
-                    require(parts.size == 7) { "efeito '$rawEffect' precisa de 7 partes" }
-                    SkillEffectSpec(
-                        id(parts[0], "id do efeito"),
-                        id(parts[1], "alvo do efeito"),
-                        parts[2].toInt(),
-                        parts[3].toInt(),
-                        id(parts[4], "grupo de acúmulo"),
-                        opt(parts[5])?.toInt(),
-                        opt(parts[6]),
-                        recipient
-                    )
-                }.orEmpty()
+                val effects =
+                    opt(fields[19])?.split(";")?.map { rawEffect ->
+                        val parts = rawEffect.split(",").map(String::trim)
+                        require(parts.size == 7) { "efeito '$rawEffect' precisa de 7 partes" }
+                        SkillEffectSpec(
+                            id(parts[0], "id do efeito"),
+                            id(parts[1], "alvo do efeito"),
+                            parts[2].toInt(),
+                            parts[3].toInt(),
+                            id(parts[4], "grupo de acúmulo"),
+                            opt(parts[5])?.toInt(),
+                            opt(parts[6]),
+                            recipient,
+                        )
+                    }.orEmpty()
                 if (recipient == SkillEffectRecipient.TARGET) {
                     val combatTargets = setOf("ataque", "dano", "defesa", "resistencia_dano", "velocidade", "precisao", "percepcao")
                     require(effects.isNotEmpty()) { "habilidade direcionada precisa de efeito tipado" }
@@ -97,27 +106,28 @@ object SkillTreeCatalogLoader {
                     require(actionCost == 0) { "ataques especiais devem usar o custo suportado pelo resolvedor atual" }
                     if (actionKind == SkillActionKind.MULTI_HIT) require(hitCount >= 2) { "multiataque precisa de ao menos dois golpes" }
                 }
-                skills += SkillTreeSkill(
-                    id = skillId,
-                    name = fields[2].also { require(it.isNotBlank()) { "nome vazio" } },
-                    treeId = treeId,
-                    origin = origin,
-                    category = category,
-                    element = element,
-                    requiredElement = requiredElement,
-                    affinityBound = affinityBound,
-                    weaponTags = weaponTags,
-                    requiredCharacterLevel = level,
-                    prerequisiteSkillIds = prerequisites,
-                    scrollRank = rank,
-                    unlockPointCost = unlockCost,
-                    actionKind = actionKind,
-                    actionCost = actionCost,
-                    actionResource = actionResource,
-                    hitCount = hitCount,
-                    effects = effects,
-                    freeBaseSkill = freeBase
-                )
+                skills +=
+                    SkillTreeSkill(
+                        id = skillId,
+                        name = fields[2].also { require(it.isNotBlank()) { "nome vazio" } },
+                        treeId = treeId,
+                        origin = origin,
+                        category = category,
+                        element = element,
+                        requiredElement = requiredElement,
+                        affinityBound = affinityBound,
+                        weaponTags = weaponTags,
+                        requiredCharacterLevel = level,
+                        prerequisiteSkillIds = prerequisites,
+                        scrollRank = rank,
+                        unlockPointCost = unlockCost,
+                        actionKind = actionKind,
+                        actionCost = actionCost,
+                        actionResource = actionResource,
+                        hitCount = hitCount,
+                        effects = effects,
+                        freeBaseSkill = freeBase,
+                    )
             } catch (e: Exception) {
                 errors += "habilidades-arvore linha $lineNo: ${e.message ?: "formato inválido"}"
             }

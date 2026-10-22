@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.R
-import dev.rpgsolo.ai.NewCampaignFlow
 import dev.rpgsolo.ai.CampaignForm
+import dev.rpgsolo.ai.NewCampaignFlow
 import dev.rpgsolo.engine.Ficha
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,7 +35,11 @@ import kotlin.random.Random
 @Composable
 fun NewCampaignSection(model: AppModel) {
     val flow = remember(model.controller != null, model.packageVersion) { model.newCampaignFlow() }
-    Text(stringResource(R.string.campaign_new_title), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+    Text(
+        stringResource(R.string.campaign_new_title),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.primary,
+    )
     if (flow == null) {
         Muted(stringResource(R.string.campaign_provider_required))
         return
@@ -62,32 +66,56 @@ fun NewCampaignSection(model: AppModel) {
         }
         if (showForm) {
             Text(stringResource(R.string.campaign_form_optional), style = MaterialTheme.typography.bodySmall)
-            OutlinedTextField(genre, { genre = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_genre)) }, singleLine = true)
-            OutlinedTextField(era, { era = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_era)) }, singleLine = true)
-            OutlinedTextField(tone, { tone = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_tone)) }, singleLine = true)
-            OutlinedTextField(difficulty, { difficulty = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_difficulty)) }, singleLine = true)
-            OutlinedTextField(themes, { themes = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_themes)) })
-            OutlinedTextField(duration, { duration = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_duration)) }, singleLine = true)
+            OutlinedTextField(genre, {
+                genre = it
+            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_genre)) }, singleLine = true)
             OutlinedTextField(
-                contentLimits, { contentLimits = it }, Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.campaign_content_limits)) }
+                era,
+                { era = it },
+                Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.campaign_era)) },
+                singleLine = true,
+            )
+            OutlinedTextField(
+                tone,
+                { tone = it },
+                Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.campaign_tone)) },
+                singleLine = true,
+            )
+            OutlinedTextField(difficulty, {
+                difficulty = it
+            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_difficulty)) }, singleLine = true)
+            OutlinedTextField(themes, { themes = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_themes)) })
+            OutlinedTextField(duration, {
+                duration = it
+            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_duration)) }, singleLine = true)
+            OutlinedTextField(
+                contentLimits,
+                { contentLimits = it },
+                Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.campaign_content_limits)) },
             )
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    text = CampaignForm(
-                        genre = genre, era = era, tone = tone, difficulty = difficulty,
-                        themes = themes.split(',').map { it.trim() }.filter { it.isNotEmpty() },
-                        duration = duration, contentLimits = contentLimits, freeText = text
-                    ).toDescription()
-                }
+                    text =
+                        CampaignForm(
+                            genre = genre, era = era, tone = tone, difficulty = difficulty,
+                            themes = themes.split(',').map { it.trim() }.filter { it.isNotEmpty() },
+                            duration = duration, contentLimits = contentLimits, freeText = text,
+                        ).toDescription()
+                },
             ) { Text(stringResource(R.string.campaign_add_fields)) }
         }
         when (val s = step) {
             NewCampaignFlow.Step.Describe -> {
                 OutlinedTextField(
-                    text, { text = it }, Modifier.fillMaxWidth(), enabled = !busy,
-                    label = { Text(stringResource(R.string.campaign_describe)) }
+                    text,
+                    { text = it },
+                    Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    label = { Text(stringResource(R.string.campaign_describe)) },
                 )
                 Button(modifier = Modifier.fillMaxWidth(), enabled = !busy && text.isNotBlank(), onClick = {
                     busy = true
@@ -103,18 +131,35 @@ fun NewCampaignSection(model: AppModel) {
             is NewCampaignFlow.Step.Asking -> {
                 Text(s.ask.question, style = MaterialTheme.typography.bodyLarge)
                 s.ask.options.forEach { o ->
-                    OutlinedButton(onClick = { flow.answer(o.id); step = flow.step }, modifier = Modifier.fillMaxWidth()) { Text(o.label) }
+                    OutlinedButton(onClick = {
+                        flow.answer(o.id)
+                        step = flow.step
+                    }, modifier = Modifier.fillMaxWidth()) { Text(o.label) }
                 }
-                OutlinedButton(onClick = { flow.reset(); step = flow.step }) { Text(stringResource(R.string.campaign_restart)) }
+                OutlinedButton(onClick = {
+                    flow.reset()
+                    step = flow.step
+                }) { Text(stringResource(R.string.campaign_restart)) }
             }
 
             is NewCampaignFlow.Step.Review -> {
                 val r = s.ready.resolved
-                Text(stringResource(R.string.campaign_edition, r.edition.name, r.edition.edition), style = MaterialTheme.typography.titleSmall)
-                s.ready.draft.concept?.let { Text(stringResource(R.string.campaign_character_requested, it), style = MaterialTheme.typography.bodySmall) }
+                Text(
+                    stringResource(R.string.campaign_edition, r.edition.name, r.edition.edition),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                s.ready.draft.concept?.let {
+                    Text(
+                        stringResource(R.string.campaign_character_requested, it),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
                 r.notes.forEach { Text(stringResource(R.string.campaign_note, it), style = MaterialTheme.typography.bodySmall) }
                 if (s.ready.draft.ignored.isNotEmpty()) {
-                    Text(stringResource(R.string.campaign_ignored_terms, s.ready.draft.ignored.joinToString()), style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        stringResource(R.string.campaign_ignored_terms, s.ready.draft.ignored.joinToString()),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
                 val fichas = flow.compatible(model.fichas.toList())
                 if (fichas.isEmpty()) {
@@ -123,7 +168,13 @@ fun NewCampaignSection(model: AppModel) {
                 fichas.forEach { f ->
                     FilterChip(selected = chosen?.id == f.id, onClick = { chosen = f }, label = { Text(f.name) })
                 }
-                OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_name)) }, singleLine = true)
+                OutlinedTextField(
+                    name,
+                    { name = it },
+                    Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.campaign_name)) },
+                    singleLine = true,
+                )
                 s.errors.forEach { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                 Button(modifier = Modifier.fillMaxWidth(), enabled = chosen != null && name.isNotBlank() && !busy, onClick = {
                     val ficha = chosen!!
@@ -131,33 +182,46 @@ fun NewCampaignSection(model: AppModel) {
                     busy = true
                     scope.launch {
                         // Grava no banco e troca a sessão: fora da thread principal, com exclusividade de turno (R-02).
-                        val result = try {
-                            withContext(Dispatchers.IO) {
-                                model.exclusiveTurn {
-                                    flow.start(ficha, campaignName, Random.nextLong()).also {
-                                        if (it is NewCampaignFlow.Step.Started) model.activate(it.result)
+                        val result =
+                            try {
+                                withContext(Dispatchers.IO) {
+                                    model.exclusiveTurn {
+                                        flow.start(ficha, campaignName, Random.nextLong()).also {
+                                            if (it is NewCampaignFlow.Step.Started) model.activate(it.result)
+                                        }
                                     }
                                 }
+                            } catch (e: Exception) {
+                                NewCampaignFlow.Step.Problem(listOf(e.message ?: startFailureText))
+                            } finally {
+                                busy = false
                             }
-                        } catch (e: Exception) {
-                            NewCampaignFlow.Step.Problem(listOf(e.message ?: startFailureText))
-                        } finally {
-                            busy = false
-                        }
                         step = result
                     }
                 }) { Text(stringResource(R.string.campaign_start)) }
-                OutlinedButton(onClick = { flow.reset(); step = flow.step }) { Text(stringResource(R.string.campaign_cancel)) }
+                OutlinedButton(onClick = {
+                    flow.reset()
+                    step = flow.step
+                }) { Text(stringResource(R.string.campaign_cancel)) }
             }
 
             is NewCampaignFlow.Step.Problem -> {
                 s.reasons.forEach { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
-                OutlinedButton(onClick = { flow.reset(); step = flow.step }) { Text(stringResource(R.string.campaign_try_again)) }
+                OutlinedButton(onClick = {
+                    flow.reset()
+                    step = flow.step
+                }) { Text(stringResource(R.string.campaign_try_again)) }
             }
 
             is NewCampaignFlow.Step.Started -> {
                 Text(stringResource(R.string.campaign_started), style = MaterialTheme.typography.bodyMedium)
-                OutlinedButton(onClick = { flow.reset(); step = flow.step; text = ""; name = ""; chosen = null }) { Text(stringResource(R.string.campaign_create_another)) }
+                OutlinedButton(onClick = {
+                    flow.reset()
+                    step = flow.step
+                    text = ""
+                    name = ""
+                    chosen = null
+                }) { Text(stringResource(R.string.campaign_create_another)) }
             }
         }
     }

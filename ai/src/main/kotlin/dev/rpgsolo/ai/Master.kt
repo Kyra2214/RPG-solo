@@ -8,7 +8,8 @@ import dev.rpgsolo.engine.openPromises
 
 /** Fase 7.3: prompt fixo do mestre. O motor decide; a IA só descreve e propõe. */
 object MasterPrompt {
-    val SYSTEM: String = """
+    val SYSTEM: String =
+        """
         Você é o mestre de um RPG solo. Regras que nunca mudam:
         1. O motor de regras já decidiu todos os resultados (testes, dados, dano). Você só descreve o que aconteceu; nunca contradiga o resultado informado nem os fatos registrados.
         2. Imersão: nunca mostre ficha, atributos, números de vida, dados ou segredos de NPC. Descreva só o que o personagem percebe (ex.: "parece ferido", "parece perigoso").
@@ -29,7 +30,7 @@ object MasterPrompt {
         16. Notas mecânicas desta resolução prevalecem sobre a tabela narrativa: se o motor disser que uma condição foi bloqueada por imunidade, não descreva a condição como aplicada. Narre a resistência de forma natural e sem revelar termos técnicos, ids ou números.
         17. Ciclo de cena e turno: avance apenas um momento significativo por resposta. Depois de narrar a consequência mecânica já resolvida, termine com uma pergunta direta sobre a próxima ação do jogador. Fora de combate, não encerre a resposta com uma sequência de decisões já tomadas pela personagem. Em combate, descreva a situação atual sem escolher a ação do jogador; se for o turno dele, peça uma ação concreta, e se for o turno de um NPC, aguarde a resolução do motor antes de narrar o resultado.
         ${ProposalSchema.INSTRUCTIONS}
-    """.trimIndent()
+        """.trimIndent()
 }
 
 /** O que o montador de contexto recebe para uma jogada (7.2). */
@@ -61,54 +62,72 @@ data class ContextInput(
     /** CP-03: briefing de retomada (ver [ResumeBriefing]); só na primeira jogada depois de abrir a campanha. */
     val resumeBriefing: String? = null,
     /** DC-05.1: trechos do documento-fonte escolhidos pelo código para esta cena (ver [SourceContext]); cortável pelo orçamento. */
-    val sourceContext: String? = null
+    val sourceContext: String? = null,
 )
 
 object ContextAssembler {
-    private fun outcomeWord(result: CheckResult): String = when (result.outcome) {
-        Outcome.CRITICAL_FAILURE -> "falha crítica"
-        Outcome.FAILURE -> if (result.margin >= -4) "falha por pouco" else "falha clara"
-        Outcome.PARTIAL_SUCCESS -> "sucesso parcial, com custo ou complicação"
-        Outcome.SUCCESS -> if (result.margin <= 4) "sucesso por pouco" else "sucesso convincente"
-        Outcome.CRITICAL_SUCCESS -> "sucesso crítico"
-    }
+    private fun outcomeWord(result: CheckResult): String =
+        when (result.outcome) {
+            Outcome.CRITICAL_FAILURE -> "falha crítica"
+            Outcome.FAILURE -> if (result.margin >= -4) "falha por pouco" else "falha clara"
+            Outcome.PARTIAL_SUCCESS -> "sucesso parcial, com custo ou complicação"
+            Outcome.SUCCESS -> if (result.margin <= 4) "sucesso por pouco" else "sucesso convincente"
+            Outcome.CRITICAL_SUCCESS -> "sucesso crítico"
+        }
 
-    internal fun relationWord(v: Int): String = when {
-        v >= 70 -> "devoção"
-        v >= 30 -> "confiança"
-        v >= 10 -> "simpatia"
-        v > -10 -> "neutra"
-        v > -30 -> "antipatia"
-        v > -70 -> "hostilidade"
-        else -> "ódio"
-    }
+    internal fun relationWord(v: Int): String =
+        when {
+            v >= 70 -> "devoção"
+            v >= 30 -> "confiança"
+            v >= 10 -> "simpatia"
+            v > -10 -> "neutra"
+            v > -30 -> "antipatia"
+            v > -70 -> "hostilidade"
+            else -> "ódio"
+        }
 
     /** Nota privada da face sorteada. O dano, se houver, já foi aplicado pelo motor: a IA não o repete nem cita valores. */
     internal fun rollNote(e: RollEntry): String {
-        val applied = buildList {
-            if (e.damage > 0 || e.hazard != null) add("o dano")
-            if (e.conditions.isNotEmpty()) add("a condição (${e.conditions.joinToString(", ")})")
-        }
-        val tail = if (applied.isEmpty()) "Esta face não causa dano."
-        else "O motor JÁ aplicou ${applied.joinToString(" e ")}: não proponha damage nem add_condition para isso nem cite valores; descreva o ferimento e o efeito só em palavras."
+        val applied =
+            buildList {
+                if (e.damage > 0 || e.hazard != null) add("o dano")
+                if (e.conditions.isNotEmpty()) add("a condição (${e.conditions.joinToString(", ")})")
+            }
+        val tail =
+            if (applied.isEmpty()) {
+                "Esta face não causa dano."
+            } else {
+                "O motor JÁ aplicou ${applied.joinToString(
+                    " e ",
+                )}: não proponha damage nem add_condition para isso nem cite valores; descreva o ferimento e o efeito só em palavras."
+            }
         return "Nota privada para este resultado (siga-a; narre sem números): ${e.text}. $tail"
     }
 
     /** Só a nota privada que corresponde ao resultado: a outra nunca volta para a IA, para não vazar. */
-    internal fun notesFor(req: CheckRequest, o: Outcome): String = when (o) {
-        Outcome.SUCCESS, Outcome.CRITICAL_SUCCESS ->
-            "Nota privada do seu pedido para este resultado (siga-a; não revele nada além dela): ${req.onSuccess}"
-        Outcome.FAILURE, Outcome.CRITICAL_FAILURE ->
-            "Nota privada do seu pedido para este resultado (siga-a): ${req.onFailure}. " +
-                "Não revele o que o personagem deixou de perceber nem avise que perdeu algo; a história segue."
-        Outcome.PARTIAL_SUCCESS ->
-            (req.onPartial?.let { "Nota privada para sucesso parcial (siga-a): $it" }
-                ?: "Sucesso parcial: o personagem consegue só em parte, com custo ou complicação. " +
-                "Se passasse: ${req.onSuccess}. Se falhasse: ${req.onFailure}.")
-    }
+    internal fun notesFor(
+        req: CheckRequest,
+        o: Outcome,
+    ): String =
+        when (o) {
+            Outcome.SUCCESS, Outcome.CRITICAL_SUCCESS ->
+                "Nota privada do seu pedido para este resultado (siga-a; não revele nada além dela): ${req.onSuccess}"
+            Outcome.FAILURE, Outcome.CRITICAL_FAILURE ->
+                "Nota privada do seu pedido para este resultado (siga-a): ${req.onFailure}. " +
+                    "Não revele o que o personagem deixou de perceber nem avise que perdeu algo; a história segue."
+            Outcome.PARTIAL_SUCCESS ->
+                (
+                    req.onPartial?.let { "Nota privada para sucesso parcial (siga-a): $it" }
+                        ?: "Sucesso parcial: o personagem consegue só em parte, com custo ou complicação. " +
+                        "Se passasse: ${req.onSuccess}. Se falhasse: ${req.onFailure}."
+                )
+        }
 
     /** Estado de saúde só em palavras: nada de números vai para a narração. */
-    internal fun healthWord(e: Entity, resource: String?): String {
+    internal fun healthWord(
+        e: Entity,
+        resource: String?,
+    ): String {
         if (!e.alive) return "morto"
         val r = resource?.let { e.resources[it] } ?: return "vivo"
         return when {
@@ -126,87 +145,109 @@ object ContextAssembler {
     fun build(input: ContextInput): AiRequest {
         val s = input.state
         val resolving = input.resolving
-        val required = buildString {
-            append(if (resolving == null) "Ação do jogador: " else "Ação do jogador (antes do teste ou rolagem que você pediu): ")
-            append(input.playerText.trim())
-            val rolled = input.check
-            if (rolled != null && resolving is PendingRoll) {
-                // Rolagem com tabela: não há sucesso nem falha; a face decide. Só a nota da face sorteada volta à IA.
-                val face = rolled.roll.dice.singleOrNull()
-                append("\nO jogador rolou '").append(resolving.label).append("' e saiu ").append(face ?: "?").append(". Narre exatamente esse resultado.")
-                face?.let { resolving.request.table[it] }?.let { append("\n").append(rollNote(it)) }
-            } else if (rolled != null) {
-                append("\nResultado decidido pelo motor para '").append(rolled.spec.label).append("': ")
-                append(outcomeWord(rolled)).append(". Narre exatamente esse resultado, sem mencionar dados, totais, margens ou números de regra.")
-                if (resolving is PendingCheck) append("\n").append(resolving.resultNote ?: notesFor(resolving.request, rolled.outcome))
+        val required =
+            buildString {
+                append(if (resolving == null) "Ação do jogador: " else "Ação do jogador (antes do teste ou rolagem que você pediu): ")
+                append(input.playerText.trim())
+                val rolled = input.check
+                if (rolled != null && resolving is PendingRoll) {
+                    // Rolagem com tabela: não há sucesso nem falha; a face decide. Só a nota da face sorteada volta à IA.
+                    val face = rolled.roll.dice.singleOrNull()
+                    append(
+                        "\nO jogador rolou '",
+                    ).append(resolving.label).append("' e saiu ").append(face ?: "?").append(". Narre exatamente esse resultado.")
+                    face?.let { resolving.request.table[it] }?.let { append("\n").append(rollNote(it)) }
+                } else if (rolled != null) {
+                    append("\nResultado decidido pelo motor para '").append(rolled.spec.label).append("': ")
+                    append(
+                        outcomeWord(rolled),
+                    ).append(". Narre exatamente esse resultado, sem mencionar dados, totais, margens ou números de regra.")
+                    if (resolving is PendingCheck) append("\n").append(resolving.resultNote ?: notesFor(resolving.request, rolled.outcome))
+                }
             }
-        }
         // Uma lista explícita limita a cena aos NPCs presentes. Sem lista, preserva o contexto completo da campanha (incluindo testes e chamadas legadas).
         val sceneIds = (if (input.sceneNpcIds.isEmpty()) s.entities.keys else input.sceneNpcIds) + input.playerEntityId
-        val present = s.entities.values.filter { it.id in sceneIds }.joinToString("\n") { e ->
-            val conds = s.conditions[e.id].orEmpty()
-            "- ${e.id} (${e.name}, ${if (e.id == input.playerEntityId) "jogador" else "NPC"}): ${healthWord(e, input.healthResource)}" +
-                if (conds.isEmpty()) "" else ", condições: ${conds.joinToString(", ")}"
-        }
-        val optional = listOfNotNull(
-            "Personagens e estado:\n$present".takeIf { s.entities.isNotEmpty() },
-            s.combat?.let { "Combate: rodada ${it.round}, vez de ${s.entities[it.current]?.name ?: it.current}" },
-            s.openPromises().filter { it.npcId in sceneIds }.takeIf { it.isNotEmpty() }
-                ?.let { ps -> "Promessas em aberto:\n" + ps.joinToString("\n") { "- ${it.npcId}: ${it.text}" } },
-            s.memories.filterKeys { it in sceneIds }.takeIf { it.isNotEmpty() }
-                ?.let { memories ->
-                    "Memórias relevantes da cena (privadas do mestre):\n" + memories.entries.joinToString("\n") { (id, notes) ->
-                        "- ${s.entities[id]?.name ?: id}: ${notes.joinToString(" | ")}"
-                    }
+        val present =
+            s.entities.values.filter { it.id in sceneIds }.joinToString("\n") { e ->
+                val conds = s.conditions[e.id].orEmpty()
+                "- ${e.id} (${e.name}, ${if (e.id == input.playerEntityId) "jogador" else "NPC"}): ${healthWord(e, input.healthResource)}" +
+                    if (conds.isEmpty()) "" else ", condições: ${conds.joinToString(", ")}"
+            }
+        val optional =
+            listOfNotNull(
+                "Personagens e estado:\n$present".takeIf { s.entities.isNotEmpty() },
+                s.combat?.let { "Combate: rodada ${it.round}, vez de ${s.entities[it.current]?.name ?: it.current}" },
+                s.openPromises().filter { it.npcId in sceneIds }.takeIf { it.isNotEmpty() }
+                    ?.let { ps -> "Promessas em aberto:\n" + ps.joinToString("\n") { "- ${it.npcId}: ${it.text}" } },
+                s.memories.filterKeys { it in sceneIds }.takeIf { it.isNotEmpty() }
+                    ?.let { memories ->
+                        "Memórias relevantes da cena (privadas do mestre):\n" +
+                            memories.entries.joinToString("\n") { (id, notes) ->
+                                "- ${s.entities[id]?.name ?: id}: ${notes.joinToString(" | ")}"
+                            }
+                    },
+                s.relations.filterKeys { key ->
+                    val pair = key.split('\u0000', limit = 2)
+                    pair.size == 2 && (pair[0] in sceneIds || pair[1] in sceneIds)
+                }.takeIf { it.isNotEmpty() }?.let { r ->
+                    "Relações (só em palavras, nunca números):\n" +
+                        r.entries.joinToString("\n") { (k, v) ->
+                            val (a, b) = k.split('\u0000', limit = 2)
+                            "- ${s.entities[a]?.name ?: a} em relação a ${s.entities[b]?.name ?: b}: ${relationWord(v)}"
+                        }
                 },
-            s.relations.filterKeys { key ->
-                val pair = key.split('\u0000', limit = 2)
-                pair.size == 2 && (pair[0] in sceneIds || pair[1] in sceneIds)
-            }.takeIf { it.isNotEmpty() }?.let { r ->
-                "Relações (só em palavras, nunca números):\n" + r.entries.joinToString("\n") { (k, v) ->
-                    val (a, b) = k.split('\u0000', limit = 2)
-                    "- ${s.entities[a]?.name ?: a} em relação a ${s.entities[b]?.name ?: b}: ${relationWord(v)}"
-                }
-            },
-            s.clocks.values.takeIf { it.isNotEmpty() }?.let { cs ->
-                "Relógios de agenda (privado; não mostre números, só sinais no mundo):\n" + cs.joinToString("\n") {
-                    "- ${it.name}: ${it.filled}/${it.segments}" +
-                        if (it.full && it.id in input.advancedClockIds) " — COMPLETO nesta jogada: narre a consequência agora" +
-                            (if (it.consequence.isNotBlank()) " planejada: ${it.consequence}" else "") +
-                            (if (it.id in input.midpointClockIds && it.midClue.isNotBlank()) "; inclua também a pista da metade: ${it.midClue}" else "")
-                        else if (it.full) " — já estava completo antes desta jogada; não repita a consequência"
-                        else if (it.id in input.midpointClockIds && it.midClue.isNotBlank() && it.filled >= it.midpoint) " — AVANÇOU desde sua última fala e passou da metade: deixe o jogador perceber esta pista, sem números nem o nome do relógio: ${it.midClue}"
-                        else if (it.id in input.advancedClockIds) " — AVANÇOU desde sua última fala: mostre um sinal sutil no mundo, sem números nem o nome do relógio"
-                        else ""
-                }
-            },
-            s.facts.takeIf { it.isNotEmpty() }
-                ?.let { f -> "Fatos registrados:\n" + f.entries.joinToString("\n") { "- ${it.key}: ${it.value}" } },
-            s.additionalRules.values.takeIf { it.isNotEmpty() }?.let { rules ->
-                "Adaptações da campanha (nunca trate como regra oficial):\n" + rules.joinToString("\n") { rule ->
-                    val status = if (rule.approved) "APROVADA — efeito ativo" else "PENDENTE — não aplique ainda"
-                    "- ${rule.name} [$status]: ${rule.description}; efeitos ${rule.effects}; limite ${rule.limit}"
-                }
-            },
-            s.knowledge.values.takeIf { it.isNotEmpty() }
-                ?.let { k -> "O jogador sabe:\n" + k.joinToString("\n") { "- ${it.text}" + if (it.believed) " (apenas acreditado)" else "" } },
-            input.ruleSnippets.takeIf { it.isNotEmpty() }?.let { "Regras relevantes:\n" + it.joinToString("\n") },
-            input.chapterSummary?.takeIf { it.isNotBlank() }?.let { "Resumo do capítulo:\n$it" },
-            input.sourceContext?.takeIf { it.isNotBlank() },
-            input.generationPreferences?.takeIf { it.isNotBlank() },
-            input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") }
-        )
+                s.clocks.values.takeIf { it.isNotEmpty() }?.let { cs ->
+                    "Relógios de agenda (privado; não mostre números, só sinais no mundo):\n" +
+                        cs.joinToString("\n") {
+                            "- ${it.name}: ${it.filled}/${it.segments}" +
+                                if (it.full && it.id in input.advancedClockIds) {
+                                    " — COMPLETO nesta jogada: narre a consequência agora" +
+                                        (if (it.consequence.isNotBlank()) " planejada: ${it.consequence}" else "") +
+                                        (if (it.id in input.midpointClockIds && it.midClue.isNotBlank()) "; inclua também a pista da metade: ${it.midClue}" else "")
+                                } else if (it.full) {
+                                    " — já estava completo antes desta jogada; não repita a consequência"
+                                } else if (it.id in input.midpointClockIds && it.midClue.isNotBlank() && it.filled >= it.midpoint) {
+                                    " — AVANÇOU desde sua última fala e passou da metade: deixe o jogador perceber esta pista, sem números nem o nome do relógio: ${it.midClue}"
+                                } else if (it.id in input.advancedClockIds) {
+                                    " — AVANÇOU desde sua última fala: mostre um sinal sutil no mundo, sem números nem o nome do relógio"
+                                } else {
+                                    ""
+                                }
+                        }
+                },
+                s.facts.takeIf { it.isNotEmpty() }
+                    ?.let { f -> "Fatos registrados:\n" + f.entries.joinToString("\n") { "- ${it.key}: ${it.value}" } },
+                s.additionalRules.values.takeIf { it.isNotEmpty() }?.let { rules ->
+                    "Adaptações da campanha (nunca trate como regra oficial):\n" +
+                        rules.joinToString("\n") { rule ->
+                            val status = if (rule.approved) "APROVADA — efeito ativo" else "PENDENTE — não aplique ainda"
+                            "- ${rule.name} [$status]: ${rule.description}; efeitos ${rule.effects}; limite ${rule.limit}"
+                        }
+                },
+                s.knowledge.values.takeIf { it.isNotEmpty() }
+                    ?.let {
+                            k ->
+                        "O jogador sabe:\n" + k.joinToString("\n") { "- ${it.text}" + if (it.believed) " (apenas acreditado)" else "" }
+                    },
+                input.ruleSnippets.takeIf { it.isNotEmpty() }?.let { "Regras relevantes:\n" + it.joinToString("\n") },
+                input.chapterSummary?.takeIf { it.isNotBlank() }?.let { "Resumo do capítulo:\n$it" },
+                input.sourceContext?.takeIf { it.isNotBlank() },
+                input.generationPreferences?.takeIf { it.isNotBlank() },
+                input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") },
+            )
         // Sempre entram (não são cortadas pelo orçamento): ficha, menu, cena e contexto privado relevante.
-        val always = listOfNotNull(
-            input.playerSheet?.takeIf { it.isNotBlank() },
-            input.checkMenu?.takeIf { it.isNotBlank() },
-            input.worldContext?.takeIf { it.isNotBlank() },
-            input.resumeBriefing?.takeIf { it.isNotBlank() },
-            input.mechanicalNotes.takeIf { it.isNotEmpty() }
-                ?.let { "Notas mecânicas desta resolução (obrigatórias; não exponha termos técnicos):\n" + it.joinToString("\n") { note -> "- $note" } }
-        ) + input.npcPrivate
-        var used = TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required) +
-            always.sumOf { TokenEstimator.estimate(it) }
+        val always =
+            listOfNotNull(
+                input.playerSheet?.takeIf { it.isNotBlank() },
+                input.checkMenu?.takeIf { it.isNotBlank() },
+                input.worldContext?.takeIf { it.isNotBlank() },
+                input.resumeBriefing?.takeIf { it.isNotBlank() },
+                input.mechanicalNotes.takeIf { it.isNotEmpty() }
+                    ?.let { "Notas mecânicas desta resolução (obrigatórias; não exponha termos técnicos):\n" + it.joinToString("\n") { note -> "- $note" } },
+            ) + input.npcPrivate
+        var used =
+            TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required) +
+                always.sumOf { TokenEstimator.estimate(it) }
         val kept = mutableListOf<String>()
         for (section in optional) {
             val cost = TokenEstimator.estimate(section)

@@ -7,10 +7,12 @@ import java.io.File
 
 class AdvancementPackageTest {
     @Test fun packageConfiguresResourceRewardsPerLevel() {
-        val root = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
-            .map(::File).first { it.exists() }
-        val files = root.listFiles()!!.filter { it.name.endsWith(".txt") }
-            .associate { it.name to it.readText() }.toMutableMap()
+        val root =
+            listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
+                .map(::File).first { it.exists() }
+        val files =
+            root.listFiles()!!.filter { it.name.endsWith(".txt") }
+                .associate { it.name to it.readText() }.toMutableMap()
         files["criacao.txt"] = files.getValue("criacao.txt").trimEnd() + "\nrecompensa_recurso|mana=2,hp=1\n"
         val parsed = PackageParser.parse(files)
         assertTrue("pacote deveria ser válido: $parsed", parsed is ParseResult.Ok)
@@ -21,10 +23,12 @@ class AdvancementPackageTest {
     }
 
     @Test fun packageRejectsLevelRewardForMissingResource() {
-        val root = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
-            .map(::File).first { it.exists() }
-        val files = root.listFiles()!!.filter { it.name.endsWith(".txt") }
-            .associate { it.name to it.readText() }.toMutableMap()
+        val root =
+            listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
+                .map(::File).first { it.exists() }
+        val files =
+            root.listFiles()!!.filter { it.name.endsWith(".txt") }
+                .associate { it.name to it.readText() }.toMutableMap()
         files["criacao.txt"] = files.getValue("criacao.txt").trimEnd() + "\nrecompensa_recurso|mana-inexistente=2\n"
         val installed = PackageRegistry().install(files)
         assertTrue("pacote deve ser rejeitado: $installed", installed is InstallResult.Failure)
@@ -32,10 +36,12 @@ class AdvancementPackageTest {
     }
 
     @Test fun packageControlsPointBudgetAndCaps() {
-        val root = listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
-            .map(::File).first { it.exists() }
-        val files = root.listFiles()!!.filter { it.name.endsWith(".txt") }
-            .associate { it.name to it.readText() }.toMutableMap()
+        val root =
+            listOf("src/test/resources/packages/teste-basico", "rules/src/test/resources/packages/teste-basico")
+                .map(::File).first { it.exists() }
+        val files =
+            root.listFiles()!!.filter { it.name.endsWith(".txt") }
+                .associate { it.name to it.readText() }.toMutableMap()
         files["criacao.txt"] = files.getValue("criacao.txt").trimEnd() + "\npontos_por_nivel|2\n"
         val parsed = PackageParser.parse(files)
         assertTrue("pacote deveria ser válido: $parsed", parsed is ParseResult.Ok)

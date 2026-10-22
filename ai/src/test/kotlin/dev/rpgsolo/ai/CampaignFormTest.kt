@@ -10,8 +10,13 @@ class CampaignFormTest {
     }
 
     @Test fun textoLivreVemPrimeiroEOsCamposDepois() {
-        val d = CampaignForm(genre = "cyberpunk", tone = "sombrio", themes = listOf("corporações", " ", "vingança"),
-            freeText = "Um anão minerador de máquinas de combate").toDescription()
+        val d =
+            CampaignForm(
+                genre = "cyberpunk",
+                tone = "sombrio",
+                themes = listOf("corporações", " ", "vingança"),
+                freeText = "Um anão minerador de máquinas de combate",
+            ).toDescription()
         assertEquals("Um anão minerador de máquinas de combate\nGênero: cyberpunk\nTom: sombrio\nTemas: corporações, vingança", d)
     }
 

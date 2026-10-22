@@ -9,13 +9,22 @@ import org.junit.Test
 /** Fase 11.1 e 11.2/11.3: bateria automática de contradições, desempenho e backup. */
 class ContinuityBatteryTest {
     private val store = InMemoryEventStore()
+
     private fun hero() = Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10), "mana" to Resource(2, 5)))
+
     private fun npc() = Entity("ana", "Ana", EntityKind.NPC, resources = mapOf("hp" to Resource(4, 4)))
-    private fun session(id: String = "c", st: EventStore = store) =
-        CampaignSession.create(st, CampaignRecord(id, "T", 11L, EngineConfig(deathResource = "hp"))).also {
-            it.executeAll(listOf(CreateEntity(hero()), CreateEntity(npc())))
-        }
-    private fun reopen(id: String = "c", st: EventStore = store) = CampaignSession.open(st, id)
+
+    private fun session(
+        id: String = "c",
+        st: EventStore = store,
+    ) = CampaignSession.create(st, CampaignRecord(id, "T", 11L, EngineConfig(deathResource = "hp"))).also {
+        it.executeAll(listOf(CreateEntity(hero()), CreateEntity(npc())))
+    }
+
+    private fun reopen(
+        id: String = "c",
+        st: EventStore = store,
+    ) = CampaignSession.open(st, id)
 
     @Test fun b1_npcLembraPromessaDepoisDeReabrir() {
         session().execute(MakePromise("p", "ana", "levar o amuleto"))
@@ -107,8 +116,15 @@ class ContinuityBatteryTest {
         val outro = InMemoryEventStore()
         session()
         val bom = Backup.export(store, "c")
-        fun falha(text: String, id: String? = null) =
-            try { Backup.import(outro, text, id); fail("deveria falhar") } catch (e: IllegalArgumentException) { }
+
+        fun falha(
+            text: String,
+            id: String? = null,
+        ) = try {
+            Backup.import(outro, text, id)
+            fail("deveria falhar")
+        } catch (e: IllegalArgumentException) {
+        }
         falha("isto não é backup")
         falha(bom.replace("\"version\":1", "\"version\":99"))
         falha(bom.replace("EntityCreated", "Inexistente"))
