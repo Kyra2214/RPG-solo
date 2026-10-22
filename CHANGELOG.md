@@ -5,7 +5,7 @@
 - `rules/PackageParser.kt` e `rules/RulePackage.kt`: validação do conjunto de propriedades globais, custo positivo, formas permitidas e existência do recurso, inclusive após herança de pacotes.
 - `docs/PLANO_DESENVOLVIMENTO.md`: corrigida a descrição do fluxo narrativo de testes opostos/em grupo e registrada a configuração global de sorte.
 - `docs/pacotes/FORMATO_PACOTE.md`: documentadas as três chaves globais e a prioridade da configuração específica por teste.
-- `engine/AutomaticTimeline.kt`: a timeline passa a registrar alterações de inventário/equipamento, maldições aplicadas/removidas no personagem, evolução da árvore e distribuição inicial, sem expor IDs ou dados privados de maldições.
+- `engine/AutomaticTimeline.kt`: a timeline passa a registrar alterações de inventário/equipamento, evolução da árvore e distribuição inicial. Eventos de aplicação/remoção de maldições ficam fora da projeção para não revelar efeitos ocultos.
 - **Validação:** nenhum teste, build, lint ou CI executado, conforme a prioridade definida. Não declarar compilação ou integração confirmadas até a etapa final.
 
 ## 2026-10-22 — Árvores de habilidades e maldições: revisão de conteúdo (ainda não validada)
