@@ -94,6 +94,9 @@ fun automaticTimeline(
             is TraitUsesReset -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "habilidade", "Os usos limitados de suas habilidades foram recuperados.")
             } else null
+            is ResourceChanged -> if (event.entityId == playerId && event.delta > 0) {
+                AutomaticTimelineEntry(index, "recuperação", "Você recuperou ${event.delta} ponto(s) de um recurso.")
+            } else null
             is KnowledgeGained ->
                 AutomaticTimelineEntry(index, "descoberta",
                     if (event.believed) "Você passou a acreditar: ${event.text}" else "Você descobriu: ${event.text}")
