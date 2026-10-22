@@ -191,7 +191,9 @@ data class Clock(
     /** Consequência privada (M-07): orientação ao mestre para quando o relógio completar; nunca vai ao jogador pelo app. */
     val consequence: String = "",
     /** Casas que o relógio avança automaticamente quando um combate termina; 0 = não avança. */
-    val combatTick: Int = 0
+    val combatTick: Int = 0,
+    /** Casas que o relógio avança quando uma missão é encerrada; 0 = não avança. */
+    val questTick: Int = 0
 ) {
     init {
         require(id.isNotBlank() && id.length <= 80) { "id de relógio inválido" }
@@ -205,6 +207,7 @@ data class Clock(
         require(moveTick in 0..segments) { "avanço por viagem fora dos limites" }
         require(chapterTick in 0..segments) { "avanço por capítulo fora dos limites" }
         require(combatTick in 0..segments) { "avanço por combate fora dos limites" }
+        require(questTick in 0..segments) { "avanço por missão fora dos limites" }
     }
 
     val full: Boolean get() = filled >= segments

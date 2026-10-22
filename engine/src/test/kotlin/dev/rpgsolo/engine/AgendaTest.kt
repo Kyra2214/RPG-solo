@@ -50,6 +50,7 @@ class AgendaTest {
         val s = session()
         assertTrue(s.executeAll(listOf(CreateClock("a", "A", 1))) is ExecResult.Rejected)
         assertTrue(s.executeAll(listOf(CreateClock("invalid-combat-tick", "A", 3, combatTick = 4))) is ExecResult.Rejected)
+        assertTrue(s.executeAll(listOf(CreateClock("invalid-quest-tick", "A", 3, questTick = 4))) is ExecResult.Rejected)
         assertTrue(s.executeAll(listOf(AdvanceClock("nada"))) is ExecResult.Rejected)
         s.executeAll(listOf(CreateClock("a", "A", 3)))
         assertTrue(s.executeAll(listOf(CreateClock("a", "Outra", 3))) is ExecResult.Rejected)
@@ -119,6 +120,25 @@ class AgendaTest {
         assertNull(s.state.combat)
         assertEquals(1, s.state.clocks.getValue("threat").filled)
         assertEquals(1, s.engine.events.filterIsInstance<ClockAdvanced>().count { it.id == "threat" })
+    }
+
+    @Test fun encerramentoDeMissaoAvancaSomenteRelogiosConfiguradosEIncompletos() {
+        val s = session()
+        s.executeAll(listOf(
+            CreateClock("threat", "Ameaça", 4, questTick = 2),
+            CreateClock("parado", "Plano parado", 4),
+            CreateClock("completo", "Plano concluído", 2, questTick = 1),
+            AdvanceClock("completo", 2)
+        ))
+        val eventMark = s.engine.events.size
+
+        val result = s.advanceClocksAfterQuestClosure()
+
+        assertTrue(result is ExecResult.Accepted)
+        assertEquals(2, s.state.clocks.getValue("threat").filled)
+        assertEquals(0, s.state.clocks.getValue("parado").filled)
+        assertEquals(2, s.state.clocks.getValue("completo").filled)
+        assertEquals(listOf("threat"), s.engine.events.drop(eventMark).filterIsInstance<ClockAdvanced>().map { it.id })
     }
 
     @Test fun logReproduzOEstado() {
