@@ -50,7 +50,13 @@ data class Entity(
     /** MU-06.3: habilidades aprendidas com pontos de habilidade. */
     val abilities: Set<String> = emptySet(),
     /** MU-07.2: magias aprendidas; cada uma ocupa um slot (aquisição em MU-07.3). */
-    val spells: Set<String> = emptySet()
+    val spells: Set<String> = emptySet(),
+    /** IDs e níveis das habilidades da nova árvore de progressão, persistidos no estado canônico. */
+    val skillTreeLevels: Map<String, Int> = emptyMap(),
+    /** Pontos efetivamente investidos por habilidade; usados para um reset sem gerar pontos extras. */
+    val skillTreeInvestments: Map<String, Int> = emptyMap(),
+    /** Habilidades básicas gratuitas de origem, preservadas em nível 1 durante o reset. */
+    val freeSkillIds: Set<String> = emptySet()
 )
 
 /** MU-07.2: slots de magia de uma entidade: [total] pelos níveis-chave alcançados, [used] por magias aprendidas. */
