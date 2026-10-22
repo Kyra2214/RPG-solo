@@ -1788,7 +1788,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun finishQuest(questId: String, status: dev.rpgsolo.engine.QuestStatus): String? =
         try {
             require(status != dev.rpgsolo.engine.QuestStatus.ACTIVE) { "escolha concluída ou falhou" }
-            quests.finish(questId, status)
+            quests.finish(questId, status, chapter = chapters.chapters.size)
             var warning: String? = null
             if (status == dev.rpgsolo.engine.QuestStatus.DONE && (quests.get(questId)?.xpReward ?: 0) > 0) {
                 val award = session.awardQuestXp(quests, questId, playerId)
@@ -1805,7 +1805,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun completeQuestObjective(questId: String, index: Int): String? =
         try {
-            quests.completeObjective(questId, index)
+            quests.completeObjective(questId, index, chapter = chapters.chapters.size)
             saveMetadata()
             campaignVersion++
             null
