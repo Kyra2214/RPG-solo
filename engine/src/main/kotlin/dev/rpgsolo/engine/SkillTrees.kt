@@ -11,6 +11,7 @@ enum class SkillCategory { OFFENSE, DEFENSE, BUFF, SUPPORT, PASSIVE, UTILITY, CO
 enum class ElementPath { WATER, FIRE, WIND, EARTH, METAL, YIN, YANG, NONE }
 enum class SkillOrigin { RACE, SUBRACE, CLASS, PROFESSION, HYBRID, CURSED_CLASS, SHARED, CURSE }
 enum class SkillEffectRecipient { SELF, TARGET }
+enum class SkillActionKind { MODIFIER, REVIVE, MULTI_HIT }
 
 data class SkillEffectSpec(
     val id: String,
@@ -54,6 +55,10 @@ data class SkillTreeSkill(
     val prerequisiteSkillIds: Set<String> = emptySet(),
     val scrollRank: Int? = null,
     val unlockPointCost: Int = 1,
+    val actionKind: SkillActionKind = SkillActionKind.MODIFIER,
+    val actionCost: Int = 0,
+    val actionResource: String? = null,
+    val hitCount: Int = 1,
     val effects: List<SkillEffectSpec> = emptyList(),
     /** Só habilidades básicas de raça/sub-raça/Classe de Malditos devem marcar true. */
     val freeBaseSkill: Boolean = false
@@ -62,6 +67,11 @@ data class SkillTreeSkill(
         require(id.isNotBlank() && treeId.isNotBlank() && name.isNotBlank()) { "habilidade exige id, árvore e nome" }
         require(requiredCharacterLevel >= 1) { "nível mínimo inválido" }
         require(unlockPointCost >= 0) { "custo de desbloqueio negativo" }
+        require(actionCost >= 0) { "custo de ação negativo" }
+        require(actionResource == null || actionResource.isNotBlank()) { "recurso de ação inválido" }
+        require(hitCount >= 1) { "quantidade de golpes inválida" }
+        require(actionKind != SkillActionKind.REVIVE || actionResource != null) { "ressurreição exige recurso de custo" }
+        require(actionKind != SkillActionKind.MULTI_HIT || hitCount >= 2) { "multiataque exige ao menos dois golpes" }
         require(scrollRank == null || scrollRank in 1..7) { "posição de pergaminho deve ficar entre 1 e 7" }
         require(!freeBaseSkill || unlockPointCost == 0) { "habilidade básica gratuita não pode cobrar desbloqueio" }
         require(prerequisiteSkillIds.none { it == id }) { "habilidade não pode depender de si mesma" }
