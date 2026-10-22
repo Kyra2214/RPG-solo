@@ -102,6 +102,21 @@ object HybridClassRules {
         "atuacao", "enganacao", "etiqueta", "carisma", "convencimento"
     )
 
+    fun unlockedClassCount(classOrder: List<String>, characterLevel: Int): Int {
+        require(characterLevel >= 1) { "nível de personagem deve ser positivo" }
+        require(classOrder.size <= 4) { "personagem híbrido pode combinar no máximo quatro classes" }
+        require(classOrder.distinct().size == classOrder.size) { "ordem de classes repetida" }
+        return classOrder.indices.count { index ->
+            characterLevel >= when (index) {
+                0 -> 1
+                1 -> 10
+                2 -> 20
+                3 -> 30
+                else -> Int.MAX_VALUE
+            }
+        }
+    }
+
     fun socialPenalty(classCount: Int): Int {
         require(classCount in 0..4) { "personagem híbrido pode combinar no máximo quatro classes" }
         return -(classCount - 1).coerceAtLeast(0)
