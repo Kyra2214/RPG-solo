@@ -106,7 +106,7 @@ data class KeepPromise(val id: String) : Command
 /** 8.2.2: muda a relação de [fromId] com [toId] (quanto o primeiro gosta/confia no segundo), de -100 a 100. */
 data class ChangeRelation(val fromId: String, val toId: String, val delta: Int, val reason: String) : Command
 /** 8.2.3: relógio de agenda (ameaça ou plano de NPC) com [segments] casas. */
-data class CreateClock(val id: String, val name: String, val segments: Int, val publicClue: String = "", val restTick: Int = 0, val moveTick: Int = 0, val chapterTick: Int = 0, val midClue: String = "", val consequence: String = "") : Command
+data class CreateClock(val id: String, val name: String, val segments: Int, val publicClue: String = "", val restTick: Int = 0, val moveTick: Int = 0, val chapterTick: Int = 0, val midClue: String = "", val consequence: String = "", val combatTick: Int = 0) : Command
 data class AdvanceClock(val id: String, val by: Int = 1) : Command
 data class AddCondition(
     val entityId: String,
@@ -242,6 +242,16 @@ sealed interface Decision {
     data class No(val reason: String) : Decision
 }
 
+private fun combatEndEvents(state: GameState): List<Event> {
+    val clockAdvances = state.clocks.values
+        .filter { !it.full && it.combatTick > 0 }
+        .map { clock ->
+            val filled = minOf(clock.segments, clock.filled + clock.combatTick)
+            ClockAdvanced(clock.id, filled, filled - clock.filled)
+        }
+    return listOf(CombatEnded) + clockAdvances
+}
+
 private fun no(reason: String) = Decision.No(reason)
 
 fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
@@ -267,7 +277,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                 val combatKinds = state.combat.order
                     .mapNotNull { state.entities[it]?.kind }
                     .distinct()
-                if (combatKinds.size >= 2 && aliveKinds.size < 2) events += CombatEnded
+                if (combatKinds.size >= 2 && aliveKinds.size < 2) events += combatEndEvents(state)
             }
             return Decision.Ok(events)
         }
@@ -646,8 +656,9 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.restTick !in 0..cmd.segments) return no("avanço por descanso deve ficar entre 0 e o número de casas")
             if (cmd.moveTick !in 0..cmd.segments) return no("avanço por viagem deve ficar entre 0 e o número de casas")
             if (cmd.chapterTick !in 0..cmd.segments) return no("avanço por capítulo deve ficar entre 0 e o número de casas")
+            if (cmd.combatTick !in 0..cmd.segments) return no("avanço por combate deve ficar entre 0 e o número de casas")
             if (state.clocks.containsKey(cmd.id)) return no("relógio já existe: ${cmd.id}")
-            return Decision.Ok(listOf(ClockCreated(cmd.id, cmd.name.trim(), cmd.segments, cmd.publicClue.trim(), cmd.restTick, cmd.moveTick, cmd.chapterTick, cmd.midClue.trim(), cmd.consequence.trim())))
+            return Decision.Ok(listOf(ClockCreated(cmd.id, cmd.name.trim(), cmd.segments, cmd.publicClue.trim(), cmd.restTick, cmd.moveTick, cmd.chapterTick, cmd.midClue.trim(), cmd.consequence.trim(), cmd.combatTick)))
         }
 
         is AdvanceClock -> {
@@ -744,7 +755,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                                 .mapNotNull { state.entities[it]?.kind }
                                 .distinct()
                             if (combatKinds.size >= 2 && aliveKinds.size < 2) {
-                                events += CombatEnded
+                                events += combatEndEvents(tickState)
                             } else if (tickState.entities[activeCombat.current]?.alive != true) {
                                 // Uma condição pode derrubar o combatente cujo turno acabou de começar.
                                 // Avança para o próximo vivo sem abrir outra rodada nem deixar o combate preso.
@@ -756,7 +767,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
                                     events += skipDeadTurn
                                     tickState = tickState.apply(skipDeadTurn)
                                 } else {
-                                    events += CombatEnded
+                                    events += combatEndEvents(tickState)
                                 }
                             }
                         }
@@ -768,7 +779,7 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
         }
 
         EndCombat ->
-            return if (state.combat == null) no("não há combate ativo") else Decision.Ok(listOf(CombatEnded))
+            return if (state.combat == null) no("não há combate ativo") else Decision.Ok(combatEndEvents(state))
 
         is SetNpcDossier -> {
             val dossier = cmd.dossier

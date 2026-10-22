@@ -16,9 +16,9 @@ class AgendaProposalTest {
     @Test fun iaPodePropor() {
         val o = ok("""{"narrative":"x","proposals":[
             {"type":"change_relation","fromId":"ana","toId":"hero","delta":20,"reason":"ajuda"},
-            {"type":"create_clock","id":"c","name":"Culto","segments":4},
+            {"type":"create_clock","id":"c","name":"Culto","segments":4,"combatTick":1},
             {"type":"advance_clock","id":"c"}]}""")
-        assertEquals(listOf(ChangeRelation("ana", "hero", 20, "ajuda"), CreateClock("c", "Culto", 4), AdvanceClock("c", 1)), o.proposals)
+        assertEquals(listOf(ChangeRelation("ana", "hero", 20, "ajuda"), CreateClock("c", "Culto", 4, combatTick = 1), AdvanceClock("c", 1)), o.proposals)
     }
 
     @Test fun camposFaltandoSaoInvalidos() {

@@ -143,7 +143,7 @@ data class ConditionAdded(
 @Serializable
 data class RelationChanged(val fromId: String, val toId: String, val delta: Int, val value: Int, val reason: String) : Event
 @Serializable
-data class ClockCreated(val id: String, val name: String, val segments: Int, val publicClue: String = "", val restTick: Int = 0, val moveTick: Int = 0, val chapterTick: Int = 0, val midClue: String = "", val consequence: String = "") : Event
+data class ClockCreated(val id: String, val name: String, val segments: Int, val publicClue: String = "", val restTick: Int = 0, val moveTick: Int = 0, val chapterTick: Int = 0, val midClue: String = "", val consequence: String = "", val combatTick: Int = 0) : Event
 @Serializable
 data class ClockAdvanced(val id: String, val filled: Int, val delta: Int) : Event
 @Serializable
@@ -397,7 +397,7 @@ fun GameState.apply(e: Event): GameState {
             copy(promises = promises + (e.id to p.copy(kept = true)))
         }
         is RelationChanged -> copy(relations = relations + (relationKey(e.fromId, e.toId) to e.value))
-        is ClockCreated -> copy(clocks = clocks + (e.id to Clock(e.id, e.name, e.segments, publicClue = e.publicClue, restTick = e.restTick, moveTick = e.moveTick, chapterTick = e.chapterTick, midClue = e.midClue, consequence = e.consequence)))
+        is ClockCreated -> copy(clocks = clocks + (e.id to Clock(e.id, e.name, e.segments, publicClue = e.publicClue, restTick = e.restTick, moveTick = e.moveTick, chapterTick = e.chapterTick, midClue = e.midClue, consequence = e.consequence, combatTick = e.combatTick)))
         is ClockAdvanced -> {
             val c = requireNotNull(clocks[e.id]) { "relógio inexistente: ${e.id}" }
             copy(clocks = clocks + (e.id to c.copy(filled = e.filled)))
