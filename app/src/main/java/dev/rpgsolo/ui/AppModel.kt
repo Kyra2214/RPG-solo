@@ -816,7 +816,15 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             is dev.rpgsolo.ai.PowerBuild.Invalid -> built.reason
             is dev.rpgsolo.ai.PowerBuild.Ready -> {
                 val targetName = built.spec.targetId?.let { session.state.entities[it]?.name }
-                when (val result = controller?.activatePower(built.spec, built.def.name, user.name, targetName)
+                val spec = when (val effect = built.spec.effect) {
+                    is dev.rpgsolo.engine.PowerEffect.Cure -> {
+                        val receiverId = built.spec.targetId ?: built.spec.userId
+                        val recovery = bonuses.skillTreeAndActiveBonus(receiverId, "recuperacao")
+                        built.spec.copy(effect = effect.copy(amount = (effect.amount + recovery).coerceAtLeast(0)))
+                    }
+                    else -> built.spec
+                }
+                when (val result = controller?.activatePower(spec, built.def.name, user.name, targetName)
                     ?: return "O controlador da campanha não está disponível.") {
                     is dev.rpgsolo.ai.PlayResult.Played -> { campaignVersion++; null }
                     is dev.rpgsolo.ai.PlayResult.Failed -> result.reason
