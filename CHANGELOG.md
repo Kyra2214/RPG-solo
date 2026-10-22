@@ -8,7 +8,7 @@
 - `engine/AutomaticTimeline.kt`: a timeline passa a registrar alterações de inventário/equipamento, evolução da árvore e distribuição inicial. Eventos de aplicação/remoção de maldições ficam fora da projeção para não revelar efeitos ocultos. Os registros de combate agora incluem o dano efetivamente causado quando o personagem participa do confronto.
 - `engine/Commands.kt`: uma viagem válida agora avança os relógios com `moveTick` no mesmo lote de eventos; relógios já completos são ignorados e o preenchimento é limitado ao total de casas. `app/ui/AppModel.kt` delega o deslocamento ao motor sem enviar avanços duplicados.
 - `ai/Master.kt`: o contexto instrui o mestre a narrar a consequência de um relógio apenas quando ele conclui desde a última narração, sem repeti-la em turnos posteriores. O `GameLoop` identifica também a transição exata que cruza a metade, para não repetir a pista intermediária em cada avanço.
-- `rules/PackageParser.kt` e `rules/RulePackage.kt`: pacotes não podem declarar poder de `remover-condicao` com alvo inimigo, pois o motor só suporta essa operação em si mesmo; a validação ocorre também após herança.
+- `rules/PackageParser.kt` e `rules/RulePackage.kt`: alvos de poderes são compatíveis com o motor: cura e remoção de condição só em si mesmo; dano e aplicação de condição só em inimigo. A validação ocorre também após herança.
 - **Validação:** nenhum teste, build, lint ou CI executado, conforme a prioridade definida. Não declarar compilação ou integração confirmadas até a etapa final.
 
 ## 2026-10-22 — Árvores de habilidades e maldições: revisão de conteúdo (ainda não validada)
