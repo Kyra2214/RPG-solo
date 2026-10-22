@@ -5,8 +5,8 @@ import dev.rpgsolo.engine.AddItem
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CheckSpec
-import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.CreateClock
+import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.Damage
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
@@ -138,11 +138,16 @@ class IntentAndLocalTest {
 
     @Test fun descansoAvancaRelogioERevelaPistasSemExporContagemOuNome() {
         val s = session()
-        s.execute(CreateClock(
-            "culto-secreto", "Culto secreto", 4,
-            publicClue = "A cerimônia começa ao longe.", restTick = 2,
-            midClue = "Sinos ecoam pela cidade."
-        ))
+        s.execute(
+            CreateClock(
+                "culto-secreto",
+                "Culto secreto",
+                4,
+                publicClue = "A cerimônia começa ao longe.",
+                restTick = 2,
+                midClue = "Sinos ecoam pela cidade.",
+            ),
+        )
 
         val halfway = LocalActions.run(LocalAction.REST, s, "hero", setOf("pv")) as LocalResult.Done
 
