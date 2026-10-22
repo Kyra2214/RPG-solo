@@ -180,15 +180,31 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Lore canônica selecionada para contexto narrativo; nunca é convertida em regra mecânica. */
     fun characterChoicesForAi(fichaId: String): String {
         val choices = characterChoices(fichaId)
-        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId)
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds
         val selected = selectedIds.filter { it.isNotBlank() }.distinct().mapNotNull(CharacterCreationCatalog::find)
         val ancestryIds = selected.filter { it.id == choices.hybridId }.flatMap { it.hybridRaceIds }
         val ancestry = ancestryIds.mapNotNull(CharacterCreationCatalog::find)
         val entries = (selected + ancestry).distinctBy { it.id }
+        val orderedClasses = (listOf(choices.classId).filter { it.isNotBlank() } + choices.additionalClassIds).distinct()
+        val appearance = when (orderedClasses.size) {
+            0, 1 -> "aparência normal para sua raça"
+            2 -> "traços híbridos visíveis; possíveis reações sociais negativas"
+            3 -> "aparência monstruosa evidente; desvantagem social significativa"
+            else -> "aparência extremamente monstruosa; forte desvantagem social"
+        }
+        val affinityName = mapOf(
+            "WATER" to "Água", "FIRE" to "Fogo", "WIND" to "Vento", "EARTH" to "Terra",
+            "METAL" to "Metal", "YIN" to "Yin", "YANG" to "Yang"
+        )[choices.elementalAffinity] ?: "não definida"
         return buildString {
             append("INSTRUÇÕES DE INTEGRIDADE: este bloco contém escolhas e descrições editoriais, não regras mecânicas. ")
             append("Não conceda bônus, penalidades, poderes, resistências ou alterações de atributos a partir dele. ")
             append("Use apenas como contexto narrativo; os efeitos mecânicos válidos vêm da ficha e do pacote de regras.\n")
+            append("Classe principal: ").append(CharacterCreationCatalog.find(choices.classId)?.name ?: "não definida").append(". ")
+            append("Classes adicionais, nesta ordem: ").append(choices.additionalClassIds.mapNotNull(CharacterCreationCatalog::find).joinToString(" + ") { it.name }.ifBlank { "nenhuma" }).append(". ")
+            append("Aparência híbrida: ").append(appearance).append(". ")
+            append("Afinidade elemental: ").append(affinityName).append(". Habilidades mágicas devem respeitar essa afinidade. ")
+            append("Despertar das classes: principal nível 1, segunda nível 10, terceira nível 20, quarta nível 30.\n")
             entries.forEach { entry ->
                 append("- ").append(entry.name)
                 if (entry.id == choices.hybridId && ancestry.isNotEmpty()) {
