@@ -108,7 +108,8 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     var hybridId by remember(key) { mutableStateOf("") }
     var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
     var elementalAffinity by remember(key) { mutableStateOf("") }
-    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity)
+    var cursedClassBranchId by remember(key) { mutableStateOf("") }
+    val choices = CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId)
     val choiceErrors = (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct()
     @Suppress("UNUSED_EXPRESSION") version
 
@@ -197,11 +198,12 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
     CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, { professionId = it; version++ }, allowNone = true)
 
     SectionTitle("Maldições", "Podem trazer benefícios e custos narrativos. Os efeitos ainda não são aplicados pelo motor.")
-    CatalogMultiPicker("Escolha as maldições", CharacterCreationCatalog.curses, curseIds, { id ->
+    CatalogPicker("Classe de Malditos / vertente", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, { cursedClassBranchId = it; version++ }, allowNone = true)
+    CatalogMultiPicker("Maldições lançadas sobre o personagem", CharacterCreationCatalog.curses, curseIds, { id ->
         curseIds = if (id in curseIds) curseIds - id else curseIds + id
         version++
     })
-    val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, classId, professionId) + curseIds.toList())
+    val chosenCatalogEntries = (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + curseIds.toList())
         .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
     if (chosenCatalogEntries.isNotEmpty()) {
         AppCard {
@@ -355,6 +357,7 @@ private fun Creator(model: AppModel, pkg: RulePackage, key: String) {
         }
         Muted("Classe: " + (CharacterCreationCatalog.find(classId)?.name ?: "não selecionada"))
         Muted("Profissão: " + (CharacterCreationCatalog.find(professionId)?.name ?: "não selecionada"))
+        Muted("Classe de Malditos: " + (CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: "nenhuma"))
         Muted("Maldições: " + curseIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(", "))
         Muted("Traços mecânicos do pacote: " + draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf("nenhum") }.joinToString(", "))
         Muted("Atributos: " + draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" })
