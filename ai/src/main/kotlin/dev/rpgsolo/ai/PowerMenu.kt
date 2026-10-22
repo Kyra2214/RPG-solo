@@ -61,6 +61,17 @@ class PowerMenu(private val pkg: RulePackage) {
     ): PowerBuild {
         val def = pkg.data.powers.firstOrNull { it.id == powerId }
             ?: return PowerBuild.Invalid("poder inexistente: $powerId")
+        // Defesa adicional no ponto de execução: pacotes normalmente chegam validados,
+        // mas um PowerMenu não deve converter uma definição incoerente em efeito de motor.
+        val expectedTarget = when (def.effect) {
+            PowerEffectKind.HEAL, PowerEffectKind.REMOVE_CONDITION -> PowerTarget.SELF
+            PowerEffectKind.DAMAGE, PowerEffectKind.APPLY_CONDITION -> PowerTarget.ENEMY
+        }
+        if (def.target != expectedTarget) {
+            return PowerBuild.Invalid(
+                "poder ${def.name} inválido: ${def.effect.name} exige alvo ${expectedTarget.name}"
+            )
+        }
         if (def.traitId !in traitIds) return PowerBuild.Invalid("o poder ${def.name} exige o traço ${def.traitId}")
         val user = state.entities[userId] ?: return PowerBuild.Invalid("usuário inexistente: $userId")
         if (!user.alive) return PowerBuild.Invalid("${user.name} está fora de combate")

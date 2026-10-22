@@ -38,7 +38,9 @@ data class PlayInput(
     /** CP-03: briefing de retomada; só é enviado enquanto não há cenas recentes na memória do loop. */
     val resumeBriefing: String? = null,
     /** DC-05.1: trechos do documento-fonte para esta cena. */
-    val sourceContext: String? = null
+    val sourceContext: String? = null,
+    /** Notas mecânicas privadas persistidas para regenerar a mesma narração sem perder imunidades aplicadas. */
+    val mechanicalNotes: List<String> = emptyList()
 )
 
 /** Marcas do log permitem desfazer a jogada inteira ou só refazer a narração mantendo os dados (7.4). */
@@ -295,7 +297,7 @@ class GameLoop(
                         "Resultado mecânico: o NPC venceu ou manteve a disputa. Nota privada deste ramo: ${req.onFailure}. Não revele o ramo alternativo."
                     }
                     resolvedPending = pending.copy(resultNote = note)
-                    CheckResolution(result.challenger)
+                    CheckResolution(result.challenger, result.challengerAlternatives + result.defenderAlternatives)
                 }
                 pending is PendingCheck && pending.request.group != null -> {
                     if (useFortuneResource) return PlayResult.Failed("gasto de fortuna não é suportado em teste de grupo")
@@ -347,7 +349,7 @@ class GameLoop(
                         "Resultado mecânico: o grupo não atingiu o limiar de sucesso. Nota privada deste ramo: ${group.onFailure}. Não revele o ramo alternativo."
                     }
                     resolvedPending = pending.copy(resultNote = note)
-                    CheckResolution(result.individual[playerIndex])
+                    CheckResolution(result.individual[playerIndex], result.alternatives.flatten())
                 }
                 !useFortuneResource -> resolveCheck(session, pendingSpec)
                 else -> {
@@ -376,7 +378,7 @@ class GameLoop(
             runCatching { session.rollbackTo(markBefore) }
             return PlayResult.Failed(e.message ?: "falha ao resolver o teste pendente")
         }
-        val input = template.copy(text = pending.playerText, check = null, resolving = resolvedPending)
+        var input = template.copy(text = pending.playerText, check = null, resolving = resolvedPending)
         val check = resolution.chosen
         if (pending is PendingCheck && pending.request.revealSecretId != null) {
             val npcId = pending.request.targetNpcId ?: run {
@@ -408,6 +410,7 @@ class GameLoop(
                 }
             }
         }
+        val mechanicalNotes = mutableListOf<String>()
         if (pending is PendingRoll) {
             val face = check.roll.dice.single()
             val entry = pending.request.table[face]
@@ -426,6 +429,11 @@ class GameLoop(
                 val player = session.state.entities[template.playerEntityId] ?: break
                 if (!player.alive) break
                 if (session.state.conditions[player.id]?.contains(condition) == true) continue
+                if (menu?.isImmune(player.id, condition, player.traits) == true) {
+                    val name = menu.conditionName(condition) ?: condition
+                    mechanicalNotes += "A condição $name foi bloqueada pela imunidade de ${player.name}; não a aplique nem descreva como instalada."
+                    continue
+                }
                 val configured = menu?.conditionCommand(player.id, condition)
                     ?: run {
                         session.rollbackTo(markBefore)
@@ -438,6 +446,7 @@ class GameLoop(
                 }
             }
         }
+        input = input.copy(mechanicalNotes = mechanicalNotes)
         val markAfterRoll = session.mark()
         return narrate(session, input, check, markBefore, markAfterRoll, chainDepth(history), onNarrativeChunk,
             fortuneAlternatives = resolution.alternatives, advancedChecks = advancedChecks)
@@ -538,12 +547,21 @@ class GameLoop(
         fortuneAlternatives: List<CheckResult> = emptyList(),
         advancedChecks: List<Pair<String, CheckResult>> = emptyList()
     ): PlayResult {
-        val advancedClocks = if (narratedUpTo < 0) emptySet() else session.events
+        val recentClockEvents = if (narratedUpTo < 0) emptyList() else session.events
             .let { all -> all.subList(minOf(narratedUpTo, markBefore).coerceIn(0, all.size), markBefore.coerceIn(0, all.size)) }
-            .filterIsInstance<dev.rpgsolo.engine.ClockAdvanced>().map { it.id }.toSet()
+        val clockAdvances = recentClockEvents.filterIsInstance<dev.rpgsolo.engine.ClockAdvanced>()
+        val advancedClocks = clockAdvances.map { it.id }.toSet()
+        val midpointClocks = clockAdvances.filter { event ->
+            val clock = session.state.clocks[event.id] ?: return@filter false
+            clock.midClue.isNotBlank() &&
+                event.filled - event.delta < clock.midpoint &&
+                event.filled >= clock.midpoint
+        }.map { it.id }.toSet()
         val request = ContextAssembler.build(
             ContextInput(
                 advancedClockIds = advancedClocks,
+                midpointClockIds = midpointClocks,
+                mechanicalNotes = input.mechanicalNotes,
                 state = session.state,
                 playerEntityId = input.playerEntityId,
                 playerText = input.text,

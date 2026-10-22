@@ -498,6 +498,25 @@ object PackageValidator {
         }
         if (d.stats.isEmpty()) p += "pacote sem atributos"
         d.resources.filter { it.stat != null && it.stat !in stats }.forEach { p += "recurso ${it.id}: atributo inexistente ${it.stat}" }
+        val globalLuckResource = d.creation["recurso_sorte"]?.trim()?.takeIf { it.isNotEmpty() && it != "-" }
+        val globalLuckCostRaw = d.creation["custo_sorte"]?.trim()?.takeIf { it.isNotEmpty() && it != "-" }
+        val globalLuckKindsRaw = d.creation["formas_sorte"]?.trim()?.takeIf { it.isNotEmpty() && it != "-" }
+        if (listOf(globalLuckResource, globalLuckCostRaw, globalLuckKindsRaw).count { it != null } !in setOf(0, 3)) {
+            p += "criacao.txt: recurso_sorte, custo_sorte e formas_sorte devem ser declarados juntos"
+        }
+        if (globalLuckResource != null && d.resources.none { it.id == globalLuckResource }) {
+            p += "criacao.txt: recurso_sorte referencia recurso inexistente $globalLuckResource"
+        }
+        globalLuckCostRaw?.let { raw ->
+            if (raw.toIntOrNull()?.let { it > 0 } != true) p += "criacao.txt: custo_sorte deve ser inteiro positivo"
+        }
+        globalLuckKindsRaw?.let { raw ->
+            val kinds = raw.split('+').map { it.trim().uppercase() }
+            val allowed = dev.rpgsolo.engine.LuckKind.values().map { it.name }.toSet()
+            if (kinds.any { it !in allowed } || kinds.distinct().size != kinds.size) {
+                p += "criacao.txt: formas_sorte inválidas (use REROLL, ADD_FACE ou REROLL+ADD_FACE, sem repetição)"
+            }
+        }
         val levelRewards = try {
             parseResourceRewards(d.creation["recompensa_recurso"])
         } catch (e: IllegalArgumentException) {
@@ -568,8 +587,14 @@ object PackageValidator {
                     if (power.target != PowerTarget.ENEMY) p += "poder ${power.id}: dano só pode ter alvo inimigo"
                     if (d.damage.none { it.id == power.param }) p += "poder ${power.id}: perfil de dano inexistente ${power.param}"
                 }
-                PowerEffectKind.APPLY_CONDITION, PowerEffectKind.REMOVE_CONDITION ->
+                PowerEffectKind.APPLY_CONDITION -> {
+                    if (power.target != PowerTarget.ENEMY) p += "poder ${power.id}: condicao só pode ter alvo inimigo"
                     if (d.conditions.none { it.id == power.param }) p += "poder ${power.id}: condição inexistente ${power.param}"
+                }
+                PowerEffectKind.REMOVE_CONDITION -> {
+                    if (power.target != PowerTarget.SELF) p += "poder ${power.id}: remover-condicao só pode ter alvo self"
+                    if (d.conditions.none { it.id == power.param }) p += "poder ${power.id}: condição inexistente ${power.param}"
+                }
             }
         }
         d.damage.filter { it.bonusStat != null && it.bonusStat !in stats }.forEach { p += "dano ${it.id}: atributo inexistente ${it.bonusStat}" }

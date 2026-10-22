@@ -28,10 +28,12 @@ class AgendaProposalTest {
     @Test fun contextoMostraRelacaoEmPalavrasERelogioPrivado() {
         val s = session()
         s.executeAll(listOf(ChangeRelation("ana", "hero", 35, "ajuda"), CreateClock("c", "Culto invoca", 2), AdvanceClock("c", 2)))
-        val user = ContextAssembler.build(ContextInput(s.state, "hero", "olho", sceneNpcIds = setOf("ana"))).messages.last().content
+        val user = ContextAssembler.build(ContextInput(
+            s.state, "hero", "olho", sceneNpcIds = setOf("ana"), advancedClockIds = setOf("c")
+        )).messages.last().content
         assertTrue("Ana em relação a Herói: confiança" in user)
         assertFalse("35" in user)
-        assertTrue("Culto invoca: 2/2 — COMPLETO" in user)
+        assertTrue("Culto invoca: 2/2 — COMPLETO nesta jogada" in user)
     }
 
     @Test fun semRelacoesNemRelogiosNadaEntra() {

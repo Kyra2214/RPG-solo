@@ -1,3 +1,29 @@
+## 2026-10-22 — Contexto privado, timeline e consistência de relógios
+
+- `ai/PowerMenu.kt`: valida o par efeito/alvo novamente no ponto de execução, além das validações do parser e da herança de pacotes.
+- `engine/AutomaticTimeline.kt`: registra progressão, recursos recuperados, usos limitados, falhas de sobrevivência e mudanças de relação em linguagem neutra; oculta IDs internos de itens, espaços, condições, magias, habilidades e perícias. Promessas de NPC ficam fora da timeline até o log conseguir provar que o personagem presenciou o evento.
+- `engine/AutomaticTimeline.kt`: remove ramificações duplicadas de XP, nível, alocação, magias e habilidades; registra pistas públicas quando o relógio cruza a metade ou conclui.
+- `ai/GameLoop.kt`, `ai/Master.kt` e `engine/AutomaticTimeline.kt`: se um único avanço cruza a metade e completa o relógio, preserva a pista intermediária junto da conclusão; consequências não são repetidas em narrações posteriores.
+- `engine/Npc.kt` e `app/ui/AppModel.kt`: o contexto privado do mestre inclui motivações e relações de NPCs, ordenadas de forma determinística; não são expostas na interface do jogador.
+- `ai/GameLoop.kt`, `ai/CheckMenu.kt` e `ai/Master.kt`: rolagens com tabela respeitam imunidades a condições declaradas no pacote; uma nota mecânica privada acompanha a jogada e permanece disponível ao regenerar a narração.
+- **Pendente:** avanço automático de agendas por outros eventos narrativos e geração contextual segura de pistas.
+- **Validação:** nenhum teste, build, lint ou CI executado; tudo permanece adiado para a etapa final.
+
+## 2026-10-22 — Continuação code-first: testes avançados e sorte global (não validado)
+
+- `ai/PowerMenu.kt`: adicionada validação defensiva no ponto de execução para recusar poder cuja combinação efeito/alvo seja incompatível com o motor, mesmo se uma definição incoerente escapar das validações do pacote. Não foram executados testes/build/CI.
+
+- `ai/GameLoop.kt`: testes opostos preservam as alternativas descartadas pela política de fortuna de ambos os participantes; testes em grupo preservam as alternativas descartadas de todos os integrantes no registro da jogada, para que a interface possa exibi-las sem alterar o resultado escolhido.
+- `ai/CheckMenu.kt`: a sorte/destino pós-rolagem pode ser configurada uma única vez no pacote com `recurso_sorte`, `custo_sorte` e `formas_sorte`; configurações específicas de um teste têm prioridade.
+- `rules/PackageParser.kt` e `rules/RulePackage.kt`: validação do conjunto de propriedades globais, custo positivo, formas permitidas e existência do recurso, inclusive após herança de pacotes.
+- `docs/PLANO_DESENVOLVIMENTO.md`: corrigida a descrição do fluxo narrativo de testes opostos/em grupo e registrada a configuração global de sorte.
+- `docs/pacotes/FORMATO_PACOTE.md`: documentadas as três chaves globais e a prioridade da configuração específica por teste.
+- `engine/AutomaticTimeline.kt`: a timeline passa a registrar alterações de inventário/equipamento, evolução da árvore e distribuição inicial. Eventos de aplicação/remoção de maldições ficam fora da projeção para não revelar efeitos ocultos. Os registros de combate agora incluem o dano efetivamente causado quando o personagem participa do confronto. Também registra o dano periódico de condições que afetam o personagem.
+- `engine/Commands.kt`: uma viagem válida agora avança os relógios com `moveTick` no mesmo lote de eventos; relógios já completos são ignorados e o preenchimento é limitado ao total de casas. `app/ui/AppModel.kt` delega o deslocamento ao motor sem enviar avanços duplicados.
+- `ai/Master.kt`: o contexto instrui o mestre a narrar a consequência de um relógio apenas quando ele conclui desde a última narração, sem repeti-la em turnos posteriores. O `GameLoop` identifica também a transição exata que cruza a metade, para não repetir a pista intermediária em cada avanço.
+- `rules/PackageParser.kt` e `rules/RulePackage.kt`: alvos de poderes são compatíveis com o motor: cura e remoção de condição só em si mesmo; dano e aplicação de condição só em inimigo. A validação ocorre também após herança. O formato de pacote documenta as mesmas restrições.
+- **Validação:** nenhum teste, build, lint ou CI executado, conforme a prioridade definida. Não declarar compilação ou integração confirmadas até a etapa final.
+
 ## 2026-10-22 — Árvores de habilidades e maldições: revisão de conteúdo (ainda não validada)
 
 - `rules/.../habilidades-arvore.txt`: revisadas as seis primeiras habilidades das 50 árvores de classe e das 103 árvores de profissão; as culminâncias das 103 profissões receberam nomes e efeitos por ofício. Foram adicionados testes de catálogo para distinção de nomes, categorias, afinidade e progressão.

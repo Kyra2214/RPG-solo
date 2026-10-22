@@ -328,7 +328,9 @@ object PackageParser {
                 f[8]
             } else id(f[8], "parâmetro do efeito")
             if (effect == PowerEffectKind.HEAL && target != PowerTarget.SELF) bad("cura só pode ter alvo self")
-            if ((effect == PowerEffectKind.DAMAGE) && target != PowerTarget.ENEMY) bad("dano só pode ter alvo inimigo")
+            if (effect == PowerEffectKind.DAMAGE && target != PowerTarget.ENEMY) bad("dano só pode ter alvo inimigo")
+            if (effect == PowerEffectKind.APPLY_CONDITION && target != PowerTarget.ENEMY) bad("condicao só pode ter alvo inimigo")
+            if (effect == PowerEffectKind.REMOVE_CONDITION && target != PowerTarget.SELF) bad("remover-condicao só pode ter alvo self")
             PowerDef(
                 id(f[0], "id"), text(f[1], "nome"), f[2], id(f[3], "traço"), id(f[4], "recurso"), cost,
                 target, effect, param, f.getOrNull(9)?.takeIf { !blank(it) }?.let { id(it, "teste") }
@@ -349,6 +351,25 @@ object PackageParser {
         val creationRows = table(PackageFiles.CREATION, 2) { f -> text(f[0], "chave") to f[1] }
         noDups(PackageFiles.CREATION, creationRows.map { it.first })
         val creationMap = creationRows.toMap()
+        val globalLuckResource = creationMap["recurso_sorte"]?.takeIf { !blank(it) }
+        val globalLuckCostRaw = creationMap["custo_sorte"]?.takeIf { !blank(it) }
+        val globalLuckKindsRaw = creationMap["formas_sorte"]?.takeIf { !blank(it) }
+        if (listOf(globalLuckResource, globalLuckCostRaw, globalLuckKindsRaw).count { it != null } !in setOf(0, 3)) {
+            errors += "${PackageFiles.CREATION}: recurso_sorte, custo_sorte e formas_sorte devem ser declarados juntos"
+        }
+        globalLuckCostRaw?.let { raw ->
+            val cost = raw.toIntOrNull()
+            if (cost == null || cost <= 0) {
+                errors += "${PackageFiles.CREATION}: custo_sorte deve ser inteiro positivo"
+            }
+        }
+        globalLuckKindsRaw?.let { raw ->
+            val kinds = raw.split('+').map { it.trim().uppercase() }
+            val allowed = dev.rpgsolo.engine.LuckKind.values().map { it.name }.toSet()
+            if (kinds.any { it !in allowed } || kinds.distinct().size != kinds.size) {
+                errors += "${PackageFiles.CREATION}: formas_sorte inválidas (use REROLL, ADD_FACE ou REROLL+ADD_FACE, sem repetição)"
+            }
+        }
         try {
             parseResourceRewards(creationMap["recompensa_recurso"])
         } catch (e: IllegalArgumentException) {
@@ -470,6 +491,11 @@ object PackageParser {
                 if (bonus.scope !in supportedTraitScopes) {
                     errors += "${PackageFiles.TRAITS}: traço '${trait.id}' usa escopo de bônus desconhecido '${bonus.scope}'"
                 }
+            }
+        }
+        creationMap["recurso_sorte"]?.takeIf { !blank(it) }?.let { resource ->
+            if (resource !in resourceIds) {
+                errors += "${PackageFiles.CREATION}: recurso_sorte referencia recurso inexistente '$resource'"
             }
         }
         checks.forEach { check ->

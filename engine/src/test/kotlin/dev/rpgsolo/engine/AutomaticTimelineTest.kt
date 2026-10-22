@@ -56,7 +56,7 @@ class AutomaticTimelineTest {
         )
         val timeline = automaticTimeline(events, "hero", replay(events))
         assertTrue(timeline.any { it.text == "Um confronto começou." })
-        assertTrue(timeline.any { it.text == "Você atingiu Bandido." })
+        assertTrue(timeline.any { it.text == "Você atingiu Bandido e causou 2 de dano." })
         assertTrue(timeline.any { it.text == "O confronto terminou." })
         assertEquals(3, timeline.count { it.category == "combate" })
     }

@@ -26,6 +26,7 @@ object MasterPrompt {
         13. Adaptações: proposta pendente não tem efeito mecânico. Só adaptações aprovadas podem afetar a resolução; nunca as chame de regra oficial.
         14. Limites de conteúdo da campanha são obrigatórios. Não os contorne por metáforas ou eufemismos; redirecione a cena de forma natural.
         15. Agenda e relógios: avance relógios somente quando a ação ou a passagem de tempo justificar progresso. Nunca mostre o nome interno do relógio, a quantidade de casas ou números ao jogador. Quando um relógio completar, narre sinais e consequências no mundo; não fale da mecânica do relógio. Não avance todos os relógios em toda resposta.
+        16. Notas mecânicas desta resolução prevalecem sobre a tabela narrativa: se o motor disser que uma condição foi bloqueada por imunidade, não descreva a condição como aplicada. Narre a resistência de forma natural e sem revelar termos técnicos, ids ou números.
         ${ProposalSchema.INSTRUCTIONS}
     """.trimIndent()
 }
@@ -52,6 +53,10 @@ data class ContextInput(
     val generationPreferences: String? = null,
     /** Relógios que avançaram entre a última narração e esta jogada (descanso, viagem, capítulo...); o mestre deve mostrar um sinal. */
     val advancedClockIds: Set<String> = emptySet(),
+    /** Relógios que cruzaram a metade nesta janela; evita repetir a mesma pista em avanços posteriores. */
+    val midpointClockIds: Set<String> = emptySet(),
+    /** Notas mecânicas privadas da resolução atual que a narração precisa respeitar. */
+    val mechanicalNotes: List<String> = emptyList(),
     /** CP-03: briefing de retomada (ver [ResumeBriefing]); só na primeira jogada depois de abrir a campanha. */
     val resumeBriefing: String? = null,
     /** DC-05.1: trechos do documento-fonte escolhidos pelo código para esta cena (ver [SourceContext]); cortável pelo orçamento. */
@@ -165,8 +170,11 @@ object ContextAssembler {
             s.clocks.values.takeIf { it.isNotEmpty() }?.let { cs ->
                 "Relógios de agenda (privado; não mostre números, só sinais no mundo):\n" + cs.joinToString("\n") {
                     "- ${it.name}: ${it.filled}/${it.segments}" +
-                        if (it.full) " — COMPLETO: narre a consequência" + (if (it.consequence.isNotBlank()) " planejada: ${it.consequence}" else "")
-                        else if (it.id in input.advancedClockIds && it.midClue.isNotBlank() && it.filled >= it.midpoint) " — AVANÇOU desde sua última fala e passou da metade: deixe o jogador perceber esta pista, sem números nem o nome do relógio: ${it.midClue}"
+                        if (it.full && it.id in input.advancedClockIds) " — COMPLETO nesta jogada: narre a consequência agora" +
+                            (if (it.consequence.isNotBlank()) " planejada: ${it.consequence}" else "") +
+                            (if (it.id in input.midpointClockIds && it.midClue.isNotBlank()) "; inclua também a pista da metade: ${it.midClue}" else "")
+                        else if (it.full) " — já estava completo antes desta jogada; não repita a consequência"
+                        else if (it.id in input.midpointClockIds && it.midClue.isNotBlank() && it.filled >= it.midpoint) " — AVANÇOU desde sua última fala e passou da metade: deixe o jogador perceber esta pista, sem números nem o nome do relógio: ${it.midClue}"
                         else if (it.id in input.advancedClockIds) " — AVANÇOU desde sua última fala: mostre um sinal sutil no mundo, sem números nem o nome do relógio"
                         else ""
                 }
@@ -192,7 +200,9 @@ object ContextAssembler {
             input.playerSheet?.takeIf { it.isNotBlank() },
             input.checkMenu?.takeIf { it.isNotBlank() },
             input.worldContext?.takeIf { it.isNotBlank() },
-            input.resumeBriefing?.takeIf { it.isNotBlank() }
+            input.resumeBriefing?.takeIf { it.isNotBlank() },
+            input.mechanicalNotes.takeIf { it.isNotEmpty() }
+                ?.let { "Notas mecânicas desta resolução (obrigatórias; não exponha termos técnicos):\n" + it.joinToString("\n") { note -> "- $note" } }
         ) + input.npcPrivate
         var used = TokenEstimator.estimate(MasterPrompt.SYSTEM) + TokenEstimator.estimate(required) +
             always.sumOf { TokenEstimator.estimate(it) }

@@ -40,6 +40,13 @@ class DossierBook {
                 append("NPC ${d.npcId}")
                 if (d.personality.isNotBlank()) append(": ${d.personality}")
                 if (d.goals.isNotEmpty()) append("; objetivos: ${d.goals.joinToString(", ")}")
+                if (d.motivations.isNotEmpty()) append("; motivações: ${d.motivations.joinToString(", ")}")
+                if (d.relations.isNotEmpty()) {
+                    append("; relações conhecidas pelo mestre: ")
+                    append(d.relations.toSortedMap().entries.joinToString("; ") { (otherId, relation) ->
+                        "${otherId}: ${relation}"
+                    })
+                }
                 d.secrets.filter { it.id in exposed || it.id in released }.forEach {
                     val label = if (it.id in released) "liberado ao jogador" else "NÃO revelar sem o motor liberar"
                     append("\n  segredo (${label})${if (it.falseInfo) " [informação falsa]" else ""}: ${it.text}")

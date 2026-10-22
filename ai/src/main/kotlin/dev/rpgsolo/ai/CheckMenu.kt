@@ -115,12 +115,26 @@ class CheckMenu(private val pkg: RulePackage) {
     /** Recurso de saúde do pacote (o que mata ao chegar a 0). null = o sistema não tem. */
     fun healthResource(): String? = pkg.manifest.deathResource
 
-    /** Sorte/destino gasto depois de rolar (F3): recurso, custo e formas vêm só do pacote. null = o teste não oferece. */
+    /**
+     * Sorte/destino gasto depois de rolar (F3). A definição por teste tem prioridade;
+     * se o teste não sobrescrever, usa a configuração global do pacote (recurso_sorte,
+     * custo_sorte, formas_sorte). Assim um sistema pode configurar a mecânica uma vez.
+     */
     fun luckOption(checkId: String?): LuckOption? {
         val check = checks.firstOrNull { it.id == checkId } ?: return null
-        val resource = check.luckResource ?: return null
-        if (check.luckCost <= 0 || check.luckKinds.isEmpty()) return null
-        return LuckOption(resource, check.luckCost, check.luckKinds)
+        val luckResource = check.luckResource
+        if (luckResource != null) {
+            if (check.luckCost <= 0 || check.luckKinds.isEmpty()) return null
+            return LuckOption(luckResource, check.luckCost, check.luckKinds)
+        }
+        val creation = pkg.data.creation
+        val resource = creation["recurso_sorte"]?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        val cost = creation["custo_sorte"]?.trim()?.toIntOrNull()?.takeIf { it > 0 } ?: return null
+        val kinds = creation["formas_sorte"]?.split('+')?.mapNotNull { raw ->
+            dev.rpgsolo.engine.LuckKind.values().firstOrNull { it.name == raw.trim().uppercase() }
+        }?.toSet().orEmpty()
+        if (kinds.isEmpty()) return null
+        return LuckOption(resource, cost, kinds)
     }
 
     /** Custo opcional por teste para o jogador escolher gastar recurso ao rolar com fortuna. */
@@ -202,6 +216,10 @@ class CheckMenu(private val pkg: RulePackage) {
     /** M-01.7: o alvo tem traço de imunidade à condição (definido pelo pacote). */
     fun isImmune(entityId: String, conditionId: String, traitIds: Collection<String>): Boolean =
         pkg.isImmuneToCondition(traitIds, conditionId)
+
+    /** Nome legível da condição para notas privadas de resolução; não inventa nomes ausentes no pacote. */
+    fun conditionName(conditionId: String): String? =
+        pkg.data.conditions.firstOrNull { it.id == conditionId }?.name
 
     /** Mensagem de erro (para a IA corrigir) ou null se o pedido é válido. */
     fun validate(req: CheckRequest): String? {
