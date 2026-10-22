@@ -99,7 +99,7 @@ fun CursePanel(
                     Muted("Exige teste '${selectedCurse.resistanceCheckId}' contra dificuldade ${selectedCurse.resistanceDifficulty}. O motor rola o teste automaticamente e só aplica a maldição se o alvo não resistir.")
                 }
                 Button(
-                    enabled = enabled && targetId != null,
+                    enabled = enabled && targetId != null && (selectedCurse.durationRounds == null || model.hasActiveCombat()),
                     onClick = {
                         act({ actions.apply(requireNotNull(targetId), selectedCurse.id, sourceIdText.ifBlank { "personagem:" + (selectedSourceId ?: actions.defaultTargetId()) }) }) { result ->
                             message = result ?: "Maldição aplicada."
