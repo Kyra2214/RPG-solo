@@ -156,3 +156,9 @@ Implementações adicionadas nesta branch:
 - O teste de motor agora verifica que a maldição é recusada quando a resistência ainda não foi resolvida ou quando o alvo resiste; uma falha aplica a maldição.
 - O teste percorre duas viradas completas de combate para confirmar decremento e expiração, e compara o estado final com o replay do log.
 - Outro teste cobre remoção com motivo explícito e replay. A CI destes novos testes ainda está pendente no commit mais recente.
+
+
+### Conteúdo da Classe de Malditos — culminâncias
+
+- As 42 habilidades de rank 7 das vertentes da Classe de Malditos deixaram de usar nomes de placeholder como “Técnica Suprema de maldito-vampiro-1”. Cada uma recebeu um nome temático específico da família e da vertente.
+- Foi acrescentado teste de catálogo para impedir que esses nomes genéricos voltem a entrar. Isso melhora a identidade do conteúdo, mas ainda não substitui a revisão de mecânicas e balanceamento de cada vertente.
