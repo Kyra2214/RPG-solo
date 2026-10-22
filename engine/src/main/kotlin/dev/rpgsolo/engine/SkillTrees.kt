@@ -69,6 +69,7 @@ data class SkillTreeSkill(
         require(unlockPointCost >= 0) { "custo de desbloqueio negativo" }
         require(actionCost >= 0) { "custo de ação negativo" }
         require(actionResource == null || actionResource.isNotBlank()) { "recurso de ação inválido" }
+        require(actionCost == 0 || actionResource != null) { "custo de ação exige recurso definido" }
         require(hitCount >= 1) { "quantidade de golpes inválida" }
         require(actionKind != SkillActionKind.REVIVE || actionResource != null) { "ressurreição exige recurso de custo" }
         require(actionKind != SkillActionKind.MULTI_HIT || hitCount >= 2) { "multiataque exige ao menos dois golpes" }
