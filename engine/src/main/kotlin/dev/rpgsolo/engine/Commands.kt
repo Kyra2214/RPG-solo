@@ -67,6 +67,13 @@ data class ActivateAbility(
 ) : Command
 /** MU-06.3: fim de rodada; desconta 1 de cada efeito temporário e remove os expirados. */
 object EndEffectsRound : Command
+/** Define as árvores escolhidas na ficha para que as regras sejam canônicas na campanha. */
+data class SetSkillTreeLoadout(
+    val entityId: String,
+    val treeIds: Set<String>,
+    val classOrder: List<String>,
+    val elementalAffinity: String
+) : Command
 /** Resgata um pergaminho de uma missão concluída; a camada de aplicação valida o estado da missão. */
 data class ClaimQuestScroll(
     val entityId: String,
@@ -535,6 +542,15 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             val events = mutableListOf<Event>(SurvivalFailed(ent.id, failures))
             if (failures >= cmd.limit) events += EntityDied(ent.id)
             return Decision.Ok(events)
+        }
+
+        is SetSkillTreeLoadout -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (cmd.treeIds.any { it.isBlank() } || cmd.classOrder.any { it.isBlank() }) return no("loadout de habilidades inválido")
+            if (cmd.classOrder.distinct().size != cmd.classOrder.size) return no("ordem de classes repetida")
+            if (cmd.classOrder.any { it !in cmd.treeIds }) return no("a ordem de classes não corresponde às árvores escolhidas")
+            if (cmd.elementalAffinity.isNotBlank() && cmd.elementalAffinity !in setOf("WATER", "FIRE", "WIND", "EARTH", "METAL", "YIN", "YANG")) return no("afinidade elemental inválida")
+            return Decision.Ok(listOf(SkillTreeLoadoutSet(ent.id, cmd.treeIds, cmd.classOrder, cmd.elementalAffinity)))
         }
 
         is ClaimQuestScroll -> {
