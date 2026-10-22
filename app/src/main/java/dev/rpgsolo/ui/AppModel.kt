@@ -1585,6 +1585,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         session = { session },
         activePackage = { activePackage },
         playerId = { playerId },
+        checkBonuses = { entityId, scopes -> bonuses.externalSkillAndCurseBonuses(entityId, scopes) },
         onChanged = { campaignVersion++ }
     )
 
