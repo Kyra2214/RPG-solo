@@ -244,6 +244,18 @@ sealed interface Decision {
 
 private fun no(reason: String) = Decision.No(reason)
 
+/** Pistas públicas descrevem sinais no mundo; não podem vazar a mecânica do relógio. */
+private fun invalidPublicClue(clue: String, clockId: String, clockName: String): String? {
+    val text = clue.trim()
+    if (text.isEmpty()) return null
+    if (text.any(Char::isDigit)) return "pista pública não pode revelar contagens ou números"
+    val folded = text.lowercase()
+    val forbidden = listOf(clockId, clockName, "relógio", "casas", "segmentos")
+        .filter { it.length >= 3 }
+        .firstOrNull { it.lowercase() in folded }
+    return forbidden?.let { "pista pública não pode revelar metadado interno: $it" }
+}
+
 fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
     fun entity(id: String) = state.entities[id]
     when (cmd) {
@@ -642,6 +654,8 @@ fun decide(state: GameState, config: EngineConfig, cmd: Command): Decision {
             if (cmd.segments !in 2..12) return no("relógio precisa de 2 a 12 casas")
             if (cmd.publicClue.length > 500) return no("pista pública excede 500 caracteres")
             if (cmd.midClue.length > 500) return no("pista intermediária excede 500 caracteres")
+            invalidPublicClue(cmd.publicClue, cmd.id, cmd.name)?.let { return no(it) }
+            invalidPublicClue(cmd.midClue, cmd.id, cmd.name)?.let { return no(it) }
             if (cmd.consequence.length > 500) return no("consequência excede 500 caracteres")
             if (cmd.restTick !in 0..cmd.segments) return no("avanço por descanso deve ficar entre 0 e o número de casas")
             if (cmd.moveTick !in 0..cmd.segments) return no("avanço por viagem deve ficar entre 0 e o número de casas")
