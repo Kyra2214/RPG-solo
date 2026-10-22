@@ -849,3 +849,12 @@
 - IA: a API oficial Anthropic recebe `cache_control: ephemeral` no prefixo de sistema por padrão; endpoints compatíveis não presumem suporte. O cache ainda precisa ser validado em rede real e pode ser desativado pela configuração.
 - Uso/cache: a resposta Anthropic captura tokens lidos/criados no cache também via SSE; `UsageTracker` separa as contagens, permite estimar custos com tarifas de cache distintas e Config mostra as métricas. A confirmação de cache-hit real ainda depende de chamada de rede. A Config agora permite ativar/desativar o cache e persiste a escolha com as configurações do provedor. Também aceita preços por milhão para entrada/saída e tarifas de cache separadas, exibindo custo estimado na moeda informada.
 - Testes: adicionados casos unitários para essas APIs e para evitar exposição de dados privados na linha do tempo. **Não foram executados**, conforme a etapa code-first.
+
+
+## 2026-10-22 — auditoria incremental de árvores e maldições
+
+- Híbridos: a penalidade social passou a contar somente as classes desbloqueadas pelo nível do personagem (1/10/20/30), e não todas as classes selecionadas antecipadamente.
+- Motor: o comando de loadout agora rejeita combinações com mais de quatro classes; testes unitários cobrem desbloqueio por nível e limite de classes.
+- Maldições: documentação corrigida para refletir os 100 registros aplicados atuais e separar catálogo/conceitos da Classe de Malditos.
+- CI confirmado verde no commit `7c2aecb3145e768ffee372ba94d61045a64ac385` (testes JVM/Android e APK debug; E2E ignorado). As correções posteriores estão aguardando a própria execução de CI; não considerar o resultado anterior como validação desses novos commits.
+- Pendências: auditoria ponta a ponta de todos os escopos/efeitos, persistência de maldições após salvar e reabrir campanha e validação de cada habilidade de rank 7.
