@@ -52,6 +52,8 @@ data class ContextInput(
     val generationPreferences: String? = null,
     /** Relógios que avançaram entre a última narração e esta jogada (descanso, viagem, capítulo...); o mestre deve mostrar um sinal. */
     val advancedClockIds: Set<String> = emptySet(),
+    /** Relógios que cruzaram a metade nesta janela; evita repetir a mesma pista em avanços posteriores. */
+    val midpointClockIds: Set<String> = emptySet(),
     /** CP-03: briefing de retomada (ver [ResumeBriefing]); só na primeira jogada depois de abrir a campanha. */
     val resumeBriefing: String? = null,
     /** DC-05.1: trechos do documento-fonte escolhidos pelo código para esta cena (ver [SourceContext]); cortável pelo orçamento. */
@@ -167,7 +169,7 @@ object ContextAssembler {
                     "- ${it.name}: ${it.filled}/${it.segments}" +
                         if (it.full && it.id in input.advancedClockIds) " — COMPLETO nesta jogada: narre a consequência agora" + (if (it.consequence.isNotBlank()) " planejada: ${it.consequence}" else "")
                         else if (it.full) " — já estava completo antes desta jogada; não repita a consequência"
-                        else if (it.id in input.advancedClockIds && it.midClue.isNotBlank() && it.filled >= it.midpoint) " — AVANÇOU desde sua última fala e passou da metade: deixe o jogador perceber esta pista, sem números nem o nome do relógio: ${it.midClue}"
+                        else if (it.id in input.midpointClockIds && it.midClue.isNotBlank() && it.filled >= it.midpoint) " — AVANÇOU desde sua última fala e passou da metade: deixe o jogador perceber esta pista, sem números nem o nome do relógio: ${it.midClue}"
                         else if (it.id in input.advancedClockIds) " — AVANÇOU desde sua última fala: mostre um sinal sutil no mundo, sem números nem o nome do relógio"
                         else ""
                 }
