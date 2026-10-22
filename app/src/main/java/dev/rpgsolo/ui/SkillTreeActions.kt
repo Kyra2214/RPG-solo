@@ -3,6 +3,7 @@ package dev.rpgsolo.ui
 import dev.rpgsolo.engine.*
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.SkillTreeCatalogLoader
+import dev.rpgsolo.engine.SkillActionKind
 
 data class SkillTreeEntryView(
     val skill: SkillTreeSkill,
@@ -130,12 +131,29 @@ class SkillTreeActions(
         session().state.entities.values.filter { it.id != playerId() && it.alive && !it.downed }
             .map { it.id to it.name }.sortedBy { it.second }
 
+    fun revivableTargets(): List<Pair<String, String>> =
+        session().state.entities.values.filter { !it.alive }
+            .map { it.id to it.name }.sortedBy { it.second }
+
     fun activate(skillId: String, targetId: String? = null): String? = try {
         val skill = requireSkill(skillId)
         require(skill.treeId in selectedTreeIds()) { "esta árvore não pertence às escolhas atuais do personagem" }
         require(skill.category != SkillCategory.PASSIVE) { "habilidades passivas são aplicadas automaticamente" }
-        require(skill.effects.isNotEmpty()) { "esta habilidade ainda não tem efeito mecânico executável" }
         val hero = requireNotNull(session().state.entities[playerId()]) { "personagem inexistente" }
+        if (skill.actionKind == SkillActionKind.REVIVE) {
+            require(targetId != null) { "selecione quem será ressuscitado" }
+            require(targetId in revivableTargets().map { it.first }) { "o alvo não está morto ou não pode ser ressuscitado" }
+            val resource = requireNotNull(skill.actionResource) { "a habilidade não define o recurso de custo" }
+            val commands = buildList<Command> {
+                if (skill.actionCost > 0) add(SpendResource(playerId(), resource, skill.actionCost))
+                add(Revive(targetId, "${skill.name}"))
+            }
+            return execute(commands)
+        }
+        if (skill.actionKind == SkillActionKind.MULTI_HIT) {
+            return "multiataque ainda precisa ser integrado ao resolvedor de ataques do motor"
+        }
+        require(skill.effects.isNotEmpty()) { "esta habilidade ainda não tem efeito mecânico executável" }
         val level = hero.skillTreeLevels[skill.id] ?: 0
         require(level > 0) { "habilidade ainda não foi desbloqueada" }
         val validation = SkillTreeProgression.validate(skill, context(hero.skillTreeLevels))
