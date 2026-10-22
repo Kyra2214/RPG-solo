@@ -872,4 +872,4 @@
 - Motor: efeitos ativos direcionados de habilidades agora exigem combate ativo, participação de usuário/alvo na iniciativa e turno do usuário; teste de motor cobre as recusas e o replay.
 
 
-- Auditoria de habilidades ofensivas: 42 habilidades iniciais de Classe de Malditos agora executam `POWER_STRIKE` real com efeito de dano tipado; o rank 7 físico do arqueiro deixou de exigir afinidade elemental. Teste de catálogo adicionado para os golpes iniciais amaldiçoados. CI desses commits ainda pendente.
+- Auditoria de habilidades ofensivas: 42 habilidades iniciais de Classe de Malditos agora executam `POWER_STRIKE` real com efeito de dano tipado; o rank 7 físico do arqueiro deixou de exigir afinidade elemental. Testes de regressão passaram no workflow #243 (commit `5205b037ebd45ed71d633f40c0ce08ba3c7ecc2d`): testes JVM/Android e build do APK debug verdes; E2E ignorado.
