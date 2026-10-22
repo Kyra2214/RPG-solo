@@ -742,7 +742,7 @@ private fun CombatControls(model: AppModel, enabled: Boolean, act: (() -> String
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             targets.forEach { target ->
-                                Button(enabled = enabled, onClick = { val id = target.id; act({ model.attack(id) }) { message = it } }) {
+                                Button(enabled = enabled, onClick = { val id = target.id; act({ model.unifiedAttack(id) }) { message = it } }) {
                                     Text("Atacar ${target.name}${target.condition.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()}${if (target.rulesValidated) "" else " (não validado)"}")
                                 }
                             }

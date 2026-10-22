@@ -673,6 +673,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     fun canDefend(): Boolean = combatActions.canDefend()
 
+    /** Ataque manual usando o pipeline unificado e o evento ClashRecorded. */
+    fun unifiedAttack(targetId: String): String? = combatActions.unifiedAttack(targetId)
+
     private fun awardCombatVictoryXp(combatantIds: Collection<String>): Int = combatActions.awardCombatVictoryXp(combatantIds)
 
     fun additionalRulesView(): List<dev.rpgsolo.engine.RegraAdicional> =

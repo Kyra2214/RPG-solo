@@ -119,6 +119,67 @@ class CombatActions(
         }
     }
 
+    /** Ataque manual pelo pipeline unificado; o resultado persistido alimenta o ClashCard sem recálculo. */
+    fun unifiedAttack(targetId: String): String? {
+        val combat = session().state.combat ?: return "Não há combate ativo."
+        if (combat.current != playerId()) return "não é o turno do jogador"
+        val pkg = activePackage() ?: return "pacote de regras não está ativo"
+        val resource = pkg.manifest.deathResource ?: return "o pacote não define o recurso de vida usado no combate"
+        val attackStat = pkg.data.creation["combate_atributo_ataque"]
+            ?: return "o pacote não define o atributo de ataque"
+        val defenseStat = pkg.data.creation["combate_atributo_defesa"]
+            ?: return "o pacote não define o atributo de defesa"
+        val combatBonuses = dev.rpgsolo.engine.ModifierProvider { state, entity, target ->
+            val scope = when (target) {
+                attackStat -> "ataque"
+                defenseStat -> "defesa"
+                else -> target
+            }
+            val external = bonuses.externalSkillAndCurseBonuses(entity.id, setOf(scope, target))
+                .filter { it.scope == scope || it.scope == target }
+                .mapIndexed { index, effect ->
+                    dev.rpgsolo.engine.Modifier(
+                        sourceId = "unified:${entity.id}:${effect.source}:$index",
+                        label = effect.source,
+                        target = target,
+                        value = effect.bonus
+                    )
+                }
+            val equipment = pkg.equipmentBonus(state.equipped[entity.id].orEmpty().values, scope)
+            val traits = pkg.traitBonus(bonuses.combatTraitIds(entity.id), scope)
+            val adaptations = bonuses.approvedRuleBonus(scope)
+            val total = equipment + traits + adaptations
+            external + if (total == 0) emptyList() else listOf(
+                dev.rpgsolo.engine.Modifier(
+                    sourceId = "unified:${entity.id}:package:$scope",
+                    label = "fontes do pacote",
+                    target = target,
+                    value = total
+                )
+            )
+        }
+        val mark = session().mark()
+        return when (val result = session().unifiedAttackBetween(
+            playerId(), targetId, listOf(combatBonuses), attackStat, defenseStat, damageResource = resource
+        )) {
+            is dev.rpgsolo.engine.UnifiedAttackResult.Rejected -> result.reason
+            is dev.rpgsolo.engine.UnifiedAttackResult.Resolved -> {
+                val targetName = session().state.entities[targetId]?.name ?: targetId
+                when (val next = session().execute(NextTurn)) {
+                    is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                        awardCombatVictoryXp(combat.order)
+                        onChanged()
+                        "Você atacou $targetName."
+                    }
+                    is dev.rpgsolo.engine.ExecResult.Rejected -> {
+                        session().rollbackTo(mark)
+                        next.reason
+                    }
+                }
+            }
+        }
+    }
+
     /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
     fun resolveNpcTurn(): String? {
         val combat = session().state.combat ?: return "Não há combate ativo."
