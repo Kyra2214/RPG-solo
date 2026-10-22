@@ -143,22 +143,7 @@ class CombatBonuses(
                 )
             }
         val passiveAndCatalog = mergePassiveAndCatalogBonuses(passive, catalog)
-        // Efeitos declarados em itens só contam quando o item está realmente equipado.
-        // A mesma regra vale para jogador e NPC; a descrição narrativa do item nunca gera bônus.
-        val equipment = activePackage()?.let { pkg ->
-            state.equipped[entityId].orEmpty().values.distinct().flatMap { itemId ->
-                val item = pkg.item(itemId) ?: return@flatMap emptyList()
-                item.effects.filter { it.scope in scopes }.map { effect ->
-                    dev.rpgsolo.rules.ExternalBonus(
-                        effect.scope,
-                        effect.bonus,
-                        "Equipamento: ${item.name}",
-                        "equipment:$entityId:$itemId:${effect.scope}"
-                    )
-                }
-            }
-        }.orEmpty()
-        return dev.rpgsolo.rules.distinctExternalBonuses(passiveAndCatalog + active + curseEffects + hybridAppearance + equipment)
+        return dev.rpgsolo.rules.distinctExternalBonuses(passiveAndCatalog + active + curseEffects + hybridAppearance)
     }
 
     /** Bônus passivos da árvore + buffs temporários já validados pelo motor. */
