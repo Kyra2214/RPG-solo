@@ -8,7 +8,7 @@ import org.junit.Test
 
 class SkillTreeCatalogTest {
     private fun catalogText(): String =
-        requireNotNull(javaClass.classLoader?.getResourceAsStream("packages/sistema-proprio/habilidades-arvore.txt")) {
+        requireNotNull(javaClass.classLoader?.getResourceAsStream("catalogs/sistema-proprio/habilidades-arvore.txt")) {
             "catálogo de habilidades não encontrado nos recursos de teste"
         }.bufferedReader(Charsets.UTF_8).use { it.readText() }
 
