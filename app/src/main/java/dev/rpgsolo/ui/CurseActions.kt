@@ -36,6 +36,14 @@ class CurseActions(
     fun defaultTargetId(): String = playerId()
     fun defaultSourceId(): String = "personagem:" + playerId()
 
+    fun sources(): List<Pair<String, String>> {
+        val state = session().state
+        val combatOrder = state.combat?.order
+        return state.entities.values.filter { it.alive && !it.downed && (combatOrder == null || it.id in combatOrder) }
+            .map { it.id to (if (it.id == playerId()) "Você" else it.name) }
+            .sortedBy { it.second }
+    }
+
     fun targets(): List<Pair<String, String>> {
         val state = session().state
         val combatOrder = state.combat?.order
