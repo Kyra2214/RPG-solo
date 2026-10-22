@@ -41,7 +41,6 @@ import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.CanonFacts
 import dev.rpgsolo.engine.ChapterBook
-import dev.rpgsolo.engine.chapterClocks
 import dev.rpgsolo.engine.CreateEntity
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Entity
@@ -61,14 +60,25 @@ import dev.rpgsolo.engine.SpellSlots
 import dev.rpgsolo.rules.CampaignStarter
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.StartResult
-import java.io.File
-import java.io.FileOutputStream
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
-data class SourceDocumentImportOutcome(val entry: SourceEntry?, val error: String? = null)
-data class CombatTarget(val id: String, val name: String, val rulesValidated: Boolean = true, val condition: String = "")
+
+data class SourceDocumentImportOutcome(
+    val entry: SourceEntry?,
+    val error: String? = null,
+)
+
+data class CombatTarget(
+    val id: String,
+    val name: String,
+    val rulesValidated: Boolean = true,
+    val condition: String = "",
+)
 
 data class PlaceView(val id: String, val name: String, val description: String, val current: Boolean, val exits: List<Pair<String, String>>)
 
@@ -128,9 +138,8 @@ data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val c
 private data class CampaignSourceContext(
     val index: SourceIndex,
     val facts: CanonFacts,
-    val sourceIds: Set<String>?
+    val sourceIds: Set<String>?,
 )
-
 
 /**
  * Estado do app. O ViewModel sobrevive à recriação da Activity; campanha e log são persistidos no Room.
@@ -486,11 +495,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         index: SourceIndex,
         facts: CanonFacts = CanonFacts(),
         sourceIds: Set<String>? = null,
-        privacyConfirmed: Boolean = false
+        privacyConfirmed: Boolean = false,
     ) {
         if (campaignId.isBlank()) return
         val canConfigure = privacyConfirmed && index.size > 0
-        val contextFacts = if (canConfigure) {
+        val contextFacts =
+            if (canConfigure) {
             val persisted = store.canonFacts(campaignId).forCampaign(campaignId)
             CanonFacts((facts.forCampaign(campaignId) + persisted).distinctBy { it.id })
         } else {
@@ -520,7 +530,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 sceneText = sceneText,
                 facts = configured.facts.forCampaign(campaignId),
                 sourceIds = configured.sourceIds,
-                mode = mode
+                mode = mode,
             )
         }
     }
@@ -750,7 +760,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun sourceLibrary(): SourceLibrary = store.sourceLibrary()
 
     /** Importa metadados e guarda bytes originais. Executar fora da thread principal. */
-    fun importSourceDocument(fileName: String, bytes: ByteArray): SourceDocumentImportOutcome = try {
+    fun importSourceDocument(
+        fileName: String,
+        bytes: ByteArray,
+    ): SourceDocumentImportOutcome =
+        try {
         val current = store.sourceLibrary()
         val (updated, entry) = current.addImport(fileName, bytes, System.currentTimeMillis())
         val alreadyRegistered = current.get(entry.id) != null
@@ -777,7 +791,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** Grava a biblioteca e os vínculos como uma unidade transacional. */
-    fun saveSourceLibrary(library: SourceLibrary): String? = try {
+    fun saveSourceLibrary(library: SourceLibrary): String? =
+        try {
         val previousIds = store.sourceLibrary().entries.map { it.id }.toSet()
         store.saveSourceLibrary(library)
         val retainedIds = library.entries.map { it.id }.toSet()
@@ -794,7 +809,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** DC-04: lê os fatos narrativos da campanha ativa ou indicada. */
     fun canonFacts(campaignId: String): CanonFacts = store.canonFacts(campaignId)
 
-    fun saveCanonFacts(campaignId: String, facts: CanonFacts): String? = try {
+    fun saveCanonFacts(
+        campaignId: String,
+        facts: CanonFacts,
+    ): String? =
+        try {
         store.saveCanonFacts(campaignId, facts)
         canonFactsVersion++
         null
@@ -802,7 +821,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         e.message ?: "falha ao salvar fatos canônicos"
     }
 
-    fun saveSourcePipelineState(state: PipelineState): String? = try {
+    fun saveSourcePipelineState(state: PipelineState): String? =
+        try {
         store.saveSourcePipelineState(state)
         sourceLibraryVersion++
         null
@@ -814,8 +834,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun sourceIndexForCampaign(campaignId: String): SourceIndex {
         val library = store.sourceLibrary()
         val linkedIds = library.forCampaign(campaignId).map { it.sourceId }.toSet()
-        val readyIds = library.entries.filter { it.id in linkedIds && it.status == dev.rpgsolo.engine.SourceStatus.READY }
-            .map { it.id }.toSet()
+        val readyIds =
+            library.entries
+                .filter { it.id in linkedIds && it.status == dev.rpgsolo.engine.SourceStatus.READY }
+                .map { it.id }
+                .toSet()
         return SourceIndex().also { index ->
             store.sourcePipelineStates().filter { it.sourceId in readyIds }.forEach { state ->
                 index.addAll(state.chunks.take(state.indexedCount))
@@ -829,7 +852,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Define o modo por comando/evento canônico; o próprio motor recusa repetir o modo atual. */
     fun setSourceMode(mode: dev.rpgsolo.engine.SourceMode): String? =
         when (val result = session.execute(dev.rpgsolo.engine.SetSourceMode(mode))) {
-            is dev.rpgsolo.engine.ExecResult.Accepted -> { campaignVersion++; null }
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                campaignVersion++
+                null
+            }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
 
@@ -2101,7 +2127,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             is ChapterSummarizer.Result.Closed -> {
                 // M-07: encerrar um capítulo faz o tempo passar; relógios com chapterTick avançam pelo motor.
                 session.advanceClocksAfterChapterClosure()
-                saveMetadata(); campaignVersion++; null
+                saveMetadata()
+                campaignVersion++
+                null
             }
             is ChapterSummarizer.Result.Failed -> r.reason
         }
