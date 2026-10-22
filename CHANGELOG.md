@@ -2,7 +2,7 @@
 
 - `ai/PowerMenu.kt`: valida novamente o par efeito/alvo no ponto de execução, como defesa em profundidade caso uma definição incoerente escape da validação do pacote.
 
-- `engine/AutomaticTimeline.kt`: promessas feitas por NPCs e promessas cumpridas agora aparecem na timeline do jogador, usando o nome público do NPC e o texto da promessa; não expõe dossiês ou segredos privados.
+- `engine/AutomaticTimeline.kt`: foi evitado registrar promessas na timeline enquanto o evento não informa se o personagem presenciou a promessa; isso impede revelar acordos entre NPCs fora de cena.
 - `engine/AutomaticTimeline.kt`: registra mudanças de relação envolvendo o personagem em linguagem neutra, sem expor valores numéricos ou motivos privados.
 
 - `engine/Npc.kt`: `DossierBook.contextFor` inclui motivações e relações do dossiê privado junto de personalidade e objetivos. As relações são ordenadas por ID para manter a composição do contexto determinística; esses dados seguem restritos ao contexto do mestre e não são expostos na interface do jogador.
