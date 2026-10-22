@@ -100,6 +100,7 @@ class SkillTreeCatalogTest {
         ))
         assertEquals(5, capstones.single { it.treeId == "espadachim" }.hitCount)
         assertEquals(dev.rpgsolo.engine.SkillActionKind.REVIVE, capstones.single { it.treeId == "sacerdote" }.actionKind)
+        assertFalse(capstones.single { it.treeId == "arqueiro" }.affinityBound)
     }
 
     @Test fun culminanciasDaClasseDeMalditosTemNomesTematicos() {
