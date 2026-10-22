@@ -23,7 +23,8 @@ class AgendaProposalTest {
                 """{"narrative":"x","proposals":[
             {"type":"change_relation","fromId":"ana","toId":"hero","delta":20,"reason":"ajuda"},
             {"type":"create_clock","id":"c","name":"Culto","segments":4,"combatTick":1,"questTick":2},
-            {"type":"advance_clock","id":"c"}]}""")
+            {"type":"advance_clock","id":"c"}]}""",
+            )
         assertEquals(
             listOf(
                 ChangeRelation("ana", "hero", 20, "ajuda"),
