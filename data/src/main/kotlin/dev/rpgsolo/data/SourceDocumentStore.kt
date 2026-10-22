@@ -15,7 +15,11 @@ class SourceDocumentStore(private val directory: File) {
     }
 
     /** Grava por arquivo temporário no mesmo diretório para evitar conteúdo parcial após interrupção. */
-    fun save(sourceId: String, bytes: ByteArray, expectedSha256: String): File {
+    fun save(
+        sourceId: String,
+        bytes: ByteArray,
+        expectedSha256: String,
+    ): File {
         require(bytes.isNotEmpty()) { "arquivo de fonte vazio" }
         require(bytes.size <= SourceImporter.MAX_BYTES) { "arquivo de fonte acima do limite permitido" }
         require(SourceImporter.sha256(bytes) == expectedSha256) { "hash do arquivo não corresponde aos metadados" }
@@ -39,7 +43,11 @@ class SourceDocumentStore(private val directory: File) {
     }
 
     /** Retorna null quando ainda não existe conteúdo; conteúdo divergente falha fechado. */
-    fun read(sourceId: String, expectedSha256: String, expectedByteSize: Int): ByteArray? {
+    fun read(
+        sourceId: String,
+        expectedSha256: String,
+        expectedByteSize: Int,
+    ): ByteArray? {
         val file = fileFor(sourceId)
         if (!file.isFile) return null
         val bytes = file.readBytes()

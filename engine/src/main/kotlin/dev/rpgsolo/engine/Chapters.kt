@@ -177,7 +177,11 @@ class QuestLog {
         line.addAll(timeline)
     }
 
-    fun completeObjective(id: String, index: Int, chapter: Int = 0) {
+    fun completeObjective(
+        id: String,
+        index: Int,
+        chapter: Int = 0,
+    ) {
         require(chapter >= 0) { "número de capítulo inválido" }
         val q = requireNotNull(quests[id]) { "missão inexistente: $id" }
         require(q.status == QuestStatus.ACTIVE) { "missão já encerrada: $id" }
@@ -207,7 +211,11 @@ class QuestLog {
         quests[id] = q.copy(spellGranted = true)
     }
 
-    fun finish(id: String, status: QuestStatus, chapter: Int = 0) {
+    fun finish(
+        id: String,
+        status: QuestStatus,
+        chapter: Int = 0,
+    ) {
         require(chapter >= 0) { "número de capítulo inválido" }
         val q = requireNotNull(quests[id]) { "missão inexistente: $id" }
         require(status != QuestStatus.ACTIVE) { "use DONE ou FAILED" }
@@ -232,17 +240,21 @@ class QuestLog {
 }
 
 /** Avança, uma única vez por fechamento de capítulo, apenas relógios incompletos com [Clock.chapterTick] configurado. */
-fun CampaignSession.advanceClocksAfterChapterClosure(): ExecResult? = atomically {
-    val advances = state.clocks.values
-        .filter { !it.full && it.chapterTick > 0 }
-        .map { AdvanceClock(it.id, it.chapterTick) }
-    if (advances.isEmpty()) null else executeAll(advances)
-}
+fun CampaignSession.advanceClocksAfterChapterClosure(): ExecResult? =
+    atomically {
+        val advances =
+            state.clocks.values
+                .filter { !it.full && it.chapterTick > 0 }
+                .map { AdvanceClock(it.id, it.chapterTick) }
+        if (advances.isEmpty()) null else executeAll(advances)
+    }
 
 /** Avança, uma única vez por fechamento de missão, apenas relógios incompletos com [Clock.questTick] configurado. */
-fun CampaignSession.advanceClocksAfterQuestClosure(): ExecResult? = atomically {
-    val advances = state.clocks.values
-        .filter { !it.full && it.questTick > 0 }
-        .map { AdvanceClock(it.id, it.questTick) }
-    if (advances.isEmpty()) null else executeAll(advances)
-}
+fun CampaignSession.advanceClocksAfterQuestClosure(): ExecResult? =
+    atomically {
+        val advances =
+            state.clocks.values
+                .filter { !it.full && it.questTick > 0 }
+                .map { AdvanceClock(it.id, it.questTick) }
+        if (advances.isEmpty()) null else executeAll(advances)
+    }

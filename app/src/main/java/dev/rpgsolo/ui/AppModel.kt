@@ -60,10 +60,10 @@ import dev.rpgsolo.engine.journal
 import dev.rpgsolo.rules.CampaignStarter
 import dev.rpgsolo.rules.RulePackage
 import dev.rpgsolo.rules.StartResult
-import java.io.File
-import java.io.FileOutputStream
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
 

@@ -63,9 +63,11 @@ class RulePackageTest {
 
     @Test fun efeitosTipadosDeEquipamentoVemDoPacoteESeAplicamPorEscopo() {
         val f = files("teste-basico").toMutableMap()
-        f["itens.txt"] = """espada|Espada|equipamento|mao|Arma|ataque:+2;dano:+1
+        f["itens.txt"] =
+            """
+            espada|Espada|equipamento|mao|Arma|ataque:+2;dano:+1
             capa|Capa|equipamento|corpo|Proteção|defesa:+3
-        """.trimIndent()
+            """.trimIndent()
         val result = PackageRegistry().install(f)
         assertTrue(result.toString(), result is InstallResult.Success)
         val pkg = (result as InstallResult.Success).pkg

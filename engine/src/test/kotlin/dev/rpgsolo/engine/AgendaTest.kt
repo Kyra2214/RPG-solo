@@ -63,17 +63,19 @@ class AgendaTest {
 
     @Test fun viagemAvancaSomenteRelogiosConfiguradosEIncompletos() {
         val s = session()
-        s.executeAll(listOf(
-            CreateClock("threat", "Ameaça", 4, moveTick = 3),
-            CreateClock("parado", "Plano parado", 4),
-            CreateClock("completo", "Plano concluído", 2, moveTick = 2),
-            AdvanceClock("completo", 2),
-            AddPlace(Place("inicio", "Início")),
-            AddPlace(Place("destino", "Destino")),
-            ConnectPlaces("inicio", "destino"),
-            DiscoverPlace("inicio"),
-            DiscoverPlace("destino")
-        ))
+        s.executeAll(
+            listOf(
+                CreateClock("threat", "Ameaça", 4, moveTick = 3),
+                CreateClock("parado", "Plano parado", 4),
+                CreateClock("completo", "Plano concluído", 2, moveTick = 2),
+                AdvanceClock("completo", 2),
+                AddPlace(Place("inicio", "Início")),
+                AddPlace(Place("destino", "Destino")),
+                ConnectPlaces("inicio", "destino"),
+                DiscoverPlace("inicio"),
+                DiscoverPlace("destino"),
+            ),
+        )
 
         val eventMark = s.engine.events.size
         val result = s.execute(MoveToPlace("destino"))
@@ -87,13 +89,15 @@ class AgendaTest {
 
     @Test fun fimDeCombateAvancaSomenteRelogiosConfiguradosEIncompletos() {
         val s = session()
-        s.executeAll(listOf(
-            CreateClock("threat", "Ameaça", 4, combatTick = 3),
-            CreateClock("parado", "Plano parado", 4),
-            CreateClock("completo", "Plano concluído", 2, combatTick = 1),
-            AdvanceClock("completo", 2),
-            StartCombat(listOf("hero", "ana"))
-        ))
+        s.executeAll(
+            listOf(
+                CreateClock("threat", "Ameaça", 4, combatTick = 3),
+                CreateClock("parado", "Plano parado", 4),
+                CreateClock("completo", "Plano concluído", 2, combatTick = 1),
+                AdvanceClock("completo", 2),
+                StartCombat(listOf("hero", "ana")),
+            ),
+        )
         val eventMark = s.engine.events.size
 
         val result = s.execute(EndCombat)
@@ -109,15 +113,19 @@ class AgendaTest {
     }
 
     @Test fun derrotaQueEncerraCombateAvancaRelogioConfigurado() {
-        val s = CampaignSession.create(
-            InMemoryEventStore(), CampaignRecord("combat", "Combat", 1L, EngineConfig())
+        val s =
+            CampaignSession.create(
+                InMemoryEventStore(),
+                CampaignRecord("combat", "Combat", 1L, EngineConfig()),
+            )
+        s.executeAll(
+            listOf(
+                CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))),
+                CreateEntity(Entity("foe", "Inimigo", EntityKind.NPC, resources = mapOf("hp" to Resource(5, 5)))),
+                CreateClock("threat", "Ameaça", 4, combatTick = 1),
+                StartCombat(listOf("hero", "foe")),
+            ),
         )
-        s.executeAll(listOf(
-            CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))),
-            CreateEntity(Entity("foe", "Inimigo", EntityKind.NPC, resources = mapOf("hp" to Resource(5, 5)))),
-            CreateClock("threat", "Ameaça", 4, combatTick = 1),
-            StartCombat(listOf("hero", "foe"))
-        ))
 
         val result = s.execute(Damage("foe", "hp", 5))
 
@@ -129,12 +137,14 @@ class AgendaTest {
 
     @Test fun encerramentoDeMissaoAvancaSomenteRelogiosConfiguradosEIncompletos() {
         val s = session()
-        s.executeAll(listOf(
-            CreateClock("threat", "Ameaça", 4, questTick = 2),
-            CreateClock("parado", "Plano parado", 4),
-            CreateClock("completo", "Plano concluído", 2, questTick = 1),
-            AdvanceClock("completo", 2)
-        ))
+        s.executeAll(
+            listOf(
+                CreateClock("threat", "Ameaça", 4, questTick = 2),
+                CreateClock("parado", "Plano parado", 4),
+                CreateClock("completo", "Plano concluído", 2, questTick = 1),
+                AdvanceClock("completo", 2),
+            ),
+        )
         val eventMark = s.engine.events.size
 
         val result = s.advanceClocksAfterQuestClosure()
@@ -148,12 +158,14 @@ class AgendaTest {
 
     @Test fun encerramentoDeCapituloAvancaSomenteRelogiosConfiguradosEIncompletos() {
         val s = session()
-        s.executeAll(listOf(
-            CreateClock("threat", "Ameaça", 4, chapterTick = 2),
-            CreateClock("parado", "Plano parado", 4),
-            CreateClock("completo", "Plano concluído", 2, chapterTick = 1),
-            AdvanceClock("completo", 2)
-        ))
+        s.executeAll(
+            listOf(
+                CreateClock("threat", "Ameaça", 4, chapterTick = 2),
+                CreateClock("parado", "Plano parado", 4),
+                CreateClock("completo", "Plano concluído", 2, chapterTick = 1),
+                AdvanceClock("completo", 2),
+            ),
+        )
         val eventMark = s.engine.events.size
 
         val result = s.advanceClocksAfterChapterClosure()

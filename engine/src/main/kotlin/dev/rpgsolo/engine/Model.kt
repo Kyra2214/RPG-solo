@@ -192,7 +192,7 @@ data class Clock(
     /** Casas que o relógio avança automaticamente quando um combate termina; 0 = não avança. */
     val combatTick: Int = 0,
     /** Casas que o relógio avança quando uma missão é encerrada; 0 = não avança. */
-    val questTick: Int = 0
+    val questTick: Int = 0,
 ) {
     init {
         require(id.isNotBlank() && id.length <= 80) { "id de relógio inválido" }

@@ -149,7 +149,11 @@ data class PipelineState(
 
 /** DC-03: importada → em trechos → indexada, em lotes e retomável. */
 object SourcePipeline {
-    private val JSON = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val JSON =
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
 
     fun start(sourceId: String) = PipelineState(sourceId)
 

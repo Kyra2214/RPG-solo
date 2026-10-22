@@ -92,26 +92,41 @@ class ChapterTest {
         log.completeObjective("q1", 0, chapter = 1)
         assertEquals(QuestStatus.ACTIVE, log.get("q1")!!.status)
         val afterFirstObjective = log.timeline()
-        try { log.completeObjective("q1", 0, chapter = 1); fail() } catch (e: IllegalArgumentException) { }
+        try {
+            log.completeObjective("q1", 0, chapter = 1)
+            fail()
+        } catch (e: IllegalArgumentException) {
+        }
         assertEquals(afterFirstObjective, log.timeline())
         log.completeObjective("q1", 1, chapter = 1)
         assertEquals(QuestStatus.DONE, log.get("q1")!!.status)
         assertEquals(listOf("q2"), log.active().map { it.id })
-        try { log.finish("q1", QuestStatus.FAILED); fail() } catch (e: IllegalArgumentException) { }
+        try {
+            log.finish("q1", QuestStatus.FAILED)
+            fail()
+        } catch (e: IllegalArgumentException) {
+        }
         log.finish("q2", QuestStatus.FAILED, chapter = 1)
         log.note(1, "Chegou à vila")
-        assertEquals(listOf(
-            1 to "Objetivo concluído: Achar a chave — entrar",
-            1 to "Objetivo concluído: Achar a chave — pegar",
-            1 to "Missão concluída: Achar a chave",
-            1 to "Missão encerrada sem sucesso: Ajudar a aldeia",
-            1 to "Chegou à vila"
-        ), log.timeline())
+        assertEquals(
+            listOf(
+                1 to "Objetivo concluído: Achar a chave — entrar",
+                1 to "Objetivo concluído: Achar a chave — pegar",
+                1 to "Missão concluída: Achar a chave",
+                1 to "Missão encerrada sem sucesso: Ajudar a aldeia",
+                1 to "Chegou à vila",
+            ),
+            log.timeline(),
+        )
     }
 
     @Test fun numeroDeCapituloInvalidoNaoAlteraObjetivo() {
         val log = QuestLog().also { it.add(Quest("q1", "Achar a chave", listOf(Objective("entrar")))) }
-        try { log.completeObjective("q1", 0, chapter = -1); fail() } catch (e: IllegalArgumentException) { }
+        try {
+            log.completeObjective("q1", 0, chapter = -1)
+            fail()
+        } catch (e: IllegalArgumentException) {
+        }
         assertFalse(log.get("q1")!!.objectives.single().done)
         assertTrue(log.timeline().isEmpty())
     }
