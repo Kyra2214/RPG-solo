@@ -92,7 +92,7 @@ class CurseActions(
                 if (resistanceSucceeded == true) {
                     if (combat != null) {
                         when (val advance = session().execute(dev.rpgsolo.engine.NextTurn)) {
-                            is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+                            is dev.rpgsolo.engine.ExecResult.Accepted -> { onChanged(); Unit }
                             is dev.rpgsolo.engine.ExecResult.Rejected -> return@atomically advance.reason
                         }
                     }
