@@ -1645,8 +1645,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Estado da distribuição única de 12 pontos iniciais. */
     fun initialBuildState(): InitialBuildState {
         val player = session.state.entities[playerId] ?: return InitialBuildState(false, emptyList())
+        val statCaps = activePackage?.engineConfig()?.statCaps.orEmpty()
         val stats = activePackage?.data?.stats.orEmpty().filter { it.id in player.stats }.map { stat ->
-            AdvancementChoice(stat.id, stat.name, player.stats[stat.id] ?: stat.default, 0, skill = false)
+            AdvancementChoice(
+                stat.id, stat.name, player.stats[stat.id] ?: stat.default,
+                statCaps[stat.id] ?: (player.stats[stat.id] ?: stat.default),
+                skill = false
+            )
         }
         return InitialBuildState(player.initialBuildAllocated, stats)
     }
