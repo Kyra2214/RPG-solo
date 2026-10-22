@@ -49,6 +49,14 @@ class CurseCatalogTest {
         }
     }
 
+    @Test fun parserRejeitaEfeitoComDuracaoDiferenteDaMaldicao() {
+        val invalid = """
+            test-curse|Maldição de teste|Descrição|ritual|resistir|10|3|purificação|fx-bonus,ataque,1,0,bonus,2,-;fx-penalty,defesa,-1,0,penalty,2,-
+        """.trimIndent()
+        val result = CurseCatalogLoader.load(invalid)
+        assertTrue("o parser deve rejeitar duração divergente", result.errors.any { it.contains("duração dos efeitos") })
+    }
+
     @Test fun cadaMaldicaoDeclaraBeneficioEContrapartida() {
         val result = CurseCatalogLoader.load(catalogText())
         assertTrue(result.valid)
