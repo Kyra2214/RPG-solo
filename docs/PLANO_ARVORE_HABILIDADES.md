@@ -183,4 +183,4 @@ Implementações adicionadas nesta branch:
 - Corrigidas 42 habilidades ofensivas iniciais da Classe de Malditos que estavam tipadas como `MODIFIER`: agora são `POWER_STRIKE` e seus efeitos fornecem bônus de dano ao ataque real, em vez de apenas aplicar um bônus temporário de ataque.
 - Corrigido o rank 7 do arqueiro: `Disparo Apocalíptico` é uma técnica física e não deve exigir afinidade elemental para ser desbloqueada/usada.
 - Acrescentado teste de catálogo para impedir que as habilidades ofensivas iniciais da Classe de Malditos voltem a ser apenas modificadores.
-- A CI ainda precisa validar os commits destas correções. O teste automatizado do arqueiro será incluído/confirmado antes de encerrar esta auditoria.
+- A CI ainda precisa validar os commits destas correções. Foi acrescentada asserção de catálogo garantindo que o rank 7 do arqueiro não exija afinidade elemental.
