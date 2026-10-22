@@ -35,20 +35,22 @@ fun automaticTimeline(
                 val previousFill = clockFills[event.id] ?: 0
                 clockFills[event.id] = event.filled
                 val clock = finalState.clocks[event.id]
-                if (clock != null &&
+                val crossedMidpoint = clock != null &&
                     previousFill < clock.midpoint &&
                     event.filled >= clock.midpoint &&
-                    event.filled < clock.segments &&
                     clock.midClue.isNotBlank()
-                ) {
-                    AutomaticTimelineEntry(index, "pista", clock.midClue)
-                } else if (clock != null &&
+                val completed = clock != null &&
                     previousFill < clock.segments &&
                     event.filled == clock.segments &&
                     clock.publicClue.isNotBlank()
-                ) {
-                    AutomaticTimelineEntry(index, "pista", clock.publicClue)
-                } else null
+                when {
+                    clock == null -> null
+                    crossedMidpoint && completed ->
+                        AutomaticTimelineEntry(index, "pista", "${clock.midClue}\n${clock.publicClue}")
+                    crossedMidpoint -> AutomaticTimelineEntry(index, "pista", clock.midClue)
+                    completed -> AutomaticTimelineEntry(index, "pista", clock.publicClue)
+                    else -> null
+                }
             }
             is CombatStarted -> {
                 combatants = event.order.toSet()
