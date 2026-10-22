@@ -89,7 +89,7 @@ class CombatBonuses(
 
     /** Bônus equivalentes do catálogo de raça/classe/profissão não acumulam: prevalece o maior efeito por escopo. */
     fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> =
-        catalogBonuses(pkg).groupBy { it.scope }.mapNotNull { (_, effects) ->
+        catalogBonuses(pkg).groupBy { it.scope to (it.bonus > 0) }.mapNotNull { (_, effects) ->
             effects.maxWithOrNull(compareBy<dev.rpgsolo.rules.ExternalBonus>({ kotlin.math.abs(it.bonus) }, { it.bonus }))
         }
 
