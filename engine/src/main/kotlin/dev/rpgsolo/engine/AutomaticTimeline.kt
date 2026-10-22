@@ -94,6 +94,33 @@ fun automaticTimeline(
             is PlayerMovedToPlace -> finalState.places[event.id]
                 ?.takeIf { event.id in finalState.knownPlaces }
                 ?.let { AutomaticTimelineEntry(index, "viagem", "Você chegou a ${it.name}.") }
+            is ItemChanged -> if (event.ownerId == playerId && event.delta != 0) {
+                val action = if (event.delta > 0) "Você recebeu" else "Você perdeu"
+                val amount = kotlin.math.abs(event.delta)
+                AutomaticTimelineEntry(index, "inventário", "$action $amount unidade(s) do item ${event.itemId}.")
+            } else null
+            is EquipmentChanged -> if (event.ownerId == playerId) {
+                if (event.itemId == null) {
+                    AutomaticTimelineEntry(index, "equipamento", "Você desequipou o item do espaço ${event.slot}.")
+                } else {
+                    AutomaticTimelineEntry(index, "equipamento", "Você equipou ${event.itemId} no espaço ${event.slot}.")
+                }
+            } else null
+            is CurseApplied -> if (event.targetId == playerId) {
+                AutomaticTimelineEntry(index, "condição", "Uma maldição passou a afetar seu personagem.")
+            } else null
+            is CurseRemoved -> if (event.targetId == playerId) {
+                AutomaticTimelineEntry(index, "condição", "Uma maldição deixou de afetar seu personagem.")
+            } else null
+            is SkillTreeProgressed -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você avançou uma habilidade da sua árvore de habilidades.")
+            } else null
+            is SkillTreeProgressReset -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você redefiniu sua árvore de habilidades e recuperou ${event.pointsRefunded} ponto(s) investido(s).")
+            } else null
+            is InitialBuildAllocated -> if (event.entityId == playerId) {
+                AutomaticTimelineEntry(index, "progressão", "Você concluiu a distribuição inicial dos pontos da ficha.")
+            } else null
             is XpGained -> if (event.entityId == playerId) {
                 AutomaticTimelineEntry(index, "progressão", "Você recebeu experiência.")
             } else null
