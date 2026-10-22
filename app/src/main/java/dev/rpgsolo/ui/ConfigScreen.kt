@@ -55,6 +55,7 @@ fun ConfigScreen(model: AppModel) {
     var testing by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<ConnectionTestResult?>(null) }
     val scope = rememberCoroutineScope()
+    val configPriceError = stringResource(R.string.config_price_error)
     ScreenColumn {
         SectionTitle(stringResource(R.string.config_provider_title), stringResource(R.string.config_provider_supporting))
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -106,7 +107,7 @@ fun ConfigScreen(model: AppModel) {
             val cacheCreation = parsePrice(cacheCreationPrice)
             if ((!inputPrice.isBlank() && input == null) || (!outputPrice.isBlank() && output == null) ||
                 (!cacheReadPrice.isBlank() && cacheRead == null) || (!cacheCreationPrice.isBlank() && cacheCreation == null)) {
-                priceError = "Use preços numéricos não negativos por milhão de tokens."
+                priceError = configPriceError
                 saved = false
             } else {
                 priceError = null
@@ -143,87 +144,87 @@ fun ConfigScreen(model: AppModel) {
             Muted(stringResource(R.string.config_font_scale_help))
         }
         AppCard {
-            Text("Preferências de geração", style = MaterialTheme.typography.titleSmall)
-            Text("Extensão da narração")
+            Text(stringResource(R.string.config_generation_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.config_narration_length))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("curta", "equilibrada", "detalhada").forEach { option ->
+                listOf("curta" to R.string.config_length_short, "equilibrada" to R.string.config_length_balanced, "detalhada" to R.string.config_length_detailed).forEach { (option, labelRes) ->
                     FilterChip(
                         selected = narrationLength == option,
                         onClick = {
                             narrationLength = option
                             model.setNarrationPreferences(narrationLength, narrationStyle)
                         },
-                        label = { Text(option.replaceFirstChar { it.uppercase() }) }
+                        label = { Text(stringResource(labelRes)) }
                     )
                 }
             }
-            Text("Estilo")
+            Text(stringResource(R.string.config_style))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("cinematográfica", "literária", "direta").forEach { option ->
+                listOf("cinematográfica" to R.string.config_style_cinematic, "literária" to R.string.config_style_literary, "direta" to R.string.config_style_direct).forEach { (option, labelRes) ->
                     FilterChip(
                         selected = narrationStyle == option,
                         onClick = {
                             narrationStyle = option
                             model.setNarrationPreferences(narrationLength, narrationStyle)
                         },
-                        label = { Text(option.replaceFirstChar { it.uppercase() }) }
+                        label = { Text(stringResource(labelRes)) }
                     )
                 }
             }
-            Text("Tamanho de capítulo")
+            Text(stringResource(R.string.config_chapter_size))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(100, 200, 300, 500, 1000).forEach { limit ->
                     FilterChip(
                         selected = model.chapterEventLimit == limit,
                         onClick = { model.setChapterEventLimit(limit) },
-                        label = { Text("$limit eventos") }
+                        label = { Text(stringResource(R.string.config_chapter_events, limit)) }
                     )
                 }
             }
-            Muted("Ao atingir esse número de eventos confirmados, o app gera um resumo e abre o próximo capítulo automaticamente.")
-            Text("Linhas vermelhas — não incluir")
+            Muted(stringResource(R.string.config_chapter_help))
+            Text(stringResource(R.string.config_red_lines))
             OutlinedTextField(
                 value = contentLines,
                 onValueChange = { contentLines = it; model.setContentBoundaries(contentLines, contentVeils) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Temas proibidos (um por linha)") },
+                label = { Text(stringResource(R.string.config_forbidden_topics)) },
                 minLines = 2,
                 maxLines = 5
             )
-            Text("Véus — mencionar sem detalhar")
+            Text(stringResource(R.string.config_veils))
             OutlinedTextField(
                 value = contentVeils,
                 onValueChange = { contentVeils = it; model.setContentBoundaries(contentLines, contentVeils) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Temas a resumir ou cortar (um por linha)") },
+                label = { Text(stringResource(R.string.config_veiled_topics)) },
                 minLines = 2,
                 maxLines = 5
             )
-            Muted("Limites são enviados ao mestre a cada jogada e não alteram os resultados do motor nem as regras do sistema.")
+            Muted(stringResource(R.string.config_content_help))
         }
         AppCard {
-            Text("Preços do modelo", style = MaterialTheme.typography.titleSmall)
-            Muted("Informe o preço por 1 milhão de tokens conforme a tabela atual do provedor. Campos de cache vazios usam o preço normal de entrada para evitar estimativa zero.")
-            OutlinedTextField(inputPrice, { inputPrice = it }, Modifier.fillMaxWidth(), label = { Text("Entrada normal / 1M") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            OutlinedTextField(outputPrice, { outputPrice = it }, Modifier.fillMaxWidth(), label = { Text("Saída / 1M") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            OutlinedTextField(cacheReadPrice, { cacheReadPrice = it }, Modifier.fillMaxWidth(), label = { Text("Leitura de cache / 1M (opcional)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            OutlinedTextField(cacheCreationPrice, { cacheCreationPrice = it }, Modifier.fillMaxWidth(), label = { Text("Criação de cache / 1M (opcional)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            Text(stringResource(R.string.config_prices_title), style = MaterialTheme.typography.titleSmall)
+            Muted(stringResource(R.string.config_prices_help))
+            OutlinedTextField(inputPrice, { inputPrice = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_input_price)) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(outputPrice, { outputPrice = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_output_price)) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(cacheReadPrice, { cacheReadPrice = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_cache_read_price)) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField(cacheCreationPrice, { cacheCreationPrice = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_cache_creation_price)) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
             priceError?.let { ErrorText(it) }
             val input = inputPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: 0.0
             val output = outputPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: 0.0
             val cacheRead = cacheReadPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: input
             val cacheCreation = cacheCreationPrice.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 } ?: input
             if (inputPrice.isBlank() || outputPrice.isBlank()) {
-                Muted("Informe os preços de entrada e saída para calcular o custo. A moeda usada será a mesma da tabela que você informar.")
+                Muted(stringResource(R.string.config_cost_missing_prices))
             } else {
-                Text("Custo estimado nesta sessão (moeda informada): " + "%.6f".format(model.usage.estimateCost(input, output, cacheRead, cacheCreation)), style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.config_cost_estimate, "%.6f".format(model.usage.estimateCost(input, output, cacheRead, cacheCreation))), style = MaterialTheme.typography.bodyMedium)
             }
         }
         AppCard {
-            Text("Privacidade e uso", style = MaterialTheme.typography.titleSmall)
-            Muted("A chave é cifrada pelo Android Keystore e não entra em backups nem logs. A jogada que você escreve é enviada ao provedor escolhido.")
-            Muted("Uso estimado nesta sessão: ${model.usage.calls} chamadas, ${model.usage.inputTokens} tokens de entrada, ${model.usage.outputTokens} de saída.")
-            Muted("Cache do provedor: ${model.usage.cacheReadInputTokens} tokens reutilizados e ${model.usage.cacheCreationInputTokens} tokens gravados.")
+            Text(stringResource(R.string.config_privacy_title), style = MaterialTheme.typography.titleSmall)
+            Muted(stringResource(R.string.config_privacy_key))
+            Muted(stringResource(R.string.config_usage, model.usage.calls, model.usage.inputTokens, model.usage.outputTokens))
+            Muted(stringResource(R.string.config_cache_usage, model.usage.cacheReadInputTokens, model.usage.cacheCreationInputTokens))
         }
     }
 }

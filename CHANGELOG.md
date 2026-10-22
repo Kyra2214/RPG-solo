@@ -1,3 +1,10 @@
+## 2026-10-22 — U-02: strings restantes da Configuração (não validado)
+
+- `app/ConfigScreen.kt`: preferências de geração, limites de conteúdo, preços, estimativas e privacidade agora usam `strings.xml`, incluindo placeholders e rótulos das opções.
+- `app/src/main/res/values/strings.xml`: catálogo ampliado para cobrir todos os textos visíveis da tela de Configuração.
+- `PLANO_RPG_SOLO.md`: registrada a terceira fatia; as demais telas do app ainda precisam ser migradas.
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
 ## 2026-10-22 — U-02: strings do provedor e acessibilidade (não validado)
 
 - `app/ConfigScreen.kt`: títulos, campos, avisos, ações do provedor e o bloco de acessibilidade passaram a usar recursos Android.
