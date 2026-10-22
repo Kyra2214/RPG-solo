@@ -867,3 +867,6 @@
  
 
 - Classe de Malditos: além dos nomes próprios, as 42 culminâncias agora diferenciam mecânicas por família (multiataque, controle direcionado ou golpe culminante), e vertentes mágicas declaram vínculo com afinidade. Adicionados testes para esses contratos; balanceamento de jogo segue pendente.
+ 
+
+- Motor: efeitos ativos direcionados de habilidades agora exigem combate ativo, participação de usuário/alvo na iniciativa e turno do usuário; teste de motor cobre as recusas e o replay.
