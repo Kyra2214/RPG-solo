@@ -22,7 +22,7 @@ data class SkillTreeCatalogResult(
  * from the rules package's attack/damage files so the existing combat formula is not redefined.
  *
  * Columns:
- * id|treeId|name|origin|category|element|requiredElement|weaponTags|level|prerequisites|scrollRank|unlockCost|freeBase|effects
+ * id|treeId|name|origin|category|element|requiredElement|affinityBound|weaponTags|level|prerequisites|scrollRank|unlockCost|freeBase|effects
  *
  * Effects are semicolon-delimited tuples:
  * id,target,baseValue,perLevel,stackingGroup,durationRounds,conditionId
@@ -39,8 +39,8 @@ object SkillTreeCatalogLoader {
             if (line.isEmpty() || line.startsWith("#")) return@forEachIndexed
             val fields = line.split("|").map(String::trim)
             val lineNo = index + 1
-            if (fields.size != 14) {
-                errors += "habilidades-arvore linha $lineNo: esperado 14 campos, recebido \${fields.size}"
+            if (fields.size != 15) {
+                errors += "habilidades-arvore linha $lineNo: esperado 15 campos, recebido \${fields.size}"
                 return@forEachIndexed
             }
             try {
@@ -56,13 +56,14 @@ object SkillTreeCatalogLoader {
                 val category = SkillCategory.valueOf(fields[4].uppercase())
                 val element = if (fields[5] == "-" || fields[5].isEmpty()) ElementPath.NONE else ElementPath.valueOf(fields[5].uppercase())
                 val requiredElement = opt(fields[6])?.let { ElementPath.valueOf(it.uppercase()) }
-                val weaponTags = opt(fields[7])?.split(",")?.map { id(it, "tag de arma") }?.toSet().orEmpty()
-                val level = fields[8].toInt().also { require(it >= 1) { "nível mínimo inválido" } }
-                val prerequisites = opt(fields[9])?.split(",")?.map { id(it, "pré-requisito") }?.toSet().orEmpty()
-                val rank = opt(fields[10])?.toInt()?.also { require(it in 1..7) { "posição de pergaminho fora de 1..7" } }
-                val unlockCost = fields[11].toInt().also { require(it >= 0) { "custo de desbloqueio negativo" } }
-                val freeBase = fields[12].toBooleanStrict()
-                val effects = opt(fields[13])?.split(";")?.map { rawEffect ->
+                val affinityBound = fields[7].toBooleanStrict()
+                val weaponTags = opt(fields[8])?.split(",")?.map { id(it, "tag de arma") }?.toSet().orEmpty()
+                val level = fields[9].toInt().also { require(it >= 1) { "nível mínimo inválido" } }
+                val prerequisites = opt(fields[10])?.split(",")?.map { id(it, "pré-requisito") }?.toSet().orEmpty()
+                val rank = opt(fields[11])?.toInt()?.also { require(it in 1..7) { "posição de pergaminho fora de 1..7" } }
+                val unlockCost = fields[12].toInt().also { require(it >= 0) { "custo de desbloqueio negativo" } }
+                val freeBase = fields[13].toBooleanStrict()
+                val effects = opt(fields[14])?.split(";")?.map { rawEffect ->
                     val parts = rawEffect.split(",").map(String::trim)
                     require(parts.size == 7) { "efeito '$rawEffect' precisa de 7 partes" }
                     SkillEffectSpec(
@@ -83,6 +84,7 @@ object SkillTreeCatalogLoader {
                     category = category,
                     element = element,
                     requiredElement = requiredElement,
+                    affinityBound = affinityBound,
                     weaponTags = weaponTags,
                     requiredCharacterLevel = level,
                     prerequisiteSkillIds = prerequisites,
