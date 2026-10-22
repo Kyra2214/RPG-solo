@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.engine.SkillCategory
 import dev.rpgsolo.engine.SkillEffectRecipient
+import dev.rpgsolo.engine.SkillActionKind
 
 @Composable
 fun SkillTreePanel(
@@ -39,6 +40,7 @@ fun SkillTreePanel(
     val actions = remember(model, version, model.campaignVersion, model.packageVersion) { model.skillTreeActions() }
     val entries = remember(version, model.campaignVersion, model.packageVersion) { actions.view() }
     val targets = remember(version, model.campaignVersion) { actions.targets() }
+    val revivableTargets = remember(version, model.campaignVersion) { actions.revivableTargets() }
     val state = model.statPointsState()
 
     AppCard {
@@ -125,9 +127,9 @@ fun SkillTreePanel(
                                     }
                                 }
                             ) { Text("Evoluir (\${entry.pointCost} ponto)") }
-                            if (entry.skill.effects.any { it.recipient == SkillEffectRecipient.TARGET }) {
+                            if (entry.skill.effects.any { it.recipient == SkillEffectRecipient.TARGET } || entry.skill.actionKind == SkillActionKind.REVIVE) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
-                                    targets.forEach { (targetId, targetName) ->
+                                    (if (entry.skill.actionKind == SkillActionKind.REVIVE) revivableTargets else targets).forEach { (targetId, targetName) ->
                                         FilterChip(
                                             selected = selectedTargets[entry.skill.id] == targetId,
                                             onClick = { selectedTargets = selectedTargets + (entry.skill.id to targetId) },
@@ -139,7 +141,7 @@ fun SkillTreePanel(
                             }
                             if (entry.skill.category != SkillCategory.PASSIVE) {
                                 OutlinedButton(
-                                    enabled = enabled && (entry.skill.effects.none { it.recipient == SkillEffectRecipient.TARGET } || selectedTargets[entry.skill.id] != null),
+                                    enabled = enabled && (entry.skill.effects.none { it.recipient == SkillEffectRecipient.TARGET } && entry.skill.actionKind != SkillActionKind.REVIVE || selectedTargets[entry.skill.id] != null),
                                     onClick = {
                                         act({ actions.activate(entry.skill.id, selectedTargets[entry.skill.id]) }) { result ->
                                             message = result ?: "Habilidade ativada."
