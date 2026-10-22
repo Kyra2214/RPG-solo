@@ -1,20 +1,12 @@
-## 2026-10-22 — Contexto privado de NPCs
+## 2026-10-22 — Contexto privado, timeline e consistência de relógios
 
-- `engine/AutomaticTimeline.kt`: XP, nível alcançado, magia/habilidade aprendida, domínio de perícia e alocação de pontos agora geram registros legíveis na timeline. Promessas de NPC permanecem fora da timeline automática porque o evento não comprova que o jogador presenciou a promessa.
-
-- `ai/PowerMenu.kt`: valida novamente o par efeito/alvo no ponto de execução, como defesa em profundidade caso uma definição incoerente escape da validação do pacote.
-
-- `engine/AutomaticTimeline.kt`: promessas continuam fora da timeline automática porque o log atual não prova que o jogador presenciou a promessa; evita vazar compromissos de NPCs fora de cena. Mudanças de relação com o personagem aparecem em linguagem neutra.
-- `engine/AutomaticTimeline.kt`: registra mudanças de relação envolvendo o personagem em linguagem neutra, sem expor valores numéricos ou motivos privados.
-- `engine/AutomaticTimeline.kt`: remove IDs internos de itens, espaços de equipamento e condições da timeline; os registros usam descrições neutras quando o personagem não tem um nome público disponível.
-- `engine/AutomaticTimeline.kt`: consolida ramificações duplicadas de XP, nível, alocação, magias e habilidades; registros de progressão não exibem IDs internos de magia, habilidade ou perícia.
-- `ai/GameLoop.kt`, `ai/Master.kt` e `engine/AutomaticTimeline.kt`: quando um avanço cruza a metade e completa o mesmo relógio de uma vez, a pista intermediária e a pista pública/consequência não se perdem; continuam sem expor o nome ou as casas do relógio.
-- `engine/AutomaticTimeline.kt`: inclui falhas de sobrevivência e gasto/recuperação de usos limitados na timeline, sem expor IDs internos de traços.
-- `engine/AutomaticTimeline.kt`: registra recuperação positiva de recursos na timeline sem expor o identificador interno do recurso.
-
-- `engine/Npc.kt` e `app/ui/AppModel.kt`: os contextos privados de NPC incluem motivações e relações junto de personalidade e objetivos; as relações são ordenadas por ID para manter a composição determinística. Esses dados seguem restritos ao contexto do mestre e não são expostos na interface do jogador.
-- `ai/GameLoop.kt` e `ai/CheckMenu.kt`: rolagens com tabela agora respeitam imunidades a condições declaradas no pacote. A condição imune é ignorada e uma nota mecânica privada informa o mestre; a nota fica no `PlayInput` para não se perder ao regenerar a narração. `ai/Master.kt` injeta essas notas no contexto obrigatório e instrui explicitamente a narração a obedecê-las, sem mostrar termos técnicos ao jogador.
-- **Pendente:** avanço automático das agendas por outras passagens de tempo e geração contextual de pistas.
+- `ai/PowerMenu.kt`: valida o par efeito/alvo novamente no ponto de execução, além das validações do parser e da herança de pacotes.
+- `engine/AutomaticTimeline.kt`: registra progressão, recursos recuperados, usos limitados, falhas de sobrevivência e mudanças de relação em linguagem neutra; oculta IDs internos de itens, espaços, condições, magias, habilidades e perícias. Promessas de NPC ficam fora da timeline até o log conseguir provar que o personagem presenciou o evento.
+- `engine/AutomaticTimeline.kt`: remove ramificações duplicadas de XP, nível, alocação, magias e habilidades; registra pistas públicas quando o relógio cruza a metade ou conclui.
+- `ai/GameLoop.kt`, `ai/Master.kt` e `engine/AutomaticTimeline.kt`: se um único avanço cruza a metade e completa o relógio, preserva a pista intermediária junto da conclusão; consequências não são repetidas em narrações posteriores.
+- `engine/Npc.kt` e `app/ui/AppModel.kt`: o contexto privado do mestre inclui motivações e relações de NPCs, ordenadas de forma determinística; não são expostas na interface do jogador.
+- `ai/GameLoop.kt`, `ai/CheckMenu.kt` e `ai/Master.kt`: rolagens com tabela respeitam imunidades a condições declaradas no pacote; uma nota mecânica privada acompanha a jogada e permanece disponível ao regenerar a narração.
+- **Pendente:** avanço automático de agendas por outros eventos narrativos e geração contextual segura de pistas.
 - **Validação:** nenhum teste, build, lint ou CI executado; tudo permanece adiado para a etapa final.
 
 ## 2026-10-22 — Continuação code-first: testes avançados e sorte global (não validado)
