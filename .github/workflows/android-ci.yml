@@ -56,6 +56,13 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+      - name: Enable KVM group perms
+        if: github.event_name != 'pull_request'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
       - name: Run Android E2E on emulator
         if: github.event_name != 'pull_request'
         id: e2e
