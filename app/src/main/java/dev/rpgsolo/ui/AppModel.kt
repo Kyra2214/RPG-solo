@@ -2,6 +2,7 @@ package dev.rpgsolo.ui
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -2799,6 +2800,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 startup()
                 ready = true
             } catch (e: Exception) {
+                Log.e("AppModel", "Falha ao inicializar a campanha", e)
                 startupError = e.message ?: "Falha ao abrir o banco de dados."
             }
             runCatching { resumeSourcePipelines() }
