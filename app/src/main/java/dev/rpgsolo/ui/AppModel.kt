@@ -150,7 +150,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var content: Content by mutableStateOf(BundledContent.empty())
         private set
     private val secureSettings = SecureSettings(application)
-    private var storedSettings: StoredProviderSettings? = secureSettings.load()
+    private var storedSettings: StoredProviderSettings? = null
     private val narrationPrefs = application.getSharedPreferences("rpg_narration_prefs", 0)
 
     /** Metadados editoriais da nova criação, separados da ficha mecânica e persistidos por ID. */
@@ -449,8 +449,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var saveError by mutableStateOf<String?>(null)
         private set
     private var roles: AiRoles? = null
-    private val database = RpgDatabase.build(application)
-    private val store = RoomEventStore(database)
+    private lateinit var database: RpgDatabase
+    private lateinit var store: RoomEventStore
     private val activeCampaignPrefs = application.getSharedPreferences("rpgsolo_session", Application.MODE_PRIVATE)
     private var playerId = "hero"
     private var activePackage: RulePackage? = null
@@ -2773,6 +2773,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private fun startup() {
         content = BundledContent.load(getApplication())
         activePackage = content.registry.get("sistema-proprio")
+        storedSettings = secureSettings.load()
+        database = RpgDatabase.build(getApplication())
+        store = RoomEventStore(database)
         session = openOrCreateCampaign()
         restoreImportedPackages()
         restoreFichas()
