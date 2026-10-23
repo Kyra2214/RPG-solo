@@ -25,6 +25,8 @@ android {
         versionCode = configuredVersionCode ?: 1
         versionName = releaseTag?.removePrefix("v") ?: configuredVersionName ?: "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Cada teste começa com os dados do app limpos (o estado persistido de um teste não vaza para o seguinte).
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -32,7 +34,10 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
-    testOptions { animationsDisabled = true }
+    testOptions {
+        animationsDisabled = true
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+    }
     signingConfigs {
         if (hasReleaseSigning) {
             create("release") {
@@ -73,5 +78,6 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestUtil("androidx.test:orchestrator:1.5.1")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

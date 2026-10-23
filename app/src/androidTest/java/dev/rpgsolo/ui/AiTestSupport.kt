@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import dev.rpgsolo.ai.HttpReply
 import dev.rpgsolo.ai.HttpTransport
 import org.json.JSONArray
@@ -14,6 +15,15 @@ import java.util.concurrent.CopyOnWriteArrayList
 fun ComposeTestRule.openTab(label: String) {
     if (onAllNodesWithText(label).fetchSemanticsNodes().isEmpty()) onNodeWithText("Mais").performClick()
     onNodeWithText(label).performClick()
+}
+
+/** Aguarda um texto aparecer (gravações no banco e respostas da IA são assíncronas) e rola até ele. */
+fun ComposeTestRule.waitForText(
+    text: String,
+    timeoutMillis: Long = 10_000,
+) {
+    waitUntil(timeoutMillis) { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+    onNodeWithText(text).performScrollTo()
 }
 
 /** Aguarda o bootstrap assíncrono do AppModel antes de interagir com as telas. */

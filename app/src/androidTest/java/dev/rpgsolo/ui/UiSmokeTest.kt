@@ -28,12 +28,13 @@ class UiSmokeTest {
         composeRule.onNodeWithText("Ponto de partida").assertIsDisplayed()
         composeRule.onNodeWithText("Nome").performTextInput("Herói UI")
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()
-        composeRule.onNodeWithText("Ficha de Herói UI criada e salva.").performScrollTo().assertIsDisplayed()
+        composeRule.waitForText("Ficha de Herói UI criada e salva.")
+        composeRule.onNodeWithText("Ficha de Herói UI criada e salva.").assertIsDisplayed()
 
-        composeRule.onNodeWithText("Campanhas").performClick()
-        composeRule.onNodeWithText("Campanhas").assertIsDisplayed()
-        composeRule.onNodeWithText("Nova campanha").assertIsDisplayed()
-        composeRule.onNodeWithText("Descreva a campanha (sistema, cenário, tom, dificuldade…)").assertIsDisplayed()
+        composeRule.openTab("Campanhas")
+        // O título "Campanhas" também é o rótulo da aba (dois nós iguais): confere o conteúdo da tela.
+        composeRule.onNodeWithText("Nova campanha").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Descreva a campanha (sistema, cenário, tom, dificuldade…)").performScrollTo().assertIsDisplayed()
 
         composeRule.onNodeWithText("Jogar").performClick()
         composeRule.onNodeWithText("A mesa").assertIsDisplayed()

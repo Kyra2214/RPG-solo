@@ -42,7 +42,8 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("Heróis").performClick()
         composeRule.onNodeWithText("Nome").performTextInput("Herói IA")
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()
-        composeRule.onNodeWithText("Ficha de Herói IA criada e salva.").performScrollTo().assertIsDisplayed()
+        composeRule.waitForText("Ficha de Herói IA criada e salva.")
+        composeRule.onNodeWithText("Ficha de Herói IA criada e salva.").assertIsDisplayed()
 
         // Campanha
         composeRule.onNodeWithText("Campanhas").performClick()

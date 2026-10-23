@@ -43,6 +43,7 @@ class FakeAiConfigTest {
 
     @Test
     fun configurarProvedorEtestarConexaoUsaOTransporteFalso() {
+        composeRule.waitForAppReady()
         composeRule.openTab("Config")
         composeRule.onNodeWithText("Endpoint (https)").performScrollTo().performTextReplacement("https://fake.local/v1/chat/completions")
         composeRule.onNodeWithText("Modelo").performScrollTo().performTextReplacement("fake-model")
