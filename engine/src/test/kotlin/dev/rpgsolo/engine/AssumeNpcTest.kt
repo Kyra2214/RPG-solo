@@ -147,7 +147,10 @@ class AssumeNpcTest {
 class RebirthAndEndTest {
     private val cfg = EngineConfig(deathResource = "hp", rebirthItems = setOf("pergaminho"), rebirthPercent = 50)
 
-    private fun session(withScroll: Boolean, withNpc: Boolean): CampaignSession =
+    private fun session(
+        withScroll: Boolean,
+        withNpc: Boolean,
+    ): CampaignSession =
         CampaignSession.create(InMemoryEventStore(), CampaignRecord("c", "T", 3L, cfg)).also {
             it.execute(CreateEntity(Entity("hero", "Herói", EntityKind.PLAYER, resources = mapOf("hp" to Resource(10, 10)))))
             if (withNpc) it.execute(CreateEntity(Entity("aldric", "Aldric", EntityKind.NPC)))

@@ -487,7 +487,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         campaignId.isNotBlank() && sourcePrivacyPrefs.getBoolean("consent_$campaignId", false)
 
     /** Registra ou revoga o consentimento; a revogação remove o contexto documental em memória. */
-    fun setSourcePrivacyConsent(granted: Boolean, campaignId: String = session.campaignId) {
+    fun setSourcePrivacyConsent(
+        granted: Boolean,
+        campaignId: String = session.campaignId,
+    ) {
         if (campaignId.isBlank()) return
         sourcePrivacyPrefs.edit().apply {
             if (granted) putBoolean("consent_$campaignId", true) else remove("consent_$campaignId")
@@ -1330,6 +1333,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Poderes do pacote cujo traço está na ficha ativa; sem pacote ou sem traços, lista vazia. */
     fun powersView(): List<PowerView> {
         val pkg = activePackage ?: return emptyList()
+
         fun view(
             id: String,
             name: String,

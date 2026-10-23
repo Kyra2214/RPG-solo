@@ -361,7 +361,9 @@ fun CampaignsScreen(model: AppModel) {
             }) { Text(stringResource(R.string.campaign_duplicate)) }
         }
         var confirmDelete by remember { mutableStateOf(false) }
-        Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = { confirmDelete = true }) { Text(stringResource(R.string.campaign_delete_active)) }
+        Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
+            confirmDelete = true
+        }) { Text(stringResource(R.string.campaign_delete_active)) }
         if (confirmDelete) {
             androidx.compose.material3.AlertDialog(
                 onDismissRequest = { confirmDelete = false },
@@ -375,7 +377,11 @@ fun CampaignsScreen(model: AppModel) {
                         io({ model.deleteCurrentCampaign() }) { message = it }
                     }) { Text(stringResource(R.string.campaign_delete_confirm)) }
                 },
-                dismissButton = { androidx.compose.material3.TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.campaign_cancel)) } },
+                dismissButton = {
+                    androidx.compose.material3.TextButton(
+                        onClick = { confirmDelete = false },
+                    ) { Text(stringResource(R.string.campaign_cancel)) }
+                },
             )
         }
 
@@ -392,8 +398,16 @@ fun CampaignsScreen(model: AppModel) {
             }) { Text(stringResource(R.string.pdf_save_full)) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { sharePdf(false) }) { Text(stringResource(R.string.pdf_share_book)) }
-            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { sharePdf(true) }) { Text(stringResource(R.string.pdf_share_full)) }
+            Button(
+                modifier = Modifier.weight(1f),
+                enabled = !busy,
+                onClick = { sharePdf(false) },
+            ) { Text(stringResource(R.string.pdf_share_book)) }
+            Button(
+                modifier = Modifier.weight(1f),
+                enabled = !busy,
+                onClick = { sharePdf(true) },
+            ) { Text(stringResource(R.string.pdf_share_full)) }
         }
         pdfStatus?.let { Text(it, color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodySmall) }
 
@@ -429,7 +443,9 @@ fun CampaignsScreen(model: AppModel) {
                 io({ model.importBackup(backup) }) { message = it }
             }) { Text(stringResource(R.string.backup_restore_text)) }
         }
-        OutlinedTextField(backup, { backup = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.backup_text_label)) }, minLines = 3)
+        OutlinedTextField(backup, {
+            backup = it
+        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.backup_text_label)) }, minLines = 3)
 
         SectionTitle(stringResource(R.string.chapters_title))
         if (chapters.isEmpty()) Muted(stringResource(R.string.chapters_empty))
@@ -495,7 +511,13 @@ fun CampaignsScreen(model: AppModel) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(choice.name, style = MaterialTheme.typography.bodyMedium)
-                            Muted(stringResource(if (choice.skill) R.string.advancement_choice_skill else R.string.advancement_choice_stat, choice.current, choice.max))
+                            Muted(
+                                stringResource(
+                                    if (choice.skill) R.string.advancement_choice_skill else R.string.advancement_choice_stat,
+                                    choice.current,
+                                    choice.max,
+                                ),
+                            )
                         }
                         Button(
                             modifier =
@@ -582,14 +604,22 @@ fun CampaignsScreen(model: AppModel) {
                 AppCard {
                     Text(finished.title, style = MaterialTheme.typography.bodyLarge)
                     Pill(
-                        stringResource(if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) R.string.campaign_state_done else R.string.quest_failed_pill),
+                        stringResource(
+                            if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) R.string.campaign_state_done else R.string.quest_failed_pill,
+                        ),
                         if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                     )
                     finished.objectives.forEach { objective -> Muted((if (objective.done) "✓ " else "○ ") + objective.text) }
                 }
             }
         }
-        OutlinedTextField(quest, { quest = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.quest_new)) }, singleLine = true)
+        OutlinedTextField(
+            quest,
+            { quest = it },
+            Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.quest_new)) },
+            singleLine = true,
+        )
         OutlinedTextField(
             questObjective,
             { questObjective = it },
@@ -603,7 +633,10 @@ fun CampaignsScreen(model: AppModel) {
             Modifier.fillMaxWidth(),
             label = { Text(stringResource(R.string.quest_xp)) },
             supportingText = { Text(stringResource(R.string.quest_xp_help)) },
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+            keyboardOptions =
+                androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                ),
             singleLine = true,
         )
         OutlinedTextField(

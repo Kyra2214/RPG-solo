@@ -731,7 +731,11 @@ fun decide(
         }
 
         is EndEffectsRound -> {
-            if (state.activeEffects.values.all { it.isEmpty() } && state.ignoreCooldowns.isEmpty()) return no("não há efeitos temporários ativos")
+            if (state.activeEffects.values.all { it.isEmpty() } && state.ignoreCooldowns.isEmpty()) {
+                return no(
+                    "não há efeitos temporários ativos",
+                )
+            }
             return Decision.Ok(listOf(EffectsRoundEnded))
         }
 

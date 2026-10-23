@@ -470,8 +470,12 @@ object PackageParser {
                         "ao-defender" -> dev.rpgsolo.engine.AbilityTrigger.ON_DEFEND
                         "ao-critar" -> dev.rpgsolo.engine.AbilityTrigger.ON_CRIT
                         "inicio-combate" -> dev.rpgsolo.engine.AbilityTrigger.ON_COMBAT_START
-                        else -> bad("gatilho de habilidade inválido: '${f[3]}' (use manual, ao-atacar, ao-defender, ao-critar ou inicio-combate)")
+                        else ->
+                            bad(
+                                "gatilho de habilidade inválido: '${f[3]}' (use manual, ao-atacar, ao-defender, ao-critar ou inicio-combate)",
+                            )
                     }
+
                 fun effects(
                     raw: String,
                     positive: Boolean,
@@ -491,7 +495,11 @@ object PackageParser {
                 if (duration !in setOf("sorteio", "combate", "cena") && (rounds == null || rounds <= 0)) {
                     bad("duração de habilidade inválida: '$duration' (use N > 0, sorteio, combate ou cena)")
                 }
-                if (trigger == dev.rpgsolo.engine.AbilityTrigger.ON_COMBAT_START && duration == "cena") bad("início de combate não combina com duração por cena")
+                if (trigger == dev.rpgsolo.engine.AbilityTrigger.ON_COMBAT_START && duration == "cena") {
+                    bad(
+                        "início de combate não combina com duração por cena",
+                    )
+                }
                 val drawbacks = f.getOrNull(6)?.takeIf { !blank(it) }?.let { effects(it, false, "desvantagem") }.orEmpty()
                 AbilityDef(id(f[0], "id"), text(f[1], "nome"), cost, trigger, bonuses, duration, drawbacks)
             }
