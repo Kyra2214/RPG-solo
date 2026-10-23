@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.rpgsolo.MainActivity
+import dev.rpgsolo.ui.waitForAppReady
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,6 +22,7 @@ class BasicJourneyE2eTest {
 
     @Test
     fun jornadaBasica_navegaCriaFichaEgeraBackup() {
+        composeRule.waitForAppReady()
         composeRule.onNodeWithText("A mesa ainda está vazia").assertIsDisplayed()
 
         composeRule.onNodeWithText("Heróis").performClick()

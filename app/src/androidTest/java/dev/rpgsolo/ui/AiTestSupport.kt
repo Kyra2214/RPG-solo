@@ -16,6 +16,13 @@ fun ComposeTestRule.openTab(label: String) {
     onNodeWithText(label).performClick()
 }
 
+/** Aguarda o bootstrap assíncrono do AppModel antes de interagir com as telas. */
+fun ComposeTestRule.waitForAppReady(timeoutMillis: Long = 15_000) {
+    waitUntil(timeoutMillis) {
+        onAllNodesWithText("A mesa ainda está vazia").fetchSemanticsNodes().isNotEmpty()
+    }
+}
+
 /** Resposta no formato OpenAI com o texto dado (o JSON é montado por org.json, sem escapes manuais). */
 fun openAiReply(content: String): HttpReply =
     HttpReply(

@@ -29,6 +29,7 @@ class FakeAiPlayTest {
 
     @Test
     fun jogadaCompletaComRolagemEnarracao() {
+        composeRule.waitForAppReady()
         // Provedor
         composeRule.openTab("Config")
         composeRule.onNodeWithText("Endpoint (https)").performScrollTo().performTextReplacement("https://fake.local/v1/chat/completions")
