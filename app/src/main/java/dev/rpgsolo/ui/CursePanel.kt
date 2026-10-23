@@ -51,9 +51,7 @@ fun CursePanel(
     AppCard {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             SectionTitle(stringResource(R.string.curse_title), stringResource(R.string.curse_subtitle))
-            TextButton(onClick = {
-                expanded = !expanded
-            }) { Text(if (expanded) stringResource(R.string.curse_hide) else stringResource(R.string.curse_open, curses.size)) }
+            TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) stringResource(R.string.curse_hide) else stringResource(R.string.curse_open, curses.size)) }
         }
         if (expanded) {
             if (targets.isEmpty() || sources.isEmpty() || selectedCurse == null) {
@@ -115,11 +113,7 @@ fun CursePanel(
                 }
                 if (selectedCurse.resistanceCheckId != null) {
                     Muted(
-                        stringResource(
-                            R.string.curse_resistance,
-                            selectedCurse.resistanceCheckId.orEmpty(),
-                            selectedCurse.resistanceDifficulty.toString(),
-                        ),
+                        stringResource(R.string.curse_resistance, selectedCurse.resistanceCheckId.orEmpty(), selectedCurse.resistanceDifficulty.toString()),
                     )
                 }
                 Button(

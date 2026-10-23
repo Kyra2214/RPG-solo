@@ -97,9 +97,7 @@ fun GameEngine.activateAbility(
         val source = "habilidade:${spec.id}"
         val effects =
             spec.bonuses.map { ActiveEffect(source, spec.name, it.target, it.value, rounds, spec.untilCombatEnd, spec.untilSceneEnd) } +
-                spec.drawbacks.map {
-                    ActiveEffect("$source:desvantagem", "${spec.name} (desvantagem)", it.target, it.value, rounds, spec.untilCombatEnd, spec.untilSceneEnd)
-                }
+                spec.drawbacks.map { ActiveEffect("$source:desvantagem", "${spec.name} (desvantagem)", it.target, it.value, rounds, spec.untilCombatEnd, spec.untilSceneEnd) }
         when (val r = execute(ActivateAbility(entityId, spec.id, spec.trigger, trigger, effects))) {
             is ExecResult.Rejected -> {
                 rollbackTo(start)

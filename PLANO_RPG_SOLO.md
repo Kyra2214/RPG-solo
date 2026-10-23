@@ -327,6 +327,12 @@ Fonte: Módulo 2 do documento do usuário (o arquivo chegou cortado na seção 2
 
 ASSUMINDO: dados de fontes só vão à IA remota em trechos relevantes e com aviso de privacidade (Q-09).
 
+### 3.10 Fases 15 a 20 — Refinamento de atributos, combate, equipamentos e ofícios 🟠
+
+Plano em 28 módulos (N-01 a N-28) em `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` (seção 14): sete atributos sem teto, PV = 5 × Resistência, dano = ataque − 0,65 × defesa, acerto por Destreza × Agilidade, condições em % do PV, seis peças de equipamento com nível mínimo, qualidade e peso, encantamentos, habilidades específicas por profissão e curva de XP sem teto. Um módulo por vez; todo módulo termina com documentação e zip completo.
+
+*Andamento:* N-01 ✅ (só documentação, 23/10/2026): decisões da fundação fechadas. Próximo: N-02 (sete atributos, sem teto). Nada compilado nem executado.
+
 ## 4. Roteiro sugerido
 
 **Etapa 0 — Estabilizar (antes das frentes). ✅ código completo, CI pendente.** Rodar o CI depois da remoção de conteúdo de terceiros (R-04), e então R-01, R-02, R-05. Em paralelo: registrar o resultado dos testes (seção 2, "Validação") e atualizar README, CHANGELOG e `VALIDACAO_CI.md`.

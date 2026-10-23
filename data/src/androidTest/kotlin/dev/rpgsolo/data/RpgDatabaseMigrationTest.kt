@@ -86,10 +86,7 @@ class RpgDatabaseMigrationTest {
             db.execSQL("INSERT INTO campanha_meta (campanhaId, chaptersJson, questsJson, timelineJson) VALUES ('c1', '[]', '[]', '[]')")
         }
         val migrated = helper.runMigrationsAndValidate("migracao-2-3.db", 3, true, migration(2))
-        migrated.query(
-            "SELECT chaptersJson, playerId, fichaId, packageId, systemId, editionId FROM campanha_meta WHERE campanhaId = 'c1'",
-        ).use {
-                c ->
+        migrated.query("SELECT chaptersJson, playerId, fichaId, packageId, systemId, editionId FROM campanha_meta WHERE campanhaId = 'c1'").use { c ->
             assertTrue(c.moveToFirst())
             assertEquals("[]", c.getString(0))
             for (i in 1..5) assertTrue("coluna $i deveria ser nula", c.isNull(i))
@@ -111,14 +108,8 @@ class RpgDatabaseMigrationTest {
             assertEquals(1, count(sqlite, "SELECT COUNT(*) FROM fichas WHERE id = 'f1'"))
             assertEquals(1, count(sqlite, "SELECT COUNT(*) FROM capitulos WHERE campanhaId = 'c1' AND numero = 1"))
             assertEquals(1, count(sqlite, "SELECT COUNT(*) FROM missoes WHERE campanhaId = 'c1' AND missaoId = 'q1' AND ordem = 0"))
-            assertEquals(
-                1,
-                count(sqlite, "SELECT COUNT(*) FROM linha_tempo WHERE campanhaId = 'c1' AND eventoIndice = 3 AND texto = 'Chegou à vila'"),
-            )
-            assertEquals(
-                1,
-                count(sqlite, "SELECT COUNT(*) FROM campanhas WHERE id = 'c1' AND estado = 'ATIVA' AND criadaEm = 0 AND atualizadaEm = 0"),
-            )
+            assertEquals(1, count(sqlite, "SELECT COUNT(*) FROM linha_tempo WHERE campanhaId = 'c1' AND eventoIndice = 3 AND texto = 'Chegou à vila'"))
+            assertEquals(1, count(sqlite, "SELECT COUNT(*) FROM campanhas WHERE id = 'c1' AND estado = 'ATIVA' AND criadaEm = 0 AND atualizadaEm = 0"))
             // O JSON antigo continua intacto (rollback do app depende dele).
             assertEquals(1, count(sqlite, "SELECT COUNT(*) FROM campanha_meta WHERE campanhaId = 'c1' AND chaptersJson <> '[]'"))
             for (tabela in listOf("fontes", "fonte_vinculos", "fonte_pipeline", "fatos_canonicos", "snapshots")) {

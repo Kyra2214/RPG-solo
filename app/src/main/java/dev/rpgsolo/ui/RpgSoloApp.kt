@@ -84,155 +84,147 @@ fun RpgSoloApp() {
         }
         val density = LocalDensity.current
         CompositionLocalProvider(LocalDensity provides Density(density = density.density, fontScale = model.fontScale)) {
-            // U-07: janelas largas (tablet, paisagem, dobrável aberto) usam trilho lateral com as 6 abas e conteúdo com largura limitada.
-            BoxWithConstraints(Modifier.fillMaxSize()) {
-                val wide = maxWidth >= WIDE_LAYOUT_MIN_WIDTH
-                Scaffold(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    topBar = {
-                        Row(
-                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(
-                                stringResource(selected.titleRes),
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.onBackground,
-                            )
-                            Text(
-                                stringResource(R.string.app_brand),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    },
-                    bottomBar = {
-                        if (!wide) {
-                            NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
-                                Tab.values().filter { it.inBar }.forEach { tab ->
-                                    NavigationBarItem(
-                                        selected = tab == selected,
-                                        onClick = { selectedName = tab.name },
-                                        icon = {
-                                            val tabLabel = stringResource(tab.labelRes)
-                                            val navigationLabel = stringResource(R.string.navigation_label, tabLabel)
-                                            Icon(
-                                                tab.icon,
-                                                contentDescription = null,
-                                                modifier =
-                                                    Modifier.semantics {
-                                                        contentDescription = navigationLabel
-                                                    },
-                                            )
-                                        },
-                                        label = {
-                                            Text(
-                                                stringResource(tab.labelRes),
-                                                maxLines = 1,
-                                                style = MaterialTheme.typography.labelSmall,
-                                            )
-                                        },
-                                        colors =
-                                            NavigationBarItemDefaults.colors(
-                                                selectedTextColor = MaterialTheme.colorScheme.primary,
-                                                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                                            ),
-                                    )
-                                }
-                                var moreOpen by remember { mutableStateOf(false) }
-                                val moreLabel = stringResource(R.string.tab_more)
-                                val moreNavigationLabel = stringResource(R.string.navigation_label, moreLabel)
-                                NavigationBarItem(
-                                    selected = !selected.inBar,
-                                    onClick = { moreOpen = true },
-                                    icon = {
-                                        Icon(
-                                            Icons.Filled.Menu,
-                                            contentDescription = null,
-                                            modifier = Modifier.semantics { contentDescription = moreNavigationLabel },
-                                        )
-                                        DropdownMenu(expanded = moreOpen, onDismissRequest = { moreOpen = false }) {
-                                            Tab.values().filter { !it.inBar }.forEach { tab ->
-                                                val tabLabel = stringResource(tab.labelRes)
-                                                val navigationLabel = stringResource(R.string.navigation_label, tabLabel)
-                                                DropdownMenuItem(
-                                                    text = { Text(tabLabel) },
-                                                    leadingIcon = { Icon(tab.icon, contentDescription = null) },
-                                                    onClick = {
-                                                        selectedName = tab.name
-                                                        moreOpen = false
-                                                    },
-                                                    modifier = Modifier.semantics { contentDescription = navigationLabel },
-                                                )
-                                            }
-                                        }
-                                    },
-                                    label = { Text(moreLabel, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
-                                    colors =
-                                        NavigationBarItemDefaults.colors(
-                                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                                        ),
-                                )
-                            }
-                        }
-                    },
-                ) { padding ->
-                    Row(Modifier.fillMaxSize().padding(padding)) {
-                        if (wide) {
-                            NavigationRail(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
-                                Tab.values().forEach { tab ->
+          // U-07: janelas largas (tablet, paisagem, dobrável aberto) usam trilho lateral com as 6 abas e conteúdo com largura limitada.
+          BoxWithConstraints(Modifier.fillMaxSize()) {
+            val wide = maxWidth >= WIDE_LAYOUT_MIN_WIDTH
+            Scaffold(
+                containerColor = MaterialTheme.colorScheme.background,
+                topBar = {
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            stringResource(selected.titleRes),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                        Text(
+                            stringResource(R.string.app_brand),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                },
+                bottomBar = {
+                    if (!wide) NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+                        Tab.values().filter { it.inBar }.forEach { tab ->
+                            NavigationBarItem(
+                                selected = tab == selected,
+                                onClick = { selectedName = tab.name },
+                                icon = {
                                     val tabLabel = stringResource(tab.labelRes)
                                     val navigationLabel = stringResource(R.string.navigation_label, tabLabel)
-                                    NavigationRailItem(
-                                        selected = tab == selected,
-                                        onClick = { selectedName = tab.name },
-                                        icon = {
-                                            Icon(
-                                                tab.icon,
-                                                contentDescription = null,
-                                                modifier = Modifier.semantics { contentDescription = navigationLabel },
-                                            )
-                                        },
-                                        label = { Text(tabLabel, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
+                                    Icon(
+                                        tab.icon,
+                                        contentDescription = null,
+                                        modifier =
+                                            Modifier.semantics {
+                                                contentDescription = navigationLabel
+                                            },
                                     )
-                                }
-                            }
+                                },
+                                label = { Text(stringResource(tab.labelRes), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
+                                colors =
+                                    NavigationBarItemDefaults.colors(
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                    ),
+                            )
                         }
-                        Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {
-                            Box(Modifier.widthIn(max = WIDE_CONTENT_MAX_WIDTH).fillMaxSize()) {
-                                if (!model.ready) {
-                                    Column(
-                                        Modifier.fillMaxSize().padding(24.dp),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        val failure = model.startupError
-                                        if (failure == null) {
-                                            CircularProgressIndicator()
-                                            Text(stringResource(R.string.startup_loading), Modifier.padding(top = 12.dp))
-                                        } else {
-                                            Text(stringResource(R.string.startup_error, failure), color = MaterialTheme.colorScheme.error)
-                                        }
+                        var moreOpen by remember { mutableStateOf(false) }
+                        val moreLabel = stringResource(R.string.tab_more)
+                        val moreNavigationLabel = stringResource(R.string.navigation_label, moreLabel)
+                        NavigationBarItem(
+                            selected = !selected.inBar,
+                            onClick = { moreOpen = true },
+                            icon = {
+                                Icon(
+                                    Icons.Filled.Menu,
+                                    contentDescription = null,
+                                    modifier = Modifier.semantics { contentDescription = moreNavigationLabel },
+                                )
+                                DropdownMenu(expanded = moreOpen, onDismissRequest = { moreOpen = false }) {
+                                    Tab.values().filter { !it.inBar }.forEach { tab ->
+                                        val tabLabel = stringResource(tab.labelRes)
+                                        val navigationLabel = stringResource(R.string.navigation_label, tabLabel)
+                                        DropdownMenuItem(
+                                            text = { Text(tabLabel) },
+                                            leadingIcon = { Icon(tab.icon, contentDescription = null) },
+                                            onClick = {
+                                                selectedName = tab.name
+                                                moreOpen = false
+                                            },
+                                            modifier = Modifier.semantics { contentDescription = navigationLabel },
+                                        )
                                     }
-                                    return@Box
                                 }
-                                Crossfade(targetState = selected, label = stringResource(R.string.crossfade_tab)) { tab ->
-                                    when (tab) {
-                                        Tab.JOGAR -> PlayScreen(model) { destination -> selectedName = destination.name }
-                                        Tab.CONFIG -> ConfigScreen(model)
-                                        Tab.PERSONAGENS -> CharactersScreen(model)
-                                        Tab.REGRAS -> RulesScreen(model)
-                                        Tab.CAMPANHAS -> CampaignsScreen(model)
-                                        Tab.SISTEMAS -> SystemsScreen(model)
-                                    }
-                                }
-                            }
+                            },
+                            label = { Text(moreLabel, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
+                            colors =
+                                NavigationBarItemDefaults.colors(
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                ),
+                        )
+                    }
+                },
+            ) { padding ->
+              Row(Modifier.fillMaxSize().padding(padding)) {
+                if (wide) {
+                    NavigationRail(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+                        Tab.values().forEach { tab ->
+                            val tabLabel = stringResource(tab.labelRes)
+                            val navigationLabel = stringResource(R.string.navigation_label, tabLabel)
+                            NavigationRailItem(
+                                selected = tab == selected,
+                                onClick = { selectedName = tab.name },
+                                icon = {
+                                    Icon(
+                                        tab.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.semantics { contentDescription = navigationLabel },
+                                    )
+                                },
+                                label = { Text(tabLabel, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
+                            )
                         }
                     }
                 }
+                Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {
+                Box(Modifier.widthIn(max = WIDE_CONTENT_MAX_WIDTH).fillMaxSize()) {
+                    if (!model.ready) {
+                        Column(
+                            Modifier.fillMaxSize().padding(24.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            val failure = model.startupError
+                            if (failure == null) {
+                                CircularProgressIndicator()
+                                Text(stringResource(R.string.startup_loading), Modifier.padding(top = 12.dp))
+                            } else {
+                                Text(stringResource(R.string.startup_error, failure), color = MaterialTheme.colorScheme.error)
+                            }
+                        }
+                        return@Box
+                    }
+                    Crossfade(targetState = selected, label = stringResource(R.string.crossfade_tab)) { tab ->
+                        when (tab) {
+                            Tab.JOGAR -> PlayScreen(model) { destination -> selectedName = destination.name }
+                            Tab.CONFIG -> ConfigScreen(model)
+                            Tab.PERSONAGENS -> CharactersScreen(model)
+                            Tab.REGRAS -> RulesScreen(model)
+                            Tab.CAMPANHAS -> CampaignsScreen(model)
+                            Tab.SISTEMAS -> SystemsScreen(model)
+                        }
+                    }
+                }
+                }
+              }
             }
+          }
         }
     }
 }

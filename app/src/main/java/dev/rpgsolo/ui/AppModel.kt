@@ -147,10 +147,9 @@ private data class CampaignSourceContext(
 class AppModel(application: Application) : AndroidViewModel(application) {
     private val sourceDocuments = SourceDocumentStore(File(application.filesDir, "source-documents"))
     val usage = UsageTracker()
-    var content: Content by mutableStateOf(BundledContent.empty())
-        private set
+    val content: Content = BundledContent.load(application)
     private val secureSettings = SecureSettings(application)
-    private var storedSettings: StoredProviderSettings? = null
+    private var storedSettings: StoredProviderSettings? = secureSettings.load()
     private val narrationPrefs = application.getSharedPreferences("rpg_narration_prefs", 0)
 
     /** Metadados editoriais da nova criação, separados da ficha mecânica e persistidos por ID. */
@@ -449,11 +448,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var saveError by mutableStateOf<String?>(null)
         private set
     private var roles: AiRoles? = null
-    private lateinit var database: RpgDatabase
-    private lateinit var store: RoomEventStore
+    private val database = RpgDatabase.build(application)
+    private val store = RoomEventStore(database)
     private val activeCampaignPrefs = application.getSharedPreferences("rpgsolo_session", Application.MODE_PRIVATE)
     private var playerId = "hero"
-    private var activePackage: RulePackage? = null
+    private var activePackage: RulePackage? = content.registry.get("sistema-proprio")
 
     /** NPCs adicionados manualmente para o próximo encontro; NPCs de outras cenas não entram automaticamente. */
     private val pendingCombatNpcIds = linkedSetOf<String>()
@@ -488,10 +487,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         campaignId.isNotBlank() && sourcePrivacyPrefs.getBoolean("consent_$campaignId", false)
 
     /** Registra ou revoga o consentimento; a revogação remove o contexto documental em memória. */
-    fun setSourcePrivacyConsent(
-        granted: Boolean,
-        campaignId: String = session.campaignId,
-    ) {
+    fun setSourcePrivacyConsent(granted: Boolean, campaignId: String = session.campaignId) {
         if (campaignId.isBlank()) return
         sourcePrivacyPrefs.edit().apply {
             if (granted) putBoolean("consent_$campaignId", true) else remove("consent_$campaignId")
@@ -1334,7 +1330,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Poderes do pacote cujo traço está na ficha ativa; sem pacote ou sem traços, lista vazia. */
     fun powersView(): List<PowerView> {
         val pkg = activePackage ?: return emptyList()
-
         fun view(
             id: String,
             name: String,
@@ -2771,11 +2766,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
     private fun startup() {
-        content = BundledContent.load(getApplication())
-        activePackage = content.registry.get("sistema-proprio")
-        storedSettings = secureSettings.load()
-        database = RpgDatabase.build(getApplication())
-        store = RoomEventStore(database)
         session = openOrCreateCampaign()
         restoreImportedPackages()
         restoreFichas()

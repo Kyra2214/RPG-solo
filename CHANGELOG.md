@@ -1,3 +1,9 @@
+## 2026-10-23 — docs: decisões da fundação dos atributos e do combate (N-01, só documentação)
+
+- Novo `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` com o plano em 28 módulos (N-01 a N-28, fases 15 a 20) e a regra de fechamento por módulo. Decisões do N-01: Habilidade passa a PA e bônus em testes de ofício/perícia, iniciativa vai para a Agilidade; 10 pontos de status + 2 de habilidade/profissão na criação (+1 e +1 por nível); curva de XP sem teto (subir para o nível N custa 5 × N); XP de missão e de vitória em batalha balanceado por nível (hoje a vitória paga 5 fixo e o teto de missão para na última faixa da tabela); ligação `pv` × `hp` no N-03; testes novos autorizados nesta rodada.
+- ASSUMINDO: percentuais de XP de batalha (≈ 8% do custo do nível) e faixas de missão são proposta, a fechar no N-04. Nenhum código, dado ou formato de pacote alterado.
+- **Validação:** nada compilado nem executado.
+
 ## 2026-10-22 — rules/app: custo de mana nas habilidades da árvore (M-10, não compilado)
 
 - 677 habilidades ativas custam PM (= classificação 1–7); ataques especiais passam a gastar o recurso (`CombatActions.attack` com `spendResource/spendCost`, `SkillTreeActions`, `AppModel`); carregador do catálogo aceita custo nesses ataques. +2 testes em `SkillTreeCatalogTest`.

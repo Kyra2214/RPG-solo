@@ -319,14 +319,7 @@ fun RollHistory(rolls: List<RollView>) {
         }
         if (open) {
             rolls.takeLast(10).reversed().forEach { r ->
-                val mod =
-                    if (r.modifier == 0) {
-                        ""
-                    } else if (r.modifier > 0) {
-                        " + ${r.modifier}"
-                    } else {
-                        " − ${-r.modifier}"
-                    }
+                val mod = if (r.modifier == 0) "" else if (r.modifier > 0) " + ${r.modifier}" else " − ${-r.modifier}"
                 val result = if (r.plain) "" else " · ${r.outcomeWord}"
                 Muted("${r.label}: ${r.dice.joinToString(" + ")}$mod = ${r.total}$result")
             }

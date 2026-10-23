@@ -180,7 +180,7 @@
     <string name="curse_source_duration">Origem: %1$s. Duração: %2$s.</string>
     <string name="curse_rounds">%1$d rodadas</string>
     <string name="curse_until_removed">até ser removida</string>
-    <string name="curse_resistance">Exige teste %1$s contra dificuldade %2$s. O motor rola o teste automaticamente e só aplica a maldição se o alvo não resistir.</string>
+    <string name="curse_resistance">Exige teste '%1$s' contra dificuldade %2$s. O motor rola o teste automaticamente e só aplica a maldição se o alvo não resistir.</string>
     <string name="curse_applied">Maldição aplicada.</string>
     <string name="curse_apply">Aplicar maldição</string>
     <string name="curse_active">Maldições ativas no alvo</string>

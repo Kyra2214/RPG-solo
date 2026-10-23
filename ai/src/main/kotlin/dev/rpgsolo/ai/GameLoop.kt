@@ -721,13 +721,7 @@ class GameLoop(
                     worldContext = input.worldContext,
                     generationPreferences = input.generationPreferences,
                     playerSheet = input.playerSheet,
-                    checkMenu =
-                        listOfNotNull(
-                            menu?.describe(),
-                            powerMenu?.describe(playerTraits(), session.state.entities[input.playerEntityId]?.spells.orEmpty()),
-                        ).joinToString("\n\n").ifBlank {
-                            null
-                        },
+                    checkMenu = listOfNotNull(menu?.describe(), powerMenu?.describe(playerTraits(), session.state.entities[input.playerEntityId]?.spells.orEmpty())).joinToString("\n\n").ifBlank { null },
                     resolving = input.resolving,
                     recentNarrative = narrations.toList(),
                     resumeBriefing = if (narrations.isEmpty()) input.resumeBriefing else null,

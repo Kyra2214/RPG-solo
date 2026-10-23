@@ -25,8 +25,6 @@ object BundledContent {
     // Único sistema embutido: o sistema próprio. Pacotes de teste ficam só nos testes.
     private val PACKAGES = listOf("sistema-proprio")
 
-    fun empty(): Content = Content(null, PackageRegistry(), emptyList())
-
     private fun read(path: String): String? =
         BundledContent::class.java.classLoader?.getResourceAsStream(path)?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }
 

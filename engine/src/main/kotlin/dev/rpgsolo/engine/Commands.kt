@@ -511,18 +511,17 @@ fun decide(
             if (totalXp > Int.MAX_VALUE) return no("XP excede o limite suportado")
             val events = mutableListOf<Event>(XpGained(ent.id, cmd.amount))
             val newLevel = config.levelFor(totalXp.toInt())
-            if (newLevel != ent.level) {
+            if (newLevel > ent.level) {
                 val gainedLevels = newLevel - ent.level
-                val positiveLevels = maxOf(0, gainedLevels)
-                val pointsGranted = positiveLevels.toLong() * config.advancementPointsPerLevel.toLong()
+                val pointsGranted = gainedLevels.toLong() * config.advancementPointsPerLevel.toLong()
                 if (pointsGranted > Int.MAX_VALUE) return no("pontos de evolução excedem o limite suportado")
-                val statGranted = positiveLevels.toLong() * config.statPointsPerLevel.toLong()
-                val abilityGranted = positiveLevels.toLong() * config.abilityPointsPerLevel.toLong()
+                val statGranted = gainedLevels.toLong() * config.statPointsPerLevel.toLong()
+                val abilityGranted = gainedLevels.toLong() * config.abilityPointsPerLevel.toLong()
                 if (ent.statPoints + statGranted > Int.MAX_VALUE || ent.abilityPoints + abilityGranted > Int.MAX_VALUE) {
                     return no("pontos de status ou habilidade excedem o limite suportado")
                 }
                 events += LevelGained(ent.id, newLevel, pointsGranted.toInt(), statGranted.toInt(), abilityGranted.toInt())
-                for ((resource, perLevel) in config.levelResourceRewards.takeIf { positiveLevels > 0 }.orEmpty()) {
+                for ((resource, perLevel) in config.levelResourceRewards) {
                     val current = ent.resources[resource] ?: return no("recompensa por nível referencia recurso ausente na ficha: $resource")
                     val reward = perLevel.toLong() * gainedLevels.toLong()
                     val newValue = minOf(current.max.toLong(), current.current.toLong() + reward).toInt()
@@ -732,11 +731,7 @@ fun decide(
         }
 
         is EndEffectsRound -> {
-            if (state.activeEffects.values.all { it.isEmpty() } && state.ignoreCooldowns.isEmpty()) {
-                return no(
-                    "não há efeitos temporários ativos",
-                )
-            }
+            if (state.activeEffects.values.all { it.isEmpty() } && state.ignoreCooldowns.isEmpty()) return no("não há efeitos temporários ativos")
             return Decision.Ok(listOf(EffectsRoundEnded))
         }
 

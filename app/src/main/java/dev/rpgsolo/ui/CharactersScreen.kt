@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
@@ -31,13 +31,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.R
 import dev.rpgsolo.rules.CharacterDraft
@@ -464,10 +464,7 @@ private fun Creator(
     AppCard(accent = if (report.valid) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.char_points), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-            Text(
-                stringResource(R.string.char_points_left, draft.pointsLeft(), pkg.creationPoints),
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            Text(stringResource(R.string.char_points_left, draft.pointsLeft(), pkg.creationPoints), style = MaterialTheme.typography.bodyMedium)
         }
         LinearProgressIndicator(
             progress = { (report.pointsSpent.toFloat() / pkg.creationPoints.coerceAtLeast(1)).coerceIn(0f, 1f) },
@@ -493,17 +490,9 @@ private fun Creator(
     val menu = archId?.let { pkg.archetypeOptions(it) }
     if (menu != null) {
         SectionTitle(stringResource(R.string.char_menu_title), stringResource(R.string.char_menu_help))
-        Text(
-            stringResource(R.string.char_advantages),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.tertiary,
-        )
+        Text(stringResource(R.string.char_advantages), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.tertiary)
         menu.advantages.mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, it.id in draft.traits()) { toggle(it.id) } }
-        Text(
-            stringResource(R.string.char_disadvantages),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.error,
-        )
+        Text(stringResource(R.string.char_disadvantages), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.error)
         menu.disadvantages.mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, it.id in draft.traits()) { toggle(it.id) } }
     }
 
@@ -554,11 +543,7 @@ private fun Creator(
     AppCard {
         Text(draft.name.ifBlank { stringResource(R.string.char_unnamed) }, style = MaterialTheme.typography.titleMedium)
         Muted(stringResource(R.string.char_final_race, CharacterCreationCatalog.find(raceId)?.name ?: notSelected))
-        if (subraceId.isNotBlank()) {
-            Muted(
-                stringResource(R.string.char_final_subrace, CharacterCreationCatalog.find(subraceId)?.name ?: idNotFound),
-            )
-        }
+        if (subraceId.isNotBlank()) Muted(stringResource(R.string.char_final_subrace, CharacterCreationCatalog.find(subraceId)?.name ?: idNotFound))
         if (hybridId.isNotBlank()) {
             val hybrid = CharacterCreationCatalog.find(hybridId)
             Muted(stringResource(R.string.char_final_hybrid, hybrid?.name ?: idNotFound))
@@ -749,18 +734,10 @@ private fun Creator(
                                     r.text?.let { loreDrafts[f.id] = it }
                                     r.error
                                 }) { libraryMessage = it }
-                            }) {
-                                Text(
-                                    stringResource(
-                                        if (f.approvedLore.isBlank()) R.string.char_lore_generate else R.string.char_lore_regenerate,
-                                    ),
-                                )
-                            }
+                            }) { Text(stringResource(if (f.approvedLore.isBlank()) R.string.char_lore_generate else R.string.char_lore_regenerate)) }
                             if (f.approvedLore.isNotBlank()) {
                                 TextButton(enabled = !dbBusy, onClick = {
-                                    io(
-                                        { model.approveLore(f.id, "") },
-                                    ) { libraryMessage = it ?: context.getString(R.string.char_lore_cleared) }
+                                    io({ model.approveLore(f.id, "") }) { libraryMessage = it ?: context.getString(R.string.char_lore_cleared) }
                                 }) { Text(stringResource(R.string.char_lore_clear)) }
                             }
                         }
