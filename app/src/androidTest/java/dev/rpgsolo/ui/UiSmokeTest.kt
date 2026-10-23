@@ -21,14 +21,14 @@ class UiSmokeTest {
     @Test
     fun telasPrioritarias_navegamEExibemConteudoPrincipal() {
         composeRule.waitForAppReady()
-        composeRule.onNodeWithText("Preparar sua mesa").assertIsDisplayed()
+        composeRule.onNodeWithText("A mesa ainda está vazia").assertIsDisplayed()
 
         composeRule.onNodeWithText("Heróis").performClick()
         composeRule.onNodeWithText("Personagens").assertIsDisplayed()
         composeRule.onNodeWithText("Ponto de partida").assertIsDisplayed()
         composeRule.onNodeWithText("Nome").performTextInput("Herói UI")
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()
-        composeRule.onNodeWithText("Ficha de Herói UI criada e salva.").assertIsDisplayed()
+        composeRule.onNodeWithText("Ficha de Herói UI criada e salva.").performScrollTo().assertIsDisplayed()
 
         composeRule.onNodeWithText("Campanhas").performClick()
         composeRule.onNodeWithText("Campanhas").assertIsDisplayed()
