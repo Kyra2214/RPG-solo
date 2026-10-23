@@ -19,10 +19,14 @@ fun ComposeTestRule.openTab(label: String) {
 /** Aguarda o bootstrap assíncrono do AppModel antes de interagir com as telas. */
 fun ComposeTestRule.waitForAppReady(timeoutMillis: Long = 15_000) {
     waitUntil(timeoutMillis) {
-        onAllNodesWithText("A mesa ainda está vazia").fetchSemanticsNodes().isNotEmpty() ||
+        onAllNodesWithText("Preparar sua mesa").fetchSemanticsNodes().isNotEmpty() ||
+            onAllNodesWithText("A mesa ainda está vazia").fetchSemanticsNodes().isNotEmpty() ||
             onAllNodesWithText("Não foi possível abrir os dados:", substring = true).fetchSemanticsNodes().isNotEmpty()
     }
-    check(onAllNodesWithText("A mesa ainda está vazia").fetchSemanticsNodes().isNotEmpty()) {
+    check(
+        onAllNodesWithText("Preparar sua mesa").fetchSemanticsNodes().isNotEmpty() ||
+            onAllNodesWithText("A mesa ainda está vazia").fetchSemanticsNodes().isNotEmpty(),
+    ) {
         "O app exibiu erro de inicialização; consulte a exceção AppModel no logcat do E2E."
     }
 }
