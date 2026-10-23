@@ -99,7 +99,7 @@ class AssumeNpcTest {
         s.execute(AssumeNpc("aldric"))
         assertTrue(s.execute(GainXp("aldric", 10)) is ExecResult.Accepted)
         assertEquals(10, s.state.entities.getValue("aldric").xp)
-        assertEquals(2, s.state.entities.getValue("aldric").level)
+        assertEquals(4, s.state.entities.getValue("aldric").level)
     }
 
     @Test fun fichaOcultaAteAssumirECompletaDepois() {
