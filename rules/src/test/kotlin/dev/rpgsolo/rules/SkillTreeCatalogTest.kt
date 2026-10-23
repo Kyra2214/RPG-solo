@@ -19,6 +19,26 @@ class SkillTreeCatalogTest {
         assertEquals(result.skills.size, result.skills.map { it.id }.distinct().size)
     }
 
+    @Test fun habilidadesAtivasGastamManaEPassivasNao() {
+        val result = SkillTreeCatalogLoader.load(catalogText())
+        assertTrue(result.errors.joinToString("; "), result.valid)
+        result.skills.forEach { skill ->
+            if (skill.category == dev.rpgsolo.engine.SkillCategory.PASSIVE) {
+                assertEquals("${skill.id}: passiva não gasta recurso", 0, skill.actionCost)
+            } else {
+                assertTrue("${skill.id}: ativa precisa custar mana", skill.actionCost >= 1)
+                assertEquals("${skill.id}: recurso de custo", "pm", skill.actionResource)
+            }
+        }
+    }
+
+    @Test fun ataqueEspecialComCustoExigeRecurso() {
+        val ok = "s|t|Skill|CLASS|OFFENSE|-|-|false|-|1|-|1|1|false|POWER_STRIKE|2|pm|1|SELF|fx,dano,3,2,g,-,-"
+        val semRecurso = "s|t|Skill|CLASS|OFFENSE|-|-|false|-|1|-|1|1|false|POWER_STRIKE|2|-|1|SELF|fx,dano,3,2,g,-,-"
+        assertTrue(SkillTreeCatalogLoader.load(ok).valid)
+        assertFalse(SkillTreeCatalogLoader.load(semRecurso).valid)
+    }
+
     @Test fun parserRejeitaEfeitoDirecionadoSemDuracaoOuEscopoDeCombate() {
         val missingDuration = "bad-skill|tree|Skill|CLASS|CONTROL|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|TARGET|fx,defesa,-1,0,group,-,-"
         val unsupportedScope = "bad-skill|tree|Skill|CLASS|CONTROL|-|-|false|-|1|-|1|1|false|MODIFIER|0|-|1|TARGET|fx,escopo-inventado,-1,0,group,2,-"

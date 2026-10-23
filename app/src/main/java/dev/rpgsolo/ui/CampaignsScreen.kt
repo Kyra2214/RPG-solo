@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -21,9 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import dev.rpgsolo.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,6 +41,9 @@ fun CampaignsScreen(model: AppModel) {
     var title by remember { mutableStateOf("") }
     var quest by remember { mutableStateOf("") }
     var questObjective by remember { mutableStateOf("") }
+    var questXp by remember { mutableStateOf("") }
+    var questSkill by remember { mutableStateOf("") }
+    var questSpell by remember { mutableStateOf("") }
     var timelineNote by remember { mutableStateOf("") }
     var newName by remember { mutableStateOf("") }
     var backup by remember { mutableStateOf("") }
@@ -58,7 +64,7 @@ fun CampaignsScreen(model: AppModel) {
                 try {
                     withContext(Dispatchers.IO) { model.exclusiveTurn(work) }
                 } catch (e: Exception) {
-                    e.message ?: "A ação falhou inesperadamente."
+                    e.message ?: context.getString(R.string.sources_action_failed)
                 } finally {
                     busy = false
                 }
@@ -69,7 +75,7 @@ fun CampaignsScreen(model: AppModel) {
     val exportFile =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
             if (uri == null) {
-                backupStatus = "Exportação cancelada."
+                backupStatus = context.getString(R.string.backup_export_cancelled)
             } else {
                 busy = true
                 backupStatus = null
@@ -80,11 +86,11 @@ fun CampaignsScreen(model: AppModel) {
                                 val contents = model.exportBackup()
                                 val output =
                                     context.contentResolver.openOutputStream(uri)
-                                        ?: error("não foi possível abrir o arquivo para gravação")
+                                        ?: error(context.getString(R.string.error_open_for_write))
                                 output.use { it.write(contents.toByteArray(StandardCharsets.UTF_8)) }
                             }
-                            "Backup salvo no arquivo escolhido."
-                        }.getOrElse { "Falha ao exportar: ${it.message ?: "erro de gravação"}" }
+                            context.getString(R.string.backup_saved)
+                        }.getOrElse { context.getString(R.string.backup_export_failed, it.message ?: context.getString(R.string.error_write)) }
                     busy = false
                 }
             }
@@ -96,7 +102,7 @@ fun CampaignsScreen(model: AppModel) {
     val savePdf =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
             if (uri == null) {
-                pdfStatus = "Exportação do PDF cancelada."
+                pdfStatus = context.getString(R.string.pdf_export_cancelled)
             } else {
                 busy = true
                 pdfStatus = null
@@ -108,11 +114,11 @@ fun CampaignsScreen(model: AppModel) {
                                 val bytes = if (complete) model.campaignArchivePdf() else model.adventureBookPdf()
                                 val output =
                                     context.contentResolver.openOutputStream(uri)
-                                        ?: error("não foi possível abrir o arquivo para gravação")
+                                        ?: error(context.getString(R.string.error_open_for_write))
                                 output.use { it.write(bytes) }
                             }
-                            "PDF salvo no arquivo escolhido."
-                        }.getOrElse { "Falha ao salvar o PDF: ${it.message ?: "erro de gravação"}" }
+                            context.getString(R.string.pdf_saved)
+                        }.getOrElse { context.getString(R.string.pdf_save_failed, it.message ?: context.getString(R.string.error_write)) }
                     busy = false
                 }
             }
@@ -131,7 +137,7 @@ fun CampaignsScreen(model: AppModel) {
                     val name = PdfShare.fileName(title, if (complete) "arquivo" else "livro")
                     context.startActivity(PdfShare.chooser(context, bytes, name, title))
                     null
-                }.getOrElse { "Falha ao compartilhar o PDF: ${it.message ?: "erro inesperado"}" }
+                }.getOrElse { context.getString(R.string.pdf_share_failed, it.message ?: context.getString(R.string.error_unexpected)) }
             busy = false
         }
     }
@@ -139,7 +145,7 @@ fun CampaignsScreen(model: AppModel) {
     val importFile =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri == null) {
-                backupStatus = "Restauração cancelada."
+                backupStatus = context.getString(R.string.backup_restore_cancelled)
             } else {
                 busy = true
                 backupStatus = null
@@ -149,7 +155,7 @@ fun CampaignsScreen(model: AppModel) {
                             withContext(Dispatchers.IO) {
                                 val input =
                                     context.contentResolver.openInputStream(uri)
-                                        ?: error("não foi possível abrir o arquivo")
+                                        ?: error(context.getString(R.string.error_open_file))
                                 input.use { stream ->
                                     val output = ByteArrayOutputStream()
                                     val buffer = ByteArray(8192)
@@ -159,7 +165,7 @@ fun CampaignsScreen(model: AppModel) {
                                         if (count < 0) break
                                         total += count
                                         require(total <= dev.rpgsolo.engine.Backup.MAX_BACKUP_CHARS) {
-                                            "backup excede o limite de 50 MiB; arquivo recusado durante a leitura"
+                                            context.getString(R.string.backup_too_large)
                                         }
                                         output.write(buffer, 0, count)
                                     }
@@ -174,11 +180,11 @@ fun CampaignsScreen(model: AppModel) {
                                     try {
                                         withContext(Dispatchers.IO) { model.exclusiveTurn { model.importBackup(contents) } }
                                     } catch (e: Exception) {
-                                        e.message ?: "erro inesperado"
+                                        e.message ?: context.getString(R.string.error_unexpected)
                                     }
-                                failure?.let { "Falha ao restaurar: $it" } ?: "Backup restaurado como uma nova campanha."
+                                failure?.let { context.getString(R.string.backup_restore_failed, it) } ?: context.getString(R.string.backup_restored)
                             },
-                            onFailure = { "Falha ao ler o arquivo: ${it.message ?: "erro de leitura"}" },
+                            onFailure = { context.getString(R.string.backup_read_failed, it.message ?: context.getString(R.string.error_read)) },
                         )
                     busy = false
                 }
@@ -206,16 +212,16 @@ fun CampaignsScreen(model: AppModel) {
         model.saveError?.let { failure ->
             AppCard(accent = MaterialTheme.colorScheme.error) {
                 Text(
-                    "Alterações ainda não gravadas: $failure",
+                    stringResource(R.string.campaign_unsaved, failure),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
-                    io({ model.retrySave() }) { message = it ?: "Gravação confirmada." }
-                }) { Text("Tentar gravar de novo") }
+                    io({ model.retrySave() }) { message = it ?: context.getString(R.string.campaign_save_confirmed) }
+                }) { Text(stringResource(R.string.campaign_retry_save)) }
             }
         }
-        SectionTitle("Campanhas salvas")
+        SectionTitle(stringResource(R.string.campaign_saved_title))
         val dateFormat = remember { java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale("pt", "BR")) }
 
         fun date(ms: Long) = if (ms <= 0L) "—" else dateFormat.format(java.util.Date(ms))
@@ -224,17 +230,17 @@ fun CampaignsScreen(model: AppModel) {
             AppCard(accent = if (isActive) MaterialTheme.colorScheme.tertiary else null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(campaign.nome, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                    if (isActive) Pill("aberta", MaterialTheme.colorScheme.tertiary)
+                    if (isActive) Pill(stringResource(R.string.campaign_open_pill), MaterialTheme.colorScheme.tertiary)
                     Pill(
                         when (campaign.estado) {
-                            dev.rpgsolo.data.EstadoCampanha.ATIVA -> "em andamento"
-                            dev.rpgsolo.data.EstadoCampanha.PAUSADA -> "pausada"
-                            dev.rpgsolo.data.EstadoCampanha.CONCLUIDA -> "concluída"
+                            dev.rpgsolo.data.EstadoCampanha.ATIVA -> stringResource(R.string.campaign_state_active)
+                            dev.rpgsolo.data.EstadoCampanha.PAUSADA -> stringResource(R.string.campaign_state_paused)
+                            dev.rpgsolo.data.EstadoCampanha.CONCLUIDA -> stringResource(R.string.campaign_state_done)
                         },
                         MaterialTheme.colorScheme.secondary,
                     )
                 }
-                Muted("Criada em ${date(campaign.criadaEm)} · última jogada ${date(campaign.atualizadaEm)} · ${campaign.eventos} eventos")
+                Muted(stringResource(R.string.campaign_dates, date(campaign.criadaEm), date(campaign.atualizadaEm), campaign.eventos))
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isActive && !busy && campaign.estado != dev.rpgsolo.data.EstadoCampanha.CONCLUIDA,
@@ -246,42 +252,41 @@ fun CampaignsScreen(model: AppModel) {
                                 } else {
                                     null
                                 }
-                        }) { campaignStatus = it ?: "Campanha ${campaign.nome} reaberta." }
+                        }) { campaignStatus = it ?: context.getString(R.string.campaign_msg_reopened, campaign.nome) }
                     },
-                ) { Text(if (isActive) "Campanha aberta" else "Continuar campanha") }
+                ) { Text(stringResource(if (isActive) R.string.campaign_is_open else R.string.campaign_continue)) }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     when (campaign.estado) {
                         dev.rpgsolo.data.EstadoCampanha.ATIVA -> {
                             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
                                 io({
                                     model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.PAUSADA)
-                                }) { campaignStatus = it ?: "Campanha ${campaign.nome} pausada." }
-                            }) { Text("Pausar") }
+                                }) { campaignStatus = it ?: context.getString(R.string.campaign_msg_paused, campaign.nome) }
+                            }) { Text(stringResource(R.string.campaign_pause)) }
                             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
                                 io({
                                     model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.CONCLUIDA)
-                                }) { campaignStatus = it ?: "Campanha ${campaign.nome} concluída." }
-                            }) { Text("Concluir") }
+                                }) { campaignStatus = it ?: context.getString(R.string.campaign_msg_done, campaign.nome) }
+                            }) { Text(stringResource(R.string.campaign_finish)) }
                         }
                         else ->
                             Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
                                 io({
                                     model.setCampaignState(campaign.id, dev.rpgsolo.data.EstadoCampanha.ATIVA)
-                                }) { campaignStatus = it ?: "Campanha ${campaign.nome} reativada." }
-                            }) { Text("Reativar") }
+                                }) { campaignStatus = it ?: context.getString(R.string.campaign_msg_reactivated, campaign.nome) }
+                            }) { Text(stringResource(R.string.campaign_reactivate)) }
                     }
                 }
             }
         }
-        SectionTitle("Modo de fidelidade das fontes")
+        SectionTitle(stringResource(R.string.campaign_mode_title))
         Muted(
-            "Define como a campanha usa documentos-fonte quando eles estiverem vinculados. " +
-                "A escolha fica registrada no histórico da campanha.",
+            stringResource(R.string.campaign_mode_help),
         )
         listOf(
-            dev.rpgsolo.engine.SourceMode.FAITHFUL to ("História fiel" to "Preserve os fatos centrais do documento."),
-            dev.rpgsolo.engine.SourceMode.ALTERNATE to ("História alternativa" to "Permita divergências causadas pelas ações do jogador."),
-            dev.rpgsolo.engine.SourceMode.INSPIRED to ("Universo inspirado" to "Use o documento como inspiração, sem exigir fidelidade ao enredo."),
+            dev.rpgsolo.engine.SourceMode.FAITHFUL to (stringResource(R.string.campaign_mode_faithful) to stringResource(R.string.campaign_mode_faithful_desc)),
+            dev.rpgsolo.engine.SourceMode.ALTERNATE to (stringResource(R.string.campaign_mode_alternate) to stringResource(R.string.campaign_mode_alternate_desc)),
+            dev.rpgsolo.engine.SourceMode.INSPIRED to (stringResource(R.string.campaign_mode_inspired) to stringResource(R.string.campaign_mode_inspired_desc)),
         ).forEach { (mode, labels) ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
@@ -290,7 +295,7 @@ fun CampaignsScreen(model: AppModel) {
                     onClick = {
                         if (sourceMode != mode) {
                             io({ model.setSourceMode(mode) }) {
-                                campaignStatus = it ?: "Modo ${labels.first} registrado na campanha."
+                                campaignStatus = it ?: context.getString(R.string.campaign_mode_registered, labels.first)
                             }
                         }
                     },
@@ -301,12 +306,47 @@ fun CampaignsScreen(model: AppModel) {
                 }
             }
         }
+        SectionTitle(stringResource(R.string.source_privacy_title))
+        Muted(stringResource(R.string.source_privacy_body))
+        val sourceConsent = remember(v) { model.sourcePrivacyConsent() }
+        var askConsent by remember { mutableStateOf(false) }
+        val switchDesc = stringResource(R.string.source_privacy_switch_desc)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            androidx.compose.material3.Switch(
+                modifier = Modifier.semantics { contentDescription = switchDesc },
+                checked = sourceConsent,
+                enabled = !busy,
+                onCheckedChange = { if (it) askConsent = true else model.setSourcePrivacyConsent(false) },
+            )
+            Text(
+                stringResource(if (sourceConsent) R.string.source_privacy_on else R.string.source_privacy_off),
+                modifier = Modifier.padding(start = 12.dp),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+        if (askConsent) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { askConsent = false },
+                title = { Text(stringResource(R.string.source_privacy_dialog_title)) },
+                text = { Text(stringResource(R.string.source_privacy_dialog_body)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        askConsent = false
+                        model.setSourcePrivacyConsent(true)
+                    }) { Text(stringResource(R.string.source_privacy_allow)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { askConsent = false }) { Text(stringResource(R.string.source_privacy_cancel)) }
+                },
+            )
+        }
+        SourcesSection(model)
         campaignStatus?.let { Text(it, color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodySmall) }
         OutlinedTextField(
             newName,
             { newName = it },
             Modifier.fillMaxWidth(),
-            label = { Text("Novo nome da campanha ativa") },
+            label = { Text(stringResource(R.string.campaign_new_name)) },
             singleLine = true,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -315,56 +355,50 @@ fun CampaignsScreen(model: AppModel) {
                     message = it
                     if (it == null) newName = ""
                 }
-            }) { Text("Renomear") }
+            }) { Text(stringResource(R.string.campaign_rename)) }
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
                 io({ model.duplicateCampaign() }) { message = it }
-            }) { Text("Duplicar") }
+            }) { Text(stringResource(R.string.campaign_duplicate)) }
         }
         var confirmDelete by remember { mutableStateOf(false) }
-        Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = { confirmDelete = true }) { Text("Apagar campanha ativa") }
+        Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = { confirmDelete = true }) { Text(stringResource(R.string.campaign_delete_active)) }
         if (confirmDelete) {
             androidx.compose.material3.AlertDialog(
                 onDismissRequest = { confirmDelete = false },
-                title = { Text("Apagar campanha?") },
+                title = { Text(stringResource(R.string.campaign_delete_title)) },
                 text = {
-                    Text(
-                        "A campanha aberta, com todo o histórico, capítulos, missões e linha do tempo, será apagada e não poderá ser recuperada. Faça um backup antes se quiser guardá-la.",
-                    )
+                    Text(stringResource(R.string.campaign_delete_body))
                 },
                 confirmButton = {
                     androidx.compose.material3.TextButton(onClick = {
                         confirmDelete = false
                         io({ model.deleteCurrentCampaign() }) { message = it }
-                    }) { Text("Apagar") }
+                    }) { Text(stringResource(R.string.campaign_delete_confirm)) }
                 },
-                dismissButton = { androidx.compose.material3.TextButton(onClick = { confirmDelete = false }) { Text("Cancelar") } },
+                dismissButton = { androidx.compose.material3.TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.campaign_cancel)) } },
             )
         }
 
-        SectionTitle("Exportar em PDF")
-        Muted(
-            "O livro traz capítulos, missões e diário. O arquivo completo soma ficha, inventário, descobertas, lugares e relações. Nenhum dos dois traz segredos do mestre nem serve como backup; para restaurar use o backup abaixo.",
-        )
+        SectionTitle(stringResource(R.string.pdf_title))
+        Muted(stringResource(R.string.pdf_help))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
                 pdfComplete = false
                 savePdf.launch(PdfShare.fileName(model.adventureBook().title, "livro"))
-            }) { Text("Salvar livro") }
+            }) { Text(stringResource(R.string.pdf_save_book)) }
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
                 pdfComplete = true
                 savePdf.launch(PdfShare.fileName(model.adventureBook().title, "arquivo"))
-            }) { Text("Salvar arquivo completo") }
+            }) { Text(stringResource(R.string.pdf_save_full)) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { sharePdf(false) }) { Text("Compartilhar livro") }
-            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { sharePdf(true) }) { Text("Compartilhar arquivo") }
+            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { sharePdf(false) }) { Text(stringResource(R.string.pdf_share_book)) }
+            Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = { sharePdf(true) }) { Text(stringResource(R.string.pdf_share_full)) }
         }
         pdfStatus?.let { Text(it, color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodySmall) }
 
-        SectionTitle("Backup local")
-        Muted(
-            "Inclui log de eventos, configuração do motor, capítulos, missões, linha do tempo e fichas salvas. A chave de API e preferências secretas nunca entram no arquivo. Restaurar cria uma nova campanha.",
-        )
+        SectionTitle(stringResource(R.string.backup_title))
+        Muted(stringResource(R.string.backup_help))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(modifier = Modifier.weight(1f), enabled = !busy, onClick = {
                 message = null
@@ -374,36 +408,36 @@ fun CampaignsScreen(model: AppModel) {
                         try {
                             withContext(Dispatchers.IO) { model.exportBackup() }
                         } catch (e: Exception) {
-                            message = "Falha ao gerar o backup: ${e.message ?: "erro inesperado"}"
+                            message = context.getString(R.string.backup_generate_failed, e.message ?: context.getString(R.string.error_unexpected))
                             backup
                         }
                     busy = false
                 }
-            }) { Text("Gerar texto") }
+            }) { Text(stringResource(R.string.backup_generate_text)) }
             Button(
                 modifier = Modifier.weight(1f),
                 enabled = !busy,
                 onClick = { exportFile.launch("rpg-solo-backup.json") },
-            ) { Text("Salvar arquivo") }
+            ) { Text(stringResource(R.string.backup_save_file)) }
         }
         Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
             importFile.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
-        }) { Text("Restaurar de arquivo") }
+        }) { Text(stringResource(R.string.backup_restore_file)) }
         backupStatus?.let { Text(it, color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodySmall) }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(modifier = Modifier.weight(1f), enabled = backup.isNotBlank() && !busy, onClick = {
                 io({ model.importBackup(backup) }) { message = it }
-            }) { Text("Restaurar texto") }
+            }) { Text(stringResource(R.string.backup_restore_text)) }
         }
-        OutlinedTextField(backup, { backup = it }, Modifier.fillMaxWidth(), label = { Text("Texto do backup") }, minLines = 3)
+        OutlinedTextField(backup, { backup = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.backup_text_label)) }, minLines = 3)
 
-        SectionTitle("Capítulos")
-        if (chapters.isEmpty()) Muted("Nenhum capítulo ainda.")
+        SectionTitle(stringResource(R.string.chapters_title))
+        if (chapters.isEmpty()) Muted(stringResource(R.string.chapters_empty))
         chapters.forEach { c ->
             AppCard(accent = if (c.isOpen) MaterialTheme.colorScheme.tertiary else null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("${c.number}. ${c.title}", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                    if (c.isOpen) Pill("em andamento", MaterialTheme.colorScheme.tertiary)
+                    if (c.isOpen) Pill(stringResource(R.string.chapter_in_progress), MaterialTheme.colorScheme.tertiary)
                 }
                 c.summary?.let { Muted(it) }
             }
@@ -413,7 +447,7 @@ fun CampaignsScreen(model: AppModel) {
                 title,
                 { title = it },
                 Modifier.fillMaxWidth(),
-                label = { Text("Título do novo capítulo") },
+                label = { Text(stringResource(R.string.chapter_new_title)) },
                 singleLine = true,
             )
             Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
@@ -421,7 +455,7 @@ fun CampaignsScreen(model: AppModel) {
                     message = it
                     if (it == null) title = ""
                 }
-            }) { Text("Abrir capítulo") }
+            }) { Text(stringResource(R.string.chapter_open)) }
         } else {
             Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
                 busy = true
@@ -429,12 +463,12 @@ fun CampaignsScreen(model: AppModel) {
                     message = cancellableIo { model.closeChapter() }
                     busy = false
                 }
-            }) { Text(if (busy) "Gerando resumo…" else "Encerrar capítulo com resumo") }
+            }) { Text(stringResource(if (busy) R.string.chapter_summarizing else R.string.chapter_close)) }
         }
         message?.let { ErrorText(it) }
 
-        SectionTitle("Relações")
-        if (relationships.isEmpty()) Muted("As atitudes dos NPCs ainda não foram registradas.")
+        SectionTitle(stringResource(R.string.relations_title))
+        if (relationships.isEmpty()) Muted(stringResource(R.string.relations_empty))
         relationships.forEach { relation ->
             AppCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -444,28 +478,29 @@ fun CampaignsScreen(model: AppModel) {
             }
         }
 
-        SectionTitle("Evolução do personagem")
-        if (progressionHistory.isEmpty()) Muted("Nenhum ganho de XP ou nível registrado ainda.")
+        SectionTitle(stringResource(R.string.progression_title))
+        if (progressionHistory.isEmpty()) Muted(stringResource(R.string.progression_empty))
         progressionHistory.forEach { entry -> AppCard { Text(entry, style = MaterialTheme.typography.bodyMedium) } }
 
-        SectionTitle("Pontos de evolução")
-        Muted("Disponíveis: ${advancement.pointsAvailable}. Cada aumento custa 1 ponto e respeita os limites do pacote ativo.")
+        SectionTitle(stringResource(R.string.advancement_title))
+        Muted(stringResource(R.string.advancement_available, advancement.pointsAvailable))
         if (advancement.pointsAvailable <= 0) {
-            Muted("Você não tem pontos de evolução para gastar.")
+            Muted(stringResource(R.string.advancement_none))
         } else if (advancement.choices.isEmpty()) {
-            Muted("O pacote ativo não define opções de evolução para esta ficha.")
+            Muted(stringResource(R.string.advancement_no_options))
         } else {
             advancement.choices.forEach { choice ->
+                val increaseDesc = stringResource(R.string.advancement_increase_desc, choice.name)
                 AppCard {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(choice.name, style = MaterialTheme.typography.bodyMedium)
-                            Muted("${choice.current}/${choice.max}" + if (choice.skill) " · perícia" else " · atributo")
+                            Muted(stringResource(if (choice.skill) R.string.advancement_choice_skill else R.string.advancement_choice_stat, choice.current, choice.max))
                         }
                         Button(
                             modifier =
                                 Modifier.semantics {
-                                    contentDescription = "Aumentar ${choice.name} em 1 ponto"
+                                    contentDescription = increaseDesc
                                 },
                             enabled = advancement.pointsAvailable > 0 && choice.current < choice.max && !busy,
                             onClick = { io({ model.increaseAdvancement(choice.id, choice.skill) }) { message = it } },
@@ -476,27 +511,24 @@ fun CampaignsScreen(model: AppModel) {
         }
 
         spellSlots?.let { slots ->
-            SectionTitle("Slots de magia")
-            Muted(
-                "Usados: ${slots.used} de ${slots.total}. Um novo slot surge em cada nível-chave do pacote; magias novas entram só por missão ou compra.",
-            )
+            SectionTitle(stringResource(R.string.spell_slots_title))
+            Muted(stringResource(R.string.spell_slots_help, slots.used, slots.total))
         }
 
         if (statPoints.statPoints > 0 || statPoints.abilityPoints > 0) {
-            SectionTitle("Pontos de status e habilidade")
-            Muted(
-                "Status: ${statPoints.statPoints} · Habilidade: ${statPoints.abilityPoints}. Cada aumento de status custa 1 ponto e não tem teto.",
-            )
+            SectionTitle(stringResource(R.string.statpoints_title))
+            Muted(stringResource(R.string.statpoints_help, statPoints.statPoints, statPoints.abilityPoints))
             if (statPoints.statPoints > 0) {
                 statPoints.choices.forEach { choice ->
+                    val statDesc = stringResource(R.string.statpoints_increase_desc, choice.name)
                     AppCard {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(choice.name, style = MaterialTheme.typography.bodyMedium)
-                                Muted("${choice.current} · status")
+                                Muted(stringResource(R.string.statpoints_choice, choice.current))
                             }
                             Button(
-                                modifier = Modifier.semantics { contentDescription = "Aumentar ${choice.name} em 1 ponto de status" },
+                                modifier = Modifier.semantics { contentDescription = statDesc },
                                 enabled = !busy,
                                 onClick = { io({ model.increaseStatPoint(choice.id) }) { message = it } },
                             ) { Text("+1") }
@@ -504,11 +536,11 @@ fun CampaignsScreen(model: AppModel) {
                     }
                 }
             }
-            if (statPoints.abilityPoints > 0) Muted("Pontos de habilidade ficam guardados até as habilidades existirem (MU-06).")
+            if (statPoints.abilityPoints > 0) Muted(stringResource(R.string.statpoints_ability_note))
         }
 
-        SectionTitle("Missões")
-        if (active.isEmpty()) Muted("Nenhuma missão ativa.")
+        SectionTitle(stringResource(R.string.quests_title))
+        if (active.isEmpty()) Muted(stringResource(R.string.quests_empty))
         active.forEach { currentQuest ->
             AppCard(accent = MaterialTheme.colorScheme.secondary) {
                 Text(currentQuest.title, style = MaterialTheme.typography.bodyLarge)
@@ -524,7 +556,7 @@ fun CampaignsScreen(model: AppModel) {
                                 enabled = !busy,
                                 onClick = { io({ model.completeQuestObjective(currentQuest.id, index) }) { message = it } },
                             ) {
-                                Text("Concluir")
+                                Text(stringResource(R.string.campaign_finish))
                             }
                         }
                     }
@@ -533,55 +565,86 @@ fun CampaignsScreen(model: AppModel) {
                     TextButton(enabled = !busy, onClick = {
                         io({ model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.DONE) }) { message = it }
                     }) {
-                        Text("Encerrar como concluída")
+                        Text(stringResource(R.string.quest_finish_done))
                     }
                     TextButton(enabled = !busy, onClick = {
                         io({ model.finishQuest(currentQuest.id, dev.rpgsolo.engine.QuestStatus.FAILED) }) { message = it }
                     }) {
-                        Text("Marcar como falhou")
+                        Text(stringResource(R.string.quest_finish_failed))
                     }
                 }
             }
         }
         val finishedQuests = allQuests.filter { it.status != dev.rpgsolo.engine.QuestStatus.ACTIVE }
         if (finishedQuests.isNotEmpty()) {
-            SectionTitle("Missões encerradas")
+            SectionTitle(stringResource(R.string.quests_finished_title))
             finishedQuests.forEach { finished ->
                 AppCard {
                     Text(finished.title, style = MaterialTheme.typography.bodyLarge)
                     Pill(
-                        if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) "concluída" else "falhou",
+                        stringResource(if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) R.string.campaign_state_done else R.string.quest_failed_pill),
                         if (finished.status == dev.rpgsolo.engine.QuestStatus.DONE) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                     )
                     finished.objectives.forEach { objective -> Muted((if (objective.done) "✓ " else "○ ") + objective.text) }
                 }
             }
         }
-        OutlinedTextField(quest, { quest = it }, Modifier.fillMaxWidth(), label = { Text("Nova missão") }, singleLine = true)
+        OutlinedTextField(quest, { quest = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.quest_new)) }, singleLine = true)
         OutlinedTextField(
             questObjective,
             { questObjective = it },
             Modifier.fillMaxWidth(),
-            label = { Text("Objetivo inicial (opcional)") },
+            label = { Text(stringResource(R.string.quest_objective)) },
+            singleLine = true,
+        )
+        OutlinedTextField(
+            questXp,
+            { questXp = it.filter(Char::isDigit).take(6) },
+            Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.quest_xp)) },
+            supportingText = { Text(stringResource(R.string.quest_xp_help)) },
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+            singleLine = true,
+        )
+        OutlinedTextField(
+            questSkill,
+            { questSkill = it.trim().take(40) },
+            Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.quest_skill)) },
+            supportingText = { Text(stringResource(R.string.quest_skill_help)) },
+            singleLine = true,
+        )
+        OutlinedTextField(
+            questSpell,
+            { questSpell = it.trim().take(40) },
+            Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.quest_spell)) },
+            supportingText = { Text(stringResource(R.string.quest_spell_help)) },
             singleLine = true,
         )
         Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = {
             val q = quest
             val o = questObjective
-            io({ model.addQuest(q, listOf(o)) }) {
+            val xp = questXp.toIntOrNull() ?: 0
+            val skill = questSkill
+            val spell = questSpell
+            io({ model.addQuest(q, listOf(o), xp, skill, spell) }) {
                 message = it
                 if (it == null) {
                     quest = ""
                     questObjective = ""
+                    questXp = ""
+                    questSkill = ""
+                    questSpell = ""
                 }
             }
-        }) { Text("Adicionar missão") }
+        }) { Text(stringResource(R.string.quest_add)) }
 
-        SectionTitle("Linha do tempo")
-        if (timeline.isEmpty()) Muted("Nenhum acontecimento importante registrado.")
+        SectionTitle(stringResource(R.string.timeline_title))
+        if (timeline.isEmpty()) Muted(stringResource(R.string.timeline_empty))
         timeline.forEach { (chapterNumber, text) ->
             AppCard {
-                Muted("Capítulo $chapterNumber")
+                Muted(stringResource(R.string.timeline_chapter, chapterNumber))
                 Text(text)
             }
         }
@@ -589,7 +652,7 @@ fun CampaignsScreen(model: AppModel) {
             timelineNote,
             { timelineNote = it },
             Modifier.fillMaxWidth(),
-            label = { Text("Acontecimento importante") },
+            label = { Text(stringResource(R.string.timeline_note)) },
             minLines = 2,
             maxLines = 4,
         )
@@ -599,21 +662,21 @@ fun CampaignsScreen(model: AppModel) {
                 message = it
                 if (it == null) timelineNote = ""
             }
-        }) { Text("Registrar acontecimento") }
+        }) { Text(stringResource(R.string.timeline_register)) }
 
-        SectionTitle("Acontecimentos automáticos")
+        SectionTitle(stringResource(R.string.auto_timeline_title))
         if (automaticTimeline.isEmpty()) {
-            Muted("Os acontecimentos compatíveis aparecerão aqui conforme forem registrados no log.")
+            Muted(stringResource(R.string.auto_timeline_empty))
         }
         automaticTimeline.forEach { entry ->
             AppCard {
-                Muted("Registro ${entry.eventIndex + 1} · ${entry.category}")
+                Muted(stringResource(R.string.auto_timeline_entry, entry.eventIndex + 1, entry.category.toString()))
                 Text(entry.text, style = MaterialTheme.typography.bodyMedium)
             }
         }
 
-        SectionTitle("Diário", "Só o que você já descobriu.")
-        if (journal.isEmpty()) Muted("Você ainda não descobriu nada.")
+        SectionTitle(stringResource(R.string.journal_title), stringResource(R.string.journal_subtitle))
+        if (journal.isEmpty()) Muted(stringResource(R.string.journal_empty))
         journal.forEach { AppCard { Text(it, style = MaterialTheme.typography.bodyMedium) } }
     }
 }

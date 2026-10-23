@@ -11,27 +11,50 @@ object DocxText {
     private val token = Regex("<w:t(?: [^>]*)?>(.*?)</w:t>|<w:tab/>|<w:br/>|<w:pStyle w:val=\"([^\"]*)\"", RegexOption.DOT_MATCHES_ALL)
     private val headingStyle = Regex("(?i)^(?:heading|t[ií]tulo)\\s*([1-6])$")
 
+    private val block = Regex("<w:tbl[ >].*?</w:tbl>|<w:p[ >].*?</w:p>", RegexOption.DOT_MATCHES_ALL)
+    private val row = Regex("<w:tr[ >].*?</w:tr>", RegexOption.DOT_MATCHES_ALL)
+    private val cell = Regex("<w:tc[ >].*?</w:tc>", RegexOption.DOT_MATCHES_ALL)
+
+    /** Texto e nível de título (0 = parágrafo comum) de um `<w:p>`. */
+    private fun paragraph(xml: String): Pair<String, Int> {
+        var level = 0
+        val sb = StringBuilder()
+        for (t in token.findAll(xml)) {
+            val v = t.value
+            when {
+                t.groups[2] != null -> {
+                    val style = t.groupValues[2]
+                    level = headingStyle.matchEntire(style)?.groupValues?.get(1)?.toInt()
+                        ?: if (style.equals("Title", true) || style.equals("Titulo", true)) 1 else 0
+                }
+                v == "<w:tab/>" -> sb.append('\t')
+                v == "<w:br/>" -> sb.append('\n')
+                else -> sb.append(unescape(t.groupValues[1]))
+            }
+        }
+        return sb.toString().trim() to level
+    }
+
+    /** DC-01.2: cada linha de tabela vira uma linha `célula | célula`; células vazias são ignoradas, tabelas aninhadas não têm estrutura própria. */
+    private fun tableLines(xml: String): List<String> =
+        row.findAll(xml).mapNotNull { r ->
+            val cells =
+                cell.findAll(r.value).map { c ->
+                    para.findAll(c.value).map { paragraph(it.value).first }.filter { it.isNotEmpty() }.joinToString(" ")
+                }.filter { it.isNotEmpty() }.toList()
+            cells.takeIf { it.isNotEmpty() }?.joinToString(" | ")
+        }.toList()
+
     fun extract(bytes: ByteArray): String? {
         val xml = readDocumentXml(bytes) ?: return null
         val out = ArrayList<String>()
-        for (p in para.findAll(xml)) {
-            var level = 0
-            val sb = StringBuilder()
-            for (t in token.findAll(p.value)) {
-                val v = t.value
-                when {
-                    t.groups[2] != null -> {
-                        val style = t.groupValues[2]
-                        level = headingStyle.matchEntire(style)?.groupValues?.get(1)?.toInt()
-                            ?: if (style.equals("Title", true) || style.equals("Titulo", true)) 1 else 0
-                    }
-                    v == "<w:tab/>" -> sb.append('\t')
-                    v == "<w:br/>" -> sb.append('\n')
-                    else -> sb.append(unescape(t.groupValues[1]))
-                }
+        for (b in block.findAll(xml)) {
+            if (b.value.startsWith("<w:tbl")) {
+                out.addAll(tableLines(b.value))
+            } else {
+                val (line, level) = paragraph(b.value)
+                if (line.isNotEmpty()) out.add(if (level > 0) "#".repeat(level) + " " + line else line)
             }
-            val line = sb.toString().trim()
-            if (line.isNotEmpty()) out.add(if (level > 0) "#".repeat(level) + " " + line else line)
         }
         return out.joinToString("\n\n")
     }

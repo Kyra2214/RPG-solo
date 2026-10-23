@@ -48,6 +48,8 @@ fun SystemsScreen(model: AppModel) {
             }
         }
     val models = SystemModels.list(c.registry, c.catalog)
+    val installedEditions = c.registry.installed().map { it.edition }.toSet()
+    val comingSoon = c.catalog?.systems.orEmpty().filter { it.id !in installedEditions }
     ScreenColumn {
         SectionTitle(stringResource(R.string.systems_import_title), stringResource(R.string.systems_import_help))
         TextButton(onClick = { importer.launch(arrayOf("application/zip", "application/octet-stream")) }) {
@@ -59,7 +61,7 @@ fun SystemsScreen(model: AppModel) {
                 color = if (it.startsWith("Pacote ") && !it.startsWith("Pacote recusado")) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
             )
         }
-        SectionTitle(stringResource(R.string.systems_installed_title))
+        SectionTitle(stringResource(R.string.systems_installed_title), stringResource(R.string.systems_installed_help))
         c.errors.forEach { ErrorText(it) }
         if (models.isEmpty()) AppCard { Text(stringResource(R.string.systems_empty)) }
         models.forEach { m ->
@@ -79,6 +81,18 @@ fun SystemsScreen(model: AppModel) {
                 Muted(stringResource(R.string.systems_package_id, manifest.id))
                 Muted(stringResource(R.string.systems_origin_license, manifest.source, manifest.license))
                 Muted(stringResource(R.string.systems_license_status, manifest.licenseStatus.name))
+            }
+        }
+        if (comingSoon.isNotEmpty()) {
+            SectionTitle(stringResource(R.string.systems_soon_title), stringResource(R.string.systems_soon_help))
+            comingSoon.forEach { e ->
+                AppCard {
+                    Text("${e.name} ${e.edition}", style = MaterialTheme.typography.titleMedium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Pill(stringResource(R.string.systems_soon_pill), MaterialTheme.colorScheme.secondary)
+                    }
+                    Muted(stringResource(R.string.systems_license_status, e.licenseStatus.name))
+                }
             }
         }
     }

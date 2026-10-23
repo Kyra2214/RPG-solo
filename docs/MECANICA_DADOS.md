@@ -45,7 +45,7 @@ A tabela abaixo mostra as probabilidades exatas. As taxas empíricas podem ser r
 | 4 | 75,0% | 83,3% | 62,5% | 50,0% |
 | 5 | 75,0% | 83,3% | 75,0% | 60,0% |
 
-A tabela acima mostra as probabilidades exatas; as taxas empíricas podem variar com a semente e o número de amostras. A tabela será recalculada pelo simulador durante a validação do usuário. Para reproduzir:
+A tabela acima mostra as probabilidades exatas; as taxas empíricas (tabela M-06.5, abaixo) variam com a semente e o número de amostras. Para reproduzir:
 
 ```bash
 python3 tools/simulate_checks.py --runs 100000

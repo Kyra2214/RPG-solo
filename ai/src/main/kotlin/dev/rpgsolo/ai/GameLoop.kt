@@ -94,6 +94,10 @@ class GameLoop(
     private val additionalBonusSources: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
     /** Poderes que o mestre pode pedir por request_power (do pacote ativo). null = não pode. */
     private val powerMenu: PowerMenu? = null,
+    /** Ataque do jogador pedido pela IA por request_attack (mesmo serviço do ataque manual). null = não pode. */
+    private val attackExecutor: ((String) -> String?)? = null,
+    /** Missão proposta pela IA por request_quest (validada e registrada pelo app). null = não pode. */
+    private val questExecutor: ((QuestRequest) -> String?)? = null,
 ) {
     /** Uma jogada por vez: protege mark() → rede → rollbackTo() (R-01). Compartilhado com o PlayController. */
     val turnGate = TurnGate()
@@ -717,7 +721,7 @@ class GameLoop(
                     worldContext = input.worldContext,
                     generationPreferences = input.generationPreferences,
                     playerSheet = input.playerSheet,
-                    checkMenu = listOfNotNull(menu?.describe(), powerMenu?.describe(playerTraits())).joinToString("\n\n").ifBlank { null },
+                    checkMenu = listOfNotNull(menu?.describe(), powerMenu?.describe(playerTraits(), session.state.entities[input.playerEntityId]?.spells.orEmpty())).joinToString("\n\n").ifBlank { null },
                     resolving = input.resolving,
                     recentNarrative = narrations.toList(),
                     resumeBriefing = if (narrations.isEmpty()) input.resumeBriefing else null,
@@ -738,6 +742,8 @@ class GameLoop(
                     onNarrativeChunk = onNarrativeChunk,
                     sceneNpcIds = input.sceneNpcIds,
                     powers = powerMenu?.let { PowerContext(it, playerTraits) },
+                    attacks = attackExecutor?.let { AttackContext(it) },
+                    quests = questExecutor?.let { QuestContext(it) },
                 )
         ) {
             is TurnOutcome.Applied -> {

@@ -8,7 +8,16 @@ sealed interface Command
 data class CreateEntity(val entity: Entity) : Command
 
 /** Dano: reduz o recurso (nunca abaixo de 0) e pode matar. */
-data class Damage(val entityId: String, val resource: String, val amount: Int) : Command
+data class Damage(
+    val entityId: String,
+    val resource: String,
+    val amount: Int,
+    /** MU-02.6: true = ignora o escudo (ataque que ignora defesa). */
+    val bypassShield: Boolean = false,
+) : Command
+
+/** MU-02.6: soma [amount] (> 0) ao escudo de uma entidade viva. */
+data class GrantShield(val entityId: String, val amount: Int) : Command
 
 /** Cura: aumenta o recurso (nunca acima do máximo). Não ressuscita. */
 data class Heal(val entityId: String, val resource: String, val amount: Int) : Command
@@ -124,6 +133,18 @@ data class FailSurvival(val entityId: String, val limit: Int) : Command
 
 data class Revive(val entityId: String, val reason: String) : Command
 
+/**
+ * M-04: com o herói morto e sem outro PLAYER vivo, o jogador assume um NPC vivo. A troca vale só fora de combate.
+ * Quem chama garante a ordem do legado (item de renascimento antes; oferta ao jogador).
+ */
+data class AssumeNpc(val npcId: String) : Command
+
+/** M-04: o herói morto consome um item de renascimento do pacote e volta com PV parcial ([EngineConfig.rebirthPercent]). */
+data class UseRebirthItem(val entityId: String) : Command
+
+/** M-04: fim da campanha (game over): só sem herói vivo, sem item de renascimento e sem NPC vivo para assumir. */
+data class EndCampaign(val reason: String) : Command
+
 data class RecordFact(val key: String, val value: String) : Command
 
 /** I-02.1: guarda uma nota curta sobre um NPC ou lugar existente. */
@@ -216,6 +237,10 @@ data class EngineConfig(
     val deathResource: String? = "hp",
     /** M-04: o que acontece quando [deathResource] chega a 0. */
     val deathMode: DeathMode = DeathMode.PERMADEATH,
+    /** M-04: ids de itens de renascimento/pergaminho de salvaguarda; vale o primeiro que o herói morto tiver. Vazio = sem. */
+    val rebirthItems: Set<String> = emptySet(),
+    /** M-04: percentual do recurso de morte máximo com que o herói volta ao renascer (1–100). */
+    val rebirthPercent: Int = 50,
     /** XP total necessário para o nível 2, 3, 4... (crescente). Vazio = o sistema não sobe de nível por XP. */
     val levelThresholds: List<Int> = emptyList(),
     /** Bônus de defesa da ação Defend; 0 desativa a ação. */
@@ -242,6 +267,7 @@ data class EngineConfig(
     fun spellSlotsFor(level: Int): Int = spellSlotLevels.count { it <= level }
 
     init {
+        require(rebirthPercent in 1..100) { "rebirthPercent deve ficar entre 1 e 100" }
         require(defendBonus in 0..10) { "defendBonus deve ficar entre 0 e 10" }
         require(advancementPointsPerLevel in 0..100) { "advancementPointsPerLevel deve ficar entre 0 e 100" }
         require(masteryLevels.all { it > 0 } && masteryLevels.zipWithNext().all { (a, b) -> a < b }) {
@@ -328,6 +354,13 @@ private fun combatEndEvents(state: GameState): List<Event> {
 
 private fun no(reason: String) = Decision.No(reason)
 
+/** Primeiro item de renascimento (ordem alfabética) no inventário de [ownerId], ou null. */
+internal fun rebirthItemOf(
+    state: GameState,
+    config: EngineConfig,
+    ownerId: String,
+): String? = state.inventory[ownerId].orEmpty().filter { (id, qty) -> qty > 0 && id in config.rebirthItems }.keys.minOrNull()
+
 /** Pistas públicas descrevem sinais no mundo; não podem vazar a mecânica do relógio. */
 private fun invalidPublicClue(
     clue: String,
@@ -351,6 +384,7 @@ fun decide(
     cmd: Command,
 ): Decision {
     fun entity(id: String) = state.entities[id]
+    if (state.endedReason != null) return no("a campanha terminou")
     when (cmd) {
         is CreateEntity ->
             return if (state.entities.containsKey(cmd.entity.id)) {
@@ -364,9 +398,15 @@ fun decide(
             if (!ent.alive) return no("${ent.name} já está morto")
             val res = ent.resources[cmd.resource] ?: return no("recurso inexistente: ${cmd.resource}")
             if (cmd.amount < 0) return no("dano negativo")
-            val newValue = maxOf(0, res.current - cmd.amount)
-            val events = mutableListOf<Event>(ResourceChanged(ent.id, cmd.resource, newValue, newValue - res.current))
-            if (newValue == 0 && config.deathResource == cmd.resource) config.zeroEvent(ent, cmd.amount)?.let { events += it }
+            val absorbed = if (cmd.bypassShield) 0 else minOf(ent.shield, cmd.amount)
+            val rest = cmd.amount - absorbed
+            val newValue = maxOf(0, res.current - rest)
+            val events = mutableListOf<Event>()
+            if (absorbed > 0) events += ShieldChanged(ent.id, ent.shield - absorbed)
+            if (absorbed == 0 || rest > 0) {
+                events += ResourceChanged(ent.id, cmd.resource, newValue, newValue - res.current)
+                if (newValue == 0 && config.deathResource == cmd.resource) config.zeroEvent(ent, cmd.amount)?.let { events += it }
+            }
             if (events.any { it is EntityDied } && state.combat != null) {
                 val afterDamage = events.fold(state) { current, event -> current.apply(event) }
                 val aliveKinds =
@@ -380,6 +420,13 @@ fun decide(
                 if (combatKinds.size >= 2 && aliveKinds.size < 2) events += combatEndEvents(state)
             }
             return Decision.Ok(events)
+        }
+
+        is GrantShield -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (cmd.amount <= 0) return no("escudo deve ser positivo")
+            return Decision.Ok(listOf(ShieldChanged(ent.id, ent.shield + cmd.amount)))
         }
 
         is Heal -> {
@@ -458,6 +505,7 @@ fun decide(
         is GainXp -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
             if (!ent.alive) return no("${ent.name} está morto")
+            if (ent.kind != EntityKind.PLAYER) return no("só o personagem do jogador ganha XP")
             if (cmd.amount <= 0) return no("XP inválido")
             val totalXp = ent.xp.toLong() + cmd.amount.toLong()
             if (totalXp > Int.MAX_VALUE) return no("XP excede o limite suportado")
@@ -683,7 +731,7 @@ fun decide(
         }
 
         is EndEffectsRound -> {
-            if (state.activeEffects.values.all { it.isEmpty() }) return no("não há efeitos temporários ativos")
+            if (state.activeEffects.values.all { it.isEmpty() } && state.ignoreCooldowns.isEmpty()) return no("não há efeitos temporários ativos")
             return Decision.Ok(listOf(EffectsRoundEnded))
         }
 
@@ -755,6 +803,44 @@ fun decide(
                 events += ResourceChanged(ent.id, dr, 1, 1 - cur)
             }
             return Decision.Ok(events)
+        }
+
+        is AssumeNpc -> {
+            val npc = entity(cmd.npcId) ?: return no("entidade inexistente: ${cmd.npcId}")
+            if (npc.kind != EntityKind.NPC) return no("${npc.name} não é um NPC")
+            if (!npc.alive) return no("${npc.name} está morto")
+            if (state.combat != null) return no("não é possível assumir um NPC durante o combate")
+            val players = state.entities.values.filter { it.kind == EntityKind.PLAYER }
+            if (players.any { it.alive }) return no("o herói ainda está vivo")
+            val fallen = players.firstOrNull() ?: return no("não há herói morto para ser substituído")
+            if (rebirthItemOf(state, config, fallen.id) != null) return no("${fallen.name} tem um item de renascimento; ele vale primeiro")
+            return Decision.Ok(listOf(NpcAssumed(npc.id, fallen.id)))
+        }
+
+        is UseRebirthItem -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (ent.kind != EntityKind.PLAYER) return no("${ent.name} não é o herói do jogador")
+            if (ent.alive) return no("${ent.name} não está morto")
+            val item = rebirthItemOf(state, config, ent.id) ?: return no("${ent.name} não tem item de renascimento")
+            val dr = config.deathResource ?: return no("o sistema não tem recurso de morte")
+            val res = ent.resources[dr] ?: return no("${ent.name} não tem o recurso $dr")
+            val target = maxOf(1, res.max * config.rebirthPercent / 100).coerceAtMost(res.max)
+            return Decision.Ok(
+                listOf(
+                    ItemChanged(ent.id, item, -1),
+                    EntityRevived(ent.id, "item de renascimento: $item"),
+                    ResourceChanged(ent.id, dr, target, target - res.current),
+                ),
+            )
+        }
+
+        is EndCampaign -> {
+            if (cmd.reason.isBlank()) return no("encerrar a campanha exige motivo")
+            val players = state.entities.values.filter { it.kind == EntityKind.PLAYER }
+            if (players.isEmpty() || players.any { it.alive }) return no("o herói ainda está vivo")
+            if (rebirthItemOf(state, config, players.first().id) != null) return no("o herói tem um item de renascimento")
+            if (state.entities.values.any { it.kind == EntityKind.NPC && it.alive }) return no("ainda há NPC vivo para assumir")
+            return Decision.Ok(listOf(CampaignEnded(cmd.reason.trim())))
         }
 
         is LearnKnowledge -> {

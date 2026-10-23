@@ -38,6 +38,17 @@ data class EntityRecovered(val entityId: String) : Event
 @Serializable
 data class EntityRevived(val entityId: String, val reason: String) : Event
 
+/**
+ * M-04: o jogador assumiu [npcId] depois da morte de [fallenHeroId]. O NPC passa a ser o PLAYER (ficha mantida);
+ * o herói morto vira entidade NPC (corpo), com inventário e equipamento intactos, para a recuperação de itens.
+ */
+@Serializable
+data class NpcAssumed(val npcId: String, val fallenHeroId: String) : Event
+
+/** M-04: a campanha terminou (game over); o app a arquiva. */
+@Serializable
+data class CampaignEnded(val reason: String) : Event
+
 @Serializable
 data class ItemChanged(val ownerId: String, val itemId: String, val delta: Int) : Event
 
@@ -128,6 +139,14 @@ data class SkillTreeProgressReset(val entityId: String, val pointsRefunded: Int)
 /** MU-06.3: habilidade ativada; substitui os efeitos anteriores da mesma habilidade. */
 @Serializable
 data class AbilityActivated(val entityId: String, val abilityId: String, val effects: List<ActiveEffect>) : Event
+
+/** MU-02.6: escudo de [entityId] passa a valer [newValue] (ganho ou absorção de dano). */
+@Serializable
+data class ShieldChanged(val entityId: String, val newValue: Int) : Event
+
+/** MU-02.5: o "ignorar defesa" de [entityId] foi usado e fica em recarga por [rounds] rodadas. */
+@Serializable
+data class IgnoreDefenseCooldownStarted(val entityId: String, val rounds: Int) : Event
 
 /** MU-06.3: fim de rodada dos efeitos temporários. */
 @Serializable
@@ -329,6 +348,14 @@ fun GameState.apply(e: Event): GameState {
                 copy(
                     entities = entities + (e.entityId to entity(e.entityId).copy(alive = true, downed = false, deathFailures = 0)),
                 )
+            is NpcAssumed ->
+                copy(
+                    entities =
+                        entities +
+                            (e.npcId to entity(e.npcId).copy(kind = EntityKind.PLAYER)) +
+                            (e.fallenHeroId to entity(e.fallenHeroId).copy(kind = EntityKind.NPC)),
+                )
+            is CampaignEnded -> copy(endedReason = e.reason)
             is ItemChanged -> {
                 val owner = inventory[e.ownerId] ?: emptyMap()
                 val qty = (owner[e.itemId] ?: 0) + e.delta
@@ -467,8 +494,14 @@ fun GameState.apply(e: Event): GameState {
                 val kept = activeEffects[e.entityId].orEmpty().filter { it.sourceId != source && it.sourceId != "$source:desvantagem" }
                 copy(activeEffects = activeEffects + (e.entityId to (kept + e.effects)))
             }
+            is ShieldChanged -> {
+                val ent = entity(e.entityId)
+                copy(entities = entities + (ent.id to ent.copy(shield = e.newValue)))
+            }
+            is IgnoreDefenseCooldownStarted -> copy(ignoreCooldowns = ignoreCooldowns + (e.entityId to e.rounds))
             is EffectsRoundEnded ->
                 copy(
+                    ignoreCooldowns = ignoreCooldowns.mapValues { it.value - 1 }.filterValues { it > 0 },
                     activeEffects =
                         activeEffects.mapValues { (_, list) ->
                             list.map { it.copy(remainingRounds = it.remainingRounds - 1) }.filter { it.remainingRounds > 0 }
@@ -603,7 +636,12 @@ fun GameState.apply(e: Event): GameState {
                     knownPlaces = knownPlaces + e.id,
                     currentPlaceId = currentPlaceId ?: e.id,
                 )
-            is PlayerMovedToPlace -> copy(currentPlaceId = e.id)
+            is PlayerMovedToPlace ->
+                copy(
+                    currentPlaceId = e.id,
+                    activeEffects =
+                        activeEffects.mapValues { (_, list) -> list.filterNot { it.untilSceneEnd } }.filterValues { it.isNotEmpty() },
+                )
             is ConditionRemoved -> {
                 val left = (conditions[e.entityId] ?: emptySet()) - e.condition
                 val states = (conditionStates[e.entityId] ?: emptyMap()) - e.condition
@@ -662,7 +700,12 @@ fun GameState.apply(e: Event): GameState {
                 val c = requireNotNull(combat) { "sem combate ativo" }
                 copy(combat = c.copy(defending = c.defending - e.entityId))
             }
-            CombatEnded -> copy(combat = null)
+            CombatEnded ->
+                copy(
+                    combat = null,
+                    activeEffects =
+                        activeEffects.mapValues { (_, list) -> list.filterNot { it.untilCombatEnd } }.filterValues { it.isNotEmpty() },
+                )
             is RollRecorded -> this
             is AttackResolved -> this
             is ClashRecorded -> this

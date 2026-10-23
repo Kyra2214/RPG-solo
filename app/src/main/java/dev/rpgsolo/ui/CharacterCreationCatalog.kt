@@ -233,6 +233,70 @@ object CharacterCreationCatalog {
             }
     }
 
+    /**
+     * C-02: para cada referência inexistente (raça, sub-raça, híbrido, classe, profissão, maldição), sugere a entrada de
+     * catálogo mais parecida pelo id ou nome (sem acento, maiúsculas ou separadores; contido ou a até 2 edições).
+     * Só sugere: nunca altera as escolhas nem aplica efeito.
+     */
+    fun suggestReplacements(choices: CharacterChoices): List<String> {
+        fun norm(t: String) = java.text.Normalizer.normalize(t.lowercase(), java.text.Normalizer.Form.NFD).replace(Regex("[^a-z0-9]"), "")
+
+        fun distance(
+            a: String,
+            b: String,
+        ): Int {
+            var prev = IntArray(b.length + 1) { it }
+            for (i in 1..a.length) {
+                val cur = IntArray(b.length + 1)
+                cur[0] = i
+                for (j in 1..b.length) {
+                    cur[j] = minOf(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + if (a[i - 1] == b[j - 1]) 0 else 1)
+                }
+                prev = cur
+            }
+            return prev[b.length]
+        }
+
+        fun closest(
+            ref: String,
+            pool: List<CharacterCatalogEntry>,
+        ): CharacterCatalogEntry? {
+            val key = norm(ref)
+            if (key.length < 3) return null
+            return pool.mapNotNull { e ->
+                val keys = listOf(norm(e.id), norm(e.name)).filter { it.isNotEmpty() }
+                val d =
+                    keys.minOf { k ->
+                        when {
+                            k == key -> 0
+                            k.length >= 4 && key.length >= 4 && (k.contains(key) || key.contains(k)) -> 1
+                            else -> distance(k, key).takeIf { it <= 2 } ?: Int.MAX_VALUE
+                        }
+                    }
+                if (d == Int.MAX_VALUE) null else e to d
+            }.minByOrNull { it.second }?.first
+        }
+
+        val out = mutableListOf<String>()
+
+        fun check(
+            label: String,
+            ref: String,
+            pool: List<CharacterCatalogEntry>,
+        ) {
+            if (ref.isBlank() || pool.any { it.id == ref }) return
+            closest(ref, pool)?.let { out += "$label \"$ref\" → sugestão: ${it.name} (${it.id})" }
+        }
+        check("Raça", choices.raceId, races)
+        check("Sub-raça", choices.subraceId, subraces)
+        check("Híbrido", choices.hybridId, hybrids)
+        check("Classe", choices.classId, classes)
+        check("Profissão", choices.professionId, professions)
+        choices.additionalClassIds.distinct().forEach { check("Classe adicional", it, classes) }
+        choices.curseIds.distinct().forEach { check("Maldição", it, curses) }
+        return out
+    }
+
     /** Valida escolhas do jogador contra categorias e referências do catálogo, sem inferir regras mecânicas. */
     fun validateChoices(choices: CharacterChoices): List<String> {
         val errors = validationErrors().toMutableList()

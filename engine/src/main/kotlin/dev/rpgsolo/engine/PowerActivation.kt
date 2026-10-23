@@ -22,6 +22,9 @@ sealed interface PowerEffect {
     ) : PowerEffect
 
     data class Cleanse(val condition: String) : PowerEffect
+
+    /** MU-02.7: soma [amount] ao escudo do usuário. */
+    data class Shield(val amount: Int) : PowerEffect
 }
 
 /**

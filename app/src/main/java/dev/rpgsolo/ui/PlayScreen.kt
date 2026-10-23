@@ -48,8 +48,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.rpgsolo.R
 import dev.rpgsolo.ai.Author
 import dev.rpgsolo.ai.ChatLine
 import dev.rpgsolo.ai.PanelState
@@ -69,31 +71,31 @@ fun PlayScreen(
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
             AppCard {
                 Text("🎲", fontSize = 40.sp)
-                Text("Preparar sua mesa", style = MaterialTheme.typography.titleLarge)
-                Muted("Complete as três etapas para começar uma campanha. O progresso acompanha sua configuração real.")
+                Text(stringResource(R.string.play_setup_title), style = MaterialTheme.typography.titleLarge)
+                Muted(stringResource(R.string.play_setup_help))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (setup.providerReady) {
-                        Muted("✓ 1. Provedor de IA configurado.")
+                        Muted(stringResource(R.string.play_step1_done))
                     } else {
-                        Muted("1. Configure e teste o provedor de IA.")
+                        Muted(stringResource(R.string.play_step1))
                         OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.fillMaxWidth()) {
-                            Text("1 · Configurar IA")
+                            Text(stringResource(R.string.play_step1_button))
                         }
                     }
                     if (setup.heroReady) {
-                        Muted("✓ 2. Herói disponível na biblioteca.")
+                        Muted(stringResource(R.string.play_step2_done))
                     } else {
-                        Muted("2. Crie ou escolha uma ficha de herói.")
+                        Muted(stringResource(R.string.play_step2))
                         OutlinedButton(onClick = { onNavigate(Tab.PERSONAGENS) }, modifier = Modifier.fillMaxWidth()) {
-                            Text("2 · Criar ou escolher herói")
+                            Text(stringResource(R.string.play_step2_button))
                         }
                     }
                     if (setup.campaignReady) {
-                        Muted("✓ 3. Campanha criada.")
+                        Muted(stringResource(R.string.play_step3_done))
                     } else {
-                        Muted("3. Descreva a aventura e inicie a campanha com o herói escolhido.")
+                        Muted(stringResource(R.string.play_step3))
                         Button(onClick = { onNavigate(Tab.CAMPANHAS) }, modifier = Modifier.fillMaxWidth()) {
-                            Text("3 · Criar campanha")
+                            Text(stringResource(R.string.play_step3_button))
                         }
                     }
                 }
@@ -105,10 +107,10 @@ fun PlayScreen(
     if (c == null) {
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
             AppCard {
-                Text("Não foi possível iniciar o mestre", style = MaterialTheme.typography.titleLarge)
-                Muted(model.configError ?: "Confira o provedor e tente novamente na aba Config.")
+                Text(stringResource(R.string.play_master_failed), style = MaterialTheme.typography.titleLarge)
+                Muted(model.configError ?: stringResource(R.string.play_master_failed_help))
                 OutlinedButton(onClick = { onNavigate(Tab.CONFIG) }, modifier = Modifier.fillMaxWidth()) {
-                    Text("Abrir Config")
+                    Text(stringResource(R.string.play_open_config))
                 }
             }
         }
@@ -260,6 +262,9 @@ private fun PlayContent(
                     )
                 }
             }
+            item(key = "historico-rolagens") {
+                RollHistory(lines.withIndex().filter { (i, l) -> l.roll != null && c.isRollRevealed(i) }.map { it.value.roll!! })
+            }
             itemsIndexed(visible, key = { _, iv -> iv.index }) { _, iv ->
                 ChatItem(
                     iv.value,
@@ -278,7 +283,7 @@ private fun PlayContent(
                     AppCard {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             LinearProgressIndicator(modifier = Modifier.width(28.dp))
-                            Text("Mestre narrando…", style = MaterialTheme.typography.labelMedium)
+                            Text(stringResource(R.string.chat_narrating), style = MaterialTheme.typography.labelMedium)
                         }
                         Text(streamingText)
                     }
@@ -387,15 +392,15 @@ private fun LuckPanel(
     onSpend: (dev.rpgsolo.engine.LuckKind) -> Unit,
 ) {
     AppCard {
-        Text("Sorte", style = MaterialTheme.typography.titleSmall)
-        Muted("Custo: ${offer.cost} de $resourceName. Vale uma vez para o último teste e o mestre narra o novo resultado.")
+        Text(stringResource(R.string.luck_title), style = MaterialTheme.typography.titleSmall)
+        Muted(stringResource(R.string.luck_help, offer.cost, resourceName))
         if (dev.rpgsolo.engine.LuckKind.REROLL in offer.kinds) {
             OutlinedButton(
                 enabled = enabled,
                 onClick = { onSpend(dev.rpgsolo.engine.LuckKind.REROLL) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Repetir a rolagem")
+                Text(stringResource(R.string.luck_reroll))
             }
         }
         if (dev.rpgsolo.engine.LuckKind.ADD_FACE in offer.kinds) {
@@ -404,7 +409,7 @@ private fun LuckPanel(
                 onClick = { onSpend(dev.rpgsolo.engine.LuckKind.ADD_FACE) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Somar uma face")
+                Text(stringResource(R.string.luck_add_face))
             }
         }
     }
@@ -424,16 +429,16 @@ private fun InventoryPanel(
     val inventory = model.inventoryView()
     if (inventory.isEmpty()) return
     AppCard {
-        Text("Inventário", style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.inventory_title), style = MaterialTheme.typography.titleSmall)
         inventory.forEach { item ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("${item.name} x${item.quantity}")
+                    Text(stringResource(R.string.inventory_item, item.name, item.quantity))
                     Muted(item.description)
                     if (item.kind == "equipamento" && item.slot != null) {
-                        Muted("slot: ${item.slot}${if (item.equipped) " · equipado" else ""}")
+                        Muted(stringResource(R.string.inventory_slot, item.slot) + if (item.equipped) stringResource(R.string.inventory_equipped_suffix) else "")
                     } else {
-                        Muted("tipo: ${item.kind}")
+                        Muted(stringResource(R.string.inventory_kind, item.kind))
                     }
                 }
                 when {
@@ -441,17 +446,17 @@ private fun InventoryPanel(
                         TextButton(
                             enabled = enabled,
                             onClick = { act({ model.unequipItem(item.slot) }) { message = it } },
-                        ) { Text("Desequipar") }
+                        ) { Text(stringResource(R.string.inventory_unequip)) }
                     item.kind == "equipamento" && item.slot != null ->
-                        TextButton(enabled = enabled, onClick = { act({ model.equipItem(item.id) }) { message = it } }) { Text("Equipar") }
+                        TextButton(enabled = enabled, onClick = { act({ model.equipItem(item.id) }) { message = it } }) { Text(stringResource(R.string.inventory_equip)) }
                     item.kind == "consumivel" ->
-                        TextButton(enabled = enabled, onClick = { act({ model.useItem(item.id) }) { message = it } }) { Text("Usar") }
+                        TextButton(enabled = enabled, onClick = { act({ model.useItem(item.id) }) { message = it } }) { Text(stringResource(R.string.inventory_use)) }
                 }
                 if (item.price != null && !item.equipped) {
                     TextButton(
                         enabled = enabled,
                         onClick = { act({ model.sellItem(item.id) }) { message = it } },
-                    ) { Text("Vender (${item.price})") }
+                    ) { Text(stringResource(R.string.inventory_sell, item.price)) }
                 }
             }
         }
@@ -472,32 +477,32 @@ private fun ShopPanel(
     val spellShop = model.spellShopView()
     if (shop.entries.isEmpty() && spellShop.isEmpty()) return
     AppCard {
-        Text("Loja", style = MaterialTheme.typography.titleSmall)
-        Muted("Saldo: ${shop.balance} (${shop.currencyName})")
+        Text(stringResource(R.string.shop_title), style = MaterialTheme.typography.titleSmall)
+        Muted(stringResource(R.string.shop_balance, shop.balance, shop.currencyName))
         shop.goldName?.let { goldName ->
             Muted(
-                "${shop.goldHeld} de $goldName e ${shop.silverHeld} de ${shop.currencyName} · 1 $goldName = ${shop.silverPerGold} ${shop.currencyName}",
+                stringResource(R.string.shop_holdings, shop.goldHeld, goldName, shop.silverHeld, shop.currencyName, shop.silverPerGold),
             )
             Row {
                 TextButton(enabled = enabled && shop.silverHeld >= shop.silverPerGold, onClick = {
                     act({ model.convertCoins(toGold = true) }) { message = it }
-                }) { Text("Trocar ${shop.silverPerGold} ${shop.currencyName} por 1 $goldName") }
+                }) { Text(stringResource(R.string.shop_to_gold, shop.silverPerGold, shop.currencyName, goldName)) }
                 TextButton(enabled = enabled && shop.goldHeld >= 1, onClick = {
                     act({
                         model.convertCoins(toGold = false)
                     }) { message = it }
-                }) { Text("Trocar 1 $goldName por ${shop.silverPerGold} ${shop.currencyName}") }
+                }) { Text(stringResource(R.string.shop_to_silver, goldName, shop.silverPerGold, shop.currencyName)) }
             }
         }
         shop.entries.forEach { entry ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("${entry.name} · ${entry.price}")
+                    Text(stringResource(R.string.shop_entry, entry.name, entry.price))
                     Muted(entry.description)
                 }
                 TextButton(enabled = enabled && shop.balance >= entry.price, onClick = {
                     act({ model.buyItem(entry.id) }) { message = it }
-                }) { Text("Comprar") }
+                }) { Text(stringResource(R.string.shop_buy)) }
             }
         }
         message?.let { ErrorText(it) }
@@ -520,14 +525,14 @@ private fun PowersPanel(
     if (powers.isEmpty()) return
     val targets = model.powerTargets()
     AppCard {
-        Text("Poderes", style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.powers_title), style = MaterialTheme.typography.titleSmall)
         powers.forEach { power ->
             Column(Modifier.fillMaxWidth()) {
                 Text(power.name)
                 Muted(power.description)
-                Muted("custo: ${power.cost} de ${power.resourceName}" + if (power.needsTarget) " · exige alvo" else "")
+                Muted(stringResource(R.string.powers_cost, power.cost, power.resourceName) + if (power.needsTarget) stringResource(R.string.powers_needs_target) else "")
                 if (power.needsTarget) {
-                    if (targets.isEmpty()) Muted("Nenhum adversário disponível.")
+                    if (targets.isEmpty()) Muted(stringResource(R.string.powers_no_targets))
                     targets.forEach { t ->
                         TextButton(enabled = enabled, onClick = { targetId = t.id }) {
                             Text((if (targetId == t.id) "● " else "○ ") + t.name)
@@ -541,7 +546,7 @@ private fun PowersPanel(
                         val target = if (power.needsTarget) targetId else null
                         act({ model.activatePower(id, target) }) { message = it }
                     },
-                ) { Text("Usar ${power.name}") }
+                ) { Text(stringResource(R.string.powers_use, power.name)) }
             }
         }
         message?.let { ErrorText(it) }
@@ -560,19 +565,19 @@ private fun TraitUsesPanel(
     val traits = model.traitUsesView()
     if (traits.isEmpty()) return
     AppCard {
-        Text("Traços com usos", style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.traituses_title), style = MaterialTheme.typography.titleSmall)
         traits.forEach { t ->
             Column(Modifier.fillMaxWidth()) {
                 Text(t.name)
                 if (t.description.isNotBlank()) Muted(t.description)
-                Muted("usos: ${t.used}/${t.limit} · voltam ao descansar")
+                Muted(stringResource(R.string.traituses_info, t.used, t.limit))
                 TextButton(
                     enabled = enabled && t.used < t.limit,
                     onClick = {
                         val id = t.id
                         act({ model.spendTraitUse(id) }) { message = it }
                     },
-                ) { Text("Usar ${t.name}") }
+                ) { Text(stringResource(R.string.powers_use, t.name)) }
             }
         }
         message?.let { ErrorText(it) }
@@ -591,10 +596,10 @@ private fun ConditionRemovalPanel(
     val list = model.removableConditions()
     if (list.isEmpty()) return
     AppCard {
-        Text("Condições tratáveis", style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.conditions_title), style = MaterialTheme.typography.titleSmall)
         list.forEach { (id, name) ->
             TextButton(enabled = enabled, onClick = { act({ model.removeCondition(id) }) { message = it } }) {
-                Text("Tentar remover: $name")
+                Text(stringResource(R.string.conditions_try_remove, name))
             }
         }
         message?.let { ErrorText(it) }
@@ -612,10 +617,10 @@ private fun SurvivalPanel(
     var message by remember { mutableStateOf<String?>(null) }
     val limit = model.survivalLimit() ?: return
     AppCard {
-        Text("Você está caído", style = MaterialTheme.typography.titleSmall)
-        Muted("falhas: ${model.survivalFailures()}/$limit · novo dano mata")
+        Text(stringResource(R.string.survival_title), style = MaterialTheme.typography.titleSmall)
+        Muted(stringResource(R.string.survival_failures, model.survivalFailures(), limit))
         TextButton(enabled = enabled, onClick = { act({ model.survivalTest() }) { message = it } }) {
-            Text("Teste de sobrevivência")
+            Text(stringResource(R.string.survival_test))
         }
         message?.let { ErrorText(it) }
     }
@@ -631,16 +636,16 @@ private fun PlacesPanel(
     var message by remember { mutableStateOf<String?>(null) }
     if (places.isEmpty()) return
     AppCard {
-        Text("Mapa textual", style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.places_title), style = MaterialTheme.typography.titleSmall)
         places.forEach { place ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(place.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                    if (place.current) Pill("Você está aqui", MaterialTheme.colorScheme.tertiary)
+                    if (place.current) Pill(stringResource(R.string.places_here), MaterialTheme.colorScheme.tertiary)
                 }
                 if (place.description.isNotBlank()) Text(place.description)
                 if (place.current && place.exits.isNotEmpty()) {
-                    Muted("Saídas conhecidas:")
+                    Muted(stringResource(R.string.places_exits))
                     Row(
                         Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -649,7 +654,7 @@ private fun PlacesPanel(
                             OutlinedButton(
                                 enabled = enabled,
                                 onClick = { act({ model.moveToPlace(id) }) { message = it } },
-                            ) { Text("Ir para $name") }
+                            ) { Text(stringResource(R.string.places_go, name)) }
                         }
                     }
                 }
@@ -673,36 +678,36 @@ private fun AdditionalRulesPanel(
     var message by remember { mutableStateOf<String?>(null) }
     if (rules.isEmpty()) return
     AppCard {
-        Text("Adaptações da campanha", style = MaterialTheme.typography.titleSmall)
-        Muted("Regras propostas pela IA não alteram a mecânica até você aprová-las.")
+        Text(stringResource(R.string.rules_title), style = MaterialTheme.typography.titleSmall)
+        Muted(stringResource(R.string.rules_help))
         rules.forEach { rule ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(rule.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
                     if (rule.approved) {
-                        Pill("Aprovada", MaterialTheme.colorScheme.tertiary)
+                        Pill(stringResource(R.string.rules_approved), MaterialTheme.colorScheme.tertiary)
                     } else {
-                        Pill("Pendente", MaterialTheme.colorScheme.error)
+                        Pill(stringResource(R.string.rules_pending), MaterialTheme.colorScheme.error)
                     }
                 }
                 Text(rule.description)
                 Muted(
-                    "Efeitos: " +
+                    stringResource(R.string.rules_effects_prefix) +
                         rule.effects.entries.joinToString(", ") { (key, value) ->
                             "$key ${if (value >= 0) "+" else ""}$value"
                         },
                 )
-                Muted("Limite/custo: ${rule.limit}")
+                Muted(stringResource(R.string.rules_limit, rule.limit))
                 if (!rule.approved) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
                             enabled = enabled,
                             onClick = { act({ model.approveAdditionalRule(rule.id) }) { message = it } },
-                        ) { Text("Aprovar") }
+                        ) { Text(stringResource(R.string.rules_approve)) }
                         TextButton(
                             enabled = enabled,
                             onClick = { act({ model.rejectAdditionalRule(rule.id) }) { message = it } },
-                        ) { Text("Descartar") }
+                        ) { Text(stringResource(R.string.rules_discard)) }
                     }
                 }
             }
@@ -724,9 +729,9 @@ private fun QuickActions(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            AssistChip(onClick = onSheet, enabled = enabled, label = { Text("Ver ficha") })
-            AssistChip(onClick = onInventory, enabled = enabled, label = { Text("Inventário") })
-            AssistChip(onClick = onRest, enabled = enabled, label = { Text("Descansar") })
+            AssistChip(onClick = onSheet, enabled = enabled, label = { Text(stringResource(R.string.quick_sheet)) })
+            AssistChip(onClick = onInventory, enabled = enabled, label = { Text(stringResource(R.string.quick_inventory)) })
+            AssistChip(onClick = onRest, enabled = enabled, label = { Text(stringResource(R.string.quick_rest)) })
         }
     }
 }
@@ -752,8 +757,8 @@ private fun AdvancedCheckControls(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text("Disputa de testes", style = MaterialTheme.typography.labelLarge)
-            Muted("Escolha o mesmo teste para seu personagem e o NPC. Os resultados são decididos pelo motor.")
+            Text(stringResource(R.string.advcheck_opposed_title), style = MaterialTheme.typography.labelLarge)
+            Muted(stringResource(R.string.advcheck_opposed_help))
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -775,7 +780,12 @@ private fun AdvancedCheckControls(
                     AssistChip(
                         onClick = { selectedTarget = target.id },
                         enabled = enabled,
-                        label = { Text(target.name + if (target.rulesValidated) "" else " · não validado") },
+                        label = {
+                            Text(
+                                target.name +
+                                    if (target.rulesValidated) "" else stringResource(R.string.advcheck_not_validated),
+                            )
+                        },
                         leadingIcon = if (selectedTarget == target.id) ({ Text("✓") }) else null,
                     )
                 }
@@ -789,10 +799,10 @@ private fun AdvancedCheckControls(
                 enabled = enabled && selectedCheck in options.map { it.id } && selectedTarget in targets.map { it.id },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Resolver disputa")
+                Text(stringResource(R.string.advcheck_resolve_opposed))
             }
-            Text("Teste de grupo", style = MaterialTheme.typography.labelLarge)
-            Muted("O herói participa automaticamente. Marque os NPCs que participam da tarefa.")
+            Text(stringResource(R.string.advcheck_group_title), style = MaterialTheme.typography.labelLarge)
+            Muted(stringResource(R.string.advcheck_group_help))
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -825,7 +835,7 @@ private fun AdvancedCheckControls(
                     AssistChip(
                         onClick = { requiredGroupSuccesses = threshold },
                         enabled = enabled,
-                        label = { Text("$threshold sucesso(s)") },
+                        label = { Text(stringResource(R.string.advcheck_successes, threshold)) },
                         leadingIcon = if (requiredGroupSuccesses == threshold) ({ Text("✓") }) else null,
                     )
                 }
@@ -840,7 +850,7 @@ private fun AdvancedCheckControls(
                 enabled = enabled && selectedCheck in options.map { it.id } && requiredGroupSuccesses in 1..participantCount,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Resolver teste de grupo")
+                Text(stringResource(R.string.advcheck_resolve_group))
             }
             message?.let { Muted(it) }
         }
@@ -875,7 +885,7 @@ private fun CombatControls(
                         value = npcName,
                         onValueChange = { npcName = it },
                         modifier = Modifier.weight(1f),
-                        label = { Text("Nome do adversário") },
+                        label = { Text(stringResource(R.string.combat_enemy_name)) },
                         singleLine = true,
                     )
                     Button(onClick = {
@@ -884,23 +894,29 @@ private fun CombatControls(
                             message = r
                             if (r?.contains("adicionado") == true) npcName = ""
                         }
-                    }, enabled = enabled && npcName.isNotBlank()) { Text("Adicionar") }
+                    }, enabled = enabled && npcName.isNotBlank()) { Text(stringResource(R.string.combat_add)) }
                 }
                 Button(enabled = enabled, onClick = { act({ model.startCombat() }) { message = it } }, modifier = Modifier.fillMaxWidth()) {
-                    Text("⚔ Iniciar combate")
+                    Text(stringResource(R.string.combat_start))
                 }
             } else {
                 Text(
-                    "Rodada ${combat.round} · turno ${combat.turnIndex + 1}/${combat.order.size}: ${model.combatantName(combat.current)}",
+                    stringResource(
+                        R.string.combat_turn,
+                        combat.round,
+                        combat.turnIndex + 1,
+                        combat.order.size,
+                        model.combatantName(combat.current),
+                    ),
                     style = MaterialTheme.typography.labelLarge,
                 )
                 model.combatOrderDescription()?.let { order ->
-                    Muted("Ordem de iniciativa: $order")
+                    Muted(stringResource(R.string.combat_initiative, order))
                 }
                 if (model.isPlayerCombatTurn()) {
                     val targets = model.combatTargets()
                     if (targets.isEmpty()) {
-                        Muted("Não há alvos vivos.")
+                        Muted(stringResource(R.string.combat_no_targets))
                     } else {
                         Row(
                             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
@@ -912,36 +928,39 @@ private fun CombatControls(
                                     act({ model.unifiedAttack(id) }) { message = it }
                                 }) {
                                     Text(
-                                        "Atacar ${target.name}${target.condition.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()}${if (target.rulesValidated) "" else " (não validado)"}",
+                                        stringResource(R.string.combat_attack, target.name) +
+                                            target.condition.takeIf { it.isNotBlank() }
+                                                ?.let { stringResource(R.string.combat_condition_suffix, it) }.orEmpty() +
+                                            if (target.rulesValidated) "" else stringResource(R.string.combat_not_validated),
                                     )
                                 }
                             }
                         }
                     }
                 } else {
-                    Muted("Aguarde o turno de ${model.combatantName(combat.current)}.")
+                    Muted(stringResource(R.string.combat_wait, model.combatantName(combat.current)))
                 }
                 if (model.isPlayerCombatTurn() && model.canDefend()) {
                     OutlinedButton(
                         enabled = enabled,
                         onClick = { act({ model.defend() }) { message = it } },
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text("Defender — bônus contra o próximo ataque") }
+                    ) { Text(stringResource(R.string.combat_defend)) }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (model.isPlayerCombatTurn()) {
                         Button(enabled = enabled, onClick = {
                             act({ model.nextCombatTurn() }) { message = it }
-                        }, modifier = Modifier.weight(1f)) { Text("Passar turno") }
+                        }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.combat_pass)) }
                         OutlinedButton(enabled = enabled, onClick = {
                             act({ model.fleeCombat() }) { message = it }
-                        }, modifier = Modifier.weight(1f)) { Text("Fugir") }
+                        }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.combat_flee)) }
                     } else {
                         Button(enabled = enabled, onClick = {
                             act({ model.resolveNpcTurn() }) { message = it }
-                        }, modifier = Modifier.weight(1f)) { Text("Resolver turno inimigo") }
+                        }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.combat_enemy_turn)) }
                     }
-                    TextButton(enabled = enabled, onClick = { act({ model.endCombat() }) { message = it } }) { Text("Encerrar") }
+                    TextButton(enabled = enabled, onClick = { act({ model.endCombat() }) { message = it } }) { Text(stringResource(R.string.combat_end)) }
                 }
             }
             message?.let { ErrorText(it) }
@@ -955,16 +974,17 @@ private fun StatusPanel(p: PanelState) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(p.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                if (p.inCombat) Pill("⚔ em combate", MaterialTheme.colorScheme.error)
+                if (p.inCombat) Pill(stringResource(R.string.status_in_combat), MaterialTheme.colorScheme.error)
+                if (p.shield > 0) Pill(stringResource(R.string.status_shield, p.shield), MaterialTheme.colorScheme.primary)
             }
-            Muted("Nível ${p.level} · ${p.xp} XP")
+            Muted(stringResource(R.string.status_level_xp, p.level, p.xp))
             p.resources.forEach { (id, v) -> ResourceBar(id, v.first, v.second) }
             if (p.conditions.isNotEmpty()) {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     p.conditions.forEach { Pill(it, MaterialTheme.colorScheme.tertiary) }
                 }
             }
-            p.quest?.let { Muted("📜 $it") }
+            p.quest?.let { Muted(stringResource(R.string.status_quest, it)) }
         }
     }
 }
@@ -1015,7 +1035,7 @@ private fun ChatItem(
             if (view != null) {
                 RollCard(view, revealed, onRevealed)
             } else {
-                Pill("🎲 ${line.text}", MaterialTheme.colorScheme.secondary)
+                Pill(stringResource(R.string.chat_roll_line, line.text), MaterialTheme.colorScheme.secondary)
             }
         }
         Author.MASTER ->
@@ -1039,7 +1059,7 @@ private fun Thinking() {
     val t = rememberInfiniteTransition(label = "pensando")
     val a by t.animateFloat(0.3f, 1f, infiniteRepeatable(tween(700), RepeatMode.Reverse), label = "alfa")
     Text(
-        "O mestre está pensando…",
+        stringResource(R.string.chat_thinking),
         Modifier.alpha(a),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.primary,
@@ -1064,21 +1084,21 @@ private fun BottomBar(
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            warning?.let { ErrorText("Não consegui decidir se a ação exige teste ($it). Seguindo sem teste.") }
+            warning?.let { ErrorText(stringResource(R.string.chat_check_warning, it)) }
             if (busy) Thinking()
             if (pendingRoll && !busy) {
                 Text(
-                    "🎲 Role os dados para continuar.",
+                    stringResource(R.string.chat_roll_to_continue),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
             // O mestre pediu um teste: só resta rolar (ou desfazer). O motor rola e o mestre narra o desfecho.
             if (pendingCheck != null && !busy && !pendingRoll) {
-                Button(onClick = onRollCheck, modifier = Modifier.fillMaxWidth()) { Text("🎲 Rolar $pendingCheck") }
+                Button(onClick = onRollCheck, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.chat_roll_check, pendingCheck)) }
                 if (fortuneSpendLabel != null) {
                     OutlinedButton(onClick = onRollFortune, modifier = Modifier.fillMaxWidth()) {
-                        Text("🎲 Gastar $fortuneSpendLabel")
+                        Text(stringResource(R.string.chat_spend_fortune, fortuneSpendLabel))
                     }
                 }
             }
@@ -1093,16 +1113,18 @@ private fun BottomBar(
                     value = text,
                     onValueChange = onText,
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text(if (pendingCheck != null) "Role o teste para continuar" else "O que você faz?") },
+                    placeholder = {
+                        Text(stringResource(if (pendingCheck != null) R.string.chat_placeholder_roll else R.string.chat_placeholder_action))
+                    },
                     enabled = !busy && !pendingRoll && pendingCheck == null,
                     shape = MaterialTheme.shapes.large,
                     maxLines = 4,
                 )
-                Button(enabled = !busy && !pendingRoll && pendingCheck == null && text.isNotBlank(), onClick = onSend) { Text("Enviar") }
+                Button(enabled = !busy && !pendingRoll && pendingCheck == null && text.isNotBlank(), onClick = onSend) { Text(stringResource(R.string.chat_send)) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(enabled = !busy, onClick = onUndo) { Text("↩ Desfazer") }
-                TextButton(enabled = !busy && !pendingRoll, onClick = onRegenerate) { Text("🔄 Narrar de novo") }
+                TextButton(enabled = !busy, onClick = onUndo) { Text(stringResource(R.string.chat_undo)) }
+                TextButton(enabled = !busy && !pendingRoll, onClick = onRegenerate) { Text(stringResource(R.string.chat_regenerate)) }
             }
         }
     }

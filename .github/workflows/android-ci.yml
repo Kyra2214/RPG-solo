@@ -47,6 +47,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Upload Room schemas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpgsolo-room-schemas
+          path: data/schemas/**
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Run Android E2E on emulator
         if: github.event_name != 'pull_request'
         id: e2e
@@ -59,7 +68,20 @@ jobs:
           emulator-boot-timeout: 900
           disable-animations: true
           script: |
-            ./scripts/run-android-e2e.sh
+            set +e
+            adb logcat -c
+            adb logcat -v threadtime > e2e-logcat.txt &
+            logcat_pid=$!
+            ./gradlew :app:connectedDebugAndroidTest --stacktrace
+            result=$?
+            # Q-04: migrações Room. Informativo até a primeira execução verde; depois, trocar para falhar o job.
+            ./gradlew :data:connectedDebugAndroidTest --stacktrace
+            data_result=$?
+            echo "data:connectedDebugAndroidTest exit=$data_result" > data-androidtest-result.txt
+            sleep 2
+            kill "$logcat_pid" 2>/dev/null || true
+            wait "$logcat_pid" 2>/dev/null || true
+            exit $result
 
       - name: Upload E2E diagnostics
         if: always() && github.event_name != 'pull_request'
@@ -68,7 +90,9 @@ jobs:
           name: rpgsolo-e2e-diagnostics
           path: |
             e2e-logcat.txt
+            data-androidtest-result.txt
             app/build/reports/androidTests/connected
+            data/build/reports/androidTests/connected
           if-no-files-found: ignore
           retention-days: 14
 

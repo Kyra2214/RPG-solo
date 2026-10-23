@@ -57,6 +57,8 @@ class TurnRunner(
         sceneNpcIds: Set<String> = emptySet(),
         onNarrativeChunk: (String) -> Unit = {},
         powers: PowerContext? = null,
+        attacks: AttackContext? = null,
+        quests: QuestContext? = null,
     ): TurnOutcome {
         val mark = session.mark()
         var messages = request.messages
@@ -78,7 +80,7 @@ class TurnRunner(
                 } catch (e: AiError) {
                     return TurnOutcome.Failed(e.message ?: "erro de IA", e)
                 }
-            when (val a = attempt(session, response.text, menu, canRequest, playerEntityId, sceneNpcIds, powers)) {
+            when (val a = attempt(session, response.text, menu, canRequest, playerEntityId, sceneNpcIds, powers, attacks, quests)) {
                 is Attempt.Done -> return a.outcome
                 is Attempt.Retry -> {
                     lastProblem = a.problem
@@ -155,7 +157,13 @@ class TurnRunner(
         val context = powers ?: return Attempt.Retry("este jogo não oferece poderes; não use request_power", false)
         val playerId = playerEntityId ?: return Attempt.Retry("o jogador não foi identificado para usar o poder", false)
         val targetTraits = request.targetId?.let { session.state.entities[it]?.traits.orEmpty() }.orEmpty()
-        val built = context.menu.build(request.powerId, playerId, request.targetId, session.state, context.traitIds(), targetTraits)
+        val spellId = request.powerId.takeIf { it.startsWith("magia:") }?.removePrefix("magia:")
+        val built =
+            if (spellId != null) {
+                context.menu.buildSpell(spellId, playerId, request.targetId, session.state, context.traitIds(), targetTraits)
+            } else {
+                context.menu.build(request.powerId, playerId, request.targetId, session.state, context.traitIds(), targetTraits)
+            }
         val ready =
             when (built) {
                 is PowerBuild.Invalid -> return Attempt.Retry("poder recusado: ${built.reason}", false)
@@ -186,6 +194,47 @@ class TurnRunner(
         }
     }
 
+    /** request_attack: a IA só escolhe o alvo; o executor (mesmo serviço do ataque manual) rola, aplica o dano e avança o turno. */
+    private fun attemptAttack(
+        session: CampaignSession,
+        out: TurnOutput,
+        attacks: AttackContext?,
+        playerEntityId: String?,
+    ): Attempt {
+        val targetId = out.attackRequest!!.targetId
+        val context = attacks ?: return Attempt.Retry("este jogo não oferece ataques; não use request_attack", false)
+        val playerId = playerEntityId ?: return Attempt.Retry("o jogador não foi identificado para atacar", false)
+        val combat = session.state.combat ?: return Attempt.Retry("não há combate ativo; não use request_attack", false)
+        val target = session.state.entities[targetId]
+        val problem =
+            when {
+                combat.current != playerId -> "não é o turno do jogador; não use request_attack"
+                target == null || targetId !in combat.order -> "alvo '$targetId' não está no combate"
+                target.kind != dev.rpgsolo.engine.EntityKind.NPC -> "o alvo do ataque deve ser um NPC do combate"
+                !target.alive -> "o alvo '$targetId' já está derrotado"
+                else -> null
+            }
+        if (problem != null) return Attempt.Retry("ataque recusado: $problem", false)
+        val mark = session.mark()
+        val refusal = context.execute(targetId)
+        if (refusal != null) {
+            if (session.eventCount != mark) session.rollbackTo(mark)
+            return Attempt.Retry("o motor recusou o ataque: $refusal", true)
+        }
+        return Attempt.Done(TurnOutcome.Applied(out.narrative, session.events.drop(mark), out.suggestions))
+    }
+
+    /** request_quest: o app valida e registra a missão (fora do log de eventos); recusa volta à IA sem alterar o estado. */
+    private fun attemptQuest(
+        out: TurnOutput,
+        quests: QuestContext?,
+    ): Attempt {
+        val context = quests ?: return Attempt.Retry("este jogo não oferece missões; não use request_quest", false)
+        val refusal = context.execute(out.questRequest!!)
+        if (refusal != null) return Attempt.Retry("missão recusada: $refusal", false)
+        return Attempt.Done(TurnOutcome.Applied(out.narrative, emptyList(), out.suggestions))
+    }
+
     private fun attempt(
         session: CampaignSession,
         text: String,
@@ -194,6 +243,8 @@ class TurnRunner(
         playerEntityId: String?,
         sceneNpcIds: Set<String>,
         powers: PowerContext?,
+        attacks: AttackContext? = null,
+        quests: QuestContext? = null,
     ): Attempt {
         return when (val parsed = ProposalParser.parse(text)) {
             is ParseResult.Invalid ->
@@ -201,6 +252,8 @@ class TurnRunner(
             is ParseResult.Ok -> {
                 val out = parsed.output
                 if (out.powerRequest != null) return attemptPower(session, out, powers, playerEntityId)
+                if (out.attackRequest != null) return attemptAttack(session, out, attacks, playerEntityId)
+                if (out.questRequest != null) return attemptQuest(out, quests)
                 val req = out.checkRequest
                 val roll = out.rollRequest
                 if (req != null || roll != null) {

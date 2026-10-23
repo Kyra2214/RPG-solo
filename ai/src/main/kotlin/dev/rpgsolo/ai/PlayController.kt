@@ -35,6 +35,8 @@ data class RollView(
     val plain: Boolean = false,
     /** Chance exata de sucesso pleno calculada pelo motor; null em rolagem simples, vantagem/desvantagem ou dados explosivos. */
     val chance: Double? = null,
+    /** Por que o teste não é padrão (vantagem, desvantagem, dados explosivos, bônus ou penalidade), só do que o motor registrou no teste. */
+    val chips: List<String> = emptyList(),
 )
 
 /** [roll] só vem preenchido nas linhas ROLL; [text] continua com a versão em texto da mesma rolagem. */
@@ -49,6 +51,8 @@ data class PanelState(
     val inCombat: Boolean,
     val level: Int = 1,
     val xp: Int = 0,
+    /** MU-02.8: escudo atual do personagem (0 = sem escudo). */
+    val shield: Int = 0,
 )
 
 /**
@@ -737,6 +741,7 @@ class PlayController(
             inCombat = session.state.combat != null,
             level = e.level,
             xp = e.xp,
+            shield = e.shield,
         )
     }
 
@@ -786,7 +791,21 @@ class PlayController(
             total = c.roll.total, difficulty = c.spec.difficulty, outcome = c.outcome,
             outcomeWord = if (plain) "" else word(c.outcome), margin = c.margin, plain = plain,
             chance = if (plain || c.spec.fortuneMode != FortuneMode.NORMAL || c.spec.explodeOnMax) null else c.spec.successChance(),
+            chips = if (plain) emptyList() else rollChips(c.spec),
         )
+
+        /** Causas visíveis da mudança no teste, a partir do próprio [CheckSpec]; a origem do bônus (traço, condição) não é registrada no teste. */
+        fun rollChips(spec: CheckSpec): List<String> =
+            buildList {
+                when (spec.fortuneMode) {
+                    FortuneMode.ADVANTAGE -> add("vantagem")
+                    FortuneMode.DISADVANTAGE -> add("desvantagem")
+                    FortuneMode.NORMAL -> Unit
+                }
+                if (spec.explodeOnMax) add("dados explosivos")
+                if (spec.modifier > 0) add("bônus +${spec.modifier}")
+                if (spec.modifier < 0) add("penalidade ${spec.modifier}")
+            }
 
         /** Rolagem do motor, clara (10.1.4): dados, modificador, total e resultado. */
         fun rollText(

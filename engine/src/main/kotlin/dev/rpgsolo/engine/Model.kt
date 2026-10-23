@@ -38,6 +38,8 @@ data class Entity(
     val kind: EntityKind,
     val stats: Map<String, Int> = emptyMap(),
     val resources: Map<String, Resource> = emptyMap(),
+    /** MU-02.6: escudo; absorve dano antes do recurso de vida, exceto de ataques que ignoram defesa. */
+    val shield: Int = 0,
     val alive: Boolean = true,
     /** M-04: caído (vivo, com o recurso de morte em 0). Só ocorre com [DeathMode.DOWNED] e em PLAYER. */
     val downed: Boolean = false,
@@ -132,6 +134,10 @@ data class GameState(
     val memories: Map<String, List<String>> = emptyMap(),
     /** MU-06.3: entidade -> efeitos temporários de habilidades, com duração em rodadas gravada. */
     val activeEffects: Map<String, List<ActiveEffect>> = emptyMap(),
+    /** MU-02.5: entidade -> rodadas restantes de recarga do "ignorar defesa"; some ao chegar a 0. */
+    val ignoreCooldowns: Map<String, Int> = emptyMap(),
+    /** M-04: motivo do fim da campanha (game over); null = em andamento. Encerrada, o motor recusa novos comandos. */
+    val endedReason: String? = null,
 )
 
 const val MEMORY_NOTES_PER_SUBJECT = 5

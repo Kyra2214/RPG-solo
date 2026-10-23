@@ -168,6 +168,8 @@ class GameEngine private constructor(
         }
 
         val mark = mark()
+        // MU-02.5: em recarga, o "ignorar defesa" não é tentado (nem rola o d10); o ataque segue normal.
+        val ignoreSpec = spec.ignoreDefense?.takeIf { (state.ignoreCooldowns[spec.attackerId] ?: 0) <= 0 }
         val clash =
             UnifiedCombat.resolve(
                 spec.attack,
@@ -176,7 +178,7 @@ class GameEngine private constructor(
                 spec.critModifiers,
                 spec.guaranteedCrit,
                 spec.canCrit,
-                spec.ignoreDefense,
+                ignoreSpec,
             )
         val label = "${spec.attackerId}->${spec.targetId}"
         clash.crit?.roll?.let { recordRoll("critico:$label", it) }
@@ -200,8 +202,11 @@ class GameEngine private constructor(
             ),
         )
         recordEvent(AttackResolved(spec.attackerId, spec.targetId, clash.defenseTotal, clash.damage > 0, clash.damage))
+        if (clash.ignoredDefense && ignoreSpec != null && ignoreSpec.cooldownRounds > 0) {
+            recordEvent(IgnoreDefenseCooldownStarted(spec.attackerId, ignoreSpec.cooldownRounds))
+        }
         if (clash.damage > 0) {
-            when (val result = execute(Damage(spec.targetId, spec.damageResource, clash.damage))) {
+            when (val result = execute(Damage(spec.targetId, spec.damageResource, clash.damage, bypassShield = clash.ignoredDefense))) {
                 is ExecResult.Accepted -> Unit
                 is ExecResult.Rejected -> {
                     rollbackTo(mark)
@@ -316,7 +321,7 @@ class GameEngine private constructor(
         val targetId = spec.targetId ?: spec.userId
         val target = state.entities[targetId] ?: return PowerResult.Rejected("entidade inexistente: $targetId")
         when (val effect = spec.effect) {
-            is PowerEffect.Cure, is PowerEffect.Cleanse ->
+            is PowerEffect.Cure, is PowerEffect.Cleanse, is PowerEffect.Shield ->
                 if (targetId != spec.userId) return PowerResult.Rejected("este poder só atua em quem o usa")
             is PowerEffect.Strike -> {
                 if (targetId == spec.userId) return PowerResult.Rejected("este poder exige um alvo diferente do usuário")
@@ -360,6 +365,7 @@ class GameEngine private constructor(
                             effect.damageResource,
                         )
                     is PowerEffect.Cleanse -> RemoveCondition(targetId, effect.condition)
+                    is PowerEffect.Shield -> GrantShield(targetId, effect.amount)
                 }
             val applied = execute(command)
             if (applied is ExecResult.Rejected) return fail(applied.reason)

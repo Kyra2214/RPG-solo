@@ -32,7 +32,7 @@ private val Dark =
         surfaceDim = Color(0xFF14110F), surfaceBright = Color(0xFF3A322B),
         surfaceContainerLowest = Color(0xFF100D0B), surfaceContainerLow = Color(0xFF191512),
         surfaceContainer = Color(0xFF211C18), surfaceContainerHigh = Color(0xFF2A2420), surfaceContainerHighest = Color(0xFF342D27),
-        outline = Color(0xFF6B5E51), outlineVariant = Color(0xFF3D342C),
+        outline = Color(0xFF8A7B6C), outlineVariant = Color(0xFF3D342C),
         error = Color(0xFFFF8A7A), onError = Color(0xFF3B0A04),
         errorContainer = Color(0xFF5C1A12), onErrorContainer = Color(0xFFFFDAD4),
     )

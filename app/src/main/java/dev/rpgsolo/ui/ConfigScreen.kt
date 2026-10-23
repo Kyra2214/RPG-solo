@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -19,7 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -155,7 +159,9 @@ fun ConfigScreen(model: AppModel) {
         AppCard {
             Text(stringResource(R.string.config_accessibility_title), style = MaterialTheme.typography.titleSmall)
             Text(stringResource(R.string.config_font_scale, (model.fontScale * 100).toInt()))
+            val scaleDesc = stringResource(R.string.config_font_scale_desc, (model.fontScale * 100).toInt())
             Slider(
+                modifier = Modifier.semantics { contentDescription = scaleDesc },
                 value = model.fontScale,
                 onValueChange = model::setFontScale,
                 valueRange = 0.85f..1.4f,
@@ -283,6 +289,22 @@ fun ConfigScreen(model: AppModel) {
             Muted(stringResource(R.string.config_privacy_key))
             Muted(stringResource(R.string.config_usage, model.usage.calls, model.usage.inputTokens, model.usage.outputTokens))
             Muted(stringResource(R.string.config_cache_usage, model.usage.cacheReadInputTokens, model.usage.cacheCreationInputTokens))
+        }
+        val diagContext = LocalContext.current
+        var hasCrash by remember { mutableStateOf(Diagnostics.lastCrash(diagContext) != null) }
+        AppCard {
+            Text(stringResource(R.string.diag_title), style = MaterialTheme.typography.titleSmall)
+            Muted(stringResource(R.string.diag_help))
+            Muted(stringResource(if (hasCrash) R.string.diag_crash_recorded else R.string.diag_no_crash))
+            Button(onClick = { diagContext.startActivity(Diagnostics.chooser(diagContext)) }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.diag_export))
+            }
+            if (hasCrash) {
+                TextButton(onClick = {
+                    Diagnostics.clear(diagContext)
+                    hasCrash = false
+                }) { Text(stringResource(R.string.diag_clear)) }
+            }
         }
     }
 }

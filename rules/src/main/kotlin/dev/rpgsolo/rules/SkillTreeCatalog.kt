@@ -103,7 +103,7 @@ object SkillTreeCatalogLoader {
                     require(actionCost > 0 && actionResource != null) { "ressurreição precisa declarar custo positivo e recurso" }
                 }
                 if (actionKind == SkillActionKind.POWER_STRIKE || actionKind == SkillActionKind.MULTI_HIT) {
-                    require(actionCost == 0) { "ataques especiais devem usar o custo suportado pelo resolvedor atual" }
+                    require(actionCost == 0 || actionResource != null) { "ataque especial com custo precisa declarar o recurso" }
                     if (actionKind == SkillActionKind.MULTI_HIT) require(hitCount >= 2) { "multiataque precisa de ao menos dois golpes" }
                 }
                 skills +=

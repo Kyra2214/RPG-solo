@@ -104,7 +104,11 @@ data class PendingRoll(val request: RollRequest, override val spec: CheckSpec, o
  * Os testes, dificuldades e rolagens que o pacote ativo deixa o mestre pedir. Sem pacote não há menu e o mestre
  * não pode pedir nada (o motor não inventa mecânica).
  */
-class CheckMenu(private val pkg: RulePackage) {
+class CheckMenu(
+    private val pkg: RulePackage,
+    /** MU-03.3: exceções mecânicas declaradas (imunidade de chefe etc.); nenhuma fonte as preenche ainda. */
+    private val exceptions: dev.rpgsolo.engine.ExceptionRegistry? = null,
+) {
     private val checks get() = pkg.data.checks
     private val difficulties get() = pkg.data.difficulties
 
@@ -229,7 +233,7 @@ class CheckMenu(private val pkg: RulePackage) {
         entityId: String,
         conditionId: String,
         traitIds: Collection<String>,
-    ): Boolean = pkg.isImmuneToCondition(traitIds, conditionId)
+    ): Boolean = pkg.isImmuneToCondition(traitIds, conditionId) || exceptions?.isImmune(entityId, conditionId) == true
 
     /** Nome legível da condição para notas privadas de resolução; não inventa nomes ausentes no pacote. */
     fun conditionName(conditionId: String): String? = pkg.data.conditions.firstOrNull { it.id == conditionId }?.name

@@ -1,2 +1,1 @@
 # id|nota
-pv|As fórmulas de PA, PM e PV são rascunho até o desenho do sistema ser aprovado.

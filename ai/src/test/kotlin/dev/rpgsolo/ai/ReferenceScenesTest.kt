@@ -101,4 +101,46 @@ class ReferenceScenesTest {
         assertTrue(output.suggestions.single() == "entrar")
         assertTrue(output.proposals.isEmpty())
     }
+
+    @Test
+    fun promptDoMestreMantemRegrasEPedidosDoEsquema() {
+        val prompt = MasterPrompt.SYSTEM
+        listOf(
+            "Imersão",
+            "Ciclo de cena e turno",
+            "request_check",
+            "request_roll",
+            "request_npc",
+            "request_combat",
+            "request_power",
+            "request_attack",
+            "request_quest",
+            "create_clock",
+            "record_memory",
+        ).forEach { expected ->
+            assertTrue("o prompt do mestre deveria conter '$expected'", expected in prompt)
+        }
+    }
+
+    @Test
+    fun pedidoDeMissaoValidoViraQuestRequest() {
+        val parsed =
+            ProposalParser.parse(
+                """{"narrative":"O ferreiro pede ajuda.","request_quest":{"title":"Ferro perdido","objectives":["achar a mina","voltar"],"xpReward":30}}""",
+            )
+        assertTrue(parsed is ParseResult.Ok)
+        val quest = (parsed as ParseResult.Ok).output.questRequest
+        assertTrue(quest != null && quest.title == "Ferro perdido" && quest.objectives.size == 2 && quest.xpReward == 30)
+    }
+
+    @Test
+    fun pedidoDeMissaoDeveVirSozinhoEComTituloEXpValidos() {
+        val withProposals =
+            ProposalParser.parse(
+                """{"narrative":"x","proposals":[{"type":"advance_clock","id":"a","by":1}],"request_quest":{"title":"T"}}""",
+            )
+        val noTitle = ProposalParser.parse("""{"narrative":"x","request_quest":{"objectives":["a"]}}""")
+        val badXp = ProposalParser.parse("""{"narrative":"x","request_quest":{"title":"T","xpReward":"muito"}}""")
+        listOf(withProposals, noTitle, badXp).forEach { assertTrue(it is ParseResult.Invalid) }
+    }
 }

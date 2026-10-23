@@ -21,7 +21,7 @@ class InventoryActions(
             val item = pkg?.item(id)
             InventoryView(
                 id = id,
-                name = item?.name ?: id,
+                name = item?.let { it.name + qualitySuffix(id) } ?: id,
                 quantity = quantity,
                 kind = item?.kind ?: "desconhecido",
                 slot = item?.slot,
@@ -30,6 +30,11 @@ class InventoryActions(
                 price = item?.price,
             )
         }.filter { it.quantity > 0 }.sortedWith(compareBy<InventoryView>({ it.kind }, { it.name }))
+    }
+
+    private fun qualitySuffix(id: String): String {
+        val quality = dev.rpgsolo.rules.ItemRef.quality(id) ?: return ""
+        return if (quality == dev.rpgsolo.rules.ItemQuality.NORMAL) "" else " (${quality.label})"
     }
 
     /** Loja do pacote: saldo de moeda e itens com preço; null se o pacote não define moeda. */
@@ -62,27 +67,64 @@ class InventoryActions(
             val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
             val item = requireNotNull(pkg.item(itemId)) { "item não existe no pacote ativo: $itemId" }
             require(item.kind == "consumivel") { "este item não é consumível" }
+            val baseId = dev.rpgsolo.rules.ItemRef.base(itemId)
             val action =
-                pkg.data.creation["item_${itemId}_acao"]
-                    ?: return "o pacote não definiu o efeito mecânico de $itemId"
+                pkg.data.creation["item_${baseId}_acao"]
+                    ?: return "o pacote não definiu o efeito mecânico de ${item.name}"
             val inCombat = session().state.combat != null
             if (inCombat && !isPlayerCombatTurn()) return "só é possível usar item no seu turno"
             val commands: List<dev.rpgsolo.engine.Command> =
                 when (action) {
                     "cura" -> {
                         val resource =
-                            pkg.data.creation["item_${itemId}_recurso"]
-                                ?: return "o pacote não definiu o recurso restaurado por $itemId"
-                        val amount =
-                            pkg.data.creation["item_${itemId}_quantidade"]?.toIntOrNull()
-                                ?: return "o pacote não definiu a quantidade restaurada por $itemId"
-                        require(amount > 0) { "quantidade de cura deve ser positiva" }
+                            pkg.data.creation["item_${baseId}_recurso"]
+                                ?: return "o pacote não definiu o recurso restaurado por ${item.name}"
+                        val base =
+                            pkg.data.creation["item_${baseId}_quantidade"]?.toIntOrNull()
+                                ?: return "o pacote não definiu a quantidade restaurada por ${item.name}"
+                        require(base > 0) { "quantidade de cura deve ser positiva" }
+                        val amount = pkg.scaleByQuality(base, itemId)
                         val current =
                             session().state.entities[playerId()]?.resources?.get(resource)
                                 ?: return "o personagem não possui o recurso '$resource'"
                         require(current.current < current.max) { "o recurso já está cheio; o consumível não foi gasto" }
                         listOf(
                             dev.rpgsolo.engine.Heal(playerId(), resource, amount),
+                            dev.rpgsolo.engine.ConsumeItem(playerId(), itemId, 1),
+                        )
+                    }
+                    "remover-condicao" -> {
+                        val condition =
+                            pkg.data.creation["item_${baseId}_condicao"]
+                                ?: return "o pacote não definiu a condição removida por ${item.name}"
+                        require(session().state.conditions[playerId()]?.contains(condition) == true) {
+                            "o personagem não está com essa condição; o consumível não foi gasto"
+                        }
+                        listOf(
+                            dev.rpgsolo.engine.RemoveCondition(playerId(), condition),
+                            dev.rpgsolo.engine.ConsumeItem(playerId(), itemId, 1),
+                        )
+                    }
+                    "aplicar-condicao" -> {
+                        val condition =
+                            pkg.data.creation["item_${baseId}_condicao"]
+                                ?: return "o pacote não definiu a condição aplicada por ${item.name}"
+                        val definition =
+                            pkg.data.conditions.firstOrNull { it.id == condition }
+                                ?: return "condição inexistente no pacote: $condition"
+                        require(session().state.conditions[playerId()]?.contains(condition) != true) {
+                            "o personagem já está com essa condição; o consumível não foi gasto"
+                        }
+                        val baseDuration =
+                            pkg.data.creation["item_${baseId}_duracao"]?.toIntOrNull() ?: definition.durationRounds
+                        listOf(
+                            dev.rpgsolo.engine.AddCondition(
+                                playerId(),
+                                definition.id,
+                                baseDuration?.let { pkg.scaleByQuality(it, itemId) },
+                                definition.damagePerRound,
+                                definition.damageResource,
+                            ),
                             dev.rpgsolo.engine.ConsumeItem(playerId(), itemId, 1),
                         )
                     }

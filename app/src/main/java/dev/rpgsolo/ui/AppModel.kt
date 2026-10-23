@@ -480,14 +480,34 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var controller: PlayController? by mutableStateOf(null)
         private set
 
+    /** Q-09: consentimento por campanha para enviar trechos de fontes ao provedor de IA. */
+    private val sourcePrivacyPrefs = application.getSharedPreferences("rpg_source_privacy", 0)
+
+    fun sourcePrivacyConsent(campaignId: String = session.campaignId): Boolean =
+        campaignId.isNotBlank() && sourcePrivacyPrefs.getBoolean("consent_$campaignId", false)
+
+    /** Registra ou revoga o consentimento; a revogação remove o contexto documental em memória. */
+    fun setSourcePrivacyConsent(granted: Boolean, campaignId: String = session.campaignId) {
+        if (campaignId.isBlank()) return
+        sourcePrivacyPrefs.edit().apply {
+            if (granted) putBoolean("consent_$campaignId", true) else remove("consent_$campaignId")
+        }.apply()
+        if (!granted) clearCampaignSourceContext(campaignId)
+        campaignVersion++
+        if (granted && campaignId == session.campaignId) {
+            startupScope.launch { refreshSourceContext() }
+        }
+    }
+
     /** DC-05.1: só mantém índice em memória depois de confirmação explícita de envio à IA remota. */
     private val sourceContextLock = Any()
     private val campaignSourceContexts = mutableMapOf<String, CampaignSourceContext>()
 
     /**
      * Disponibiliza fontes e fatos de uma campanha ao contexto narrativo. A tela chamadora deve
-     * apresentar o aviso de privacidade e passar [privacyConfirmed] como true; qualquer chamada
-     * sem confirmação revoga o contexto e impede o envio de trechos à IA.
+     * apresentar o aviso de privacidade e passar [privacyConfirmed] como true, ou o consentimento
+     * da campanha já deve estar registrado (Q-09); sem nenhum dos dois, a chamada revoga o contexto
+     * e impede o envio de trechos à IA.
      */
     fun configureCampaignSourceContext(
         campaignId: String,
@@ -497,7 +517,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         privacyConfirmed: Boolean = false,
     ) {
         if (campaignId.isBlank()) return
-        val canConfigure = privacyConfirmed && index.size > 0
+        val canConfigure = (privacyConfirmed || sourcePrivacyConsent(campaignId)) && index.size > 0
         val contextFacts =
             if (canConfigure) {
                 val persisted = store.canonFacts(campaignId).forCampaign(campaignId)
@@ -671,12 +691,81 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             e.message
         }
 
+    private val portraitsDir get() = File(getApplication<Application>().filesDir, "portraits")
+
+    /** I-09.2: arquivo do retrato escolhido pelo jogador (ou null se a referência não aponta para um arquivo existente). */
+    fun portraitFile(ref: String): File? =
+        ref.takeIf { it.startsWith("portraits/") && !it.contains("..") }
+            ?.let { File(getApplication<Application>().filesDir, it) }
+            ?.takeIf { it.isFile }
+
+    /** I-09.2: copia a foto escolhida (reduzida a no máximo 512 px, JPEG) para o armazenamento privado e grava só a referência. Executar fora da thread principal. */
+    fun setPortrait(
+        fichaId: String,
+        uri: Uri,
+    ): String? {
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId } ?: return "ficha não encontrada"
+        val resolver = getApplication<Application>().contentResolver
+        return try {
+            val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            resolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, bounds) }
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return "não foi possível ler a imagem"
+            var sample = 1
+            while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= PORTRAIT_MAX_SIDE) sample *= 2
+            val options = android.graphics.BitmapFactory.Options().apply { inSampleSize = sample }
+            val decoded =
+                resolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, options) }
+                    ?: return "não foi possível ler a imagem"
+            val scale = PORTRAIT_MAX_SIDE.toFloat() / maxOf(decoded.width, decoded.height)
+            val bitmap =
+                if (scale < 1f) {
+                    android.graphics.Bitmap.createScaledBitmap(
+                        decoded,
+                        (decoded.width * scale).toInt().coerceAtLeast(1),
+                        (decoded.height * scale).toInt().coerceAtLeast(1),
+                        true,
+                    )
+                } else {
+                    decoded
+                }
+            portraitsDir.mkdirs()
+            val name = "${ficha.id.filter { it.isLetterOrDigit() || it == '-' || it == '_' }.take(40)}-${System.currentTimeMillis()}.jpg"
+            File(portraitsDir, name).outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, it) }
+            val previous = ficha.portraitRef
+            saveFicha(dev.rpgsolo.ai.CharacterNarrativeAssistant.savePortraitReference(ficha, "portraits/$name"))
+            deletePortraitFileIfUnused(previous)
+            null
+        } catch (e: java.io.IOException) {
+            "falha ao salvar o retrato"
+        } catch (e: SecurityException) {
+            "sem permissão para ler a imagem"
+        } catch (e: OutOfMemoryError) {
+            "imagem grande demais"
+        }
+    }
+
+    fun clearPortrait(fichaId: String): String? {
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId } ?: return "ficha não encontrada"
+        val previous = ficha.portraitRef
+        saveFicha(ficha.copy(portraitRef = ""))
+        deletePortraitFileIfUnused(previous)
+        return null
+    }
+
+    /** Fichas duplicadas compartilham o arquivo: ele só some quando nenhuma ficha o referencia. */
+    private fun deletePortraitFileIfUnused(ref: String) {
+        if (ref.isBlank() || (fichas + archivedFichas).any { it.portraitRef == ref }) return
+        portraitFile(ref)?.delete()
+    }
+
     fun deleteFicha(id: String): String? =
         try {
+            val portrait = (fichas + archivedFichas).firstOrNull { it.id == id }?.portraitRef.orEmpty()
             require(store.apagarFicha(id)) { "ficha não encontrada na biblioteca" }
             characterChoicesPrefs.edit().remove(id).apply()
             fichas.removeAll { it.id == id }
             archivedFichas.removeAll { it.id == id }
+            deletePortraitFileIfUnused(portrait)
             campaignVersion++
             null
         } catch (e: IllegalArgumentException) {
@@ -693,6 +782,48 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 .put("characterChoices", org.json.JSONObject(characterChoices(ficha.id).toJson()))
                 .toString(2)
         }
+
+    /** Rascunho de história (I-09.1): [text] ou [error]. Nada é gravado até [approveLore]. */
+    data class LoreOutcome(val text: String? = null, val error: String? = null)
+
+    /**
+     * Pede à IA uma história opcional só com as escolhas já confirmadas da ficha, aparência e ideia do jogador.
+     * Chamada de rede: rode fora da thread principal. Não altera a ficha.
+     */
+    fun generateLore(
+        fichaId: String,
+        appearance: String,
+        idea: String,
+    ): LoreOutcome {
+        val provider = roles?.narrator ?: return LoreOutcome(error = "configure o provedor de IA na aba Config")
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId } ?: return LoreOutcome(error = "ficha não encontrada")
+        val pkg = dev.rpgsolo.rules.CampaignStarter.packageFor(content.registry, ficha.system.editionId)
+        val input =
+            dev.rpgsolo.ai.CharacterNarrativeInput(
+                characterName = ficha.name,
+                canonicalChoices = characterChoices(ficha.id).toJson(),
+                approvedTraits = ficha.traits.map { id -> pkg?.trait(id)?.name ?: id },
+                appearance = appearance,
+                initialIdea = idea,
+            )
+        return try {
+            LoreOutcome(text = dev.rpgsolo.ai.CharacterNarrativeAssistant.generateLore(provider, input).text)
+        } catch (e: Exception) {
+            LoreOutcome(error = e.message ?: "falha ao gerar a história")
+        }
+    }
+
+    /** Grava a história aprovada (texto vazio apaga). Só altera `approvedLore`; Executar fora da thread principal. */
+    fun approveLore(
+        fichaId: String,
+        text: String,
+    ): String? {
+        val ficha = (fichas + archivedFichas).firstOrNull { it.id == fichaId } ?: return "ficha não encontrada"
+        val clean = text.trim()
+        if (clean.isNotEmpty() && clean.length !in 40..4_000) return "a história deve ter entre 40 e 4000 caracteres"
+        saveFicha(ficha.copy(approvedLore = clean))
+        return null
+    }
 
     /** Importa o formato versionado atual e também JSONs antigos que continham somente a ficha. */
     fun importFicha(raw: String): String? =
@@ -746,6 +877,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         "\nAtenção: as escolhas foram preservadas, mas precisam ser revisadas porque algumas referências não são válidas neste catálogo:",
                     )
                     choiceWarnings.forEach { append("\n- ").append(it) }
+                    CharacterCreationCatalog.suggestReplacements(importedChoices).forEach { append("\n- ").append(it) }
                     append("\nAbra “Editar escolhas” na biblioteca para corrigir.")
                 }
             }
@@ -830,6 +962,133 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         } catch (e: Exception) {
             e.message ?: "falha ao salvar o progresso de indexação"
         }
+
+    /**
+     * DC-03: retoma ao abrir o app a indexação de fontes prontas sem estado ou paradas em
+     * IMPORTED/CHUNKED. Estados concluídos ou FAILED não são repetidos. Executar fora da thread principal.
+     */
+    fun resumeSourcePipelines() {
+        val states = store.sourcePipelineStates().associateBy { it.sourceId }
+        store.sourceLibrary().entries
+            .filter { it.status == dev.rpgsolo.engine.SourceStatus.READY }
+            .forEach { entry -> indexSource(entry, states[entry.id]) }
+        refreshSourceContext()
+    }
+
+    /** Executa a pipeline de uma fonte pronta até o fim, gravando o progresso por lote. */
+    private fun indexSource(
+        entry: SourceEntry,
+        savedState: PipelineState?,
+    ) {
+        val saved = savedState ?: dev.rpgsolo.engine.SourcePipeline.start(entry.id)
+        if (saved.done) return
+        val bytes = sourceDocuments.read(entry.id, entry.sha256, entry.byteSize)
+        val source =
+            bytes?.let {
+                (dev.rpgsolo.engine.SourceImporter.import(entry.fileName, it) as? dev.rpgsolo.engine.SourceImportResult.Ok)?.source
+            }
+        val result =
+            dev.rpgsolo.engine.SourcePipeline.run(
+                state = saved,
+                source = source,
+                index = dev.rpgsolo.engine.SourcePipeline.resume(saved),
+                onProgress = { saveSourcePipelineState(it) },
+            )
+        saveSourcePipelineState(result)
+    }
+
+    /** Fase 14: importa o arquivo, guarda os bytes e indexa na hora. Executar em IO. Devolve o erro, ou null. */
+    fun importAndIndexSource(
+        fileName: String,
+        bytes: ByteArray,
+    ): String? {
+        val outcome = importSourceDocument(fileName, bytes)
+        val entry = outcome.entry ?: return outcome.error ?: "falha ao importar documento-fonte"
+        if (entry.status != dev.rpgsolo.engine.SourceStatus.READY) return entry.error ?: "documento recusado"
+        indexSource(entry, store.sourcePipelineStates().firstOrNull { it.sourceId == entry.id })
+        refreshSourceContext()
+        return null
+    }
+
+    /** Vincula ou desvincula uma fonte pronta da campanha ativa. */
+    fun setSourceLinked(
+        sourceId: String,
+        linked: Boolean,
+    ): String? {
+        val campaignId = session.campaignId
+        val library = store.sourceLibrary()
+        val updated =
+            if (linked) {
+                library.link(campaignId, sourceId, System.currentTimeMillis()) ?: return "só fontes prontas podem ser vinculadas"
+            } else {
+                library.unlink(campaignId, sourceId)
+            }
+        return saveSourceLibrary(updated) ?: run {
+            refreshSourceContext()
+            null
+        }
+    }
+
+    /** Marca a fonte como removida (vínculos e campanhas permanecem) e apaga o arquivo original. */
+    fun removeSource(sourceId: String): String? {
+        val error = saveSourceLibrary(store.sourceLibrary().remove(sourceId))
+        if (error == null) {
+            sourceDocuments.delete(sourceId)
+            refreshSourceContext()
+        }
+        return error
+    }
+
+    /** Reaplica o contexto documental da campanha ativa; só envia à IA com consentimento Q-09. */
+    fun refreshSourceContext() {
+        val campaignId = session.campaignId
+        if (campaignId.isBlank()) return
+        runCatching {
+            if (sourcePrivacyConsent(campaignId)) {
+                configureCampaignSourceContext(campaignId, sourceIndexForCampaign(campaignId))
+            } else {
+                clearCampaignSourceContext(campaignId)
+            }
+        }
+    }
+
+    /** Adiciona um fato manual (status desconhecido, sem fonte) à campanha ativa. */
+    fun addManualFact(text: String): String? {
+        val campaignId = session.campaignId
+        val fact =
+            dev.rpgsolo.engine.CanonFact(
+                id = java.util.UUID.randomUUID().toString(),
+                campaignId = campaignId,
+                text = text.trim(),
+                status = dev.rpgsolo.engine.FactStatus.UNKNOWN,
+                createdAt = System.currentTimeMillis(),
+            )
+        val updated = store.canonFacts(campaignId).add(fact) ?: return "fato vazio ou acima de ${dev.rpgsolo.engine.CanonFacts.MAX_TEXT} caracteres"
+        return saveCanonFacts(campaignId, updated) ?: run {
+            refreshSourceContext()
+            null
+        }
+    }
+
+    fun setFactKnown(
+        factId: String,
+        known: Boolean,
+    ): String? {
+        val campaignId = session.campaignId
+        val updated = store.canonFacts(campaignId).markKnown(factId, known) ?: return "fato inexistente"
+        return saveCanonFacts(campaignId, updated) ?: run {
+            refreshSourceContext()
+            null
+        }
+    }
+
+    fun removeFact(factId: String): String? {
+        val campaignId = session.campaignId
+        return saveCanonFacts(campaignId, store.canonFacts(campaignId).remove(factId)) ?: run {
+            refreshSourceContext()
+            null
+        }
+    }
 
     /** Reconstrói o índice apenas das fontes prontas vinculadas à campanha e dos trechos já indexados. */
     fun sourceIndexForCampaign(campaignId: String): SourceIndex {
@@ -1071,16 +1330,26 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** Poderes do pacote cujo traço está na ficha ativa; sem pacote ou sem traços, lista vazia. */
     fun powersView(): List<PowerView> {
         val pkg = activePackage ?: return emptyList()
-        return dev.rpgsolo.ai.PowerMenu(pkg).available(combatTraitIds(playerId)).map { def ->
-            PowerView(
-                id = def.id,
-                name = def.name,
-                description = def.description,
-                resourceName = pkg.data.resources.firstOrNull { it.id == def.resource }?.name ?: def.resource,
-                cost = def.cost,
-                needsTarget = def.target == dev.rpgsolo.rules.PowerTarget.ENEMY,
-            )
-        }
+        fun view(
+            id: String,
+            name: String,
+            def: dev.rpgsolo.rules.PowerDef,
+        ) = PowerView(
+            id = id,
+            name = name,
+            description = def.description,
+            resourceName = pkg.data.resources.firstOrNull { it.id == def.resource }?.name ?: def.resource,
+            cost = def.cost,
+            needsTarget = def.target == dev.rpgsolo.rules.PowerTarget.ENEMY,
+        )
+        val powers = dev.rpgsolo.ai.PowerMenu(pkg).available(combatTraitIds(playerId)).map { view(it.id, it.name, it) }
+        // MU-07.4: magias aprendidas com efeito de conjuração aparecem como "magia:<id>".
+        val spells =
+            session.state.entities[playerId]?.spells.orEmpty().sorted().mapNotNull { spellId ->
+                val def = pkg.spellPowerId(spellId)?.let { pid -> pkg.data.powers.firstOrNull { it.id == pid } } ?: return@mapNotNull null
+                view("magia:$spellId", pkg.spell(spellId)?.name ?: spellId, def)
+            }
+        return powers + spells
     }
 
     /** Traços da ficha ativa com usos limitados declarados pelo pacote (`usos` em `tracos.txt`). */
@@ -1190,16 +1459,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val pkg = activePackage ?: return "Não há pacote de regras ativo."
         val user = session.state.entities[playerId] ?: return "Personagem do jogador inexistente."
         val menu = dev.rpgsolo.ai.PowerMenu(pkg)
+        val spellId = powerId.takeIf { it.startsWith("magia:") }?.removePrefix("magia:")
+        val traits = combatTraitIds(playerId)
+        val targetTraits = targetId?.let(::combatTraitIds).orEmpty()
         return when (
             val built =
-                menu.build(
-                    powerId,
-                    playerId,
-                    targetId,
-                    session.state,
-                    combatTraitIds(playerId),
-                    targetId?.let(::combatTraitIds).orEmpty(),
-                )
+                if (spellId != null) {
+                    menu.buildSpell(spellId, playerId, targetId, session.state, traits, targetTraits)
+                } else {
+                    menu.build(powerId, playerId, targetId, session.state, traits, targetTraits)
+                }
         ) {
             is dev.rpgsolo.ai.PowerBuild.Invalid -> built.reason
             is dev.rpgsolo.ai.PowerBuild.Ready -> {
@@ -1215,7 +1484,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     }
                 when (
                     val result =
-                        controller?.activatePower(spec, built.def.name, user.name, targetName)
+                        controller?.activatePower(spec, spellId?.let { pkg.spell(it)?.name } ?: built.def.name, user.name, targetName)
                             ?: return "O controlador da campanha não está disponível."
                 ) {
                     is dev.rpgsolo.ai.PlayResult.Played -> {
@@ -1467,6 +1736,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         restorePendingCombatNpcIds()
         if (chapters.chapters.isEmpty()) openChapter("Capítulo 1")
         controller = roles?.let { buildController(it) }
+        refreshSourceContext()
     }
 
     /** Grava metadados numa transação; falha fica em [saveError] (nunca mostra "salvo" sem confirmação) e não derruba a jogada. */
@@ -1569,7 +1839,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun deleteCurrentCampaign(): String? =
         try {
             require(campaigns.size > 1) { "mantenha pelo menos uma campanha" }
-            store.delete(session.campaignId)
+            val removedId = session.campaignId
+            store.delete(removedId)
+            setSourcePrivacyConsent(false, removedId)
             val next = store.campaigns().first()
             switchCampaign(next.id)
             refreshCampaigns()
@@ -1606,6 +1878,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     cheapModel,
                     premiumModel,
                     usage,
+                    AiTestHooks.transportOrDefault(),
                 )
             roles = r
             controller = buildController(r)
@@ -1659,6 +1932,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     kind,
                     ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim(), cacheSystemPrompt = cacheSystemPrompt),
                     usage = usage,
+                    transport = AiTestHooks.transportOrDefault(),
                     maxRequestsPerMinute = 20,
                 )
             val reply =
@@ -1814,8 +2088,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 r.narrator,
                 runner = TurnRunner(r.narrator, npcCreator = npcCreator),
                 premiumRunner = if (r.hasPremium) TurnRunner(r.premium, npcCreator = npcCreator) else null,
-                menu = activePackage?.let { CheckMenu(it) },
-                powerMenu = activePackage?.let { dev.rpgsolo.ai.PowerMenu(it) },
+                menu = activePackage?.let { CheckMenu(it, it.exceptionRegistry()) },
+                powerMenu = activePackage?.let { dev.rpgsolo.ai.PowerMenu(it, it.exceptionRegistry()) },
+                attackExecutor = { targetId -> combatActions.unifiedAttack(targetId) },
+                questExecutor = { q -> addQuest(q.title, q.objectives, q.xpReward, q.masterySkillId, q.spellRewardId) },
                 playerTraits = { activeFicha?.traits.orEmpty() },
                 additionalBonus = { scope -> approvedRuleBonus(scope) },
                 externalBonuses = { scopes ->
@@ -2281,8 +2557,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     hitCount,
                     damageBonus,
                     elementalScope,
+                    spendResource,
+                    spendCost,
                 ->
-                combatActions.attack(targetId, hitCount, damageBonus, elementalScope)
+                combatActions.attack(targetId, hitCount, damageBonus, elementalScope, spendResource, spendCost)
             },
             onChanged = { campaignVersion++ },
         )
@@ -2385,9 +2663,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     fun addQuest(
         title: String,
         objectives: List<String> = emptyList(),
+        xpReward: Int = 0,
+        masterySkillId: String? = null,
+        spellRewardId: String? = null,
     ): String? =
         try {
             require(title.isNotBlank()) { "dê um título à missão" }
+            require(xpReward in 0..MAX_QUEST_XP_INPUT) { "o XP da missão deve ficar entre 0 e $MAX_QUEST_XP_INPUT" }
+            val skillReward = masterySkillId?.trim()?.takeIf { it.isNotEmpty() }
+            val spellReward = spellRewardId?.trim()?.takeIf { it.isNotEmpty() }
+            if (skillReward != null) {
+                require(activePackage?.trait(skillReward)?.type == "pericia") { "perícia inexistente no pacote ativo: $skillReward" }
+            }
+            if (spellReward != null) {
+                require(activePackage?.spell(spellReward) != null) { "magia inexistente no pacote ativo: $spellReward" }
+            }
             val cleanObjectives = objectives.map { it.trim() }.filter { it.isNotEmpty() }.distinct()
             require(cleanObjectives.size <= 20 && cleanObjectives.all { it.length <= 300 }) {
                 "a missão aceita até 20 objetivos, cada um com no máximo 300 caracteres"
@@ -2398,6 +2688,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     id = id,
                     title = title.trim(),
                     objectives = cleanObjectives.map { dev.rpgsolo.engine.Objective(it) },
+                    xpReward = xpReward,
+                    masterySkillId = skillReward,
+                    spellRewardId = spellReward,
                 ),
             )
             saveMetadata()
@@ -2419,6 +2712,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 val award = session.awardQuestXp(quests, questId, playerId)
                 if (award is dev.rpgsolo.engine.ExecResult.Rejected) warning = award.reason
             }
+            if (status == dev.rpgsolo.engine.QuestStatus.DONE) warning = awardQuestItems(questId) ?: warning
             val clockAdvance = session.advanceClocksAfterQuestClosure()
             if (clockAdvance is dev.rpgsolo.engine.ExecResult.Rejected && warning == null) warning = clockAdvance.reason
             saveMetadata()
@@ -2429,6 +2723,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         } catch (e: IllegalStateException) {
             e.message
         }
+
+    /** MU-06.2/MU-07.3: nível 2 de perícia e magia da missão concluída; devolve o motivo de recusa do motor, se houver. */
+    private fun awardQuestItems(questId: String): String? {
+        val quest = quests.get(questId) ?: return null
+        var warning: String? = null
+        if (quest.masterySkillId != null && !quest.masteryGranted) {
+            val r = session.awardQuestMastery(quests, questId, playerId)
+            if (r is dev.rpgsolo.engine.ExecResult.Rejected) warning = r.reason
+        }
+        if (quest.spellRewardId != null && !quest.spellGranted) {
+            val r = session.awardQuestSpell(quests, questId, playerId)
+            if (r is dev.rpgsolo.engine.ExecResult.Rejected && warning == null) warning = r.reason
+        }
+        return warning
+    }
 
     fun completeQuestObjective(
         questId: String,
@@ -2443,6 +2752,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     val award = session.awardQuestXp(quests, questId, playerId)
                     if (award is dev.rpgsolo.engine.ExecResult.Rejected) warning = award.reason
                 }
+                warning = awardQuestItems(questId) ?: warning
                 val clockAdvance = session.advanceClocksAfterQuestClosure()
                 if (clockAdvance is dev.rpgsolo.engine.ExecResult.Rejected && warning == null) warning = clockAdvance.reason
             }
@@ -2484,6 +2794,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 startupError = e.message ?: "Falha ao abrir o banco de dados."
             }
+            runCatching { resumeSourcePipelines() }
         }
     }
 }
+
+/** Limite de entrada do XP de missão; o teto real por nível continua no motor (`EngineConfig.maxQuestXp`). */
+private const val MAX_QUEST_XP_INPUT = 100_000
+private const val PORTRAIT_MAX_SIDE = 512

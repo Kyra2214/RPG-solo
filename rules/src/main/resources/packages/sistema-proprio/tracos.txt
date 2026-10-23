@@ -358,7 +358,7 @@ marcas-da-arena|desvantagem|Marcas da arena|0||Gladiador: Cicatrizes e fama: nob
 # --- Hacker ---
 porta-dos-fundos|vantagem|Porta dos fundos|0|habilidade>=2|Hacker: Deixa uma entrada escondida em sistemas que já invadiu: volta a eles sem precisar de teste.
 bot-fantasma|vantagem|Bot fantasma|0|habilidade>=2|Hacker: Uma vez por cena, um programa distrai guardas ou câmeras por um turno.
-rato-de-tela|desvantagem|Rato de tela|0||Hacker: Passa dias sem sol e sem treino: -1 em Atletismo e para resistir a esforço físico.
+rato-de-tela|desvantagem|Rato de tela|0||Hacker: Passa dias sem sol e sem treino: -1 em Atletismo e para resistir a esforço físico.|atletismo:-1
 # --- Ladrão ---
 mao-leve|vantagem|Mão leve|0|habilidade>=2|Ladrão: Rouba itens pequenos de um alvo com +2; mesmo em falha crítica, só chama atenção.
 gazua-certeira|vantagem|Gazua certeira|0|habilidade>=2|Ladrão: Abre fechaduras e armadilhas simples na metade do tempo e com +2.
@@ -380,7 +380,7 @@ cacado-por-templos|desvantagem|Caçado por templos|0||Necromante: Ordens religio
 # --- Nobre ---
 criado-de-confianca|vantagem|Criado de confiança|0|habilidade>=1|Nobre: Um servo fiel o acompanha e faz tarefas simples uma vez por cena.
 bolsa-cheia|vantagem|Bolsa cheia|0|habilidade>=1|Nobre: Resolve um problema com ouro (suborno, luxo, aluguel de ajuda) uma vez por sessão.
-mimado|desvantagem|Mimado|0||Nobre: Não sabe cozinhar nem se virar sozinho: -2 em Sobrevivência e Ofícios simples.
+mimado|desvantagem|Mimado|0||Nobre: Não sabe cozinhar nem se virar sozinho: -2 em Sobrevivência e Ofícios simples.|sobrevivencia:-2
 # --- Piloto ---
 olho-no-horizonte|vantagem|Olho no horizonte|0|habilidade>=2|Piloto: Prevê tempo e obstáculos na rota: +2 em navegação e pilotagem arriscada.
 mecanico-de-bordo|vantagem|Mecânico de bordo|0|habilidade>=1|Piloto: Uma vez por cena, remove uma avaria menor do veículo com ferramentas simples.
@@ -490,7 +490,7 @@ dependente-de-equipamento|desvantagem|Dependente de equipamento|0||Guerreiro: Se
 # --- Mago ---
 olho-de-arcanista|vantagem|Olho de arcanista|0|habilidade>=2|Mago: Reconhece magias e itens mágicos com +2 e sabe se algo é encantado.
 contramagia|vantagem|Contramagia|0|habilidade>=3|Mago: Uma vez por luta, tenta anular um feitiço inimigo visível (teste de Habilidade, difícil).
-cabeca-em-livros|desvantagem|Cabeça em livros|0||Mago: Pouco treino físico: -1 em Atletismo e fuga.
+cabeca-em-livros|desvantagem|Cabeça em livros|0||Mago: Pouco treino físico: -1 em Atletismo e fuga.|atletismo:-1
 # --- Patrulheiro ---
 camuflagem-natural|vantagem|Camuflagem natural|0|habilidade>=2|Patrulheiro: Em ambientes naturais some na vegetação: +2 em Furtividade ao ar livre.
 armadilha-de-trilha|vantagem|Armadilha de trilha|0|habilidade>=1|Patrulheiro: Prepara uma armadilha simples em um turno que causa 1d6 de dano ou atrasa o alvo.

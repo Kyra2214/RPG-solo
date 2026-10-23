@@ -165,6 +165,8 @@ class PackageRegistry(private val catalog: Catalog? = null) {
         archetypeOptions = byId(b.archetypeOptions, c.archetypeOptions) { it.archetype },
         powers = byId(b.powers, c.powers) { it.id },
         hazards = byId(b.hazards, c.hazards) { it.id },
+        abilities = byId(b.abilities, c.abilities) { it.id },
+        exceptions = byId(b.exceptions, c.exceptions) { it.id },
     )
 
     companion object {

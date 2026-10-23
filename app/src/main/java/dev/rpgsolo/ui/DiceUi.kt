@@ -205,6 +205,15 @@ fun RollCard(
     onRevealed: () -> Unit,
 ) {
     var rolling by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val reduceMotion =
+        remember {
+            android.provider.Settings.Global.getFloat(
+                context.contentResolver,
+                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+                1f,
+            ) == 0f
+        }
     val tint = if (revealed && !view.plain) outcomeColor(view.outcome) else MaterialTheme.colorScheme.primary
 
     LaunchedEffect(rolling) {
@@ -242,8 +251,21 @@ fun RollCard(
             }
         }
         if (!revealed) {
-            Button(onClick = { rolling = true }, enabled = !rolling, modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = { if (reduceMotion) onRevealed() else rolling = true },
+                enabled = !rolling,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text(if (rolling) "Rolando…" else "🎲  Rolar dados")
+            }
+            if (rolling) {
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        rolling = false
+                        onRevealed()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("Pular animação") }
             }
         }
         AnimatedVisibility(visible = revealed, enter = fadeIn(tween(300)) + expandVertically(tween(300))) {
@@ -273,6 +295,33 @@ fun RollCard(
                         else -> "no limite"
                     }
                 Muted(marginText)
+                if (view.chips.isNotEmpty()) {
+                    Row(
+                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        view.chips.forEach { Pill(it) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Histórico da sessão: só rolagens já reveladas, da mais recente para a mais antiga (até 10). */
+@Composable
+fun RollHistory(rolls: List<RollView>) {
+    if (rolls.isEmpty()) return
+    var open by remember { mutableStateOf(false) }
+    AppCard {
+        androidx.compose.material3.TextButton(onClick = { open = !open }, modifier = Modifier.fillMaxWidth()) {
+            Text(if (open) "Ocultar histórico de rolagens" else "Histórico de rolagens (${rolls.size})")
+        }
+        if (open) {
+            rolls.takeLast(10).reversed().forEach { r ->
+                val mod = if (r.modifier == 0) "" else if (r.modifier > 0) " + ${r.modifier}" else " − ${-r.modifier}"
+                val result = if (r.plain) "" else " · ${r.outcomeWord}"
+                Muted("${r.label}: ${r.dice.joinToString(" + ")}$mod = ${r.total}$result")
             }
         }
     }

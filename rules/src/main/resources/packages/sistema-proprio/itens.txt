@@ -20,3 +20,50 @@ pocao-mana|Poção de mana|consumivel|-|Líquido azulado que restaura pontos de 
 tonico-vigor|Tônico de vigor|consumivel|-|Estimulante amargo que devolve pontos de ação.|-|10
 moeda|Prata|narrativo|-|Moeda base usada para comprar e vender itens; os preços são em prata.
 ouro|Ouro|narrativo|-|Moeda valiosa; 1 ouro vale 100 de prata.
+pocao-cura-menor|Poção de cura menor|consumivel|-|Frasco pequeno de líquido rubro que fecha cortes leves.|-|4
+pocao-cura-suprema|Poção de cura suprema|consumivel|-|Elixir dourado e espesso que devolve quase todo o vigor de um ferido.|-|60
+pocao-mana-maior|Poção de mana maior|consumivel|-|Frasco brilhante que recompõe a reserva mágica de um conjurador.|-|30
+tonico-vigor-maior|Tônico de vigor maior|consumivel|-|Estimulante forte que devolve muitos pontos de ação.|-|22
+antidoto|Antídoto|consumivel|-|Neutraliza venenos comuns no organismo.|-|14
+elixir-anti-sono|Elixir anti-sono|consumivel|-|Líquido amargo que desperta quem foi vencido por um sono forçado.|-|12
+unguento-queimadura|Unguento para queimaduras|consumivel|-|Pasta fria que apaga o fogo na pele e alivia a dor.|-|10
+pocao-coragem|Poção de coragem|consumivel|-|Bebida quente que afasta o pavor e firma as mãos.|-|10
+pocao-liberdade|Poção de liberdade|consumivel|-|Faz os músculos travados voltarem a obedecer.|-|18
+colirio-claridade|Colírio de claridade|consumivel|-|Gotas que limpam a vista turva.|-|8
+pocao-coagulante|Poção coagulante|consumivel|-|Fecha feridas abertas e estanca o sangue.|-|9
+agua-benta|Água benta|consumivel|-|Água consagrada que alivia maldições leves.|-|40
+elixir-bencao|Elixir de bênção|consumivel|-|Dose de luz líquida: o bebedor age com sorte por alguns instantes.|-|35
+pergaminho-cura|Pergaminho de cura|consumivel|-|Texto arcano que fecha ferimentos quando lido em voz alta.|-|18
+pergaminho-cura-maior|Pergaminho de cura maior|consumivel|-|Pergaminho denso, com runas de restauração profunda.|-|40
+pergaminho-vigor|Pergaminho de vigor|consumivel|-|Runas de energia que renovam o fôlego de quem lê.|-|20
+pergaminho-mana|Pergaminho de recarga|consumivel|-|Círculo de canalização que devolve parte da reserva mágica.|-|24
+pergaminho-purificacao|Pergaminho de purificação|consumivel|-|Expulsa toxinas do corpo de quem o lê.|-|20
+pergaminho-despertar|Pergaminho de despertar|consumivel|-|Uma palavra de poder que quebra o sono forçado.|-|16
+pergaminho-quebra-medo|Pergaminho de bravura|consumivel|-|Versos antigos que devolvem a coragem.|-|16
+pergaminho-extincao|Pergaminho de extinção|consumivel|-|Apaga chamas mágicas e comuns.|-|14
+pergaminho-libertacao|Pergaminho de libertação|consumivel|-|Solta quem foi preso por paralisia.|-|24
+pergaminho-bencao|Pergaminho de bênção|consumivel|-|Invoca uma bênção breve sobre o leitor.|-|38
+pena-de-fenix|Pena de fênix|consumivel|-|Item de renascimento: se o herói morrer, a pena se consome e ele volta com parte da vida. Ativa-se sozinha na morte.|-|250
+pergaminho-salvaguarda|Pergaminho de salvaguarda|consumivel|-|Item de renascimento: selado em vida, rompe-se na morte do portador e o traz de volta com parte da vida.|-|200
+pedra-fogo|Pedra de fogo|narrativo|-|Pedra quente ao toque, guarda a essência das chamas. Material de criação e imbuição.|-|30
+pedra-gelo|Pedra de gelo|narrativo|-|Pedra gélida que nunca derrete. Material de criação e imbuição.|-|30
+pedra-raio|Pedra de raio|narrativo|-|Pedra que faz os pelos eriçarem e estala com faíscas. Material de criação e imbuição.|-|30
+pedra-terra|Pedra de terra|narrativo|-|Pedra pesada e maciça, cheia de vigor da terra. Material de criação e imbuição.|-|30
+pedra-vento|Pedra de vento|narrativo|-|Pedra leve que sussurra uma brisa. Material de criação e imbuição.|-|30
+pedra-luz|Pedra de luz|narrativo|-|Pedra que brilha suavemente no escuro. Material de criação e imbuição.|-|30
+pedra-sombra|Pedra de sombra|narrativo|-|Pedra que parece engolir a luz ao redor. Material de criação e imbuição.|-|30
+erva-curativa|Erva curativa|narrativo|-|Folha de odor fresco usada em poções de cura. Material de criação.|-|3
+raiz-amarga|Raiz amarga|narrativo|-|Raiz de gosto forte, base de antídotos. Material de criação.|-|4
+flor-vigilia|Flor da vigília|narrativo|-|Flor que mantém os sentidos alertas; base de elixires contra o sono. Material de criação.|-|5
+cogumelo-ardente|Cogumelo ardente|narrativo|-|Cogumelo quente usado em unguentos e tônicos. Material de criação.|-|4
+essencia-arcana|Essência arcana|narrativo|-|Resíduo mágico concentrado em frasco. Material de criação.|-|15
+frasco-vazio|Frasco vazio|narrativo|-|Vidro limpo para guardar líquidos. Material de criação.|-|1
+pergaminho-em-branco|Pergaminho em branco|narrativo|-|Folha preparada para receber escrita arcana. Material de criação.|-|5
+tinta-arcana|Tinta arcana|narrativo|-|Tinta que fixa runas no papel. Material de criação.|-|12
+minerio-ferro|Minério de ferro|narrativo|-|Rocha rica em ferro, pronta para fundir. Material de criação.|-|4
+barra-de-ferro|Barra de ferro|narrativo|-|Metal fundido e moldado em barra. Material de criação.|-|9
+couro-cru|Couro cru|narrativo|-|Pele bruta, ainda sem curtir. Material de criação.|-|3
+couro-curtido|Couro curtido|narrativo|-|Couro tratado, pronto para costura e armaduras. Material de criação.|-|8
+madeira-resistente|Madeira resistente|narrativo|-|Tora seca e firme para cabos e arcos. Material de criação.|-|4
+cristal-bruto|Cristal bruto|narrativo|-|Cristal sem lapidar, canal natural de magia. Material de criação.|-|18
+osso-polido|Osso polido|narrativo|-|Osso limpo usado em talismãs e ferramentas. Material de criação.|-|3

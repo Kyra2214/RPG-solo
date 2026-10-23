@@ -41,18 +41,21 @@ O bloqueio de runner descrito no histórico abaixo foi resolvido em 2026-10-19, 
 - Depois disso, a branch de trabalho `feature/dc-05-1-source-context-app` recebeu remoção de conteúdo de terceiros, R-01/R-02/R-05 e as entregas DC-01.1–DC-05.2. O código está até `1477dad` (DC-01.4): Room v10 para fontes/pipeline/fatos, bytes de documentos no armazenamento privado e APIs no `AppModel`.
 - Em 2026-10-22 foi disparada manualmente a execução [Android CI #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) na branch, commit `cee31e7` (documentação apenas após `1477dad`). O job falhou em `Check Kotlin style` antes de chegar a compilação/testes. O log relatou 1.331 violações ktlint em 26 arquivos de `ai/src/main/kotlin`; o relatório filtrado/sem ANSI está em [`docs/ci/android-ci-39829094817-ktlint-failure.log`](ci/android-ci-39829094817-ktlint-failure.log).
 - `Run JVM and Android tests`, E2E no emulador e build/upload do APK ficaram **skipped** após a falha de estilo. O upload de relatórios foi executado pelo `if: always()`, mas não representa testes aprovados. O schema Room v10 também não foi exportado por build.
+- Em 2026-10-22, depois de correções de estilo ktlint (ordem de imports, vírgulas finais, quebras de linha em `ai`, `engine`, `data`, `app` e testes) e da correção de compilação em `app/ui/RpgSoloApp.kt`, o job `test-and-…` do Android CI no commit `9c84a6c` (Android CI #296, `main`) registrou: `Check Kotlin style` **passou** (32s); `Run JVM and Android tests` **passou** (1min52s); `Upload JVM test reports` **passou** (3s); `Run Android E2E on emulator` **em execução** (cerca de 7 minutos no momento do registro); `Upload E2E diagnostics`, `Build debug APK` e `Upload debug APK` **pendentes**. Fonte: acompanhamento do job pelo app do GitHub (captura de tela), sem o log completo anexado.
 
-**Conclusão atual: o código da branch não está validado.** A primeira barreira da execução manual foi o ktlint; nenhum resultado de teste ou build foi produzido. Corrigir as violações e executar novamente a workflow é necessário para obter validação de compilação/testes, E2E e APK.
+**Conclusão atual: validação parcial.** No commit `9c84a6c`, o estilo (ktlint) e os testes JVM e Android passaram. O E2E no emulador estava em execução e o build/upload do APK ainda não tinham rodado; sem essas etapas verdes, o código **não** deve ser tratado como APK pronto. Pendências: o run #296 ainda estava em processamento às 20:40 (22/10/2026); falta o resultado final do E2E, do build e do upload do APK; o schema Room v10 também só é conferido pelo build. A etapa de testes é agregada (`./gradlew test`): não há resultado individual por módulo nem contagem de testes copiada para este arquivo.
 
-| Módulo | Resultado | Commit | Data | Link |
+| Etapa / módulo | Resultado | Commit | Data | Link |
 |---|---|---|---|---|
-| ktlint | **Falhou** — 1.331 violações em 26 arquivos do módulo `ai` | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) · [log](ci/android-ci-39829094817-ktlint-failure.log) |
-| engine | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
-| rules | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
-| ai | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
-| data | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
-| app | Não executado — etapa de testes ignorada após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
-| E2E | Ignorado após falha de ktlint | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) |
+| ktlint | **Passou** (32s) | `9c84a6c` | 2026-10-22 | Android CI #296 (link a preencher) |
+| engine, rules, ai, data e app (`Run JVM and Android tests`, agregado) | **Passou** (1min52s) | `9c84a6c` | 2026-10-22 | Android CI #296 (link a preencher) |
+| E2E no emulador | **Em execução** no momento do registro; resultado final pendente | `9c84a6c` | 2026-10-22 | Android CI #296 (link a preencher) |
+| Build/upload do APK de debug | **Pendente** (depende de o job chegar a essas etapas) | `9c84a6c` | 2026-10-22 | Android CI #296 (link a preencher) |
+| ktlint (execução anterior) | Falhou — 1.331 violações em 26 arquivos do módulo `ai`; testes, E2E e APK ignorados | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) · [log](ci/android-ci-39829094817-ktlint-failure.log) |
+
+## Testes preparados e ainda não executados (2026-10-22)
+
+`RpgDatabaseMigrationTest` (módulo `data`), `RollCardRevealTest`, `NavigationAccessibilityTest` e `CampaignStarterTest.ambientacaoNaoAlteraAFichaDoJogador` foram escritos sem Gradle/SDK e não constam de nenhuma execução do CI. Os testes instrumentados de `data` rodam no emulador do E2E sem bloquear o job; o resultado fica em `data-androidtest-result.txt` e em `data/build/reports/androidTests/connected` (artefato `rpgsolo-e2e-diagnostics`). Os esquemas Room gerados pelo build ficam no artefato `rpgsolo-room-schemas` e precisam ser commitados em `data/schemas`.
 
 ## Histórico: período sem runner (2026-10-18 e 2026-10-19, resolvido)
 

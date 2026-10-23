@@ -8,3 +8,6 @@ amaldicoado|Amaldiçoado|Maldição que prejudica testes até ser desfeita.|perd
 abencoado|Abençoado|Bênção que melhora testes até acabar.|ganho:*||0|pv
 envenenado|Envenenado|Toxina no organismo; causa 1 PV de dano ao fim de cada rodada por 3 rodadas, salvo tratamento.|perda:*|3|1|pv|pericia:media
 queimando|Queimando|Chamas ou calor intenso causam 2 PV de dano ao fim de cada rodada por 2 rodadas, salvo se apagadas.|perda:*|2|2|pv|esquiva:facil
+sono|Sono|Sono forçado: a vítima mal reage até acordar ou ser despertada.|perda:*|3|0|pv|pericia:media
+paralisado|Paralisado|Músculos travados; ações físicas ficam muito prejudicadas por poucas rodadas.|perda:*|2|0|pv|pericia:dificil
+medo|Medo|Pavor que derruba a coragem e atrapalha testes até passar.|perda:*|3|0|pv|pericia:media

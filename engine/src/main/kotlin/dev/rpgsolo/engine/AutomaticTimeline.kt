@@ -277,6 +277,11 @@ fun automaticTimeline(
                     } else {
                         null
                     }
+                is CampaignEnded -> AutomaticTimelineEntry(index, "consequência", "A campanha terminou.")
+                is NpcAssumed ->
+                    finalState.entities[event.npcId]?.let {
+                        AutomaticTimelineEntry(index, "consequência", "Você passou a controlar ${it.name}.")
+                    }
                 // A criação de NPC é estado interno; só fatos explicitamente públicos entram na timeline.
                 is EntityCreated -> null
                 else -> null

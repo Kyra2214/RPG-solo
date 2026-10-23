@@ -16,7 +16,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.rpgsolo.R
 import dev.rpgsolo.engine.SkillActionKind
 import dev.rpgsolo.engine.SkillCategory
 import dev.rpgsolo.engine.SkillEffectRecipient
@@ -27,6 +29,7 @@ fun SkillTreePanel(
     enabled: Boolean,
     act: (block: () -> String?, onResult: (String?) -> Unit) -> Unit,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var version by remember { mutableIntStateOf(0) }
     var message by remember { mutableStateOf<String?>(null) }
     var selectedTargets by remember { mutableStateOf(emptyMap<String, String>()) }
@@ -48,19 +51,19 @@ fun SkillTreePanel(
 
     AppCard {
         SectionTitle(
-            "Árvore de habilidades",
-            "Pontos disponíveis: ${state.abilityPoints}. Habilidades básicas de raça/sub-raça são gratuitas; evolução custa pontos.",
+            stringResource(R.string.skilltree_title),
+            stringResource(R.string.skilltree_points_help, state.abilityPoints),
         )
         if (!initial.allocated) {
             SectionTitle(
-                "Distribuir os 12 pontos iniciais",
-                "Divida livremente entre atributos e pontos de habilidade. A distribuição só pode ser feita uma vez.",
+                stringResource(R.string.skilltree_initial_title),
+                stringResource(R.string.skilltree_initial_help),
             )
             initial.stats.forEach { stat ->
                 OutlinedTextField(
                     value = initialInputs[stat.id] ?: "0",
                     onValueChange = { value -> initialInputs = initialInputs + (stat.id to value.filter { it.isDigit() }) },
-                    label = { Text("${stat.name} (atual: ${stat.current})") },
+                    label = { Text(stringResource(R.string.skilltree_stat_label, stat.name, stat.current)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -68,11 +71,11 @@ fun SkillTreePanel(
             OutlinedTextField(
                 value = initialSkillPoints,
                 onValueChange = { initialSkillPoints = it.filter { ch -> ch.isDigit() } },
-                label = { Text("Pontos para habilidades") },
+                label = { Text(stringResource(R.string.skilltree_skill_points)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Muted("Distribuídos: $initialTotal/12")
+            Muted(stringResource(R.string.skilltree_distributed, initialTotal))
             Button(
                 enabled = enabled && initialValuesValid && initialTotal == 12L && initial.stats.isNotEmpty(),
                 onClick = {
@@ -80,81 +83,86 @@ fun SkillTreePanel(
                         initial.stats.associate { stat -> stat.id to (initialInputs[stat.id]?.toIntOrNull() ?: 0) }
                             .filterValues { it > 0 }
                     act({ model.allocateInitialBuild(statIncreases, initialSkillPoints.toIntOrNull() ?: 0) }) { result ->
-                        message = result ?: "Os 12 pontos iniciais foram distribuídos."
+                        message = result ?: context.getString(R.string.skilltree_initial_done)
                         version++
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Confirmar distribuição") }
+            ) { Text(stringResource(R.string.skilltree_confirm)) }
         } else {
-            Muted("Distribuição inicial concluída.")
+            Muted(stringResource(R.string.skilltree_initial_complete))
         }
         if (initial.allocated && entries.any { it.currentLevel == 0 && it.skill.scrollRank != null }) {
             OutlinedTextField(
                 value = completedQuestId,
                 onValueChange = { completedQuestId = it.trim() },
-                label = { Text("ID da missão concluída para resgatar pergaminho") },
+                label = { Text(stringResource(R.string.skilltree_quest_id)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
         if (entries.isEmpty()) {
-            Muted("Escolha uma raça/sub-raça, classe ou profissão na ficha ativa para ver suas árvores.")
+            Muted(stringResource(R.string.skilltree_empty))
         } else {
             entries.forEach { entry ->
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
                     Text(entry.displayName, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
                     val requiredElement = entry.skill.requiredElement
                     Muted(
-                        "${categoryLabel(entry.skill.category)} · nível ${entry.currentLevel} · ${if (requiredElement != null) {
-                            "exige ${elementLabelUi(requiredElement)}"
-                        } else if (entry.skill.affinityBound) {
-                            "afinidade ${elementLabelUi(entry.skill.element)}"
-                        } else {
-                            "neutra"
-                        }}",
+                        stringResource(
+                            R.string.skilltree_entry_info,
+                            categoryLabel(entry.skill.category),
+                            entry.currentLevel,
+                            if (requiredElement != null) {
+                                stringResource(R.string.skilltree_requires, elementLabelUi(requiredElement))
+                            } else if (entry.skill.affinityBound) {
+                                stringResource(R.string.skilltree_affinity, elementLabelUi(entry.skill.element))
+                            } else {
+                                stringResource(R.string.skilltree_neutral)
+                            },
+                        ),
                     )
-                    entry.reason?.let { Muted("Requisitos: $it") }
+                    entry.reason?.let { Muted(stringResource(R.string.skilltree_requirements, it)) }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         if (entry.skill.freeBaseSkill && entry.currentLevel == 0) {
                             Button(
                                 enabled = enabled && entry.canUse,
                                 onClick = {
                                     act({ actions.grantFreeBaseSkill(entry.skill.id) }) { result ->
-                                        message = result ?: "Habilidade básica concedida."
+                                        message = result ?: context.getString(R.string.skilltree_msg_free)
                                         version++
                                     }
                                 },
-                            ) { Text("Receber grátis") }
+                            ) { Text(stringResource(R.string.skilltree_get_free)) }
                         } else if (entry.currentLevel == 0) {
                             OutlinedButton(
                                 enabled = enabled && entry.canUse && !entry.hasScroll,
                                 onClick = {
                                     act({ actions.buyScroll(entry.skill.id) }) { result ->
-                                        message = result ?: "Pergaminho comprado."
+                                        message = result ?: context.getString(R.string.skilltree_msg_bought)
                                         version++
                                     }
                                 },
-                            ) { Text("Pergaminho: ${entry.scrollPriceSilver ?: "—"} prata") }
+                            ) { Text(stringResource(R.string.skilltree_scroll_price, entry.scrollPriceSilver?.toString() ?: "—")) }
                             Button(
                                 enabled = enabled && entry.canUse && entry.hasScroll && state.abilityPoints >= entry.pointCost,
                                 onClick = {
                                     act({ actions.unlockOrUpgrade(entry.skill.id) }) { result ->
-                                        message = result ?: "Habilidade desbloqueada."
+                                        message = result ?: context.getString(R.string.skilltree_msg_unlocked)
                                         version++
                                     }
                                 },
-                            ) { Text("Desbloquear (${entry.pointCost} ponto)") }
+                            ) { Text(stringResource(R.string.skilltree_unlock, entry.pointCost)) }
                         } else {
                             Button(
                                 enabled = enabled && entry.canUse && state.abilityPoints >= entry.pointCost,
                                 onClick = {
                                     act({ actions.unlockOrUpgrade(entry.skill.id) }) { result ->
-                                        message = result ?: "Habilidade evoluída."
+                                        message = result ?: context.getString(R.string.skilltree_msg_evolved)
                                         version++
                                     }
                                 },
-                            ) { Text("Evoluir (${entry.pointCost} ponto)") }
+                            ) { Text(stringResource(R.string.skilltree_evolve, entry.pointCost)) }
                             if (entry.skill.effects.any {
                                     it.recipient == SkillEffectRecipient.TARGET
                                 } || entry.skill.actionKind == SkillActionKind.REVIVE || entry.skill.actionKind == SkillActionKind.MULTI_HIT || entry.skill.actionKind == SkillActionKind.POWER_STRIKE
@@ -187,11 +195,11 @@ fun SkillTreePanel(
                                         ),
                                     onClick = {
                                         act({ actions.activate(entry.skill.id, selectedTargets[entry.skill.id]) }) { result ->
-                                            message = result ?: "Habilidade ativada."
+                                            message = result ?: context.getString(R.string.skilltree_msg_activated)
                                             version++
                                         }
                                     },
-                                ) { Text("Ativar") }
+                                ) { Text(stringResource(R.string.skilltree_activate)) }
                             }
                         }
                     }
@@ -200,12 +208,12 @@ fun SkillTreePanel(
                             enabled = enabled && completedQuestId.isNotBlank(),
                             onClick = {
                                 act({ actions.rewardScrollFromQuest(entry.skill.id, completedQuestId) }) { result ->
-                                    message = result ?: "Pergaminho resgatado como recompensa da missão."
+                                    message = result ?: context.getString(R.string.skilltree_msg_scroll_quest)
                                     version++
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                        ) { Text("Resgatar pergaminho por missão") }
+                        ) { Text(stringResource(R.string.skilltree_scroll_quest)) }
                     }
                 }
             }
@@ -213,36 +221,38 @@ fun SkillTreePanel(
                 enabled = enabled,
                 onClick = {
                     act({ actions.reset() }) { result ->
-                        message = result ?: "Pontos redefinidos. Habilidades básicas gratuitas foram preservadas."
+                        message = result ?: context.getString(R.string.skilltree_msg_reset)
                         version++
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Resetar habilidades — 25.000 prata") }
+            ) { Text(stringResource(R.string.skilltree_reset)) }
         }
         message?.let { Muted(it) }
     }
 }
 
+@Composable
 private fun elementLabelUi(element: dev.rpgsolo.engine.ElementPath): String =
     when (element) {
-        dev.rpgsolo.engine.ElementPath.WATER -> "Água"
-        dev.rpgsolo.engine.ElementPath.FIRE -> "Fogo"
-        dev.rpgsolo.engine.ElementPath.WIND -> "Vento"
-        dev.rpgsolo.engine.ElementPath.EARTH -> "Terra"
-        dev.rpgsolo.engine.ElementPath.METAL -> "Metal"
-        dev.rpgsolo.engine.ElementPath.YIN -> "Yin"
-        dev.rpgsolo.engine.ElementPath.YANG -> "Yang"
-        dev.rpgsolo.engine.ElementPath.NONE -> "não definida"
+        dev.rpgsolo.engine.ElementPath.WATER -> stringResource(R.string.skilltree_element_water)
+        dev.rpgsolo.engine.ElementPath.FIRE -> stringResource(R.string.skilltree_element_fire)
+        dev.rpgsolo.engine.ElementPath.WIND -> stringResource(R.string.skilltree_element_wind)
+        dev.rpgsolo.engine.ElementPath.EARTH -> stringResource(R.string.skilltree_element_earth)
+        dev.rpgsolo.engine.ElementPath.METAL -> stringResource(R.string.skilltree_element_metal)
+        dev.rpgsolo.engine.ElementPath.YIN -> stringResource(R.string.skilltree_element_yin)
+        dev.rpgsolo.engine.ElementPath.YANG -> stringResource(R.string.skilltree_element_yang)
+        dev.rpgsolo.engine.ElementPath.NONE -> stringResource(R.string.skilltree_element_none)
     }
 
+@Composable
 private fun categoryLabel(category: SkillCategory): String =
     when (category) {
-        SkillCategory.OFFENSE -> "Ofensiva"
-        SkillCategory.DEFENSE -> "Defensiva"
-        SkillCategory.BUFF -> "Buff"
-        SkillCategory.SUPPORT -> "Suporte"
-        SkillCategory.PASSIVE -> "Passiva"
-        SkillCategory.UTILITY -> "Utilitária"
-        SkillCategory.CONTROL -> "Controle"
+        SkillCategory.OFFENSE -> stringResource(R.string.skilltree_category_offense)
+        SkillCategory.DEFENSE -> stringResource(R.string.skilltree_category_defense)
+        SkillCategory.BUFF -> stringResource(R.string.skilltree_category_buff)
+        SkillCategory.SUPPORT -> stringResource(R.string.skilltree_category_support)
+        SkillCategory.PASSIVE -> stringResource(R.string.skilltree_category_passive)
+        SkillCategory.UTILITY -> stringResource(R.string.skilltree_category_utility)
+        SkillCategory.CONTROL -> stringResource(R.string.skilltree_category_control)
     }

@@ -46,6 +46,23 @@ private const val BALANCE_CAP = 1_000_000L
 internal fun parseBalance(s: String?): List<Int> = s?.split(",")?.mapNotNull { it.trim().toIntOrNull() } ?: emptyList()
 
 class RulePackage internal constructor(val data: PackageData) {
+    /** MU-06.7: habilidade declarada em `habilidades.txt` como especificação do motor; null se o id não existe. */
+    /** MU-06.8: exceções de `excecoes.txt` como registro do motor; null se o pacote não declara nenhuma. */
+    fun exceptionRegistry(): dev.rpgsolo.engine.ExceptionRegistry? =
+        data.exceptions.takeIf { it.isNotEmpty() }?.let { defs ->
+            dev.rpgsolo.engine.ExceptionRegistry(
+                defs.map { ex ->
+                    dev.rpgsolo.engine.MechanicalException(
+                        ex.id, ex.entityId, ex.description,
+                        ex.modifiers.map { dev.rpgsolo.engine.Modifier("excecao:${ex.id}", ex.description, it.target, it.value) },
+                        ex.immuneConditions.toSet(),
+                    )
+                },
+            )
+        }
+
+    fun abilitySpec(id: String): dev.rpgsolo.engine.AbilitySpec? = data.abilities.firstOrNull { it.id == id }?.toSpec()
+
     val manifest: Manifest get() = data.manifest
 
     private val statById = data.stats.associateBy { it.id }
@@ -87,7 +104,27 @@ class RulePackage internal constructor(val data: PackageData) {
 
     fun isUncertain(id: String): Boolean = id in uncertainById
 
-    fun item(id: String): ItemDef? = itemById[id]
+    /** Definição do item; ids com qualidade (`base#rara`) resolvem para o item base se a qualidade for válida. */
+    fun item(id: String): ItemDef? = if (ItemRef.quality(id) == null) null else itemById[ItemRef.base(id)]
+
+    /** Percentual de efeito da qualidade (`qualidade_<id>_percent` em criacao.txt; padrão em [ItemQuality.defaultPercent]). */
+    fun qualityPercent(quality: ItemQuality): Int = data.creation["qualidade_${quality.id}_percent"]?.toIntOrNull() ?: quality.defaultPercent
+
+    /** Escala [value] positivo pela qualidade do item [itemId] (arredonda para o mais próximo, mínimo 1); zero ou negativo não muda. */
+    fun scaleByQuality(
+        value: Int,
+        itemId: String,
+    ): Int {
+        if (value <= 0) return value
+        val percent = qualityPercent(ItemRef.quality(itemId) ?: ItemQuality.NORMAL)
+        return maxOf(1, (value * percent + 50) / 100)
+    }
+
+    /** M-04: ids base de itens de renascimento (`itens_renascimento` em criacao.txt, separados por vírgula). O motor compara ids exatos, então cada qualidade vem listada abaixo. */
+    val rebirthItemIds: Set<String>
+        get() =
+            data.creation["itens_renascimento"]?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() && it != "-" }
+                ?.flatMap { base -> ItemQuality.entries.map { ItemRef.of(base, it) } }?.toSet() ?: emptySet()
 
     /** Item de moeda declarado por `moeda_item` em criacao.txt; null = pacote sem economia. */
     val currencyItemId: String? get() = data.creation["moeda_item"]
@@ -104,6 +141,9 @@ class RulePackage internal constructor(val data: PackageData) {
             }
 
     fun spell(id: String): SpellDef? = spells.firstOrNull { it.id == id }
+
+    /** MU-07.4: poder (`poderes.txt`) que a magia conjura, declarado por `magia_<id>_poder` em criacao.txt; null = sem efeito. */
+    fun spellPowerId(spellId: String): String? = data.creation["magia_${spellId}_poder"]?.takeIf { it.isNotBlank() }
 
     /** MU-07.1: item de ouro (`moeda_ouro`); null = sem ouro (só a moeda base, a prata). */
     val goldItemId: String? get() = data.creation["moeda_ouro"]
@@ -135,7 +175,10 @@ class RulePackage internal constructor(val data: PackageData) {
     fun equipmentBonus(
         itemIds: Collection<String>,
         scope: String,
-    ): Int = itemIds.sumOf { id -> itemById[id]?.effects.orEmpty().filter { it.scope == scope }.sumOf { it.bonus } }
+    ): Int =
+        itemIds.sumOf { id ->
+            item(id)?.effects.orEmpty().filter { it.scope == scope }.sumOf { scaleByQuality(it.bonus, id) }
+        }
 
     /** Bônus mecânico de traços para testes e combate (ataque, dano, defesa e resistência/vulnerabilidade a dano). */
     fun traitBonus(
@@ -212,6 +255,8 @@ class RulePackage internal constructor(val data: PackageData) {
         EngineConfig(
             deathResource = manifest.deathResource,
             deathMode = manifest.deathMode ?: DeathMode.PERMADEATH,
+            rebirthItems = rebirthItemIds,
+            rebirthPercent = data.creation["renascimento_percentual"]?.toIntOrNull() ?: 50,
             levelThresholds = data.progression ?: emptyList(),
             defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
             advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
@@ -693,6 +738,10 @@ object PackageValidator {
                     if (power.target != PowerTarget.ENEMY) p += "poder ${power.id}: condicao só pode ter alvo inimigo"
                     if (d.conditions.none { it.id == power.param }) p += "poder ${power.id}: condição inexistente ${power.param}"
                 }
+                PowerEffectKind.SHIELD -> {
+                    if (power.target != PowerTarget.SELF) p += "poder ${power.id}: escudo só pode ter alvo self"
+                    if ((power.param.toIntOrNull() ?: 0) <= 0) p += "poder ${power.id}: quantidade de escudo inválida"
+                }
                 PowerEffectKind.REMOVE_CONDITION -> {
                     if (power.target != PowerTarget.SELF) p += "poder ${power.id}: remover-condicao só pode ter alvo self"
                     if (d.conditions.none { it.id == power.param }) p += "poder ${power.id}: condição inexistente ${power.param}"
@@ -818,6 +867,7 @@ object PackageValidator {
         d.creation["combate_dano"]?.let { id ->
             if (d.damage.none { it.id == id }) p += "criacao.txt: perfil de dano inexistente: $id"
         }
+        val itemActions = setOf("cura", "remover-condicao", "aplicar-condicao")
         for ((key, value) in d.creation) {
             if (!key.startsWith("item_")) continue
             val suffix = key.removePrefix("item_")
@@ -830,24 +880,38 @@ object PackageValidator {
             }
             if (item.kind != "consumivel") p += "criacao.txt: só consumíveis podem ter configuração de uso: $itemId"
             when (property) {
-                "acao" -> if (value !in setOf("cura")) p += "criacao.txt: ação de item não suportada: $value"
+                "acao" -> if (value !in itemActions) p += "criacao.txt: ação de item não suportada: $value"
                 "recurso" -> if (d.resources.none { it.id == value }) p += "criacao.txt: recurso de item inexistente: $value"
                 "quantidade" -> if ((value.toIntOrNull() ?: 0) <= 0) p += "criacao.txt: quantidade de item inválida: $value"
+                "condicao" -> if (d.conditions.none { it.id == value }) p += "criacao.txt: condição de item inexistente: $value"
+                "duracao" -> if ((value.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: duração de item inválida (1 a 100 rodadas): $value"
                 else -> p += "criacao.txt: propriedade de item desconhecida: $key"
             }
         }
         d.items.filter { it.kind == "consumivel" }.forEach { item ->
             val prefix = "item_${item.id}_"
             val action = d.creation[prefix + "acao"]
-            val resource = d.creation[prefix + "recurso"]
-            val amount = d.creation[prefix + "quantidade"]
-            if (listOf(action, resource, amount).any { it != null } && action == null) {
-                p += "criacao.txt: consumível ${item.id} define recurso/quantidade sem ação"
+            val others = listOf("recurso", "quantidade", "condicao", "duracao").filter { d.creation.containsKey(prefix + it) }
+            if (action == null && others.isNotEmpty()) p += "criacao.txt: consumível ${item.id} define ${others.joinToString("/")} sem ação"
+            when (action) {
+                "cura" -> {
+                    if (!d.creation.containsKey(prefix + "recurso")) p += "criacao.txt: consumível ${item.id} sem recurso"
+                    if (!d.creation.containsKey(prefix + "quantidade")) p += "criacao.txt: consumível ${item.id} sem quantidade"
+                }
+                "remover-condicao", "aplicar-condicao" ->
+                    if (!d.creation.containsKey(prefix + "condicao")) p += "criacao.txt: consumível ${item.id} sem condição"
             }
-            if (action != null) {
-                if (resource == null) p += "criacao.txt: consumível ${item.id} sem recurso"
-                if (amount == null) p += "criacao.txt: consumível ${item.id} sem quantidade"
+        }
+        ItemQuality.entries.forEach { q ->
+            d.creation["qualidade_${q.id}_percent"]?.let { raw ->
+                if ((raw.toIntOrNull() ?: 0) !in 100..1000) p += "criacao.txt: qualidade_${q.id}_percent deve ficar entre 100 e 1000"
             }
+        }
+        val percents = ItemQuality.entries.map { qualityPercent(it) }
+        if (percents.zipWithNext().any { (x, y) -> y < x }) p += "criacao.txt: os percentuais de qualidade devem ser crescentes (normal ≤ boa ≤ rara ≤ lendária)"
+        d.creation["renascimento_percentual"]?.let { if ((it.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: renascimento_percentual deve ficar entre 1 e 100" }
+        d.creation["itens_renascimento"]?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() && it != "-" }?.forEach { id ->
+            if (d.items.none { it.id == id }) p += "criacao.txt: itens_renascimento referencia item inexistente: $id"
         }
         d.items.filter { it.price != null && it.price !in 1..1_000_000 }
             .forEach { p += "item ${it.id}: preço fora de 1..1000000" }
@@ -878,6 +942,11 @@ object PackageValidator {
             val id = key.removePrefix("magia_").removeSuffix("_preco")
             if (!Regex("[a-z0-9][a-z0-9_-]*").matches(id)) p += "criacao.txt: id de magia inválido: '$id'"
             if (d.creation[key]?.toIntOrNull()?.let { it in 1..1_000_000 } != true) p += "criacao.txt: $key deve ser inteiro de 1 a 1000000"
+        }
+        d.creation.keys.filter { it.startsWith("magia_") && it.endsWith("_poder") }.forEach { key ->
+            val id = key.removePrefix("magia_").removeSuffix("_poder")
+            if ("magia_${id}_preco" !in d.creation) p += "criacao.txt: $key sem 'magia_${id}_preco'"
+            if (d.powers.none { it.id == d.creation[key] }) p += "criacao.txt: $key referencia poder inexistente '${d.creation[key]}'"
         }
         if (spellKeys.isNotEmpty() && currencyId == null) p += "criacao.txt: magias à venda exigem 'moeda_item'"
         if (spellKeys.isNotEmpty() && d.creation["niveis_slot_magia"].isNullOrBlank()) p += "criacao.txt: magias à venda exigem 'niveis_slot_magia'"

@@ -1,11 +1,15 @@
 package dev.rpgsolo.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -28,10 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import dev.rpgsolo.R
 import dev.rpgsolo.rules.CharacterDraft
 import dev.rpgsolo.rules.FichaBuild
 import dev.rpgsolo.rules.RulePackage
@@ -57,11 +65,11 @@ fun CharactersScreen(model: AppModel) {
 
     ScreenColumn {
         if (pkg == null) {
-            AppCard { Text("Instale um pacote de regras na aba Sistemas para criar personagens.") }
+            AppCard { Text(stringResource(R.string.char_no_package)) }
             return@ScreenColumn
         }
         if (ids.size > 1) {
-            SectionTitle("Sistema")
+            SectionTitle(stringResource(R.string.char_system))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ids.forEach { id -> FilterChip(selected = id == selected, onClick = { selected = id }, label = { Text(id) }) }
             }
@@ -84,6 +92,14 @@ private fun Creator(
     var message by remember(key) { mutableStateOf<String?>(null) }
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val unexpectedError = stringResource(R.string.char_action_failed)
+    val context = LocalContext.current
+    val notSelected = stringResource(R.string.char_not_selected)
+    val idNotFound = stringResource(R.string.char_id_not_found)
+    val noneLabel = stringResource(R.string.char_none_fem)
+    val noneMasc = stringResource(R.string.char_none_masc)
+    val decreaseLabel: (String) -> String = { context.getString(R.string.char_decrease, it) }
+    val increaseLabel: (String) -> String = { context.getString(R.string.char_increase, it) }
     var dbBusy by remember(key) { mutableStateOf(false) }
 
     /** Gravações no banco rodam em IO e desabilitam os botões enquanto duram (R-02). */
@@ -98,7 +114,7 @@ private fun Creator(
                 try {
                     withContext(Dispatchers.IO) { work() }
                 } catch (e: Exception) {
-                    e.message ?: "A ação falhou inesperadamente."
+                    e.message ?: unexpectedError
                 } finally {
                     dbBusy = false
                 }
@@ -109,6 +125,22 @@ private fun Creator(
     var fichaImportText by remember(key) { mutableStateOf("") }
     var expandedFichaId by remember(key) { mutableStateOf<String?>(null) }
     var editingChoicesFichaId by remember(key) { mutableStateOf<String?>(null) }
+    val loreDrafts = remember(key) { androidx.compose.runtime.mutableStateMapOf<String, String>() }
+    val loreAppearance = remember(key) { androidx.compose.runtime.mutableStateMapOf<String, String>() }
+    val loreIdea = remember(key) { androidx.compose.runtime.mutableStateMapOf<String, String>() }
+    var portraitTargetId by remember(key) { mutableStateOf<String?>(null) }
+    var portraitVersion by remember(key) { mutableStateOf(0) }
+    val portraitPicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            val target = portraitTargetId
+            portraitTargetId = null
+            if (uri != null && target != null) {
+                io({ model.setPortrait(target, uri) }) {
+                    portraitVersion++
+                    libraryMessage = it ?: context.getString(R.string.char_portrait_saved)
+                }
+            }
+        }
     val clipboard = LocalClipboardManager.current
     var archId by remember(key) { mutableStateOf<String?>(null) }
     var archQuery by remember(key) { mutableStateOf("") }
@@ -147,14 +179,14 @@ private fun Creator(
 
     // ---------- 1. Ponto de partida ----------
     SectionTitle(
-        "Ponto de partida",
-        "Escolha um arquétipo: ele já traz atributos, perícias e um par de vantagem e desvantagem. Você muda o que quiser.",
+        stringResource(R.string.char_start_title),
+        stringResource(R.string.char_start_help),
     )
     OutlinedTextField(
         archQuery,
         { archQuery = it },
         Modifier.fillMaxWidth(),
-        placeholder = { Text("Buscar arquétipo (elfo, ladrão, mago…)") },
+        placeholder = { Text(stringResource(R.string.char_archetype_search)) },
         singleLine = true,
         shape = MaterialTheme.shapes.large,
     )
@@ -194,37 +226,37 @@ private fun Creator(
 
     // ---------- 2. Origem e identidade de aventura ----------
     SectionTitle(
-        "Raça, linhagem, classe e profissão",
-        "Escolhas do catálogo. Híbridos de raça são separados das combinações de classes; habilidades e efeitos declarados são validados pelo motor.",
+        stringResource(R.string.char_origin_title),
+        stringResource(R.string.char_origin_help),
     )
     val catalogErrors = CharacterCreationCatalog.validationErrors()
     if (catalogErrors.isNotEmpty()) {
         AppCard {
-            Text("Catálogo com referências inválidas", color = MaterialTheme.colorScheme.error)
+            Text(stringResource(R.string.char_catalog_invalid), color = MaterialTheme.colorScheme.error)
             catalogErrors.take(5).forEach { Muted(it) }
         }
     }
     if (choiceErrors.isNotEmpty()) {
         AppCard {
-            Text("Revise as escolhas", color = MaterialTheme.colorScheme.error)
+            Text(stringResource(R.string.char_review_choices), color = MaterialTheme.colorScheme.error)
             choiceErrors.forEach { Muted(it) }
         }
     }
     val catalogRaces = CharacterCreationCatalog.races
     val catalogSubraces = CharacterCreationCatalog.subraces.filter { it.parentRaceId == raceId }
-    CatalogPicker("Raça", catalogRaces, raceId, { selected ->
+    CatalogPicker(stringResource(R.string.char_race), catalogRaces, raceId, { selected ->
         raceId = selected
         if (selected.isNotBlank()) hybridId = ""
         if (subraceId.isNotBlank() && CharacterCreationCatalog.subraces.none { it.id == subraceId && it.parentRaceId == selected }) subraceId = ""
         version++
     })
     if (raceId.isNotBlank()) {
-        CatalogPicker("Sub-raça / variante (opcional)", catalogSubraces, subraceId, {
+        CatalogPicker(stringResource(R.string.char_subrace), catalogSubraces, subraceId, {
             subraceId = it
             version++
         }, allowNone = true)
     }
-    CatalogPicker("Híbrido / ascendência mista (opcional)", CharacterCreationCatalog.hybrids, hybridId, { selected ->
+    CatalogPicker(stringResource(R.string.char_hybrid), CharacterCreationCatalog.hybrids, hybridId, { selected ->
         hybridId = selected
         if (selected.isNotBlank()) {
             raceId = ""
@@ -236,19 +268,24 @@ private fun Creator(
         CharacterCreationCatalog.find(selectedId)?.let { entry ->
             AppCard {
                 Text(entry.name, style = MaterialTheme.typography.titleSmall)
-                Muted("Ascendência: " + entry.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "))
+                Muted(
+                    stringResource(
+                        R.string.char_ancestry,
+                        entry.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "),
+                    ),
+                )
                 if (entry.lore.isNotBlank()) Muted(entry.lore)
             }
         }
     }
-    CatalogPicker("Classe principal", CharacterCreationCatalog.classes, classId, {
+    CatalogPicker(stringResource(R.string.char_main_class), CharacterCreationCatalog.classes, classId, {
         classId = it
         additionalClassIds = additionalClassIds - it
         version++
     }, allowNone = true)
     SectionTitle(
-        "Classes adicionais (híbrido)",
-        "Até três classes adicionais além da principal. Quanto mais classes combinadas, mais monstruosa fica a aparência.",
+        stringResource(R.string.char_extra_classes_title),
+        stringResource(R.string.char_extra_classes_help),
     )
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         CharacterCreationCatalog.classes.filter { it.id != classId }.forEach { option ->
@@ -272,25 +309,25 @@ private fun Creator(
     val totalClasses = (if (classId.isBlank()) 0 else 1) + additionalClassIds.size
     val hybridAppearance =
         when (totalClasses) {
-            0, 1 -> "Aparência normal"
-            2 -> "Traços híbridos visíveis"
-            3 -> "Aparência monstruosa evidente"
-            else -> "Aparência extremamente monstruosa; forte desvantagem social"
+            0, 1 -> stringResource(R.string.char_appearance_normal)
+            2 -> stringResource(R.string.char_appearance_visible)
+            3 -> stringResource(R.string.char_appearance_monstrous)
+            else -> stringResource(R.string.char_appearance_extreme)
         }
-    Muted("Classes combinadas: $totalClasses/4 — $hybridAppearance")
+    Muted(stringResource(R.string.char_combined_classes, totalClasses, hybridAppearance))
     SectionTitle(
-        "Afinidade elemental",
-        "Opcional para técnicas físicas; habilidades mágicas exigem compatibilidade com a afinidade escolhida.",
+        stringResource(R.string.char_element_title),
+        stringResource(R.string.char_element_help),
     )
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
-            "WATER" to "Água",
-            "FIRE" to "Fogo",
-            "WIND" to "Vento",
-            "EARTH" to "Terra",
-            "METAL" to "Metal",
-            "YIN" to "Yin",
-            "YANG" to "Yang",
+            "WATER" to stringResource(R.string.char_element_water),
+            "FIRE" to stringResource(R.string.char_element_fire),
+            "WIND" to stringResource(R.string.char_element_wind),
+            "EARTH" to stringResource(R.string.char_element_earth),
+            "METAL" to stringResource(R.string.char_element_metal),
+            "YIN" to stringResource(R.string.char_element_yin),
+            "YANG" to stringResource(R.string.char_element_yang),
         ).forEach {
                 (id, label) ->
             FilterChip(selected = elementalAffinity == id, onClick = {
@@ -299,13 +336,13 @@ private fun Creator(
             }, label = { Text(label) })
         }
     }
-    CatalogPicker("Profissão", CharacterCreationCatalog.professions, professionId, {
+    CatalogPicker(stringResource(R.string.char_profession), CharacterCreationCatalog.professions, professionId, {
         professionId = it
         version++
     }, allowNone = true)
 
-    SectionTitle("Classe de Malditos", "Escolha uma vertente sobrenatural; sua habilidade básica é concedida gratuitamente.")
-    CatalogPicker("Família / vertente de Malditos", CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, {
+    SectionTitle(stringResource(R.string.char_cursed_title), stringResource(R.string.char_cursed_help))
+    CatalogPicker(stringResource(R.string.char_cursed_branch), CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, {
         cursedClassBranchId = it
         version++
     }, allowNone = true)
@@ -315,23 +352,30 @@ private fun Creator(
             .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
     if (chosenCatalogEntries.isNotEmpty()) {
         AppCard {
-            Text("Resumo das escolhas", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.char_summary_title), style = MaterialTheme.typography.titleSmall)
             chosenCatalogEntries.forEach { entry ->
                 Text(entry.name, style = MaterialTheme.typography.bodyMedium)
                 if (entry.summary.isNotBlank()) Muted(entry.summary)
-                if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted("Lore: " + entry.lore)
+                if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted(stringResource(R.string.char_lore, entry.lore))
                 if (entry.benefits.isNotEmpty()) {
-                    entry.benefits.forEach { Muted("Benefício descrito (sem efeito automático, salvo o efeito listado abaixo): " + it) }
+                    entry.benefits.forEach { Muted(stringResource(R.string.char_benefit_summary, it)) }
                 } else if (entry.benefit.isNotBlank()) {
-                    Muted("Benefício descrito (sem efeito automático, salvo o efeito listado abaixo): " + entry.benefit)
+                    Muted(stringResource(R.string.char_benefit_summary, entry.benefit))
                 }
                 if (entry.drawbacks.isNotEmpty()) {
-                    entry.drawbacks.forEach { Muted("Custo descrito (não aplicado): " + it) }
+                    entry.drawbacks.forEach { Muted(stringResource(R.string.char_drawback_summary, it)) }
                 } else if (entry.drawback.isNotBlank()) {
-                    Muted("Custo descrito (não aplicado): " + entry.drawback)
+                    Muted(stringResource(R.string.char_drawback_summary, entry.drawback))
                 }
                 entry.mechanicalEffects.forEach {
-                    Muted("Efeito mecânico declarado (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                    Muted(
+                        stringResource(
+                            R.string.char_effect_declared,
+                            entry.name,
+                            it.scope,
+                            (if (it.bonus >= 0) "+" else "") + it.bonus,
+                        ),
+                    )
                 }
             }
         }
@@ -340,10 +384,10 @@ private fun Creator(
     editingChoicesFichaId?.let { fichaId ->
         AppCard {
             Text(
-                "Editando escolhas de ${model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId}",
+                stringResource(R.string.char_editing_choices, model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId),
                 style = MaterialTheme.typography.titleSmall,
             )
-            Muted("Esta ação altera somente os metadados editoriais; não recalcula nem inventa bônus mecânicos.")
+            Muted(stringResource(R.string.char_editing_help))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(enabled = choiceErrors.isEmpty() && !dbBusy, onClick = {
                     io({
@@ -351,10 +395,10 @@ private fun Creator(
                         null
                     }) {
                         editingChoicesFichaId = null
-                        libraryMessage = "Escolhas da ficha atualizadas."
+                        libraryMessage = context.getString(R.string.char_choices_updated)
                     }
-                }) { Text("Salvar escolhas") }
-                TextButton(onClick = { editingChoicesFichaId = null }) { Text("Cancelar") }
+                }) { Text(stringResource(R.string.char_save_choices)) }
+                TextButton(onClick = { editingChoicesFichaId = null }) { Text(stringResource(R.string.char_cancel)) }
             }
         }
     }
@@ -363,14 +407,14 @@ private fun Creator(
     OutlinedTextField(draft.name, {
         draft.name = it
         version++
-    }, Modifier.fillMaxWidth(), label = { Text("Nome") }, singleLine = true)
+    }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.char_name)) }, singleLine = true)
     OutlinedTextField(draft.concept, {
         draft.concept = it
         version++
-    }, Modifier.fillMaxWidth(), label = { Text("Conceito (livre)") })
+    }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.char_concept)) })
 
     // ---------- 3. Atributos ----------
-    SectionTitle("Atributos")
+    SectionTitle(stringResource(R.string.char_attributes))
     AppCard {
         pkg.data.stats.forEach { st ->
             val v = draft.stats()[st.id] ?: st.default
@@ -379,12 +423,12 @@ private fun Creator(
                 OutlinedButton(enabled = v > st.min, onClick = {
                     draft.setStat(st.id, v - 1)
                     version++
-                }, modifier = Modifier.semantics { contentDescription = "Diminuir ${st.name}" }) { Text("−") }
+                }, modifier = Modifier.semantics { contentDescription = decreaseLabel(st.name) }) { Text("−") }
                 Text(v.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
                 OutlinedButton(enabled = v < st.max, onClick = {
                     draft.setStat(st.id, v + 1)
                     version++
-                }, modifier = Modifier.semantics { contentDescription = "Aumentar ${st.name}" }) { Text("+") }
+                }, modifier = Modifier.semantics { contentDescription = increaseLabel(st.name) }) { Text("+") }
             }
         }
     }
@@ -392,7 +436,7 @@ private fun Creator(
     // ---------- 4. Pontos de perícia ----------
     val skills = pkg.data.traits.filter { it.type == "pericia" }
     if (skills.isNotEmpty()) {
-        SectionTitle("Perícias", "Distribua de 0 a 5 pontos. Cada ponto consome 1 ponto de criação.")
+        SectionTitle(stringResource(R.string.char_skills_title), stringResource(R.string.char_skills_help))
         AppCard {
             skills.forEach { skill ->
                 val value = draft.skills()[skill.id] ?: 0
@@ -404,12 +448,12 @@ private fun Creator(
                     OutlinedButton(enabled = value > 0, onClick = {
                         draft.setSkill(skill.id, value - 1)
                         version++
-                    }, modifier = Modifier.semantics { contentDescription = "Diminuir ${skill.name}" }) { Text("−") }
+                    }, modifier = Modifier.semantics { contentDescription = decreaseLabel(skill.name) }) { Text("−") }
                     Text(value.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedButton(enabled = value < 5 && draft.pointsLeft() > 0, onClick = {
                         draft.setSkill(skill.id, value + 1)
                         version++
-                    }, modifier = Modifier.semantics { contentDescription = "Aumentar ${skill.name}" }) { Text("+") }
+                    }, modifier = Modifier.semantics { contentDescription = increaseLabel(skill.name) }) { Text("+") }
                 }
             }
         }
@@ -419,8 +463,8 @@ private fun Creator(
     val report = draft.report()
     AppCard(accent = if (report.valid) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Pontos", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-            Text("${draft.pointsLeft()} sobrando de ${pkg.creationPoints}", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.char_points), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.char_points_left, draft.pointsLeft(), pkg.creationPoints), style = MaterialTheme.typography.bodyMedium)
         }
         LinearProgressIndicator(
             progress = { (report.pointsSpent.toFloat() / pkg.creationPoints.coerceAtLeast(1)).coerceIn(0f, 1f) },
@@ -429,14 +473,14 @@ private fun Creator(
         )
         if (pkg.balanceTable.isNotEmpty()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Vantagens x desvantagens", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.char_balance), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
                 val ok = report.disadvantages >= report.disadvantagesRequired
                 Pill(
-                    "${report.advantages} vant. · ${report.disadvantages}/${report.disadvantagesRequired} desv.",
+                    stringResource(R.string.char_balance_pill, report.advantages, report.disadvantages, report.disadvantagesRequired),
                     if (ok) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                 )
             }
-            Muted("1 vantagem pede 1 desvantagem, 2 pedem 3, 3 pedem 5 e, da quarta em diante, o mínimo dobra a cada vantagem.")
+            Muted(stringResource(R.string.char_balance_help))
         }
         report.errors.forEach { ErrorText(it) }
         report.warnings.forEach { Muted(it) }
@@ -445,36 +489,36 @@ private fun Creator(
     // ---------- 5. Cardápio do arquétipo ----------
     val menu = archId?.let { pkg.archetypeOptions(it) }
     if (menu != null) {
-        SectionTitle("Cardápio do arquétipo", "Sugestões que combinam com a classe. Misture à vontade com as gerais.")
-        Text("Vantagens", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.tertiary)
+        SectionTitle(stringResource(R.string.char_menu_title), stringResource(R.string.char_menu_help))
+        Text(stringResource(R.string.char_advantages), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.tertiary)
         menu.advantages.mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, it.id in draft.traits()) { toggle(it.id) } }
-        Text("Desvantagens", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.error)
+        Text(stringResource(R.string.char_disadvantages), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.error)
         menu.disadvantages.mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, it.id in draft.traits()) { toggle(it.id) } }
     }
 
     // ---------- 6. Escolhidos ----------
     if (draft.traits().isNotEmpty()) {
-        SectionTitle("Na ficha agora")
+        SectionTitle(stringResource(R.string.char_on_sheet))
         draft.traits().mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, true) { toggle(it.id) } }
     }
 
     // ---------- 7. Todos os traços ----------
-    SectionTitle("Todos os traços", "Qualquer traço do sistema, filtrado pelo que a ficha atual aceita.")
+    SectionTitle(stringResource(R.string.char_all_traits_title), stringResource(R.string.char_all_traits_help))
     OutlinedTextField(
         traitQuery,
         { traitQuery = it },
         Modifier.fillMaxWidth(),
-        placeholder = { Text("Buscar traço (atrapalhado, visão, magia…)") },
+        placeholder = { Text(stringResource(R.string.char_trait_search)) },
         singleLine = true,
         shape = MaterialTheme.shapes.large,
     )
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
-            "todos" to "Todos",
-            "vantagem" to "Vantagens",
-            "desvantagem" to "Desvantagens",
-            "pericia" to "Perícias",
-            "poder" to "Poderes",
+            "todos" to stringResource(R.string.char_filter_all),
+            "vantagem" to stringResource(R.string.char_advantages),
+            "desvantagem" to stringResource(R.string.char_disadvantages),
+            "pericia" to stringResource(R.string.char_skills_title),
+            "poder" to stringResource(R.string.char_filter_powers),
         )
             .forEach { (id, label) -> FilterChip(selected = typeFilter == id, onClick = { typeFilter = id }, label = { Text(label) }) }
     }
@@ -485,46 +529,56 @@ private fun Creator(
             (typeFilter == "todos" || it.type == typeFilter) &&
                 (q.isEmpty() || it.name.lowercase().contains(q) || it.description.lowercase().contains(q))
         }
-    Muted("${shown.size} traços disponíveis" + if (shown.size > 40) " (mostrando 40; use a busca)" else "")
+    Muted(
+        stringResource(R.string.char_traits_available, shown.size) +
+            if (shown.size > 40) stringResource(R.string.char_traits_showing_40) else "",
+    )
     shown.take(40).forEach { TraitRow(it, false) { toggle(it.id) } }
 
     // ---------- 8. Revisão final ----------
     SectionTitle(
-        "Revisão final",
-        "Confira as escolhas antes de salvar. Os traços mecânicos vêm do pacote; o catálogo editorial não concede bônus automaticamente.",
+        stringResource(R.string.char_final_title),
+        stringResource(R.string.char_final_help),
     )
     AppCard {
-        Text(draft.name.ifBlank { "Personagem sem nome" }, style = MaterialTheme.typography.titleMedium)
-        Muted("Raça: " + (CharacterCreationCatalog.find(raceId)?.name ?: "não selecionada"))
-        if (subraceId.isNotBlank()) Muted("Sub-raça: " + (CharacterCreationCatalog.find(subraceId)?.name ?: "ID não encontrado"))
+        Text(draft.name.ifBlank { stringResource(R.string.char_unnamed) }, style = MaterialTheme.typography.titleMedium)
+        Muted(stringResource(R.string.char_final_race, CharacterCreationCatalog.find(raceId)?.name ?: notSelected))
+        if (subraceId.isNotBlank()) Muted(stringResource(R.string.char_final_subrace, CharacterCreationCatalog.find(subraceId)?.name ?: idNotFound))
         if (hybridId.isNotBlank()) {
             val hybrid = CharacterCreationCatalog.find(hybridId)
-            Muted("Híbrido: " + (hybrid?.name ?: "ID não encontrado"))
+            Muted(stringResource(R.string.char_final_hybrid, hybrid?.name ?: idNotFound))
             if (hybrid != null) {
                 Muted(
-                    "Ascendências: " +
-                        hybrid.hybridRaceIds.mapNotNull {
-                            CharacterCreationCatalog.find(it)?.name
-                        }.joinToString(" + "),
+                    stringResource(
+                        R.string.char_final_ancestries,
+                        hybrid.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "),
+                    ),
                 )
             }
         }
-        Muted("Classe: " + (CharacterCreationCatalog.find(classId)?.name ?: "não selecionada"))
-        Muted("Profissão: " + (CharacterCreationCatalog.find(professionId)?.name ?: "não selecionada"))
-        Muted("Classe de Malditos: " + (CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: "nenhuma"))
+        Muted(stringResource(R.string.char_final_class, CharacterCreationCatalog.find(classId)?.name ?: notSelected))
+        Muted(stringResource(R.string.char_final_profession, CharacterCreationCatalog.find(professionId)?.name ?: notSelected))
+        Muted(stringResource(R.string.char_final_cursed, CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: noneLabel))
         Muted(
-            "Classes híbridas: " +
-                (
-                    listOf(classId).filter {
-                        it.isNotBlank()
-                    } + additionalClassIds
-                ).mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf("nenhuma") }.joinToString(" + "),
+            stringResource(
+                R.string.char_final_hybrid_classes,
+                (listOf(classId).filter { it.isNotBlank() } + additionalClassIds)
+                    .mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf(noneLabel) }.joinToString(" + "),
+            ),
         )
-        Muted("Maldições lançadas são aplicadas durante a aventura, não escolhidas na criação da ficha.")
+        Muted(stringResource(R.string.char_final_curses_note))
         Muted(
-            "Traços mecânicos do pacote: " + draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf("nenhum") }.joinToString(", "),
+            stringResource(
+                R.string.char_final_traits,
+                draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf(noneMasc) }.joinToString(", "),
+            ),
         )
-        Muted("Atributos: " + draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" })
+        Muted(
+            stringResource(
+                R.string.char_final_stats,
+                draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" },
+            ),
+        )
     }
 
     // ---------- 9. Criar ----------
@@ -540,7 +594,7 @@ private fun Creator(
                 }) { failure ->
                     if (failure == null) {
                         draftId = newId
-                        message = "Ficha de ${b.ficha.name} criada e salva."
+                        message = context.getString(R.string.char_created, b.ficha.name)
                     } else {
                         message = failure
                     }
@@ -548,17 +602,17 @@ private fun Creator(
             }
             is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
         }
-    }) { Text("Criar ficha") }
+    }) { Text(stringResource(R.string.char_create)) }
     message?.let { Muted(it) }
 
-    SectionTitle("Importar ficha por JSON", "Aceita exportações novas com escolhas editoriais e JSONs antigos contendo apenas a ficha.")
+    SectionTitle(stringResource(R.string.char_import_title), stringResource(R.string.char_import_help))
     AppCard {
         OutlinedTextField(
             value = fichaImportText,
             onValueChange = { fichaImportText = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("JSON da ficha") },
-            placeholder = { Text("Cole aqui o JSON exportado") },
+            label = { Text(stringResource(R.string.char_import_label)) },
+            placeholder = { Text(stringResource(R.string.char_import_placeholder)) },
             minLines = 3,
             maxLines = 8,
         )
@@ -572,53 +626,140 @@ private fun Creator(
                     if (it?.startsWith("Ficha ") == true && it.orEmpty().contains("importada")) fichaImportText = ""
                 }
             },
-        ) { Text("Importar ficha") }
+        ) { Text(stringResource(R.string.char_import_button)) }
     }
 
     if (model.fichas.isNotEmpty()) {
-        SectionTitle("Biblioteca")
+        SectionTitle(stringResource(R.string.char_library))
         model.fichas.forEach { f ->
             AppCard {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
-                Muted("${f.concept.ifBlank { "sem conceito" }} · ${f.system.editionId}")
+                Muted("${f.concept.ifBlank { stringResource(R.string.char_no_concept) }} · ${f.system.editionId}")
                 val savedChoices = model.characterChoices(f.id)
                 val savedNames =
                     (listOf(savedChoices.raceId, savedChoices.subraceId, savedChoices.hybridId, savedChoices.classId, savedChoices.professionId) + savedChoices.curseIds)
                         .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it)?.name }
-                if (savedNames.isNotEmpty()) Muted("Origem: " + savedNames.joinToString(" · "))
+                if (savedNames.isNotEmpty()) Muted(stringResource(R.string.char_origin, savedNames.joinToString(" · ")))
                 TextButton(onClick = { expandedFichaId = if (expandedFichaId == f.id) null else f.id }) {
-                    Text(if (expandedFichaId == f.id) "Ocultar ficha" else "Ver ficha")
+                    Text(stringResource(if (expandedFichaId == f.id) R.string.char_hide_sheet else R.string.char_show_sheet))
                 }
                 if (expandedFichaId == f.id) {
                     val fichaPkg = dev.rpgsolo.rules.CampaignStarter.packageFor(model.content.registry, f.system.editionId)
                     Muted(
-                        "Atributos: " +
-                            f.stats.entries.joinToString(", ") { (id, value) ->
-                                "${fichaPkg?.stat(id)?.name ?: id}: $value"
-                            },
+                        stringResource(
+                            R.string.char_lib_stats,
+                            f.stats.entries.joinToString(", ") { (id, value) -> "${fichaPkg?.stat(id)?.name ?: id}: $value" },
+                        ),
                     )
                     if (f.skills.isNotEmpty()) {
                         Muted(
-                            "Perícias: " +
-                                f.skills.entries.joinToString(", ") { (id, value) ->
-                                    "${fichaPkg?.trait(id)?.name ?: id}: $value"
-                                },
+                            stringResource(
+                                R.string.char_lib_skills,
+                                f.skills.entries.joinToString(", ") { (id, value) -> "${fichaPkg?.trait(id)?.name ?: id}: $value" },
+                            ),
                         )
                     }
                     if (f.traits.isNotEmpty()) {
                         Muted(
-                            "Traços: " + f.traits.joinToString(", ") { id -> fichaPkg?.trait(id)?.let { traitTag(it) } ?: id },
+                            stringResource(
+                                R.string.char_lib_traits,
+                                f.traits.joinToString(", ") { id -> fichaPkg?.trait(id)?.let { traitTag(it, context) } ?: id },
+                            ),
                         )
                     }
                     if (f.resources.isNotEmpty()) {
                         Muted(
-                            "Recursos: " +
-                                f.resources.entries.joinToString(", ") { (id, resource) ->
-                                    "$id: ${resource.current}/${resource.max}"
-                                },
+                            stringResource(
+                                R.string.char_lib_resources,
+                                f.resources.entries.joinToString(", ") { (id, resource) -> "$id: ${resource.current}/${resource.max}" },
+                            ),
                         )
                     }
-                    if (f.adaptations.isNotEmpty()) Muted("Adaptações: " + f.adaptations.joinToString(", "))
+                    if (f.adaptations.isNotEmpty()) Muted(stringResource(R.string.char_lib_adaptations, f.adaptations.joinToString(", ")))
+                    SectionTitle(stringResource(R.string.char_portrait_title))
+                    val portrait =
+                        remember(f.portraitRef, portraitVersion) {
+                            model.portraitFile(f.portraitRef)?.let { file ->
+                                android.graphics.BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
+                            }
+                        }
+                    if (portrait != null) {
+                        Image(
+                            bitmap = portrait,
+                            contentDescription = stringResource(R.string.char_portrait_description, f.name),
+                            modifier = Modifier.size(160.dp),
+                        )
+                    } else {
+                        Muted(stringResource(R.string.char_portrait_none))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        TextButton(enabled = !dbBusy, onClick = {
+                            portraitTargetId = f.id
+                            portraitPicker.launch("image/*")
+                        }) { Text(stringResource(if (portrait == null) R.string.char_portrait_choose else R.string.char_portrait_change)) }
+                        if (f.portraitRef.isNotBlank()) {
+                            TextButton(enabled = !dbBusy, onClick = {
+                                io({ model.clearPortrait(f.id) }) {
+                                    portraitVersion++
+                                    libraryMessage = it ?: context.getString(R.string.char_portrait_removed)
+                                }
+                            }) { Text(stringResource(R.string.char_portrait_remove)) }
+                        }
+                    }
+                    SectionTitle(stringResource(R.string.char_lore_title))
+                    if (f.approvedLore.isNotBlank()) Muted(f.approvedLore) else Muted(stringResource(R.string.char_lore_none))
+                    val draftText = loreDrafts[f.id]
+                    if (draftText == null) {
+                        OutlinedTextField(
+                            value = loreAppearance[f.id].orEmpty(),
+                            onValueChange = { loreAppearance[f.id] = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text(stringResource(R.string.char_lore_appearance)) },
+                            maxLines = 3,
+                        )
+                        OutlinedTextField(
+                            value = loreIdea[f.id].orEmpty(),
+                            onValueChange = { loreIdea[f.id] = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text(stringResource(R.string.char_lore_idea)) },
+                            maxLines = 3,
+                        )
+                        Muted(stringResource(R.string.char_lore_privacy))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            TextButton(enabled = !dbBusy, onClick = {
+                                val appearance = loreAppearance[f.id].orEmpty()
+                                val idea = loreIdea[f.id].orEmpty()
+                                io({
+                                    val r = model.generateLore(f.id, appearance, idea)
+                                    r.text?.let { loreDrafts[f.id] = it }
+                                    r.error
+                                }) { libraryMessage = it }
+                            }) { Text(stringResource(if (f.approvedLore.isBlank()) R.string.char_lore_generate else R.string.char_lore_regenerate)) }
+                            if (f.approvedLore.isNotBlank()) {
+                                TextButton(enabled = !dbBusy, onClick = {
+                                    io({ model.approveLore(f.id, "") }) { libraryMessage = it ?: context.getString(R.string.char_lore_cleared) }
+                                }) { Text(stringResource(R.string.char_lore_clear)) }
+                            }
+                        }
+                    } else {
+                        OutlinedTextField(
+                            value = draftText,
+                            onValueChange = { loreDrafts[f.id] = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text(stringResource(R.string.char_lore_draft)) },
+                            minLines = 4,
+                            maxLines = 12,
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            TextButton(enabled = !dbBusy, onClick = {
+                                io({ model.approveLore(f.id, draftText) }) {
+                                    if (it == null) loreDrafts.remove(f.id)
+                                    libraryMessage = it ?: context.getString(R.string.char_lore_saved)
+                                }
+                            }) { Text(stringResource(R.string.char_lore_approve)) }
+                            TextButton(onClick = { loreDrafts.remove(f.id) }) { Text(stringResource(R.string.char_lore_discard)) }
+                        }
+                    }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     TextButton(onClick = {
@@ -632,38 +773,38 @@ private fun Creator(
                         editingChoicesFichaId = f.id
                         message = null
                         version++
-                    }) { Text("Editar escolhas") }
+                    }) { Text(stringResource(R.string.char_edit_choices)) }
                     TextButton(enabled = !dbBusy, onClick = {
-                        io({ model.duplicateFicha(f.id) }) { libraryMessage = it ?: "Ficha duplicada." }
-                    }) { Text("Duplicar") }
+                        io({ model.duplicateFicha(f.id) }) { libraryMessage = it ?: context.getString(R.string.char_duplicated) }
+                    }) { Text(stringResource(R.string.char_duplicate)) }
                     TextButton(enabled = !dbBusy, onClick = {
-                        io({ model.archiveFicha(f.id, true) }) { libraryMessage = it ?: "Ficha arquivada." }
-                    }) { Text("Arquivar") }
+                        io({ model.archiveFicha(f.id, true) }) { libraryMessage = it ?: context.getString(R.string.char_archived) }
+                    }) { Text(stringResource(R.string.char_archive)) }
                     TextButton(onClick = {
                         val raw = model.exportFicha(f.id)
                         if (raw != null) {
                             clipboard.setText(AnnotatedString(raw))
-                            libraryMessage = "JSON da ficha copiado."
+                            libraryMessage = context.getString(R.string.char_json_copied)
                         } else {
-                            libraryMessage = "Não foi possível exportar a ficha."
+                            libraryMessage = context.getString(R.string.char_export_failed)
                         }
-                    }) { Text("Copiar JSON") }
+                    }) { Text(stringResource(R.string.char_copy_json)) }
                 }
             }
         }
     }
     if (model.archivedFichas.isNotEmpty()) {
-        SectionTitle("Fichas arquivadas")
+        SectionTitle(stringResource(R.string.char_archived_title))
         model.archivedFichas.forEach { f ->
             AppCard {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     TextButton(enabled = !dbBusy, onClick = {
-                        io({ model.archiveFicha(f.id, false) }) { libraryMessage = it ?: "Ficha restaurada." }
-                    }) { Text("Restaurar") }
+                        io({ model.archiveFicha(f.id, false) }) { libraryMessage = it ?: context.getString(R.string.char_restored) }
+                    }) { Text(stringResource(R.string.char_restore)) }
                     TextButton(enabled = !dbBusy, onClick = {
-                        io({ model.deleteFicha(f.id) }) { libraryMessage = it ?: "Ficha excluída." }
-                    }) { Text("Excluir") }
+                        io({ model.deleteFicha(f.id) }) { libraryMessage = it ?: context.getString(R.string.char_deleted) }
+                    }) { Text(stringResource(R.string.char_delete)) }
                 }
             }
         }
@@ -672,14 +813,18 @@ private fun Creator(
 }
 
 /** M-01.8: nome do traço com a marcação do que o motor aplica ("efeito: ...") ou "narrativo" (só vantagem/desvantagem). */
-private fun traitTag(t: TraitDef): String =
+private fun traitTag(
+    t: TraitDef,
+    context: android.content.Context,
+): String =
     when {
         t.bonuses.isNotEmpty() ->
-            t.name + " [efeito: " +
-                t.bonuses.joinToString("; ") {
-                    "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}"
-                } + "]"
-        t.type == "vantagem" || t.type == "desvantagem" -> t.name + " [narrativo]"
+            t.name +
+                context.getString(
+                    R.string.char_tag_effect,
+                    t.bonuses.joinToString("; ") { "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}" },
+                )
+        t.type == "vantagem" || t.type == "desvantagem" -> t.name + context.getString(R.string.char_tag_narrative)
         else -> t.name
     }
 
@@ -691,10 +836,10 @@ private fun TraitRow(
 ) {
     val (label, color) =
         when (t.type) {
-            "vantagem" -> "Vantagem" to MaterialTheme.colorScheme.tertiary
-            "poder" -> "Poder" to MaterialTheme.colorScheme.tertiary
-            "desvantagem" -> "Desvantagem" to MaterialTheme.colorScheme.error
-            else -> "Perícia" to MaterialTheme.colorScheme.secondary
+            "vantagem" -> stringResource(R.string.char_type_advantage) to MaterialTheme.colorScheme.tertiary
+            "poder" -> stringResource(R.string.char_type_power) to MaterialTheme.colorScheme.tertiary
+            "desvantagem" -> stringResource(R.string.char_type_disadvantage) to MaterialTheme.colorScheme.error
+            else -> stringResource(R.string.char_type_skill) to MaterialTheme.colorScheme.secondary
         }
     Surface(
         shape = MaterialTheme.shapes.medium,
@@ -706,20 +851,23 @@ private fun TraitRow(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(t.name, style = MaterialTheme.typography.titleSmall)
                     Pill(label, color)
-                    if (t.cost != 0) Pill("custo ${t.cost}", MaterialTheme.colorScheme.outline)
+                    if (t.cost != 0) Pill(stringResource(R.string.char_cost, t.cost), MaterialTheme.colorScheme.outline)
                     // M-01: distingue o que o motor aplica do que é só texto para o mestre e o jogador.
                     if (t.bonuses.isNotEmpty()) {
                         Pill(
-                            "efeito: " + t.bonuses.joinToString("; ") { "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}" },
+                            stringResource(
+                                R.string.char_pill_effect,
+                                t.bonuses.joinToString("; ") { "${it.scope} ${if (it.bonus > 0) "+" else ""}${it.bonus}" },
+                            ),
                             MaterialTheme.colorScheme.primary,
                         )
                     } else if (t.type == "vantagem" || t.type == "desvantagem") {
-                        Pill("narrativo", MaterialTheme.colorScheme.outline)
+                        Pill(stringResource(R.string.char_narrative), MaterialTheme.colorScheme.outline)
                     }
                 }
                 Muted(t.description)
             }
-            OutlinedButton(onClick = onToggle) { Text(if (chosen) "Tirar" else "Pegar") }
+            OutlinedButton(onClick = onToggle) { Text(stringResource(if (chosen) R.string.char_take_off else R.string.char_take)) }
         }
     }
 }
@@ -739,15 +887,15 @@ private fun CatalogPicker(
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Buscar $title") },
+            placeholder = { Text(stringResource(R.string.char_search_title, title)) },
             singleLine = true,
         )
         if (allowNone && selectedId.isNotBlank()) {
-            TextButton(onClick = { onSelected("") }) { Text("Limpar seleção") }
+            TextButton(onClick = { onSelected("") }) { Text(stringResource(R.string.char_clear_selection)) }
         }
         val q = query.trim().lowercase()
         val visible = entries.filter { q.isEmpty() || it.name.lowercase().contains(q) || it.summary.lowercase().contains(q) }.take(30)
-        if (visible.isEmpty()) Muted("Nenhuma opção encontrada.")
+        if (visible.isEmpty()) Muted(stringResource(R.string.char_no_options))
         visible.forEach { entry ->
             FilterChip(
                 selected = selectedId == entry.id,
@@ -756,15 +904,22 @@ private fun CatalogPicker(
             )
             if (selectedId == entry.id) {
                 if (entry.summary.isNotBlank()) Muted(entry.summary)
-                if (entry.lore.isNotBlank()) Muted("Lore: " + entry.lore)
-                entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
-                entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
+                if (entry.lore.isNotBlank()) Muted(stringResource(R.string.char_lore, entry.lore))
+                entry.benefits.forEach { Muted(stringResource(R.string.char_benefit_not_auto, it)) }
+                entry.drawbacks.forEach { Muted(stringResource(R.string.char_drawback_not_auto, it)) }
                 entry.mechanicalEffects.forEach {
-                    Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                    Muted(
+                        stringResource(
+                            R.string.char_effect_applied,
+                            entry.name,
+                            it.scope,
+                            (if (it.bonus >= 0) "+" else "") + it.bonus,
+                        ),
+                    )
                 }
             }
         }
-        if (entries.size > visible.size) Muted("Mostrando até 30 opções; use a busca para localizar as demais.")
+        if (entries.size > visible.size) Muted(stringResource(R.string.char_showing_30))
     }
 }
 
@@ -781,13 +936,13 @@ private fun CatalogMultiPicker(
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Buscar maldição") },
+            placeholder = { Text(stringResource(R.string.char_curse_search)) },
             singleLine = true,
         )
-        Text("${selectedIds.size} selecionada(s)", style = MaterialTheme.typography.labelMedium)
+        Text(stringResource(R.string.char_selected_count, selectedIds.size), style = MaterialTheme.typography.labelMedium)
         val q = query.trim().lowercase()
         val visible = entries.filter { q.isEmpty() || it.name.lowercase().contains(q) || it.summary.lowercase().contains(q) }.take(30)
-        if (visible.isEmpty()) Muted("Nenhuma maldição encontrada.")
+        if (visible.isEmpty()) Muted(stringResource(R.string.char_no_curses))
         visible.forEach { entry ->
             FilterChip(
                 selected = entry.id in selectedIds,
@@ -796,14 +951,21 @@ private fun CatalogMultiPicker(
             )
             if (entry.id in selectedIds) {
                 if (entry.summary.isNotBlank()) Muted(entry.summary)
-                if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted("Lore: " + entry.lore)
-                entry.benefits.forEach { Muted("Benefício descrito (não é bônus automático): " + it) }
-                entry.drawbacks.forEach { Muted("Custo descrito (não é penalidade automática): " + it) }
+                if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted(stringResource(R.string.char_lore, entry.lore))
+                entry.benefits.forEach { Muted(stringResource(R.string.char_benefit_not_auto, it)) }
+                entry.drawbacks.forEach { Muted(stringResource(R.string.char_drawback_not_auto, it)) }
                 entry.mechanicalEffects.forEach {
-                    Muted("Efeito aplicado nos testes (origem: ${entry.name}): ${it.scope} ${if (it.bonus >= 0) "+" else ""}${it.bonus}")
+                    Muted(
+                        stringResource(
+                            R.string.char_effect_applied,
+                            entry.name,
+                            it.scope,
+                            (if (it.bonus >= 0) "+" else "") + it.bonus,
+                        ),
+                    )
                 }
             }
         }
-        if (entries.size > visible.size) Muted("Catálogo com ${entries.size} opções; busque pelo nome para encontrar outras.")
+        if (entries.size > visible.size) Muted(stringResource(R.string.char_catalog_size, entries.size))
     }
 }

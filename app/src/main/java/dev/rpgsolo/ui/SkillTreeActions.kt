@@ -46,7 +46,14 @@ class SkillTreeActions(
     private val element: () -> ElementPath,
     private val weaponTags: () -> Set<String>,
     private val questCompleted: (questId: String) -> Boolean,
-    private val multiHitAction: (targetId: String, hitCount: Int, damageBonus: Int, elementalResistanceScope: String?) -> String?,
+    private val multiHitAction: (
+        targetId: String,
+        hitCount: Int,
+        damageBonus: Int,
+        elementalResistanceScope: String?,
+        spendResource: String?,
+        spendCost: Int,
+    ) -> String?,
     private val onChanged: () -> Unit,
 ) {
     private val definitions: List<SkillTreeSkill> by lazy {
@@ -259,7 +266,7 @@ class SkillTreeActions(
                 require(combat != null) { "ataques especiais só podem ser usados durante combate" }
                 val selectedTarget = requireNotNull(targetId) { "selecione um alvo para o multiataque" }
                 require(selectedTarget in targets().map { it.first } && selectedTarget in combat.order) { "alvo fora do combate" }
-                require(skill.actionCost == 0) { "ataque especial com custo de recurso ainda não foi configurado" }
+                require(skill.actionCost == 0 || skill.actionResource != null) { "a habilidade não define o recurso de custo" }
                 val bonus = skill.effects.firstOrNull { it.target == "dano" }?.valueAt(level) ?: 0
                 val elementalScope =
                     if (skill.affinityBound) {
@@ -276,7 +283,7 @@ class SkillTreeActions(
                     } else {
                         null
                     }
-                val result = multiHitAction(selectedTarget, skill.hitCount, bonus, elementalScope)
+                val result = multiHitAction(selectedTarget, skill.hitCount, bonus, elementalScope, skill.actionResource, skill.actionCost)
                 return if (elementalScope != null) "Ataque elemental de ${elementLabel(skill.element)}. ${result.orEmpty()}" else result
             }
             require(skill.effects.isNotEmpty()) { "esta habilidade ainda não tem efeito mecânico executável" }

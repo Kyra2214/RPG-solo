@@ -194,7 +194,7 @@ class CombatActions(
                 session().unifiedAttackBetween(
                     attackerId,
                     targetId,
-                    listOf(combatBonuses),
+                    listOfNotNull(combatBonuses, pkg.exceptionRegistry()),
                     attackStat,
                     defenseStat,
                     damageResource = resource,
@@ -246,6 +246,9 @@ class CombatActions(
         strikeCount: Int = 1,
         extraDamageBonus: Int = 0,
         elementalResistanceScope: String? = null,
+        /** Habilidade com custo: recurso e quantidade gastos no mesmo lote do ataque (recusa ou falha desfaz tudo). */
+        spendResource: String? = null,
+        spendCost: Int = 0,
     ): String? {
         return try {
             require(isPlayerCombatTurn()) { "não é o turno do jogador" }
@@ -288,6 +291,12 @@ class CombatActions(
             val targetConditionShift = bonuses.conditionDiceShift(targetId, defenseStat)
             val combatantsBefore = session().state.combat?.order.orEmpty()
             val attackMark = session().mark()
+            if (spendResource != null && spendCost > 0) {
+                when (val spent = session().execute(dev.rpgsolo.engine.SpendResource(playerId(), spendResource, spendCost))) {
+                    is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
+                    is dev.rpgsolo.engine.ExecResult.Rejected -> return spent.reason
+                }
+            }
             val spec =
                 dev.rpgsolo.engine.AttackSpec(
                     attackerId = playerId(),

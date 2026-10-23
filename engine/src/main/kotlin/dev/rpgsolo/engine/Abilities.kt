@@ -20,7 +20,14 @@ data class AbilitySpec(
     val fixedRounds: Int? = null,
     /** MU-06.4: desvantagem opcional, só quando o autor declara; valores negativos, mesma duração dos bônus. */
     val drawbacks: List<AbilityBonus> = emptyList(),
+    /** Duração por combate: os efeitos valem até o fim do combate (sem rolar rodadas); só pode ser ativada durante um combate. */
+    val untilCombatEnd: Boolean = false,
+    /** Duração por cena: os efeitos valem até o jogador viajar para outro lugar (`PlayerMovedToPlace`); sem rolar rodadas. */
+    val untilSceneEnd: Boolean = false,
 )
+
+/** Rodadas gravadas num efeito "até o fim do combate" ou "da cena"; o fim correspondente o remove antes de chegar a 0. */
+const val COMBAT_LONG_ROUNDS = 999
 
 /** Efeito temporário ativo; [sourceId] é `habilidade:<id>` (a mesma habilidade não repete na mesma característica). */
 @Serializable
@@ -30,6 +37,10 @@ data class ActiveEffect(
     val target: String,
     val value: Int,
     val remainingRounds: Int,
+    /** Removido quando o combate termina (`CombatEnded`); dados antigos assumem false. */
+    val untilCombatEnd: Boolean = false,
+    /** Removido quando o jogador muda de lugar; dados antigos assumem false. */
+    val untilSceneEnd: Boolean = false,
 )
 
 sealed interface AbilityResult {
@@ -61,8 +72,20 @@ fun GameEngine.activateAbility(
     val start = mark()
     return try {
         val rounds: Int
-        val rolled = spec.fixedRounds == null
-        if (spec.fixedRounds != null) {
+        val rolled = spec.fixedRounds == null && !spec.untilCombatEnd && !spec.untilSceneEnd
+        if (spec.untilCombatEnd && spec.untilSceneEnd) {
+            rollbackTo(start)
+            return AbilityResult.Rejected("${spec.name} não pode durar até o fim do combate e da cena ao mesmo tempo")
+        }
+        if (spec.untilSceneEnd) {
+            rounds = COMBAT_LONG_ROUNDS
+        } else if (spec.untilCombatEnd) {
+            if (state.combat == null) {
+                rollbackTo(start)
+                return AbilityResult.Rejected("${spec.name} dura até o fim do combate e só pode ser ativada durante um combate")
+            }
+            rounds = COMBAT_LONG_ROUNDS
+        } else if (spec.fixedRounds != null) {
             rounds = spec.fixedRounds
         } else {
             rounds = rollDuration("duração: ${spec.name}").rounds
@@ -73,8 +96,8 @@ fun GameEngine.activateAbility(
         }
         val source = "habilidade:${spec.id}"
         val effects =
-            spec.bonuses.map { ActiveEffect(source, spec.name, it.target, it.value, rounds) } +
-                spec.drawbacks.map { ActiveEffect("$source:desvantagem", "${spec.name} (desvantagem)", it.target, it.value, rounds) }
+            spec.bonuses.map { ActiveEffect(source, spec.name, it.target, it.value, rounds, spec.untilCombatEnd, spec.untilSceneEnd) } +
+                spec.drawbacks.map { ActiveEffect("$source:desvantagem", "${spec.name} (desvantagem)", it.target, it.value, rounds, spec.untilCombatEnd, spec.untilSceneEnd) }
         when (val r = execute(ActivateAbility(entityId, spec.id, spec.trigger, trigger, effects))) {
             is ExecResult.Rejected -> {
                 rollbackTo(start)

@@ -1,3 +1,360 @@
+## 2026-10-22 — rules/app: custo de mana nas habilidades da árvore (M-10, não compilado)
+
+- 677 habilidades ativas custam PM (= classificação 1–7); ataques especiais passam a gastar o recurso (`CombatActions.attack` com `spendResource/spendCost`, `SkillTreeActions`, `AppModel`); carregador do catálogo aceita custo nesses ataques. +2 testes em `SkillTreeCatalogTest`.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-22 — rules/app: catálogo de itens, qualidade e renascimento no pacote (M-09.1–3, M-04.8, não compilado)
+
+- +47 itens no sistema próprio (poções, antídoto, anti-sono, pergaminhos, pedras elementais, materiais, itens de renascimento) e 3 condições (`sono`, `paralisado`, `medo`). Ações `remover-condicao`/`aplicar-condicao`; qualidade normal/boa/rara/lendária no id (`base#qualidade`) com percentual por pacote; `itens_renascimento`/`renascimento_percentual` lidos pelo pacote. `ItensQualidadeTest` (6 testes).
+- Sem crafting, sem loot e sem chamada de `UseRebirthItem` ainda. **Validação:** nada compilado nem executado.
+
+## 2026-10-22 — engine: item de renascimento e fim de campanha (M-04.7, não compilado)
+
+- `UseRebirthItem`, `rebirthItems`/`rebirthPercent` no `EngineConfig`, `AssumeNpc` recusado com item de renascimento, `EndCampaign`/`CampaignEnded`/`GameState.endedReason` (campanha encerrada recusa comandos), linha do tempo e `RebirthAndEndTest` (4 testes).
+- Sem leitura no pacote (`rules`) nem chamada em `ai`/`app`. **Validação:** nada compilado nem executado.
+
+## 2026-10-22 — engine: assumir NPC e ficha do NPC com campos ocultos (M-04.6, não compilado)
+
+- `AssumeNpc`/`NpcAssumed` (troca de PLAYER após a morte do herói, corpo mantém o inventário), `GainXp` só para PLAYER, `GameState.npcSheet` → `NpcSheetView` (campos `null` até assumir), entrada na linha do tempo e `AssumeNpcTest` (8 testes). Corrigida a declaração duplicada de `Entity.shield` em `Model.kt`.
+- ASSUMINDO: o herói morto vira `NPC` para sobrar um único `PLAYER`. Sem chamada em `ai`/`app`; faltam item de renascimento, teste de recuperação de itens, campanha encerrada, nível dos aliados e prompt do mestre.
+- **Validação:** nada compilado nem executado (o ambiente não alcança os repositórios Maven).
+
+## 2026-10-22 — Q-03.3: jogada completa com IA falsa (teste escrito, não executado)
+
+- Novos `FakeAiPlayTest` e `AiTestSupport` (`ScriptedTransport`, `openTab`, `openAiReply`) em `androidTest`; `FakeAiConfigTest` passou a usar `openTab` (a aba Config fica em "Mais" no layout estreito). Sem código de produção alterado. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — Q-03.2: provedor de IA falso no app (teste escrito, não executado)
+
+- Novo `AiTestHooks` (`app`, só injeção; nulo em produção) usado por `AppModel.applySettings/testConnection`; novo `FakeAiConfigTest` (androidTest). A jogada completa com campanha e rolagem segue pendente em Q-03. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — I-07.2: cenas de referência do mestre ampliadas (testes escritos, não executados)
+
+- `ReferenceScenesTest`: +3 testes (prompt do mestre com regras e pedidos do esquema; `request_quest` válido; recusas de `request_quest`). Exceção autorizada à regra de não criar testes; não executados. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — I-09.2: retrato por foto do aparelho (não validado)
+
+- `AppModel.setPortrait/clearPortrait/portraitFile` (foto reduzida a 512 px, JPEG em `filesDir/portraits/`, só a referência em `Ficha.portraitRef`), seção "Retrato" em `CharactersScreen` e 8 strings `char_portrait_*`. Sem geração por IA, por decisão do proprietário. ASSUMINDO: foto fora do JSON exportado. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-07: layout adaptativo para tablet e paisagem (não validado)
+
+- `RpgSoloApp.kt`: `BoxWithConstraints`; largura ≥ 600 dp usa `NavigationRail` com as 6 abas e conteúdo limitado a 840 dp; abaixo disso, barra inferior de 4 destinos. Sem dependência nova. ASSUMINDO: sem layout de dois painéis nas telas internas. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-06.2: barra de navegação com 4 destinos e "Mais" (não validado)
+
+- `RpgSoloApp.kt`: `Tab.inBar`; barra com Jogar, Heróis, Campanhas e "Mais" (menu com Regras, Sistemas e Config); `strings.xml` ganhou `tab_more`; `NavigationAccessibilityTest` ajustado. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — Fechamento da Fase 12 (suíte não executada)
+
+- Todos os submódulos MU-01 a MU-08 estão concluídos em código. `./gradlew --offline :engine:test :rules:test :ai:test` falhou ao baixar o Gradle (sem rede); nada compilou nem rodou. Conferência estática dos imports e das referências de MU-05.5 feita, sem achados. **Pendente fora do ambiente:** `./gradlew test :app:assembleDebug` e ajuste dos testes antigos que dependiam do empate 0/1 ponto (M-06.5). Fase 12 permanece 🟡. Progresso geral: sem recálculo (≈79% mantido).
+
+## 2026-10-22 — MU-05.5: pedido de missão pela IA (`request_quest`) (não validado)
+
+- `Proposals.kt`: `request_quest {title, objectives, xpReward, masterySkill, spell}` (`QuestRequest`), exclusivo; `TurnRunner.attemptQuest` e `QuestContext` (`PowerMenu.kt`); `GameLoop.questExecutor` liga a `AppModel.addQuest`, que valida título, objetivos, XP e ids no pacote; recusa volta à IA. Fecha a lacuna 3 da Fase 12. ASSUMINDO: missão registrada sem aprovação do jogador; não entra no log (desfazer não a remove). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-02.8: escudo no painel do jogador (não validado)
+
+- `PanelState.shield`, `Pill` em `StatusPanel` e string `status_shield`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-02.7: poder de escudo no pacote (não validado)
+
+- `poderes.txt` aceita efeito `escudo`; `PowerEffect.Shield`; `activatePower` usa `GrantShield`; `FORMATO_PACOTE.md` atualizado. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-02.6: escudo no motor (não validado)
+
+- `engine`: `Entity.shield`, `GrantShield`, `ShieldChanged`, `Damage.bypassShield`; `unifiedAttack` ignora o escudo quando ignora a defesa. Compatível com logs antigos. Sem fonte nem interface. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-07.6: pedido de magia pela IA (não validado)
+
+- `request_power` aceita `magia:<id>`; `TurnRunner.attemptPower` usa `PowerMenu.buildSpell`; `PowerMenu.describe` lista magias aprendidas; `GameLoop` as fornece. Fecha a lacuna 7 da Fase 12. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-07.5: conjuração de magia na aba Jogar (não validado)
+
+- `AppModel.powersView/activatePower`: magias aprendidas com efeito aparecem no painel de poderes e usam `PowerMenu.buildSpell`. Sem mudança de interface; `request_spell` pendente. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-07.4: efeito de conjuração de magia (não validado)
+
+- `criacao.txt`: `magia_<id>_poder` (validada); `RulePackage.spellPowerId`; `PowerMenu.buildSpell` reutiliza o poder ligado. Sem tela nem pedido da IA ainda. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-02.5: recarga (CD) do ignorar defesa (não validado)
+
+- `engine`: `GameState.ignoreCooldowns`, evento `IgnoreDefenseCooldownStarted`, bloqueio em `unifiedAttack` e decremento em `EffectsRoundEnded`; compatível com logs antigos. Escudo segue pendente. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-05.4: recompensas de perícia e magia da missão (não validado)
+
+- `AppModel.addQuest` aceita `masterySkillId`/`spellRewardId` (validados no pacote); concluir a missão chama `awardQuestMastery`/`awardQuestSpell`; `CampaignsScreen` ganhou 2 campos opcionais; 4 strings novas. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-06.8: `excecoes.txt` no pacote de regras (não validado)
+
+- `rules`: `ExceptionDef`, parser, herança e `RulePackage.exceptionRegistry()`; `app`: `AppModel` e `CombatActions.unifiedAttack` passam o registro ao motor e aos menus. `FORMATO_PACOTE.md` atualizado. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-06.7: `habilidades.txt` no pacote de regras (não validado)
+
+- `PackageModel.kt`/`PackageParser.kt`/`PackageRegistry.kt`/`RulePackage.kt`: `AbilityDef`, parser com validação, herança por id e `abilitySpec(id)`; `FORMATO_PACOTE.md` atualizado. Lacuna 2 da Fase 12 fechada só para habilidades. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-03.4: pedido de ataque da IA (`request_attack`) (não validado)
+
+- `Proposals.kt`: `request_attack {target}` (`AttackRequest`), exclusivo; `TurnRunner.attemptAttack` valida combate, turno do jogador e alvo NPC vivo e delega a `AttackContext` (`GameLoop.attackExecutor` → `CombatActions.unifiedAttack` em `AppModel`); recusa desfaz e volta à IA. Fecha a lacuna 1 da Fase 12. ASSUMINDO: só o herói usa o pedido. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-06.6: duração de habilidade até o fim da cena (não validado)
+
+- `Abilities.kt`/`Events.kt`: `AbilitySpec.untilSceneEnd` e `ActiveEffect.untilSceneEnd` (padrão false); sem rolar rodadas, recusa combinar com `untilCombatEnd`; `PlayerMovedToPlace` remove os efeitos marcados. ASSUMINDO: cena = lugar atual. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-06.5: duração de habilidade até o fim do combate (não validado)
+
+- `Abilities.kt`/`Events.kt`: `AbilitySpec.untilCombatEnd` e `ActiveEffect.untilCombatEnd` (padrão false, compatível com dados antigos); exige combate ativo, sem rolar rodadas; `CombatEnded` remove os efeitos marcados. Duração por cena segue pendente. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-03.3b: imunidade de exceções mecânicas na aplicação de condições (não validado)
+
+- `CheckMenu` e `PowerMenu` ganharam o parâmetro opcional `exceptions: ExceptionRegistry?` (padrão nulo); `isImmune` e a validação de poderes de condição o consultam. Sem fonte de exceções ainda, o comportamento do app não muda. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — MU-05.1b: XP da missão na tela de campanhas (não validado)
+
+- `AppModel.addQuest` aceita `xpReward` (0–100000) e `CampaignsScreen` ganhou o campo "XP ao concluir"; 2 strings novas. O teto por nível continua no motor. Proposta do mestre com o valor segue pendente. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — DC-01.5: tabelas em DOCX (não validado)
+
+- `SourceDocx.kt`: `extract` percorre tabelas e parágrafos na ordem do documento; cada linha de tabela vira `célula | célula`. Texto fora de tabelas e títulos inalterados. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — DC-05.5: consentimento Q-09 na tela de importação (não validado)
+
+- `SourcesSection.kt`: sem consentimento na campanha ativa, "Importar" abre o diálogo de privacidade (autorizar e importar, importar sem autorizar, cancelar); 3 strings novas. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — I-09.1: história do personagem por IA na biblioteca de fichas (não validado)
+
+- `AppModel.generateLore/approveLore`, seção "História" em `CharactersScreen` e 13 strings `char_lore_*`. A história só é gravada (`approvedLore`) após aprovação; o rascunho é editável e não altera a ficha. Retrato por IA segue pendente (sem provedor de imagem). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — C-02: sugestões de substituição na importação de fichas (não validado)
+
+- `CharacterCreationCatalog.suggestReplacements` (similaridade por id/nome) e `AppModel.importFicha` listando as sugestões junto ao aviso de referências inválidas. Só sugere; nada é alterado automaticamente. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — C-04: aviso das fórmulas de recursos mantido (não validado)
+
+- Sem alteração de código ou dados. Decisão registrada no plano: o aviso de rascunho de PA/PM/PV permanece até o proprietário aprovar as fórmulas; passos para fechar documentados. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-03.2: chips de causa no cartão de rolagem (não validado)
+
+- `PlayController.kt`: `RollView.chips` e `rollChips(spec)` (vantagem, desvantagem, dados explosivos, bônus/penalidade do `CheckSpec`). `DiceUi.kt`: chips (`Pill`) exibidos só após revelar a rolagem. Origem do bônus (traço/condição) não rastreada; fica pendente. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — M-01.9: bônus de três desvantagens do sistema próprio (não validado)
+
+- `tracos.txt`: `rato-de-tela` e `cabeca-em-livros` (atletismo -1) e `mimado` (sobrevivencia -2) passaram a declarar bônus. Só a parte numérica incondicional foi declarada; o restante das descrições segue narrativo. Varredura dos demais traços: sem outro candidato incondicional com escopo suportado. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — M-06: conferência e correção de texto em `MECANICA_DADOS.md` (não validado)
+
+- `docs/MECANICA_DADOS.md`: removida a frase que dizia que a tabela empírica ainda seria recalculada (ela já consta em "Tabela empírica (M-06.5)"). `tools/simulate_checks.py` roda localmente e reproduz as probabilidades exatas da tabela. Sem alteração de código. M-06 segue concluído no código; falta testes e CI. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado (apenas o simulador Python).
+
+## 2026-10-22 — Q-01: ícone adaptativo e assinatura opcional do release (não validado)
+
+- `app/build.gradle.kts`: `signingConfig` de `release` criado apenas com `RELEASE_KEYSTORE_PATH`, `RELEASE_KEYSTORE_PASSWORD`, `RELEASE_KEY_ALIAS` e `RELEASE_KEY_PASSWORD` presentes. Ícone adaptativo vetorial (`mipmap-anydpi-v26`, `drawable/ic_launcher_foreground.xml`, `values/ic_launcher_colors.xml`) ligado em `AndroidManifest.xml` (`icon`/`roundIcon`). R8 e `versionName` por tag já existiam. Pendente: `assembleRelease` com keystore real e teste do app minificado. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-08: relatório de diagnóstico local (não validado)
+
+- Novo `Diagnostics.kt`: handler de falhas não tratadas (instalado em `MainActivity`) grava a última falha com classe e frames, sem mensagem; `buildReport` monta o relatório (versão do app, Android, aparelho, falha) e `chooser` o compartilha via `FileProvider`. `file_paths.xml` ganhou `cache-path` `diagnostics/`. `ConfigScreen.kt`: cartão "Diagnóstico" com exportar e limpar; 14 strings `diag_*`. Sem prompt, texto de jogada, dado de campanha ou chave. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: fechamento da camada de interface (não validado)
+
+- U-02 marcado como concluído para as telas Compose. Sem alteração de código nesta entrega. `CharacterCreationCatalog`, `*Actions` e `AppModel` permanecem em português (camada sem `Context`, mensagens misturadas com `reason` do `engine` e prompts da IA); migração só se a decisão 5 (idioma) optar por tradução, com provedor de strings ou códigos de erro. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: CharactersScreen concluída (não validado)
+
+- `CharactersScreen.kt` e `strings.xml`: importação por JSON, biblioteca, fichas arquivadas, `TraitRow`, `CatalogPicker` e `CatalogMultiPicker` movidos para recursos (`char_*`; 45 strings). `traitTag` agora recebe `Context`; mensagens de callbacks usam `context.getString`. Nenhum texto fixo de UI resta na tela. Restam em U-02 `CharacterCreationCatalog` e `*Actions`/`AppModel` (inclui a checagem por texto da mensagem de importação). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: CharactersScreen, strings de edição, atributos, traços e revisão (não validado)
+
+- `CharactersScreen.kt` e `strings.xml`: edição de escolhas, nome/conceito, atributos, perícias, pontos, balanço vantagens x desvantagens, cardápio do arquétipo, filtros de traços, revisão final e botão de criar movidos para recursos (`char_*`; 52 strings). Descrições de TalkBack dos botões `+`/`−` e mensagens definidas em lambdas não composables usam `LocalContext`/`getString`. Restam em `CharactersScreen` importação por JSON, biblioteca, `TraitRow`, `CatalogPicker` e `CursePicker`; depois `CharacterCreationCatalog` e `*Actions`/`AppModel`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: CharactersScreen, strings da origem e do catálogo (não validado)
+
+- `CharactersScreen.kt` e `strings.xml`: seleção de sistema, ponto de partida, raça/sub-raça/híbrido/classes/afinidade/profissão/Malditos e resumo das escolhas movidos para recursos (`char_*`; 37 strings; a mensagem de falha de `io` é lida antes da corrotina). Restam em `CharactersScreen` edição de escolhas, nome/atributos/perícias/traços, revisão final, importação, biblioteca, `TraitRow`, `CatalogPicker` e `CursePicker`; depois `CharacterCreationCatalog` e `*Actions`/`AppModel`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: PlayScreen concluída (combate, status e chat) (não validado)
+
+- `PlayScreen.kt` e `strings.xml`: `CombatControls`, `StatusPanel`, `ChatItem`, `Thinking`, `BottomBar` e a prévia de narração movidos para recursos (`combat_*`, `status_*`, `chat_*`; 29 strings com argumentos posicionais). Nenhum texto fixo de UI resta na tela; mensagens vindas de `AppModel` ficam para a etapa `*Actions`/`AppModel`. Restam em U-02 `CharactersScreen`, `CharacterCreationCatalog` e `*Actions`/`AppModel`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings das ações rápidas e dos testes avançados (não validado)
+
+- `PlayScreen.kt` e `strings.xml`: `QuickActions` e `AdvancedCheckControls` (disputa e teste de grupo) movidos para recursos (`quick_*`, `advcheck_*`; contagem de sucessos com `%1$d`). Restam em `PlayScreen` combate, painel de status e chat; depois `CharactersScreen`, `CharacterCreationCatalog` e `*Actions`/`AppModel`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings de poderes, traços, condições, sobrevivência, mapa e adaptações (não validado)
+
+- `PlayScreen.kt` e `strings.xml`: `PowersPanel`, `TraitUsesPanel`, `ConditionRemovalPanel`, `SurvivalPanel`, `PlacesPanel` e `AdditionalRulesPanel` movidos para recursos (`powers_*`, `traituses_*`, `conditions_*`, `survival_*`, `places_*`, `rules_*`). Restam em `PlayScreen` ações rápidas, testes avançados, combate, status e chat; depois `CharactersScreen`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings dos painéis de sorte, inventário e loja (não validado)
+
+- `PlayScreen.kt` e `strings.xml`: `LuckPanel`, `InventoryPanel` e `ShopPanel` movidos para recursos (`luck_*`, `inventory_*`, `shop_*`; valores numéricos com `%s`). Restam em `PlayScreen` poderes, traços, condições, sobrevivência, mapa, adaptações, ações rápidas, testes avançados, combate e chat. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings da tela Jogar, preparação (não validado)
+
+- `PlayScreen.kt` e `strings.xml`: tela de preparação em três etapas e tela de falha do mestre movidas para recursos (`play_*`). Restam em `PlayScreen` os painéis (sorte, inventário, loja, poderes, traços, condições, sobrevivência, mapa, adaptações, ações rápidas, testes avançados, combate) e o conteúdo do chat; depois `CharactersScreen`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: CampaignsScreen concluída (não validado)
+
+- `CampaignsScreen.kt` e `strings.xml`: status e mensagens de erro dos seletores de backup e PDF movidos para recursos (`backup_*`, `pdf_*`, `error_*`). Nenhum texto fixo resta na tela. U-02 pendente: `PlayScreen`, `CharactersScreen`; `CharacterCreationCatalog` e `*Actions`/`AppModel` por último (sem Context). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings de capítulos, missões, linha do tempo e diário (não validado)
+
+- `CampaignsScreen.kt` e `strings.xml`: seções de capítulos, relações, evolução, pontos de evolução/status, slots de magia, missões, linha do tempo e diário movidas para recursos (`chapter*`, `quest*`, `timeline_*`, `advancement_*`, `statpoints_*` etc.); descrições de TalkBack dos botões `+1` também. Resta em `CampaignsScreen` apenas o texto dos seletores de arquivo (status de backup/PDF). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings de renomear/apagar, PDF e backup (não validado)
+
+- `CampaignsScreen.kt` e `strings.xml`: rótulos, diálogo de exclusão, seção de PDF e de backup local movidos para recursos (`campaign_*`, `pdf_*`, `backup_*`); `campaign_cancel` já existia e foi reaproveitada. Restam em `CampaignsScreen` os textos dentro dos seletores de arquivo (status de exportação/restauração), capítulos, relações, evolução, missões, linha do tempo e diário. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings de campanhas salvas e modo de fidelidade (não validado)
+
+- `CampaignsScreen.kt` e `strings.xml`: aviso de gravação pendente, lista de campanhas (estado, datas, Continuar/Pausar/Concluir/Reativar) e modo de fidelidade das fontes movidos para recursos (`campaign_*`). Restam em `CampaignsScreen` backup, PDF, capítulos, relações, evolução, missões, linha do tempo e diário; `PlayScreen`, `CharactersScreen`. `CharacterCreationCatalog` e `*Actions` ficam por último (camada sem Context). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings da árvore de habilidades (não validado)
+
+- `SkillTreePanel.kt` e `strings.xml`: textos do painel, mensagens de resultado e rótulos de elemento/categoria movidos para recursos (`skilltree_*`); `elementLabelUi` e `categoryLabel` passaram a `@Composable`. Restam `CharactersScreen`, `CampaignsScreen`, `PlayScreen`, `CharacterCreationCatalog` e mensagens em `*Actions`/`AppModel`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings do painel de maldições (não validado)
+
+- `CursePanel.kt` e `strings.xml`: textos do painel de maldições lançadas movidos para recursos (`curse_*`); mensagens de resultado usam `context.getString`. Restam `CharactersScreen`, `CampaignsScreen`, `PlayScreen`, `SkillTreePanel`, `CharacterCreationCatalog` e mensagens em `*Actions`/`AppModel`. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-02: strings de documentos-fonte e fatos (não validado)
+
+- `SourcesSection.kt` e `strings.xml`: textos da importação, biblioteca, progresso, estados de fato e formulário de fatos saíram do código para recursos (`sources_*`, `fact*`). Restam telas com texto fixo (`CharactersScreen`, `CampaignsScreen`, `PlayScreen` etc.). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-01: contraste e áreas de toque (não validado)
+
+- `Theme.kt`: `outline` do tema escuro de `0xFF6B5E51` para `0xFF8A7B6C` (contraste de borda 2,84:1 → 4,35:1 sobre a superfície). Demais pares de texto dos dois temas já passavam (≥ 5,4:1, cálculo local). Áreas de toque: sem `clickable` customizado; nenhuma mudança. Pendente: revisão com TalkBack em aparelho. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-01: descrições de TalkBack no interruptor e no controle de fonte (não validado)
+
+- `CampaignsScreen.kt`, `ConfigScreen.kt`, `strings.xml`: `Switch` de consentimento de fontes e `Slider` de tamanho da fonte com `contentDescription`. Pendente em U-01: áreas de toque, contraste e revisão completa com TalkBack. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — I-02: memória longa concluída (documentação sincronizada)
+
+- I-02.3 (memórias da cena no contexto do mestre) e I-02.4 (`MemoryRollup`, `MemoryRolledUp`) já estavam em código; plano atualizado, pausa removida. Sem mudança de código. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** conferência estática; nenhum teste, build ou CI executado. Falta teste do resumo rolante.
+
+## 2026-10-22 — U-05: transição automática para Jogar (não validado)
+
+- `RpgSoloApp.kt`: ao concluir as três etapas do primeiro uso, o app abre a aba Jogar. Presets de provedor continuam pendentes (I-03). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-06: ícones vetoriais na barra de navegação (não validado)
+
+- `RpgSoloApp.kt`: `Tab.icon` passa de emoji a `ImageVector` (ícones do `material-icons-core`); descrição de TalkBack preservada; import de `sp` removido. Redução para 4 destinos fica pendente de decisão. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado; disponibilidade de `material-icons-core` via `material3` a confirmar no build.
+
+## 2026-10-22 — M-05 e I-05 conferidos
+
+- M-05: `envenenado`, `queimando`, `sangramento` e a remoção por teste (coluna 8 de `condicoes.txt`, `removeConditionByCheck`, painel na aba Jogar) já estavam em código e documentados; sem alteração.
+- I-05: o contexto da IA já recebe só o desfecho em palavras (`outcomeWord`), sem números de dado; marcado como concluído. Sem mudança de código. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** conferência estática; nenhum teste, build ou CI executado.
+
+## 2026-10-22 — I-08: fila única por endpoint conferida
+
+- `ProviderFactory.buildRoles` já compartilha um `RateLimiter` entre os três papéis; item marcado como concluído. Sem mudança de código. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** conferência estática; nenhum teste, build ou CI executado.
+
+## 2026-10-22 — U-09: aba Sistemas separa disponíveis de "em breve" (não validado)
+
+- `SystemsScreen.kt` e `strings.xml`: seção "Em breve" para edições do catálogo sem pacote; oculta quando vazia (caso atual). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-03: pular animação, reduzir movimento e histórico de rolagens (não validado)
+
+- `DiceUi.kt`: botão "Pular animação"; com a escala de animação do sistema em 0 a rolagem é revelada sem animar; novo `RollHistory`. `PlayScreen.kt` exibe o histórico (só rolagens reveladas, últimas 10).
+- Pendente: chips de causa da mudança do teste (exigem dados novos em `RollView`). Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado.
+
+## 2026-10-22 — U-04: estado de rolagem revelada conferido
+
+- Conferido em `PlayController`, `PlayScreen` e `DiceUi`: o estado "revelada" fica no controlador; só a animação em curso é local. Sem mudança de código. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** conferência estática; nenhum teste, build ou CI executado.
+
+## 2026-10-22 — Q-06: CI com setup-java v5 e runner fixo (conferido)
+
+- O workflow já usava `actions/setup-java@v5` e `ubuntu-24.04`; item marcado como concluído no plano. Sem mudança de código. Progresso geral: sem recálculo (≈79% mantido).
+- **Validação:** conferência estática; nenhum teste, build ou CI executado.
+
+## 2026-10-22 — Fase 14: interface de fontes, progresso e fatos (não validada)
+
+- `app/SourcesSection.kt` (aba Campanhas): importação por seletor de arquivos (TXT, MD, DOCX, PDF; limite 5 MiB) com indexação imediata, biblioteca com progresso e erros, vincular/desvincular/remover e fatos canônicos manuais (marcar sabido/remover).
+- `app/AppModel.kt`: `importAndIndexSource`, `setSourceLinked`, `removeSource`, `refreshSourceContext`, `addManualFact`, `setFactKnown`, `removeFact`; `resumeSourcePipelines` reutiliza `indexSource`. O contexto documental é reaplicado ao vincular, indexar, alterar fatos, trocar de campanha e conceder o consentimento Q-09.
+- Fase 14 concluída em código. **Suíte completa:** `./gradlew` não executa (ambiente offline, sem download do Gradle); nenhum teste, build ou lint rodou. Conferência estática apenas. Progresso geral: sem recálculo (≈79% anterior mantido).
+
+## 2026-10-22 — DC-03: retomada automática da pipeline de indexação (não validado)
+
+- `app/AppModel.kt`: `resumeSourcePipelines()` roda após `startup()` em IO; fontes `READY` sem estado ou em IMPORTED/CHUNKED são relidas do armazenamento privado (hash e tamanho conferidos) e indexadas em lotes, com progresso gravado no Room. INDEXED e FAILED não são repetidos; bytes ausentes ou fonte inválida resultam em FAILED. Falhas da retomada não bloqueiam a abertura do app.
+- Sem tela de progresso; a importação não dispara a pipeline fora da retomada. Progresso geral: sem recálculo (≈79% anterior mantido).
+- **Validação:** nenhum teste, build, lint ou CI executado (ambiente offline).
+
+## 2026-10-22 — Q-09: consentimento de privacidade das fontes (não validado)
+
+- `app/AppModel.kt`: `sourcePrivacyConsent`/`setSourcePrivacyConsent` (consentimento por campanha em SharedPreferences); `configureCampaignSourceContext` aceita `privacyConfirmed` ou o consentimento salvo; revogar limpa o contexto documental e apagar a campanha remove o consentimento.
+- `CampaignsScreen.kt` e `strings.xml`: chave com diálogo de confirmação explicando o que é enviado ao provedor.
+- Consentimento local, fora do log e do backup. Progresso geral: sem recálculo (estimativa ≈79% anterior mantida).
+- **Validação:** nenhum teste, build, lint ou CI executado (ambiente offline).
+
+## 2026-10-22 — preparação de testes Q-03, Q-04 e Q-07 (escritos, não executados)
+
+- **Q-04:** `data/src/androidTest/.../RpgDatabaseMigrationTest.kt` (migração 2→3 validada, banco v2 reaberto na versão atual pelo builder do app, cópia antes de migrar, cadeia contínua) e configuração do módulo `data` para testes instrumentados (`room-testing`, esquemas como assets). Só os esquemas 2 e 3 estão versionados; o teste contra o esquema da versão atual é ignorado até `10.json` ser commitado.
+- **CI:** novo artefato `rpgsolo-room-schemas` com os esquemas gerados pelo build; os testes instrumentados de `data` rodam no mesmo emulador do E2E, de forma informativa (resultado em `data-androidtest-result.txt`).
+- **Q-03:** `RollCardRevealTest` e `NavigationAccessibilityTest` em `app/src/androidTest`.
+- **Q-07:** auditoria mostrou que a bateria já existia (`ContinuityBatteryTest`); adicionado `CampaignStarterTest.ambientacaoNaoAlteraAFichaDoJogador`.
+- **Validação:** nenhum teste novo foi compilado ou executado (sem Gradle/SDK nesta etapa); ktlint dos arquivos novos não foi conferido.
+
+## 2026-10-22 — Android CI após correções de ktlint e compilação (E2E e APK em andamento)
+
+- Android CI #296, branch `main`, commit `9c84a6c` ("Resolve navigation accessibility label before semantics"), disparado por push. Às 20:40 do registro (cerca de 39 min após o disparo) o run seguia "Em processamento", com o job `test-and-build` em execução. O link do run não foi informado.
+- **Passaram:** `Check Kotlin style` (32s), `Run JVM and Android tests` (1min52s) e `Upload JVM test reports` (3s). Antes, a execução #39829094817 (commit `cee31e7`) tinha falhado no ktlint e ignorado as etapas seguintes.
+- **Em execução no momento do registro:** `Run Android E2E on emulator` (cerca de 7 minutos). **Pendentes:** `Upload E2E diagnostics`, `Build debug APK` e `Upload debug APK`. O resultado final ainda não é conhecido; o APK não deve ser tratado como pronto até essas etapas concluírem.
+- Código: reformatação ktlint (ordem de imports, vírgulas finais, quebras de linha) em `ai`, `engine`, `data`, `app` e testes, e correção de compilação em `app/ui/RpgSoloApp.kt` (o rótulo de navegação passa a ser calculado fora do bloco `semantics`). A comparação dos dois zips não mostrou outras alterações de comportamento.
+- Fonte do resultado: acompanhamento do job pelo app do GitHub (captura de tela); o log completo não foi anexado ao repositório.
+
 ## 2026-10-22 — GitHub Actions #39829094817 (falhou no ktlint)
 
 - Disparo manual em `feature/dc-05-1-source-context-app`, commit `cee31e7`. `Check Kotlin style` falhou com 1.331 violações reportadas em 26 arquivos de `ai/src/main/kotlin`.

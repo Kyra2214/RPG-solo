@@ -177,3 +177,57 @@ fun journal(state: GameState): List<String> {
         }.sorted()
     return (discoveries + places).distinct()
 }
+
+/**
+ * M-04: o que o jogador pode ver da ficha de [id]. Enquanto for só um NPC, atributos, perícias, recursos, traços,
+ * habilidades, conceito, inventário e equipamento ficam `null` (só o mestre os conhece); o jogador vê o nome, se
+ * está vivo e o que descobriu em [discovered]. Depois de [AssumeNpc] ([assumed] = true) a ficha vem completa.
+ * Os campos ocultos são `null`, nunca vazios, para a interface não confundir "oculto" com "sem nada".
+ */
+data class NpcSheetView(
+    val id: String,
+    val name: String,
+    val alive: Boolean,
+    val assumed: Boolean,
+    /** Conhecimento já registrado sobre o NPC (análises e segredos descobertos), em ordem estável. */
+    val discovered: List<String>,
+    val level: Int? = null,
+    val xp: Int? = null,
+    val stats: Map<String, Int>? = null,
+    val skills: Map<String, Int>? = null,
+    val resources: Map<String, Resource>? = null,
+    val traits: List<String>? = null,
+    val abilities: Set<String>? = null,
+    val concept: String? = null,
+    val inventory: Map<String, Int>? = null,
+    val equipped: Map<String, String>? = null,
+)
+
+/** Visão da ficha de [id] para o jogador (M-04); `null` se a entidade não existe. Nunca inclui o dossiê. */
+fun GameState.npcSheet(id: String): NpcSheetView? {
+    val ent = entities[id] ?: return null
+    val discovered =
+        knowledge.entries
+            .filter { (key, _) -> key.startsWith("analise:$id:") || key.startsWith("npc-secret:$id:") }
+            .sortedBy { it.key }
+            .map { it.value.text }
+    val assumed = ent.kind == EntityKind.PLAYER
+    if (!assumed) return NpcSheetView(ent.id, ent.name, ent.alive, assumed = false, discovered = discovered)
+    return NpcSheetView(
+        id = ent.id,
+        name = ent.name,
+        alive = ent.alive,
+        assumed = true,
+        discovered = discovered,
+        level = ent.level,
+        xp = ent.xp,
+        stats = ent.stats,
+        skills = ent.skills,
+        resources = ent.resources,
+        traits = ent.traits,
+        abilities = ent.abilities,
+        concept = ent.concept,
+        inventory = inventory[ent.id].orEmpty(),
+        equipped = equipped[ent.id].orEmpty(),
+    )
+}

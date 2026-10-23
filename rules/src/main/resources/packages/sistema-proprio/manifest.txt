@@ -8,3 +8,4 @@ licenca|Sistema autoral do projeto RPG Solo. Nenhum texto de terceiros foi copia
 licenca_status|VERIFICADA
 tipo|REAL
 morte|pv
+modo_morte|PERMADEATH

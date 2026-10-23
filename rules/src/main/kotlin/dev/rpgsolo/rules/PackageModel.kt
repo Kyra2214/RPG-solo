@@ -193,7 +193,7 @@ data class ItemDef(
 enum class PowerTarget { SELF, ENEMY }
 
 /** Efeito tipado de um poder; o motor aplica, nunca a descrição. */
-enum class PowerEffectKind { HEAL, DAMAGE, APPLY_CONDITION, REMOVE_CONDITION }
+enum class PowerEffectKind { HEAL, DAMAGE, APPLY_CONDITION, REMOVE_CONDITION, SHIELD }
 
 /**
  * Poder ativável. Exige o traço [traitId] (do tipo `poder`) na ficha, gasta [cost] de [resource] e, se houver [checkId],
@@ -218,6 +218,41 @@ data class PowerDef(
  * máxima do personagem (arredondado para cima, mínimo 1). [percent] de 1 a 100.
  */
 data class HazardDef(val id: String, val name: String, val description: String, val percent: Int)
+
+/**
+ * MU-06.3/06.4: habilidade declarada pelo pacote. [duration]: "N" rodadas fixas, "sorteio" (1d6 rolado pelo motor),
+ * "combate" ou "cena". [bonuses] positivos; [drawbacks] negativos (vazio = sem desvantagem).
+ */
+data class AbilityDef(
+    val id: String,
+    val name: String,
+    val cost: Int,
+    val trigger: dev.rpgsolo.engine.AbilityTrigger,
+    val bonuses: List<dev.rpgsolo.engine.AbilityBonus>,
+    val duration: String,
+    val drawbacks: List<dev.rpgsolo.engine.AbilityBonus> = emptyList(),
+) {
+    fun toSpec(): dev.rpgsolo.engine.AbilitySpec =
+        dev.rpgsolo.engine.AbilitySpec(
+            id, name, cost, trigger, bonuses,
+            fixedRounds = duration.toIntOrNull(),
+            drawbacks = drawbacks,
+            untilCombatEnd = duration == "combate",
+            untilSceneEnd = duration == "cena",
+        )
+}
+
+/**
+ * MU-03.3/MU-06.8: exceção mecânica declarada pelo pacote para uma entidade ([entityId], ex.: slug de `request_npc`).
+ * [modifiers] positivos ou negativos; [immuneConditions] ids de condição. Deve declarar ao menos um efeito.
+ */
+data class ExceptionDef(
+    val id: String,
+    val entityId: String,
+    val description: String,
+    val modifiers: List<dev.rpgsolo.engine.AbilityBonus> = emptyList(),
+    val immuneConditions: List<String> = emptyList(),
+)
 
 /** Regra ambígua: nunca apresentada como oficial (4.1.6). */
 data class UncertainRule(val id: String, val note: String)
@@ -262,4 +297,6 @@ data class PackageData(
     val archetypeOptions: List<ArchetypeOptions> = emptyList(),
     val powers: List<PowerDef> = emptyList(),
     val hazards: List<HazardDef> = emptyList(),
+    val abilities: List<AbilityDef> = emptyList(),
+    val exceptions: List<ExceptionDef> = emptyList(),
 )

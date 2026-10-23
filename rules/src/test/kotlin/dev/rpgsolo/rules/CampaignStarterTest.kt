@@ -110,6 +110,34 @@ class CampaignStarterTest {
         assertEquals("cyberpunk com mineração em asteroides", (r as StartResult.Started).campanha.ambientacao.name)
     }
 
+    // Q-07 (b8): a ambientação escolhida não pode mexer na ficha do jogador.
+    @Test fun ambientacaoNaoAlteraAFichaDoJogador() {
+        val cat = catalog()
+        val reg = registry(cat)
+        val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
+        val ficha = fichaPadrao(cat, reg)
+        val doCatalogo = CampaignStarter.start(InMemoryEventStore(), reg, cat, rd, cfg, ficha, "c1", "X", 1L) as StartResult.Started
+        val livre =
+            CampaignStarter.start(
+                InMemoryEventStore(),
+                reg,
+                cat,
+                rd,
+                cfg,
+                ficha,
+                "c2",
+                "Y",
+                1L,
+                "fantasia sombria com piratas do deserto",
+            ) as StartResult.Started
+        assertEquals(
+            doCatalogo.session.state.entities.getValue("pj1"),
+            livre.session.state.entities.getValue("pj1"),
+        )
+        assertEquals(doCatalogo.session.state.entities.keys, livre.session.state.entities.keys)
+        assertEquals(fichaPadrao(cat, reg), ficha)
+    }
+
     @Test fun fichaDeOutraEdicaoNaoEntraEmSilencio() {
         val cat = catalog()
         val reg = registry(cat)

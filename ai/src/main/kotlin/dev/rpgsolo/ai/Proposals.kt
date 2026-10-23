@@ -55,10 +55,26 @@ data class TurnOutput(
     val powerRequest: PowerRequest? = null,
     /** I-01: o NPC veio de `request_npc` (pedido isolado), não de `create_npc` junto a outras propostas. */
     val requestNpc: Boolean = false,
+    /** Ataque do personagem do jogador contra um alvo; dados, defesa e dano são do motor. */
+    val attackRequest: AttackRequest? = null,
+    /** Missão proposta pelo mestre; título, objetivos e recompensas são validados pelo app, o teto de XP pelo motor. */
+    val questRequest: QuestRequest? = null,
 )
 
 /** Pedido da IA para o personagem do jogador usar um poder do pacote ([powerId]); [targetId] só para poderes ofensivos. */
 data class PowerRequest(val powerId: String, val targetId: String? = null)
+
+/** Pedido da IA para o personagem do jogador atacar [targetId] no combate ativo (só intenção: ação e alvo). */
+data class AttackRequest(val targetId: String)
+
+/** Pedido da IA para registrar uma missão; [xpReward] é só proposta (o motor limita por nível ao pagar). */
+data class QuestRequest(
+    val title: String,
+    val objectives: List<String> = emptyList(),
+    val xpReward: Int = 0,
+    val masterySkillId: String? = null,
+    val spellRewardId: String? = null,
+)
 
 sealed interface ParseResult {
     data class Ok(val output: TurnOutput) : ParseResult
@@ -75,7 +91,9 @@ object ProposalSchema {
         "create_npc" é opcional: quando criar um NPC relevante, proponha nome, conceito, atributos, traços e perícias. O pacote valida tudo; não invente ids nem regras. Não inclua create_npc ao pedir teste/rolagem.
         "request_npc" é opcional e usa os mesmos campos de create_npc, mais "id" (opcional, slug minúsculo com letras, números e hífen, 2 a 40 caracteres, ainda não usado) para você citar o NPC depois. Use quando a cena introduz um NPC relevante sem iniciar luta; o pacote valida a ficha e o motor cria o NPC. Envie sozinho, sem create_npc, proposals, request_combat, request_power, request_check ou request_roll.
         "request_combat" é opcional e booleano. Use true somente quando a cena realmente iniciar uma luta; nesse caso, envie também create_npc com um único adversário e deixe proposals, request_check e request_roll vazios/ausentes. O app valida a ficha pelo pacote, cria o NPC e o motor rola a iniciativa. Não use request_combat para ameaças ainda não hostis.
-        "request_power" é opcional: {"power":"id-do-poder","target":"id-do-npc opcional"}. Use somente quando o jogador declarar que o personagem usa um dos poderes listados no contexto; o app valida traço, recurso e alvo, e o motor gasta o custo, rola o teste e aplica o efeito. Descreva só a tentativa; não invente o resultado nem números. Envie sozinho, sem proposals, create_npc, request_combat, request_check ou request_roll.
+        "request_power" é opcional: {"power":"id-do-poder","target":"id-do-npc opcional"}. Use somente quando o jogador declarar que o personagem usa um dos poderes ou magias listados no contexto (magias têm id "magia:<id>"); o app valida traço, recurso e alvo, e o motor gasta o custo, rola o teste e aplica o efeito. Descreva só a tentativa; não invente o resultado nem números. Envie sozinho, sem proposals, create_npc, request_combat, request_check ou request_roll.
+        "request_quest" é opcional: {"title":"...","objectives":["..."],"xpReward":0,"masterySkill":"id opcional","spell":"id opcional"}. Use quando a história oferece uma missão clara ao personagem (até 20 objetivos curtos). xpReward é só uma proposta de XP ao concluir (0 = sem XP); masterySkill e spell só com ids que existam no pacote. O app valida e o motor limita e paga a recompensa na conclusão; nunca narre a recompensa como já recebida. Envie sozinho, sem proposals, create_npc, request_npc, request_combat, request_power, request_attack, request_check ou request_roll.
+        "request_attack" é opcional: {"target":"id-do-npc"}. Use somente em combate ativo, no turno do jogador, quando ele declarar que ataca um adversário. O motor rola ataque e defesa, calcula o dano e avança o turno. Descreva só a tentativa; não invente acerto, dano nem números. Envie sozinho, sem proposals, create_npc, request_npc, request_combat, request_power, request_check ou request_roll.
         "suggestions" é opcional: no máximo ${ProposalParser.MAX_SUGGESTIONS} ideias curtas do que o personagem poderia fazer; o jogador pode ignorá-las.
         "proposals" é a lista (pode ser vazia) de mudanças que você PROPÕE. O motor valida cada uma e pode recusar.
         Você nunca rola dados nem decide o resultado de testes: o motor já decidiu; você só descreve.
@@ -258,6 +276,67 @@ object ProposalParser {
                     null
                 }
             }
+        val attackRequest =
+            when (val rawAttack = obj["request_attack"]) {
+                null, is JsonNull -> null
+                is JsonObject -> {
+                    val target = (rawAttack["target"] as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    if (target == null) errors += "request_attack: campo 'target' ausente ou não é um id em texto"
+                    target?.let { AttackRequest(it) }
+                }
+                else -> {
+                    errors += "'request_attack' deve ser um objeto"
+                    null
+                }
+            }
+        val questRequest =
+            when (val rawQuest = obj["request_quest"]) {
+                null, is JsonNull -> null
+                is JsonObject -> {
+                    val title = (rawQuest["title"] as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    if (title == null) errors += "request_quest: campo 'title' ausente ou vazio"
+                    val objectives =
+                        when (val rawObjectives = rawQuest["objectives"]) {
+                            null, is JsonNull -> emptyList()
+                            is JsonArray ->
+                                rawObjectives.mapNotNull { item ->
+                                    (item as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                                        .also { if (it == null) errors += "request_quest: 'objectives' aceita só textos não vazios" }
+                                }
+                            else -> {
+                                errors += "request_quest: 'objectives' deve ser uma lista de textos"
+                                emptyList()
+                            }
+                        }
+                    val xp =
+                        when (val rawXp = rawQuest["xpReward"]) {
+                            null, is JsonNull -> 0
+                            is JsonPrimitive ->
+                                rawXp.takeIf { !it.isString }?.content?.toIntOrNull()
+                                    ?: run {
+                                        errors += "request_quest: 'xpReward' deve ser inteiro"
+                                        0
+                                    }
+                            else -> {
+                                errors += "request_quest: 'xpReward' deve ser inteiro"
+                                0
+                            }
+                        }
+                    val skill = (rawQuest["masterySkill"] as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    val spell = (rawQuest["spell"] as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
+                    title?.let { QuestRequest(it, objectives, xp, skill, spell) }
+                }
+                else -> {
+                    errors += "'request_quest' deve ser um objeto"
+                    null
+                }
+            }
+        if (questRequest != null && (commands.isNotEmpty() || checkRequest != null || rollRequest != null || npcProposal != null || requestedNpc != null || requestCombat || powerRequest != null || attackRequest != null)) {
+            errors += "request_quest deve vir sozinho, sem proposals, create_npc, request_npc, request_combat, request_power, request_attack nem pedidos de rolagem"
+        }
+        if (attackRequest != null && (commands.isNotEmpty() || checkRequest != null || rollRequest != null || npcProposal != null || requestedNpc != null || requestCombat || powerRequest != null)) {
+            errors += "request_attack deve vir sozinho, sem proposals, create_npc, request_npc, request_combat, request_power nem pedidos de rolagem"
+        }
         if (powerRequest != null && (commands.isNotEmpty() || checkRequest != null || rollRequest != null || npcProposal != null || requestedNpc != null || requestCombat)) {
             errors += "request_power deve vir sozinho, sem proposals, create_npc, request_npc, request_combat nem pedidos de rolagem"
         }
@@ -275,7 +354,7 @@ object ProposalParser {
         }
         return if (errors.isEmpty()) {
             ParseResult.Ok(
-                TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal ?: requestedNpc, requestCombat, powerRequest, requestedNpc != null),
+                TurnOutput(narrative!!.trim(), commands, suggestions, checkRequest, rollRequest, npcProposal ?: requestedNpc, requestCombat, powerRequest, requestedNpc != null, attackRequest, questRequest),
             )
         } else {
             ParseResult.Invalid(errors)

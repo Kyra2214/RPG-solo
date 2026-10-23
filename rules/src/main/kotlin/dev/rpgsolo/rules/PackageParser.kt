@@ -17,6 +17,8 @@ object PackageFiles {
     const val ITEMS = "itens.txt"
     const val POWERS = "poderes.txt"
     const val HAZARDS = "perigos.txt"
+    const val ABILITIES = "habilidades.txt"
+    const val EXCEPTIONS = "excecoes.txt"
     const val CREATION = "criacao.txt"
     const val PROGRESSION = "progressao.txt"
     const val UNCERTAIN = "incerto.txt"
@@ -27,7 +29,7 @@ object PackageFiles {
     val ALL =
         setOf(
             MANIFEST, STATS, RESOURCES, TRAITS, CHECKS, DIFFICULTIES, CONDITIONS, DAMAGE, ITEMS,
-            CREATION, PROGRESSION, UNCERTAIN, TUTORIAL, EXAMPLES, ARCHETYPES, ARCHETYPE_OPTIONS, POWERS, HAZARDS,
+            CREATION, PROGRESSION, UNCERTAIN, TUTORIAL, EXAMPLES, ARCHETYPES, ARCHETYPE_OPTIONS, POWERS, HAZARDS, ABILITIES, EXCEPTIONS,
         )
 }
 
@@ -434,11 +436,15 @@ object PackageParser {
                         "dano" -> PowerEffectKind.DAMAGE
                         "condicao" -> PowerEffectKind.APPLY_CONDITION
                         "remover-condicao" -> PowerEffectKind.REMOVE_CONDITION
-                        else -> bad("efeito de poder inválido: '${f[7]}' (use cura, dano, condicao ou remover-condicao)")
+                        "escudo" -> PowerEffectKind.SHIELD
+                        else -> bad("efeito de poder inválido: '${f[7]}' (use cura, dano, condicao, remover-condicao ou escudo)")
                     }
                 val param =
                     if (effect == PowerEffectKind.HEAL) {
                         if (int(f[8], "quantidade de cura") <= 0) bad("quantidade de cura deve ser positiva")
+                        f[8]
+                    } else if (effect == PowerEffectKind.SHIELD) {
+                        if (int(f[8], "quantidade de escudo") <= 0) bad("quantidade de escudo deve ser positiva")
                         f[8]
                     } else {
                         id(f[8], "parâmetro do efeito")
@@ -446,11 +452,66 @@ object PackageParser {
                 if (effect == PowerEffectKind.HEAL && target != PowerTarget.SELF) bad("cura só pode ter alvo self")
                 if (effect == PowerEffectKind.DAMAGE && target != PowerTarget.ENEMY) bad("dano só pode ter alvo inimigo")
                 if (effect == PowerEffectKind.APPLY_CONDITION && target != PowerTarget.ENEMY) bad("condicao só pode ter alvo inimigo")
+                if (effect == PowerEffectKind.SHIELD && target != PowerTarget.SELF) bad("escudo só pode ter alvo self")
                 if (effect == PowerEffectKind.REMOVE_CONDITION && target != PowerTarget.SELF) bad("remover-condicao só pode ter alvo self")
                 PowerDef(
                     id(f[0], "id"), text(f[1], "nome"), f[2], id(f[3], "traço"), id(f[4], "recurso"), cost,
                     target, effect, param, f.getOrNull(9)?.takeIf { !blank(it) }?.let { id(it, "teste") },
                 )
+            }
+        val abilities =
+            table(PackageFiles.ABILITIES, 6, 7) { f ->
+                val cost = int(f[2], "custo")
+                if (cost < 0) bad("custo de habilidade negativo")
+                val trigger =
+                    when (f[3]) {
+                        "manual" -> dev.rpgsolo.engine.AbilityTrigger.MANUAL
+                        "ao-atacar" -> dev.rpgsolo.engine.AbilityTrigger.ON_ATTACK
+                        "ao-defender" -> dev.rpgsolo.engine.AbilityTrigger.ON_DEFEND
+                        "ao-critar" -> dev.rpgsolo.engine.AbilityTrigger.ON_CRIT
+                        "inicio-combate" -> dev.rpgsolo.engine.AbilityTrigger.ON_COMBAT_START
+                        else -> bad("gatilho de habilidade inválido: '${f[3]}' (use manual, ao-atacar, ao-defender, ao-critar ou inicio-combate)")
+                    }
+                fun effects(
+                    raw: String,
+                    positive: Boolean,
+                    what: String,
+                ): List<dev.rpgsolo.engine.AbilityBonus> =
+                    raw.split(";").map { part ->
+                        val pieces = part.trim().split(":", limit = 2)
+                        if (pieces.size != 2) bad("$what inválido: '$part' (use alvo:+N)")
+                        val value = int(pieces[1].trim().removePrefix("+"), "valor de $what")
+                        if (positive && value <= 0) bad("$what deve ser positivo: '$part'")
+                        if (!positive && value >= 0) bad("$what deve ser negativo: '$part'")
+                        dev.rpgsolo.engine.AbilityBonus(id(pieces[0].trim(), "alvo de $what"), value)
+                    }
+                val bonuses = if (blank(f[4])) bad("habilidade exige ao menos um bônus") else effects(f[4], true, "bônus")
+                val duration = f[5]
+                val rounds = duration.toIntOrNull()
+                if (duration !in setOf("sorteio", "combate", "cena") && (rounds == null || rounds <= 0)) {
+                    bad("duração de habilidade inválida: '$duration' (use N > 0, sorteio, combate ou cena)")
+                }
+                if (trigger == dev.rpgsolo.engine.AbilityTrigger.ON_COMBAT_START && duration == "cena") bad("início de combate não combina com duração por cena")
+                val drawbacks = f.getOrNull(6)?.takeIf { !blank(it) }?.let { effects(it, false, "desvantagem") }.orEmpty()
+                AbilityDef(id(f[0], "id"), text(f[1], "nome"), cost, trigger, bonuses, duration, drawbacks)
+            }
+        val exceptions =
+            table(PackageFiles.EXCEPTIONS, 4, 5) { f ->
+                val modifiers =
+                    if (blank(f[3])) {
+                        emptyList()
+                    } else {
+                        f[3].split(";").map { part ->
+                            val pieces = part.trim().split(":", limit = 2)
+                            if (pieces.size != 2) bad("efeito inválido: '$part' (use alvo:+N)")
+                            val value = int(pieces[1].trim().removePrefix("+"), "valor de efeito")
+                            if (value == 0) bad("efeito de exceção não pode ser 0: '$part'")
+                            dev.rpgsolo.engine.AbilityBonus(id(pieces[0].trim(), "alvo de efeito"), value)
+                        }
+                    }
+                val immune = f.getOrNull(4)?.takeIf { !blank(it) }?.split(";")?.map { id(it.trim(), "condição imune") }.orEmpty()
+                if (modifiers.isEmpty() && immune.isEmpty()) bad("exceção deve declarar efeito ou imunidade")
+                ExceptionDef(id(f[0], "id"), id(f[1], "entidade"), text(f[2], "descricao"), modifiers, immune)
             }
         val items =
             table(PackageFiles.ITEMS, 5, 7) { f ->
@@ -562,6 +623,13 @@ object PackageParser {
         noDups(PackageFiles.ITEMS, items.map { it.id })
         noDups(PackageFiles.POWERS, powers.map { it.id })
         noDups(PackageFiles.HAZARDS, hazards.map { it.id })
+        noDups(PackageFiles.ABILITIES, abilities.map { it.id })
+        noDups(PackageFiles.EXCEPTIONS, exceptions.map { it.id })
+        exceptions.forEach { ex ->
+            ex.immuneConditions.filter { c -> conditions.none { it.id == c } }.forEach {
+                errors += "${PackageFiles.EXCEPTIONS}: exceção '${ex.id}' referencia condição inexistente '$it'"
+            }
+        }
         noDups(PackageFiles.UNCERTAIN, uncertain.map { it.id })
         noDups(PackageFiles.TUTORIAL, tutorial.map { it.order.toString() })
         noDups(PackageFiles.EXAMPLES, examples.map { it.id })
@@ -704,6 +772,10 @@ object PackageParser {
                         if (conditions.none { it.id == power.param }) {
                             errors += "${PackageFiles.POWERS}: poder '${power.id}' referencia condição inexistente '${power.param}'"
                         }
+                    PowerEffectKind.SHIELD ->
+                        if ((power.param.toIntOrNull() ?: 0) <= 0) {
+                            errors += "${PackageFiles.POWERS}: poder '${power.id}' tem quantidade de escudo inválida"
+                        }
                     PowerEffectKind.HEAL ->
                         if (manifest.deathResource == null) {
                             errors += "${PackageFiles.POWERS}: poder '${power.id}' cura, mas o pacote não define o recurso de saúde (morte)"
@@ -751,7 +823,7 @@ object PackageParser {
         return ParseResult.Ok(
             PackageData(
                 manifest, stats, resources, traits, checks, difficulties, conditions, damage, items,
-                creationMap, progression, uncertain, tutorial, examples, archetypes, archetypeOptions, powers, hazards,
+                creationMap, progression, uncertain, tutorial, examples, archetypes, archetypeOptions, powers, hazards, abilities, exceptions,
             ),
         )
     }
