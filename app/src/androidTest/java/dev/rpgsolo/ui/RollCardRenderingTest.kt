@@ -40,7 +40,7 @@ class RollCardRenderingTest {
         }
 
         composeRule.onNodeWithText("Perceber a passagem").assertIsDisplayed()
-        composeRule.onNodeWithText("sucesso por pouco").assertIsDisplayed()
+        composeRule.onNodeWithText("SUCESSO POR POUCO").assertIsDisplayed()
         composeRule.onNodeWithText("chance de sucesso: 50%").assertIsDisplayed()
         val image = composeRule.onNodeWithText("Perceber a passagem").captureToImage()
         assertTrue("a captura do cartão deve ter dimensões válidas", image.width > 0 && image.height > 0)
