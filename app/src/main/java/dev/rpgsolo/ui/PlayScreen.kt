@@ -47,8 +47,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.rpgsolo.R
@@ -436,7 +436,9 @@ private fun InventoryPanel(
                     Text(stringResource(R.string.inventory_item, item.name, item.quantity))
                     Muted(item.description)
                     if (item.kind == "equipamento" && item.slot != null) {
-                        Muted(stringResource(R.string.inventory_slot, item.slot) + if (item.equipped) stringResource(R.string.inventory_equipped_suffix) else "")
+                        Muted(
+                            stringResource(R.string.inventory_slot, item.slot) + if (item.equipped) stringResource(R.string.inventory_equipped_suffix) else "",
+                        )
                     } else {
                         Muted(stringResource(R.string.inventory_kind, item.kind))
                     }
@@ -448,9 +450,13 @@ private fun InventoryPanel(
                             onClick = { act({ model.unequipItem(item.slot) }) { message = it } },
                         ) { Text(stringResource(R.string.inventory_unequip)) }
                     item.kind == "equipamento" && item.slot != null ->
-                        TextButton(enabled = enabled, onClick = { act({ model.equipItem(item.id) }) { message = it } }) { Text(stringResource(R.string.inventory_equip)) }
+                        TextButton(enabled = enabled, onClick = {
+                            act({ model.equipItem(item.id) }) { message = it }
+                        }) { Text(stringResource(R.string.inventory_equip)) }
                     item.kind == "consumivel" ->
-                        TextButton(enabled = enabled, onClick = { act({ model.useItem(item.id) }) { message = it } }) { Text(stringResource(R.string.inventory_use)) }
+                        TextButton(enabled = enabled, onClick = {
+                            act({ model.useItem(item.id) }) { message = it }
+                        }) { Text(stringResource(R.string.inventory_use)) }
                 }
                 if (item.price != null && !item.equipped) {
                     TextButton(
@@ -530,7 +536,9 @@ private fun PowersPanel(
             Column(Modifier.fillMaxWidth()) {
                 Text(power.name)
                 Muted(power.description)
-                Muted(stringResource(R.string.powers_cost, power.cost, power.resourceName) + if (power.needsTarget) stringResource(R.string.powers_needs_target) else "")
+                Muted(
+                    stringResource(R.string.powers_cost, power.cost, power.resourceName) + if (power.needsTarget) stringResource(R.string.powers_needs_target) else "",
+                )
                 if (power.needsTarget) {
                     if (targets.isEmpty()) Muted(stringResource(R.string.powers_no_targets))
                     targets.forEach { t ->
@@ -960,7 +968,10 @@ private fun CombatControls(
                             act({ model.resolveNpcTurn() }) { message = it }
                         }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.combat_enemy_turn)) }
                     }
-                    TextButton(enabled = enabled, onClick = { act({ model.endCombat() }) { message = it } }) { Text(stringResource(R.string.combat_end)) }
+                    TextButton(
+                        enabled = enabled,
+                        onClick = { act({ model.endCombat() }) { message = it } },
+                    ) { Text(stringResource(R.string.combat_end)) }
                 }
             }
             message?.let { ErrorText(it) }
@@ -1095,7 +1106,10 @@ private fun BottomBar(
             }
             // O mestre pediu um teste: só resta rolar (ou desfazer). O motor rola e o mestre narra o desfecho.
             if (pendingCheck != null && !busy && !pendingRoll) {
-                Button(onClick = onRollCheck, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.chat_roll_check, pendingCheck)) }
+                Button(
+                    onClick = onRollCheck,
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(R.string.chat_roll_check, pendingCheck)) }
                 if (fortuneSpendLabel != null) {
                     OutlinedButton(onClick = onRollFortune, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.chat_spend_fortune, fortuneSpendLabel))
@@ -1120,7 +1134,9 @@ private fun BottomBar(
                     shape = MaterialTheme.shapes.large,
                     maxLines = 4,
                 )
-                Button(enabled = !busy && !pendingRoll && pendingCheck == null && text.isNotBlank(), onClick = onSend) { Text(stringResource(R.string.chat_send)) }
+                Button(enabled = !busy && !pendingRoll && pendingCheck == null && text.isNotBlank(), onClick = onSend) {
+                    Text(stringResource(R.string.chat_send))
+                }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 TextButton(enabled = !busy, onClick = onUndo) { Text(stringResource(R.string.chat_undo)) }

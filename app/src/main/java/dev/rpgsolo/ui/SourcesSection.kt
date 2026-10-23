@@ -23,12 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.rpgsolo.R
 import dev.rpgsolo.engine.FactStatus
 import dev.rpgsolo.engine.PipelineStage
 import dev.rpgsolo.engine.SourceImporter
 import dev.rpgsolo.engine.SourceStatus
 import kotlinx.coroutines.Dispatchers
-import dev.rpgsolo.R
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -47,8 +47,13 @@ fun SourcesSection(model: AppModel) {
     val campaignVersion = model.campaignVersion
     val campaignId = remember(campaignVersion) { model.activeCampaignId() }
     val library = remember(libraryVersion, campaignVersion) { runCatching { model.sourceLibrary() }.getOrNull() }
-    val states = remember(libraryVersion) { runCatching { model.sourcePipelineStates().associateBy { it.sourceId } }.getOrDefault(emptyMap()) }
-    val facts = remember(factsVersion, campaignVersion) { runCatching { model.canonFacts(campaignId).forCampaign(campaignId) }.getOrDefault(emptyList()) }
+    val states =
+        remember(libraryVersion) { runCatching { model.sourcePipelineStates().associateBy { it.sourceId } }.getOrDefault(emptyMap()) }
+    val facts =
+        remember(
+            factsVersion,
+            campaignVersion,
+        ) { runCatching { model.canonFacts(campaignId).forCampaign(campaignId) }.getOrDefault(emptyList()) }
 
     fun run(
         work: () -> String?,
@@ -114,6 +119,7 @@ fun SourcesSection(model: AppModel) {
         stringResource(R.string.sources_title),
         stringResource(R.string.sources_help),
     )
+
     fun launchPicker() =
         picker.launch(
             arrayOf(
@@ -133,7 +139,11 @@ fun SourcesSection(model: AppModel) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { askConsent = false },
             title = { Text(stringResource(R.string.source_privacy_dialog_title)) },
-            text = { Text(stringResource(R.string.source_privacy_dialog_body) + "\n\n" + stringResource(R.string.source_privacy_import_note)) },
+            text = {
+                Text(
+                    stringResource(R.string.source_privacy_dialog_body) + "\n\n" + stringResource(R.string.source_privacy_import_note),
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     askConsent = false
@@ -163,9 +173,15 @@ fun SourcesSection(model: AppModel) {
             Text(entry.title, style = MaterialTheme.typography.bodyMedium)
             Muted(stringResource(R.string.sources_file_info, entry.fileName, entry.format ?: "?", entry.byteSize / 1024))
             when {
-                entry.status == SourceStatus.FAILED -> ErrorText(stringResource(R.string.sources_import_failed, entry.error ?: stringResource(R.string.sources_unknown_reason)))
+                entry.status == SourceStatus.FAILED ->
+                    ErrorText(
+                        stringResource(R.string.sources_import_failed, entry.error ?: stringResource(R.string.sources_unknown_reason)),
+                    )
                 state == null -> Muted(stringResource(R.string.sources_index_pending))
-                state.stage == PipelineStage.FAILED -> ErrorText(stringResource(R.string.sources_index_failed, state.error ?: stringResource(R.string.sources_unknown_reason)))
+                state.stage == PipelineStage.FAILED ->
+                    ErrorText(
+                        stringResource(R.string.sources_index_failed, state.error ?: stringResource(R.string.sources_unknown_reason)),
+                    )
                 state.stage == PipelineStage.INDEXED -> Muted(stringResource(R.string.sources_indexed, state.chunks.size))
                 else -> {
                     Muted(stringResource(R.string.sources_indexing, (state.progress * 100).toInt()))
@@ -178,7 +194,10 @@ fun SourcesSection(model: AppModel) {
                         Text(stringResource(if (linked) R.string.sources_unlink else R.string.sources_link))
                     }
                 }
-                TextButton(enabled = !busy, onClick = { run({ model.removeSource(entry.id) }) }) { Text(stringResource(R.string.sources_remove)) }
+                TextButton(
+                    enabled = !busy,
+                    onClick = { run({ model.removeSource(entry.id) }) },
+                ) { Text(stringResource(R.string.sources_remove)) }
             }
         }
     }
@@ -195,12 +214,21 @@ fun SourcesSection(model: AppModel) {
             }
         Column(Modifier.fillMaxWidth()) {
             Text(fact.text, style = MaterialTheme.typography.bodyMedium)
-            Muted(stringResource(R.string.fact_line, label, stringResource(if (fact.protagonistKnows) R.string.fact_knows else R.string.fact_not_knows)))
+            Muted(
+                stringResource(
+                    R.string.fact_line,
+                    label,
+                    stringResource(if (fact.protagonistKnows) R.string.fact_knows else R.string.fact_not_knows),
+                ),
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(enabled = !busy, onClick = { run({ model.setFactKnown(fact.id, !fact.protagonistKnows) }) }) {
                     Text(stringResource(if (fact.protagonistKnows) R.string.fact_mark_unknown else R.string.fact_mark_known))
                 }
-                TextButton(enabled = !busy, onClick = { run({ model.removeFact(fact.id) }) }) { Text(stringResource(R.string.sources_remove)) }
+                TextButton(
+                    enabled = !busy,
+                    onClick = { run({ model.removeFact(fact.id) }) },
+                ) { Text(stringResource(R.string.sources_remove)) }
             }
         }
     }

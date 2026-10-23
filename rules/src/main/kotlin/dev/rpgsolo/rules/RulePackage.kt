@@ -53,7 +53,9 @@ class RulePackage internal constructor(val data: PackageData) {
             dev.rpgsolo.engine.ExceptionRegistry(
                 defs.map { ex ->
                     dev.rpgsolo.engine.MechanicalException(
-                        ex.id, ex.entityId, ex.description,
+                        ex.id,
+                        ex.entityId,
+                        ex.description,
                         ex.modifiers.map { dev.rpgsolo.engine.Modifier("excecao:${ex.id}", ex.description, it.target, it.value) },
                         ex.immuneConditions.toSet(),
                     )
@@ -108,7 +110,8 @@ class RulePackage internal constructor(val data: PackageData) {
     fun item(id: String): ItemDef? = if (ItemRef.quality(id) == null) null else itemById[ItemRef.base(id)]
 
     /** Percentual de efeito da qualidade (`qualidade_<id>_percent` em criacao.txt; padrão em [ItemQuality.defaultPercent]). */
-    fun qualityPercent(quality: ItemQuality): Int = data.creation["qualidade_${quality.id}_percent"]?.toIntOrNull() ?: quality.defaultPercent
+    fun qualityPercent(quality: ItemQuality): Int =
+        data.creation["qualidade_${quality.id}_percent"]?.toIntOrNull() ?: quality.defaultPercent
 
     /** Escala [value] positivo pela qualidade do item [itemId] (arredonda para o mais próximo, mínimo 1); zero ou negativo não muda. */
     fun scaleByQuality(
@@ -908,8 +911,16 @@ object PackageValidator {
             }
         }
         val percents = ItemQuality.entries.map { qualityPercent(it) }
-        if (percents.zipWithNext().any { (x, y) -> y < x }) p += "criacao.txt: os percentuais de qualidade devem ser crescentes (normal ≤ boa ≤ rara ≤ lendária)"
-        d.creation["renascimento_percentual"]?.let { if ((it.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: renascimento_percentual deve ficar entre 1 e 100" }
+        if (percents.zipWithNext().any {
+                    (x, y) ->
+                y < x
+            }
+        ) {
+            p += "criacao.txt: os percentuais de qualidade devem ser crescentes (normal ≤ boa ≤ rara ≤ lendária)"
+        }
+        d.creation["renascimento_percentual"]?.let {
+            if ((it.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: renascimento_percentual deve ficar entre 1 e 100"
+        }
         d.creation["itens_renascimento"]?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() && it != "-" }?.forEach { id ->
             if (d.items.none { it.id == id }) p += "criacao.txt: itens_renascimento referencia item inexistente: $id"
         }

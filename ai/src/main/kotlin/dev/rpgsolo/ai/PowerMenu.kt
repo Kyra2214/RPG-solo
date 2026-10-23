@@ -56,7 +56,11 @@ class PowerMenu(
         val entries =
             available(traitIds).map { Triple(it.id, it.name, it) } +
                 learnedSpells.sorted().mapNotNull { spellId ->
-                    val def = pkg.spellPowerId(spellId)?.let { pid -> pkg.data.powers.firstOrNull { it.id == pid } } ?: return@mapNotNull null
+                    val def =
+                        pkg.spellPowerId(spellId)?.let {
+                                pid ->
+                            pkg.data.powers.firstOrNull { it.id == pid }
+                        } ?: return@mapNotNull null
                     Triple("magia:$spellId", pkg.spell(spellId)?.name ?: spellId, def)
                 }
         if (entries.isEmpty()) return null

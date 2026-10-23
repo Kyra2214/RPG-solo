@@ -23,8 +23,7 @@ object ItemRef {
     fun base(id: String): String = id.substringBefore(SEPARATOR)
 
     /** Qualidade do id; `null` se o sufixo não for uma qualidade conhecida (id inválido). */
-    fun quality(id: String): ItemQuality? =
-        if (SEPARATOR !in id) ItemQuality.NORMAL else ItemQuality.fromId(id.substringAfter(SEPARATOR))
+    fun quality(id: String): ItemQuality? = if (SEPARATOR !in id) ItemQuality.NORMAL else ItemQuality.fromId(id.substringAfter(SEPARATOR))
 
     fun of(
         baseId: String,
