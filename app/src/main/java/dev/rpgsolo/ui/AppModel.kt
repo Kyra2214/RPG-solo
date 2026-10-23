@@ -147,7 +147,8 @@ private data class CampaignSourceContext(
 class AppModel(application: Application) : AndroidViewModel(application) {
     private val sourceDocuments = SourceDocumentStore(File(application.filesDir, "source-documents"))
     val usage = UsageTracker()
-    val content: Content = BundledContent.load(application)
+    lateinit var content: Content
+        private set
     private val secureSettings = SecureSettings(application)
     private var storedSettings: StoredProviderSettings? = secureSettings.load()
     private val narrationPrefs = application.getSharedPreferences("rpg_narration_prefs", 0)
@@ -452,7 +453,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private val store = RoomEventStore(database)
     private val activeCampaignPrefs = application.getSharedPreferences("rpgsolo_session", Application.MODE_PRIVATE)
     private var playerId = "hero"
-    private var activePackage: RulePackage? = content.registry.get("sistema-proprio")
+    private var activePackage: RulePackage? = null
 
     /** NPCs adicionados manualmente para o próximo encontro; NPCs de outras cenas não entram automaticamente. */
     private val pendingCombatNpcIds = linkedSetOf<String>()
@@ -2770,6 +2771,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
     private fun startup() {
+        content = BundledContent.load(getApplication<Application>())
+        activePackage = content.registry.get("sistema-proprio")
         session = openOrCreateCampaign()
         restoreImportedPackages()
         restoreFichas()
