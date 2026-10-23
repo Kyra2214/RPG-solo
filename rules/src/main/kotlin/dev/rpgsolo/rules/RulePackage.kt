@@ -910,7 +910,10 @@ object PackageValidator {
                 if ((raw.toIntOrNull() ?: 0) !in 100..1000) p += "criacao.txt: qualidade_${q.id}_percent deve ficar entre 100 e 1000"
             }
         }
-        val percents = ItemQuality.entries.map { qualityPercent(it) }
+        val percents =
+            ItemQuality.entries.map { quality ->
+                d.creation["qualidade_${quality.id}_percent"]?.toIntOrNull() ?: quality.defaultPercent
+            }
         if (percents.zipWithNext().any {
                     (x, y) ->
                 y < x
