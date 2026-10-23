@@ -23,7 +23,7 @@ class BasicJourneyE2eTest {
     @Test
     fun jornadaBasica_navegaCriaFichaEgeraBackup() {
         composeRule.waitForAppReady()
-        composeRule.onNodeWithText("A mesa ainda está vazia").assertIsDisplayed()
+        composeRule.onNodeWithText("Preparar sua mesa").assertIsDisplayed()
 
         composeRule.onNodeWithText("Heróis").performClick()
         composeRule.onNodeWithText("Personagens").assertIsDisplayed()
