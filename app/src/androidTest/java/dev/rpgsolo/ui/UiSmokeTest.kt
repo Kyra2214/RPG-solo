@@ -21,7 +21,7 @@ class UiSmokeTest {
     @Test
     fun telasPrioritarias_navegamEExibemConteudoPrincipal() {
         composeRule.waitForAppReady()
-        composeRule.onNodeWithText("A mesa ainda está vazia").assertIsDisplayed()
+        composeRule.onNodeWithText("Preparar sua mesa").assertIsDisplayed()
 
         composeRule.onNodeWithText("Heróis").performClick()
         composeRule.onNodeWithText("Personagens").assertIsDisplayed()
