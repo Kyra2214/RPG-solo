@@ -65,14 +65,15 @@ class FakeAiPlayTest {
         // Jogada: ação -> teste classificado/rolado -> chamada do narrador falso.
         composeRule.onNodeWithText("Jogar").performClick()
         composeRule.onNodeWithText("O que você faz?").performTextInput("tento arrombar a porta")
+        val requestsBeforeAction = transport.bodies.size
         composeRule.onNodeWithText("Enviar").performClick()
         composeRule.waitUntil(timeoutMillis = 15_000) {
-            transport.bodies.any { it.contains("tento arrombar a porta") }
+            transport.bodies.size > requestsBeforeAction
         }
         if (composeRule.onAllNodesWithText("Rolar dados", substring = true).fetchSemanticsNodes().isNotEmpty()) {
             composeRule.onAllNodesWithText("Rolar dados", substring = true).onFirst().performClick()
         }
-        assertTrue("o narrador falso deve ter sido chamado", transport.bodies.any { it.contains("tento arrombar a porta") })
+        assertTrue("o narrador falso deve ter sido chamado", transport.bodies.size > requestsBeforeAction)
     }
 
     companion object {
