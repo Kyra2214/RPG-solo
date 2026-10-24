@@ -73,6 +73,8 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
     testImplementation(libs.junit)
+    // org.json do Android é um stub que lança RuntimeException em testes JVM locais.
+    testImplementation("org.json:json:20240303")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
