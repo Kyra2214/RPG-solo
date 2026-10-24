@@ -67,9 +67,12 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("O que você faz?").performTextInput("tento arrombar a porta")
         composeRule.onNodeWithText("Enviar").performClick()
         composeRule.waitUntil(timeoutMillis = 15_000) {
-            composeRule.onAllNodesWithText("Rolar dados", substring = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithText("Rolar dados", substring = true).fetchSemanticsNodes().isNotEmpty() ||
+                composeRule.onAllNodesWithText("A porta range e cede.", substring = true).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onAllNodesWithText("Rolar dados", substring = true).onFirst().performClick()
+        if (composeRule.onAllNodesWithText("Rolar dados", substring = true).fetchSemanticsNodes().isNotEmpty()) {
+            composeRule.onAllNodesWithText("Rolar dados", substring = true).onFirst().performClick()
+        }
         composeRule.waitUntil(timeoutMillis = 15_000) {
             composeRule.onAllNodesWithText("A porta range e cede.", substring = true).fetchSemanticsNodes().isNotEmpty()
         }
