@@ -1,10 +1,13 @@
 package dev.rpgsolo.ui
 
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.printToString
 import dev.rpgsolo.ai.HttpReply
 import dev.rpgsolo.ai.HttpTransport
 import org.json.JSONArray
@@ -22,7 +25,12 @@ fun ComposeTestRule.waitForText(
     text: String,
     timeoutMillis: Long = 10_000,
 ) {
-    waitUntil(timeoutMillis) { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+    try {
+        waitUntil(timeoutMillis) { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+    } catch (e: ComposeTimeoutException) {
+        // Diagnóstico: mostra o que estava na tela (textos e estado dos botões) em vez de só "condição não satisfeita".
+        throw AssertionError("Texto '$text' não apareceu. Tela atual:\n${onRoot().printToString(maxDepth = 40)}", e)
+    }
     onNodeWithText(text).performScrollTo()
 }
 
