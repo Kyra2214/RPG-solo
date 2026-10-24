@@ -71,7 +71,7 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("O que você faz?").performTextReplacement("tento arrombar a porta")
         composeRule.waitUntil(timeoutMillis = 25_000) {
             runCatching {
-                composeRule.onNodeWithText("Enviar").assertIsEnabled()
+                composeRule.onNodeWithText("Enviar").assertIsDisplayed().assertIsEnabled()
                 true
             }.getOrDefault(false)
         }

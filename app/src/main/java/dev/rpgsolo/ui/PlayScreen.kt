@@ -43,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -57,6 +58,7 @@ import dev.rpgsolo.ai.ChatLine
 import dev.rpgsolo.ai.PanelState
 import dev.rpgsolo.ai.PlayController
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -159,10 +161,15 @@ private fun PlayContent(
             !hasHiddenRollBeforeNarrative
         }
     val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && !c.isRollRevealed(i) }
+    val showsStreaming = busy && streamingText.isNotBlank()
+    val feedItemCount =
+        13 + (if (luckOffer != null) 1 else 0) + 1 + (if (lines.isEmpty()) 1 else visible.size) + clashes.size +
+            (if (showsStreaming) 1 else 0)
 
-    LaunchedEffect(visible.size, pendingRoll, streamingText.length, busy) {
-        val lastIndex = visible.lastIndex + if (busy && streamingText.isNotBlank()) 1 else 0
-        if (lastIndex >= 0) listState.animateScrollToItem(lastIndex)
+    LaunchedEffect(feedItemCount, pendingRoll, streamingText.length, busy) {
+        if (visible.isEmpty() && !showsStreaming) return@LaunchedEffect
+        val itemCount = snapshotFlow { listState.layoutInfo.totalItemsCount }.first { it >= feedItemCount }
+        listState.animateScrollToItem(itemCount - 1)
     }
 
     // A chamada à IA é de rede: sempre fora da thread principal.
@@ -208,53 +215,64 @@ private fun PlayContent(
             Muted(notice)
         }
         panel?.let { StatusPanel(it) }
-        InventoryPanel(model, enabled = !busy, act = ::act)
-        ShopPanel(model, enabled = !busy, act = ::act)
-        PowersPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
-        SkillTreePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
-        CursePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
-        TraitUsesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
-        ConditionRemovalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
-        SurvivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
-        luckOffer?.let { offer ->
-            LuckPanel(
-                offer = offer,
-                resourceName = model.resourceName(offer.resource),
-                enabled = !busy && !pendingRoll && pendingCheck == null,
-                onSpend = { kind ->
-                    run {
-                        val result =
-                            c.spendLuck(kind) { partial ->
-                                scope.launch(Dispatchers.Main) {
-                                    streamingText = partial
-                                    version++
-                                }
-                            }
-                        withContext(kotlinx.coroutines.Dispatchers.Main) {
-                            streamingText = ""
-                            playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
-                        }
-                    }
-                },
-            )
-        }
-        AdditionalRulesPanel(model, enabled = !busy, act = ::act)
-        PlacesPanel(model, enabled = !busy, act = ::act)
-        QuickActions(
-            enabled = !busy && !pendingRoll && pendingCheck == null,
-            onSheet = { run { c.submit("ver ficha") } },
-            onInventory = { run { c.submit("inventário") } },
-            onRest = { run { c.submit("descansar") } },
-        )
-        AdvancedCheckControls(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
-        CombatControls(model, enabled = !busy, act = ::act)
-
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth(),
             state = listState,
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            item(key = "inventario") { InventoryPanel(model, enabled = !busy, act = ::act) }
+            item(key = "loja") { ShopPanel(model, enabled = !busy, act = ::act) }
+            item(key = "poderes") { PowersPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "arvore-pericias") { SkillTreePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "maldições") { CursePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "usos-tracos") { TraitUsesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "remover-condicoes") {
+                ConditionRemovalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
+            }
+            item(key = "sobrevivencia") { SurvivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            luckOffer?.let { offer ->
+                item(key = "fortuna") {
+                    LuckPanel(
+                        offer = offer,
+                        resourceName = model.resourceName(offer.resource),
+                        enabled = !busy && !pendingRoll && pendingCheck == null,
+                        onSpend = { kind ->
+                            run {
+                                val result =
+                                    c.spendLuck(kind) { partial ->
+                                        scope.launch(Dispatchers.Main) {
+                                            streamingText = partial
+                                            version++
+                                        }
+                                    }
+                                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                    streamingText = ""
+                                    playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+                                }
+                            }
+                        },
+                    )
+                }
+            }
+            item(key = "regras-adicionais") { AdditionalRulesPanel(model, enabled = !busy, act = ::act) }
+            item(key = "locais") { PlacesPanel(model, enabled = !busy, act = ::act) }
+            item(key = "acoes-rapidas") {
+                QuickActions(
+                    enabled = !busy && !pendingRoll && pendingCheck == null,
+                    onSheet = { run { c.submit("ver ficha") } },
+                    onInventory = { run { c.submit("inventário") } },
+                    onRest = { run { c.submit("descansar") } },
+                )
+            }
+            item(key = "testes-avancados") {
+                AdvancedCheckControls(
+                    model,
+                    enabled = !busy && !pendingRoll && pendingCheck == null,
+                    act = ::act,
+                )
+            }
+            item(key = "combate") { CombatControls(model, enabled = !busy, act = ::act) }
             if (lines.isEmpty()) {
                 item(key = "vazio") {
                     Muted(
