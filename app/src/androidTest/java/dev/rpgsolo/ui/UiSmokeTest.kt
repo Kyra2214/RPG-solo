@@ -31,6 +31,14 @@ class UiSmokeTest {
         composeRule.waitForText("Ficha de Herói UI criada e salva.")
         composeRule.onNodeWithText("Ficha de Herói UI criada e salva.").assertIsDisplayed()
 
+        // A tela Nova campanha exige provedor configurado; usa endpoint fictício sem rede externa.
+        composeRule.openTab("Config")
+        composeRule.onNodeWithText("Endpoint (https)").performScrollTo().performTextInput("https://fake.local/v1/chat/completions")
+        composeRule.onNodeWithText("Modelo").performScrollTo().performTextInput("fake-model")
+        composeRule.onNodeWithText("Chave de API").performScrollTo().performTextInput("chave-falsa")
+        composeRule.onNodeWithText("Salvar e usar").performScrollTo().performClick()
+        composeRule.onNodeWithText("Provedor ativo", substring = true).performScrollTo().assertIsDisplayed()
+
         composeRule.openTab("Campanhas")
         // O título "Campanhas" também é o rótulo da aba (dois nós iguais): confere o conteúdo da tela.
         composeRule.onNodeWithText("Nova campanha").performScrollTo().assertIsDisplayed()
