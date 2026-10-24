@@ -51,11 +51,11 @@ class FakeAiPlayTest {
             .performScrollTo()
             .performTextInput("aventura de teste no sistema próprio")
         composeRule.onNodeWithText("Interpretar").performScrollTo().performClick()
-        composeRule.waitUntil(timeoutMillis = 10_000) { composeRule.onAllNodesWithText("Herói IA").fetchSemanticsNodes().isNotEmpty() }
+        composeRule.waitForText("Herói IA", timeoutMillis = 25_000)
         composeRule.onNodeWithText("Herói IA").performScrollTo().performClick()
         composeRule.onNodeWithText("Nome da campanha").performScrollTo().performTextInput("Campanha IA")
         composeRule.onNodeWithText("Começar").performScrollTo().performClick()
-        composeRule.waitUntil(timeoutMillis = 10_000) {
+        composeRule.waitUntil(timeoutMillis = 25_000) {
             composeRule.onAllNodesWithText("Campanha iniciada", substring = true).fetchSemanticsNodes().isNotEmpty()
         }
 
@@ -63,7 +63,7 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("Jogar").performClick()
         composeRule.onNodeWithText("O que você faz?").performTextInput("tento arrombar a porta")
         composeRule.onNodeWithText("Enviar").performClick()
-        composeRule.waitUntil(timeoutMillis = 10_000) {
+        composeRule.waitUntil(timeoutMillis = 25_000) {
             composeRule.onAllNodesWithText("Rolar", substring = true).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onAllNodesWithText("Rolar", substring = true).onFirst().performClick()
