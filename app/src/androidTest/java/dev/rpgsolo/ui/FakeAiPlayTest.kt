@@ -38,9 +38,10 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("Salvar e usar").performScrollTo().performClick()
         composeRule.onNodeWithText("Provedor ativo", substring = true).performScrollTo().assertIsDisplayed()
 
-        // Ficha
+        // Ficha: usar um exemplo válido do pacote para que o motor aceite a ficha ao iniciar a campanha.
         composeRule.onNodeWithText("Heróis").performClick()
-        composeRule.onNodeWithText("Nome").performTextInput("Herói IA")
+        composeRule.onNodeWithText("Guerreiro de exemplo").performScrollTo().performClick()
+        composeRule.onNodeWithText("Nome").performTextReplacement("Herói IA")
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()
         composeRule.waitForText("Ficha de Herói IA criada e salva.")
         composeRule.onNodeWithText("Ficha de Herói IA criada e salva.").assertIsDisplayed()
@@ -55,9 +56,7 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("Herói IA").performScrollTo().performClick()
         composeRule.onNodeWithText("Nome da campanha").performScrollTo().performTextInput("Campanha IA")
         composeRule.onNodeWithText("Começar").performScrollTo().performClick()
-        composeRule.waitUntil(timeoutMillis = 25_000) {
-            composeRule.onAllNodesWithText("Campanha iniciada", substring = true).fetchSemanticsNodes().isNotEmpty()
-        }
+        composeRule.waitForText("Campanha iniciada", timeoutMillis = 25_000)
 
         // Jogada: ação -> teste classificado -> rolagem -> narração
         composeRule.onNodeWithText("Jogar").performClick()
