@@ -1,14 +1,17 @@
 package dev.rpgsolo.ui
 
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.printToString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.rpgsolo.MainActivity
 import org.junit.AfterClass
@@ -66,12 +69,28 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("Jogar").performClick()
         composeRule.onNodeWithText("O que você faz?").performTextInput("tento arrombar a porta")
         composeRule.onNodeWithText("Enviar").performClick()
-        composeRule.waitUntil(timeoutMillis = 25_000) {
-            composeRule.onAllNodesWithText("Rolar", substring = true).fetchSemanticsNodes().isNotEmpty()
+        try {
+            composeRule.waitUntil(timeoutMillis = 25_000) {
+                composeRule.onAllNodesWithText("Rolar", substring = true).fetchSemanticsNodes().isNotEmpty()
+            }
+        } catch (e: ComposeTimeoutException) {
+            throw AssertionError(
+                "A jogada não exibiu a opção de rolagem. Tela atual:\n" +
+                    composeRule.onRoot().printToString(maxDepth = 50) +
+                    "\nRequisições enviadas: " + transport.bodies.joinToString("\n---\n"),
+                e,
+            )
         }
         composeRule.onAllNodesWithText("Rolar", substring = true).onFirst().performClick()
-        composeRule.waitUntil(timeoutMillis = 15_000) {
-            composeRule.onAllNodesWithText("A porta range e cede.", substring = true).fetchSemanticsNodes().isNotEmpty()
+        try {
+            composeRule.waitUntil(timeoutMillis = 15_000) {
+                composeRule.onAllNodesWithText("A porta range e cede.", substring = true).fetchSemanticsNodes().isNotEmpty()
+            }
+        } catch (e: ComposeTimeoutException) {
+            throw AssertionError(
+                "A narração esperada não apareceu. Tela atual:\n" + composeRule.onRoot().printToString(maxDepth = 50),
+                e,
+            )
         }
         assertTrue("o narrador falso deve ter sido chamado", transport.bodies.any { it.contains("tento arrombar a porta") })
     }
