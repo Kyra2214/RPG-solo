@@ -434,8 +434,16 @@ object CharacterCreationCatalog {
                     if (item.optString("lore").isBlank() || item.optString("lore") == "null") {
                         errors += "Entrada ${id ?: index} em $key não possui lore"
                     }
-                    if (item.optJSONArray("traits") == null) {
-                        errors += "Entrada ${id ?: index} em $key não declara traits como lista"
+                    // Cada categoria possui seu próprio esquema: classes e profissões declaram
+                    // competências; raças, sub-raças e híbridos declaram traços.
+                    val requiredListField =
+                        when (key) {
+                            "races", "subraces", "hybrids" -> "traits"
+                            "classes", "professions" -> "competencies"
+                            else -> null
+                        }
+                    if (requiredListField != null && item.optJSONArray(requiredListField) == null) {
+                        errors += "Entrada ${id ?: index} em $key não declara $requiredListField como lista"
                     }
                     val effects = item.optJSONArray("mechanicalEffects")
                     if (effects == null) {
