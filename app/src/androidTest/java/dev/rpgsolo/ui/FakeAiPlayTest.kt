@@ -3,6 +3,7 @@ package dev.rpgsolo.ui
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -61,10 +62,14 @@ class FakeAiPlayTest {
         }
         composeRule.onNodeWithText("Loja").assertIsDisplayed()
 
-        // Jogada: ação -> teste classificado -> rolagem -> narração
+        // Jogada: ação -> teste classificado -> revelar rolagem -> narração
         composeRule.onNodeWithText("Jogar").performClick()
         composeRule.onNodeWithText("O que você faz?").performTextInput("tento arrombar a porta")
         composeRule.onNodeWithText("Enviar").performClick()
+        composeRule.waitUntil(timeoutMillis = 15_000) {
+            composeRule.onAllNodesWithText("Rolar dados", substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onAllNodesWithText("Rolar dados", substring = true).onFirst().performClick()
         composeRule.waitUntil(timeoutMillis = 15_000) {
             composeRule.onAllNodesWithText("A porta range e cede.", substring = true).fetchSemanticsNodes().isNotEmpty()
         }
