@@ -56,7 +56,8 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("Herói IA").performScrollTo().performClick()
         composeRule.onNodeWithText("Nome da campanha").performScrollTo().performTextInput("Campanha IA")
         composeRule.onNodeWithText("Começar").performScrollTo().performClick()
-        composeRule.waitForText("Campanha iniciada", timeoutMillis = 25_000)
+        // O início ativa a sessão e navega direto para a tela de jogo; validar um elemento dessa tela.
+        composeRule.waitForText("Loja", timeoutMillis = 25_000)
 
         // Jogada: ação -> teste classificado -> rolagem -> narração
         composeRule.onNodeWithText("Jogar").performClick()
