@@ -1,15 +1,18 @@
 package dev.rpgsolo.ui
 
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.printToString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.rpgsolo.MainActivity
 import org.junit.AfterClass
@@ -74,8 +77,17 @@ class FakeAiPlayTest {
         }
         val requestsBeforeAction = transport.bodies.size
         composeRule.onNodeWithText("Enviar").performClick()
-        composeRule.waitUntil(timeoutMillis = 15_000) {
-            transport.bodies.size > requestsBeforeAction
+        try {
+            composeRule.waitUntil(timeoutMillis = 15_000) {
+                transport.bodies.size > requestsBeforeAction
+            }
+        } catch (e: ComposeTimeoutException) {
+            val screen = runCatching { composeRule.onRoot().printToString(maxDepth = 40) }.getOrDefault("<tela indisponível>")
+            throw AssertionError(
+                "O envio não chamou o transporte falso. Chamadas antes=$requestsBeforeAction, depois=${transport.bodies.size}. " +
+                    "Corpos observados=${transport.bodies.map { it.take(180) }}. Tela após tocar em Enviar:\n$screen",
+                e,
+            )
         }
         if (composeRule.onAllNodesWithText("Rolar dados", substring = true).fetchSemanticsNodes().isNotEmpty()) {
             composeRule.onAllNodesWithText("Rolar dados", substring = true).onFirst().performClick()
