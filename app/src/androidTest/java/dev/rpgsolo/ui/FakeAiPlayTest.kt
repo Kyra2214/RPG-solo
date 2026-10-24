@@ -64,7 +64,13 @@ class FakeAiPlayTest {
 
         // Jogada: ação -> teste classificado/rolado -> chamada do narrador falso.
         composeRule.onNodeWithText("Jogar").performClick()
-        composeRule.onNodeWithText("O que você faz?").performTextInput("tento arrombar a porta")
+        composeRule.waitUntil(timeoutMillis = 25_000) {
+            runCatching {
+                composeRule.onNodeWithText("Enviar").assertIsEnabled()
+                true
+            }.getOrDefault(false)
+        }
+        composeRule.onNodeWithText("O que você faz?").performTextReplacement("tento arrombar a porta")
         val requestsBeforeAction = transport.bodies.size
         composeRule.onNodeWithText("Enviar").performClick()
         composeRule.waitUntil(timeoutMillis = 15_000) {
