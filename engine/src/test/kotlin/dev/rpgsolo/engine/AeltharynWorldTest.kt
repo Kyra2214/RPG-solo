@@ -54,6 +54,9 @@ class AeltharynWorldTest {
         assertEquals(setOf(AeltharynWorld.CAPITAL_CITY_ID), session.state.knownPlaces)
         assertEquals(AeltharynWorld.CAPITAL_CITY_ID, session.state.currentPlaceId)
         assertEquals(7, session.state.clocks.size)
+        val activeFigures = AeltharynWorld.figures.filter { it.aliveAtStart }
+        assertEquals(activeFigures.size, session.state.entities.values.count { it.kind == EntityKind.NPC })
+        assertEquals(activeFigures.map { it.id }.toSet(), session.state.npcDossiers.keys)
         assertEquals(2, session.state.clocks.getValue("clock.heart-trees").filled)
         assertEquals(3, session.state.clocks.getValue("clock.dikes").filled)
         assertFalse(
