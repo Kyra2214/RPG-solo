@@ -727,8 +727,8 @@ object AeltharynWorld {
                 "A origem da contaminação permanece sem prova conclusiva.",
             ),
             WorldFigure(
-                "npc.nima-raiz-lodo",
-                "Nima Raiz-de-Lodo",
+                "npc.nima-rede-micelio",
+                "Nima Rede-de-Micélio",
                 "city.brumafunda",
                 "fungal",
                 "BENEFACTOR",
@@ -737,8 +737,8 @@ object AeltharynWorld {
                 "O sistema falha quando resíduos tóxicos são despejados deliberadamente.",
             ),
             WorldFigure(
-                "npc.dara-passo-ritmico",
-                "Dara Passo-Rítmico",
+                "npc.dara-guarda-rota",
+                "Dara Guarda-da-Rota",
                 "city.silvaran",
                 "satiro",
                 "GUARDIAN",
@@ -1106,6 +1106,10 @@ object AeltharynWorld {
             }
             val roles = figures.filter { it.cityId == c.id }.map { it.role }.toSet()
             figureRoles.filterNot { it in roles }.forEach { errors += "falta função $it em ${c.id}" }
+        }
+        people.forEach { person ->
+            figureRoles.filterNot { role -> figures.any { it.peopleId == person.id && it.role == role } }
+                .forEach { role -> errors += "povo sem figura de referência $role: ${person.id}" }
         }
         figures.forEach { f ->
             if (f.cityId !in cityIds) errors += "cidade inexistente em figura: ${f.id}"
