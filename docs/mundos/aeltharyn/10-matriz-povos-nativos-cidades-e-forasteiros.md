@@ -1,6 +1,6 @@
 # Aeltharyn — matriz de povos nativos, cidades e comunidades forasteiras
 
-**Status:** proposta editorial de correção de escopo, para revisão de continuidade.  
+**Status:** matriz editorial consolidada para continuidade; a correspondência com IDs do catálogo técnico permanece fora do escopo desta branch narrativa.  
 **Escopo:** exclusivamente o Reino de Aeltharyn; não desenvolve os outros quatro reinos.  
 **Regra de precedência:** este documento registra a orientação mais recente do projeto sobre a identidade de Aeltharyn. Onde documentos anteriores chamarem Aeltharyn de mundo ou divergirem sobre a contagem das cidades, considerar isso uma inconsistência editorial a corrigir.
 
@@ -18,7 +18,7 @@ Aeltharyn não é exclusivamente élfico: a Coroa é élfica, mas o reino foi co
 
 ## 2. Os onze povos nativos de referência
 
-A lista abaixo organiza os povos já presentes no documento principal. IDs e nomes de catálogo devem continuar vinculados ao catálogo existente do RPG Solo; quando um nome designar uma sub-raça ou linhagem, não deve ser contado novamente como raça-base.
+A lista abaixo organiza os povos já presentes no documento principal. Os IDs são referências editoriais existentes, não uma auditoria do catálogo de código. Quando um nome designar sub-raça, linhagem ou tradição cultural, não deve ser contado novamente como raça-base.
 
 | Nº | Povo nativo de referência | Relação com o catálogo | Raízes e identidade dentro de Aeltharyn |
 |---:|---|---|---|
@@ -65,13 +65,13 @@ A estrutura acordada é de **dez cidades no total**: Elarion, a capital élfica,
 
 Esta matriz define **centros de referência**, não guetos raciais. Nenhuma cidade pertence exclusivamente a uma raça, e nenhuma raça deve ser reduzida a uma profissão ou função. Cada cidade terá população mista, dissidentes internos, migrantes e diferenças de classe, geração e crença.
 
-A distribuição de referência deve ser conferida com as rotas, os recursos, a população e as jurisdições já documentadas. Não criar cidades adicionais para acomodar um povo: comunidades e famílias podem estar distribuídas entre cidades, aldeias e assentamentos existentes.
+A distribuição de referência foi cruzada editorialmente com rotas, recursos, assentamentos e jurisdições. Onde a presença não é explicitamente confirmada por uma ficha local, ela permanece vínculo cultural possível, não dado demográfico. Não criar cidades adicionais para acomodar um povo.
 
 ### 3.1.1 Cidades e assentamentos não são camadas mutuamente exclusivas
 
 Os vinte assentamentos já registrados podem ser bairros, distritos, núcleos próximos, comunidades afastadas ou postos sazonais. Não devem ser tratados automaticamente como vinte vilarejos externos às dez cidades. Um povo pode ter presença em um bairro urbano, manter parentes em uma comunidade afastada e circular por outras cidades; isso não exige criar novos territórios nem atribuir uma cidade inteira a uma única raça.
 
-A posição espacial de cada núcleo continua pendente até o cruzamento com a geografia e as rotas. A tabela transversal abaixo indica vínculos culturais de referência, não uma distribuição demográfica confirmada nem uma lista de bairros raciais.
+Os enquadramentos espaciais qualitativos dos vinte núcleos foram consolidados em `03-assentamentos-e-rede-politica.md`; tempos de viagem e distâncias métricas continuam sem definição quando não há rota registrada. A tabela transversal indica vínculos culturais, não uma distribuição demográfica nem bairros raciais exclusivos.
 
 ### 3.2 Mapa transversal de presença dos povos
 
@@ -91,7 +91,7 @@ A tabela seguinte consolida a distribuição como **hipótese editorial de traba
 | Pequeninos, incluindo ribeirinhos | Nymvar e Arven | Thalanor e assentamentos ribeirinhos ou agrícolas já descritos | Não presumir que todo pequenino seja agricultor, barqueiro ou anfitrião. |
 | Gnomos dos Vales | Arven | Torvelume e cidades que demandam manutenção de ferramentas e mecanismos | Ofícios de precisão são uma tradição reconhecida, não uma profissão obrigatória para cada gnomo. |
 
-**Limite da matriz:** essa distribuição não cria bairros exclusivos, novas aldeias, população adicional ou novos assentamentos. Onde uma ficha existente não confirmar a presença de um povo, a tabela funciona apenas como proposta de vínculo cultural a validar — não como fato demográfico. Os personagens podem nascer em qualquer cidade ou comunidade, e a origem cultural não determina sua profissão, lealdade, classe ou trajetória.
+**Limite da matriz:** essa distribuição não cria bairros exclusivos, novas aldeias, população adicional ou novos assentamentos. O Abissal das Enseadas (`abissal-das-enseadas`) é um aliado costeiro presente em Thalanor, mas não integra os onze povos nativos de referência; a tríade de heróis/guardiões/benfeitores não altera essa classificação. Onde uma ficha existente não confirmar a presença de um povo, a tabela funciona apenas como proposta de vínculo cultural a validar — não como fato demográfico. Os personagens podem nascer em qualquer cidade ou comunidade, e a origem cultural não determina sua profissão, lealdade, classe ou trajetória.
 
 ## 4. Forasteiros: residentes sem origem nativa
 
@@ -117,11 +117,11 @@ Um forasteiro pode nascer em Aeltharyn se seus pais já vivem ali. Isso faz dele
 
 ## 6. Pendências obrigatórias de continuidade
 
-- [ ] Conferir os onze povos de referência contra os IDs e a classificação oficial do catálogo de 50 raças e 50 sub-raças do RPG Solo.
+- [x] Conferir editorialmente os onze povos de referência, separando povos de referência, linhagens, tradições e residentes forasteiros. A equivalência com o catálogo técnico de 50 raças e 50 sub-raças fica para a fase de integração do jogo.
 - [x] Corrigir no documento principal a definição de Aeltharyn como reino, não mundo.
 - [x] Manter dez cidades no total: Elarion como capital e as nove cidades já existentes.
-- [ ] Conferir se a distribuição dos povos respeita as rotas, assentamentos, recursos, população e jurisdições já documentados, sem adicionar cidades.
-- [ ] Diferenciar em todos os documentos povo nativo, linhagem/sub-raça, residente forasteiro, visitante e cidadão.
-- [ ] Manter os outros quatro reinos sem desenvolvimento narrativo nesta etapa.
+- [x] Cruzar a distribuição de referência com rotas, assentamentos, recursos e jurisdições, sem criar cidades adicionais; a população continua aproximada e não é usada para fixar maioria racial.
+- [x] Diferenciar povo nativo de referência, linhagem/sub-raça, residente forasteiro, visitante, local de nascimento e cidadania.
+- [x] Manter os outros quatro reinos sem desenvolvimento narrativo nesta etapa.
 
 **Critério de conclusão:** Aeltharyn terá uma capital élfica e nove outras cidades (dez no total), aproximadamente onze povos nativos de referência e uma população de origem externa que pode se estabelecer no reino. As cidades e povos devem funcionar como um ecossistema interdependente, não como listas isoladas de nomes.
