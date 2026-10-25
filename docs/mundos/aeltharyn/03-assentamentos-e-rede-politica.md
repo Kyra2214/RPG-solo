@@ -317,6 +317,7 @@ O Mestre só precisa consultar o assentamento quando ele for relevante para a ca
 ## 15. Pendências editoriais desta camada
 
 - [ ] Auditar a contagem demográfica das dez cidades e dos vinte assentamentos.
+- [x] Sincronizar o quadro-resumo das vinte comunidades com os perfis detalhados, incluindo IDs, liderança, legitimidade, obrigações e tensões.
 - [ ] Confirmar se cada autoridade local tem relação coerente com o governo descrito na cidade-mãe.
 - [ ] Cruzar os vinte assentamentos com a tabela de rotas e corrigir tempos ou conexões incompatíveis.
 - [ ] Associar NPCs existentes às relações em que já têm papel, sem duplicar personagens com nomes diferentes.
