@@ -1,3 +1,11 @@
+## 2026-10-25 — instalação de NPCs vivos de Aeltharyn
+
+- A instalação do reino agora cria as 10 cidades, rotas, sete relógios, 37 entidades NPC vivas e seus dossiês privados no log de eventos da campanha.
+- As 14 figuras históricas mortas ou desaparecidas continuam disponíveis no catálogo narrativo, mas não são criadas como NPCs ativos.
+- A instalação recusa colisões de IDs com NPCs já existentes, preservando a consistência do catálogo.
+- Teste de instalação ampliado para conferir a quantidade de NPCs e a correspondência exata entre entidades ativas e dossiês.
+- CI em execução; persistência e integração só serão consideradas aprovadas depois de testes verdes.
+
 ## 2026-10-25 — cobertura de referências por povo em Aeltharyn
 
 - Ampliado o catálogo tipado de 30 para 51 figuras, mantendo o foco em elfos e 15 povos/linhagens próximos, não nas 50 raças do catálogo completo.
