@@ -821,13 +821,15 @@ object AeltharynWorld {
         }
         val commands = mutableListOf<Command>()
         cities.forEach { city ->
-            commands += AddPlace(
-                Place(
+            commands.add(
+                AddPlace(
+                    Place(
                     id = city.id,
                     name = city.name,
                     description =
                         "${city.role}. Recursos: ${city.supplies.joinToString(", ")}. Lenda local: ${city.legend}",
-                    secret = city.activeProblem,
+                        secret = city.activeProblem,
+                    ),
                 ),
             )
         }
@@ -836,11 +838,13 @@ object AeltharynWorld {
         }
         commands += DiscoverPlace(CAPITAL_CITY_ID)
         clocks.forEach { clock ->
-            commands += CreateClock(
-                clock.id,
-                clock.name,
-                clock.segments,
-                consequence = clock.consequence,
+            commands.add(
+                CreateClock(
+                    clock.id,
+                    clock.name,
+                    clock.segments,
+                    consequence = clock.consequence,
+                ),
             )
             if (clock.initialProgress > 0) {
                 commands += AdvanceClock(clock.id, clock.initialProgress)
