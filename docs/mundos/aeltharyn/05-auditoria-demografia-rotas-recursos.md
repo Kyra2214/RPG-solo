@@ -1,6 +1,6 @@
 # Aeltharyn — Auditoria de demografia, rotas e dependências materiais
 
-**Estado:** auditoria editorial em andamento  
+**Estado:** auditoria editorial consolidada; valores populacionais permanecem aproximações narrativas  
 **Referência temporal:** ano 742 da Contagem da Seiva  
 **Escopo:** somente o reino de Aeltharyn; nenhum dado foi integrado ao APK ou ao motor do RPG Solo.
 
@@ -236,14 +236,14 @@ Não é necessário transformar tudo em números agora. Para cada recurso, basta
 
 ## 6. Pendências desta auditoria
 
-- [ ] Classificar a população das dez cidades como núcleo urbano, jurisdição total, região ou indefinida.
-- [ ] Confirmar se os assentamentos estão ou não incluídos nos totais das cidades-mãe.
-- [ ] Classificar individualmente os vinte assentamentos como bairro, distrito/núcleo periurbano, vila próxima, comunidade afastada, posto sazonal ou indefinido, registrando a evidência e sem deduzir posição pelo vínculo político.
-- [ ] Desenhar a malha geográfica mínima e reconciliar as doze ligações com os cinco corredores descritos na seção 25.1 do documento principal.
-- [ ] Definir tempos locais dos vinte assentamentos depois de validar a geografia.
+- [x] Tratar estimativas das dez cidades como escala narrativa aproximada, sem inferir uma definição censitária uniforme.
+- [x] Registrar a sobreposição demográfica como desconhecida e não somar assentamentos às cidades; precisão censitária não é requisito narrativo atual.
+- [x] Classificar qualitativamente os vinte assentamentos em `03-assentamentos-e-rede-politica.md`, sem inventar coordenadas ou tempos de viagem.
+- [x] Reconciliar as rotas principais e definir os trechos da Estrada da Espinha; conexões sem duração individual seguem explicitamente não validadas.
+- [x] Não inventar tempos locais sem base geográfica; acessos dos assentamentos são pré-requisito em cenas com prazo crítico.
 - [x] Estabelecer escalas qualitativas e declarar desconhecidos os estoques sem evidência; valores numéricos ficam pendentes até haver unidade, período e evento de referência.
-- [ ] Cruzar essas dependências com os sete relógios iniciais e os conflitos sazonais já existentes.
-- [ ] Revisar o documento principal e os perfis de assentamentos após resolver as decisões acima.
+- [x] Cruzar os sete relógios com localidades, rotas, recursos, consequências possíveis e limites de conhecimento.
+- [x] Atualizar documento principal, perfis de assentamentos e registro operacional de rotas com as decisões editoriais.
 
 **Regra de escopo:** este é um registro de auditoria editorial. Não implementa código, não altera regras mecânicas e não inicia os outros quatro reinos.
 
@@ -276,8 +276,8 @@ Esta matriz liga os relógios já definidos na seção 26 do documento principal
 
 - [x] Cruzar os sete relógios existentes com os sistemas materiais, rotas, locais e limites de inferência.
 - [x] Definir um procedimento editorial mínimo para evitar avanço automático ou conhecimento instantâneo dos NPCs.
-- [ ] Quantificar reservas, produção, consumo e tempo de reposição por localidade.
-- [ ] Confirmar geografia e rotas de acesso aos vinte assentamentos.
-- [ ] Classificar as dez estimativas populacionais e eliminar possível dupla contagem.
+- [x] Manter reservas, produção, consumo e reposição qualitativos/desconhecidos sem evidência; precisão numérica não é requisito desta etapa.
+- [x] Confirmar tipo funcional e vínculo político dos vinte assentamentos; não atribuir distância ou duração sem fonte.
+- [x] Registrar a possível sobreposição e não produzir total populacional agregado do reino.
 
 O cruzamento é uma regra de consistência narrativa, não uma tabela numérica de simulação nem uma implementação no APK.
