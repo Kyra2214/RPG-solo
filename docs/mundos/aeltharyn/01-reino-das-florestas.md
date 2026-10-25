@@ -1155,3 +1155,10 @@ O trabalho atual é a criação e revisão narrativa do ecossistema de Aeltharyn
 A primeira camada dos vinte assentamentos foi aprofundada no documento [03 — Assentamentos, jurisdições e rede política](03-assentamentos-e-rede-politica.md). Ele nomeia as lideranças locais, registra método de legitimidade, obrigações, interesses, tensões, relações e limites de conhecimento. Também descreve os atritos entre cidades e estabelece regras provisórias para evitar dupla contagem populacional.
 
 O documento complementar expande o estado narrativo inicial; não substitui as fichas das dez cidades, não altera automaticamente a população já indicada nelas e não presume integração técnica ao jogo. As estimativas devem passar por auditoria cruzada antes de servirem como números fiscais ou militares exatos.
+
+
+## 32. Documento complementar: instituições, justiça e pactos
+
+O documento [04 — Instituições, justiça e pactos territoriais](04-instituicoes-justica-pactos.md) detalha como se distribui a autoridade entre Coroa, cidades, assentamentos e comunidades autônomas. Também estabelece o funcionamento narrativo do Conselho das Sete Copas, disputas judiciais, contribuições ordinárias e extraordinárias, sucessões, poderes de emergência, violação de pactos e tentativas de secessão.
+
+Essas regras orientam conflitos e simulação; não são mecânicas de jogo e não significam que o reino já esteja implementado. A aplicação prática deve respeitar os pactos e costumes de cada cidade, sem presumir que toda lei seja cumprida igualmente ou que toda disputa tenha uma única interpretação.
