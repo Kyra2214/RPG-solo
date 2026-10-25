@@ -23,7 +23,7 @@ Esses nomes são designações de trabalho do projeto, não fatos que os habitan
 
 **Nome oficial:** Reino de Aeltharyn  
 **Nomes populares:** Reino das Florestas, Primeiro Verde, Coroa das Raízes  
-**ID proposto:** `kingdom.aeltharyn`  
+**ID canônico:** `kingdom.aeltharyn`  
 **Capital:** Elarion, a Cidade das Sete Copas  
 **Fundação tradicional:** 7.400 anos antes da Contagem das Seivas; a data é baseada em crônicas élficas e discutida por estudiosos de outras culturas.  
 **Forma de governo:** monarquia antiga com juramentos territoriais, conselho de casas élficas e autonomia pactuada das cidades.  
@@ -202,7 +202,7 @@ As populações são estimativas narrativas iniciais, não números demográfico
 **Governo:** Almirante-civil Syranna das Marés, escolhida por conselho de capitães e confirmada pela Coroa.  
 **Economia:** pesca, navegação, sal, âmbar, cordame, reparo de barcos, comércio de madeira certificada e frutas.  
 **Defesas:** faróis, correntes portuárias, patrulhas costeiras e armazéns separados para quarentena.  
-**Locais:** Farol da Folha Azul; Estaleiro das Raízes; Mercado de Marés; Casa das Cartas Náuticas; Santuário dos Náufragos.  
+**Locais:** Farol da Folha Azul (farol urbano do porto); Estaleiro das Raízes; Mercado de Marés; Casa das Cartas Náuticas; Santuário dos Náufragos. O Farol de Âmbar é um posto costeiro distinto, fora do núcleo portuário, ligado à rede de sinais marítimos; não é outro nome para o Farol da Folha Azul.  
 **Problemas:** contrabando de resina, tripulações desaparecidas e tensão entre capitães locais e inspetores reais.  
 **Facções:** Companhia do Âmbar, Irmandade dos Barqueiros, Vigias da Costa.  
 **Rumores:** um navio chegou sem tripulação, mas com comida ainda quente; um faroleiro recebe cartas escritas em uma língua desconhecida; uma família compra mapas de enseadas proibidas.  
@@ -258,7 +258,7 @@ As populações são estimativas narrativas iniciais, não números demográfico
 **Governo:** Vigia-Mor Neralis Vento-Manso, responsável por rotas e quarentenas.  
 **Economia:** fungos, plantas de tintura, mapas, guias, instrumentos acústicos e pesquisa de fenômenos locais.  
 **Defesas:** marcos sonoros, trilhas marcadas e pequenas patrulhas.  
-**Locais:** Praça das Vozes; Casa dos Ecos; Viveiro de Fungos; Torre sem Sino; Trilha dos Retornos.  
+**Locais:** Praça das Vozes; Casa dos Ecos; Viveiro de Fungos; Torre sem Sino; Trilha dos Retornos. A Torre sem Sino é um marco local de Brumafunda; a Torre da Névoa Mansa é um posto de observação separado, com pequena comunidade residente na rede exterior de vigilância. Não há distância canônica definida entre elas.  
 **Problemas:** viajantes somem; guias monopolizam informações; moradores acusam estudiosos de provocar os fenômenos.  
 **Facções:** Vigias do Bosque, Rede dos Guias, Círculo dos Ecos.  
 **Rumores:** uma voz responde perguntas antes de serem feitas; a Torre sem Sino projeta uma sombra que aponta para uma trilha inexistente; uma criança consegue atravessar a neblina sem se perder.  
@@ -288,7 +288,7 @@ As populações são estimativas narrativas iniciais, não números demográfico
 **Defesas:** guardas comunitários, pactos de hospitalidade e refúgios; baixa capacidade para cercos longos.  
 **Locais:** Anfiteatro das Quatro Estações; Fonte das Máscaras; Pátio dos Enigmas; Casa da Hospitalidade; Jardim das Promessas.  
 **Problemas:** festivais atraem batedores e ladrões; uma disputa sobre a propriedade de uma canção antiga divide duas famílias; alguns líderes querem restringir festas para evitar custos.  
-**Facções:** Círculo das Estações, Casa da Hospitalidade, Artífices do Som.  
+**Facções/instituições:** Círculo das Estações, Casa da Hospitalidade (instituição de acolhimento e registro, sediada na cidade) e Artífices do Som. A Fonte do Regresso é uma comunidade de abrigo distinta, vinculada a Silvaran, não o edifício da Casa da Hospitalidade.  
 **Rumores:** uma máscara muda de expressão quando alguém mente; uma canção antiga menciona o nome de um rei apagado dos arquivos; uma celebração privada está sendo financiada por um conselheiro anônimo.  
 **Lenda:** quem dança sozinho na Fonte das Máscaras encontra uma lembrança que não sabia ter perdido. A cidade não garante que a lembrança seja literal.  
 **Gancho:** intriga social, disputas de memória e pactos que precisam ser renegociados.
@@ -315,7 +315,7 @@ As distâncias abaixo são estimativas de viagem em condições comuns, não med
 - Elarion ↔ Vael-Tir: 3 dias por trilhas patrulhadas; mais se houver quarentena florestal.
 - Elarion ↔ Caladwen: 2 dias de estrada; 1 dia e meio por trilhas rápidas.
 - Elarion ↔ Arven: 1 dia e meio por estrada.
-- Nymvar ↔ Orvass: 3 dias de barco e passarelas; a estação chuvosa altera a rota.
+- Nymvar ↔ Orvass: 3 dias em condições comuns pela ligação conhecida de barco e passarelas; no corredor do Pântano, desvios e canais sazonais podem ampliar o percurso para 2–6 dias.
 - Nymvar ↔ Arven: 1 dia por estrada e canais.
 - Thalanor ↔ Elarion: 3 dias de barco pelo Lúmen ou 5 dias por estrada costeira.
 - Thalanor ↔ Silvaran: 4 dias por estrada, passando por pomares e vales.
@@ -323,6 +323,7 @@ As distâncias abaixo são estimativas de viagem em condições comuns, não med
 - Brumafunda ↔ Vael-Tir: 2–4 dias conforme as trilhas abertas.
 - Torvelume ↔ Elarion: 4 dias por estrada de fronteira.
 - Torvelume ↔ Caladwen: 3 dias, com risco de deslizamento em época de chuva.
+- Torvelume ↔ Vael-Tir: cerca de 1–2 dias pelo trecho da Estrada da Espinha, se aberto; esta estimativa é operacional e pode variar com geada, deslizamentos e interdição.
 
 **Regras de circulação:** rotas principais têm marcos e postos de descanso; trilhas secundárias podem mudar ou fechar. A Coroa não conhece automaticamente toda passagem. O contrabando usa rotas de serviço, mas não dispõe de teletransporte nem de acesso garantido a qualquer cidade.
 
@@ -763,9 +764,9 @@ As idades e datas são aproximadas. O calendário tem quatro estações principa
 
 **Nimeth Vela-de-Chuva — guardiã viva do Arquivo das Seivas.** Elfa das Estrelas, 187 anos. Impediu que um incêndio se espalhasse pelos registros ao organizar a retirada por prioridade histórica, mas salvou primeiro documentos raros e deixou livros fiscais comuns para trás. Quer tornar cópias acessíveis sem expor nomes de refugiados e informantes. Seus críticos dizem que ela decide sozinha o que o povo pode conhecer.
 
-**Parel Três-Parafusos — benfeitor vivo dos bairros suspensos.** Gnomo das Engrenagens, 63 anos. Criou um sistema barato de inspeção de cabos e pontes, treinando moradores para reconhecer desgaste antes de acidentes. Não aceita patrocínio da Coroa que lhe dê exclusividade sobre o projeto. A oficina é pequena, os reparos são lentos e Parel não consegue atender todas as pontes ao mesmo tempo.
+**Parel Três-Parafusos — benfeitor vivo dos bairros suspensos.** Gnomo dos Vales, 63 anos; “das engrenagens” é uma descrição de seu ofício, não uma raça ou linhagem. Criou um sistema barato de inspeção de cabos e pontes, treinando moradores para reconhecer desgaste antes de acidentes. Não aceita patrocínio da Coroa que lhe dê exclusividade sobre o projeto. A oficina é pequena, os reparos são lentos e Parel não consegue atender todas as pontes ao mesmo tempo.
 
-**Maereth, a Cartógrafa das Copas — heroína histórica, morta há 430 anos.** Elfa, percorreu os níveis inferiores da capital e desenhou rotas de evacuação que salvaram moradores durante a queda de uma ponte. Seus mapas mostram passagens de serviço que a administração atual prefere manter fora das plantas públicas. Parte de sua fama deriva de relatos escritos décadas depois do acontecimento.
+**Maereth, a Cartógrafa das Copas — heroína histórica, morta há 430 anos.** ID: `npc.maereth-cartografa-das-copas`. É pessoa distinta da atual Princesa Maereth Vaelorian; o mesmo prenome é tradicional entre casas élficas, e a cartógrafa viveu séculos antes. Elfa, percorreu os níveis inferiores da capital e desenhou rotas de evacuação que salvaram moradores durante a queda de uma ponte. Seus mapas mostram passagens de serviço que a administração atual prefere manter fora das plantas públicas. Parte de sua fama deriva de relatos escritos décadas depois do acontecimento.
 
 **Edran Sem-Selo — protetor cívico, vivo.** Pequenino, 51 anos. Organiza testemunhas e acompanha processos de despejo para garantir que famílias sem influência tenham representação. Não é juiz e já perdeu causas importantes; sua contribuição é impedir que decisões sejam tomadas sem ouvir os afetados.
 
@@ -821,6 +822,8 @@ As idades e datas são aproximadas. O calendário tem quatro estações principa
 
 **Ithren das Quatro Estações — astrônomo histórico, morto.** Corrigiu o calendário de plantio por observação, mesmo contra autoridades religiosas. Preservou a tabela antiga para ensinar como uma tradição pode falhar.
 
+**Tirven Eixo-Claro — artífice histórico, morto há cerca de 210 anos.** ID: `npc.tirven-eixo-claro`. Gnomo dos Vales criado entre comunidades ribeirinhas, desenvolveu comportas modulares e marcas de desgaste que podiam ser verificadas sem desmontar toda a estrutura. Seu trabalho reduziu o tempo de manutenção, mas não impediu falhas quando peças foram falsificadas. É lembrado em Caladwen por seus cadernos técnicos e em Arven por ensinar reparo comunitário.
+
 **Elyon Prisma-Claro — guardião vivo do Observatório.** Estelar, 226 anos. Mantém instrumentos calibrados e publica previsões com margem de incerteza. Recusou anunciar como profecia um alinhamento que não podia explicar; isso lhe custou prestígio e financiamento.
 
 **Vessa Engrenagem-de-Lua — benfeitora viva dos aprendizes.** Gnoma dos Vales, 71 anos. Oferece ferramentas, moradia temporária e bolsas para estudantes sem recursos. Não tolera plágio, mas admite aprendizes que cometeram erros honestos. Sua oficina precisa de metal e peças importadas.
@@ -833,7 +836,7 @@ As idades e datas são aproximadas. O calendário tem quatro estações principa
 
 **Sela dos Retornos — guia histórica desaparecida.** Criou sinais táteis e sonoros para atravessar a neblina. Seu desaparecimento não tem conclusão canônica: morte, escolha de permanecer e acidente continuam hipóteses.
 
-**Kheva Ouvido-de-Névoa — guardiã viva das trilhas.** Corvídea dos Telhados, 54 anos. Reconhece mudanças de eco e mantém marcos sonoros. Não afirma ouvir vozes sobrenaturais; registra o que ouviu e separa observação de interpretação.
+**Kheva Ouvido-de-Névoa — guardiã viva das trilhas.** Corvídea do povo Corvário das Torres (`homem-corvo-das-torres`), 54 anos; “dos Telhados” é seu epíteto local por patrulhar coberturas e marcos elevados, não uma linhagem separada. Reconhece mudanças de eco e mantém marcos sonoros. Não afirma ouvir vozes sobrenaturais; registra o que ouviu e separa observação de interpretação.
 
 **Milo Passo-de-Bruma — benfeitor vivo dos viajantes.** Felídeo das Selvas, 36 anos. Mantém um abrigo de retorno e treina guias para não abandonar pessoas desorientadas. Seu método exige grupos pequenos, por isso ele recusa expedições grandes e lucrativas.
 
@@ -867,7 +870,7 @@ As idades e datas são aproximadas. O calendário tem quatro estações principa
 
 ### 19.10 Torvelume — heróis dos ofícios, da defesa e do dever civil
 
-**Hadrik das Sete Bigornas — artífice histórico, morto.** Padronizou peças de reparo e recusou fornecer ferramentas para bloquear uma ponte contra refugiados. Foi preso e libertado após protestos de soldados e moradores.
+**Hadrik das Sete Bigornas — artífice histórico, morto há cerca de 180 anos.** Anão residente em Torvelume, distinto de Mestre Odran Sete-Bigornas. O nome Sete-Bigornas designa uma tradição/oficina transmitida entre gerações, não uma única pessoa nem prova de parentesco direto. Padronizou peças de reparo e recusou fornecer ferramentas para bloquear uma ponte contra refugiados. Foi preso e libertado após protestos de soldados e moradores.
 
 **Brunna Veio-de-Vidro — guardiã viva das galerias seladas.** Anã residente, 142 anos. Inspeciona vibrações e fissuras sem entrar nas zonas proibidas. Não sabe o que há na mina e não afirma que sejam monstros; exige medições antes de qualquer reabertura.
 
@@ -975,13 +978,13 @@ Esta matriz cobre **os 16 povos e linhagens relevantes de Aeltharyn definidos na
 | Feérico `feerico` | **Iria dos Ecos**, viva — conduziu famílias para fora de um círculo de pactos instável e registrou limites seguros. | **Selenê Máscara-Clara**, viva — protege santuários de hospitalidade e testemunha acordos. | **Luma Folha-de-Prata**, viva — mantém abrigos e jardins de repouso para visitantes sem patrono. |
 | Verdejante `plantae` | **Anelra Copa-Aberta**, morta — recuperou um corredor de sementes após uma queimada, mas a área segue vulnerável. | **Ruma Coração-de-Solo**, viva — identifica esgotamento do solo e coordena a recuperação de clareiras. | **Sava Broto-Novo**, viva — distribui mudas locais e mantém viveiros comunitários. |
 | Micélioide `fungal` | **Oru Rede-de-Chuva**, morto — identificou contaminação nas fontes antes que ela se espalhasse pelas várzeas. | **Voz-de-Muitas-Raízes**, viva — preserva redes miceliais e comunica sinais de contaminação. | **Nima Rede-de-Micélio**, viva — construiu uma rede de compostagem e filtragem para hortas alagadas. |
-| Sátiro `satiro` | **Miri Corda-de-Lua**, morta — abriu negociação entre casas rivais por meio de uma peça pública. | **Dara Guarda-da-Rota**, viva — preserva rotas de festival e intervém antes que rivalidades virem violência. | **Dara Passo-Rítmico**, viva — organiza apresentações gratuitas em bairros afastados. |
+| Sátiro `satiro` | **Miri Corda-de-Lua**, morta — abriu negociação entre casas rivais por meio de uma peça pública. | **Dara Guarda-da-Rota** (`npc.dara-guarda-da-rota`), viva — preserva rotas de festival e intervém antes que rivalidades virem violência. | **Dara Passo-Rítmico** (`npc.dara-passo-ritmico`), viva — organiza apresentações gratuitas em bairros afastados. São duas pessoas distintas; o nome Dara é comum em Silvaran. |
 | Silvano dos Festivais `silvano-dos-festivais` | **Alena das Quatro Máscaras**, morta — expôs fraude documental durante um festival e sofreu perseguição. | **Voro Canção-de-Pedra**, vivo — protege espaços de ensaio e artistas contra coerção. | **Vessa Fio-Dourado**, viva — mantém oficinas e refeições para artistas itinerantes durante as chuvas. |
 | Centauro das Florestas `centauro-das-florestas` | **Oranna Passo-Largo**, viva — negociou a reabertura de um corredor migratório sem expulsar agricultores. | **Calar Raiz-Curva**, vivo — coordena vigias de pastagens e protege as trilhas de manada. | **Tavro Passo-de-Raiz**, vivo — mantém abrigos e pontos de água sem exigir juramento político. |
 | Felídeo das Selvas `felideo-das-selvas` | **Sela dos Retornos**, desaparecida — criou orientação tátil e sonora para travessias na neblina. | **Sivra Pata-de-Musgo**, viva — protege ninhos e registra caça ilegal. | **Milo Passo-de-Bruma**, vivo — mantém abrigo para viajantes que retornam de expedições incompletas. |
 | Orcano das Matas `orcano-das-matas` | **Nima Raiz-de-Lodo**, morta — registrou tratamentos úteis e efeitos adversos perigosos. | **Mirek Junco-Ferro**, vivo — organiza defesa de aldeias e prioriza evacuação antes de retaliação. | **Korga Ponta-de-Junco**, viva — organiza passarelas elevadas e depósitos de remédios. |
 | Pequenino Ribeirinho `pequenino-ribeirinho` | **Dena Três-Correntes**, morta — redesenhou comportas, reduzindo perdas, mas deslocando famílias. | **Mara Barro-Claro**, viva — inspeciona diques e suspende travessias inseguras. | **Bento Sete-Sementes**, vivo — mantém banco de sementes diversificadas e troca variedades testadas. |
-| Gnomo dos Vales `gnomo-dos-vales` | **Hadrik das Sete Bigornas**, morto — padronizou peças de reparo e recusou bloquear uma ponte contra refugiados. | **Meda Martelo-Calmo**, viva — fiscaliza padrões de segurança em oficinas e portões. | **Parel Três-Parafusos**, vivo — ensina moradores a inspecionar cabos e pontes. |
+| Gnomo dos Vales `gnomo-dos-vales` | **Tirven Eixo-Claro** (`npc.tirven-eixo-claro`), morto — reorganizou as comportas de irrigação para permitir reparos por módulos sem interromper todo o fluxo; seu projeto foi adotado por comunidades de três vales. | **Meda Martelo-Calmo**, viva — fiscaliza padrões de segurança em oficinas e portões. | **Parel Três-Parafusos**, vivo — ensina moradores a inspecionar cabos e pontes. |
 | Corvário das Torres `homem-corvo-das-torres` | **Kheva Ouvido-de-Névoa**, vivo — restabeleceu sinais depois de uma tempestade; a reconstrução foi coletiva. | **Teren Asa-de-Corda**, vivo — mantém passagens altas sem transformar ninhos em postos de vigilância. | **Nilo Recado-Certo**, vivo — criou mensagens com confirmação de entrega e cópia de avisos urgentes. |
 | Abissal das Enseadas `abissal-das-enseadas` | **Yssara Folha-de-Sal**, morta — padronizou cartas de resgate, mas autorizou um abandono controverso. | **Náren da Maré Reversa**, vivo — monitora correntes rasas e coordena alertas de maré. | **Mira Sal-de-Prata**, viva — mantém fundo de apoio a famílias de marinheiros desaparecidos. |
 
@@ -1014,11 +1017,11 @@ As cidades não são dez cenários independentes. Uma crise local produz consequ
 
 ### 25.1 Corredores, tempo e custo
 
-- **Eixo do Lúmen:** Elarion–Nymvar–Thalanor. Barco de carga costuma levar 2 dias entre Elarion e Nymvar e mais 3–4 dias até Thalanor, dependendo de chuva, corrente e inspeções. Contra a corrente, o retorno pode demorar quase o dobro.
+- **Eixo do Lúmen:** Elarion–Nymvar–Thalanor. Barco de carga costuma levar 2 dias entre Elarion e Nymvar e mais 3–4 dias entre Nymvar e Thalanor, totalizando 5–6 dias quando segue o corredor de carga com escala. A viagem direta entre Elarion e Thalanor pelo Lúmen leva cerca de 3 dias para embarcação leve/rápida e não representa o mesmo serviço de carga com parada e inspeções. Contra a corrente, o retorno pode demorar quase o dobro.
 - **Corredor das Copas:** Elarion–Vael-Tir–Brumafunda. Mensageiros treinados levam de 1 a 3 dias por trecho; viajantes comuns levam mais, pois precisam de guias e pausas para evitar zonas de reprodução.
 - **Rota dos Celeiros:** Nymvar–Arven–Silvaran. Caravanas levam 2–4 dias entre cidades; no Despertar, lama e cheias podem duplicar o prazo.
-- **Estrada da Espinha:** Caladwen–Torvelume–Vael-Tir. O percurso leva 3–5 dias em condições normais; geada, deslizamentos ou interdição por fauna podem fechar passagens.
-- **Rota do Pântano:** Orvass–Nymvar e Orvass–Brumafunda. O tempo varia de 2 a 6 dias porque a navegação depende do nível da água e de canais mutáveis. Mapas antigos não são garantia de passagem.
+- **Estrada da Espinha:** Caladwen–Torvelume leva cerca de 3 dias e Torvelume–Vael-Tir mais 1–2 dias, totalizando 4–5 dias em condições normais, sem contar paradas longas. Geada, deslizamentos ou interdição por fauna podem fechar passagens.
+- **Rota do Pântano:** Orvass–Nymvar e Orvass–Brumafunda. Para Nymvar–Orvass, a ligação conhecida leva cerca de 3 dias em condições comuns; desvios, cheia, canais mutáveis ou necessidade de guia podem ampliar o percurso para 2–6 dias. Orvass–Brumafunda continua sem duração individual validada. Mapas antigos não são garantia de passagem.
 
 Os tempos são estimativas de jogo para deslocamento normal, não cronômetros absolutos. Caravanas grandes, feridos, clima, perseguição, carga e estado das pontes alteram a duração. Nenhuma viagem deve ser instantânea apenas porque a cena precisa mudar.
 
@@ -1199,6 +1202,6 @@ Esta tabela fecha a ligação editorial entre cada assentamento e a identidade e
 
 O documento [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md) registra a primeira conferência aritmética e as lacunas que impedem tratar as estimativas como um censo. A soma dos números apresentados nos dez perfis urbanos é 293.500; o subtotal das estimativas dos vinte assentamentos é 37.250, sem contar separadamente visitantes sazonais de Passo do Veado. **Esses valores não devem ser somados para anunciar a população do reino**, porque ainda não foi determinado se as estimativas das cidades incluem os assentamentos sob suas jurisdições.
 
-A tabela de rotas contém doze ligações interurbanas com tempos aproximados. Ela não é ainda uma malha cartográfica completa, e não há tempos confirmados entre cada cidade-mãe e seus assentamentos. O documento 05 separa o que está explicitamente registrado do que ainda precisa ser definido; não inventa durações locais nem transforma lacunas em fatos do mundo.
+A tabela de rotas contém ligações interurbanas com tempos aproximados, agora distinguindo a viagem direta Elarion–Thalanor da rota de carga via Nymvar, a duração comum Nymvar–Orvass da variação sazonal do corredor do Pântano e o tempo de cada trecho da Estrada da Espinha. A rede não é uma malha cartográfica em escala; os acessos individuais dos assentamentos continuam descritos por tipo e dependência, sem distâncias inventadas. O documento 05 separa o que está explicitamente registrado do que ainda precisa ser definido; não inventa durações locais nem transforma lacunas em fatos do mundo.
 
 A auditoria continua editorial e não implica integração ao jogo. As próximas decisões são classificar a base demográfica, validar a geografia, definir acesso aos assentamentos e estabelecer escalas consistentes para alimentos, água, madeira, remédios e ferramentas.
