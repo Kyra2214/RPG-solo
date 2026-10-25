@@ -2,16 +2,17 @@
 
 **ID do mundo (proposto):** `world.aeltharyn`  
 **Branch:** `world/aeltharyn-reino-das-florestas`  
-**Escopo atual:** composição editorial integral do Reino das Florestas, primeiro reino e o mais antigo.  
+**Escopo atual:** composição e auditoria editorial do ecossistema completo do Reino das Florestas.  
 **Regra de produção:** não desenvolver o segundo reino até concluir e revisar o ecossistema completo de Aeltharyn.
 
-## Documento canônico desta etapa
+## Documentos canônicos desta etapa
 
-- [01 — Reino das Florestas](01-reino-das-florestas.md): geografia, clima, ecologia, povos selecionados do catálogo existente, história, monarquia, dez cidades, rotas, facções, heróis, NPCs, leis, economia, crenças, mistérios, conflitos e regras de consistência narrativa.
+- [01 — Reino das Florestas](01-reino-das-florestas.md): geografia, ecologia, povos selecionados do catálogo existente, história, monarquia, dez cidades, assentamentos vinculados, rotas, facções, heróis, NPCs, leis, economia, crenças, mistérios, conflitos e consistência narrativa.
+- [02 — Arquitetura narrativa do mundo persistente](02-arquitetura-mundo-persistente.md): simulação em segundo plano, consulta sob demanda, separação entre estado do mundo e conhecimento do Mestre/personagem, segredos, arquivos e continuidade entre campanhas.
 
 ## Identidade resumida
 
-Aeltharyn, o Primeiro Verde, é uma monarquia élfica antiga construída em torno de pactos territoriais e proteção das nascentes. A capital é Elarion, Cidade das Sete Copas, governada pelo Rei Aerendyl Vaelorian. O reino é multicultural; ser de uma raça não determina cidadania, cultura ou lealdade. A história oficial da Coroa convive com registros locais, tradições orais e evidências contraditórias.
+Aeltharyn, o Primeiro Verde, é uma monarquia élfica antiga construída em torno de pactos territoriais e proteção das nascentes. A capital é Elarion, Cidade das Sete Copas, governada pelo Rei Aerendyl Vaelorian. O reino é multicultural: ser de uma raça não determina cidadania, cultura ou lealdade. Cada cidade e assentamento conserva autoridades, interesses e autonomia pactuada próprios; aliança não significa harmonia automática nem obediência irrestrita à Coroa. A história oficial convive com registros locais, tradições orais e evidências contraditórias.
 
 O cenário começa no ano 742 da Contagem das Seivas. Duas árvores-coração adoecem, as cidades de várzea exigem reparos nos diques, um navio chega a Thalanor sem tripulação, a mina de Torvelume permanece selada e o conselho debate reformas. Nenhum desses mistérios tem solução predefinida.
 
@@ -23,34 +24,33 @@ O cenário começa no ano 742 da Contagem das Seivas. Duas árvores-coração ad
 4. **Marcas das Feras:** bloqueado até a conclusão do reino dos Malditos.
 5. **Pacto Humano:** último reino a ser desenvolvido.
 
-Os nomes dos reinos futuros são rótulos provisórios, sem história ou geografia canônica definida.
+Os quatro nomes futuros são rótulos provisórios, sem história ou geografia canônica detalhada nesta fase.
 
-## Estado real do trabalho
+## Estado editorial do trabalho
 
 - [x] Criar branch separada de `main`.
-- [x] Definir nome provisório do mundo e identidade do primeiro reino.
+- [x] Definir a identidade do primeiro reino e os limites de escopo dos quatro reinos futuros.
 - [x] Compor dez cidades com perfis próprios.
-- [x] Compor governo, facções, rede de rotas, ecologia, história, lendas, mistérios e elenco de NPCs.
-- [x] Associar figuras históricas a cada cidade e definir agenda sazonal e ritmos locais de funcionamento.
-- [x] Expandir a memória para heróis históricos, guardiões vivos e benfeitores nas dez cidades.
-- [x] Definir referências de herói, guardião e benfeitor para cada um dos 16 povos/linhagens relevantes de Aeltharyn, sem incluir indiscriminadamente as 50 raças do catálogo.
-- [x] Dar agenda atual concreta aos 37 NPCs vivos, separada dos feitos históricos.
-- [ ] Revisar coerência entre personagens repetidos, cargos, cronologia, relações e conhecimento de cada NPC; a revisão global ainda está aberta.
-- [ ] Integrar os dados ao modelo de mundo existente e validar carregamento/persistência.
-- [x] Conferir os IDs de raças e sub-raças citados contra o catálogo editorial atual (50 raças e 50 sub-raças; nenhum ID citado ausente na conferência inicial).
-- [ ] Revisão de continuidade, demografia, distâncias e contradições internas.
-- [ ] Conferir o formato de mundo existente no código e decidir como integrar sem duplicar modelos.
-- [ ] Implementar/carregar os dados no jogo e validar persistência e isolamento entre modos de cânone.
-- [ ] Atualizar o estado para concluído somente após as etapas acima.
+- [x] Compor governo, facções, rotas, ecologia, história, lendas, mistérios e elenco de NPCs.
+- [x] Definir agenda sazonal, relógios iniciais e dependências materiais entre as cidades.
+- [x] Associar referências históricas, guardiões e benfeitores às cidades e aos povos selecionados.
+- [x] Documentar o princípio de mundo persistente que evolui em segundo plano e é consultado sob demanda.
+- [x] Estabelecer a primeira camada de vinte assentamentos e suas relações políticas com as dez cidades.
+- [ ] Auditar nomes, idades, cargos, genealogias, relações, conhecimento de NPCs e duplicações.
+- [ ] Auditar demografia, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas.
+- [ ] Aprofundar os conflitos entre Coroa, cidades, assentamentos, facções e populações, sem tornar os grupos monolíticos.
+- [ ] Conferir consistência dos povos/linhagens selecionados e dos IDs referenciados contra o catálogo editorial.
+- [ ] Revisar mistérios, cronologia e consequências para garantir que fatos intencionais contraditórios sejam distinguidos de erros acidentais.
+- [ ] Fechar a revisão editorial de Aeltharyn antes de iniciar as Coroas de Pedra.
 
-**Importante:** “composto” aqui significa conteúdo narrativo escrito. Não significa que o mundo já seja carregável no APK ou que tenha sido validado por testes automatizados.
+**Importante:** o estado acima descreve conteúdo editorial escrito. Não afirma que o mundo já esteja implementado, seja carregável no APK ou tenha sido validado por testes automatizados.
 
+## Regra de autonomia narrativa
 
-## Escopo do Reino das Florestas — Aeltharyn
+O mundo continua avançando mesmo quando nenhum personagem visita um reino. O Mestre não precisa carregar ou pesquisar a lore de Aeltharyn numa campanha humana que nunca chega ao reino élfico. Se um elfo trouxer uma missão que leve o grupo até lá, o sistema consulta o estado atual do reino e entrega somente o contexto necessário; bibliotecas e arquivos permitem aprofundamento quando a investigação exigir. A verdade do mundo, os registros persistentes, o que cada NPC sabe, o contexto do Mestre e o conhecimento do personagem são camadas distintas.
 
-Aeltharyn é um reino élfico, não um reino com as 50 raças do catálogo. O núcleo documentado reúne os elfos e povos/linhagens próximos (16 IDs selecionados, contando as linhagens élficas separadamente) por território, ecologia e história, além de um aliado costeiro; visitantes e migrantes não são tratados como originários. A documentação atual amplia as relações materiais entre as dez cidades, as cadeias de consequência ecológica e os relógios de campanha.
+A simulação pode avançar por ciclos e eventos relevantes; não precisa executar uma IA para cada habitante a cada segundo. Não consultar um reino não o congela, e consultá-lo não o recria do zero.
 
-O reino permanece em implementação editorial e a integração com o modelo carregável está em validação. O desenvolvimento das Coroas de Pedra continua bloqueado até concluir a auditoria de consistência, validar a instalação e a persistência, e fechar os testes de Aeltharyn.
+## Escopo técnico posterior
 
-
-O catálogo tipado contém 10 cidades, 16 povos/linhagens, 51 figuras, rotas e sete relógios. Os 37 NPCs vivos agora têm agenda atual explícita, distinta do registro histórico. Ao iniciar uma campanha com Aeltharyn, o instalador agora cria as dez cidades, as conexões, os relógios e os 37 NPCs vivos com dossiês privados event-sourced; figuras históricas mortas ou desaparecidas permanecem no catálogo narrativo e não viram NPCs ativos. A validação exige herói, guardião e benfeitor por cidade e por povo. O CI ainda precisa confirmar compilação, testes e persistência antes de considerar esta integração concluída.
+Carregamento, serialização, integração ao jogo, persistência em código e testes automatizados ficam fora dos critérios de conclusão editorial desta branch. A implementação técnica será planejada separadamente depois que os cinco reinos estiverem criados e revisados. A branch `main` não faz parte desta fase.
