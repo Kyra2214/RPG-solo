@@ -158,6 +158,35 @@ object AeltharynWorld {
         WorldClock("clock.centaur-corridors", "Corredores centauros", 2, 6, "Cercas novas, colheita fora de época ou patrulhas sem consulta.", "Uma rota sazonal fecha e caravanas precisam desviar."),
     )
 
+    /** Instala o mapa e os relógios iniciais numa campanha recém-criada, em um único lote atômico. */
+    fun install(session: CampaignSession): ExecResult {
+        val problems = validate()
+        if (problems.isNotEmpty()) return ExecResult.Rejected("catálogo Aeltharyn inválido: ${problems.joinToString("; ")}", 0)
+        if (session.state.places.isNotEmpty() || session.state.currentPlaceId != null) {
+            return ExecResult.Rejected("Aeltharyn só pode ser instalado numa campanha sem mapa prévio", 0)
+        }
+        val clockCollisions = clocks.map { it.id }.filter { it in session.state.clocks }
+        if (clockCollisions.isNotEmpty()) return ExecResult.Rejected("relógios já existentes: ${clockCollisions.joinToString()}", 0)
+        val commands = mutableListOf<Command>()
+        cities.forEach { city ->
+            commands += AddPlace(
+                Place(
+                    id = city.id,
+                    name = city.name,
+                    description = "${city.role}. Recursos: ${city.supplies.joinToString(", ")}. Lenda local: ${city.legend}",
+                    secret = city.activeProblem,
+                ),
+            )
+        }
+        routes.forEach { route -> commands += ConnectPlaces(route.fromCityId, route.toCityId) }
+        commands += DiscoverPlace(capitalCityId)
+        clocks.forEach { clock ->
+            commands += CreateClock(clock.id, clock.name, clock.segments, consequence = clock.consequence)
+            if (clock.initialProgress > 0) commands += AdvanceClock(clock.id, clock.initialProgress)
+        }
+        return session.executeAll(commands)
+    }
+
     /** Retorna todos os problemas estruturais encontrados; lista vazia significa catálogo internamente consistente. */
     fun validate(): List<String> {
         val errors = mutableListOf<String>()
