@@ -749,3 +749,218 @@ A agenda não é uma sequência obrigatória de eventos. São padrões recorrent
 - Torvelume: inspeção de portões, ferramentas e depósitos no início de cada turno da guarda.
 
 Esses hábitos dão previsibilidade ao mundo sem prender NPCs a horários rígidos quando há acontecimentos urgentes. Uma agenda só deve produzir efeitos se houver pessoas, recursos e condições para cumpri-la.
+
+
+## 19. A rede de heróis, guardiões e benfeitores das dez cidades
+
+A lista anterior era insuficiente para um reino tão antigo: um punhado de figuras célebres não representa séculos de vida coletiva. Esta seção amplia a memória local e distribui feitos importantes pelas dez cidades. Cada pessoa abaixo tem função, ação concreta, legado e uma limitação ou controvérsia; “herói” é uma memória social, não uma declaração de perfeição.
+
+As idades e datas são aproximadas. O calendário tem quatro estações principais e a Contagem das Seivas; a cronologia exata de alguns acontecimentos permanece disputada de propósito. Os cargos de guardião são funções sociais ou institucionais, não necessariamente poderes sobrenaturais.
+
+### 19.1 Elarion — heróis da memória e da responsabilidade pública
+
+**Avarra das Sete Pontes — fundadora cívica, morta.** Avarra já aparece na memória local da cidade; sua obra conectou os assentamentos das copas. A tradição oficial a chama de mãe da capital, mas as famílias removidas para abrir o trajeto contestam a celebração. Sua estátua tem uma face voltada para o palácio e outra para os bairros inferiores.
+
+**Nimeth Vela-de-Chuva — guardiã viva do Arquivo das Seivas.** Elfa das Estrelas, 187 anos. Impediu que um incêndio se espalhasse pelos registros ao organizar a retirada por prioridade histórica, mas salvou primeiro documentos raros e deixou livros fiscais comuns para trás. Quer tornar cópias acessíveis sem expor nomes de refugiados e informantes. Seus críticos dizem que ela decide sozinha o que o povo pode conhecer.
+
+**Parel Três-Parafusos — benfeitor vivo dos bairros suspensos.** Gnomo das Engrenagens, 63 anos. Criou um sistema barato de inspeção de cabos e pontes, treinando moradores para reconhecer desgaste antes de acidentes. Não aceita patrocínio da Coroa que lhe dê exclusividade sobre o projeto. A oficina é pequena, os reparos são lentos e Parel não consegue atender todas as pontes ao mesmo tempo.
+
+**Maereth, a Cartógrafa das Copas — heroína histórica, morta há 430 anos.** Elfa, percorreu os níveis inferiores da capital e desenhou rotas de evacuação que salvaram moradores durante a queda de uma ponte. Seus mapas mostram passagens de serviço que a administração atual prefere manter fora das plantas públicas. Parte de sua fama deriva de relatos escritos décadas depois do acontecimento.
+
+**Edran Sem-Selo — protetor cívico, vivo.** Pequenino, 51 anos. Organiza testemunhas e acompanha processos de despejo para garantir que famílias sem influência tenham representação. Não é juiz e já perdeu causas importantes; sua contribuição é impedir que decisões sejam tomadas sem ouvir os afetados.
+
+### 19.2 Nymvar — heróis da água, da cura e da colheita
+
+**Dena Três-Correntes — engenheira comunitária, morta.** Seus canais reduziram danos de enchentes, mas a construção também deslocou famílias. Os diques atuais ainda usam princípios de seu projeto, embora reparos improvisados tenham alterado o fluxo.
+
+**Mara Barro-Claro — guardiã viva dos canais.** Pequenina Ribeirinha, 72 anos. Conhece os níveis de água por sinais em raízes, ruídos de comportas e marcas de lodo. Organiza inspeções comunitárias e se recusa a certificar diques sem reparo. Seu rigor atrasa a feira em períodos críticos e provoca conflito com comerciantes.
+
+**Iven das Folhas Brancas — benfeitor e médico vivo.** Elfo dos Bosques, 96 anos. Formou uma rede de parteiras, curandeiros e barqueiros para transportar pacientes de áreas isoladas. Mantém cadernos de tratamentos que deram errado, mas não dispõe de remédios raros para todos os casos. Defende que os conhecimentos de Orvass sejam reconhecidos e pagos.
+
+**Sorela do Último Cesto — heroína popular, morta há 280 anos.** Durante uma fome, abriu os depósitos de sua família antes de receber autorização do conselho. A medida salvou crianças e idosos, mas causou uma disputa sobre quem deveria repor as reservas. Agricultores a celebram; antigos proprietários a chamam de saqueadora.
+
+**Bento Sete-Sementes — protetor vivo dos agricultores.** Pequenino, 44 anos. Mantém um banco de sementes diversificadas e troca variedades entre comunidades. Não vende sementes que ainda não foram testadas em solo local. Sua reserva é vulnerável a fungos e precisa de financiamento estável.
+
+### 19.3 Thalanor — heróis da costa, do resgate e do conhecimento marítimo
+
+**Yssara Folha-de-Sal — capitã de resgate, morta.** Coordenou salvamentos e compartilhou cartas náuticas. Também autorizou o abandono de um navio que violou a quarentena; sua decisão permanece moralmente disputada.
+
+**Náren da Maré Reversa — guardião vivo dos canais portuários.** Abissal das Enseadas, 118 anos. Consegue ler correntes rasas e orientar barcos durante marés difíceis. Salvou três embarcações em uma tempestade, mas não arrisca tripulações quando a chance de resgate é mínima. Famílias de marinheiros desaparecidos o acusam de prudência excessiva.
+
+**Tália Cordame-Verde — benfeitora viva dos trabalhadores do porto.** Elfa costeira, 133 anos. Criou uma cooperativa que paga por acidentes, mantém equipamentos de segurança e treina aprendizes de diferentes povos. O fundo não cobre todos os danos e capitães influentes tentam evitar as contribuições.
+
+**Orven da Luz Partida — herói histórico, morto há 360 anos.** Faroleiro que manteve a luz acesa durante uma tempestade apesar de ferimentos, permitindo que barcos encontrassem a enseada. A narrativa oficial omite que a luz foi mantida por uma equipe inteira, incluindo pessoas cujos nomes não foram preservados.
+
+**Rilma Concha-de-Cobre — guardiã viva dos náufragos.** Tritã, 86 anos. Coordena abrigo, identificação e devolução de pertences de vítimas. Registra objetos sem presumir que provem a causa de um naufrágio. Busca esclarecer a origem do navio que chegou sem tripulação.
+
+### 19.4 Vael-Tir — heróis das trilhas e dos pactos com a floresta
+
+**Oren Galho-Quieto — patrulheiro histórico, morto.** Abriu uma rota para salvar refugiados e depois ajudou a fechá-la para proteger uma área devastada. Seu mapa existe em duas versões, ambas legítimas para situações diferentes.
+
+**Eshara Chuva-na-Folha — guardiã viva dos corredores silvestres.** Elfa dos Bosques, 204 anos. Negocia com comunidades, patrulheiros e estudiosos antes de liberar trilhas em zonas de reprodução. Não controla todos os patrulheiros e já foi desobedecida por uma equipe que queria capturar caçadores ilegais.
+
+**Tavro Passo-de-Raiz — benfeitor vivo dos viajantes.** Centauro das Florestas, 91 anos. Fundou pontos de água, abrigo e troca de montarias sem exigir juramento político. A rede depende de contribuições voluntárias e alguns abrigos foram abandonados após ataques.
+
+**Luneth do Galho Partido — heroína de guerra, morta há 510 anos.** Retirou civis de uma mata incendiada durante a Guerra das Cinzas Verdes, contrariando ordens de manter a posição militar. Salvou centenas e perdeu a própria companhia. A Guarda usa sua história para discutir a diferença entre proteger território e proteger pessoas.
+
+**Sivra Pata-de-Musgo — guardiã viva da fauna rara.** Felídea das Selvas, 39 anos. Cuida de animais feridos e documenta caça ilegal. Não domestica espécies perigosas para agradar visitantes e se recusa a revelar ninhos vulneráveis. É respeitada por biólogos e criticada por coletores de espécimes.
+
+### 19.5 Orvass — heróis do pântano, da medicina e da memória coletiva
+
+**Nima Raiz-de-Lodo — curandeira histórica, morta.** Registrou tratamentos locais e também documentou uma mistura que provocava reações graves em crianças. Seu legado inclui a obrigação de registrar fracassos.
+
+**Voz-de-Muitas-Raízes — guardião vivo do Círculo Micelial.** Micélioide, idade incerta. Coordena a preservação de redes fúngicas e ajuda a reconhecer contaminação da água. Comunica-se lentamente e nem sempre distingue urgência humana de mudanças ecológicas graduais; precisa de interlocutores que traduzam os sinais para decisões práticas.
+
+**Korga Ponta-de-Junco — benfeitora viva dos bairros alagados.** Orcana das Matas, 58 anos. Organizou passarelas elevadas e depósitos de remédios em áreas que a capital considerava caras demais para proteger. O trabalho reduziu isolamento, mas a madeira tratada é escassa e parte das estruturas precisa ser refeita.
+
+**Aruã das Lanternas Baixas — herói histórico, morto há 220 anos.** Guia que conduziu uma caravana por canais durante uma seca, quando rotas conhecidas ficaram intransitáveis. Cobrou dos comerciantes ricos e transportou famílias sem pagamento. A história é celebrada, embora os registros não concordem sobre o número de pessoas salvas.
+
+**Nessa Água-Lenta — guardiã viva dos nomes dos desaparecidos.** Elfa do Crepúsculo, 147 anos. Mantém registros de pessoas perdidas em canais e evita que rumores sejam registrados como fatos. Sua lista contém casos sem solução e gera tensão com famílias que preferem uma explicação definitiva.
+
+### 19.6 Caladwen — heróis da ciência, dos arquivos e das perguntas difíceis
+
+**Ithren das Quatro Estações — astrônomo histórico, morto.** Corrigiu o calendário de plantio por observação, mesmo contra autoridades religiosas. Preservou a tabela antiga para ensinar como uma tradição pode falhar.
+
+**Elyon Prisma-Claro — guardião vivo do Observatório.** Estelar, 226 anos. Mantém instrumentos calibrados e publica previsões com margem de incerteza. Recusou anunciar como profecia um alinhamento que não podia explicar; isso lhe custou prestígio e financiamento.
+
+**Vessa Engrenagem-de-Lua — benfeitora viva dos aprendizes.** Gnoma dos Vales, 71 anos. Oferece ferramentas, moradia temporária e bolsas para estudantes sem recursos. Não tolera plágio, mas admite aprendizes que cometeram erros honestos. Sua oficina precisa de metal e peças importadas.
+
+**Teren do Lago Quieto — herói histórico, morto há 600 anos.** Mapeou a profundidade do lago após uma série de desaparecimentos e mostrou que a margem mudava conforme a estação. Sua explicação encerrou uma caça a supostos culpados, mas não resolveu a origem das luzes que ainda aparecem na água.
+
+**Asha Nove-Pergaminhos — guardiã viva dos manuscritos controversos.** Elfa das Estrelas, 163 anos. Faz cópias verificáveis de textos raros e registra quem alterou cada versão. Não entrega originais frágeis a pesquisadores impacientes e já recusou pedidos do próprio conselho.
+
+### 19.7 Brumafunda — heróis da neblina, da orientação e do retorno
+
+**Sela dos Retornos — guia histórica desaparecida.** Criou sinais táteis e sonoros para atravessar a neblina. Seu desaparecimento não tem conclusão canônica: morte, escolha de permanecer e acidente continuam hipóteses.
+
+**Kheva Ouvido-de-Névoa — guardiã viva das trilhas.** Corvídea dos Telhados, 54 anos. Reconhece mudanças de eco e mantém marcos sonoros. Não afirma ouvir vozes sobrenaturais; registra o que ouviu e separa observação de interpretação.
+
+**Milo Passo-de-Bruma — benfeitor vivo dos viajantes.** Felídeo das Selvas, 36 anos. Mantém um abrigo de retorno e treina guias para não abandonar pessoas desorientadas. Seu método exige grupos pequenos, por isso ele recusa expedições grandes e lucrativas.
+
+**Dorel Sem-Rastro — herói histórico, morto há 310 anos.** Levou remédios a uma aldeia isolada durante uma neblina de semanas. Chegou com suprimentos suficientes, mas perdeu o caminho de volta e nunca foi encontrado. As rotas que usou foram reconstruídas por testemunhos contraditórios.
+
+**Iria dos Ecos — guardiã viva da Torre sem Sino.** Feérica, aparência adulta, idade desconhecida. Registra as mudanças de sombra da torre e impede que curiosos entrem em áreas instáveis. Sua própria origem é incerta; ela não tem autoridade legal e depende do acordo com os moradores.
+
+### 19.8 Arven — heróis do alimento, da terra e da cooperação
+
+**Toma Mel-de-Âmbar — apicultor histórico, morto.** Criou reservas de mel e sementes e negociou parte da produção para pagar remédios. Sua decisão segue dividindo famílias produtoras.
+
+**Ruma Coração-de-Solo — guardiã viva das terras comuns.** Verdejante, idade aproximada de 90 anos. Monitora a saúde do solo e alerta quando colheitas rápidas escondem esgotamento. Não consegue obrigar grandes proprietários a seguir suas recomendações.
+
+**Peren Colmeia-Aberta — benfeitor vivo dos pequenos produtores.** Pequenino Viajante, 48 anos. Criou um fundo comunitário para recuperar colmeias e diversificar plantas polinizadoras. A recuperação leva várias estações; não promete colheita imediata e sofre pressão de comerciantes por resultados rápidos.
+
+**Damar Três-Arados — herói histórico, morto há 170 anos.** Convenceu famílias rivais a compartilhar ferramentas durante uma praga agrícola. A aliança durou só duas colheitas, mas impediu que a disputa destruísse o sistema de irrigação.
+
+**Lessa Cervo-Manso — guardiã viva dos corredores de pasto.** Centauro, 67 anos. Negocia rotas sazonais para que rebanhos não destruam plantações. Já precisou interditar um caminho tradicional e perdeu apoio de parte de sua própria comunidade.
+
+### 19.9 Silvaran — heróis da cultura, da hospitalidade e da reconciliação
+
+**Miri Corda-de-Lua — compositora histórica, morta.** Criou uma peça que permitiu a duas casas rivais negociar publicamente, mas não resolveu a disputa de terras. Seu legado é abrir espaço para diálogo, não prometer finais felizes.
+
+**Selenê Máscara-Clara — guardiã viva dos pactos de hospitalidade.** Feérica, idade não divulgada. Mantém testemunhas para acordos celebrados durante festivais e protege quem pede abrigo de boa-fé. Não oferece imunidade a crimes graves e é criticada por ambas as partes quando precisa negar acolhimento.
+
+**Voro Canção-de-Pedra — benfeitor vivo dos artistas itinerantes.** Sátiro, 113 anos. Organizou uma casa de ensaio gratuita e um fundo para artistas que perderam instrumentos. O fundo é pequeno e ele se recusa a censurar letras em troca de patrocínio.
+
+**Alena das Quatro Máscaras — heroína histórica, morta há 390 anos.** Durante um conflito entre bairros, representou os argumentos de ambos em uma peça pública e revelou uma fraude documental. Foi perseguida por anos e nunca recebeu pedido oficial de desculpas.
+
+**Davi Riso-de-Inverno — guardião vivo dos festejos seguros.** Humano residente, 42 anos. Coordena água, rotas de saída, atendimento e controle de incêndio nos festivais. A cidade nem sempre reconhece esse trabalho como heroísmo, mas os registros mostram que seus planos reduziram acidentes.
+
+### 19.10 Torvelume — heróis dos ofícios, da defesa e do dever civil
+
+**Hadrik das Sete Bigornas — artífice histórico, morto.** Padronizou peças de reparo e recusou fornecer ferramentas para bloquear uma ponte contra refugiados. Foi preso e libertado após protestos de soldados e moradores.
+
+**Brunna Veio-de-Vidro — guardiã viva das galerias seladas.** Anã residente, 142 anos. Inspeciona vibrações e fissuras sem entrar nas zonas proibidas. Não sabe o que há na mina e não afirma que sejam monstros; exige medições antes de qualquer reabertura.
+
+**Kivo Rebite-Ligeiro — benfeitor vivo dos trabalhadores.** Goblin das Sucatas, 33 anos. Reaproveita peças de ferramentas e organiza reparos a preço justo para trabalhadores endividados. O trabalho salva recursos, mas não substitui metal novo em estruturas críticas; ele marca claramente o que não é seguro reutilizar.
+
+**Saren Portão-de-Musgo — herói histórico, morto há 260 anos.** Manteve uma passagem aberta para evacuação durante um cerco, embora isso permitisse a entrada de inimigos. Salvou civis, perdeu a fortaleza e foi chamado de traidor por uma geração. Décadas depois, a cidade reconheceu que a retirada evitou um massacre.
+
+**Meda Martelo-Calmo — guardiã viva dos aprendizes e dos padrões de segurança.** Gnoma, 88 anos. Ensina que uma ferramenta bem-feita deve poder ser reparada e que nenhuma encomenda justifica esconder defeitos. Perde contratos por recusar prazos impossíveis e protege aprendizes de punições abusivas.
+
+## 20. Matriz de povos e representação heroica
+
+Aeltharyn não é habitada por uma única raça, e a raça de alguém não determina caráter, profissão, cidadania ou lealdade. A matriz abaixo registra povos com presença significativa ou histórica neste reino; as demais raças do catálogo não são apagadas do mundo, apenas não recebem aqui uma diáspora detalhada antes da composição dos outros reinos.
+
+| Povo/ID do catálogo | Núcleo de memória | Heroísmo reconhecido | Guardião ou instituição atual |
+|---|---|---|---|
+| `elfo` | Elarion e a Coroa | Avarra, Maereth | Arquivo das Seivas |
+| `elfo-dos-bosques` | Vael-Tir | Luneth do Galho Partido | Vigias do Primeiro Verde |
+| `elfo-das-estrelas` | Elarion e Caladwen | Asha Nove-Pergaminhos | Arquivistas da Seiva |
+| `elfo-do-crepusculo` | Orvass e Brumafunda | Nessa Água-Lenta | Rede dos Guias |
+| `pequenino` | Nymvar e Arven | Sorela do Último Cesto | Liga dos Celeiros |
+| `pequenino-ribeirinho` | Nymvar | Dena Três-Correntes | Inspeção dos Canais |
+| `gnomo` | Elarion e Torvelume | Parel Três-Parafusos | Oficina de Precisão |
+| `gnomo-dos-vales` | Caladwen | Vessa Engrenagem-de-Lua | Colégio dos Ciclos |
+| `tritao` | Thalanor | Rilma Concha-de-Cobre | Vigias da Costa |
+| `abissal-das-enseadas` | Thalanor | Náren da Maré Reversa | Conselho Portuário |
+| `centauro` | Arven e Vael-Tir | Lessa Cervo-Manso | Conselho dos Corredores |
+| `centauro-das-florestas` | Vael-Tir | Tavro Passo-de-Raiz | Círculo das Trilhas |
+| `orcano` | Orvass | Korga Ponta-de-Junco | Conselho das Estacas |
+| `orcano-das-matas` | Orvass e Vael-Tir | Korga Ponta-de-Junco | Vigias do Brejo |
+| `tabaxi` | Brumafunda | Milo Passo-de-Bruma | Rede dos Guias |
+| `felideo-das-selvas` | Vael-Tir e Brumafunda | Sivra Pata-de-Musgo | Vigias da Fauna |
+| `kenku` | Brumafunda | Kheva Ouvido-de-Névoa | Círculo dos Ecos |
+| `corvideo-dos-telhados` | Brumafunda | Kheva Ouvido-de-Névoa | Casa dos Ecos |
+| `satiro` | Silvaran | Voro Canção-de-Pedra | Artífices do Som |
+| `silvano-dos-festivais` | Silvaran | Miri Corda-de-Lua | Círculo das Estações |
+| `feerico` | Silvaran e Brumafunda | Selenê Máscara-Clara | Casa da Hospitalidade |
+| `plantae` | Arven | Ruma Coração-de-Solo | Guardiões do Solo |
+| `fungal` | Orvass | Voz-de-Muitas-Raízes | Círculo Micelial |
+| `elemental-agua` | Nymvar e Thalanor | Mara Barro-Claro | Irmandade das Águas |
+| `elemental-ar` | Vael-Tir e Caladwen | Elyon Prisma-Claro | Observatório e patrulhas |
+| `ancestral-estelar` | Caladwen | Elyon Prisma-Claro | Observatório das Quatro Estações |
+| `anao` | Torvelume | Hadrik das Sete Bigornas | Liga dos Artífices |
+| `goblin` | Torvelume | Kivo Rebite-Ligeiro | Oficina das Sete Bigornas |
+| `humano` | Thalanor e Silvaran | Davi Riso-de-Inverno | Conselho Portuário e Casa da Hospitalidade |
+
+Esta matriz é uma seleção deliberada para o Reino das Florestas, não um censo de todas as raças do cenário. A presença de um povo numa cidade não significa que ele seja originário dali: migração, trabalho, refúgio, comércio e casamentos explicam comunidades mistas. A origem cultural de cada povo e sua distribuição continental serão detalhadas quando os outros reinos forem construídos, sem antecipar suas histórias agora.
+
+## 21. Gerações, memória e divergência histórica
+
+Para evitar que um reino antigo pareça ter surgido há poucas décadas, a memória de Aeltharyn é organizada em camadas. Os períodos abaixo são referências de trabalho, não garantia de que todos os arquivos concordem.
+
+- **Tempo das Raízes (antes da Contagem das Seivas):** assentamentos sazonais, pactos com rios e árvores antigas; datas não confiáveis. Há inscrições que podem pertencer a culturas anteriores aos elfos da Coroa.
+- **Fundação das Sete Copas (anos 0–120):** unificação gradual dos núcleos arbóreos e criação de Elarion. A tradição atribui a fundação a uma única rainha; evidências apontam para vários acordos locais.
+- **Séculos dos Canais (anos 121–260):** expansão de Nymvar e Arven, construção de diques, rotas de sementes e primeiros conflitos sobre tributos.
+- **Guerra das Cinzas Verdes (aprox. anos 261–289):** incêndios, deslocamentos e fechamento de corredores. Os arquivos reais descrevem uma vitória defensiva; comunidades removidas lembram abandono e perdas.
+- **Era das Rotas Abertas (anos 290–430):** crescimento de Thalanor, acordos de navegação e redes de resgate; também aumentam contrabando e exploração de recursos.
+- **Reformas do Calendário (anos 431–560):** Caladwen ganha influência; calendários agrícolas e ritos religiosos são revistos. Parte das mudanças melhora colheitas, parte cria resistência cultural.
+- **Anos da Neblina Longa (anos 561–650):** desaparecimentos em Brumafunda e Orvass, protocolos de travessia e debates sobre quarentena.
+- **Pacto das Dez Cidades (ano 651):** formalização de deveres de defesa, passagem e contribuição, sem extinguir autonomias locais. A interpretação do pacto é motivo de disputa até hoje.
+- **Contagem Atual (anos 652–742):** reformas incompletas, pressão sobre árvores-coração, dívida de manutenção, conflitos sobre licenças e dúvidas acerca da mina de Torvelume.
+
+Uma pessoa pode ser lembrada de maneiras diferentes em cada cidade. A narração deve distinguir: **fato testemunhado**, **documento contemporâneo**, **tradição oral**, **propaganda política** e **hipótese**. Contradições históricas não devem ser corrigidas automaticamente se fizerem parte do conflito; devem ser marcadas para que o jogo possa investigá-las.
+
+## 22. Como os heróis continuam relevantes no presente
+
+Os heróis não são só biografias estáticas. Cada legado deve ligar-se a pelo menos um elemento atual do mundo: instituição, local, objeto, lei, rota, rivalidade, festa, dívida, família, método ou segredo. Quando uma campanha muda esse elemento, a memória social também pode mudar.
+
+- Avarra é lembrada em uma ponte e em uma disputa de remoção urbana.
+- Dena está ligada aos diques de Nymvar e a projetos incompletos.
+- Yssara influencia regras de quarentena e a investigação do navio sem tripulação.
+- Oren inspira a disputa sobre trilhas fechadas e resgates.
+- Nima orienta a prática de registrar efeitos adversos de tratamentos.
+- Ithren sustenta o conflito entre tradição ritual e evidência observável.
+- Sela permanece um desaparecimento aberto, não uma resposta secreta já decidida.
+- Toma influencia regras de reservas e distribuição em épocas de escassez.
+- Miri inspira mediações, sem que arte seja uma solução automática para conflitos.
+- Hadrik orienta os padrões de reparo e a disputa sobre a mina selada.
+
+NPCs vivos também têm limites: podem envelhecer, falhar, mudar de opinião, perder cargos, formar alianças, desaparecer ou morrer se os sistemas do jogo assim determinarem. Nenhuma destas consequências deve ser simulada apenas por texto se o motor ainda não tiver uma representação de estado para ela.
+
+## 23. Revisão crítica e critérios atualizados de conclusão
+
+A versão anterior superestimava a completude do ecossistema. A descrição das dez cidades estava mais desenvolvida do que a rede de personagens e a profundidade histórica. A adição desta seção melhora a distribuição de figuras, mas não prova, por si só, que o reino está pronto para ser carregado pelo jogo.
+
+- [x] As dez cidades têm perfis próprios, problemas e lendas.
+- [x] Cada cidade tem figuras históricas e personagens vivos associados a um legado local.
+- [x] Os povos selecionados para este reino têm heróis, guardiões ou benfeitores identificáveis, com IDs de raça/sub-raça conferidos contra o catálogo.
+- [x] Há gerações históricas, disputas de memória e legados conectados a problemas atuais.
+- [ ] Auditar todos os nomes, cargos, idades, cidades e relações contra as seções anteriores; corrigir duplicações e contradições não intencionais.
+- [ ] Completar para cada figura principal: objetivos atuais, recursos, limites, relações, conhecimento plausível, agenda e condições de mudança.
+- [ ] Validar que o ecossistema não atribui origens culturais exclusivas por raça e que as migrações fazem sentido.
+- [ ] Conferir distâncias, tempos de viagem, rotas e logística com a população e a economia.
+- [ ] Revisar cronologia, sucessões políticas, expectativa de vida das raças e eventos de cada geração.
+- [ ] Definir o esquema de dados e integrar as cidades/NPCs/legados ao modelo de mundo já existente no código, sem duplicar modelos.
+- [ ] Testar carregamento, persistência, isolamento entre modos de cânone e mudanças causadas pelas campanhas.
+- [ ] Somente depois dessas revisões, marcar Aeltharyn como ecossistema editorial concluído.
