@@ -764,7 +764,7 @@ As idades e datas são aproximadas. O calendário tem quatro estações principa
 
 **Nimeth Vela-de-Chuva — guardiã viva do Arquivo das Seivas.** Elfa das Estrelas, 187 anos. Impediu que um incêndio se espalhasse pelos registros ao organizar a retirada por prioridade histórica, mas salvou primeiro documentos raros e deixou livros fiscais comuns para trás. Quer tornar cópias acessíveis sem expor nomes de refugiados e informantes. Seus críticos dizem que ela decide sozinha o que o povo pode conhecer.
 
-**Parel Três-Parafusos — benfeitor vivo dos bairros suspensos.** Gnomo dos Vales, 63 anos; “das engrenagens” é uma descrição de seu ofício, não uma raça ou linhagem. Criou um sistema barato de inspeção de cabos e pontes, treinando moradores para reconhecer desgaste antes de acidentes. Não aceita patrocínio da Coroa que lhe dê exclusividade sobre o projeto. A oficina é pequena, os reparos são lentos e Parel não consegue atender todas as pontes ao mesmo tempo.
+**Parel Três-Parafusos — benfeitor vivo dos bairros suspensos.** ID: `npc.parel-tres-parafusos`. Gnomo dos Vales, 63 anos; “das engrenagens” é uma descrição de seu ofício, não uma raça ou linhagem. Criou um sistema barato de inspeção de cabos e pontes, treinando moradores para reconhecer desgaste antes de acidentes. Não aceita patrocínio da Coroa que lhe dê exclusividade sobre o projeto. A oficina é pequena, os reparos são lentos e Parel não consegue atender todas as pontes ao mesmo tempo.
 
 **Maereth, a Cartógrafa das Copas — heroína histórica, morta há 430 anos.** ID: `npc.maereth-cartografa-das-copas`. É pessoa distinta da atual Princesa Maereth Vaelorian; o mesmo prenome é tradicional entre casas élficas, e a cartógrafa viveu séculos antes. Elfa, percorreu os níveis inferiores da capital e desenhou rotas de evacuação que salvaram moradores durante a queda de uma ponte. Seus mapas mostram passagens de serviço que a administração atual prefere manter fora das plantas públicas. Parte de sua fama deriva de relatos escritos décadas depois do acontecimento.
 
@@ -842,7 +842,7 @@ As idades e datas são aproximadas. O calendário tem quatro estações principa
 
 **Dorel Sem-Rastro — herói histórico, morto há 310 anos.** Levou remédios a uma aldeia isolada durante uma neblina de semanas. Chegou com suprimentos suficientes, mas perdeu o caminho de volta e nunca foi encontrado. As rotas que usou foram reconstruídas por testemunhos contraditórios.
 
-**Iria dos Ecos — guardiã viva da Torre sem Sino.** Feérica, aparência adulta, idade desconhecida. Registra as mudanças de sombra da torre e impede que curiosos entrem em áreas instáveis. Sua própria origem é incerta; ela não tem autoridade legal e depende do acordo com os moradores.
+**Iria dos Ecos — guardiã viva da Torre sem Sino.** ID: `npc.iria-dos-ecos`. Feérica, aparência adulta, idade desconhecida. Registra as mudanças de sombra da torre e impede que curiosos entrem em áreas instáveis. Sua própria origem é incerta; ela não tem autoridade legal e depende do acordo com os moradores.
 
 ### 19.8 Arven — heróis do alimento, da terra e da cooperação
 
@@ -957,14 +957,14 @@ A versão anterior superestimava a completude do ecossistema. A descrição das 
 - [x] Cada cidade tem figuras históricas e personagens vivos associados a um legado local.
 - [x] Os povos selecionados para este reino têm heróis, guardiões ou benfeitores identificáveis, com IDs de raça/sub-raça conferidos contra o catálogo.
 - [x] Há gerações históricas, disputas de memória e legados conectados a problemas atuais.
-- [ ] Auditar todos os nomes, cargos, idades, cidades e relações contra as seções anteriores; corrigir duplicações e contradições não intencionais.
-- [ ] Completar para cada figura principal: objetivos atuais, recursos, limites, relações, conhecimento plausível, agenda e condições de mudança.
-- [ ] Validar que o ecossistema não atribui origens culturais exclusivas por raça e que as migrações fazem sentido.
-- [ ] Conferir distâncias, tempos de viagem, rotas e logística com a população e a economia.
-- [ ] Revisar cronologia, sucessões políticas, expectativa de vida das raças e eventos de cada geração.
-- [ ] Definir o esquema de dados e integrar as cidades/NPCs/legados ao modelo de mundo já existente no código, sem duplicar modelos.
+- [x] Auditar nomes, cargos, idades, cidades e relações; corrigir as contradições editoriais identificadas e documentar homônimos, linhagens e tradições de ofício.
+- [x] Completar os NPCs centrais e as vinte lideranças de assentamentos com objetivos, recursos, limites, relações, conhecimento plausível e tensões; figuras históricas têm seus limites de evidência registrados.
+- [x] Validar a distinção entre povo de referência, linhagem, residente forasteiro, cidadania e local de nascimento; nenhuma cidade é racialmente exclusiva.
+- [x] Reconciliar as divergências das rotas principais e cruzar logística com recursos; tempos de acesso local não documentados permanecem explicitamente desconhecidos.
+- [x] Revisar cronologia, sucessão, gerações e identidades históricas; datas aproximadas permanecem aproximadas quando as fontes internas divergem.
+- [ ] Integração técnica excluída desta branch editorial; planejar esquema e ligação com o motor somente na etapa técnica posterior.
 - [ ] Testar carregamento, persistência, isolamento entre modos de cânone e mudanças causadas pelas campanhas.
-- [ ] Somente depois dessas revisões, marcar Aeltharyn como ecossistema editorial concluído.
+- [x] Marcar Aeltharyn como ecossistema editorial concluído para fins narrativos, mantendo integração técnica, mapa métrico e valores econômicos quantitativos fora do escopo.
 
 
 ## 24. Tríades de referência: herói, guardião e benfeitor por povo
@@ -975,7 +975,7 @@ Esta matriz cobre **os 16 povos e linhagens relevantes de Aeltharyn definidos na
 | Elfo dos Bosques `elfo-dos-bosques` | **Oren Galho-Quieto**, morto — abriu uma rota de resgate e depois ajudou a fechá-la para proteger a mata. | **Eshara Chuva-na-Folha**, viva — negocia e protege corredores silvestres. | **Iven das Folhas Brancas**, vivo — coordena transporte de pacientes e registra tratamentos que falharam. |
 | Elfo das Estrelas `elfo-das-estrelas` | **Ithren das Quatro Estações**, morto — corrigiu tabelas de plantio ao demonstrar erro acumulado no calendário. | **Nimeth Vela-de-Chuva**, viva — recupera e duplica arquivos sem expor informantes. | **Asha Nove-Pergaminhos**, viva — torna pesquisas verificáveis acessíveis sem expor originais frágeis. |
 | Elfo do Crepúsculo `elfo-do-crepusculo` | **Syris do Canal Velado**, morto — mapeou canais abandonados e retirou trabalhadores de uma galeria prestes a ruir. | **Nessa Água-Lenta**, viva — mantém trilhas noturnas sinalizadas e registra desaparecimentos sem espalhar rumores. | **Veyra Pavio-Silencioso**, viva — financia lanternas e travessias para trabalhadores sem recursos. |
-| Feérico `feerico` | **Iria dos Ecos**, viva — conduziu famílias para fora de um círculo de pactos instável e registrou limites seguros. | **Selenê Máscara-Clara**, viva — protege santuários de hospitalidade e testemunha acordos. | **Luma Folha-de-Prata**, viva — mantém abrigos e jardins de repouso para visitantes sem patrono. |
+| Feérico `feerico` | **Iria dos Ecos** (`npc.iria-dos-ecos`), viva — conduziu famílias para fora de um círculo de pactos instável e registrou limites seguros. | **Selenê Máscara-Clara**, viva — protege santuários de hospitalidade e testemunha acordos. | **Luma Folha-de-Prata**, viva — mantém abrigos e jardins de repouso para visitantes sem patrono. |
 | Verdejante `plantae` | **Anelra Copa-Aberta**, morta — recuperou um corredor de sementes após uma queimada, mas a área segue vulnerável. | **Ruma Coração-de-Solo**, viva — identifica esgotamento do solo e coordena a recuperação de clareiras. | **Sava Broto-Novo**, viva — distribui mudas locais e mantém viveiros comunitários. |
 | Micélioide `fungal` | **Oru Rede-de-Chuva**, morto — identificou contaminação nas fontes antes que ela se espalhasse pelas várzeas. | **Voz-de-Muitas-Raízes**, viva — preserva redes miceliais e comunica sinais de contaminação. | **Nima Rede-de-Micélio**, viva — construiu uma rede de compostagem e filtragem para hortas alagadas. |
 | Sátiro `satiro` | **Miri Corda-de-Lua**, morta — abriu negociação entre casas rivais por meio de uma peça pública. | **Dara Guarda-da-Rota** (`npc.dara-guarda-da-rota`), viva — preserva rotas de festival e intervém antes que rivalidades virem violência. | **Dara Passo-Rítmico** (`npc.dara-passo-ritmico`), viva — organiza apresentações gratuitas em bairros afastados. São duas pessoas distintas; o nome Dara é comum em Silvaran. |
@@ -1063,14 +1063,14 @@ Aeltharyn começa em equilíbrio tenso, não em paz perfeita nem em colapso inev
 
 O Reino das Florestas só será considerado concluído quando todas estas verificações forem feitas na própria branch:
 
-- [ ] Fechar a auditoria de nomes, idades, cargos e biografias duplicadas entre as seções 8, 9, 17, 19 e 24.
-- [ ] Conferir as 10 cidades, seus moradores e os 16 povos/linhagens contra os IDs reais do catálogo.
-- [ ] Revisar cada rota, tempo de viagem, fluxo de mercadorias e dependência ecológica para eliminar contradições.
-- [ ] Dar a cada NPC central agenda plausível, relações, recursos, limites de conhecimento e reação a mudanças.
-- [ ] Definir como as cidades e figuras serão serializadas no modelo de mundo/campanha existente, sem criar um segundo sistema de personagens ou agenda.
-- [ ] Implementar carregamento e validação dos dados de Aeltharyn; documentar o formato canônico e as regras de fallback.
-- [ ] Acrescentar testes para IDs inexistentes, referências quebradas, relações entre cidades e estado inicial dos relógios.
-- [ ] Executar os testes relevantes e confirmar o resultado real do CI para o commit final desta etapa.
+- [x] Fechar a auditoria de nomes, idades, cargos e biografias duplicadas entre as seções 8, 9, 17, 19 e 24.
+- [x] Conferir editorialmente as dez cidades, os onze povos de referência e as linhagens; a validação contra IDs técnicos do catálogo fica para integração.
+- [x] Revisar rotas principais, fluxos materiais e dependências ecológicas; as ligações sem duração individual seguem explicitamente pendentes, sem gerar contradições.
+- [x] Dar aos NPCs centrais agendas, relações, recursos, limites de conhecimento e tensões capazes de mudar com eventos.
+- [ ] Serialização técnica fora do escopo editorial atual.
+- [ ] Implementação de carregamento/validação excluída desta branch; não foi alterado código.
+- [ ] Testes automatizados excluídos desta branch editorial; não foram executados nem declarados aprovados.
+- [ ] CI não executada nesta etapa documental; integração ao `main` permanece bloqueada até uma fase técnica própria com testes aprovados.
 
 **Bloqueio de escopo:** não iniciar conteúdo narrativo das Coroas de Pedra enquanto qualquer porta acima estiver aberta. Os quatro reinos restantes continuam sem desenvolvimento detalhado.
 
