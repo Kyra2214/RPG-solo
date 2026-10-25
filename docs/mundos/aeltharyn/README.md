@@ -9,6 +9,7 @@
 
 - [01 — Reino das Florestas](01-reino-das-florestas.md): geografia, ecologia, povos selecionados do catálogo existente, história, monarquia, dez cidades, assentamentos vinculados, rotas, facções, heróis, NPCs, leis, economia, crenças, mistérios, conflitos e consistência narrativa.
 - [02 — Arquitetura narrativa do mundo persistente](02-arquitetura-mundo-persistente.md): simulação em segundo plano, consulta sob demanda, separação entre estado do mundo e conhecimento do Mestre/personagem, segredos, arquivos e continuidade entre campanhas.
+- [03 — Assentamentos, jurisdições e rede política](03-assentamentos-e-rede-politica.md): vinte assentamentos com lideranças nomeadas, obrigações, interesses, segredos, tensões e relações entre as dez cidades.
 
 ## Identidade resumida
 
@@ -36,8 +37,11 @@ Os quatro nomes futuros são rótulos provisórios, sem história ou geografia c
 - [x] Associar referências históricas, guardiões e benfeitores às cidades e aos povos selecionados.
 - [x] Documentar o princípio de mundo persistente que evolui em segundo plano e é consultado sob demanda.
 - [x] Estabelecer a primeira camada de vinte assentamentos e suas relações políticas com as dez cidades.
+- [x] Dar identidade, liderança, obrigação, interesse e conflito inicial aos vinte assentamentos.
+- [x] Documentar dependências e atritos políticos entre as dez cidades.
 - [ ] Auditar nomes, idades, cargos, genealogias, relações, conhecimento de NPCs e duplicações.
 - [ ] Auditar demografia, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas.
+- [ ] Cruzar os vinte assentamentos com os NPCs e as facções existentes, eliminando duplicações e fechando lacunas de jurisdição.
 - [ ] Aprofundar os conflitos entre Coroa, cidades, assentamentos, facções e populações, sem tornar os grupos monolíticos.
 - [ ] Conferir consistência dos povos/linhagens selecionados e dos IDs referenciados contra o catálogo editorial.
 - [ ] Revisar mistérios, cronologia e consequências para garantir que fatos intencionais contraditórios sejam distinguidos de erros acidentais.
