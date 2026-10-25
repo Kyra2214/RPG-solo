@@ -11,6 +11,7 @@
 - [02 — Arquitetura narrativa do mundo persistente](02-arquitetura-mundo-persistente.md): simulação em segundo plano, consulta sob demanda, separação entre estado do mundo e conhecimento do Mestre/personagem, segredos, arquivos e continuidade entre campanhas.
 - [03 — Assentamentos, jurisdições e rede política](03-assentamentos-e-rede-politica.md): vinte assentamentos com lideranças nomeadas, obrigações, interesses, segredos, tensões e relações entre as dez cidades.
 - [04 — Instituições, justiça e pactos territoriais](04-instituicoes-justica-pactos.md): competências da Coroa, cidades e assentamentos; Conselho das Sete Copas; processos de arbitragem; tributos, sucessão, emergência e secessão.
+- [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md): números populacionais provisórios, conexões documentadas, lacunas de acesso dos assentamentos e cruzamento dos sete relógios com recursos e consequências observáveis.
 
 ## Identidade resumida
 
@@ -43,6 +44,7 @@ Os quatro nomes futuros são rótulos provisórios, sem história ou geografia c
 - [x] Definir o quadro institucional de pactos, jurisdição, justiça, tributos e sucessão em documento próprio.
 - [ ] Auditar nomes, idades, cargos, genealogias, relações, conhecimento de NPCs e duplicações.
 - [ ] Auditar demografia, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas; ver [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md) para as lacunas registradas.
+- [x] Cruzar os sete relógios iniciais com os recursos, rotas, localidades afetadas e limites de conhecimento; manter explícito que o cruzamento não comprova causas nem avança relógios automaticamente.
 - [x] Criar índice canônico ligando os vinte assentamentos aos IDs estáveis de suas lideranças, distinguindo o NPC já existente dos dezenove novos perfis editoriais.
 - [x] Sincronizar o quadro de assentamentos do documento principal com os vinte perfis detalhados e seus IDs canônicos.
 - [ ] Cruzar os vinte assentamentos com os NPCs e as facções existentes, eliminando duplicações e fechando lacunas de jurisdição.
