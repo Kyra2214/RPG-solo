@@ -1063,7 +1063,7 @@ Aeltharyn começa em equilíbrio tenso, não em paz perfeita nem em colapso inev
 O Reino das Florestas só será considerado concluído quando todas estas verificações forem feitas na própria branch:
 
 - [ ] Fechar a auditoria de nomes, idades, cargos e biografias duplicadas entre as seções 8, 9, 17, 19 e 24.
-- [ ] Conferir as 10 cidades, seus moradores e os 15 povos/linhagens contra os IDs reais do catálogo.
+- [ ] Conferir as 10 cidades, seus moradores e os 16 povos/linhagens contra os IDs reais do catálogo.
 - [ ] Revisar cada rota, tempo de viagem, fluxo de mercadorias e dependência ecológica para eliminar contradições.
 - [ ] Dar a cada NPC central agenda plausível, relações, recursos, limites de conhecimento e reação a mudanças.
 - [ ] Definir como as cidades e figuras serão serializadas no modelo de mundo/campanha existente, sem criar um segundo sistema de personagens ou agenda.
