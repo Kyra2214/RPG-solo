@@ -136,7 +136,7 @@ Este cruzamento verifica compatibilidade temática e possíveis colisões de nom
 | Junco Alto — Nymvar | Nymvar é ribeirinha, cercada por campos úmidos e enfrenta reparos de diques | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
 | Três Barcas — Nymvar | Nymvar tem canais, transporte fluvial e facções ligadas a barqueiros | Compatibilidade forte; o entreposto não é nomeado no perfil da cidade |
 | Ponta da Concha — Thalanor | Thalanor é porto marítimo com pesca e patrulhas costeiras | Compatibilidade forte; confirmar sua relação com o porto principal |
-| Farol de Âmbar — Thalanor | O perfil urbano já nomeia o **Farol da Folha Azul** | **Possível colisão de função/nome:** manter como local distinto por enquanto; definir se Farol de Âmbar é outro farol, um núcleo ligado ao Farol da Folha Azul ou uma referência que precisa ser reconciliada |
+| Farol de Âmbar — Thalanor | O perfil urbano já nomeia o **Farol da Folha Azul** | **Decisão consolidada:** são estruturas distintas. Farol da Folha Azul é o farol urbano de Thalanor; Farol de Âmbar é um posto costeiro separado, com comunidade residente, integrado à mesma rede de sinais. Não há distância canônica definida entre ambos. |
 | Copa-Funda — Vael-Tir | Vael-Tir é centro de manejo florestal, resinas autorizadas e patrulhas | Compatibilidade forte; a comunidade não é nomeada no perfil da cidade |
 | Passo do Veado — Vael-Tir | O perfil de Vael-Tir inclui centauros e corredores; o documento principal também tem o conflito ativo dos corredores centauros | Vínculo temático sustentado; a posição exata do posto e o traçado do corredor continuam pendentes |
 | Lodo-Claro — Orvass | Orvass é cidade de pântano, ervas, pesca e cuidados em meio a risco sanitário | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
@@ -144,11 +144,11 @@ Este cruzamento verifica compatibilidade temática e possíveis colisões de nom
 | Vigília do Lago — Caladwen | Caladwen fica junto ao Lago das Lanternas e abriga observatório e estudos climáticos/celestes | Compatibilidade forte; confirmar se a aldeia é parte do conjunto urbano ou um núcleo separado |
 | Papel-Velho — Caladwen | Caladwen abriga a Biblioteca de Casca, cópia de manuscritos e estudos acadêmicos | Compatibilidade forte; confirmar se Papel-Velho é distrito/oficinas da cidade ou povoado externo |
 | Eco Baixo — Brumafunda | Brumafunda depende de guias, trilhas marcadas e buscas por desaparecidos | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
-| Torre da Névoa Mansa — Brumafunda | O perfil de Brumafunda já cita a **Torre sem Sino** e fenômenos de sombra/neblina | **Possível sobreposição narrativa:** não presumir que as duas torres sejam a mesma; decidir se são locais distintos, relacionados ou se um dos nomes precisa de ajuste |
+| Torre da Névoa Mansa — Brumafunda | O perfil de Brumafunda já cita a **Torre sem Sino** e fenômenos de sombra/neblina | **Decisão consolidada:** são locais distintos. Torre sem Sino é um marco local de Brumafunda associado a sombras e trilhas; Torre da Névoa Mansa é um posto de observação separado na rede exterior, com pequena comunidade residente. Não há distância canônica definida entre ambas. |
 | Mel do Poente — Arven | Arven é centro agrícola e cita mel, pomares e problemas de polinização | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
 | Campo das Três Famílias — Arven | Arven é centro agrícola e enfrenta disputa de terras e tributo de safra | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
 | Máscara Nova — Silvaran | Silvaran é centro cultural de festivais, música, artes e tecelagem | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
-| Fonte do Regresso — Silvaran | Silvaran tem uma **Casa da Hospitalidade** e pactos de acolhimento | **Relação a definir:** a Fonte pode ser bairro, núcleo de acolhimento ou povoado distinto; não presumir que seja a própria Casa da Hospitalidade |
+| Fonte do Regresso — Silvaran | Silvaran tem uma **Casa da Hospitalidade** e pactos de acolhimento | **Decisão consolidada:** Fonte do Regresso é uma comunidade residencial de acolhimento vinculada a Silvaran; Casa da Hospitalidade é uma instituição sediada na cidade, responsável por protocolo e mediação. Cooperam, mas não são o mesmo lugar. |
 | Ferro-Folha — Torvelume | Torvelume é cidade de ofícios e manutenção, com oficina e ferragens | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
 | Porta Selada — Torvelume | O perfil de Torvelume já menciona a **Mina Selada**, galerias antigas e vibrações | Vínculo temático sustentado; confirmar se Porta Selada é o núcleo junto aos acessos da mina e evitar tratar o assentamento como a própria mina |
 
@@ -156,7 +156,7 @@ Este cruzamento verifica compatibilidade temática e possíveis colisões de nom
 
 - **Nenhum dos vinte nomes de assentamento é confirmado como bairro ou localidade externa apenas pelos perfis das dez cidades.** A cidade-mãe e a função local estão registradas, mas a posição física exige decisão geográfica.
 - Os perfis das cidades sustentam a coerência temática da maioria dos núcleos, sem nomeá-los individualmente.
-- Três relações precisam de distinção explícita para evitar confusão: **Farol de Âmbar × Farol da Folha Azul**, **Torre da Névoa Mansa × Torre sem Sino** e **Fonte do Regresso × Casa da Hospitalidade**.
+- [x] Distinções estabelecidas: **Farol de Âmbar** (posto costeiro separado) × **Farol da Folha Azul** (farol urbano); **Torre da Névoa Mansa** (posto exterior) × **Torre sem Sino** (marco local); **Fonte do Regresso** (comunidade de acolhimento) × **Casa da Hospitalidade** (instituição de Silvaran).
 - Passo do Veado e Porta Selada têm conexões temáticas mais diretamente apoiadas pelos conflitos já existentes, mas isso não resolve seus limites espaciais.
 - Não foram criados novos locais, rotas, distâncias ou populações. As ambiguidades acima ficam abertas para a próxima decisão editorial.
 
@@ -241,7 +241,7 @@ Não é necessário transformar tudo em números agora. Para cada recurso, basta
 - [ ] Classificar individualmente os vinte assentamentos como bairro, distrito/núcleo periurbano, vila próxima, comunidade afastada, posto sazonal ou indefinido, registrando a evidência e sem deduzir posição pelo vínculo político.
 - [ ] Desenhar a malha geográfica mínima e reconciliar as doze ligações com os cinco corredores descritos na seção 25.1 do documento principal.
 - [ ] Definir tempos locais dos vinte assentamentos depois de validar a geografia.
-- [ ] Estabelecer escalas de reservas, produção e dependências para alimentos, água, madeira, remédios e ferramentas.
+- [x] Estabelecer escalas qualitativas e declarar desconhecidos os estoques sem evidência; valores numéricos ficam pendentes até haver unidade, período e evento de referência.
 - [ ] Cruzar essas dependências com os sete relógios iniciais e os conflitos sazonais já existentes.
 - [ ] Revisar o documento principal e os perfis de assentamentos após resolver as decisões acima.
 
