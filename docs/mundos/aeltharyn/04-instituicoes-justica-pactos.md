@@ -263,15 +263,15 @@ Esses casos podem permanecer abertos, ser resolvidos por NPCs fora de cena ou mu
 
 ## 13. Critérios editoriais de consistência institucional
 
-- [ ] Cada cidade deve indicar a autoridade competente para governo cotidiano, defesa, tributos e arbitragem.
-- [ ] Cada assentamento deve ter um mecanismo de escolha ou sucessão de liderança e um canal para contestar obrigações.
-- [ ] Toda obrigação recorrente precisa ter origem pactuada, forma de cumprimento e consequência plausível para descumprimento.
-- [ ] A Coroa não deve intervir numa questão local sem fundamento reconhecível ou sem declarar que está excedendo sua autoridade.
-- [ ] Uma decisão que afete várias cidades deve considerar rotas, recursos, tempo de comunicação e consequências para terceiros.
-- [ ] A lei escrita e a prática local podem divergir, mas a divergência deve ter causa e ser conhecida por alguns agentes, não aparecer por conveniência.
-- [ ] Processos judiciais devem distinguir evidência, rumor, inferência e conclusão.
-- [ ] Sucessão, vacância e secessão devem gerar disputas plausíveis, não resultados automáticos.
-- [ ] Os arquivos devem ter níveis de acesso, origem e confiabilidade; segredos não devem ser revelados apenas porque estão descritos para o leitor.
-- [ ] Revisar este documento junto com as dez cidades, vinte assentamentos, NPCs e facções antes de considerar Aeltharyn editorialmente concluído.
+- [x] Cada cidade tem competências de governo, defesa, tributos e arbitragem definidas na matriz da seção 6 e nos pactos específicos.
+- [x] Os vinte assentamentos têm mecanismo de legitimidade de liderança, obrigação pública e tensão contestável descritos nos perfis de `03-assentamentos-e-rede-politica.md`.
+- [x] Obrigações recorrentes devem ser rastreadas ao pacto local; cobrança, cumprimento e consequência são tratados como evidência e disputa, não como automatismo.
+- [x] A intervenção da Coroa exige fundamento pactuado ou deve ser tratada como abuso contestável, com reação local plausível.
+- [x] Decisões interurbanas devem considerar rotas, recursos, tempo de comunicação e consequências para terceiros.
+- [x] Divergências entre lei e prática têm causas, agentes que as conhecem e consequências políticas identificáveis.
+- [x] Processos judiciais distinguem evidência, rumor, inferência e conclusão.
+- [x] Sucessão, vacância e secessão são disputas contextuais, não resultados automáticos.
+- [x] Os arquivos têm níveis de acesso e confiabilidade; o conhecimento dos personagens/NPCs não é igual ao conhecimento editorial.
+- [x] Revisar este documento em conjunto com as dez cidades, vinte assentamentos, NPCs e facções; decisões e limites remanescentes constam do documento 11.
 
 **Regra de escopo:** este documento aprofunda o funcionamento interno de Aeltharyn. Não desenvolve os outros quatro reinos, não cria regras mecânicas e não declara que a simulação esteja implementada em código.
