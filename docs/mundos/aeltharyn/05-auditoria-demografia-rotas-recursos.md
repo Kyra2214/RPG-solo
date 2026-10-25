@@ -125,6 +125,41 @@ O documento 03 agora contém uma classificação funcional provisória para cada
 
 Até que esses campos sejam confirmados, não somar os vinte números ao total das dez cidades e não presumir que todo assentamento tenha uma estrada própria ou um tempo de viagem interurbano. Para um bairro, o acesso pode ser interno à cidade; para um posto remoto, pode depender de trilha, canal ou rota sazonal. A tabela seguinte lista perguntas de acesso, não prova que todos os núcleos sejam externos.
 
+### 2.3 Cruzamento dos vinte assentamentos com os perfis das cidades
+
+Este cruzamento verifica compatibilidade temática e possíveis colisões de nomes. **Uma função compatível não confirma a localização física nem prova que o nome já apareça no perfil da cidade.** A atribuição de cidade-mãe existe no documento 03; a posição espacial e algumas relações entre locais continuam pendentes.
+
+| Assentamento — cidade-mãe | Evidência ou relação no perfil da cidade | Resultado editorial |
+|---|---|---|
+| Raiz-de-Prata — Elarion | Elarion reúne administração, jardins, árvores-coração e produção de papel; o viveiro não é nomeado no perfil urbano | Função compatível; vínculo local não mencionado explicitamente no perfil da cidade |
+| Sete Degraus — Elarion | Elarion fica junto ao Rio Lúmen e tem pontes vivas; o povoado e seu pedágio não são nomeados | Função compatível; confirmar se a ponte é urbana, contígua ou externa |
+| Junco Alto — Nymvar | Nymvar é ribeirinha, cercada por campos úmidos e enfrenta reparos de diques | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
+| Três Barcas — Nymvar | Nymvar tem canais, transporte fluvial e facções ligadas a barqueiros | Compatibilidade forte; o entreposto não é nomeado no perfil da cidade |
+| Ponta da Concha — Thalanor | Thalanor é porto marítimo com pesca e patrulhas costeiras | Compatibilidade forte; confirmar sua relação com o porto principal |
+| Farol de Âmbar — Thalanor | O perfil urbano já nomeia o **Farol da Folha Azul** | **Possível colisão de função/nome:** manter como local distinto por enquanto; definir se Farol de Âmbar é outro farol, um núcleo ligado ao Farol da Folha Azul ou uma referência que precisa ser reconciliada |
+| Copa-Funda — Vael-Tir | Vael-Tir é centro de manejo florestal, resinas autorizadas e patrulhas | Compatibilidade forte; a comunidade não é nomeada no perfil da cidade |
+| Passo do Veado — Vael-Tir | O perfil de Vael-Tir inclui centauros e corredores; o documento principal também tem o conflito ativo dos corredores centauros | Vínculo temático sustentado; a posição exata do posto e o traçado do corredor continuam pendentes |
+| Lodo-Claro — Orvass | Orvass é cidade de pântano, ervas, pesca e cuidados em meio a risco sanitário | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
+| Ilhas do Junco Negro — Orvass | Orvass é formada por ilhas de terra firme e passarelas sobre o pântano; canais variáveis já fazem parte do cenário | Compatibilidade forte; confirmar a relação geográfica entre as três comunidades e a cidade |
+| Vigília do Lago — Caladwen | Caladwen fica junto ao Lago das Lanternas e abriga observatório e estudos climáticos/celestes | Compatibilidade forte; confirmar se a aldeia é parte do conjunto urbano ou um núcleo separado |
+| Papel-Velho — Caladwen | Caladwen abriga a Biblioteca de Casca, cópia de manuscritos e estudos acadêmicos | Compatibilidade forte; confirmar se Papel-Velho é distrito/oficinas da cidade ou povoado externo |
+| Eco Baixo — Brumafunda | Brumafunda depende de guias, trilhas marcadas e buscas por desaparecidos | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
+| Torre da Névoa Mansa — Brumafunda | O perfil de Brumafunda já cita a **Torre sem Sino** e fenômenos de sombra/neblina | **Possível sobreposição narrativa:** não presumir que as duas torres sejam a mesma; decidir se são locais distintos, relacionados ou se um dos nomes precisa de ajuste |
+| Mel do Poente — Arven | Arven é centro agrícola e cita mel, pomares e problemas de polinização | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
+| Campo das Três Famílias — Arven | Arven é centro agrícola e enfrenta disputa de terras e tributo de safra | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
+| Máscara Nova — Silvaran | Silvaran é centro cultural de festivais, música, artes e tecelagem | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
+| Fonte do Regresso — Silvaran | Silvaran tem uma **Casa da Hospitalidade** e pactos de acolhimento | **Relação a definir:** a Fonte pode ser bairro, núcleo de acolhimento ou povoado distinto; não presumir que seja a própria Casa da Hospitalidade |
+| Ferro-Folha — Torvelume | Torvelume é cidade de ofícios e manutenção, com oficina e ferragens | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
+| Porta Selada — Torvelume | O perfil de Torvelume já menciona a **Mina Selada**, galerias antigas e vibrações | Vínculo temático sustentado; confirmar se Porta Selada é o núcleo junto aos acessos da mina e evitar tratar o assentamento como a própria mina |
+
+#### Conclusão do cruzamento
+
+- **Nenhum dos vinte nomes de assentamento é confirmado como bairro ou localidade externa apenas pelos perfis das dez cidades.** A cidade-mãe e a função local estão registradas, mas a posição física exige decisão geográfica.
+- Os perfis das cidades sustentam a coerência temática da maioria dos núcleos, sem nomeá-los individualmente.
+- Três relações precisam de distinção explícita para evitar confusão: **Farol de Âmbar × Farol da Folha Azul**, **Torre da Névoa Mansa × Torre sem Sino** e **Fonte do Regresso × Casa da Hospitalidade**.
+- Passo do Veado e Porta Selada têm conexões temáticas mais diretamente apoiadas pelos conflitos já existentes, mas isso não resolve seus limites espaciais.
+- Não foram criados novos locais, rotas, distâncias ou populações. As ambiguidades acima ficam abertas para a próxima decisão editorial.
+
 ## 3. Auditoria de acesso dos assentamentos
 
 Cada assentamento está associado a uma cidade-mãe, mas isso não basta para estabelecer o tempo de viagem. Antes de criar números, cada entrada precisa indicar:
