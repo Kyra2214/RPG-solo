@@ -38,6 +38,10 @@ data class WorldFigure(
     val aliveAtStart: Boolean,
     val contribution: String,
     val limitation: String,
+    /** Agenda atual inicial do personagem; valores mais específicos podem substituir o resumo do feito. */
+    val currentAgenda: String = contribution,
+    /** Pressão, limite ou custo que condiciona suas decisões. */
+    val pressure: String = limitation,
 )
 
 @Serializable
@@ -1030,6 +1034,11 @@ object AeltharynWorld {
         if (clockCollisions.isNotEmpty()) {
             return ExecResult.Rejected("relógios já existentes: ${clockCollisions.joinToString()}", 0)
         }
+        val activeFigureIds = figures.filter { it.aliveAtStart }.map { it.id }
+        val entityCollisions = activeFigureIds.filter { it in session.state.entities }
+        if (entityCollisions.isNotEmpty()) {
+            return ExecResult.Rejected("NPCs já existentes: ${entityCollisions.joinToString()}", 0)
+        }
         val commands = mutableListOf<Command>()
         cities.forEach { city ->
             commands.add(
@@ -1048,6 +1057,30 @@ object AeltharynWorld {
             commands += ConnectPlaces(route.fromCityId, route.toCityId)
         }
         commands += DiscoverPlace(CAPITAL_CITY_ID)
+        figures.filter { it.aliveAtStart }.forEach { figure ->
+            val peopleName = people.first { it.id == figure.peopleId }.name
+            val cityName = cities.first { it.id == figure.cityId }.name
+            commands +=
+                CreateEntity(
+                    Entity(
+                        id = figure.id,
+                        name = figure.name,
+                        kind = EntityKind.NPC,
+                        concept = "Figura de Aeltharyn; povo: $peopleName; função: ${figure.role}; origem: $cityName.",
+                        traits = listOf("world:$ID", "city:${figure.cityId}", "people:${figure.peopleId}", "role:${figure.role}"),
+                        rulesValidated = false,
+                    ),
+                )
+            commands +=
+                SetNpcDossier(
+                    NpcDossier(
+                        npcId = figure.id,
+                        personality = "${figure.name} é ${figure.role.lowercase()} de ${peopleName.lowercase()}, ligado a $cityName. Seu registro é privado para o mestre.",
+                        goals = listOf(figure.currentAgenda),
+                        motivations = listOf(figure.pressure),
+                    ),
+                )
+        }
         clocks.forEach { clock ->
             commands.add(
                 CreateClock(
