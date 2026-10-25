@@ -1148,3 +1148,10 @@ Esta é a primeira camada do mapa político, não um catálogo fechado de todo p
 ## 30. Escopo editorial e não integração
 
 O trabalho atual é a criação e revisão narrativa do ecossistema de Aeltharyn. Carregamento no APK, serialização, integração com modelos do jogo, automação de testes e CI não são critérios para concluir o texto do reino e não devem bloquear a fase editorial. Esses itens pertencem a uma etapa técnica posterior, depois da composição e revisão dos cinco reinos.
+
+
+## 31. Documento complementar: assentamentos e rede política
+
+A primeira camada dos vinte assentamentos foi aprofundada no documento [03 — Assentamentos, jurisdições e rede política](03-assentamentos-e-rede-politica.md). Ele nomeia as lideranças locais, registra método de legitimidade, obrigações, interesses, tensões, relações e limites de conhecimento. Também descreve os atritos entre cidades e estabelece regras provisórias para evitar dupla contagem populacional.
+
+O documento complementar expande o estado narrativo inicial; não substitui as fichas das dez cidades, não altera automaticamente a população já indicada nelas e não presume integração técnica ao jogo. As estimativas devem passar por auditoria cruzada antes de servirem como números fiscais ou militares exatos.
