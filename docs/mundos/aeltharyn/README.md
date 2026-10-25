@@ -47,6 +47,9 @@ Os nomes dos reinos futuros são rótulos provisórios, sem história ou geograf
 
 ## Escopo do Reino das Florestas — Aeltharyn
 
-Aeltharyn é um reino élfico, não um reino com as 50 raças do catálogo. O núcleo documentado reúne os elfos e 11 povos/linhagens próximos por território, ecologia e história, além de um aliado costeiro; visitantes e migrantes não são tratados como originários. A documentação atual amplia as relações materiais entre as dez cidades, as cadeias de consequência ecológica e os relógios de campanha.
+Aeltharyn é um reino élfico, não um reino com as 50 raças do catálogo. O núcleo documentado reúne os elfos e povos/linhagens próximos (16 IDs selecionados, contando as linhagens élficas separadamente) por território, ecologia e história, além de um aliado costeiro; visitantes e migrantes não são tratados como originários. A documentação atual amplia as relações materiais entre as dez cidades, as cadeias de consequência ecológica e os relógios de campanha.
 
 O reino permanece em implementação editorial e ainda não está integrado ao modelo carregável do jogo. O desenvolvimento das Coroas de Pedra está bloqueado até concluir auditoria de consistência, modelagem de dados, integração e testes de Aeltharyn.
+
+
+O código agora contém o catálogo tipado inicial em `engine/AeltharynWorld.kt`, com dez cidades, povos próximos aos elfos, figuras locais, rotas e relógios validados por testes unitários escritos. O catálogo ainda não é carregado automaticamente na criação de campanha; essa integração permanece pendente.
