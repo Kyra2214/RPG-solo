@@ -1194,3 +1194,11 @@ Esta tabela fecha a ligação editorial entre cada assentamento e a identidade e
 **Regra de identidade:** `npc.beren-tres-canais` é a mesma pessoa já descrita na seção 9, não um NPC novo. As outras dezenove lideranças passam a constar neste índice canônico e devem ser tratadas como NPCs próprios, sem duplicar suas fichas ao serem posteriormente convertidas para dados estruturados. Os IDs de assentamento e de NPC são identificadores editoriais; ainda não são registros implementados no motor do jogo.
 
 **Limite da auditoria:** este índice confirma a ligação entre os vinte assentamentos e suas lideranças, mas não conclui a auditoria geral de população, rotas, jurisdição, facções, cronologia ou consistência de todos os NPCs.
+
+## 34. Auditoria de demografia, rotas e dependências materiais
+
+O documento [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md) registra a primeira conferência aritmética e as lacunas que impedem tratar as estimativas como um censo. A soma dos números apresentados nos dez perfis urbanos é 293.500; o subtotal das estimativas dos vinte assentamentos é 37.250, sem contar separadamente visitantes sazonais de Passo do Veado. **Esses valores não devem ser somados para anunciar a população do reino**, porque ainda não foi determinado se as estimativas das cidades incluem os assentamentos sob suas jurisdições.
+
+A tabela de rotas contém doze ligações interurbanas com tempos aproximados. Ela não é ainda uma malha cartográfica completa, e não há tempos confirmados entre cada cidade-mãe e seus assentamentos. O documento 05 separa o que está explicitamente registrado do que ainda precisa ser definido; não inventa durações locais nem transforma lacunas em fatos do mundo.
+
+A auditoria continua editorial e não implica integração ao jogo. As próximas decisões são classificar a base demográfica, validar a geografia, definir acesso aos assentamentos e estabelecer escalas consistentes para alimentos, água, madeira, remédios e ferramentas.
