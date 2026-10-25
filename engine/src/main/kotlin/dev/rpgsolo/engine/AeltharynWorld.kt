@@ -672,7 +672,7 @@ object AeltharynWorld {
                 "city.silvaran",
                 "feerico",
                 "HERO",
-                false,
+                true,
                 "Conduziu famílias para fora de um círculo de pactos instável e registrou os limites que não deveriam ser cruzados.",
                 "Sua memória prova o caminho seguro, não explica a origem do fenômeno.",
             ),
