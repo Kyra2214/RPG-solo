@@ -49,7 +49,7 @@ Os nomes dos reinos futuros são rótulos provisórios, sem história ou geograf
 
 Aeltharyn é um reino élfico, não um reino com as 50 raças do catálogo. O núcleo documentado reúne os elfos e povos/linhagens próximos (16 IDs selecionados, contando as linhagens élficas separadamente) por território, ecologia e história, além de um aliado costeiro; visitantes e migrantes não são tratados como originários. A documentação atual amplia as relações materiais entre as dez cidades, as cadeias de consequência ecológica e os relógios de campanha.
 
-O reino permanece em implementação editorial e ainda não está integrado ao modelo carregável do jogo. O desenvolvimento das Coroas de Pedra está bloqueado até concluir auditoria de consistência, modelagem de dados, integração e testes de Aeltharyn.
+O reino permanece em implementação editorial e a integração com o modelo carregável está em validação. O desenvolvimento das Coroas de Pedra continua bloqueado até concluir a auditoria de consistência, validar a instalação e a persistência, e fechar os testes de Aeltharyn.
 
 
 O catálogo tipado contém 10 cidades, 16 povos/linhagens, 51 figuras, rotas e sete relógios. Ao iniciar uma campanha com Aeltharyn, o instalador agora cria as dez cidades, as conexões, os relógios e os 37 NPCs vivos com dossiês privados event-sourced; figuras históricas mortas ou desaparecidas permanecem no catálogo narrativo e não viram NPCs ativos. A validação exige herói, guardião e benfeitor por cidade e por povo. O CI ainda precisa confirmar compilação, testes e persistência antes de considerar esta integração concluída.
