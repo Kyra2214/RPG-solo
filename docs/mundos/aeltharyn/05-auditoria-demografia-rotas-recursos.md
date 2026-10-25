@@ -1,0 +1,145 @@
+# Aeltharyn — Auditoria de demografia, rotas e dependências materiais
+
+**Estado:** auditoria editorial em andamento  
+**Referência temporal:** ano 742 da Contagem da Seiva  
+**Escopo:** somente o reino de Aeltharyn; nenhum dado foi integrado ao APK ou ao motor do RPG Solo.
+
+Este documento registra o que é possível afirmar a partir do cânone atual, separa números provisórios de fatos confirmados e impede que lacunas sejam preenchidas por suposição. Ele não transforma estimativas narrativas em um censo preciso.
+
+## 1. Resultado demográfico preliminar
+
+### 1.1 Estimativas das dez cidades
+
+| Cidade | Estimativa atual |
+|---|---:|
+| Elarion | 82.000 |
+| Nymvar | 31.000 |
+| Thalanor | 44.000 |
+| Vael-Tir | 19.000 |
+| Orvass | 16.500 |
+| Caladwen | 23.000 |
+| Brumafunda | 12.000 |
+| Arven | 27.000 |
+| Silvaran | 21.000 |
+| Torvelume | 18.000 |
+| **Soma aritmética das estimativas urbanas** | **293.500** |
+
+A soma de 293.500 é apenas a soma dos dez números apresentados nos perfis. Ainda não está demonstrado que todos representem somente o núcleo urbano: cada perfil usa a palavra “população”, sem uma definição comum que exclua ou inclua aldeias e áreas sob jurisdição.
+
+### 1.2 Estimativas dos vinte assentamentos
+
+| Cidade-mãe | Assentamento | Estimativa de residentes |
+|---|---|---:|
+| Elarion | Raiz-de-Prata | 1.800 |
+| Elarion | Sete Degraus | 2.400 |
+| Nymvar | Junco Alto | 3.100 |
+| Nymvar | Três Barcas | 2.200 |
+| Thalanor | Ponta da Concha | 2.700 |
+| Thalanor | Farol de Âmbar | 900 |
+| Vael-Tir | Copa-Funda | 1.600 |
+| Vael-Tir | Passo do Veado | NaN |
+| Orvass | Lodo-Claro | 1.300 |
+| Orvass | Ilhas do Junco Negro | 2.000 |
+| Caladwen | Vigília do Lago | 1.000 |
+| Caladwen | Papel-Velho | 1.700 |
+| Brumafunda | Eco Baixo | 1.200 |
+| Brumafunda | Torre da Névoa Mansa | 650 |
+| Arven | Mel do Poente | 2.600 |
+| Arven | Campo das Três Famílias | 3.400 |
+| Silvaran | Máscara Nova | 1.500 |
+| Silvaran | Fonte do Regresso | 1.900 |
+| Torvelume | Ferro-Folha | 2.800 |
+| Torvelume | Porta Selada | 1.400 |
+| **Subtotal dos vinte assentamentos** | | **NaN** |
+
+O subtotal de NaN inclui a estimativa fixa de Passo do Veado, mas não contabiliza separadamente os visitantes sazonais desse posto. Não é um total adicional confirmado para somar às cidades. Até que a classificação de cada número seja corrigida, **não declarar a população total de Aeltharyn como NaN**: isso pode contar moradores duas vezes.
+
+### 1.3 Decisão editorial obrigatória
+
+Para cada cidade, registrar uma destas categorias:
+- **Núcleo urbano:** moradores dentro do perímetro urbano; assentamentos externos ficam fora.
+- **Jurisdição total:** cidade, aldeias, postos e área rural já incluídos.
+- **Região estimada:** cálculo amplo com limites aproximados.
+- **Indefinida:** manter o número como escala narrativa, sem somá-lo a outros totais.
+
+Até essa decisão, impostos, tamanho de exércitos, consumo de alimentos e perdas populacionais devem ser descritos qualitativamente ou como intervalos, não calculados a partir desses números.
+
+## 2. Rede de rotas: conexões explicitamente documentadas
+
+O documento principal contém as seguintes doze ligações com tempos estimados:
+
+- Elarion ↔ Nymvar: 2 dias por estrada; 1–2 dias pelo rio, conforme corrente.
+- Elarion ↔ Vael-Tir: 3 dias por trilhas patrulhadas; mais se houver quarentena florestal.
+- Elarion ↔ Caladwen: 2 dias de estrada; 1 dia e meio por trilhas rápidas.
+- Elarion ↔ Arven: 1 dia e meio por estrada.
+- Nymvar ↔ Orvass: 3 dias de barco e passarelas; a estação chuvosa altera a rota.
+- Nymvar ↔ Arven: 1 dia por estrada e canais.
+- Thalanor ↔ Elarion: 3 dias de barco pelo Lúmen ou 5 dias por estrada costeira.
+- Thalanor ↔ Silvaran: 4 dias por estrada, passando por pomares e vales.
+- Caladwen ↔ Brumafunda: 2 dias com guia; viajantes sem guia podem gastar muito mais.
+- Brumafunda ↔ Vael-Tir: 2–4 dias conforme as trilhas abertas.
+- Torvelume ↔ Elarion: 4 dias por estrada de fronteira.
+- Torvelume ↔ Caladwen: 3 dias, com risco de deslizamento em época de chuva.
+
+Esses tempos são condições comuns, não garantias. Chuva, quarentena, correnteza, bloqueios, transporte e conhecimento local alteram a duração. O quadro não define uma malha completa: uma ligação ausente da lista não significa que seja impossível viajar entre as cidades; significa apenas que o tempo e o caminho ainda não foram fixados no cânone.
+
+## 3. Auditoria de acesso dos assentamentos
+
+Cada assentamento está associado a uma cidade-mãe, mas isso não basta para estabelecer o tempo de viagem. Antes de criar números, cada entrada precisa indicar:
+1. rota principal e tipo de deslocamento;
+2. duração normal como intervalo, não precisão falsa;
+3. estação ou evento que pode fechar/desviar a rota;
+4. alternativa conhecida por moradores, se houver;
+5. quem mantém a rota e quem tem autoridade para interditá-la;
+6. se a rota é pública, controlada, sazonal, secreta ou disputada.
+
+| Cidade-mãe | Assentamentos | Questão a resolver antes de fixar tempo |
+|---|---|---|
+| Elarion | Raiz-de-Prata; Sete Degraus | distinguir viveiros e ponte local das rotas interurbanas e definir a cobrança no pedágio |
+| Nymvar | Junco Alto; Três Barcas | mapear diques, correnteza e travessias durante cheia |
+| Thalanor | Ponta da Concha; Farol de Âmbar | separar acesso costeiro, marés e autorização portuária |
+| Vael-Tir | Copa-Funda; Passo do Veado | preservar o corredor migratório e registrar fechamento de trilhas |
+| Orvass | Lodo-Claro; Ilhas do Junco Negro | reconhecer canais sazonais que os mapas oficiais não acompanham |
+| Caladwen | Vigília do Lago; Papel-Velho | definir caminho de acesso ao lago e transporte de documentos frágeis |
+| Brumafunda | Eco Baixo; Torre da Névoa Mansa | indicar rotas que exigem guia e critérios de fechamento por risco |
+| Arven | Mel do Poente; Campo das Três Famílias | separar estradas agrícolas, canais e corredores de polinização |
+| Silvaran | Máscara Nova; Fonte do Regresso | distinguir rotas de festival e refúgios de hospitalidade |
+| Torvelume | Ferro-Folha; Porta Selada | separar estradas de abastecimento, perímetro militar e acesso interditado às galerias |
+
+**Não foram inventados tempos de viagem locais nesta revisão.** Eles serão fixados quando a geografia relativa e os obstáculos estiverem definidos.
+
+## 4. Dependências materiais que precisam de medida ou escala
+
+| Sistema | O que já está estabelecido | O que ainda falta para simulação coerente |
+|---|---|---|
+| Alimentos | Arven produz; Nymvar é celeiro e centro de transporte; Silvaran depende de excedentes para festivais | reservas aproximadas, estação de colheita, perdas por fungo e prioridade de distribuição |
+| Água e diques | Nymvar tem reparos atrasados e conflito de manutenção; Orvass depende de canais variáveis | trechos críticos, tempo de reparo, bairros/campos expostos e impacto de uma cheia |
+| Floresta | Vael-Tir controla manejo e cotas; Raiz-de-Prata mantém viveiros; há praga e pressão por madeira/resina | regeneração por estação, áreas interditadas e custo de extração acima da cota |
+| Porto e comércio | Thalanor liga o reino ao mar; Torvelume fornece ferramentas e reparos; há contrabando de resina | cargas críticas, prazo de reposição, rotas alternativas e efeito de bloqueio |
+| Saúde | Orvass fornece ervas e filtros; Nymvar tem hospital e risco de água contaminada | estoques mínimos, alcance de atendimento e velocidade plausível de propagação de surtos |
+| Informação | Caladwen e Papel-Velho preservam registros; guias conhecem trilhas locais | tempo de mensageiro, registros acessíveis e diferença entre rumor, testemunho e prova |
+
+Não é necessário transformar tudo em números agora. Para cada recurso, basta estabelecer uma escala consistente — baixo/médio/alto ou intervalo plausível — e uma consequência observável quando ele falta.
+
+## 5. Regras de consistência para a simulação
+
+1. Uma rota fechada deve afetar comércio, mensagens, socorro e deslocamento conforme o que realmente passa por ela.
+2. Uma cheia não deve prejudicar todas as cidades da mesma forma; o impacto depende da bacia, dos diques e das rotas alternativas.
+3. A escassez deve ter causa, duração provável e grupos afetados. Não surge apenas porque uma missão precisa de crise.
+4. O estoque de um assentamento não é automaticamente igual ao da cidade-mãe.
+5. Uma rota secreta não é conhecida por toda a Coroa; o conhecimento deve ter origem e possibilidade de vazamento.
+6. A chegada de uma notícia depende de mensageiros, rotas e condições. Não atualizar o conhecimento de todos os NPCs instantaneamente.
+7. Não derivar força militar diretamente da população enquanto a categoria demográfica e os compromissos de defesa não estiverem definidos.
+8. Um dado ausente permanece desconhecido; não o preencher com número exato sem base narrativa.
+
+## 6. Pendências desta auditoria
+
+- [ ] Classificar a população das dez cidades como núcleo urbano, jurisdição total, região ou indefinida.
+- [ ] Confirmar se os assentamentos estão ou não incluídos nos totais das cidades-mãe.
+- [ ] Desenhar a malha geográfica mínima e validar as doze ligações existentes.
+- [ ] Definir tempos locais dos vinte assentamentos depois de validar a geografia.
+- [ ] Estabelecer escalas de reservas, produção e dependências para alimentos, água, madeira, remédios e ferramentas.
+- [ ] Cruzar essas dependências com os sete relógios iniciais e os conflitos sazonais já existentes.
+- [ ] Revisar o documento principal e os perfis de assentamentos após resolver as decisões acima.
+
+**Regra de escopo:** este é um registro de auditoria editorial. Não implementa código, não altera regras mecânicas e não inicia os outros quatro reinos.
