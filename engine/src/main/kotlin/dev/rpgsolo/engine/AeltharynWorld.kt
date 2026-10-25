@@ -72,7 +72,7 @@ object AeltharynWorld {
                 "elfo",
                 "Elfo",
                 "originário e majoritário",
-                listOf("city.elarion", "city.vael-tir", "city.caladwen", "city.thalanor"),
+                listOf("city.elarion", "city.vael-tir", "city.caladwen", "city.thalanor", "city.torvelume"),
                 "Povo dominante; a identidade élfica não implica lealdade automática ao rei.",
             ),
             WorldPeople(
