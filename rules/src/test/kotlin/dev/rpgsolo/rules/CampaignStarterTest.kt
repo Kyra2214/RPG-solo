@@ -102,17 +102,17 @@ class CampaignStarterTest {
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
         val result =
             CampaignStarter.start(
-            store,
-            reg,
-            cat,
-            rd,
-            cfg,
-            fichaPadrao(cat, reg),
-            "aeltharyn-1",
-            "Crônicas do Primeiro Verde",
-            742L,
-            worldId = AeltharynWorld.ID,
-        ) as StartResult.Started
+                store,
+                reg,
+                cat,
+                rd,
+                cfg,
+                fichaPadrao(cat, reg),
+                "aeltharyn-1",
+                "Crônicas do Primeiro Verde",
+                742L,
+                worldId = AeltharynWorld.ID,
+            ) as StartResult.Started
 
         assertEquals(AeltharynWorld.NAME, result.campanha.ambientacao.name)
         assertEquals(10, result.session.state.places.size)
