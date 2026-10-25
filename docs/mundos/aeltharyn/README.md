@@ -32,6 +32,10 @@ Os nomes dos reinos futuros são rótulos provisórios, sem história ou geograf
 - [x] Compor dez cidades com perfis próprios.
 - [x] Compor governo, facções, rede de rotas, ecologia, história, lendas, mistérios e elenco de NPCs.
 - [x] Associar figuras históricas a cada cidade e definir agenda sazonal e ritmos locais de funcionamento.
+- [x] Expandir a memória para heróis históricos, guardiões vivos e benfeitores nas dez cidades.
+- [x] Definir tríades de herói, guardião e benfeitor para 26 povos/subpovos selecionados como relevantes para Aeltharyn; IDs conferidos no catálogo atual.
+- [ ] Revisar coerência entre personagens repetidos, cargos, cronologia e relações; fechar as lacunas de objetivos, agenda e conhecimento de cada NPC.
+- [ ] Integrar os dados ao modelo de mundo existente e validar carregamento/persistência.
 - [x] Conferir os IDs de raças e sub-raças citados contra o catálogo editorial atual (50 raças e 50 sub-raças; nenhum ID citado ausente na conferência inicial).
 - [ ] Revisão de continuidade, demografia, distâncias e contradições internas.
 - [ ] Conferir o formato de mundo existente no código e decidir como integrar sem duplicar modelos.
