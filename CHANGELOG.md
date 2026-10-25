@@ -1959,3 +1959,11 @@
 - Adicionado `AeltharynWorld` no módulo `engine`, com IDs estáveis para as dez cidades, 16 povos/linhagens próximos aos elfos, 30 figuras (herói, guardião e benfeitor por cidade), rotas, dependências, problemas locais e sete relógios iniciais.
 - O catálogo inclui validação estrutural para IDs duplicados, referências de cidade/povo, tríades por cidade, duração das rotas, conectividade com a capital e limites dos relógios. Foram adicionados testes unitários para esses contratos.
 - Escopo: catálogo tipado disponível no código, mas ainda não carregado automaticamente ao iniciar uma campanha. Testes/build/CI desta alteração ainda não foram executados.
+
+
+## 2026-10-25 — instalação de Aeltharyn na campanha
+
+- `CampaignStarter.start` aceita um `worldId` explícito e, quando `kingdom.aeltharyn` é selecionado, instala o mapa de dez cidades, conexões, capital descoberta e sete relógios iniciais na mesma campanha.
+- A instalação usa o lote atômico do motor; referências inválidas, IDs conflitantes ou instalação sobre mapa prévio são recusados. O estado é persistido no log de eventos e deve sobreviver à reabertura da campanha.
+- Testes escritos para validação do catálogo, três funções por cidade e instalação/persistência. Ainda não executados; o CI não dispara automaticamente nesta branch pela configuração atual de branches.
+- Pendências de implementação: ligar a seleção do mundo à interface de criação de campanha e ampliar o estado de mundo para agendas/relações de figuras; Aeltharyn segue como único reino em desenvolvimento.
