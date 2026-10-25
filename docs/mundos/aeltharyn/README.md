@@ -34,7 +34,8 @@ Os nomes dos reinos futuros são rótulos provisórios, sem história ou geograf
 - [x] Associar figuras históricas a cada cidade e definir agenda sazonal e ritmos locais de funcionamento.
 - [x] Expandir a memória para heróis históricos, guardiões vivos e benfeitores nas dez cidades.
 - [x] Definir referências de herói, guardião e benfeitor para cada um dos 16 povos/linhagens relevantes de Aeltharyn, sem incluir indiscriminadamente as 50 raças do catálogo.
-- [ ] Revisar coerência entre personagens repetidos, cargos, cronologia e relações; fechar as lacunas de objetivos, agenda e conhecimento de cada NPC. A matriz narrativa já foi sincronizada com as figuras do catálogo tipado, mas a revisão global ainda está aberta.
+- [x] Dar agenda atual concreta aos 37 NPCs vivos, separada dos feitos históricos.
+- [ ] Revisar coerência entre personagens repetidos, cargos, cronologia, relações e conhecimento de cada NPC; a revisão global ainda está aberta.
 - [ ] Integrar os dados ao modelo de mundo existente e validar carregamento/persistência.
 - [x] Conferir os IDs de raças e sub-raças citados contra o catálogo editorial atual (50 raças e 50 sub-raças; nenhum ID citado ausente na conferência inicial).
 - [ ] Revisão de continuidade, demografia, distâncias e contradições internas.
@@ -52,4 +53,4 @@ Aeltharyn é um reino élfico, não um reino com as 50 raças do catálogo. O n�
 O reino permanece em implementação editorial e a integração com o modelo carregável está em validação. O desenvolvimento das Coroas de Pedra continua bloqueado até concluir a auditoria de consistência, validar a instalação e a persistência, e fechar os testes de Aeltharyn.
 
 
-O catálogo tipado contém 10 cidades, 16 povos/linhagens, 51 figuras, rotas e sete relógios. Ao iniciar uma campanha com Aeltharyn, o instalador agora cria as dez cidades, as conexões, os relógios e os 37 NPCs vivos com dossiês privados event-sourced; figuras históricas mortas ou desaparecidas permanecem no catálogo narrativo e não viram NPCs ativos. A validação exige herói, guardião e benfeitor por cidade e por povo. O CI ainda precisa confirmar compilação, testes e persistência antes de considerar esta integração concluída.
+O catálogo tipado contém 10 cidades, 16 povos/linhagens, 51 figuras, rotas e sete relógios. Os 37 NPCs vivos agora têm agenda atual explícita, distinta do registro histórico. Ao iniciar uma campanha com Aeltharyn, o instalador agora cria as dez cidades, as conexões, os relógios e os 37 NPCs vivos com dossiês privados event-sourced; figuras históricas mortas ou desaparecidas permanecem no catálogo narrativo e não viram NPCs ativos. A validação exige herói, guardião e benfeitor por cidade e por povo. O CI ainda precisa confirmar compilação, testes e persistência antes de considerar esta integração concluída.

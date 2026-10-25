@@ -83,4 +83,17 @@ class AeltharynWorldTest {
         assertEquals(10, reopened.state.places.size)
         assertEquals(7, reopened.state.clocks.size)
     }
+
+    @Test
+    fun everyLivingFigureHasAnActionableAgendaAndDistinctPressure() {
+        val activeFigures = AeltharynWorld.figures.filter { it.aliveAtStart }
+
+        assertEquals(37, activeFigures.size)
+        activeFigures.forEach { figure ->
+            assertTrue("missing agenda: ${figure.id}", figure.currentAgenda.length >= 25)
+            assertTrue("agenda copied from contribution: ${figure.id}", figure.currentAgenda != figure.contribution)
+            assertTrue("missing pressure: ${figure.id}", figure.pressure.length >= 25)
+            assertTrue("pressure copied from limitation: ${figure.id}", figure.pressure != figure.limitation)
+        }
+    }
 }

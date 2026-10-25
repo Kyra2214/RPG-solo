@@ -1983,3 +1983,11 @@
 - A instalação usa o lote atômico do motor; referências inválidas, IDs conflitantes ou instalação sobre mapa prévio são recusados. O estado é persistido no log de eventos e deve sobreviver à reabertura da campanha.
 - Testes escritos para validação do catálogo, três funções por cidade e instalação/persistência. Ainda não executados; o CI não dispara automaticamente nesta branch pela configuração atual de branches.
 - Pendências de implementação: ligar a seleção do mundo à interface de criação de campanha e ampliar o estado de mundo para agendas/relações de figuras; Aeltharyn segue como único reino em desenvolvimento.
+
+
+## 2026-10-25 — agendas atuais para NPCs de Aeltharyn
+
+- Os 37 NPCs vivos receberam objetivos atuais específicos e campos separados para agenda e pressão; os objetivos atuais deixam de reutilizar os feitos históricos como motivação presente.
+- Adicionado teste unitário para exigir agenda e pressão não vazias e distintas dos campos históricos em todas as figuras vivas.
+- Escopo mantido: Reino das Florestas, 10 cidades, 16 povos/linhagens próximos aos elfos, 51 figuras e sete relógios. `main` permanece intocada; nenhum outro reino foi iniciado.
+- Testes e CI consolidados continuam pendentes e serão executados apenas ao final da revisão desta fase.
