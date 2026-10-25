@@ -4,9 +4,9 @@
 **Branch de trabalho:** `world/aeltharyn-reino-das-florestas`  
 **Regra de escopo:** este documento conclui o primeiro reino antes de desenvolver qualquer outro reino. Os outros quatro existem apenas como direções futuras, sem lore detalhada aqui.
 
-## 1. Identidade do mundo
+## 1. Identidade do reino
 
-**Aeltharyn** é o nome dado ao mundo conhecido pelos povos que habitam o Primeiro Verde. O nome antigo, preservado em inscrições élficas, significa aproximadamente “aquilo que cresce entre a primeira luz e a última raiz”. Aeltharyn não é um mundo de bem contra mal: povos, reinos e indivíduos defendem interesses, memórias, crenças e necessidades que entram em conflito.
+**Aeltharyn é o Reino das Florestas**, uma das cinco grandes potências territoriais do mundo conhecido neste cenário — não o mundo inteiro. O nome antigo, preservado em inscrições élficas, significa aproximadamente “aquilo que cresce entre a primeira luz e a última raiz”. Aeltharyn não é um reino de bem contra mal: povos, reinos e indivíduos defendem interesses, memórias, crenças e necessidades que entram em conflito.
 
 A história começa no ano **742 da Contagem das Seivas**, calendário usado pela corte élfica e adotado para comércio internacional. O calendário tem doze luas de trinta dias e cinco dias de transição chamados Dias Sem Raiz. O ano civil tem 365 dias. As estações são chamadas Despertar, Plenitude, Queda e Silêncio.
 
