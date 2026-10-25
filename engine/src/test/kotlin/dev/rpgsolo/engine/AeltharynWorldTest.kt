@@ -39,13 +39,13 @@ class AeltharynWorldTest {
 
         assertTrue(AeltharynWorld.install(session) is ExecResult.Accepted)
         assertEquals(10, session.state.places.size)
-        assertEquals(setOf(AeltharynWorld.capitalCityId), session.state.knownPlaces)
-        assertEquals(AeltharynWorld.capitalCityId, session.state.currentPlaceId)
+        assertEquals(setOf(AeltharynWorld.CAPITAL_CITY_ID), session.state.knownPlaces)
+        assertEquals(AeltharynWorld.CAPITAL_CITY_ID, session.state.currentPlaceId)
         assertEquals(7, session.state.clocks.size)
         assertEquals(2, session.state.clocks.getValue("clock.heart-trees").filled)
         assertEquals(3, session.state.clocks.getValue("clock.dikes").filled)
-        assertFalse(session.state.places.getValue(AeltharynWorld.capitalCityId).description.contains("Documentos sobre a Guerra"))
-        assertTrue(session.state.places.getValue(AeltharynWorld.capitalCityId).secret.contains("Documentos sobre a Guerra"))
+        assertFalse(session.state.places.getValue(AeltharynWorld.CAPITAL_CITY_ID).description.contains("Documentos sobre a Guerra"))
+        assertTrue(session.state.places.getValue(AeltharynWorld.CAPITAL_CITY_ID).secret.contains("Documentos sobre a Guerra"))
 
         val reopened = CampaignSession.open(store, "aeltharyn-test")
         assertEquals(10, reopened.state.places.size)
