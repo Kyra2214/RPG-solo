@@ -67,6 +67,26 @@ Esta matriz define **centros de referência**, não guetos raciais. Nenhuma cida
 
 A distribuição de referência deve ser conferida com as rotas, os recursos, a população e as jurisdições já documentadas. Não criar cidades adicionais para acomodar um povo: comunidades e famílias podem estar distribuídas entre cidades, aldeias e assentamentos existentes.
 
+### 3.2 Mapa transversal de presença dos povos
+
+A tabela seguinte consolida a distribuição como **hipótese editorial de trabalho**, para tornar visível que onze povos de referência coexistem em dez cidades. “Centro de referência” significa presença cultural e histórica relevante, não maioria demográfica, exclusividade nem local obrigatório de nascimento. A presença secundária é uma orientação inicial que ainda deve ser cruzada com as fichas de cidade e de assentamento.
+
+| Povo nativo de referência | Centro(s) de referência | Presença secundária sugerida | Regra de continuidade |
+|---|---|---|---|
+| Elfos e suas linhagens | Elarion | Todas as outras nove cidades, com costumes e proporções locais diferentes | A Coroa é élfica; isso não significa que toda cidade seja majoritariamente élfica nem que todos os elfos apoiem o rei. |
+| Sátiros / Silvanos Festivos | Silvaran | Elarion durante assembleias; outras cidades durante festivais sazonais | Não limitar a cultura festiva a artistas ou entretenimento; há famílias, trabalhadores e dissidentes. |
+| Feéricos | Brumafunda | Silvaran e comunidades menores próximas a bosques antigos | Não tratar todos os feéricos como mágicos, misteriosos ou sujeitos às mesmas leis locais. |
+| Verdejantes | Brumafunda | Orvass e áreas de bosque/clareira ligadas a comunidades existentes | Podem manter comunidades enraizadas ou viajar; não são propriedade territorial da Coroa. |
+| Micélioides | Orvass | Comunidades úmidas e subterrâneas ligadas aos assentamentos já existentes | A presença em áreas úmidas não implica que todos vivam isolados ou tenham uma única forma de comunicação. |
+| Centauros das Florestas | Vael-Tir | Passo do Veado e outros corredores de passagem já descritos | Preservar largura e acesso às rotas; não converter todos os centauros em patrulheiros ou cavaleiros. |
+| Felídeos das Selvas | Thalanor e Vael-Tir | Outras cidades por comércio, guia e vínculos familiares | Caça e orientação são tradições possíveis, não uma obrigação individual nem uma licença para estereótipos. |
+| Orcanos das Matas | Torvelume | Aldeias e comunidades aliadas ligadas aos pactos de defesa | Não os reduzir a guarnições ou guerreiros; os pactos variam entre comunidades. |
+| Corvídeos | Caladwen | Elarion e postos de observação ou mensageria já existentes | Mensageria e arquivo são tradições, não prova de espionagem ou conhecimento universal. |
+| Pequeninos, incluindo ribeirinhos | Nymvar e Arven | Thalanor e assentamentos ribeirinhos ou agrícolas já descritos | Não presumir que todo pequenino seja agricultor, barqueiro ou anfitrião. |
+| Gnomos dos Vales | Arven | Torvelume e cidades que demandam manutenção de ferramentas e mecanismos | Ofícios de precisão são uma tradição reconhecida, não uma profissão obrigatória para cada gnomo. |
+
+**Limite da matriz:** essa distribuição não cria bairros exclusivos, novas aldeias, população adicional ou novos assentamentos. Onde uma ficha existente não confirmar a presença de um povo, a tabela funciona apenas como proposta de vínculo cultural a validar — não como fato demográfico. Os personagens podem nascer em qualquer cidade ou comunidade, e a origem cultural não determina sua profissão, lealdade, classe ou trajetória.
+
 ## 4. Forasteiros: residentes sem origem nativa
 
 Os povos abaixo aparecem no documento principal como visitantes ou comunidades migrantes. Até que suas terras natais sejam desenvolvidas nas etapas futuras, sua presença em Aeltharyn deve ser descrita pela história individual ou comunitária da migração, não por lore inventada sobre os outros reinos.
