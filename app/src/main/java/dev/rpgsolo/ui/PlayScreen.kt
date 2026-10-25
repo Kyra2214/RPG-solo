@@ -646,7 +646,7 @@ private fun CompanionPanel(
     AppCard {
         TextButton(onClick = {
             open = !open
-            model.companionNotice = null
+            model.dismissCompanionNotice()
         }) {
             Text(stringResource(R.string.companion_title, pets.size), style = MaterialTheme.typography.titleSmall)
         }

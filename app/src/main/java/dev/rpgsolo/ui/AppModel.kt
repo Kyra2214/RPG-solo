@@ -462,6 +462,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** N-33.2c: aviso do card do Companheiro (subiu de nível); some quando o jogador abre o card. */
     var companionNotice by mutableStateOf<String?>(null)
         private set
+
+    fun dismissCompanionNotice() {
+        companionNotice = null
+    }
+
     var sourceLibraryVersion by mutableIntStateOf(0)
         private set
     var canonFactsVersion by mutableIntStateOf(0)
