@@ -42,7 +42,7 @@ Os quatro nomes futuros são rótulos provisórios, sem história ou geografia c
 - [x] Documentar dependências e atritos políticos entre as dez cidades.
 - [x] Definir o quadro institucional de pactos, jurisdição, justiça, tributos e sucessão em documento próprio.
 - [ ] Auditar nomes, idades, cargos, genealogias, relações, conhecimento de NPCs e duplicações.
-- [ ] Auditar demografia, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas.
+- [ ] Auditar demografia, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas; ver [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md) para as lacunas registradas.
 - [x] Criar índice canônico ligando os vinte assentamentos aos IDs estáveis de suas lideranças, distinguindo o NPC já existente dos dezenove novos perfis editoriais.
 - [x] Sincronizar o quadro de assentamentos do documento principal com os vinte perfis detalhados e seus IDs canônicos.
 - [ ] Cruzar os vinte assentamentos com os NPCs e as facções existentes, eliminando duplicações e fechando lacunas de jurisdição.
