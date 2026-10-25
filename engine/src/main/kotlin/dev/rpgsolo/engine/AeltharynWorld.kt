@@ -629,7 +629,6 @@ object AeltharynWorld {
                 "Oferece ferramentas e bolsas a aprendizes sem recursos.",
                 "As bolsas cobrem apenas uma parte dos candidatos.",
             ),
-
             WorldFigure(
                 "npc.saelith-arco-chuva",
                 "Saelith Arco-de-Chuva",
@@ -1083,7 +1082,7 @@ object AeltharynWorld {
                         npcId = figure.id,
                         personality =
                             "${figure.name} é ${figure.role.lowercase()} de ${peopleName.lowercase()}, " +
-                            "ligado a $cityName. Seu registro é privado para o mestre.",
+                                "ligado a $cityName. Seu registro é privado para o mestre.",
                         goals = listOf(figure.currentAgenda),
                         motivations = listOf(figure.pressure),
                     ),
