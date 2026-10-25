@@ -1952,3 +1952,10 @@
 - Acrescentados fluxos de recursos e dependências entre as dez cidades, corredores de viagem com estimativas, ciclos ecológicos, cadeias de consequências e relógios de campanha com estados iniciais.
 - Registradas portas de conclusão explícitas. O reino das Montanhas continua bloqueado até auditoria de consistência, integração ao modelo existente e testes reais.
 - Validação: atualização documental via GitHub; nenhum teste/build/CI foi executado nesta alteração editorial.
+
+
+## 2026-10-25 — catálogo tipado de Aeltharyn no motor
+
+- Adicionado `AeltharynWorld` no módulo `engine`, com IDs estáveis para as dez cidades, 16 povos/linhagens próximos aos elfos, 30 figuras (herói, guardião e benfeitor por cidade), rotas, dependências, problemas locais e sete relógios iniciais.
+- O catálogo inclui validação estrutural para IDs duplicados, referências de cidade/povo, tríades por cidade, duração das rotas, conectividade com a capital e limites dos relógios. Foram adicionados testes unitários para esses contratos.
+- Escopo: catálogo tipado disponível no código, mas ainda não carregado automaticamente ao iniciar uma campanha. Testes/build/CI desta alteração ainda não foram executados.
