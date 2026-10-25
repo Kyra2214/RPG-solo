@@ -1,3 +1,13 @@
+## 2026-10-25 — mundo Aeltharyn: composição editorial do Reino das Florestas
+
+- Criada a branch isolada `world/aeltharyn-reino-das-florestas` a partir de `main`; nenhum commit foi aplicado em `main`.
+- Definido o nome provisório **Aeltharyn — Crônicas do Primeiro Verde**.
+- Criados `docs/mundos/aeltharyn/README.md` e `docs/mundos/aeltharyn/01-reino-das-florestas.md`.
+- Composição narrativa do primeiro reino: dez cidades, geografia e ecologia, história em eras, monarquia élfica, herdeira, conselho, facções, rede de rotas, heróis históricos, elenco de NPCs, leis, economia, crenças, lendas, mistérios e conflitos iniciais.
+- Conferência inicial do catálogo atual: 50 raças e 50 sub-raças; nenhum ID de raça/sub-raça referenciado no documento foi encontrado ausente no catálogo. Essa verificação não equivale a validação de carregamento pelo motor.
+- Atualizado `docs/MUNDO_PRECONFIGURADO.md` para apontar para a composição específica.
+- **Limite de status:** conteúdo editorial escrito; ainda falta revisão de continuidade e integração com o modelo de mundo existente. Não foi declarado como implementado no aplicativo e não foram executados testes/CI nesta etapa.
+
 ## 2026-10-25 — plano: bloco WD (mundo pré-configurado principal), só documentação
 
 - `docs/MUNDO_PRECONFIGURADO.md`: proposta do autor guardada como referência (5 reinos, 50 cidades, 8 a 12 NPCs por reino, geografia, povos, facções, 3 modos de cânone).
