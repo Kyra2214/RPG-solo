@@ -31,6 +31,7 @@ Os nomes dos reinos futuros são rótulos provisórios, sem história ou geograf
 - [x] Definir nome provisório do mundo e identidade do primeiro reino.
 - [x] Compor dez cidades com perfis próprios.
 - [x] Compor governo, facções, rede de rotas, ecologia, história, lendas, mistérios e elenco de NPCs.
+- [x] Associar figuras históricas a cada cidade e definir agenda sazonal e ritmos locais de funcionamento.
 - [x] Conferir os IDs de raças e sub-raças citados contra o catálogo editorial atual (50 raças e 50 sub-raças; nenhum ID citado ausente na conferência inicial).
 - [ ] Revisão de continuidade, demografia, distâncias e contradições internas.
 - [ ] Conferir o formato de mundo existente no código e decidir como integrar sem duplicar modelos.
