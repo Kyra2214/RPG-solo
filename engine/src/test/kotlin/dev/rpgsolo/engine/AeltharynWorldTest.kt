@@ -41,6 +41,19 @@ class AeltharynWorldTest {
     }
 
     @Test
+    fun sceneContextLimitsCityAndSecretInformation() {
+        val city = AeltharynWorld.cities.first { it.id == AeltharynWorld.CAPITAL_CITY_ID }
+        val context = AeltharynWorld.sceneContext(city.id, setOf(city.id))
+
+        assertTrue(context!!.contains(city.name))
+        assertFalse(context.contains(city.activeProblem))
+        city.dependsOn.filter { it != city.id }.forEach { dependencyId ->
+            assertFalse(context.contains(AeltharynWorld.cities.first { it.id == dependencyId }.name))
+        }
+        assertEquals(null, AeltharynWorld.sceneContext("city.unknown", emptySet()))
+    }
+
+    @Test
     fun installSeedsConnectedMapAndInitialClockProgressAtomically() {
         val store = InMemoryEventStore()
         val session =
