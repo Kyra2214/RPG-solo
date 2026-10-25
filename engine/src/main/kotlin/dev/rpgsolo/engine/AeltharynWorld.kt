@@ -827,7 +827,7 @@ object AeltharynWorld {
                         id = city.id,
                         name = city.name,
                         description =
-                        "${city.role}. Recursos: ${city.supplies.joinToString(", ")}. Lenda local: ${city.legend}",
+                            "${city.role}. Recursos: ${city.supplies.joinToString(", ")}. Lenda local: ${city.legend}",
                         secret = city.activeProblem,
                     ),
                 ),
