@@ -1,3 +1,12 @@
+## 2026-10-25 — revisão do ecossistema de Aeltharyn
+
+- Respondida a lacuna apontada na primeira composição: o reino tinha cidades descritas, mas sua rede de heróis, guardiões, benfeitores e gerações era insuficiente.
+- Ampliado `docs/mundos/aeltharyn/01-reino-das-florestas.md` com figuras históricas e vivas para as dez cidades, legados associados a conflitos atuais, cronologia em eras e matriz explícita de herói/guardião/benfeitor para 26 povos e subpovos escolhidos para o primeiro reino.
+- Conferidos os 26 IDs da matriz contra o catálogo atual: nenhum ID ausente. Os povos não selecionados não foram declarados inexistentes; sua origem e distribuição mundial ficam para a composição dos reinos seguintes, na ordem pedida.
+- A revisão explicita que “herói” não significa pessoa perfeita, “guardião” não significa necessariamente combatente e “benfeitor” exige contribuição concreta. As cidades mantêm memórias e interpretações históricas próprias.
+- Atualizado o índice de Aeltharyn com o escopo ampliado e as pendências.
+- **Status honesto:** conteúdo narrativo expandido, não concluído. Ainda requer auditoria de continuidade, cronologia, relações/agenda/conhecimento dos NPCs e integração ao modelo de mundo do jogo. Nenhum teste/CI executado nesta revisão editorial.
+
 ## 2026-10-25 — mundo Aeltharyn: composição editorial do Reino das Florestas
 
 - Criada a branch isolada `world/aeltharyn-reino-das-florestas` a partir de `main`; nenhum commit foi aplicado em `main`.
