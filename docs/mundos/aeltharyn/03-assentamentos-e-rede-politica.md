@@ -58,60 +58,6 @@ A classificação abaixo usa apenas a forma descrita nos perfis existentes. Quan
 6. Até a classificação demográfica, não somar a população de um bairro ao total da cidade se houver possibilidade de já estar incluída. Também não presumir que todo povoado externo esteja excluído dos números urbanos.
 7. Esta etapa não acrescenta cidades, nomes de assentamentos, populações, rotas nem tempos de viagem.
 
-## 1.1 Relação espacial com as cidades: assentamento não significa localidade independente
-
-Os vinte assentamentos são **núcleos comunitários vinculados à rede territorial das dez cidades**, não vinte cidades adicionais nem necessariamente vinte vilarejos afastados. A palavra “assentamento” é uma categoria editorial ampla: identifica uma comunidade, função ou núcleo habitado que merece registro próprio na simulação.
-
-Conforme a geografia e a história local forem confirmadas, cada núcleo pode ser classificado como:
-- **Bairro:** parte contínua do tecido urbano de uma das dez cidades, com identidade e liderança comunitária próprias.
-- **Distrito ou núcleo periurbano:** área administrativa ou comunidade na borda da cidade, ligada diariamente ao centro urbano.
-- **Vila ou povoado próximo:** núcleo separado do perímetro urbano, mas conectado por deslocamentos frequentes, serviços, comércio ou proteção.
-- **Comunidade afastada:** núcleo fora da vizinhança imediata, dependente de trilhas, rios, estações ou acordos específicos.
-- **Posto ou núcleo sazonal:** instalação de função especializada, mercado sazonal ou comunidade cuja população varia ao longo do ano.
-
-Essas categorias descrevem a **relação espacial e administrativa**, não uma escala de importância. Um bairro pode ter grande autonomia cultural; uma comunidade afastada pode continuar sob um pacto com a cidade-mãe; um posto sazonal pode ter importância estratégica sem ser uma aldeia permanente.
-
-**Estado atual:** os perfis existentes definem a função, a liderança e a cidade-mãe de cada núcleo, mas não fixam de modo suficiente a posição exata em relação ao perímetro urbano. Portanto, não classificar silenciosamente os vinte como bairros nem como vilarejos remotos. A posição espacial será registrada quando a geografia for confirmada. Até lá, “cidade-mãe” significa vínculo político e de referência, não distância, propriedade automática ou inclusão demográfica.
-
-## 1.1 O que significa “assentamento” neste dossiê
-
-**Assentamento é uma unidade comunitária do mapa político, não necessariamente uma localidade separada da cidade.** Os vinte registros abaixo podem corresponder a bairros, distritos, vilas próximas, comunidades afastadas ou postos especializados. O vínculo com uma cidade-mãe identifica a principal relação política e de serviços; não determina por si só a distância, a continuidade urbana nem a inclusão da população no número da cidade.
-
-Para evitar transformar uma lista editorial em geografia rígida, a classificação abaixo é **provisória e funcional**, baseada no tipo de comunidade descrito em cada perfil. Ela orienta a próxima auditoria; não substitui uma descrição geográfica explícita. Onde não houver evidência suficiente, a classificação deve continuar em aberto.
-
-| Assentamento | Classificação de trabalho | O que precisa ser confirmado |
-|---|---|---|
-| Raiz-de-Prata | Vila rural próxima de Elarion | Se fica fora do perímetro urbano ou é um distrito de viveiros da capital |
-| Sete Degraus | Núcleo de ponte, hospedagem e pedágio ligado à rota da capital | Se é um distrito de acesso, um povoado contíguo ou uma parada mais afastada |
-| Junco Alto | Vila ribeirinha de Nymvar | Se está dentro da várzea urbana ou fora do núcleo da cidade |
-| Três Barcas | Distrito/entreposto fluvial ligado a Nymvar | Se integra a malha urbana ou funciona como porto comunitário separado |
-| Ponta da Concha | Vila pesqueira costeira ligada a Thalanor | Distância do porto principal e relação com o perímetro urbano |
-| Farol de Âmbar | Posto costeiro com aldeia, possivelmente afastado | Distância de Thalanor e se a aldeia conta como núcleo separado |
-| Copa-Funda | Comunidade de manejo florestal fora do núcleo urbano, provisoriamente | Limites de uso florestal e distância efetiva de Vael-Tir |
-| Passo do Veado | Posto de trilha e mercado sazonal em corredor de passagem | Extensão do núcleo fixo, calendário e conexão física com Vael-Tir |
-| Lodo-Claro | Aldeia de áreas úmidas ligada a Orvass | Se é parte do tecido urbano periférico ou comunidade afastada |
-| Ilhas do Junco Negro | Conjunto de comunidades aquáticas dispersas | Quais núcleos são permanentes e como se relacionam com a jurisdição de Orvass |
-| Vigília do Lago | Aldeia/posto de observação ligado a Caladwen | Se fica em área periurbana ou fora da cidade |
-| Papel-Velho | Povoado de oficinas de escrita, possivelmente distrito especializado | Se é um distrito de Caladwen ou um povoado externo |
-| Eco Baixo | Aldeia de guias em área florestal | Distância, acesso regular e relação com as trilhas de Brumafunda |
-| Torre da Névoa Mansa | Posto de observação com pequena aldeia, possivelmente afastado | Distância, abastecimento e autoridade para fechar trilhas |
-| Mel do Poente | Vila rural de apiários e pomares ligada a Arven | Se integra a zona agrícola contígua ou é núcleo separado |
-| Campo das Três Famílias | Aldeia agrícola ligada a Arven | Limites de terras e distância da cidade |
-| Máscara Nova | Vila artística ligada a Silvaran, potencial distrito cultural | Se é contígua à cidade ou um núcleo independente |
-| Fonte do Regresso | Povoado de hospitalidade ligado a Silvaran | Se é bairro de acolhimento, distrito ou povoado externo |
-| Ferro-Folha | Vila de oficinas ligada a Torvelume, potencial distrito industrial | Se fica dentro do perímetro urbano, junto à fortaleza ou fora dele |
-| Porta Selada | Assentamento próximo às galerias interditadas | Perímetro habitado, distância da fortaleza e restrições de acesso |
-
-### Regras para a classificação
-
-1. Não criar uma nova cidade só porque um assentamento é afastado ou tem liderança própria.
-2. Um bairro ou distrito continua sendo parte da cidade para fins geográficos, embora possa ter administração, cultura e interesses locais próprios.
-3. Uma vila próxima pode depender de uma cidade sem estar dentro de seu perímetro urbano.
-4. Uma comunidade afastada pode manter pactos com a cidade-mãe sem ser controlada diretamente por ela.
-5. A classificação geográfica e a jurisdição política são campos diferentes e devem ser registrados separadamente.
-6. Até a auditoria demográfica, não somar a população de um assentamento ao total da cidade nem tratá-la como adicional: primeiro é preciso descobrir como cada estimativa foi composta.
-7. A palavra “assentamento” permanece como termo guarda-chuva no índice. Os tipos mais específicos devem ser usados quando a localização estiver confirmada.
-
 ## 2. Elarion — assentamentos da capital
 
 ### 2.1 Raiz-de-Prata
