@@ -73,7 +73,7 @@ Os vinte assentamentos não são automaticamente localidades externas às cidade
 
 Antes de somar qualquer população, registrar para cada núcleo: **posição espacial**, **relação administrativa** e **tratamento demográfico**. São três campos distintos. Um bairro pode estar incluído no número urbano; uma vila pode estar excluída; uma estimativa de jurisdição pode incluir ambos. Se isso ainda não estiver documentado, manter a categoria como **indefinida** e não calcular um total geral.
 
-### 1.3 Decisão editorial obrigatória
+### 1.4 Decisão editorial obrigatória
 
 Para cada cidade, registrar uma destas categorias:
 - **Núcleo urbano:** moradores dentro do perímetro urbano; assentamentos externos ficam fora.
