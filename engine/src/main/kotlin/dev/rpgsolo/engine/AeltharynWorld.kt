@@ -831,7 +831,9 @@ object AeltharynWorld {
                 ),
             )
         }
-        routes.forEach { route -> commands += ConnectPlaces(route.fromCityId, route.toCityId) }
+        routes.forEach { route ->
+            commands += ConnectPlaces(route.fromCityId, route.toCityId)
+        }
         commands += DiscoverPlace(CAPITAL_CITY_ID)
         clocks.forEach { clock ->
             commands += CreateClock(
@@ -840,7 +842,9 @@ object AeltharynWorld {
                 clock.segments,
                 consequence = clock.consequence,
             )
-            if (clock.initialProgress > 0) commands += AdvanceClock(clock.id, clock.initialProgress)
+            if (clock.initialProgress > 0) {
+                commands += AdvanceClock(clock.id, clock.initialProgress)
+            }
         }
         return session.executeAll(commands)
     }
@@ -882,7 +886,7 @@ object AeltharynWorld {
             c.peopleIds.filterNot { it in peopleIds }.forEach { errors += "povo não catalogado em ${c.id}: $it" }
             c.peopleIds.forEach { peopleId ->
                 if (c.id !in people.firstOrNull { it.id == peopleId }?.cityIds.orEmpty()) {
-                    errors += "presença de ${peopleId} em ${c.id} não consta na distribuição do povo"
+                    errors += "presença de $peopleId em ${c.id} não consta na distribuição do povo"
                 }
             }
             val roles = figures.filter { it.cityId == c.id }.map { it.role }.toSet()
