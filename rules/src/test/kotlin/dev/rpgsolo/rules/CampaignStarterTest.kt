@@ -95,13 +95,13 @@ class CampaignStarterTest {
         assertTrue("pj1" in reopened.state.entities)
     }
 
-
     @Test fun selecionaAeltharynEInstalaMapaERelogiosNaCampanha() {
         val cat = catalog()
         val reg = registry(cat)
         val store = InMemoryEventStore()
         val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
-        val result = CampaignStarter.start(
+        val result =
+            CampaignStarter.start(
             store,
             reg,
             cat,
