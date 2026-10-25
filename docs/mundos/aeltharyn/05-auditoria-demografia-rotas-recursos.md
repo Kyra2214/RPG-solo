@@ -67,6 +67,12 @@ Consequências para a contagem:
 - se for um agrupamento, como Ilhas do Junco Negro, esclarecer se a estimativa se refere ao conjunto inteiro;
 - não alterar os números atuais nem somar os subtotais até que cada caso seja classificado.
 
+### 1.3 Distinção territorial antes da contagem
+
+Os vinte assentamentos não são automaticamente localidades externas às cidades. Cada um pode vir a ser classificado como bairro, distrito/núcleo periurbano, vila próxima, comunidade afastada ou posto sazonal, conforme a geografia validada. A expressão “cidade-mãe” identifica o vínculo político de referência; não prova que o núcleo esteja fora do perímetro urbano nem que sua população deva ser somada separadamente.
+
+Antes de somar qualquer população, registrar para cada núcleo: **posição espacial**, **relação administrativa** e **tratamento demográfico**. São três campos distintos. Um bairro pode estar incluído no número urbano; uma vila pode estar excluída; uma estimativa de jurisdição pode incluir ambos. Se isso ainda não estiver documentado, manter a categoria como **indefinida** e não calcular um total geral.
+
 ### 1.3 Decisão editorial obrigatória
 
 Para cada cidade, registrar uma destas categorias:
