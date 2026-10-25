@@ -243,14 +243,14 @@ Se a resposta não puder ser confirmada, a IA deve reduzir a precisão, manter a
 - [ ] Cada conflito material relevante identifica locais expostos, agentes responsáveis e alternativas conhecidas.
 - [ ] Oportunidades podem ser aceitas, recusadas, ignoradas, resolvidas por terceiros ou transformadas.
 - [ ] A inação do jogador produz consequências proporcionais, não punição automática.
-- [ ] NPCs agem conforme objetivos, recursos, autoridade e conhecimento.
+- [x] NPCs agem conforme objetivos, recursos, autoridade e conhecimento; limites individuais e informações desconhecidas prevalecem sobre conveniência narrativa.
 - [ ] A IA distingue fato, hipótese, rumor e desconhecido.
 - [ ] O contexto recuperado para uma LLM pequena é mínimo, causalmente relevante e aprofundável.
 - [ ] Mudanças do mundo podem ser registradas estruturadamente sem depender apenas da prosa.
 - [ ] Segredos e notícias seguem caminhos de descoberta e transmissão plausíveis.
 - [ ] As lacunas de rotas, demografia e reservas apontadas no documento 05 permanecem explícitas até serem resolvidas.
 - [ ] Exemplos condicionais não são confundidos com novos fatos canônicos.
-- [ ] O modelo editorial é revisado contra as dez cidades, vinte assentamentos, instituições, NPCs e sete relógios antes de ser declarado concluído.
+- [x] O modelo editorial foi cruzado com as dez cidades, vinte assentamentos, instituições, NPCs e sete relógios; lacunas de distância e estoque não podem ser preenchidas como fatos.
 
 ## 14. Limites e próxima etapa
 
