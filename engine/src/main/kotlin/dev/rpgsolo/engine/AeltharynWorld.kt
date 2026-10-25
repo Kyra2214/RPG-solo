@@ -67,8 +67,8 @@ object AeltharynWorld {
     const val capitalCityId = "city.elarion"
 
     val people = listOf(
-        WorldPeople("elfo", "Elfo", "originário e majoritário", listOf("city.elarion", "city.vael-tir", "city.caladwen"), "Povo dominante; a identidade élfica não implica lealdade automática ao rei."),
-        WorldPeople("elfo-dos-bosques", "Elfo dos Bosques", "linhagem central", listOf("city.vael-tir", "city.elarion", "city.brumafunda"), "Manejo da mata, patrulhas e pactos de preservação."),
+        WorldPeople("elfo", "Elfo", "originário e majoritário", listOf("city.elarion", "city.vael-tir", "city.caladwen", "city.thalanor"), "Povo dominante; a identidade élfica não implica lealdade automática ao rei."),
+        WorldPeople("elfo-dos-bosques", "Elfo dos Bosques", "linhagem central", listOf("city.vael-tir", "city.elarion", "city.brumafunda", "city.nymvar"), "Manejo da mata, patrulhas e pactos de preservação."),
         WorldPeople("elfo-das-estrelas", "Elfo das Estrelas", "linhagem antiga", listOf("city.caladwen", "city.elarion"), "Observação celeste, calendário e arquivos."),
         WorldPeople("elfo-do-crepusculo", "Elfo do Crepúsculo", "linhagem de fronteira", listOf("city.orvass", "city.brumafunda", "city.elarion"), "Rotas noturnas e investigação; não é inerentemente maligno."),
         WorldPeople("feerico", "Feérico", "povo antigo vizinho", listOf("city.silvaran", "city.brumafunda"), "Pactos de hospitalidade e comunidades com leis próprias."),
@@ -80,15 +80,15 @@ object AeltharynWorld {
         WorldPeople("felideo-das-selvas", "Felídeo das Selvas", "povo de mata densa", listOf("city.brumafunda", "city.vael-tir"), "Guias, rastreio e cuidado de fauna."),
         WorldPeople("orcano-das-matas", "Orcano das Matas", "comunidades pactuadas", listOf("city.orvass", "city.vael-tir"), "Medicina local, defesa de aldeias e passarelas."),
         WorldPeople("pequenino-ribeirinho", "Pequenino Ribeirinho", "povo das várzeas", listOf("city.nymvar", "city.arven"), "Agricultura, barcaças, sementes e diques."),
-        WorldPeople("gnomo-dos-vales", "Gnomo dos Vales", "povo integrado por ofícios", listOf("city.caladwen", "city.nymvar", "city.elarion"), "Instrumentos, irrigação e medição."),
+        WorldPeople("gnomo-dos-vales", "Gnomo dos Vales", "povo integrado por ofícios", listOf("city.caladwen", "city.nymvar", "city.elarion", "city.torvelume"), "Instrumentos, irrigação e medição."),
         WorldPeople("homem-corvo-das-torres", "Corvário das Torres", "comunidades de mensageiros", listOf("city.brumafunda", "city.elarion"), "Mensagens e orientação; não são espiões por natureza."),
         WorldPeople("abissal-das-enseadas", "Abissal das Enseadas", "aliado costeiro", listOf("city.thalanor"), "Navegação costeira, resgate e leitura de marés."),
     )
 
     val cities = listOf(
         WorldCity("city.elarion", "Elarion — Cidade das Sete Copas", 82000, "capital política, arquivo e centro cerimonial", listOf("administração", "ensino", "artesanato", "documentos"), listOf("city.nymvar", "city.arven", "city.torvelume"), "Documentos sobre a Guerra das Cinzas Verdes desapareceram; pontes antigas exigem reparo.", "As sete árvores se inclinaram quando os primeiros juramentos foram pronunciados.", listOf("elfo", "elfo-dos-bosques", "elfo-das-estrelas", "elfo-do-crepusculo", "gnomo-dos-vales", "homem-corvo-das-torres")),
-        WorldCity("city.nymvar", "Nymvar — Cidade das Três Vozes", 31000, "celeiro, canais e centro de cura", listOf("grãos", "frutas", "ervas", "peixe de rio", "transporte fluvial"), listOf("city.arven", "city.torvelume", "city.elarion"), "A dívida de manutenção dos diques aumenta antes da estação de cheias.", "A barqueira sem nome ainda guia barcos perdidos quando três correntes se encontram.", listOf("pequenino-ribeirinho", "gnomo-dos-vales")),
-        WorldCity("city.thalanor", "Thalanor — Porto da Folha Azul", 27000, "porto, resgate e comércio costeiro", listOf("pesca", "sal", "cartas náuticas", "comércio marítimo"), listOf("city.nymvar", "city.arven", "city.caladwen"), "Um navio chegou sem tripulação e o protocolo de quarentena divide capitães e famílias.", "Uma luz azul aparece na enseada antes das tempestades mais perigosas.", listOf("abissal-das-enseadas")),
+        WorldCity("city.nymvar", "Nymvar — Cidade das Três Vozes", 31000, "celeiro, canais e centro de cura", listOf("grãos", "frutas", "ervas", "peixe de rio", "transporte fluvial"), listOf("city.arven", "city.torvelume", "city.elarion"), "A dívida de manutenção dos diques aumenta antes da estação de cheias.", "A barqueira sem nome ainda guia barcos perdidos quando três correntes se encontram.", listOf("pequenino-ribeirinho", "gnomo-dos-vales", "elfo-dos-bosques")),
+        WorldCity("city.thalanor", "Thalanor — Porto da Folha Azul", 27000, "porto, resgate e comércio costeiro", listOf("pesca", "sal", "cartas náuticas", "comércio marítimo"), listOf("city.nymvar", "city.arven", "city.caladwen"), "Um navio chegou sem tripulação e o protocolo de quarentena divide capitães e famílias.", "Uma luz azul aparece na enseada antes das tempestades mais perigosas.", listOf("abissal-das-enseadas", "elfo")),
         WorldCity("city.vael-tir", "Vael-Tir — A Cidade sob as Copas", 19000, "manejo florestal e defesa de corredores", listOf("madeira autorizada", "guias", "resina licenciada", "patrulha"), listOf("city.brumafunda", "city.torvelume", "city.arven"), "Licenças de corte são falsificadas perto de uma área de reprodução.", "Uma trilha muda de lugar para quem entra com intenção de incendiar a mata.", listOf("elfo", "elfo-dos-bosques", "centauro-das-florestas", "felideo-das-selvas", "orcano-das-matas", "plantae")),
         WorldCity("city.orvass", "Orvass — Cidade das Águas Escuras", 14000, "pântano, medicina e comunidades sobre passarelas", listOf("plantas medicinais", "fungos", "pesca", "conhecimento de águas"), listOf("city.nymvar", "city.brumafunda", "city.torvelume"), "Sinais de contaminação aparecem numa rede de canais, mas a origem não foi provada.", "Lanternas baixas mostram o caminho a quem respeita os canais e confundem quem os trata como atalho.", listOf("elfo-do-crepusculo", "fungal", "orcano-das-matas")),
         WorldCity("city.caladwen", "Caladwen — Cidade dos Arquivos Celestes", 22000, "observatório, calendário e ensino", listOf("calendários", "mapas", "observações climáticas", "formação"), listOf("city.thalanor", "city.arven", "city.torvelume"), "Duas previsões recentes falharam e o conselho exige transparência sobre a incerteza.", "A Criança do Lago aparece em relatos incompatíveis, nenhum deles confirmado.", listOf("elfo", "elfo-das-estrelas", "gnomo-dos-vales")),
@@ -185,12 +185,25 @@ object AeltharynWorld {
             if (c.supplies.isEmpty() || c.dependsOn.isEmpty()) errors += "rede econômica incompleta: ${c.id}"
             c.dependsOn.filterNot { it in cityIds }.forEach { errors += "dependência de cidade inexistente: ${c.id} -> ${it}" }
             c.peopleIds.filterNot { it in peopleIds }.forEach { errors += "povo não catalogado em ${c.id}: ${it}" }
+            c.peopleIds.forEach { peopleId ->
+                if (c.id !in people.firstOrNull { it.id == peopleId }?.cityIds.orEmpty()) {
+                    errors += "presença de ${peopleId} em ${c.id} não consta na distribuição do povo"
+                }
+            }
             val roles = figures.filter { it.cityId == c.id }.map { it.role }.toSet()
             figureRoles.filterNot { it in roles }.forEach { errors += "falta função ${it} em ${c.id}" }
         }
         figures.forEach { f ->
             if (f.cityId !in cityIds) errors += "cidade inexistente em figura: ${f.id}"
             if (f.peopleId !in peopleIds) errors += "povo inexistente em figura: ${f.id}"
+            if (f.peopleId in peopleIds && f.cityId in cityIds) {
+                if (f.peopleId !in cities.first { it.id == f.cityId }.peopleIds) {
+                    errors += "povo da figura ${f.id} não está listado na cidade"
+                }
+                if (f.cityId !in people.first { it.id == f.peopleId }.cityIds) {
+                    errors += "cidade da figura ${f.id} não consta na distribuição do povo"
+                }
+            }
             if (f.role !in figureRoles) errors += "função desconhecida em figura: ${f.id}"
         }
         routes.forEach { route ->
