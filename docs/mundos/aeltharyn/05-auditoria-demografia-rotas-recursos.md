@@ -143,3 +143,38 @@ Não é necessário transformar tudo em números agora. Para cada recurso, basta
 - [ ] Revisar o documento principal e os perfis de assentamentos após resolver as decisões acima.
 
 **Regra de escopo:** este é um registro de auditoria editorial. Não implementa código, não altera regras mecânicas e não inicia os outros quatro reinos.
+
+
+## 7. Cruzamento dos sete relógios com recursos, rotas e conhecimento
+
+Esta matriz liga os relógios já definidos na seção 26 do documento principal aos sistemas materiais descritos acima. Ela **não avança nenhum relógio por conta própria**: registra quais sinais podem justificar avanço e quais condições precisam ser verificadas antes de aplicar consequências.
+
+| Relógio existente | Sistemas e locais diretamente envolvidos | Sinais observáveis que podem justificar avanço | Consequência material plausível | Limite de inferência |
+|---|---|---|---|---|
+| Doença das árvores-coração (2/6) | viveiros de Raiz-de-Prata; manejo de Vael-Tir; solo, água e espécies próximas às árvores afetadas | amostras que pioram; corte documentado perto de raízes; relatórios retidos; mudanças verificáveis em espécies associadas | perda localizada de função ecológica, piora de mudas ou restrição de manejo na área afetada | não atribuir causa à extração, magia ou sabotagem sem evidência; uma árvore doente não significa que todas adoecerão |
+| Dívida dos diques (3/6) | Nymvar, Junco Alto, Três Barcas; campos e sementes de Arven; transporte pelo Rio das Três Vozes | inspeção reprovada; reparo adiado; cheia prevista ou observada; material insuficiente; comporta que não fecha | interrupção de travessia, alagamento localizado, perda de sementes ou deslocamento temporário | não inundar todo Nymvar automaticamente; identificar trecho, nível da água, manutenção e área baixa atingida |
+| Contrabando de resina (2/6) | cotas e patrulhas de Vael-Tir; viveiros de Raiz-de-Prata; transporte, pedágios e mercado | divergência entre licença e carga; trilha com sinais de extração; estoque sem origem; patrulha desviada | pressão sobre cotas, perda de confiança, apreensão de carga ou erosão se houver corte associado | resina contrabandeada não prova corte de árvores ancestrais nem culpa coletiva da Liga das Rotas |
+| Desconfiança entre cidades (1/6) | Pacto das Dez Cidades; distribuição de socorro; tarifas e rotas entre cidades | obrigação vencida; registro de ajuda desigual; mensagem não entregue; decisão contestada formalmente | atraso de contribuição, inspeções extras, recusa temporária de cooperação ou disputa no conselho | boato isolado não equivale a decisão oficial; registrar quem sabe, quem acredita e qual autoridade agiu |
+| Navio sem tripulação (1/6) | porto de Thalanor, Farol de Âmbar, Ponta da Concha; cargas destinadas a Torvelume e interior | lacre rompido; inventário divergente; testemunho corroborado; quarentena prorrogada; objeto removido sem registro | carga retida, abastecimento atrasado, perda de prova ou segundo incidente | atraso comercial não demonstra relação com o navio; preservar hipóteses concorrentes e cadeia de custódia |
+| Mina selada de Torvelume (1/6) | Porta Selada, Ferro-Folha; estrada de fronteira e rota para Caladwen; abastecimento de ferramentas | tremores registrados; fissura medida; escavação detectada; mudança de vibração; material retirado sem autorização | isolamento de acesso, interrupção de suprimento, inspeção técnica ou risco estrutural | tremor não confirma presença de criatura nem determina o que existe na mina; a natureza do perigo permanece desconhecida |
+| Corredores centauros (2/6) | Passo do Veado; rotas sazonais de Vael-Tir e Arven; pastagens e deslocamento de caravanas | cerca nova no corredor; cultivo no período de passagem; patrulha impede trânsito; acordo de passagem expirado | desvio de caravanas, conflito por pasto, atraso de entrega ou fechamento sazonal negociado | não presumir que todos os centauros concordam nem que uma interdição seja permanente |
+
+### 7.1 Procedimento mínimo antes de avançar um relógio
+
+1. **Identificar o gatilho:** qual fato ocorreu, onde e quando? Distinguir evento observado de rumor.
+2. **Verificar o nexo:** o fato afeta realmente o sistema descrito pelo relógio? Se a relação for apenas possível, registrar como hipótese.
+3. **Mapear a exposição:** quais assentamentos, grupos, cargas ou trechos de rota estão conectados ao local afetado?
+4. **Verificar alternativas:** estoque, rota secundária, reparo emergencial, mediação ou outra resposta pode conter o efeito?
+5. **Atualizar conhecimento separadamente:** quem presenciou o fato, quem recebeu mensagem, quem tem prova e quem apenas suspeita?
+6. **Aplicar uma mudança proporcional:** avançar no máximo o que o evento sustenta; não usar um único acontecimento para avançar automaticamente vários relógios.
+7. **Registrar o próximo ponto de decisão:** prazo, recurso ou condição que poderá agravar, resolver ou redirecionar a situação.
+
+### 7.2 O que a auditoria já resolveu — e o que não resolveu
+
+- [x] Cruzar os sete relógios existentes com os sistemas materiais, rotas, locais e limites de inferência.
+- [x] Definir um procedimento editorial mínimo para evitar avanço automático ou conhecimento instantâneo dos NPCs.
+- [ ] Quantificar reservas, produção, consumo e tempo de reposição por localidade.
+- [ ] Confirmar geografia e rotas de acesso aos vinte assentamentos.
+- [ ] Classificar as dez estimativas populacionais e eliminar possível dupla contagem.
+
+O cruzamento é uma regra de consistência narrativa, não uma tabela numérica de simulação nem uma implementação no APK.
