@@ -111,12 +111,12 @@ class CampaignStarterTest {
             "aeltharyn-1",
             "Crônicas do Primeiro Verde",
             742L,
-            worldId = AeltharynWorld.id,
+            worldId = AeltharynWorld.ID,
         ) as StartResult.Started
 
-        assertEquals(AeltharynWorld.name, result.campanha.ambientacao.name)
+        assertEquals(AeltharynWorld.NAME, result.campanha.ambientacao.name)
         assertEquals(10, result.session.state.places.size)
-        assertEquals(setOf(AeltharynWorld.capitalCityId), result.session.state.knownPlaces)
+        assertEquals(setOf(AeltharynWorld.CAPITAL_CITY_ID), result.session.state.knownPlaces)
         assertEquals(7, result.session.state.clocks.size)
         assertTrue(result.notes.any { "Aeltharyn instalado" in it })
 
