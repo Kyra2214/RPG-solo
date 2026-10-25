@@ -121,3 +121,14 @@ Antes de implementar, auditar os sistemas existentes de NPCs, relações, locais
 Para evitar um mundo composto apenas de nomes, todas as cidades devem ter dados estruturados e conexões coerentes. A expansão narrativa detalhada pode ser priorizada para as regiões e NPCs mais importantes para a campanha inicial, sem deixar os demais registros inválidos ou vazios.
 
 **Resultado esperado:** um mundo pronto para jogar, com pelo menos cinco reinos, cinquenta cidades, elenco de personagens importantes, geografia, povos e conflitos interligados, capaz de evoluir ao longo de muitas campanhas.
+
+
+## 14. Primeira composição narrativa: Aeltharyn
+
+O nome provisório escolhido para o mundo é **Aeltharyn — Crônicas do Primeiro Verde**. A composição editorial do primeiro reino foi iniciada na branch `world/aeltharyn-reino-das-florestas`, sem alterar `main`.
+
+- Índice do mundo: [`docs/mundos/aeltharyn/README.md`](mundos/aeltharyn/README.md).
+- Ecossistema do Reino das Florestas: [`docs/mundos/aeltharyn/01-reino-das-florestas.md`](mundos/aeltharyn/01-reino-das-florestas.md).
+- O reino das florestas é o mais antigo e fica sob o Rei dos Elfos. A composição inclui dez cidades, rede de rotas, biomas, fauna e flora, povos selecionados do catálogo, governo, NPCs, heróis históricos, facções, economia, costumes, lendas e conflitos.
+- A ordem de expansão fica bloqueada: Florestas → Montanhas → Malditos → Feras → Humanos. Não desenvolver o segundo reino até revisar e concluir o ecossistema do primeiro.
+- O documento é lore editorial. A presença de arquivos não prova integração ao motor, persistência, validação do esquema nem disponibilidade no APK.
