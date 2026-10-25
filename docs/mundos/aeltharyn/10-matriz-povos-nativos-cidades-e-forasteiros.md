@@ -93,7 +93,7 @@ Um forasteiro pode nascer em Aeltharyn se seus pais já vivem ali. Isso faz dele
 ## 6. Pendências obrigatórias de continuidade
 
 - [ ] Conferir os onze povos de referência contra os IDs e a classificação oficial do catálogo de 50 raças e 50 sub-raças do RPG Solo.
-- [ ] Corrigir no documento principal a definição de Aeltharyn como reino, não mundo.
+- [x] Corrigir no documento principal a definição de Aeltharyn como reino, não mundo.
 - [ ] Reconciliar a lista atual de dez cidades (que inclui a capital) com a estrutura desejada de capital + dez cidades aliadas.
 - [ ] Validar se Ithilvar deve ser mantida, renomeada ou substituída; não tratá-la como cânone definitivo antes da revisão.
 - [ ] Atualizar rotas, assentamentos, recursos, população e jurisdições apenas após a validação da cidade adicional.
