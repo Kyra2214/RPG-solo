@@ -10,6 +10,10 @@ Este documento identifica os sistemas materiais que aparecem explicitamente nos 
 
 A distinção é importante: uma obrigação de manter sementes não prova que a reserva esteja cheia; uma comunidade de pesca não prova que a captura seja suficiente; uma oficina não prova que tenha peças disponíveis; uma rota sazonal conhecida não equivale a um caminho seguro durante todo o ano.
 
+### 1.1 Escopo territorial
+
+“Assentamento” é aqui uma unidade de registro comunitário, não sinônimo obrigatório de vila independente. Os vinte núcleos podem corresponder, após validação geográfica, a bairros, distritos/núcleos periurbanos, vilas próximas, comunidades afastadas ou postos sazonais. A matriz descreve funções e dependências materiais, sem afirmar que todos ficam fora dos perímetros urbanos. A cidade-mãe é o vínculo político de referência, não prova de distância nem de inclusão/exclusão no total populacional.
+
 ## 2. Matriz dos assentamentos
 
 | ID canônico | Assentamento e cidade-mãe | Base material explicitamente documentada | Dependência ou risco documentado | Dados ainda necessários |
