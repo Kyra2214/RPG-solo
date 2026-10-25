@@ -33,8 +33,8 @@ Os nomes dos reinos futuros são rótulos provisórios, sem história ou geograf
 - [x] Compor governo, facções, rede de rotas, ecologia, história, lendas, mistérios e elenco de NPCs.
 - [x] Associar figuras históricas a cada cidade e definir agenda sazonal e ritmos locais de funcionamento.
 - [x] Expandir a memória para heróis históricos, guardiões vivos e benfeitores nas dez cidades.
-- [x] Definir tríades de herói, guardião e benfeitor para 26 povos/subpovos selecionados como relevantes para Aeltharyn; IDs conferidos no catálogo atual.
-- [ ] Revisar coerência entre personagens repetidos, cargos, cronologia e relações; fechar as lacunas de objetivos, agenda e conhecimento de cada NPC.
+- [x] Definir referências de herói, guardião e benfeitor para cada um dos 16 povos/linhagens relevantes de Aeltharyn, sem incluir indiscriminadamente as 50 raças do catálogo.
+- [ ] Revisar coerência entre personagens repetidos, cargos, cronologia e relações; fechar as lacunas de objetivos, agenda e conhecimento de cada NPC. A matriz narrativa já foi sincronizada com as figuras do catálogo tipado, mas a revisão global ainda está aberta.
 - [ ] Integrar os dados ao modelo de mundo existente e validar carregamento/persistência.
 - [x] Conferir os IDs de raças e sub-raças citados contra o catálogo editorial atual (50 raças e 50 sub-raças; nenhum ID citado ausente na conferência inicial).
 - [ ] Revisão de continuidade, demografia, distâncias e contradições internas.
@@ -52,4 +52,4 @@ Aeltharyn é um reino élfico, não um reino com as 50 raças do catálogo. O n�
 O reino permanece em implementação editorial e ainda não está integrado ao modelo carregável do jogo. O desenvolvimento das Coroas de Pedra está bloqueado até concluir auditoria de consistência, modelagem de dados, integração e testes de Aeltharyn.
 
 
-O código agora contém o catálogo tipado inicial em `engine/AeltharynWorld.kt`, com dez cidades, povos próximos aos elfos, figuras locais, rotas e relógios validados por testes unitários escritos. O catálogo ainda não é carregado automaticamente na criação de campanha; essa integração permanece pendente.
+O código contém o catálogo tipado de Aeltharyn em `engine/AeltharynWorld.kt`: 10 cidades, 16 povos/linhagens, 51 figuras, rotas e sete relógios. A validação estrutural agora exige herói, guardião e benfeitor por cidade e por povo. A integração com a criação de campanha e a persistência ainda precisa passar pela execução completa do CI; não considerar concluída antes do resultado verde.
