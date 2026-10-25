@@ -19,6 +19,45 @@ Cada liderança abaixo tem:
 
 Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por negociação, investigação, reforma, coerção, sabotagem ou abandono — e cada caminho produz custos diferentes.
 
+### 1.1 Escala espacial dos vinte assentamentos
+
+**Regra de leitura:** “assentamento” é uma unidade de registro do dossiê, não uma declaração de que cada entrada seja uma vila independente no mapa. Um registro pode corresponder a um bairro, distrito, núcleo periurbano, vila próxima, comunidade afastada, posto de rota ou conjunto de comunidades. A cidade-mãe indica vínculo político e funcional; por si só, não determina distância, continuidade urbana nem inclusão no perímetro da cidade.
+
+A classificação abaixo usa apenas a forma descrita nos perfis existentes. Quando a posição geográfica não está documentada, ela fica **em aberto**: não converter uma hipótese em fato e não criar distância, estrada ou fronteira nova para preencher a lacuna.
+
+| Assentamento | Forma já descrita no perfil | Enquadramento espacial possível, ainda sujeito à geografia |
+|---|---|---|
+| Raiz-de-Prata — Elarion | Vila de viveiros e sementes | Bairro produtivo, núcleo periurbano ou vila rural; posição exata em aberto |
+| Sete Degraus — Elarion | Povoado de ponte, pedágio e hospedagem | Distrito de travessia, bairro de acesso ou povoado externo; posição exata em aberto |
+| Junco Alto — Nymvar | Vila de diques e lavouras ribeirinhas | Bairro ribeirinho, periferia agrícola ou vila externa; posição exata em aberto |
+| Três Barcas — Nymvar | Entreposto fluvial | Distrito portuário/fluvial ou núcleo de travessia fora do centro; posição exata em aberto |
+| Ponta da Concha — Thalanor | Vila pesqueira | Bairro costeiro ou vila pesqueira externa; posição exata em aberto |
+| Farol de Âmbar — Thalanor | Farol e aldeia costeira | Instalação de navegação com núcleo residencial; integração urbana ou afastamento ainda não definidos |
+| Copa-Funda — Vael-Tir | Comunidade de manejo florestal | Comunidade integrada a uma área urbana, núcleo de trabalho ou vila florestal; posição em aberto |
+| Passo do Veado — Vael-Tir | Posto de trilha e mercado sazonal | Posto de corredor e mercado periódico; não pressupõe uma vila convencional nem residência de todos os usuários da rota |
+| Lodo-Claro — Orvass | Aldeia de ervas, filtros e cuidados comunitários | Bairro especializado, aldeia próxima ou comunidade afastada; posição em aberto |
+| Ilhas do Junco Negro — Orvass | Conjunto de ilhotas com três comunidades aquáticas | Agrupamento geográfico de comunidades, não necessariamente um único núcleo contínuo |
+| Vigília do Lago — Caladwen | Aldeia de observadores meteorológicos | Núcleo de observação integrado, próximo ou afastado da cidade; posição em aberto |
+| Papel-Velho — Caladwen | Povoado de copistas, encadernadores e restauradores | Bairro/oficinas especializadas ou povoado externo; posição em aberto |
+| Eco Baixo — Brumafunda | Aldeia de guias | Bairro de guias, núcleo periurbano ou aldeia afastada; posição em aberto |
+| Torre da Névoa Mansa — Brumafunda | Posto de observação com pequena aldeia | Posto com núcleo residencial; relação de distância com Brumafunda em aberto |
+| Mel do Poente — Arven | Vila de apiários e pomares | Bairro produtivo, cinturão agrícola ou vila externa; posição em aberto |
+| Campo das Três Famílias — Arven | Aldeia agrícola | Comunidade agrícola integrada à região urbana ou aldeia externa; posição em aberto |
+| Máscara Nova — Silvaran | Vila de artistas e artesãos | Bairro/oficinas ou vila cultural externa; posição em aberto |
+| Fonte do Regresso — Silvaran | Povoado de hospitalidade e abrigo | Bairro de acolhimento, núcleo de passagem ou povoado externo; posição em aberto |
+| Ferro-Folha — Torvelume | Vila de oficinas e reparos | Bairro industrial/artesanal ou vila externa ligada à fortaleza; posição em aberto |
+| Porta Selada — Torvelume | Assentamento próximo às galerias interditadas | Núcleo residencial ligado à área de mineração/defesa; não implica que esteja dentro da fortaleza |
+
+#### Regras para consolidar a geografia
+
+1. Os vinte registros continuam válidos, mas **não representam automaticamente vinte localidades independentes** nem vinte populações que devam ser somadas às cidades.
+2. Um assentamento pode ser um bairro ou distrito dentro do perímetro urbano; outro pode ser uma vila próxima; outro, uma comunidade afastada. Não é necessário que todos usem o mesmo modelo.
+3. A forma funcional e a posição espacial são dimensões diferentes: “vila pesqueira” descreve atividade e organização, mas não prova que fique longe da cidade; “posto” não prova ausência de moradores.
+4. Só marcar “bairro/distrito”, “próximo” ou “afastado” como confirmado quando o perfil da cidade, a geografia ou uma decisão editorial explícita sustentar essa classificação.
+5. Se um assentamento for incorporado ao perímetro urbano, preservar seu ID, liderança e identidade local. A mudança de escala administrativa não exige criar uma nova entrada nem apagar a comunidade.
+6. Até a classificação demográfica, não somar a população de um bairro ao total da cidade se houver possibilidade de já estar incluída. Também não presumir que todo povoado externo esteja excluído dos números urbanos.
+7. Esta etapa não acrescenta cidades, nomes de assentamentos, populações, rotas nem tempos de viagem.
+
 ## 2. Elarion — assentamentos da capital
 
 ### 2.1 Raiz-de-Prata
