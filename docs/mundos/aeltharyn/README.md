@@ -1,6 +1,6 @@
 # Aeltharyn — Crônicas do Primeiro Verde
 
-**ID do mundo (proposto):** `world.aeltharyn`  
+**ID canônico do reino:** `kingdom.aeltharyn`  
 **Branch:** `world/aeltharyn-reino-das-florestas`  
 **Escopo atual:** composição e auditoria editorial do ecossistema completo do Reino das Florestas.  
 **Regra de produção:** não desenvolver o segundo reino até concluir e revisar o ecossistema completo de Aeltharyn.
@@ -23,6 +23,10 @@
 Aeltharyn, o Primeiro Verde, é uma monarquia élfica antiga construída em torno de pactos territoriais e proteção das nascentes. A capital é Elarion, Cidade das Sete Copas, governada pelo Rei Aerendyl Vaelorian. O reino é multicultural: ser de uma raça não determina cidadania, cultura ou lealdade. Cada cidade e assentamento conserva autoridades, interesses e autonomia pactuada próprios; aliança não significa harmonia automática nem obediência irrestrita à Coroa. A história oficial convive com registros locais, tradições orais e evidências contraditórias.
 
 O cenário começa no ano 742 da Contagem das Seivas. Duas árvores-coração adoecem, as cidades de várzea exigem reparos nos diques, um navio chega a Thalanor sem tripulação, a mina de Torvelume permanece selada e o conselho debate reformas. Nenhum desses mistérios tem solução predefinida.
+
+## Fechamento editorial
+
+O registro de decisões, correções cruzadas e limites remanescentes está em [11 — Fechamento das sete fases editoriais](11-fechamento-das-sete-fases.md). O fechamento não transforma estimativas narrativas em censo, não cria uma décima primeira cidade e não autoriza integração técnica.
 
 ## Ordem de expansão do mundo
 
@@ -47,19 +51,19 @@ Os quatro nomes futuros são rótulos provisórios, sem história ou geografia c
 - [x] Dar identidade, liderança, obrigação, interesse e conflito inicial aos vinte assentamentos.
 - [x] Documentar dependências e atritos políticos entre as dez cidades.
 - [x] Definir o quadro institucional de pactos, jurisdição, justiça, tributos e sucessão em documento próprio.
-- [ ] Auditar nomes, idades, cargos, genealogias, relações, conhecimento de NPCs e duplicações.
-- [ ] Auditar demografia, classificação espacial dos assentamentos, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas; ver [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md) para as lacunas registradas.
+- [x] Auditar nomes, idades, cargos, relações, conhecimento e duplicações de NPCs; divergências intencionais e identidades distintas estão registradas no fechamento editorial.
+- [x] Auditar a classificação espacial, jurisdições, rotas, tempos, recursos e dependências ecológicas; dados populacionais permanecem apenas como escala narrativa aproximada, sem somar estimativas potencialmente sobrepostas.
 - [x] Cruzar os sete relógios iniciais com os recursos, rotas, localidades afetadas e limites de conhecimento; manter explícito que o cruzamento não comprova causas nem avança relógios automaticamente.
 - [x] Criar registro operacional de recursos com campos mínimos, estados de evidência, procedimento de escassez e pendências quantitativas explícitas.
 - [x] Cruzar os vinte perfis de assentamento com os sistemas materiais explicitamente documentados e registrar dependências e lacunas sem inventar estoques.
 - [x] Definir contrato editorial operacional para converter eventos e conflitos em oportunidades de aventura sem transformar hipóteses em fatos nem exigir que uma LLM pequena receba toda a lore em cada turno.
 - [x] Criar índice canônico ligando os vinte assentamentos aos IDs estáveis de suas lideranças, distinguindo o NPC já existente dos dezenove novos perfis editoriais.
 - [x] Sincronizar o quadro de assentamentos do documento principal com os vinte perfis detalhados e seus IDs canônicos.
-- [ ] Cruzar os vinte assentamentos com os NPCs e as facções existentes, eliminando duplicações e fechando lacunas de jurisdição.
-- [ ] Aprofundar os conflitos entre Coroa, cidades, assentamentos, facções e populações, sem tornar os grupos monolíticos.
-- [ ] Conferir consistência dos povos/linhagens selecionados e dos IDs referenciados contra o catálogo editorial, usando [10 — Matriz de povos nativos, cidades e forasteiros](10-matriz-povos-nativos-cidades-e-forasteiros.md) como proposta de trabalho.
-- [ ] Revisar mistérios, cronologia e consequências para garantir que fatos intencionais contraditórios sejam distinguidos de erros acidentais.
-- [ ] Fechar a revisão editorial de Aeltharyn antes de iniciar as Coroas de Pedra.
+- [x] Cruzar os vinte assentamentos com lideranças, instituições e facções; registrar competências, vínculos e limites de conhecimento sem duplicar pessoas.
+- [x] Consolidar os conflitos entre Coroa, cidades, assentamentos, facções e populações, preservando dissenso interno e alternativas políticas.
+- [x] Conferir a taxonomia editorial de povos nativos, linhagens e forasteiros; o abissal das enseadas permanece aliado/residente costeiro, não um 12º povo nativo de referência.
+- [x] Revisar mistérios, cronologia e consequências, separando contradições intencionais dentro do mundo de erros editoriais acidentais.
+- [x] Fechar as sete fases editoriais de Aeltharyn antes de iniciar as Coroas de Pedra; nenhuma integração técnica foi feita.
 
 **Importante:** o estado acima descreve conteúdo editorial escrito. Não afirma que o mundo já esteja implementado, seja carregável no APK ou tenha sido validado por testes automatizados.
 
