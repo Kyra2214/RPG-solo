@@ -112,6 +112,19 @@ Há também duas diferenças de escala que precisam ser harmonizadas:
 
 Até revisão do documento principal, as faixas mais amplas devem ser tratadas como alertas de variabilidade, não como autorização para escolher arbitrariamente qualquer duração. O cânone ainda não define se os números menores são percurso rápido, trecho parcial ou estimativa antiga. **Não calcular itinerários exatos por esses corredores antes de resolver a diferença.**
 
+## 2.2 Assentamentos não significam necessariamente localidades separadas
+
+Os vinte registros de assentamento são unidades comunitárias e políticas. Eles podem ser bairros ou distritos dentro de uma cidade, núcleos contíguos, vilas próximas, comunidades afastadas ou postos especializados. Portanto, **“vinte assentamentos” não significa “vinte vilarejos separados das cidades”**.
+
+O documento 03 agora contém uma classificação funcional provisória para cada registro e uma lista do que falta confirmar. Essa classificação não fixa distâncias nem resolve a contagem demográfica. Para cada unidade, a auditoria deve registrar separadamente:
+
+- **relação espacial:** dentro do perímetro urbano, contígua, próxima ou afastada;
+- **tipo de núcleo:** bairro, distrito, vila, aldeia, posto, entreposto ou conjunto de comunidades;
+- **jurisdição:** cidade-mãe, pacto compartilhado ou autoridade local específica;
+- **base populacional:** se a estimativa está incluída no total da cidade, excluída dele ou ainda indefinida.
+
+Até que esses campos sejam confirmados, não somar os vinte números ao total das dez cidades e não presumir que todo assentamento tenha uma estrada própria ou um tempo de viagem interurbano. Para um bairro, o acesso pode ser interno à cidade; para um posto remoto, pode depender de trilha, canal ou rota sazonal. A tabela seguinte lista perguntas de acesso, não prova que todos os núcleos sejam externos.
+
 ## 3. Auditoria de acesso dos assentamentos
 
 Cada assentamento está associado a uma cidade-mãe, mas isso não basta para estabelecer o tempo de viagem. Antes de criar números, cada entrada precisa indicar:
