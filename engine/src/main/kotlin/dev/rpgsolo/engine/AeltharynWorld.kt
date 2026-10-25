@@ -629,7 +629,7 @@ object AeltharynWorld {
                 "Oferece ferramentas e bolsas a aprendizes sem recursos.",
                 "As bolsas cobrem apenas uma parte dos candidatos.",
             ),
-        
+
             WorldFigure(
                 "npc.saelith-arco-chuva",
                 "Saelith Arco-de-Chuva",
