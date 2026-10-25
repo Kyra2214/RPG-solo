@@ -32,7 +32,22 @@ Correções realizadas durante a validação: tipagem de `ResetTraitUses`, regra
 
 O teste Android completo e o E2E permanecem dependentes do GitHub Actions, pois o Sandbox não tem Android SDK. Eles não devem ser marcados como aprovados até uma execução verde do workflow no commit publicado.
 
-## Estado atual (2026-10-24)
+## Estado atual (2026-10-25) — snapshot RPG-solo-N-54
+
+**Validação completa e verde.** O Android CI [#40163269121](https://github.com/Kyra2214/RPG-solo/actions/runs/40163269121), no `main` e commit `036d44585d4a046710a7f431b1e4b98f0107a5d0`, passou em ktlint, testes JVM/Android, E2E instrumentado, build e upload do APK. O job `test-and-build` levou cerca de 7 min 9 s. Relatório detalhado: [`docs/relatorios/ci-android-2026-10-25-n54.md`](relatorios/ci-android-2026-10-25-n54.md).
+
+| Etapa / módulo | Resultado | Commit | Data | Link |
+|---|---|---|---|---|
+| `Check Kotlin style` (`ktlintCheck`) | **Passou** | `036d445` | 2026-10-25 | [#40163269121](https://github.com/Kyra2214/RPG-solo/actions/runs/40163269121) |
+| Testes JVM (`./gradlew test --continue --stacktrace`) | **Passou** — 894 testes, 0 falhas | `036d445` | 2026-10-25 | idem |
+| `ai` / `engine` / `rules` | **212 / 390 / 292** testes aprovados; 120 relatórios JUnit | `036d445` | 2026-10-25 | idem |
+| E2E Android do app (`:app:connectedDebugAndroidTest`) | **Passou** — 9 testes no emulador | `036d445` | 2026-10-25 | idem |
+| Testes instrumentados de `data` (`:data:connectedDebugAndroidTest`) | **Passou** — 6 testes | `036d445` | 2026-10-25 | idem |
+| Build/upload de APK (`rpgsolo-debug-apk`) | **Passou** — `app-debug.apk`, 11.656.051 bytes, SHA-256 `c69980ca29ed2cf6ec5592e0d25d422df92401199a511d66d7ba7d01d4172fd8` | `036d445` | 2026-10-25 | idem |
+
+O APK gerado é de **debug**, não release assinado para publicação na Play Store. A tentativa imediatamente anterior (#40163038925) revelou o setter privado de `companionNotice`; o hotfix `dismissCompanionNotice()` está incluído no commit verde acima.
+
+## Validação anterior (2026-10-24)
 
 **Validação completa e verde.** O workflow Android CI [#40097446606](https://github.com/Kyra2214/RPG-solo/actions/runs/40097446606) (`main`, commit `40c38b1e26a0330b8de67447a83adb49ca2dbda9`, "Keep play chat controls accessible on small screens") terminou com sucesso em 24/10/2026; o job `test-and-build` levou cerca de 5 min 46 s. Relatório completo: [`docs/relatorios/ci-android-2026-10-24.md`](relatorios/ci-android-2026-10-24.md).
 
