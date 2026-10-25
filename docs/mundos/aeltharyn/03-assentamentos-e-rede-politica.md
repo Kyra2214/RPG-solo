@@ -1,6 +1,6 @@
 # Aeltharyn — Assentamentos, jurisdições e rede política
 
-**Estado:** expansão narrativa da primeira camada de assentamentos.  
+**Estado:** primeira camada editorial consolidada; os vinte núcleos têm vínculo político, liderança, obrigação, tensão e enquadramento espacial qualitativo.  
 **Cânone:** subordinado a `01-reino-das-florestas.md` e à arquitetura persistente em `02-arquitetura-mundo-persistente.md`.  
 **Escopo:** completar a primeira camada política sem iniciar os outros quatro reinos.
 
@@ -371,14 +371,14 @@ O Mestre só precisa consultar o assentamento quando ele for relevante para a ca
 
 ## 15. Pendências editoriais desta camada
 
-- [ ] Auditar a contagem demográfica das dez cidades e dos vinte assentamentos.
+- [x] Registrar que estimativas são escalas narrativas aproximadas e não devem ser somadas enquanto a inclusão dos núcleos nos totais urbanos não for comprovada.
 - [x] Sincronizar o quadro-resumo das vinte comunidades com os perfis detalhados, incluindo IDs, liderança, legitimidade, obrigações e tensões.
-- [ ] Confirmar se cada autoridade local tem relação coerente com o governo descrito na cidade-mãe.
-- [ ] Cruzar os vinte assentamentos com a tabela de rotas e corrigir tempos ou conexões incompatíveis.
+- [x] Cruzar autoridades locais com competências das cidades-mãe e limites de intervenção da Coroa.
+- [x] Cruzar os vinte núcleos com a rede de rotas; não inventar distâncias ou tempos locais sem evidência.
 - [x] Associar as lideranças dos vinte assentamentos às suas jurisdições, instituições e relações relevantes sem duplicar personagens; identidades com nomes semelhantes são distinguidas no fechamento editorial.
-- [ ] Auditar os IDs e evitar duplicações com o catálogo de personagens do RPG Solo; este trabalho narrativo não cria bônus ou regras mecânicas.
-- [ ] Definir, na revisão geral, quais documentos e instituições mantêm os registros oficiais, locais e privados de cada disputa.
-- [ ] Revisar os conflitos após a criação das agendas sazonais para garantir causas e prazos plausíveis.
+- [x] Estabilizar IDs editoriais das vinte lideranças e identidades em conflito; validação contra o catálogo de código fica para a fase técnica.
+- [x] Definir níveis e responsabilidades dos registros oficiais, locais, restritos e privados em `04-instituicoes-justica-pactos.md`.
+- [x] Cruzar conflitos locais com agenda sazonal e relógios iniciais, sem impor resultados automáticos.
 
 **Regra de escopo:** a auditoria cruzada e o aprofundamento da rede de NPCs e instituições de Aeltharyn foram consolidados no documento de fechamento das sete fases. As Coroas de Pedra e os outros reinos continuam bloqueados até a conclusão editorial do Primeiro Verde.
 
@@ -393,7 +393,7 @@ O Mestre só precisa consultar o assentamento quando ele for relevante para a ca
 | Junco Alto | Vila ribeirinha ou distrito de várzea ligado a Nymvar | Diques, comportas e lavouras | Relação exata com os canais e com o perímetro urbano |
 | Três Barcas | Núcleo portuário/fluvial, possivelmente distrito ou entreposto externo | Barcas, travessias e registro de cargas | Se integra a zona urbana de Nymvar ou fica ao longo da rota fluvial |
 | Ponta da Concha | Vila costeira ou bairro pesqueiro ligado a Thalanor | Pesca, barcos pequenos e resgate | Distância do porto principal e relação com os limites da cidade |
-| Farol de Âmbar | Posto costeiro com comunidade residente | Farol, sinais marítimos e registro de embarcações | Se é parte da área portuária ou um ponto costeiro afastado |
+| Farol de Âmbar | Posto costeiro com comunidade residente | Farol, sinais marítimos e registro de embarcações | Distância métrica até Thalanor não definida; separado do Farol da Folha Azul |
 | Copa-Funda | Comunidade de manejo florestal, provavelmente fora do núcleo urbano | Cotas de extração, patrulha e árvores afetadas por praga | Distância de Vael-Tir, limites de manejo e acesso por trilha |
 | Passo do Veado | Posto de corredor e mercado sazonal | Passagem migratória, trilha e marco deslocado por enchente | Extensão do corredor, assentamento permanente e variação sazonal |
 | Lodo-Claro | Aldeia ou bairro de serviços comunitários em área úmida | Ervas, filtros, cuidados e amostras de água | Relação com o núcleo de Orvass e localização das fontes de água |
@@ -401,11 +401,11 @@ O Mestre só precisa consultar o assentamento quando ele for relevante para a ca
 | Vigília do Lago | Posto de observação com aldeia residente | Medições meteorológicas e alertas | Localização do lago e acesso a partir de Caladwen |
 | Papel-Velho | Povoado de ofícios ou distrito de oficinas | Copistas, encadernadores e restauração documental | Se as oficinas ficam no centro urbano ou em núcleo separado |
 | Eco Baixo | Comunidade de guias em área de trilhas | Manutenção de marcos e buscas | Distância de Brumafunda e quais caminhos são públicos ou reservados |
-| Torre da Névoa Mansa | Posto de observação com pequena comunidade | Torre, alertas e fechamento de trilhas | Localização da torre, área de cobertura e rota de abastecimento |
+| Torre da Névoa Mansa | Posto exterior de observação com pequena comunidade | Torre, alertas e fechamento de trilhas | Distância métrica não definida; depende de abastecimento de Brumafunda; distinta da Torre sem Sino |
 | Mel do Poente | Vila agrícola ou núcleo periurbano de Arven | Apiários, pomares e corredores de polinização | Limites dos pomares e relação com os campos da cidade |
 | Campo das Três Famílias | Aldeia agrícola ou conjunto de propriedades rurais | Cultivo, produção de grãos e tributo | Se é um núcleo compacto ou uma jurisdição de famílias dispersas |
 | Máscara Nova | Vila de artistas ou bairro de oficinas de Silvaran | Oficinas, apresentações e acolhimento em festivais | Se integra a malha urbana ou fica nos arredores |
-| Fonte do Regresso | Bairro de hospitalidade ou núcleo de abrigo próximo a Silvaran | Abrigo temporário e acolhimento de refugiados | Localização, capacidade física e relação com rotas de entrada |
+| Fonte do Regresso | Comunidade residencial de acolhimento vinculada a Silvaran | Abrigo temporário e acolhimento de refugiados | Distância métrica e capacidade não definidas; distinta da instituição Casa da Hospitalidade |
 | Ferro-Folha | Distrito de oficinas ou vila industrial ligada a Torvelume | Reparos, ferramentas e prioridade entre obras civis e militares | Se está dentro da fortaleza, em seu entorno ou numa rota de abastecimento |
 | Porta Selada | Comunidade de perímetro ou núcleo de serviço junto às galerias interditadas | Vigilância, tremores e pedidos de inspeção | Limite da área interditada, distância da fortaleza e acesso autorizado |
 
