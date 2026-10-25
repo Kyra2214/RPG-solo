@@ -18,10 +18,13 @@ class ColetaN23Test {
 
     @Test fun cadaOficioDeExploracaoTemUmaColeta() {
         val coletas = pkg().recipes(CraftKind.CRAFT).filter { it.id.startsWith("col-") }
-        assertEquals(9, coletas.size)
         assertTrue(coletas.all { it.inputs.isEmpty() && it.outputs.isNotEmpty() })
         val arvores = coletas.map { it.skillId!!.removePrefix("profissao-").substringBeforeLast('-') }.toSet()
+        assertEquals(RulePackage.HAZARD_TREES.size, arvores.size)
         assertEquals(RulePackage.HAZARD_TREES.toSet(), arvores)
-        assertTrue(coletas.all { it.skillId!!.endsWith("-2") && it.guaranteedBy!!.endsWith("-4") })
+        val coletasBase = coletas.filterNot { it.id.startsWith("col-extrair-gema-") }
+        assertTrue(coletasBase.all { it.skillId!!.endsWith("-2") && it.guaranteedBy!!.endsWith("-4") })
+        val extracoesDeGemas = coletas.filter { it.id.startsWith("col-extrair-gema-") }
+        assertTrue(extracoesDeGemas.all { it.skillId!!.endsWith("-3") && it.guaranteedBy!!.endsWith("-5") })
     }
 }

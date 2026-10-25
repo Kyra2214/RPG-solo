@@ -38,9 +38,11 @@ class GemasN33Test {
     @Test fun pecaTrocadaNaoContaEGemaVoltaQuandoAPecaVolta() {
         val e = engine()
         e.execute(SocketGem("hero", "mao", Gem("ataque", 3), 3))
-        e.execute(AddItem("hero", "clava", 1))
-        e.execute(EquipItem("hero", "clava", "mao"))
+        assertTrue(e.execute(AddItem("hero", "clava", 1)) is ExecResult.Accepted)
+        assertTrue(e.execute(UnequipItem("hero", "mao")) is ExecResult.Accepted)
+        assertTrue(e.execute(EquipItem("hero", "clava", "mao")) is ExecResult.Accepted)
         assertEquals(0, Gems.bonus(e.state.gems["hero"], e.state.equipped["hero"], "ataque"))
+        assertTrue(e.execute(UnequipItem("hero", "mao")) is ExecResult.Accepted)
         e.execute(EquipItem("hero", "espada-curta", "mao"))
         assertEquals(6, Gems.bonus(e.state.gems["hero"], e.state.equipped["hero"], "ataque"))
     }

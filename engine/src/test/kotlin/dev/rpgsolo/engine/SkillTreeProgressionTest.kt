@@ -40,9 +40,10 @@ class SkillTreeProgressionTest {
         )
         assertTrue(
             runCatching {
-                skill(origin = SkillOrigin.PROFESSION, free = true, unlockCost = 0)
+                skill(origin = SkillOrigin.SHARED, free = true, unlockCost = 0)
             }.isFailure,
         )
+        skill(origin = SkillOrigin.PROFESSION, free = true, unlockCost = 0)
         skill(origin = SkillOrigin.RACE, free = true, unlockCost = 0)
     }
 

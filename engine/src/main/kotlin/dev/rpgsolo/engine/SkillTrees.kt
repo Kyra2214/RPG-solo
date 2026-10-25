@@ -66,7 +66,7 @@ data class SkillTreeSkill(
     val actionResource: String? = null,
     val hitCount: Int = 1,
     val effects: List<SkillEffectSpec> = emptyList(),
-    /** Só habilidades básicas de raça/sub-raça/Classe de Malditos devem marcar true. */
+    /** Só habilidades básicas de raça, sub-raça, classe, profissão ou Classe de Malditos devem marcar true. */
     val freeBaseSkill: Boolean = false,
 ) {
     init {

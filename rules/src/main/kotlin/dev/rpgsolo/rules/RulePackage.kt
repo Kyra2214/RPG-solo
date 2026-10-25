@@ -4,6 +4,8 @@ import dev.rpgsolo.engine.AdvancementRequirement
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.Comparison
 import dev.rpgsolo.engine.DeathMode
+import dev.rpgsolo.engine.ElementChart
+import dev.rpgsolo.engine.ElementPath
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Ficha
 import dev.rpgsolo.engine.REAL_DICE
@@ -395,7 +397,8 @@ class RulePackage internal constructor(val data: PackageData) {
             fromLevel +
                 item(id)?.effects.orEmpty().filter { it.scope == scope }.sumOf { effect ->
                     val twoHanded = item(id)?.hands == 2 && scope == "ataque" && effect.bonus > 0
-                    val scaled = scaleByQuality(effect.bonus, id).let { if (twoHanded) (it * 3 + 1) / 2 else it }
+                    val adjusted = if (twoHanded) (effect.bonus * 3 + 1) / 2 else effect.bonus
+                    val scaled = scaleByQuality(adjusted, id)
                     if (restricted && scaled > 0) (scaled + 1) / 2 else scaled
                 }
         }
@@ -1173,7 +1176,7 @@ object PackageValidator {
         d.creation["combate_dano"]?.let { id ->
             if (d.damage.none { it.id == id }) p += "criacao.txt: perfil de dano inexistente: $id"
         }
-        val itemActions = setOf("cura", "remover-condicao", "aplicar-condicao")
+        val itemActions = setOf("cura", "remover-condicao", "aplicar-condicao", "encantar")
         for ((key, value) in d.creation) {
             if (!key.startsWith("item_")) continue
             val suffix = key.removePrefix("item_")
@@ -1192,13 +1195,20 @@ object PackageValidator {
                 "percentual" -> if ((value.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: percentual de item inválido (1 a 100): $value"
                 "condicao" -> if (d.conditions.none { it.id == value }) p += "criacao.txt: condição de item inexistente: $value"
                 "duracao" -> if ((value.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: duração de item inválida (1 a 100 rodadas): $value"
+                "elemento" -> {
+                    val element = runCatching { ElementChart.parse(value) }.getOrNull()
+                    if (element == null || element == ElementPath.NONE) p += "criacao.txt: elemento de item inválido: $value"
+                }
+                "dias" -> if ((value.toIntOrNull() ?: 0) !in 1..365) p += "criacao.txt: dias de item inválidos (1 a 365): $value"
                 else -> p += "criacao.txt: propriedade de item desconhecida: $key"
             }
         }
         d.items.filter { it.kind == "consumivel" }.forEach { item ->
             val prefix = "item_${item.id}_"
             val action = d.creation[prefix + "acao"]
-            val others = listOf("recurso", "quantidade", "percentual", "condicao", "duracao").filter { d.creation.containsKey(prefix + it) }
+            val others =
+                listOf("recurso", "quantidade", "percentual", "condicao", "duracao", "elemento", "dias")
+                    .filter { d.creation.containsKey(prefix + it) }
             if (action == null && others.isNotEmpty()) p += "criacao.txt: consumível ${item.id} define ${others.joinToString("/")} sem ação"
             when (action) {
                 "cura" -> {
@@ -1208,6 +1218,10 @@ object PackageValidator {
                 }
                 "remover-condicao", "aplicar-condicao" ->
                     if (!d.creation.containsKey(prefix + "condicao")) p += "criacao.txt: consumível ${item.id} sem condição"
+                "encantar" -> {
+                    if (!d.creation.containsKey(prefix + "elemento")) p += "criacao.txt: consumível ${item.id} sem elemento"
+                    if (!d.creation.containsKey(prefix + "dias")) p += "criacao.txt: consumível ${item.id} sem duração em dias"
+                }
             }
         }
         ItemQuality.entries.forEach { q ->

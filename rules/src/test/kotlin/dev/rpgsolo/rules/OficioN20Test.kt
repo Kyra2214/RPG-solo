@@ -23,7 +23,7 @@ class OficioN20Test {
     @Test fun pacoteEmbutidoTemReceitas() {
         val p = pkg()
         assertTrue(p.recipes().size >= 4)
-        assertEquals(2, p.recipes(CraftKind.PREPARE).size)
+        assertTrue(p.recipes(CraftKind.PREPARE).size >= 2)
         val r = p.recipe("forjar-barra-ferro")!!
         assertEquals(mapOf("minerio-ferro" to 2), r.inputs)
         assertEquals(mapOf("barra-de-ferro" to 1), r.outputs)

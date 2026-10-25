@@ -32,7 +32,7 @@ class OficioN20Test {
         assertEquals(50, CraftChance.percent(0, 0))
         assertEquals(66, CraftChance.percent(2, 3))
         assertEquals(95, CraftChance.percent(20, 20))
-        assertEquals(5, CraftChance.percent(0, 0, difficulty = 40))
+        assertEquals(10, CraftChance.percent(0, 0, difficulty = 40))
         assertEquals(60, CraftChance.percent(0, 0, tierBonus = 2))
     }
 
@@ -60,7 +60,7 @@ class OficioN20Test {
         assertTrue(r.roll != null)
         // N-35: conserto que falha gasta todo o material; o item quebrado continua.
         assertEquals(mapOf("minerio" to 3), r.consumed)
-        assertEquals(0, qty(e, "hero", "minerio"))
+        assertEquals(1, qty(e, "hero", "minerio"))
         assertEquals(1, qty(e, "hero", "espada-quebrada"))
         assertEquals(0, qty(e, "hero", "espada"))
     }

@@ -1,8 +1,8 @@
 package dev.rpgsolo.engine
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Test
 
 class ElementosN16Test {
     private fun pure(
@@ -40,7 +40,9 @@ class ElementosN16Test {
         assertEquals(200, ElementChart.percent(fogoVento, ElementPath.EARTH))
         assertEquals(50, ElementChart.percent(fogoVento, ElementPath.WATER))
         assertEquals(50, ElementChart.percent(fogoVento, ElementPath.METAL))
-        assertFailsWith<IllegalArgumentException> { ElementChart.percent(setOf(ElementPath.FIRE, ElementPath.YANG), ElementPath.FIRE) }
+        assertThrows(IllegalArgumentException::class.java) {
+            ElementChart.percent(setOf(ElementPath.FIRE, ElementPath.YANG), ElementPath.FIRE)
+        }
     }
 
     @Test
@@ -58,7 +60,7 @@ class ElementosN16Test {
         assertEquals(ElementPath.YANG, ElementChart.parse("Luz"))
         assertEquals(ElementPath.YIN, ElementChart.parse("trevas"))
         assertEquals(ElementPath.NONE, ElementChart.parse("-"))
-        assertFailsWith<IllegalArgumentException> { ElementChart.parse("gelo") }
+        assertThrows(IllegalArgumentException::class.java) { ElementChart.parse("gelo") }
     }
 
     @Test

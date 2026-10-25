@@ -94,7 +94,7 @@ class EquilibrioEOpcoesTest {
 
     @Test fun periciasNaoContamNoEquilibrio_epoderesContamComoVantagem() {
         val p = pkg()
-        val medio = mapOf("poder" to 2, "habilidade" to 2, "resistencia" to 2, "agilidade" to 2)
+        val medio = mapOf("poder" to 1, "habilidade" to 1, "resistencia" to 1, "agilidade" to 2)
         assertTrue(p.validateCharacter(medio, listOf("atletismo", "furtividade", "percepcao")).valid)
         val poder = p.validateCharacter(medio, listOf("voo"))
         assertEquals(1, poder.advantages)

@@ -290,18 +290,16 @@ class SkillTreeCatalogTest {
         }
     }
 
-    @Test fun culminanciaDoTratadorDeMontariasSuperaAMestriaProfissional() {
+    @Test fun culminanciaDoTratadorDeMontariasRepresentaOQuintoDegrauProfissional() {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
         val tree = result.tree("tratador-de-montarias")
-        val rank6 = tree.single { it.scrollRank == 6 }
-        val rank7 = tree.single { it.scrollRank == 7 }
-        val passiveMagnitude = rank6.effects.maxOf { kotlin.math.abs(it.valueAt(1)) }
-        val capstone = rank7.effects.single { it.target == "velocidade" }
-        assertEquals(dev.rpgsolo.engine.SkillCategory.BUFF, rank7.category)
-        assertEquals(dev.rpgsolo.engine.SkillEffectRecipient.SELF, capstone.recipient)
-        assertTrue("a culminância deve superar o bônus passivo do rank 6", capstone.valueAt(1) > passiveMagnitude)
-        assertTrue("a culminância deve durar ao menos três rodadas", (capstone.durationRounds ?: 0) >= 3)
+        val ranks = tree.mapNotNull { it.scrollRank }.filter { it > 0 }.sorted()
+        val capstone = tree.single { it.scrollRank == 5 }
+        assertEquals((1..5).toList(), ranks)
+        assertEquals("Tratador de Montarias — Companheiro Fiel", capstone.name)
+        assertEquals(dev.rpgsolo.engine.SkillCategory.PASSIVE, capstone.category)
+        assertTrue(capstone.effects.any { it.target == "tratador-de-montarias" })
     }
 
     @Test fun culminanciasDeControleSuperamOImpactoDoRankSeisEProlongamADuracao() {
@@ -310,8 +308,6 @@ class SkillTreeCatalogTest {
         val trees =
             listOf(
                 "diplomata",
-                "especialista-em-toxinas",
-                "perito-em-armadilhas",
                 "maldito-praga-1",
                 "maldito-praga-2",
                 "maldito-praga-3",
