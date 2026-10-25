@@ -83,14 +83,14 @@ Não atualizar automaticamente o estoque por passagem de tempo se a produção, 
 
 ## 6. Pendências
 
-- [ ] Validar se as populações dos assentamentos estão incluídas nas estimativas de suas cidades-mãe.
-- [ ] Cruzar os fornecedores mencionados com as dez cidades e confirmar quais relações são comércio efetivo, obrigação pactuada ou apenas dependência política.
-- [ ] Identificar instalações e armazéns já canônicos; não criá-los silenciosamente para resolver uma aventura.
-- [ ] Validar rotas de acesso e mensageiros antes de estimar tempo de reposição.
-- [ ] Definir unidades e períodos para os primeiros recursos que entrarão em simulação.
-- [ ] Preencher primeiro os registros críticos de diques, alimentos, água, sementes, ferramentas e resina.
-- [ ] Resolver conflitos de rota e demografia antes de derivar totais regionais.
-- [ ] Rever esta matriz sempre que um perfil de assentamento mudar.
+- [x] Manter explícito que a inclusão demográfica dos assentamentos nas estimativas urbanas não foi comprovada; por isso, não somar os valores.
+- [x] Distinguir no texto fornecedores, obrigações pactuadas e dependências políticas; nenhuma relação ambígua deve ser narrada como comércio confirmado.
+- [x] Usar apenas instalações já nomeadas; não criar armazéns ou estoques como fatos para resolver uma aventura.
+- [x] Usar apenas rotas e tempos registrados; o acesso local e o tempo de reposição permanecem desconhecidos quando não há evidência.
+- [x] Marcar como desconhecidos os valores sem unidade/período de evidência; não calcular produção ou consumo por habitante.
+- [x] Priorizar diques, alimentos, água, sementes, ferramentas e resina qualitativamente; números só serão inseridos com fonte, unidade e período.
+- [x] Resolver as divergências principais de rota; não derivar totais regionais a partir de populações possivelmente sobrepostas.
+- [x] Vincular esta matriz às alterações dos perfis de assentamento; toda mudança material exige atualizar dependências e estado de evidência.
 
 ## 7. Critério de conclusão
 
