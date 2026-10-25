@@ -1943,3 +1943,12 @@
 
 
 - Auditoria de habilidades ofensivas: 42 habilidades iniciais de Classe de Malditos agora executam `POWER_STRIKE` real com efeito de dano tipado; o rank 7 físico do arqueiro deixou de exigir afinidade elemental. Testes de regressão passaram no workflow #243 (commit `5205b037ebd45ed71d633f40c0ce08ba3c7ecc2d`): testes JVM/Android e build do APK debug verdes; E2E ignorado.
+
+
+## 2026-10-25 — delimitação élfica e ecossistema conectado de Aeltharyn
+
+- Corrigido o escopo: o Reino das Florestas não é o lar das 50 raças. O núcleo passa a ser explicitamente élfico e inclui apenas povos/linhagens próximos por território, ecologia e história; povos de outros reinos aparecem apenas como visitantes, migrantes ou indivíduos com justificativa local.
+- Refeita a matriz de representação heroica para 15 povos/linhagens relevantes, com herói, guardião e benfeitor distintos por linha e sem atribuir origem local automática a todo o catálogo.
+- Acrescentados fluxos de recursos e dependências entre as dez cidades, corredores de viagem com estimativas, ciclos ecológicos, cadeias de consequências e relógios de campanha com estados iniciais.
+- Registradas portas de conclusão explícitas. O reino das Montanhas continua bloqueado até auditoria de consistência, integração ao modelo existente e testes reais.
+- Validação: atualização documental via GitHub; nenhum teste/build/CI foi executado nesta alteração editorial.
