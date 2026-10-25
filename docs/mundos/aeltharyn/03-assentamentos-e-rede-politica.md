@@ -365,3 +365,46 @@ O Mestre só precisa consultar o assentamento quando ele for relevante para a ca
 - [ ] Revisar os conflitos após a criação das agendas sazonais para garantir causas e prazos plausíveis.
 
 **Regra de escopo:** depois desta camada, o próximo trabalho é auditoria cruzada e aprofundamento da rede de NPCs e instituições de Aeltharyn. As Coroas de Pedra e os outros reinos continuam bloqueados até a conclusão editorial do Primeiro Verde.
+
+## 16. Forma espacial dos vinte núcleos comunitários
+
+**Estado desta seção:** classificação editorial preliminar, derivada das funções descritas nos perfis. Não confirma distâncias, limites urbanos, população incluída no censo da cidade-mãe nem a posição exata no mapa. A palavra “assentamento” continua sendo um identificador administrativo e narrativo, não uma afirmação de que o lugar seja um vilarejo separado.
+
+| Assentamento | Forma espacial de trabalho | Base já descrita | O que falta confirmar |
+|---|---|---|---|
+| Raiz-de-Prata | Vila periurbana ou núcleo de viveiros ligado a Elarion | Viveiros, sementes e reserva de mudas | Se fica dentro do perímetro urbano, junto à cidade ou em área rural próxima |
+| Sete Degraus | Bairro de acesso, núcleo de ponte ou posto de estrada | Ponte, pedágio, hospedagem e fluxo de viajantes | Se a ponte cruza a cidade, seu entorno ou uma rota externa |
+| Junco Alto | Vila ribeirinha ou distrito de várzea ligado a Nymvar | Diques, comportas e lavouras | Relação exata com os canais e com o perímetro urbano |
+| Três Barcas | Núcleo portuário/fluvial, possivelmente distrito ou entreposto externo | Barcas, travessias e registro de cargas | Se integra a zona urbana de Nymvar ou fica ao longo da rota fluvial |
+| Ponta da Concha | Vila costeira ou bairro pesqueiro ligado a Thalanor | Pesca, barcos pequenos e resgate | Distância do porto principal e relação com os limites da cidade |
+| Farol de Âmbar | Posto costeiro com comunidade residente | Farol, sinais marítimos e registro de embarcações | Se é parte da área portuária ou um ponto costeiro afastado |
+| Copa-Funda | Comunidade de manejo florestal, provavelmente fora do núcleo urbano | Cotas de extração, patrulha e árvores afetadas por praga | Distância de Vael-Tir, limites de manejo e acesso por trilha |
+| Passo do Veado | Posto de corredor e mercado sazonal | Passagem migratória, trilha e marco deslocado por enchente | Extensão do corredor, assentamento permanente e variação sazonal |
+| Lodo-Claro | Aldeia ou bairro de serviços comunitários em área úmida | Ervas, filtros, cuidados e amostras de água | Relação com o núcleo de Orvass e localização das fontes de água |
+| Ilhas do Junco Negro | Conjunto de comunidades distribuídas por ilhotas | Três comunidades, passagens aquáticas e abrigos de cheia | Distância entre as comunidades, canais sazonais e jurisdição de cada núcleo |
+| Vigília do Lago | Posto de observação com aldeia residente | Medições meteorológicas e alertas | Localização do lago e acesso a partir de Caladwen |
+| Papel-Velho | Povoado de ofícios ou distrito de oficinas | Copistas, encadernadores e restauração documental | Se as oficinas ficam no centro urbano ou em núcleo separado |
+| Eco Baixo | Comunidade de guias em área de trilhas | Manutenção de marcos e buscas | Distância de Brumafunda e quais caminhos são públicos ou reservados |
+| Torre da Névoa Mansa | Posto de observação com pequena comunidade | Torre, alertas e fechamento de trilhas | Localização da torre, área de cobertura e rota de abastecimento |
+| Mel do Poente | Vila agrícola ou núcleo periurbano de Arven | Apiários, pomares e corredores de polinização | Limites dos pomares e relação com os campos da cidade |
+| Campo das Três Famílias | Aldeia agrícola ou conjunto de propriedades rurais | Cultivo, produção de grãos e tributo | Se é um núcleo compacto ou uma jurisdição de famílias dispersas |
+| Máscara Nova | Vila de artistas ou bairro de oficinas de Silvaran | Oficinas, apresentações e acolhimento em festivais | Se integra a malha urbana ou fica nos arredores |
+| Fonte do Regresso | Bairro de hospitalidade ou núcleo de abrigo próximo a Silvaran | Abrigo temporário e acolhimento de refugiados | Localização, capacidade física e relação com rotas de entrada |
+| Ferro-Folha | Distrito de oficinas ou vila industrial ligada a Torvelume | Reparos, ferramentas e prioridade entre obras civis e militares | Se está dentro da fortaleza, em seu entorno ou numa rota de abastecimento |
+| Porta Selada | Comunidade de perímetro ou núcleo de serviço junto às galerias interditadas | Vigilância, tremores e pedidos de inspeção | Limite da área interditada, distância da fortaleza e acesso autorizado |
+
+### 16.1 Regras para interpretar esta classificação
+
+1. Os termos da coluna “Forma espacial de trabalho” são hipóteses para orientar a revisão, não novos fatos geográficos.
+2. “Bairro” não exige que o lugar tenha uma muralha, governo separado ou população adicional; pode ser uma unidade comunitária reconhecida dentro de uma cidade.
+3. “Vila” ou “comunidade afastada” só deve ser confirmado quando a geografia e as rotas mostrarem que o núcleo fica fora da área urbana.
+4. “Posto” pode ter residentes permanentes e serviços próprios; não implica população exclusivamente militar.
+5. Um mesmo núcleo pode combinar formas: por exemplo, posto de observação e pequena comunidade residente, ou distrito de oficinas e área de moradia.
+6. Não somar a população de um núcleo à estimativa da cidade-mãe até classificar se os números são de núcleo urbano, jurisdição total ou região.
+7. Não criar um novo assentamento para preencher uma lacuna de mapa. Primeiro verificar se uma função pode pertencer a um dos vinte núcleos já registrados.
+8. A classificação espacial não determina a origem racial dos moradores. Bairros e comunidades podem ser mistos, e os vínculos culturais descritos no documento 10 não são censos populacionais.
+
+### 16.2 Próxima validação geográfica
+
+A etapa seguinte é comparar estas hipóteses com o mapa e as rotas já descritas no documento principal e nos registros operacionais. Só então se devem fixar posição relativa, caminho principal, duração de viagem, autoridade que pode fechar a rota e inclusão ou exclusão das estimativas populacionais. Até lá, a classificação acima ajuda a organizar o trabalho sem transformar lacunas em cânone.
+
