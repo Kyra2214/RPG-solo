@@ -13,6 +13,7 @@
 - [04 — Instituições, justiça e pactos territoriais](04-instituicoes-justica-pactos.md): competências da Coroa, cidades e assentamentos; Conselho das Sete Copas; processos de arbitragem; tributos, sucessão, emergência e secessão.
 - [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md): números populacionais provisórios, conexões documentadas, lacunas de acesso dos assentamentos e cruzamento dos sete relógios com recursos e consequências observáveis.
 - [06 — Modelo operacional e geração de aventuras](06-modelo-operacional-e-geracao-de-aventuras.md): cadeia causal de eventos, geração e resolução de oportunidades, autonomia dos agentes, consequências da inação, proteção contra contradições e contrato de contexto mínimo para LLM pequena.
+- [07 — Registro operacional de rotas](07-registro-operacional-de-rotas.md): inventário das ligações com tempos explícitos, corredores sem duração validada, divergências de viagem e regras para não inventar itinerários.
 
 ## Identidade resumida
 
