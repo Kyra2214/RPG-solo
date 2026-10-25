@@ -49,6 +49,7 @@ fun NewCampaignSection(model: AppModel) {
     var text by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var chosen by remember { mutableStateOf<Ficha?>(null) }
+    var useAeltharyn by remember(flow) { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var showForm by remember { mutableStateOf(false) }
     var genre by remember { mutableStateOf("") }
@@ -155,6 +156,18 @@ fun NewCampaignSection(model: AppModel) {
                     )
                 }
                 r.notes.forEach { Text(stringResource(R.string.campaign_note, it), style = MaterialTheme.typography.bodySmall) }
+                Text("Mundo inicial (opcional)", style = MaterialTheme.typography.titleSmall)
+                FilterChip(
+                    selected = useAeltharyn,
+                    onClick = { useAeltharyn = !useAeltharyn },
+                    label = { Text("Aeltharyn — Reino das Florestas") },
+                )
+                if (useAeltharyn) {
+                    Text(
+                        "Instala as dez cidades, rotas e crises iniciais de Aeltharyn. Só Elarion começa descoberta.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
                 if (s.ready.draft.ignored.isNotEmpty()) {
                     Text(
                         stringResource(R.string.campaign_ignored_terms, s.ready.draft.ignored.joinToString()),
@@ -186,7 +199,7 @@ fun NewCampaignSection(model: AppModel) {
                             try {
                                 withContext(Dispatchers.IO) {
                                     model.exclusiveTurn {
-                                        flow.start(ficha, campaignName, Random.nextLong()).also {
+                                        flow.start(ficha, campaignName, Random.nextLong(), if (useAeltharyn) "kingdom.aeltharyn" else null).also {
                                             if (it is NewCampaignFlow.Step.Started) model.activate(it.result)
                                         }
                                     }
@@ -221,6 +234,7 @@ fun NewCampaignSection(model: AppModel) {
                     text = ""
                     name = ""
                     chosen = null
+                    useAeltharyn = false
                 }) { Text(stringResource(R.string.campaign_create_another)) }
             }
         }
