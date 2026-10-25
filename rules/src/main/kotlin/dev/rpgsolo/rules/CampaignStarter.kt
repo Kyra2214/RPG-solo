@@ -123,7 +123,10 @@ object CampaignStarter {
 
         val notes = ready.notes.toMutableList()
         if (pkg == null) notes += "não há pacote de regras instalado para ${edition.id}: a ficha e os NPCs não são validados pelo motor"
-        if (worldId == AeltharynWorld.ID) notes += "Aeltharyn instalado: dez cidades, mapa conectado e sete relógios iniciais; só Elarion começa descoberta."
+        if (worldId == AeltharynWorld.ID) {
+            val activeNpcCount = AeltharynWorld.figures.count { it.aliveAtStart }
+            notes += "Aeltharyn instalado: dez cidades, mapa conectado, sete relógios e $activeNpcCount NPCs ativos com dossiês privados; só Elarion começa descoberta."
+        }
         return StartResult.Started(session, record, campanha, pkg, ficha.id, notes)
     }
 }
