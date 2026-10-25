@@ -1067,7 +1067,13 @@ object AeltharynWorld {
                         name = figure.name,
                         kind = EntityKind.NPC,
                         concept = "Figura de Aeltharyn; povo: $peopleName; função: ${figure.role}; origem: $cityName.",
-                        traits = listOf("world:$ID", "city:${figure.cityId}", "people:${figure.peopleId}", "role:${figure.role}"),
+                        traits =
+                            listOf(
+                                "world:$ID",
+                                "city:${figure.cityId}",
+                                "people:${figure.peopleId}",
+                                "role:${figure.role}",
+                            ),
                         rulesValidated = false,
                     ),
                 )
@@ -1075,7 +1081,9 @@ object AeltharynWorld {
                 SetNpcDossier(
                     NpcDossier(
                         npcId = figure.id,
-                        personality = "${figure.name} é ${figure.role.lowercase()} de ${peopleName.lowercase()}, ligado a $cityName. Seu registro é privado para o mestre.",
+                        personality =
+                            "${figure.name} é ${figure.role.lowercase()} de ${peopleName.lowercase()}, " +
+                            "ligado a $cityName. Seu registro é privado para o mestre.",
                         goals = listOf(figure.currentAgenda),
                         motivations = listOf(figure.pressure),
                     ),
