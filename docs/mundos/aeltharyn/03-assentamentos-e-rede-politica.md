@@ -58,6 +58,21 @@ A classificação abaixo usa apenas a forma descrita nos perfis existentes. Quan
 6. Até a classificação demográfica, não somar a população de um bairro ao total da cidade se houver possibilidade de já estar incluída. Também não presumir que todo povoado externo esteja excluído dos números urbanos.
 7. Esta etapa não acrescenta cidades, nomes de assentamentos, populações, rotas nem tempos de viagem.
 
+## 1.1 Relação espacial com as cidades: assentamento não significa localidade independente
+
+Os vinte assentamentos são **núcleos comunitários vinculados à rede territorial das dez cidades**, não vinte cidades adicionais nem necessariamente vinte vilarejos afastados. A palavra “assentamento” é uma categoria editorial ampla: identifica uma comunidade, função ou núcleo habitado que merece registro próprio na simulação.
+
+Conforme a geografia e a história local forem confirmadas, cada núcleo pode ser classificado como:
+- **Bairro:** parte contínua do tecido urbano de uma das dez cidades, com identidade e liderança comunitária próprias.
+- **Distrito ou núcleo periurbano:** área administrativa ou comunidade na borda da cidade, ligada diariamente ao centro urbano.
+- **Vila ou povoado próximo:** núcleo separado do perímetro urbano, mas conectado por deslocamentos frequentes, serviços, comércio ou proteção.
+- **Comunidade afastada:** núcleo fora da vizinhança imediata, dependente de trilhas, rios, estações ou acordos específicos.
+- **Posto ou núcleo sazonal:** instalação de função especializada, mercado sazonal ou comunidade cuja população varia ao longo do ano.
+
+Essas categorias descrevem a **relação espacial e administrativa**, não uma escala de importância. Um bairro pode ter grande autonomia cultural; uma comunidade afastada pode continuar sob um pacto com a cidade-mãe; um posto sazonal pode ter importância estratégica sem ser uma aldeia permanente.
+
+**Estado atual:** os perfis existentes definem a função, a liderança e a cidade-mãe de cada núcleo, mas não fixam de modo suficiente a posição exata em relação ao perímetro urbano. Portanto, não classificar silenciosamente os vinte como bairros nem como vilarejos remotos. A posição espacial será registrada quando a geografia for confirmada. Até lá, “cidade-mãe” significa vínculo político e de referência, não distância, propriedade automática ou inclusão demográfica.
+
 ## 2. Elarion — assentamentos da capital
 
 ### 2.1 Raiz-de-Prata
