@@ -43,3 +43,10 @@ Os nomes dos reinos futuros são rótulos provisórios, sem história ou geograf
 - [ ] Atualizar o estado para concluído somente após as etapas acima.
 
 **Importante:** “composto” aqui significa conteúdo narrativo escrito. Não significa que o mundo já seja carregável no APK ou que tenha sido validado por testes automatizados.
+
+
+## Escopo do Reino das Florestas — Aeltharyn
+
+Aeltharyn é um reino élfico, não um reino com as 50 raças do catálogo. O núcleo documentado reúne os elfos e 11 povos/linhagens próximos por território, ecologia e história, além de um aliado costeiro; visitantes e migrantes não são tratados como originários. A documentação atual amplia as relações materiais entre as dez cidades, as cadeias de consequência ecológica e os relógios de campanha.
+
+O reino permanece em implementação editorial e ainda não está integrado ao modelo carregável do jogo. O desenvolvimento das Coroas de Pedra está bloqueado até concluir auditoria de consistência, modelagem de dados, integração e testes de Aeltharyn.
