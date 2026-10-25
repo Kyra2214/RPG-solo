@@ -54,12 +54,13 @@ class NewCampaignFlow(
         ficha: Ficha,
         name: String,
         seed: Long,
+        worldId: String? = null,
     ): Step {
         val review = step as? Step.Review ?: return step
         val result =
             CampaignStarter.start(
                 store, registry, catalog, review.ready.resolved, review.ready.config, ficha,
-                newId(), name, seed, review.ready.draft.customSetting,
+                newId(), name, seed, review.ready.draft.customSetting, worldId,
             )
         step =
             when (result) {
