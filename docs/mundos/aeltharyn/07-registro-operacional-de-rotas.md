@@ -50,12 +50,12 @@ A auditoria do documento 05 identifica as seguintes conexões mencionadas ou sug
 
 | Ligação sugerida | Evidência editorial disponível | Estado | O que falta decidir |
 |---|---|---|---|
-| Nymvar ↔ Thalanor | corredor regional de viagem | Corredor sem duração individual | se há ligação direta ou se a viagem exige passar por outra cidade; modo e tempo |
+| Nymvar ↔ Thalanor | eixo de carga do Lúmen | Documentada com ressalva | 3–4 dias de barco de carga em condições comuns; viagem direta Elarion–Thalanor não equivale a esta etapa com escala |
 | Arven ↔ Silvaran | corredor regional de viagem | Corredor sem duração individual | traçado, modo, duração e sazonalidade |
-| Torvelume ↔ Vael-Tir | corredor regional da Espinha | Corredor sem duração individual | se é trecho contínuo e qual o tempo específico |
+| Torvelume ↔ Vael-Tir | trecho da Estrada da Espinha | Documentada com ressalva | cerca de 1–2 dias; geada, deslizamentos ou interdição podem bloquear a passagem |
 | Orvass ↔ Brumafunda | corredor regional do Pântano | Corredor sem duração individual | percurso real, navegabilidade e duração em condições comuns |
-| Elarion ↔ Vael-Tir ↔ Brumafunda | corredor das Copas reforça o eixo | Parcialmente documentada | Elarion–Vael-Tir e Vael-Tir–Brumafunda têm tempos; falta confirmar se o corredor usa exatamente os mesmos trechos |
-| Caladwen ↔ Torvelume ↔ Vael-Tir | corredor da Espinha | Conflito de duração | duração do trecho completo versus duração de cada ligação e condições de chuva |
+| Elarion ↔ Vael-Tir ↔ Brumafunda | corredor das Copas | Documentada com modos distintos | os 1–3 dias por trecho são para mensageiros treinados; as estimativas da seção 6 são para viagem comum e não devem ser comparadas como se fossem o mesmo ritmo |
+| Caladwen ↔ Torvelume ↔ Vael-Tir | corredor da Espinha | Resolvida editorialmente | cerca de 3 dias até Torvelume e mais 1–2 dias até Vael-Tir; total normal de 4–5 dias, sem paradas longas |
 
 O corredor da Espinha foi normalizado: Caladwen–Torvelume dura cerca de 3 dias e Torvelume–Vael-Tir cerca de 1–2, portanto o total de 4–5 dias exclui paradas longas. Os demais corredores sem duração individual continuam sem total calculável. Mesmo quando os trechos individuais existem, a rota regional pode ter desvios, paradas, controle de acesso ou caminhos diferentes. Somar durações só é permitido quando os segmentos são contínuos e comparáveis.
 
@@ -114,7 +114,7 @@ A IA não deve presumir que uma interrupção causa escassez imediata. É necess
 - [x] Resolver a Estrada da Espinha: Caladwen–Torvelume ≈ 3 dias; Torvelume–Vael-Tir ≈ 1–2 dias; corredor completo ≈ 4–5 dias.
 - [x] Definir dias como tempo decorrido de viagem em condições comuns, incluindo pausas usuais, mas excluindo paradas longas; clima, carga, guia e bloqueios podem alterar o intervalo.
 - [ ] Validar conexões de acesso dos vinte assentamentos sem atribuir tempos por suposição.
-- [ ] Definir quais rotas sustentam mensageiros regulares e quanto tempo as notícias demoram, sem presumir transmissão instantânea.
+- [x] Definir que o corredor das Copas permite 1–3 dias por trecho para mensageiros treinados; outros tempos de transmissão continuam não definidos e não podem ser presumidos instantâneos.
 - [x] Cruzar as consequências de bloqueios com recursos, relógios e oportunidades de aventura; não presumir escassez imediata sem verificar reservas, demanda e alternativas.
 
 ## 8. Critério de conclusão
