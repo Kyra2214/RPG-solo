@@ -348,9 +348,11 @@ object AeltharynWorld {
                 true,
                 "Preserva e duplica arquivos com cuidado para não expor informantes.",
                 "Não consegue salvar e catalogar todos os documentos sob pressão.",
-                currentAgenda = "Localizar cópias dos registros desaparecidos da Guerra das Cinzas" +
+                currentAgenda =
+                    "Localizar cópias dos registros desaparecidos da Guerra das Cinzas" +
                     "Verdes sem expor informantes.",
-                pressure = "Pressão atual: Não consegue salvar e catalogar todos os documentos" +
+                pressure =
+                    "Pressão atual: Não consegue salvar e catalogar todos os documentos" +
                     "sob pressão.",
             ),
             WorldFigure(
@@ -362,9 +364,11 @@ object AeltharynWorld {
                 true,
                 "Ensina moradores a inspecionar cabos e pontes.",
                 "A oficina tem recursos para atender apenas parte da cidade.",
-                currentAgenda = "Reparar duas pontes de serviço e ensinar moradores a reconhecer" +
+                currentAgenda =
+                    "Reparar duas pontes de serviço e ensinar moradores a reconhecer" +
                     "cabos comprometidos antes das chuvas.",
-                pressure = "Pressão atual: A oficina tem recursos para atender apenas parte da" +
+                pressure =
+                    "Pressão atual: A oficina tem recursos para atender apenas parte da" +
                     "cidade.",
             ),
             WorldFigure(
@@ -386,9 +390,11 @@ object AeltharynWorld {
                 true,
                 "Inspeciona diques e suspende travessias inseguras.",
                 "Seu rigor atrasa comércio quando a manutenção é urgente.",
-                currentAgenda = "Garantir verba e mão de obra para reforçar os diques antes da" +
+                currentAgenda =
+                    "Garantir verba e mão de obra para reforçar os diques antes da" +
                     "próxima cheia.",
-                pressure = "Pressão atual: Seu rigor atrasa comércio quando a manutenção é" +
+                pressure =
+                    "Pressão atual: Seu rigor atrasa comércio quando a manutenção é" +
                     "urgente.",
             ),
             WorldFigure(
@@ -400,9 +406,11 @@ object AeltharynWorld {
                 true,
                 "Coordena transporte de pacientes e registra tratamentos que falharam.",
                 "Não dispõe de remédios raros para todos os casos.",
-                currentAgenda = "Investigar a perda de eficácia dos tratamentos da várzea e organizar" +
+                currentAgenda =
+                    "Investigar a perda de eficácia dos tratamentos da várzea e organizar" +
                     "uma rota de pacientes.",
-                pressure = "Pressão atual: Não dispõe de remédios raros para todos os casos.",
+                pressure =
+                    "Pressão atual: Não dispõe de remédios raros para todos os casos.",
             ),
             WorldFigure(
                 "npc.yssara-folha-sal",
@@ -423,9 +431,11 @@ object AeltharynWorld {
                 true,
                 "Monitora correntes rasas e coordena alertas de maré.",
                 "Recusa resgates com chance mínima de retorno e é contestado por famílias.",
-                currentAgenda = "Investigar o navio sem tripulação e definir um perímetro de resgate" +
+                currentAgenda =
+                    "Investigar o navio sem tripulação e definir um perímetro de resgate" +
                     "seguro.",
-                pressure = "Pressão atual: Recusa resgates com chance mínima de retorno e é" +
+                pressure =
+                    "Pressão atual: Recusa resgates com chance mínima de retorno e é" +
                     "contestado por famílias.",
             ),
             WorldFigure(
@@ -437,9 +447,11 @@ object AeltharynWorld {
                 true,
                 "Mantém cooperativa de segurança e apoio a trabalhadores portuários.",
                 "O fundo não cobre todos os acidentes.",
-                currentAgenda = "Ampliar o fundo de acidentes portuários e obter relatos" +
+                currentAgenda =
+                    "Ampliar o fundo de acidentes portuários e obter relatos" +
                     "independentes das últimas viagens.",
-                pressure = "Pressão atual: O fundo não cobre todos os acidentes.",
+                pressure =
+                    "Pressão atual: O fundo não cobre todos os acidentes.",
             ),
             WorldFigure(
                 "npc.oren-galho-quieto",
@@ -460,9 +472,11 @@ object AeltharynWorld {
                 true,
                 "Negocia e protege corredores silvestres.",
                 "Não comanda todos os patrulheiros e pode ser desobedecida.",
-                currentAgenda = "Descobrir quem falsifica licenças de corte e proteger a área de" +
+                currentAgenda =
+                    "Descobrir quem falsifica licenças de corte e proteger a área de" +
                     "reprodução.",
-                pressure = "Pressão atual: Não comanda todos os patrulheiros e pode ser" +
+                pressure =
+                    "Pressão atual: Não comanda todos os patrulheiros e pode ser" +
                     "desobedecida.",
             ),
             WorldFigure(
@@ -474,9 +488,11 @@ object AeltharynWorld {
                 true,
                 "Mantém abrigos e pontos de água sem exigir juramento político.",
                 "A rede depende de contribuições voluntárias.",
-                currentAgenda = "Manter abrigos e fontes de água abertos enquanto renegocia" +
+                currentAgenda =
+                    "Manter abrigos e fontes de água abertos enquanto renegocia" +
                     "contribuições sazonais.",
-                pressure = "Pressão atual: A rede depende de contribuições voluntárias.",
+                pressure =
+                    "Pressão atual: A rede depende de contribuições voluntárias.",
             ),
             WorldFigure(
                 "npc.nima-raiz-lodo",
@@ -497,9 +513,11 @@ object AeltharynWorld {
                 true,
                 "Preserva redes miceliais e comunica sinais de contaminação.",
                 "A comunicação é lenta e exige tradução para decisões urgentes.",
-                currentAgenda = "Comparar sinais miceliais para localizar a origem da contaminação" +
+                currentAgenda =
+                    "Comparar sinais miceliais para localizar a origem da contaminação" +
                     "nos canais.",
-                pressure = "Pressão atual: A comunicação é lenta e exige tradução para decisões" +
+                pressure =
+                    "Pressão atual: A comunicação é lenta e exige tradução para decisões" +
                     "urgentes.",
             ),
             WorldFigure(
@@ -511,9 +529,11 @@ object AeltharynWorld {
                 true,
                 "Organizou passarelas elevadas e depósitos de remédios.",
                 "Madeira tratada e manutenção são escassas.",
-                currentAgenda = "Repor madeira tratada e remédios nos postos elevados antes que os" +
+                currentAgenda =
+                    "Repor madeira tratada e remédios nos postos elevados antes que os" +
                     "canais fechem.",
-                pressure = "Pressão atual: Madeira tratada e manutenção são escassas.",
+                pressure =
+                    "Pressão atual: Madeira tratada e manutenção são escassas.",
             ),
             WorldFigure(
                 "npc.ithren-quatro-estacoes",
@@ -534,9 +554,11 @@ object AeltharynWorld {
                 true,
                 "Protege observações e publica margem de incerteza.",
                 "Suas previsões dependem de instrumentos e dados incompletos.",
-                currentAgenda = "Verificar se os sinais celestes antecipam mudanças que ameacem as" +
+                currentAgenda =
+                    "Verificar se os sinais celestes antecipam mudanças que ameacem as" +
                     "colheitas.",
-                pressure = "Pressão atual: Suas previsões dependem de instrumentos e dados" +
+                pressure =
+                    "Pressão atual: Suas previsões dependem de instrumentos e dados" +
                     "incompletos.",
             ),
             WorldFigure(
@@ -548,9 +570,11 @@ object AeltharynWorld {
                 true,
                 "Torna pesquisas verificáveis acessíveis sem expor originais frágeis.",
                 "Cópias não substituem todas as fontes perdidas.",
-                currentAgenda = "Conferir cópias dos arquivos desaparecidos e publicar versões" +
+                currentAgenda =
+                    "Conferir cópias dos arquivos desaparecidos e publicar versões" +
                     "verificáveis.",
-                pressure = "Pressão atual: Cópias não substituem todas as fontes perdidas.",
+                pressure =
+                    "Pressão atual: Cópias não substituem todas as fontes perdidas.",
             ),
             WorldFigure(
                 "npc.sela-retornos",
@@ -571,9 +595,11 @@ object AeltharynWorld {
                 true,
                 "Protege ninhos e registra caça ilegal.",
                 "Recusa revelar localizações de espécies vulneráveis.",
-                currentAgenda = "Rastrear caçadores ilegais sem divulgar a localização de ninhos" +
+                currentAgenda =
+                    "Rastrear caçadores ilegais sem divulgar a localização de ninhos" +
                     "vulneráveis.",
-                pressure = "Pressão atual: Recusa revelar localizações de espécies vulneráveis.",
+                pressure =
+                    "Pressão atual: Recusa revelar localizações de espécies vulneráveis.",
             ),
             WorldFigure(
                 "npc.milo-passo-bruma",
@@ -584,9 +610,11 @@ object AeltharynWorld {
                 true,
                 "Mantém abrigo para viajantes que retornam de expedições incompletas.",
                 "O abrigo depende de doações e pode fechar durante a neblina extrema.",
-                currentAgenda = "Reforçar o abrigo e criar um protocolo para reencontrar expedições" +
+                currentAgenda =
+                    "Reforçar o abrigo e criar um protocolo para reencontrar expedições" +
                     "perdidas na neblina.",
-                pressure = "Pressão atual: O abrigo depende de doações e pode fechar durante a" +
+                pressure =
+                    "Pressão atual: O abrigo depende de doações e pode fechar durante a" +
                     "neblina extrema.",
             ),
             WorldFigure(
@@ -608,9 +636,11 @@ object AeltharynWorld {
                 true,
                 "Identifica esgotamento do solo e coordena recuperação de clareiras.",
                 "Não consegue reverter uma safra perdida de imediato.",
-                currentAgenda = "Recuperar clareiras esgotadas e investigar possível contaminação do" +
+                currentAgenda =
+                    "Recuperar clareiras esgotadas e investigar possível contaminação do" +
                     "solo.",
-                pressure = "Pressão atual: Não consegue reverter uma safra perdida de imediato.",
+                pressure =
+                    "Pressão atual: Não consegue reverter uma safra perdida de imediato.",
             ),
             WorldFigure(
                 "npc.bento-sete-sementes",
@@ -621,9 +651,11 @@ object AeltharynWorld {
                 true,
                 "Mantém banco de sementes diversificadas e troca variedades testadas.",
                 "A reserva é vulnerável a fungos e precisa de financiamento.",
-                currentAgenda = "Proteger o banco de sementes contra fungos e distribuir variedades" +
+                currentAgenda =
+                    "Proteger o banco de sementes contra fungos e distribuir variedades" +
                     "resistentes.",
-                pressure = "Pressão atual: A reserva é vulnerável a fungos e precisa de" +
+                pressure =
+                    "Pressão atual: A reserva é vulnerável a fungos e precisa de" +
                     "financiamento.",
             ),
             WorldFigure(
@@ -645,9 +677,11 @@ object AeltharynWorld {
                 true,
                 "Protege espaços de ensaio e artistas contra coerção.",
                 "Depende de locais cedidos por instituições com interesses próprios.",
-                currentAgenda = "Garantir espaços independentes para artistas durante a negociação" +
+                currentAgenda =
+                    "Garantir espaços independentes para artistas durante a negociação" +
                     "entre casas rivais.",
-                pressure = "Pressão atual: Depende de locais cedidos por instituições com" +
+                pressure =
+                    "Pressão atual: Depende de locais cedidos por instituições com" +
                     "interesses próprios.",
             ),
             WorldFigure(
@@ -659,9 +693,11 @@ object AeltharynWorld {
                 true,
                 "Organiza apresentações gratuitas em bairros afastados.",
                 "A agenda é limitada por recursos e transporte.",
-                currentAgenda = "Levar apresentações gratuitas aos bairros afastados e reduzir" +
+                currentAgenda =
+                    "Levar apresentações gratuitas aos bairros afastados e reduzir" +
                     "tensões entre famílias.",
-                pressure = "Pressão atual: A agenda é limitada por recursos e transporte.",
+                pressure =
+                    "Pressão atual: A agenda é limitada por recursos e transporte.",
             ),
             WorldFigure(
                 "npc.hadrik-sete-bigornas",
@@ -682,9 +718,11 @@ object AeltharynWorld {
                 true,
                 "Fiscaliza padrões de segurança em oficinas e portões.",
                 "Pode interditar uma estrutura, mas não consegue financiá-la.",
-                currentAgenda = "Inspecionar os portões e a mina selada antes de qualquer decisão de" +
+                currentAgenda =
+                    "Inspecionar os portões e a mina selada antes de qualquer decisão de" +
                     "reabertura.",
-                pressure = "Pressão atual: Pode interditar uma estrutura, mas não consegue" +
+                pressure =
+                    "Pressão atual: Pode interditar uma estrutura, mas não consegue" +
                     "financiá-la.",
             ),
             WorldFigure(
@@ -696,9 +734,11 @@ object AeltharynWorld {
                 true,
                 "Oferece ferramentas e bolsas a aprendizes sem recursos.",
                 "As bolsas cobrem apenas uma parte dos candidatos.",
-                currentAgenda = "Abrir bolsas emergenciais para aprendizes afetados pela perda de" +
+                currentAgenda =
+                    "Abrir bolsas emergenciais para aprendizes afetados pela perda de" +
                     "contratos.",
-                pressure = "Pressão atual: As bolsas cobrem apenas uma parte dos candidatos.",
+                pressure =
+                    "Pressão atual: As bolsas cobrem apenas uma parte dos candidatos.",
             ),
             WorldFigure(
                 "npc.saelith-arco-chuva",
@@ -709,9 +749,11 @@ object AeltharynWorld {
                 true,
                 "Organizou patrulhas em turnos e impediu que a guarda culpasse famílias inteiras por crimes individuais.",
                 "Sua reforma depende de fiscais que ainda resistem a prestar contas.",
-                currentAgenda = "Auditar a guarda e descobrir como os registros desaparecidos foram" +
+                currentAgenda =
+                    "Auditar a guarda e descobrir como os registros desaparecidos foram" +
                     "removidos.",
-                pressure = "Pressão atual: Sua reforma depende de fiscais que ainda resistem a" +
+                pressure =
+                    "Pressão atual: Sua reforma depende de fiscais que ainda resistem a" +
                     "prestar contas.",
             ),
             WorldFigure(
@@ -733,9 +775,11 @@ object AeltharynWorld {
                 true,
                 "Mantém trilhas noturnas sinalizadas e registra desaparecimentos sem espalhar rumores.",
                 "A neblina pode apagar sinais antes que a equipe chegue.",
-                currentAgenda = "Cruzar registros de desaparecimento com trilhas noturnas e verificar" +
+                currentAgenda =
+                    "Cruzar registros de desaparecimento com trilhas noturnas e verificar" +
                     "sinais falsos.",
-                pressure = "Pressão atual: A neblina pode apagar sinais antes que a equipe" +
+                pressure =
+                    "Pressão atual: A neblina pode apagar sinais antes que a equipe" +
                     "chegue.",
             ),
             WorldFigure(
@@ -747,8 +791,10 @@ object AeltharynWorld {
                 true,
                 "Financia lanternas de segurança e travessias para trabalhadores sem recursos.",
                 "O fundo não cobre todas as rotas em noites de cheia.",
-                currentAgenda = "Financiar lanternas e travessias seguras nas rotas de trabalhadores.",
-                pressure = "Pressão atual: O fundo não cobre todas as rotas em noites de cheia.",
+                currentAgenda =
+                    "Financiar lanternas e travessias seguras nas rotas de trabalhadores.",
+                pressure =
+                    "Pressão atual: O fundo não cobre todas as rotas em noites de cheia.",
             ),
             WorldFigure(
                 "npc.iria-dos-ecos",
@@ -759,9 +805,11 @@ object AeltharynWorld {
                 true,
                 "Conduziu famílias para fora de um círculo de pactos instável e registrou os limites que não deveriam ser cruzados.",
                 "Sua memória prova o caminho seguro, não explica a origem do fenômeno.",
-                currentAgenda = "Monitorar o círculo de pactos instável e investigar por que suas" +
+                currentAgenda =
+                    "Monitorar o círculo de pactos instável e investigar por que suas" +
                     "marcas mudam.",
-                pressure = "Pressão atual: Sua memória prova o caminho seguro, não explica a" +
+                pressure =
+                    "Pressão atual: Sua memória prova o caminho seguro, não explica a" +
                     "origem do fenômeno.",
             ),
             WorldFigure(
@@ -773,9 +821,11 @@ object AeltharynWorld {
                 true,
                 "Protege os santuários de hospitalidade e testemunha acordos entre viajantes e anfitriões.",
                 "Não pode transformar hospitalidade em imunidade para crimes.",
-                currentAgenda = "Reunir testemunhas de pactos de hospitalidade e impedir seu uso para" +
+                currentAgenda =
+                    "Reunir testemunhas de pactos de hospitalidade e impedir seu uso para" +
                     "encobrir coerção.",
-                pressure = "Pressão atual: Não pode transformar hospitalidade em imunidade para" +
+                pressure =
+                    "Pressão atual: Não pode transformar hospitalidade em imunidade para" +
                     "crimes.",
             ),
             WorldFigure(
@@ -787,9 +837,11 @@ object AeltharynWorld {
                 true,
                 "Mantém abrigos e jardins de repouso para visitantes que chegam sem patrono.",
                 "Em épocas de escassez, precisa limitar o tempo de permanência.",
-                currentAgenda = "Manter leitos e jardins de repouso para viajantes sem patrono" +
+                currentAgenda =
+                    "Manter leitos e jardins de repouso para viajantes sem patrono" +
                     "durante as chuvas.",
-                pressure = "Pressão atual: Em épocas de escassez, precisa limitar o tempo de" +
+                pressure =
+                    "Pressão atual: Em épocas de escassez, precisa limitar o tempo de" +
                     "permanência.",
             ),
             WorldFigure(
@@ -811,8 +863,10 @@ object AeltharynWorld {
                 true,
                 "Distribui mudas locais e mantém viveiros comunitários sem cobrar de famílias deslocadas.",
                 "O reflorestamento exige anos e não resolve a perda imediata de colheitas.",
-                currentAgenda = "Expandir viveiros de espécies nativas e abastecer aldeias com mudas.",
-                pressure = "Pressão atual: O reflorestamento exige anos e não resolve a perda" +
+                currentAgenda =
+                    "Expandir viveiros de espécies nativas e abastecer aldeias com mudas.",
+                pressure =
+                    "Pressão atual: O reflorestamento exige anos e não resolve a perda" +
                     "imediata de colheitas.",
             ),
             WorldFigure(
@@ -834,9 +888,11 @@ object AeltharynWorld {
                 true,
                 "Construiu uma rede de compostagem e filtragem que recuperou hortas alagadas.",
                 "O sistema falha quando resíduos tóxicos são despejados deliberadamente.",
-                currentAgenda = "Rastrear resíduos tóxicos e criar uma cadeia de amostras verificável" +
+                currentAgenda =
+                    "Rastrear resíduos tóxicos e criar uma cadeia de amostras verificável" +
                     "entre cidades.",
-                pressure = "Pressão atual: O sistema falha quando resíduos tóxicos são" +
+                pressure =
+                    "Pressão atual: O sistema falha quando resíduos tóxicos são" +
                     "despejados deliberadamente.",
             ),
             WorldFigure(
@@ -848,9 +904,11 @@ object AeltharynWorld {
                 true,
                 "Preserva as rotas de festival e intervém quando rivalidades ameaçam virar violência.",
                 "Sua mediação depende de ambas as partes aceitarem regras comuns.",
-                currentAgenda = "Negociar regras comuns de segurança e impedir violência nos" +
+                currentAgenda =
+                    "Negociar regras comuns de segurança e impedir violência nos" +
                     "festivais.",
-                pressure = "Pressão atual: Sua mediação depende de ambas as partes aceitarem" +
+                pressure =
+                    "Pressão atual: Sua mediação depende de ambas as partes aceitarem" +
                     "regras comuns.",
             ),
             WorldFigure(
@@ -872,9 +930,11 @@ object AeltharynWorld {
                 true,
                 "Mantém oficinas e refeições para artistas itinerantes durante a estação de chuvas.",
                 "Os recursos acabam quando as caravanas ficam retidas por semanas.",
-                currentAgenda = "Manter refeições e oficinas para artistas retidos e financiar" +
+                currentAgenda =
+                    "Manter refeições e oficinas para artistas retidos e financiar" +
                     "caravanas.",
-                pressure = "Pressão atual: Os recursos acabam quando as caravanas ficam retidas" +
+                pressure =
+                    "Pressão atual: Os recursos acabam quando as caravanas ficam retidas" +
                     "por semanas.",
             ),
             WorldFigure(
@@ -886,9 +946,11 @@ object AeltharynWorld {
                 true,
                 "Negociou a reabertura de um corredor migratório sem expulsar os pequenos agricultores.",
                 "O acordo depende de revisão sazonal e não elimina todas as disputas.",
-                currentAgenda = "Renovar o acordo sazonal de migração e mapear cercas que bloqueiam" +
+                currentAgenda =
+                    "Renovar o acordo sazonal de migração e mapear cercas que bloqueiam" +
                     "manadas.",
-                pressure = "Pressão atual: O acordo depende de revisão sazonal e não elimina" +
+                pressure =
+                    "Pressão atual: O acordo depende de revisão sazonal e não elimina" +
                     "todas as disputas.",
             ),
             WorldFigure(
@@ -900,9 +962,11 @@ object AeltharynWorld {
                 true,
                 "Coordena vigias de pastagens e impede que caçadores bloqueiem os corredores de manada.",
                 "Não tem autoridade para revogar cercas legalmente registradas.",
-                currentAgenda = "Mapear bloqueios recentes e negociar passagens alternativas para" +
+                currentAgenda =
+                    "Mapear bloqueios recentes e negociar passagens alternativas para" +
                     "corredores de manada.",
-                pressure = "Pressão atual: Não tem autoridade para revogar cercas legalmente" +
+                pressure =
+                    "Pressão atual: Não tem autoridade para revogar cercas legalmente" +
                     "registradas.",
             ),
             WorldFigure(
@@ -914,9 +978,11 @@ object AeltharynWorld {
                 true,
                 "Organiza a defesa de aldeias e prioriza evacuação antes de retaliação.",
                 "Algumas comunidades o acusam de negociar demais com a corte élfica.",
-                currentAgenda = "Preparar evacuações e impedir que a defesa comunitária vire" +
+                currentAgenda =
+                    "Preparar evacuações e impedir que a defesa comunitária vire" +
                     "retaliação.",
-                pressure = "Pressão atual: Algumas comunidades o acusam de negociar demais com a" +
+                pressure =
+                    "Pressão atual: Algumas comunidades o acusam de negociar demais com a" +
                     "corte élfica.",
             ),
             WorldFigure(
@@ -928,9 +994,11 @@ object AeltharynWorld {
                 true,
                 "Restabeleceu a rede de sinais depois que uma tempestade derrubou torres de comunicação.",
                 "A reconstrução foi coletiva, apesar de a crônica popular citar apenas seu nome.",
-                currentAgenda = "Restabelecer redundância nos sinais e verificar quais aldeias" +
+                currentAgenda =
+                    "Restabelecer redundância nos sinais e verificar quais aldeias" +
                     "dependem das torres.",
-                pressure = "Pressão atual: A reconstrução foi coletiva, apesar de a crônica" +
+                pressure =
+                    "Pressão atual: A reconstrução foi coletiva, apesar de a crônica" +
                     "popular citar apenas seu nome.",
             ),
             WorldFigure(
@@ -942,9 +1010,11 @@ object AeltharynWorld {
                 true,
                 "Mantém as passagens altas seguras sem permitir que torres de aviso sejam usadas para perseguir dissidentes.",
                 "Não controla torres privadas fora de sua jurisdição.",
-                currentAgenda = "Inspecionar passagens altas e criar regras contra uso das torres" +
+                currentAgenda =
+                    "Inspecionar passagens altas e criar regras contra uso das torres" +
                     "para perseguir dissidentes.",
-                pressure = "Pressão atual: Não controla torres privadas fora de sua jurisdição.",
+                pressure =
+                    "Pressão atual: Não controla torres privadas fora de sua jurisdição.",
             ),
             WorldFigure(
                 "npc.nilo-recado-certo",
@@ -955,9 +1025,11 @@ object AeltharynWorld {
                 true,
                 "Criou uma rede de mensagens com confirmação de entrega para aldeias isoladas.",
                 "A rede perde alcance quando tempestades fecham os pontos de pouso.",
-                currentAgenda = "Restaurar pontos de pouso e rotas alternativas para mensagens entre" +
+                currentAgenda =
+                    "Restaurar pontos de pouso e rotas alternativas para mensagens entre" +
                     "aldeias.",
-                pressure = "Pressão atual: A rede perde alcance quando tempestades fecham os" +
+                pressure =
+                    "Pressão atual: A rede perde alcance quando tempestades fecham os" +
                     "pontos de pouso.",
             ),
             WorldFigure(
@@ -969,9 +1041,11 @@ object AeltharynWorld {
                 true,
                 "Mantém um fundo para famílias de marinheiros desaparecidos e financia faróis de emergência.",
                 "O fundo não consegue sustentar todas as famílias durante bloqueios longos.",
-                currentAgenda = "Reforçar o fundo de famílias de marinheiros desaparecidos e" +
+                currentAgenda =
+                    "Reforçar o fundo de famílias de marinheiros desaparecidos e" +
                     "financiar sinais costeiros.",
-                pressure = "Pressão atual: O fundo não consegue sustentar todas as famílias" +
+                pressure =
+                    "Pressão atual: O fundo não consegue sustentar todas as famílias" +
                     "durante bloqueios longos.",
             ),
         )
@@ -1156,7 +1230,10 @@ object AeltharynWorld {
      * Contexto público da cidade atual para o mestre. Só mostra dependências de cidades já conhecidas;
      * problemas ativos e segredos continuam exclusivamente no campo privado de Place.
      */
-    fun sceneContext(cityId: String, knownCityIds: Set<String>): String? {
+    fun sceneContext(
+        cityId: String,
+        knownCityIds: Set<String>,
+    ): String? {
         val city = cities.firstOrNull { it.id == cityId } ?: return null
         val localPeople = city.peopleIds.mapNotNull { people.firstOrNull { person -> person.id == it }?.name }
         val knownDependencies =
