@@ -1,3 +1,11 @@
+## 2026-10-25 — cobertura de referências por povo em Aeltharyn
+
+- Ampliado o catálogo tipado de 30 para 51 figuras, mantendo o foco em elfos e 15 povos/linhagens próximos, não nas 50 raças do catálogo completo.
+- A validação estrutural agora exige que cada uma das dez cidades e cada um dos 16 povos/linhagens tenha referência de herói, guardião e benfeitor.
+- Adicionado teste unitário específico para a cobertura das tríades por povo e sincronizada a matriz narrativa da documentação com as figuras do motor.
+- Corrigida a distribuição élfica em Torvelume e o estado atual de Iria dos Ecos.
+- CI em execução após as correções; a implementação não será declarada concluída até confirmação de testes verdes e revisão da integração com a criação de campanha.
+
 ## 2026-10-25 — revisão do ecossistema de Aeltharyn
 
 - Respondida a lacuna apontada na primeira composição: o reino tinha cidades descritas, mas sua rede de heróis, guardiões, benfeitores e gerações era insuficiente.
@@ -1956,7 +1964,7 @@
 
 ## 2026-10-25 — catálogo tipado de Aeltharyn no motor
 
-- Adicionado `AeltharynWorld` no módulo `engine`, com IDs estáveis para as dez cidades, 16 povos/linhagens próximos aos elfos, 30 figuras (herói, guardião e benfeitor por cidade), rotas, dependências, problemas locais e sete relógios iniciais.
+- Adicionado `AeltharynWorld` no módulo `engine`, com IDs estáveis para as dez cidades, 16 povos/linhagens próximos aos elfos e 51 figuras; cada cidade e cada povo tem pelo menos um herói, guardião e benfeitor, além de rotas, dependências, problemas locais e sete relógios iniciais.
 - O catálogo inclui validação estrutural para IDs duplicados, referências de cidade/povo, tríades por cidade, duração das rotas, conectividade com a capital e limites dos relógios. Foram adicionados testes unitários para esses contratos.
 - Escopo: catálogo tipado disponível no código, mas ainda não carregado automaticamente ao iniciar uma campanha. Testes/build/CI desta alteração ainda não foram executados.
 
