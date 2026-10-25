@@ -67,6 +67,12 @@ Esta matriz define **centros de referência**, não guetos raciais. Nenhuma cida
 
 A distribuição de referência deve ser conferida com as rotas, os recursos, a população e as jurisdições já documentadas. Não criar cidades adicionais para acomodar um povo: comunidades e famílias podem estar distribuídas entre cidades, aldeias e assentamentos existentes.
 
+### 3.1.1 Cidades e assentamentos não são camadas mutuamente exclusivas
+
+Os vinte assentamentos já registrados podem ser bairros, distritos, núcleos próximos, comunidades afastadas ou postos sazonais. Não devem ser tratados automaticamente como vinte vilarejos externos às dez cidades. Um povo pode ter presença em um bairro urbano, manter parentes em uma comunidade afastada e circular por outras cidades; isso não exige criar novos territórios nem atribuir uma cidade inteira a uma única raça.
+
+A posição espacial de cada núcleo continua pendente até o cruzamento com a geografia e as rotas. A tabela transversal abaixo indica vínculos culturais de referência, não uma distribuição demográfica confirmada nem uma lista de bairros raciais.
+
 ### 3.2 Mapa transversal de presença dos povos
 
 A tabela seguinte consolida a distribuição como **hipótese editorial de trabalho**, para tornar visível que onze povos de referência coexistem em dez cidades. “Centro de referência” significa presença cultural e histórica relevante, não maioria demográfica, exclusividade nem local obrigatório de nascimento. A presença secundária é uma orientação inicial que ainda deve ser cruzada com as fichas de cidade e de assentamento.
