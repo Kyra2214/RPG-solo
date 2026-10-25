@@ -24,7 +24,7 @@ Categorias permitidas:
 
 A categoria descreve localização e forma de ocupação, não o grau de autonomia política. Um bairro pode ter liderança comunitária própria; uma comunidade afastada pode continuar sob um pacto com a cidade; um posto pode ser compartilhado por mais de uma comunidade.
 
-**Regra de continuidade:** até que os documentos geográficos e de rotas sustentem uma classificação, manter a posição espacial como **indefinida**. Não afirmar que um assentamento fica fora das muralhas, somar sua população à cidade ou atribuir-lhe um tempo de viagem só porque aparece como entrada separada nesta lista. A relação com a cidade-mãe continua sendo um vínculo político de referência, não uma coordenada no mapa.
+**Regra de continuidade:** os enquadramentos qualitativos da tabela são canônicos para a função e a relação espacial geral; a distância exata e o tempo de viagem permanecem não definidos. Não somar automaticamente populações nem atribuir coordenadas por causa da classificação. A relação com a cidade-mãe continua sendo um vínculo político de referência, não uma coordenada no mapa.
 
 Cada liderança abaixo tem:
 - um método de legitimidade;
@@ -39,30 +39,30 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 
 **Regra de leitura:** “assentamento” é uma unidade de registro do dossiê, não uma declaração de que cada entrada seja uma vila independente no mapa. Um registro pode corresponder a um bairro, distrito, núcleo periurbano, vila próxima, comunidade afastada, posto de rota ou conjunto de comunidades. A cidade-mãe indica vínculo político e funcional; por si só, não determina distância, continuidade urbana nem inclusão no perímetro da cidade.
 
-A classificação abaixo usa apenas a forma descrita nos perfis existentes. Quando a posição geográfica não está documentada, ela fica **em aberto**: não converter uma hipótese em fato e não criar distância, estrada ou fronteira nova para preencher a lacuna.
+A classificação abaixo consolida a forma espacial funcional já sustentada pelas descrições existentes. A decisão editorial define se o núcleo é urbano, periurbano, comunitário, insular ou de posto; ela não cria coordenadas, fronteiras nem distâncias. Quando a posição métrica não está documentada, o tempo de viagem continua sem valor canônico.
 
 | Assentamento | Forma já descrita no perfil | Enquadramento espacial possível, ainda sujeito à geografia |
 |---|---|---|
-| Raiz-de-Prata — Elarion | Vila de viveiros e sementes | Bairro produtivo, núcleo periurbano ou vila rural; posição exata em aberto |
-| Sete Degraus — Elarion | Povoado de ponte, pedágio e hospedagem | Distrito de travessia, bairro de acesso ou povoado externo; posição exata em aberto |
-| Junco Alto — Nymvar | Vila de diques e lavouras ribeirinhas | Bairro ribeirinho, periferia agrícola ou vila externa; posição exata em aberto |
-| Três Barcas — Nymvar | Entreposto fluvial | Distrito portuário/fluvial ou núcleo de travessia fora do centro; posição exata em aberto |
-| Ponta da Concha — Thalanor | Vila pesqueira | Bairro costeiro ou vila pesqueira externa; posição exata em aberto |
-| Farol de Âmbar — Thalanor | Farol e aldeia costeira | Instalação de navegação com núcleo residencial; integração urbana ou afastamento ainda não definidos |
-| Copa-Funda — Vael-Tir | Comunidade de manejo florestal | Comunidade integrada a uma área urbana, núcleo de trabalho ou vila florestal; posição em aberto |
-| Passo do Veado — Vael-Tir | Posto de trilha e mercado sazonal | Posto de corredor e mercado periódico; não pressupõe uma vila convencional nem residência de todos os usuários da rota |
-| Lodo-Claro — Orvass | Aldeia de ervas, filtros e cuidados comunitários | Bairro especializado, aldeia próxima ou comunidade afastada; posição em aberto |
-| Ilhas do Junco Negro — Orvass | Conjunto de ilhotas com três comunidades aquáticas | Agrupamento geográfico de comunidades, não necessariamente um único núcleo contínuo |
-| Vigília do Lago — Caladwen | Aldeia de observadores meteorológicos | Núcleo de observação integrado, próximo ou afastado da cidade; posição em aberto |
-| Papel-Velho — Caladwen | Povoado de copistas, encadernadores e restauradores | Bairro/oficinas especializadas ou povoado externo; posição em aberto |
-| Eco Baixo — Brumafunda | Aldeia de guias | Bairro de guias, núcleo periurbano ou aldeia afastada; posição em aberto |
-| Torre da Névoa Mansa — Brumafunda | Posto de observação com pequena aldeia | Posto com núcleo residencial; relação de distância com Brumafunda em aberto |
-| Mel do Poente — Arven | Vila de apiários e pomares | Bairro produtivo, cinturão agrícola ou vila externa; posição em aberto |
-| Campo das Três Famílias — Arven | Aldeia agrícola | Comunidade agrícola integrada à região urbana ou aldeia externa; posição em aberto |
-| Máscara Nova — Silvaran | Vila de artistas e artesãos | Bairro/oficinas ou vila cultural externa; posição em aberto |
-| Fonte do Regresso — Silvaran | Povoado de hospitalidade e abrigo | Bairro de acolhimento, núcleo de passagem ou povoado externo; posição em aberto |
-| Ferro-Folha — Torvelume | Vila de oficinas e reparos | Bairro industrial/artesanal ou vila externa ligada à fortaleza; posição em aberto |
-| Porta Selada — Torvelume | Assentamento próximo às galerias interditadas | Núcleo residencial ligado à área de mineração/defesa; não implica que esteja dentro da fortaleza |
+| Raiz-de-Prata — Elarion | Vila de viveiros e sementes | Núcleo periurbano produtivo de Elarion; sem distância independente definida |
+| Sete Degraus — Elarion | Povoado de ponte, pedágio e hospedagem | Distrito de travessia no acesso terrestre da capital; não presumir que toda a população esteja dentro das muralhas |
+| Junco Alto — Nymvar | Vila de diques e lavouras ribeirinhas | Núcleo ribeirinho periurbano ligado ao sistema de diques de Nymvar; limite urbano exato não definido |
+| Três Barcas — Nymvar | Entreposto fluvial | Distrito funcional fluvial de Nymvar, com tráfego sazonal; não é uma cidade separada |
+| Ponta da Concha — Thalanor | Vila pesqueira | Comunidade costeira vinculada ao sistema portuário de Thalanor; integração ao perímetro urbano não definida |
+| Farol de Âmbar — Thalanor | Farol e aldeia costeira | Posto costeiro separado do núcleo urbano, com comunidade residente e função de sinalização; distância não definida |
+| Copa-Funda — Vael-Tir | Comunidade de manejo florestal | Comunidade florestal de trabalho ligada à jurisdição de Vael-Tir; não há distância de viagem canônica |
+| Passo do Veado — Vael-Tir | Posto de trilha e mercado sazonal | Posto de corredor e mercado periódico; a ocupação aumenta na estação de migração e não equivale a uma vila convencional |
+| Lodo-Claro — Orvass | Aldeia de ervas, filtros e cuidados comunitários | Comunidade de água e cuidados vinculada ao sistema de Orvass; distância não definida |
+| Ilhas do Junco Negro — Orvass | Conjunto de ilhotas com três comunidades aquáticas | Agrupamento descontínuo de ilhotas sob a jurisdição de Orvass, não um único núcleo urbano |
+| Vigília do Lago — Caladwen | Aldeia de observadores meteorológicos | Núcleo de observação lacustre vinculado a Caladwen; acesso exato ainda sem duração canônica |
+| Papel-Velho — Caladwen | Povoado de copistas, encadernadores e restauradores | Distrito de oficinas e copistas ligado ao circuito de arquivos de Caladwen; não é cidade independente |
+| Eco Baixo — Brumafunda | Aldeia de guias | Comunidade de guias vinculada a Brumafunda, na transição entre o núcleo habitado e as trilhas de neblina; distância não definida |
+| Torre da Névoa Mansa — Brumafunda | Posto de observação com pequena aldeia | Posto exterior de observação, separado da Torre sem Sino; mantém comunidade residente e depende de abastecimento de Brumafunda |
+| Mel do Poente — Arven | Vila de apiários e pomares | Cinturão agrícola produtivo vinculado a Arven; sem distância de viagem canônica |
+| Campo das Três Famílias — Arven | Aldeia agrícola | Comunidade agrícola de entorno vinculada a Arven; limite urbano exato não definido |
+| Máscara Nova — Silvaran | Vila de artistas e artesãos | Distrito cultural e artesanal vinculado a Silvaran; não é uma cidade independente |
+| Fonte do Regresso — Silvaran | Povoado de hospitalidade e abrigo | Comunidade residencial de acolhimento vinculada a Silvaran; distinta da instituição Casa da Hospitalidade |
+| Ferro-Folha — Torvelume | Vila de oficinas e reparos | Distrito artesanal/industrial ligado à fortaleza de Torvelume; perímetro exato não definido |
+| Porta Selada — Torvelume | Assentamento próximo às galerias interditadas | Núcleo residencial de acesso controlado no entorno das galerias; não equivale à própria mina nem presume acesso livre |
 
 #### Regras para consolidar a geografia
 
@@ -375,12 +375,12 @@ O Mestre só precisa consultar o assentamento quando ele for relevante para a ca
 - [x] Sincronizar o quadro-resumo das vinte comunidades com os perfis detalhados, incluindo IDs, liderança, legitimidade, obrigações e tensões.
 - [ ] Confirmar se cada autoridade local tem relação coerente com o governo descrito na cidade-mãe.
 - [ ] Cruzar os vinte assentamentos com a tabela de rotas e corrigir tempos ou conexões incompatíveis.
-- [ ] Associar NPCs existentes às relações em que já têm papel, sem duplicar personagens com nomes diferentes.
+- [x] Associar as lideranças dos vinte assentamentos às suas jurisdições, instituições e relações relevantes sem duplicar personagens; identidades com nomes semelhantes são distinguidas no fechamento editorial.
 - [ ] Auditar os IDs e evitar duplicações com o catálogo de personagens do RPG Solo; este trabalho narrativo não cria bônus ou regras mecânicas.
 - [ ] Definir, na revisão geral, quais documentos e instituições mantêm os registros oficiais, locais e privados de cada disputa.
 - [ ] Revisar os conflitos após a criação das agendas sazonais para garantir causas e prazos plausíveis.
 
-**Regra de escopo:** depois desta camada, o próximo trabalho é auditoria cruzada e aprofundamento da rede de NPCs e instituições de Aeltharyn. As Coroas de Pedra e os outros reinos continuam bloqueados até a conclusão editorial do Primeiro Verde.
+**Regra de escopo:** a auditoria cruzada e o aprofundamento da rede de NPCs e instituições de Aeltharyn foram consolidados no documento de fechamento das sete fases. As Coroas de Pedra e os outros reinos continuam bloqueados até a conclusão editorial do Primeiro Verde.
 
 ## 16. Forma espacial dos vinte núcleos comunitários
 
