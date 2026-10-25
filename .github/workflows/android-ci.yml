@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main", "implementation/code-first-combat", "feature/racas-subracas" ]
+    branches: [ "main", "implementation/code-first-combat", "feature/racas-subracas", "world/aeltharyn-reino-das-florestas" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
