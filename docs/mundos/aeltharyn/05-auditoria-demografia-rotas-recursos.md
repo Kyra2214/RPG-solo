@@ -160,7 +160,32 @@ Este cruzamento verifica compatibilidade temática e possíveis colisões de nom
 - Passo do Veado e Porta Selada têm conexões temáticas mais diretamente apoiadas pelos conflitos já existentes, mas isso não resolve seus limites espaciais.
 - Não foram criados novos locais, rotas, distâncias ou populações. As ambiguidades acima ficam abertas para a próxima decisão editorial.
 
-## 3. Auditoria de acesso dos assentamentos
+## 3. Auditoria de posição espacial e acesso dos assentamentos
+
+A lista de vinte assentamentos não representa automaticamente vinte localidades externas às cidades. Cada registro pode corresponder a um bairro, distrito/núcleo periurbano, vila próxima, comunidade afastada ou posto sazonal. A classificação é individual e depende de evidência geográfica; não deve ser inferida apenas pela função do local ou por sua cidade-mãe.
+
+Use os seguintes estados editoriais:
+- **Confirmado no texto:** a documentação existente descreve explicitamente a posição ou a relação espacial.
+- **Proposta de classificação:** hipótese útil para organizar o mapa, ainda não confirmada por descrição geográfica.
+- **Indefinido:** não há informação suficiente; preservar a lacuna em vez de criar distância, muralha, estrada ou fronteira.
+
+A classificação espacial deve ser registrada separadamente do vínculo político. Também deve ser separada da contagem demográfica: mesmo que um assentamento seja classificado como bairro, ainda é necessário verificar se a estimativa da cidade já o inclui. Não somar populações nem alterar totais até essa conferência.
+
+Antes de fixar a posição, verificar o perfil da cidade-mãe, as rotas existentes, os obstáculos geográficos e as referências explícitas no documento 03. Uma conexão política ou comercial, por si só, não prova que o assentamento esteja fora do perímetro urbano nem determina um tempo de deslocamento.
+
+### 3.1 Ficha mínima de classificação
+
+| Campo | Regra |
+|---|---|
+| ID do assentamento | Usar o ID estável já definido no documento 03. |
+| Cidade-mãe / vínculo político | Preservar a relação existente; não a tratar como coordenada. |
+| Categoria espacial | Bairro urbano, distrito/núcleo periurbano, vila próxima, comunidade afastada, posto/núcleo sazonal ou indefinido. |
+| Evidência | Citar a descrição já documentada que sustenta a categoria. |
+| Estado editorial | Confirmado no texto, proposta de classificação ou indefinido. |
+| Relação com o total urbano | Incluído, excluído ou ainda não determinado — somente quando houver base para decidir. |
+| Acesso | Rota, modo e duração apenas quando documentados ou validados; caso contrário, manter pendente. |
+
+## 3.2 Auditoria de acesso dos assentamentos
 
 Cada assentamento está associado a uma cidade-mãe, mas isso não basta para estabelecer o tempo de viagem. Antes de criar números, cada entrada precisa indicar:
 1. rota principal e tipo de deslocamento;
@@ -213,6 +238,7 @@ Não é necessário transformar tudo em números agora. Para cada recurso, basta
 
 - [ ] Classificar a população das dez cidades como núcleo urbano, jurisdição total, região ou indefinida.
 - [ ] Confirmar se os assentamentos estão ou não incluídos nos totais das cidades-mãe.
+- [ ] Classificar individualmente os vinte assentamentos como bairro, distrito/núcleo periurbano, vila próxima, comunidade afastada, posto sazonal ou indefinido, registrando a evidência e sem deduzir posição pelo vínculo político.
 - [ ] Desenhar a malha geográfica mínima e reconciliar as doze ligações com os cinco corredores descritos na seção 25.1 do documento principal.
 - [ ] Definir tempos locais dos vinte assentamentos depois de validar a geografia.
 - [ ] Estabelecer escalas de reservas, produção e dependências para alimentos, água, madeira, remédios e ferramentas.
