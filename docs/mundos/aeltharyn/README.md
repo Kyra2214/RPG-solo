@@ -9,7 +9,7 @@
 
 - [01 — Reino das Florestas](01-reino-das-florestas.md): geografia, ecologia, povos selecionados do catálogo existente, história, monarquia, dez cidades, assentamentos vinculados, rotas, facções, heróis, NPCs, leis, economia, crenças, mistérios, conflitos e consistência narrativa.
 - [02 — Arquitetura narrativa do mundo persistente](02-arquitetura-mundo-persistente.md): simulação em segundo plano, consulta sob demanda, separação entre estado do mundo e conhecimento do Mestre/personagem, segredos, arquivos e continuidade entre campanhas.
-- [03 — Assentamentos, jurisdições e rede política](03-assentamentos-e-rede-politica.md): vinte assentamentos com lideranças nomeadas, obrigações, interesses, segredos, tensões e relações entre as dez cidades.
+- [03 — Assentamentos, jurisdições e rede política](03-assentamentos-e-rede-politica.md): vinte unidades comunitárias — que podem ser bairros, distritos, vilas próximas, comunidades afastadas ou postos — com lideranças nomeadas, obrigações, interesses, segredos, tensões e relações entre as dez cidades.
 - [04 — Instituições, justiça e pactos territoriais](04-instituicoes-justica-pactos.md): competências da Coroa, cidades e assentamentos; Conselho das Sete Copas; processos de arbitragem; tributos, sucessão, emergência e secessão.
 - [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md): números populacionais provisórios, conexões documentadas, lacunas de acesso dos assentamentos e cruzamento dos sete relógios com recursos e consequências observáveis.
 - [06 — Modelo operacional e geração de aventuras](06-modelo-operacional-e-geracao-de-aventuras.md): cadeia causal de eventos, geração e resolução de oportunidades, autonomia dos agentes, consequências da inação, proteção contra contradições e contrato de contexto mínimo para LLM pequena.
@@ -43,12 +43,12 @@ Os quatro nomes futuros são rótulos provisórios, sem história ou geografia c
 - [x] Definir agenda sazonal, relógios iniciais e dependências materiais entre as cidades.
 - [x] Associar referências históricas, guardiões e benfeitores às cidades e aos povos selecionados.
 - [x] Documentar o princípio de mundo persistente que evolui em segundo plano e é consultado sob demanda.
-- [x] Estabelecer a primeira camada de vinte assentamentos e suas relações políticas com as dez cidades.
+- [x] Estabelecer a primeira camada de vinte assentamentos/unidades comunitárias e suas relações políticas com as dez cidades.
 - [x] Dar identidade, liderança, obrigação, interesse e conflito inicial aos vinte assentamentos.
 - [x] Documentar dependências e atritos políticos entre as dez cidades.
 - [x] Definir o quadro institucional de pactos, jurisdição, justiça, tributos e sucessão em documento próprio.
 - [ ] Auditar nomes, idades, cargos, genealogias, relações, conhecimento de NPCs e duplicações.
-- [ ] Auditar demografia, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas; ver [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md) para as lacunas registradas.
+- [ ] Auditar demografia, classificação espacial dos assentamentos, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas; ver [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md) para as lacunas registradas.
 - [x] Cruzar os sete relógios iniciais com os recursos, rotas, localidades afetadas e limites de conhecimento; manter explícito que o cruzamento não comprova causas nem avança relógios automaticamente.
 - [x] Criar registro operacional de recursos com campos mínimos, estados de evidência, procedimento de escassez e pendências quantitativas explícitas.
 - [x] Cruzar os vinte perfis de assentamento com os sistemas materiais explicitamente documentados e registrar dependências e lacunas sem inventar estoques.
