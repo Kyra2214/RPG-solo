@@ -10,6 +10,22 @@ Este documento transforma os vinte assentamentos iniciais em comunidades com lid
 
 A cidade-mãe não é proprietária automática do assentamento. “Vinculado a” identifica a principal relação de pacto e jurisdição reconhecida no ano 742, mas direitos antigos, uso comunal de terras, migração sazonal e acordos sobrepostos podem limitar a autoridade municipal.
 
+### 1.1 Vínculo político não determina posição geográfica
+
+Os vinte assentamentos são unidades comunitárias de registro, não vinte vilarejos necessariamente separados das cidades. A classificação espacial de cada um deve ser feita com base na geografia documentada, e não deduzida apenas de seu nome, função ou cidade-mãe.
+
+Categorias permitidas:
+- **Bairro urbano:** núcleo dentro do perímetro de uma das dez cidades, com identidade comunitária ou função própria.
+- **Distrito ou núcleo periurbano:** área contígua ou próxima ao tecido urbano, que pode ter administração ou atividade especializada.
+- **Vila próxima:** comunidade fora do núcleo urbano, ligada à cidade por rotas e relações regulares.
+- **Comunidade afastada:** núcleo mais distante, com acesso condicionado por terreno, estação ou rota.
+- **Posto ou núcleo sazonal:** ponto de vigilância, mercado temporário, abrigo ou instalação ocupada de forma variável.
+- **Indefinido:** a documentação ainda não permite escolher uma categoria sem inventar geografia.
+
+A categoria descreve localização e forma de ocupação, não o grau de autonomia política. Um bairro pode ter liderança comunitária própria; uma comunidade afastada pode continuar sob um pacto com a cidade; um posto pode ser compartilhado por mais de uma comunidade.
+
+**Regra de continuidade:** até que os documentos geográficos e de rotas sustentem uma classificação, manter a posição espacial como **indefinida**. Não afirmar que um assentamento fica fora das muralhas, somar sua população à cidade ou atribuir-lhe um tempo de viagem só porque aparece como entrada separada nesta lista. A relação com a cidade-mãe continua sendo um vínculo político de referência, não uma coordenada no mapa.
+
 Cada liderança abaixo tem:
 - um método de legitimidade;
 - uma obrigação pública que pode ser cobrada;
