@@ -44,6 +44,7 @@ Os quatro nomes futuros são rótulos provisórios, sem história ou geografia c
 - [ ] Auditar nomes, idades, cargos, genealogias, relações, conhecimento de NPCs e duplicações.
 - [ ] Auditar demografia, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas.
 - [x] Criar índice canônico ligando os vinte assentamentos aos IDs estáveis de suas lideranças, distinguindo o NPC já existente dos dezenove novos perfis editoriais.
+- [x] Sincronizar o quadro de assentamentos do documento principal com os vinte perfis detalhados e seus IDs canônicos.
 - [ ] Cruzar os vinte assentamentos com os NPCs e as facções existentes, eliminando duplicações e fechando lacunas de jurisdição.
 - [ ] Aprofundar os conflitos entre Coroa, cidades, assentamentos, facções e populações, sem tornar os grupos monolíticos.
 - [ ] Conferir consistência dos povos/linhagens selecionados e dos IDs referenciados contra o catálogo editorial.
