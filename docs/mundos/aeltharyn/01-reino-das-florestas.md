@@ -966,7 +966,7 @@ A versão anterior superestimava a completude do ecossistema. A descrição das 
 
 ## 24. Tríades de referência: herói, guardião e benfeitor por povo
 
-Esta matriz cobre **os 15 povos e linhagens relevantes de Aeltharyn definidos na seção 20**, não as 50 raças do catálogo. Cada linha apresenta três pessoas distintas: **herói** (feito histórico ou extraordinário que entrou na memória coletiva), **guardião** (quem protege atualmente um bem, direito ou instituição) e **benfeitor** (quem melhora concretamente a vida da comunidade). “Herói” não significa moralmente perfeito; os feitos têm custos, limites e versões contestadas.
+Esta matriz cobre **os 16 povos e linhagens relevantes de Aeltharyn definidos na seção 20**, não as 50 raças do catálogo. Cada linha apresenta três pessoas distintas: **herói** (feito histórico ou extraordinário que entrou na memória coletiva), **guardião** (quem protege atualmente um bem, direito ou instituição) e **benfeitor** (quem melhora concretamente a vida da comunidade). “Herói” não significa moralmente perfeito; os feitos têm custos, limites e versões contestadas.
 
 | Povo / ID do catálogo | Herói e feito lembrado | Guardião no ano 742 | Benfeitor no ano 742 |
 |---|---|---|---|
