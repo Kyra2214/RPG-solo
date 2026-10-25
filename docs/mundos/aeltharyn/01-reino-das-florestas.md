@@ -671,3 +671,81 @@ O reino só pode ser considerado editorialmente completo quando houver:
 - [ ] Revisão editorial final após auditoria de código.
 
 **Importante:** os itens marcados como concluídos significam que foram descritos neste documento, não que foram integrados ou testados no aplicativo. A integração de dados, persistência e validação mecânica continua pendente.
+
+
+## 17. Fundadores, figuras locais e memória das cidades
+
+Estas figuras conectam a história geral à memória de cada cidade. “Herói” é um título cultural, não uma garantia de virtude. Algumas biografias são documentadas; outras misturam registros e tradição. Nenhuma figura conhece acontecimentos posteriores à própria vida.
+
+### Elarion — Avarra das Sete Pontes
+**ID:** `npc.avarra-sete-pontes` | Elfa dos Bosques, falecida na Era da Coroa de Prata.  
+Arquiteta e mediadora que projetou as primeiras pontes entre as copas sem perfurar os troncos centrais. Seu trabalho permitiu unir os sete assentamentos, mas as crônicas omitem que ela negociou a remoção de duas famílias que viviam no trajeto. Avarra é celebrada como visionária e criticada como representante de uma unificação que nem todos escolheram.  
+**Memória na cidade:** uma placa na Ponte das Promessas registra a obra; moradores das copas inferiores preservam uma canção diferente sobre o preço da construção.
+
+### Nymvar — Dena Três-Correntes
+**ID:** `npc.dena-tres-correntes` | Pequenina ribeirinha, falecida há cerca de 300 anos.  
+Barqueira e engenheira autodidata que criou um sistema de comportas para reduzir o impacto das cheias. Seu desenho foi adaptado muitas vezes e parte do conhecimento perdeu-se quando os registros de madeira apodreceram. A cidade atribui a ela a sobrevivência de três bairros durante uma inundação, embora os arquivos mostrem que muitas famílias também foram deslocadas.  
+**Memória na cidade:** o Marco das Cheias recebe fitas de tecido em sua homenagem; a Irmandade das Águas debate se seus canais devem ser reconstruídos conforme os desenhos incompletos.
+
+### Thalanor — Capitã Yssara Folha-de-Sal
+**ID:** `npc.yssara-folha-de-sal` | Elfa costeira, falecida há 120 anos.  
+Organizou o resgate de embarcações durante uma tempestade e convenceu capitães rivais a compartilhar cartas náuticas. Sua fama criou o costume de deixar uma luz acesa no Santuário dos Náufragos. Mais tarde, descobriu-se que Yssara autorizou o abandono de um navio cujo capitão se recusara a cumprir o protocolo de quarentena; as famílias sobreviventes nunca concordaram se foi prudência ou crueldade.  
+**Memória na cidade:** o Farol da Folha Azul toca três sinais em noites de tempestade.
+
+### Vael-Tir — Oren Galho-Quieto
+**ID:** `npc.oren-galho-quieto` | Elfo dos Bosques, falecido há 200 anos.  
+Patrulheiro que abriu uma rota de resgate durante a Guerra das Cinzas Verdes e depois ajudou a fechar a mesma trilha para impedir que madeireiros avançassem sobre uma área devastada. A aparente contradição tornou-se símbolo da cidade: uma trilha pode salvar vidas num momento e ameaçá-las em outro.  
+**Memória na cidade:** o Ninho dos Mapas guarda duas versões de seu mapa, uma aberta e outra com a rota riscada.
+
+### Orvass — Nima Raiz-de-Lodo
+**ID:** `npc.nima-raiz-de-lodo` | Curandeira orcana das matas, falecida há 90 anos.  
+Aprendeu a tratar febres locais com plantas e fungos após observar que os remédios da capital pioravam alguns pacientes. Não era infalível: uma mistura que ajudou adultos causou reações graves em crianças e foi retirada de uso. Sua história é ensinada junto com a regra de testar, registrar e revisar tratamentos.  
+**Memória na cidade:** a Casa das Ervas Fundas conserva cadernos de receitas com alertas escritos por gerações posteriores.
+
+### Caladwen — Mestre Ithren das Quatro Estações
+**ID:** `npc.ithren-quatro-estacoes` | Elfo das Estrelas, falecido há 260 anos.  
+Astrônomo que corrigiu tabelas de plantio após demonstrar que uma tradição de calendário acumulava erro. A mudança melhorou colheitas, mas desagradou sacerdotes que consideravam o calendário anterior sagrado. Ithren defendia que observação e tradição podiam coexistir, desde que se reconhecesse quando uma previsão falhava.  
+**Memória na cidade:** o Observatório das Quatro Estações usa seu método, mas mantém a tabela antiga para que os alunos entendam a controvérsia.
+
+### Brumafunda — Sela dos Retornos
+**ID:** `npc.sela-dos-retornos` | Felídea das Selvas, desaparecida há 70 anos.  
+Guia que resgatou viajantes perdidos no Bosque dos Sussurros usando cordões táteis e marcas de som em vez de confiar apenas em mapas. Desapareceu numa missão que nunca foi oficialmente encerrada. Alguns acreditam que morreu; outros dizem que escolheu permanecer além da neblina. Não existe prova para nenhuma versão.  
+**Memória na cidade:** a Trilha dos Retornos mantém cordões de referência que são substituídos a cada estação.
+
+### Arven — Toma Mel-de-Âmbar
+**ID:** `npc.toma-mel-de-ambar` | Pequenino, falecido há 140 anos.  
+Apicultor que organizou reservas comunitárias de sementes e mel durante uma praga de flores. Recusou vender todo o estoque a um mercador estrangeiro, mas aceitou negociar parte da produção para pagar remédios. Sua decisão dividiu a cidade e se tornou um precedente para a Liga dos Celeiros.  
+**Memória na cidade:** o Apiário Âmbar conserva uma colmeia simbólica; a tradição não exige que todo produtor siga a mesma escolha.
+
+### Silvaran — Miri Corda-de-Lua
+**ID:** `npc.miri-corda-de-lua` | Sátiro, falecida há 110 anos.  
+Compositora e mediadora que transformou uma disputa entre duas casas numa peça representada por ambas. A obra permitiu um acordo temporário, mas não resolveu a questão de terras que motivara o conflito. A cidade lembra Miri como alguém que abriu espaço para conversar, não como alguém que resolveu tudo com música.  
+**Memória na cidade:** a peça é encenada no Anfiteatro das Quatro Estações, com finais diferentes conforme o grupo de artistas.
+
+### Torvelume — Hadrik das Sete Bigornas
+**ID:** `npc.hadrik-sete-bigornas` | Anão residente, falecido há 180 anos.  
+Ferreiro que padronizou peças de reparo para pontes e portões da fronteira, tornando possível consertar estruturas sem substituir tudo. Recusou entregar ferramentas de manutenção a um comandante que pretendia desmontar uma ponte para impedir a passagem de refugiados. Foi preso por desobediência e libertado após protestos dos próprios soldados.  
+**Memória na cidade:** a Oficina das Sete Bigornas mantém uma ferramenta quebrada exposta como lembrança de que obedecer nem sempre significa cumprir um dever justo.
+
+## 18. Agenda sazonal e ritmo de vida
+
+A agenda não é uma sequência obrigatória de eventos. São padrões recorrentes que mudam quando clima, guerra, epidemia, política ou decisões de campanha alteram as condições.
+
+- **Despertar (primavera):** plantio, manutenção de diques, reabertura de trilhas, nascimento de animais e festivais de primeira chuva. Nymvar e Arven precisam de trabalhadores; Vael-Tir limita passagem durante períodos de reprodução de espécies protegidas.
+- **Plenitude (verão):** comércio fluvial e marítimo intenso, festivais de Silvaran, coleta de resinas permitidas e expedições acadêmicas. Riscos de incêndio aumentam em períodos secos.
+- **Queda (outono):** colheitas, armazenamento, revisão de tributos e fechamento de rotas frágeis. A Liga dos Celeiros negocia reservas; os arquivos recebem relatos anuais das cidades.
+- **Silêncio (inverno):** manutenção de pontes, reparos de ferramentas, ensino e cerimônias de memória. As viagens pelo noroeste ficam mais lentas; portos podem suspender saídas por tempestades.
+
+**Ritmos semanais locais:**
+- Elarion: audiência pública do conselho a cada oitavo dia; acesso a arquivos restritos exige autorização.
+- Nymvar: inspeção comunitária dos canais após cada chuva forte; feira de sementes a cada sexta jornada.
+- Thalanor: relatório de marés ao amanhecer; inspeção de quarentena antes de descarregar carga suspeita.
+- Vael-Tir: patrulhas verificam corredores e ninhos antes de liberar novas trilhas.
+- Orvass: assembleias são marcadas conforme nível da água; mensageiros levam avisos entre ilhas.
+- Caladwen: observações noturnas e revisão pública de hipóteses em cada mudança de lua.
+- Brumafunda: guias atualizam sinais sonoros e cordões antes de aceitar viajantes.
+- Arven: auditoria de celeiros e distribuição de sementes antes da abertura do mercado principal.
+- Silvaran: pactos de hospitalidade são revistos antes de grandes festivais.
+- Torvelume: inspeção de portões, ferramentas e depósitos no início de cada turno da guarda.
+
+Esses hábitos dão previsibilidade ao mundo sem prender NPCs a horários rígidos quando há acontecimentos urgentes. Uma agenda só deve produzir efeitos se houver pessoas, recursos e condições para cumpri-la.
