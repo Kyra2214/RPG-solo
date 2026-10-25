@@ -1,5 +1,6 @@
 package dev.rpgsolo.rules
 
+import dev.rpgsolo.engine.AeltharynWorld
 import dev.rpgsolo.engine.Ambientacao
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
@@ -50,11 +51,15 @@ object CampaignStarter {
         seed: Long,
         /** Ambientação em texto livre (9.1/4A.1.3); se nula, usa o nome da primeira ambientação do catálogo. */
         customSetting: String? = null,
+        /** ID explícito do mundo a instalar; nulo preserva o comportamento de ambientação livre. */
+        worldId: String? = null,
     ): StartResult {
         val edition = ready.edition
         val problems = mutableListOf<String>()
         if (name.isBlank()) problems += "dê um nome à campanha"
         if (store.campaign(campaignId) != null) problems += "já existe uma campanha com o id $campaignId"
+        if (worldId != null && worldId != AeltharynWorld.id) problems += "mundo não suportado: $worldId"
+        if (worldId == AeltharynWorld.id) problems += AeltharynWorld.validate().map { "catálogo de mundo inválido: $it" }
         if (ficha.system.editionId != edition.id) {
             problems += "a ficha é de ${ficha.system.editionId}, mas a campanha usa ${edition.id}; fichas de sistemas diferentes não se misturam"
         }
@@ -66,9 +71,13 @@ object CampaignStarter {
         if (problems.isNotEmpty()) return StartResult.Refused(problems)
 
         val settingName =
-            customSetting?.trim()?.takeIf { it.isNotEmpty() }
-                ?: config.settingIds.firstNotNullOfOrNull { catalog?.entry(it)?.name }
-                ?: "Ambientação livre"
+            if (worldId == AeltharynWorld.id) {
+                AeltharynWorld.name
+            } else {
+                customSetting?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: config.settingIds.firstNotNullOfOrNull { catalog?.entry(it)?.name }
+                    ?: "Ambientação livre"
+            }
         val tone = config.toneIds.mapNotNull { catalog?.entry(it)?.name }.joinToString(", ")
         val campanha =
             Campanha(
@@ -100,8 +109,19 @@ object CampaignStarter {
             }
         }
 
+        if (worldId == AeltharynWorld.id) {
+            when (val installed = AeltharynWorld.install(session)) {
+                is ExecResult.Accepted -> {}
+                is ExecResult.Rejected -> {
+                    store.truncate(campaignId, 0)
+                    return StartResult.Refused(listOf("não foi possível instalar Aeltharyn: ${installed.reason}"))
+                }
+            }
+        }
+
         val notes = ready.notes.toMutableList()
         if (pkg == null) notes += "não há pacote de regras instalado para ${edition.id}: a ficha e os NPCs não são validados pelo motor"
+        if (worldId == AeltharynWorld.id) notes += "Aeltharyn instalado: dez cidades, mapa conectado e sete relógios iniciais; só Elarion começa descoberta."
         return StartResult.Started(session, record, campanha, pkg, ficha.id, notes)
     }
 }
