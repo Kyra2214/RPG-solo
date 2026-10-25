@@ -2,14 +2,14 @@
 
 **Status:** proposta editorial de correção de escopo, para revisão de continuidade.  
 **Escopo:** exclusivamente o Reino de Aeltharyn; não desenvolve os outros quatro reinos.  
-**Regra de precedência:** este documento registra a orientação mais recente do projeto sobre a identidade de Aeltharyn. Onde documentos anteriores chamarem Aeltharyn de mundo ou contarem apenas dez cidades incluindo Elarion, considerar isso uma inconsistência editorial a corrigir.
+**Regra de precedência:** este documento registra a orientação mais recente do projeto sobre a identidade de Aeltharyn. Onde documentos anteriores chamarem Aeltharyn de mundo ou divergirem sobre a contagem das cidades, considerar isso uma inconsistência editorial a corrigir.
 
 ## 1. Definição correta de Aeltharyn
 
 **Aeltharyn é um reino, não uma cidade nem o nome do mundo inteiro.** É o Reino das Florestas, governado pela Coroa Élfica e formado por territórios élficos e territórios de povos aliados que mantêm pactos próprios.
 
 - **Capital:** Elarion, cidade élfica e sede da Coroa.
-- **Além da capital:** dez outras cidades principais, historicamente ligadas aos elfos por pactos, convivência, proteção mútua, comércio e relações culturais.
+- **Além da capital:** nove outras cidades principais, totalizando dez cidades no reino. Elas mantêm pactos, convivência, proteção mútua, comércio e relações culturais com a Coroa élfica.
 - **Povos nativos:** aproximadamente onze povos/linhagens de referência, contando os elfos e dez povos aliados. Essa contagem é cultural e territorial, não significa onze raças-base distintas no catálogo do RPG Solo.
 - **Forasteiros:** povos cuja terra natal fica fora de Aeltharyn, mas que se mudaram para o reino. Podem ser residentes antigos e cidadãos, sem se tornarem povos originários do território.
 - **Outros reinos:** ficam fora do trabalho atual. A divisão aproximada de cinquenta raças entre cinco reinos é uma diretriz global futura, não uma obrigação de incluir todas em Aeltharyn.
@@ -44,9 +44,9 @@ Estas linhagens pertencem ao conjunto élfico e **não aumentam a contagem dos o
 
 Ser nativo não significa que todo integrante de um povo viva em uma única cidade, nem que todos compartilhem a mesma opinião política. As cidades são centros territoriais e culturais; cada povo também mantém famílias, aldeias e comunidades espalhadas.
 
-## 3. Capital e dez cidades aliadas
+## 3. Capital e nove outras cidades
 
-O documento principal já apresenta nove cidades além de Elarion. Para respeitar a estrutura acordada de **uma capital mais dez cidades**, é necessária uma décima cidade aliada. O nome e o perfil abaixo são uma **proposta nova**, não um fato previamente confirmado no cânone.
+A estrutura acordada é de **dez cidades no total**: Elarion, a capital élfica, e as nove cidades já descritas no documento principal. Não será acrescentada uma décima primeira cidade. A distribuição de povos abaixo é uma matriz editorial de referência, não uma regra de exclusividade racial.
 
 | Cidade | Papel e povo nativo de referência | Relação com a Coroa e gancho social |
 |---|---|---|
@@ -60,13 +60,12 @@ O documento principal já apresenta nove cidades além de Elarion. Para respeita
 | **Arven — As Clareiras Douradas** | Região agrícola com comunidades de gnomos dos vales, pequeninos e elfos ligados a pomares e sementes. | Produção, ferramentas, polinização e reserva de sementes ligam a prosperidade local à segurança alimentar do reino. |
 | **Silvaran — A Cidade dos Festivais** | Principal centro dos sátiros/silvanos festivos, com encontros sazonais e pactos orais que reúnem diferentes povos nativos. | Festivais preservam alianças e memória coletiva, mas também são palco de disputa por representação, recursos e interpretações de juramentos antigos. |
 | **Torvelume — A Fortaleza da Espinha de Vidro** | Centro de defesa, oficinas e passagens, com comunidades orcanas das matas e famílias de outros povos aliados. | Os pactos de proteção não eliminam tensões sobre prioridades civis e militares, acesso às passagens e distribuição de ferramentas. |
-| **Ithilvar — A Cidade das Raízes Cantantes** *(proposta)* | Décima cidade além da capital, proposta como território de referência para comunidades verdejantes e feéricas que não se reconhecem inteiramente em Brumafunda. | A cidade guardaria acordos antigos de convivência entre seres enraizados e viajantes. Sua autonomia, localização e ligações materiais precisam ser desenvolvidas e auditadas antes de se tornarem cânone. |
 
 ### 3.1 Limites desta distribuição
 
 Esta matriz define **centros de referência**, não guetos raciais. Nenhuma cidade pertence exclusivamente a uma raça, e nenhuma raça deve ser reduzida a uma profissão ou função. Cada cidade terá população mista, dissidentes internos, migrantes e diferenças de classe, geração e crença.
 
-A proposta Ithilvar precisa passar por uma revisão de continuidade: verificar distâncias, rotas, recursos, população, jurisdição e possíveis conflitos com os vinte assentamentos já descritos. Não atribuir-lhe população, assentamentos subordinados ou rotas quantificadas antes dessa revisão.
+A distribuição de referência deve ser conferida com as rotas, os recursos, a população e as jurisdições já documentadas. Não criar cidades adicionais para acomodar um povo: comunidades e famílias podem estar distribuídas entre cidades, aldeias e assentamentos existentes.
 
 ## 4. Forasteiros: residentes sem origem nativa
 
@@ -94,10 +93,9 @@ Um forasteiro pode nascer em Aeltharyn se seus pais já vivem ali. Isso faz dele
 
 - [ ] Conferir os onze povos de referência contra os IDs e a classificação oficial do catálogo de 50 raças e 50 sub-raças do RPG Solo.
 - [x] Corrigir no documento principal a definição de Aeltharyn como reino, não mundo.
-- [ ] Reconciliar a lista atual de dez cidades (que inclui a capital) com a estrutura desejada de capital + dez cidades aliadas.
-- [ ] Validar se Ithilvar deve ser mantida, renomeada ou substituída; não tratá-la como cânone definitivo antes da revisão.
-- [ ] Atualizar rotas, assentamentos, recursos, população e jurisdições apenas após a validação da cidade adicional.
+- [x] Manter dez cidades no total: Elarion como capital e as nove cidades já existentes.
+- [ ] Conferir se a distribuição dos povos respeita as rotas, assentamentos, recursos, população e jurisdições já documentados, sem adicionar cidades.
 - [ ] Diferenciar em todos os documentos povo nativo, linhagem/sub-raça, residente forasteiro, visitante e cidadão.
 - [ ] Manter os outros quatro reinos sem desenvolvimento narrativo nesta etapa.
 
-**Critério de conclusão:** Aeltharyn terá uma capital élfica, dez cidades aliadas, aproximadamente onze povos nativos de referência e uma população de origem externa que pode se estabelecer no reino. As cidades e povos devem funcionar como um ecossistema interdependente, não como listas isoladas de nomes.
+**Critério de conclusão:** Aeltharyn terá uma capital élfica e nove outras cidades (dez no total), aproximadamente onze povos nativos de referência e uma população de origem externa que pode se estabelecer no reino. As cidades e povos devem funcionar como um ecossistema interdependente, não como listas isoladas de nomes.
