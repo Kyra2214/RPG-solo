@@ -83,6 +83,16 @@ O documento principal contém as seguintes doze ligações com tempos estimados:
 
 Esses tempos são condições comuns, não garantias. Chuva, quarentena, correnteza, bloqueios, transporte e conhecimento local alteram a duração. O quadro não define uma malha completa: uma ligação ausente da lista não significa que seja impossível viajar entre as cidades; significa apenas que o tempo e o caminho ainda não foram fixados no cânone.
 
+### 2.1 Divergências entre a lista de ligações e os corredores de viagem
+
+A seção 25.1 do documento principal também descreve cinco corredores regionais. Esses corredores estabelecem ou sugerem trechos que não aparecem como ligações individuais na lista acima: **Nymvar–Thalanor**, **Arven–Silvaran**, **Torvelume–Vael-Tir** e **Orvass–Brumafunda**. O corredor das Copas reforça Elarion–Vael-Tir–Brumafunda, e a Estrada da Espinha descreve Caladwen–Torvelume–Vael-Tir.
+
+Há também duas diferenças de escala que precisam ser harmonizadas:
+- **Nymvar–Orvass:** a lista de ligações dá 3 dias de barco e passarelas; a descrição do corredor do Pântano dá uma faixa de 2 a 6 dias, conforme o nível da água e os canais.
+- **Caladwen–Torvelume:** a ligação individual indica 3 dias; a Estrada da Espinha situa o percurso Caladwen–Torvelume–Vael-Tir em 3 a 5 dias em condições normais.
+
+Até revisão do documento principal, as faixas mais amplas devem ser tratadas como alertas de variabilidade, não como autorização para escolher arbitrariamente qualquer duração. O cânone ainda não define se os números menores são percurso rápido, trecho parcial ou estimativa antiga. **Não calcular itinerários exatos por esses corredores antes de resolver a diferença.**
+
 ## 3. Auditoria de acesso dos assentamentos
 
 Cada assentamento está associado a uma cidade-mãe, mas isso não basta para estabelecer o tempo de viagem. Antes de criar números, cada entrada precisa indicar:
@@ -136,7 +146,7 @@ Não é necessário transformar tudo em números agora. Para cada recurso, basta
 
 - [ ] Classificar a população das dez cidades como núcleo urbano, jurisdição total, região ou indefinida.
 - [ ] Confirmar se os assentamentos estão ou não incluídos nos totais das cidades-mãe.
-- [ ] Desenhar a malha geográfica mínima e validar as doze ligações existentes.
+- [ ] Desenhar a malha geográfica mínima e reconciliar as doze ligações com os cinco corredores descritos na seção 25.1 do documento principal.
 - [ ] Definir tempos locais dos vinte assentamentos depois de validar a geografia.
 - [ ] Estabelecer escalas de reservas, produção e dependências para alimentos, água, madeira, remédios e ferramentas.
 - [ ] Cruzar essas dependências com os sete relógios iniciais e os conflitos sazonais já existentes.
