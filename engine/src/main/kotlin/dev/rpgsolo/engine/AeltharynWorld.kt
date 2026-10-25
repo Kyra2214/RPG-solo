@@ -834,7 +834,12 @@ object AeltharynWorld {
         routes.forEach { route -> commands += ConnectPlaces(route.fromCityId, route.toCityId) }
         commands += DiscoverPlace(CAPITAL_CITY_ID)
         clocks.forEach { clock ->
-            commands += CreateClock(clock.id, clock.name, clock.segments, consequence = clock.consequence)
+            commands += CreateClock(
+                clock.id,
+                clock.name,
+                clock.segments,
+                consequence = clock.consequence,
+            )
             if (clock.initialProgress > 0) commands += AdvanceClock(clock.id, clock.initialProgress)
         }
         return session.executeAll(commands)
@@ -843,7 +848,11 @@ object AeltharynWorld {
     /** Retorna todos os problemas estruturais encontrados; lista vazia significa catálogo internamente consistente. */
     fun validate(): List<String> {
         val errors = mutableListOf<String>()
-        fun unique(values: List<String>, label: String) {
+
+        fun unique(
+            values: List<String>,
+            label: String,
+        ) {
             values.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.forEach {
                 errors += "$label duplicado: $it"
             }
@@ -862,7 +871,7 @@ object AeltharynWorld {
         if (cities.none { it.id == CAPITAL_CITY_ID }) errors += "capital inexistente: $CAPITAL_CITY_ID"
         people.forEach { p ->
             if (p.cityIds.isEmpty()) errors += "povo sem cidade: ${p.id}"
-            p.cityIds.filterNot { it in cityIds }.forEach { errors += "cidade inexistente ${it} em ${p.id}" }
+            p.cityIds.filterNot { it in cityIds }.forEach { errors += "cidade inexistente $it em ${p.id}" }
         }
         cities.forEach { c ->
             if (c.population <= 0) errors += "população inválida: ${c.id}"
@@ -870,14 +879,14 @@ object AeltharynWorld {
             c.dependsOn.filterNot { it in cityIds }.forEach {
                 errors += "dependência de cidade inexistente: ${c.id} -> $it"
             }
-            c.peopleIds.filterNot { it in peopleIds }.forEach { errors += "povo não catalogado em ${c.id}: ${it}" }
+            c.peopleIds.filterNot { it in peopleIds }.forEach { errors += "povo não catalogado em ${c.id}: $it" }
             c.peopleIds.forEach { peopleId ->
                 if (c.id !in people.firstOrNull { it.id == peopleId }?.cityIds.orEmpty()) {
                     errors += "presença de ${peopleId} em ${c.id} não consta na distribuição do povo"
                 }
             }
             val roles = figures.filter { it.cityId == c.id }.map { it.role }.toSet()
-            figureRoles.filterNot { it in roles }.forEach { errors += "falta função ${it} em ${c.id}" }
+            figureRoles.filterNot { it in roles }.forEach { errors += "falta função $it em ${c.id}" }
         }
         figures.forEach { f ->
             if (f.cityId !in cityIds) errors += "cidade inexistente em figura: ${f.id}"
