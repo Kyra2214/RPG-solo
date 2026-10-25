@@ -1070,3 +1070,81 @@ O Reino das Florestas só será considerado concluído quando todas estas verifi
 - [ ] Executar os testes relevantes e confirmar o resultado real do CI para o commit final desta etapa.
 
 **Bloqueio de escopo:** não iniciar conteúdo narrativo das Coroas de Pedra enquanto qualquer porta acima estiver aberta. Os quatro reinos restantes continuam sem desenvolvimento detalhado.
+
+
+## 28. Princípio político canônico: uma coroa, várias autoridades
+
+Aeltharyn é o reino principal governado por uma monarquia élfica, mas isso não significa que o rei governe diretamente cada comunidade, nem que todas as cidades sejam élf icas ou aceitem a Coroa sem contestação. As dez cidades descritas neste documento são centros de autoridade regional; cada uma possui ou reconhece autoridades próprias. Sob elas existem vilas, aldeias, povoados, entrepostos, comunidades móveis, postos de rota e domínios especiais. A jurisdição deve ser definida por pacto, costume, concessão, posse comunitária ou disputa histórica — nunca presumida apenas pela proximidade no mapa.
+
+### 28.1 O que a Coroa pode e não pode fazer
+
+A Coroa coordena defesa externa, tratados com poderes estrangeiros, sucessão real, proteção das florestas ancestrais e obrigações comuns do Pacto das Dez Cidades. Pode convocar contribuições pactuadas e arbitrar certas disputas entre cidades, mas sua capacidade real depende da legitimidade do pacto, dos recursos disponíveis e da cooperação local.
+
+A Coroa não administra automaticamente todos os impostos locais, não escolhe todo governante municipal e não tem autoridade ilimitada sobre costumes comunitários. Uma ordem real pode ser contestada, atrasada, interpretada restritivamente ou recusada — com consequências políticas e jurídicas, não com obediência automática.
+
+### 28.2 Autonomia das cidades e dos assentamentos
+
+Cada cidade conserva um método próprio de escolha ou sucessão de seu governante, leis locais, impostos, prioridades, forças de segurança e acordos com assentamentos subordinados. Os assentamentos menores também podem ter conselhos, anciãos, chefes eleitos, representantes de famílias, guardiões de terras comunais ou lideranças rituais.
+
+A relação de vassalagem não deve ser uniforme. Um povoado pode dever grãos; outro, patrulhas; outro, manutenção de pontes; outro, passagem segura; outro, tributo reduzido em troca da proteção de um corredor migratório. Obrigações podem ser renegociadas após fome, guerra, desastre ou mudança de governante.
+
+### 28.3 Por que permanecem no reino — e por que resistem
+
+A permanência em Aeltharyn pode trazer defesa coletiva, acesso a mercados, uso de estradas e canais, arbitragem de disputas, proteção contra extração predatória e ajuda em desastres. Também pode impor tributos, recrutamento, restrições de manejo florestal, reconhecimento da Coroa e limitações diplomáticas.
+
+A resistência pode surgir de cobrança injusta, pactos antigos que já não atendem à população, discriminação, negligência, disputa por água, terra ou rotas, exploração econômica, interferência cultural ou alianças alternativas. Uma cidade pode querer autonomia sem desejar secessão; outra pode apoiar o rei por interesse próprio; uma terceira pode cumprir formalmente o pacto enquanto financia seus opositores.
+
+### 28.4 Matriz de autoridade e conflito
+
+| Relação | Pergunta que a documentação deve responder | Conflito possível |
+|---|---|---|
+| Coroa ↔ cidade | Qual obrigação foi jurada e quem considera o pacto legítimo? | recusa de tributo, reforma do conselho, intervenção real |
+| Cidade ↔ assentamento | Quem nomeia ou confirma o líder, e quais poderes são locais? | cobrança contestada, autonomia, sucessão disputada |
+| Cidade ↔ cidade | Que recurso, rota ou obrigação as conecta? | bloqueio, sabotagem, acusações de favorecimento |
+| Governante ↔ população | Quem ganha e quem paga por suas decisões? | protesto, greve, fuga, facções rivais |
+| Povo ↔ povo | Há disputa territorial, histórica, religiosa ou econômica concreta? | conflito de uso da terra, preconceito, retaliação |
+| Facção ↔ instituição | Que objetivo a facção busca e que recurso controla? | infiltração, propaganda, vazamento ou golpe |
+| Jurisdição ↔ jurisdição | Quem tem autoridade sobre um crime, uma fronteira ou um documento? | impasse legal, prisão contestada, proteção de fugitivo |
+
+Não se presume que elfos apoiem automaticamente a monarquia, nem que povos aliados sejam automaticamente leais. Raça, cultura, residência, cidadania e lealdade política são dimensões diferentes. Nenhum povo é uniformemente bom, mau, unido ou obediente.
+
+## 29. Primeira camada de assentamentos vinculados às dez cidades
+
+Esta é a primeira camada do mapa político, não um catálogo fechado de todo povoado existente. As populações são estimativas editoriais iniciais e precisam ser conferidas contra as estimativas das cidades-mãe antes de uma revisão demográfica final. Os vínculos abaixo indicam autoridade predominante, não posse absoluta da população ou ausência de direitos locais. Cada assentamento tem liderança, obrigação e tensão próprios.
+
+| Cidade-mãe | Assentamento e tipo | População aprox. | Autoridade local | Obrigação pactuada | Interesse e tensão principal |
+|---|---|---:|---|---|---|
+| Elarion | **Raiz-de-Prata** — vila de viveiros | 1.800 | Conselho de viveiristas, confirmado pelo distrito da capital | fornecer mudas e manter um viveiro de emergência | a Coroa exige espécies raras; famílias querem preservar sementes locais |
+| Elarion | **Sete Degraus** — povoado de ponte e pedágio | 2.400 | Magistrado de travessia eleito por comerciantes e moradores | manter a ponte e permitir passagem oficial | moradores contestam isenções dadas aos mensageiros nobres |
+| Nymvar | **Junco Alto** — vila de diques | 3.100 | Conselho de canais escolhido por famílias ribeirinhas | reparar comportas e fornecer equipes durante cheias | agricultores de montante são acusados de transferir o risco para os bairros baixos |
+| Nymvar | **Três Barcas** — entreposto fluvial | 2.200 | Mestre das Barcas escolhido pelas guildas locais | manter transporte de emergência e publicar tarifas | barqueiros querem tarifa livre; a cidade exige preço controlado em crise |
+| Thalanor | **Ponta da Concha** — vila de pescadores | 2.700 | Assembleia de capitães e famílias de pesca | fornecer vigias costeiros e resgate quando convocados | o porto amplia restrições de pesca sem compensar famílias afetadas |
+| Thalanor | **Farol de Âmbar** — posto e aldeia costeira | 900 | Guardiã do Farol, escolhida por moradores e confirmada pela cidade | manter sinais marítimos e registrar embarcações desconhecidas | a guarda portuária quer usar o posto para vigilância política |
+| Vael-Tir | **Copa-Funda** — comunidade de manejo florestal | 1.600 | Círculo de guardiões eleito por famílias residentes | respeitar cotas de extração e patrulhar limites ancestrais | as cotas reais ignoram uma praga que destruiu parte das árvores manejadas |
+| Vael-Tir | **Passo do Veado** — posto de trilha e mercado sazonal | 1.100 fixos, além de visitantes | Dupla de guardiões rotativa, escolhida por comunidades da rota | manter corredor aberto sem caçar durante a migração | comerciantes querem alargar a trilha; centauros e guardiões temem bloquear a passagem |
+| Orvass | **Lodo-Claro** — aldeia de ervas e filtros | 1.300 | Círculo de curandeiros e famílias, com liderança rotativa | fornecer amostras de água e remédios em surtos | a cidade exige acesso a plantas raras sem aceitar os limites rituais de coleta |
+| Orvass | **Ilhas do Junco Negro** — conjunto de ilhotas habitadas | 2.000 | Porta-voz escolhido por três comunidades, mandato revogável | manter passagens aquáticas e abrigos em enchentes | mapas oficiais ignoram canais sazonais e levam guardas a deter barqueiros locais |
+| Caladwen | **Vigília do Lago** — aldeia de observadores | 1.000 | Curadora do Céu, escolhida pelos observadores locais | manter registros meteorológicos e partilhar alertas públicos | o colégio quer monopolizar observações consideradas estratégicas |
+| Caladwen | **Papel-Velho** — povoado de copistas e encadernadores | 1.700 | Conselho de oficinas | preservar cópias públicas e declarar documentos frágeis | casas nobres pagam por cópias privadas e pressionam os copistas a ocultar versões |
+| Brumafunda | **Eco Baixo** — aldeia de guias | 1.200 | Assembleia de guias com representante escolhido a cada estação | manter marcos de trilha e participar de buscas | guias ocultam certas rotas para proteger moradores; mercadores acusam monopólio |
+| Brumafunda | **Torre da Névoa Mansa** — posto de observação | 650 | Vigia de posto designado por acordo entre moradores e Vigias do Bosque | sinalizar desaparecimentos e fechar trilhas perigosas | estudiosos querem manter a torre aberta mesmo quando os sinais indicam risco |
+| Arven | **Mel do Poente** — vila de apiários e pomares | 2.600 | Conselho de apicultores e produtores | manter corredores de polinização e contribuir com sementes em emergência | grandes produtores querem expandir campos sobre flores silvestres |
+| Arven | **Campo das Três Famílias** — aldeia agrícola | 3.400 | Juíza de terras escolhida por famílias residentes | entregar contribuição de grãos negociada por colheita | a base do tributo foi calculada com uma safra excepcional que não se repetiu |
+| Silvaran | **Máscara Nova** — vila de artistas e artesãos | 1.500 | Conselho de ofícios e anfitriões | manter uma casa de acolhimento em festivais | a cidade exige apresentações gratuitas; artistas alegam que isso virou trabalho compulsório |
+| Silvaran | **Fonte do Regresso** — povoado de hospitalidade | 1.900 | Anfitrião comunal escolhido por bairros | oferecer abrigo temporário a viajantes em perigo | famílias discordam sobre acolher refugiados de uma disputa política |
+| Torvelume | **Ferro-Folha** — vila de oficinas | 2.800 | Conselho de mestres de ofício eleito | reparar ferramentas e estruturas comuns | a guarnição prioriza armamentos enquanto pontes civis aguardam reparo |
+| Torvelume | **Porta Selada** — assentamento junto às galerias antigas | 1.400 | Administradora civil nomeada localmente e sujeita a confirmação comunitária | vigiar o acesso às galerias e reportar tremores | trabalhadores querem reabrir a mina; famílias temem que o selamento esconda negligência ou perigo |
+
+### 29.1 Regras para expandir a hierarquia
+
+1. Todo novo assentamento deve ter um vínculo de jurisdição explícito ou declarar-se independente, disputado, móvel ou sob proteção compartilhada.
+2. “Vassalo” não significa propriedade pessoal do governante. Deve haver obrigações recíprocas, direitos, costumes e mecanismos de contestação.
+3. A população de uma cidade-mãe não deve ser somada de novo com a população dos assentamentos se a estimativa original já os incluir. Na revisão demográfica, cada número será marcado como população urbana, jurisdição total ou estimativa regional.
+4. Não criar um governante local sem método de escolha/sucessão, base de legitimidade, interesses, recursos e oposição plausível.
+5. Cada relação política deve ter pelo menos um motivo material ou histórico para continuar e uma causa plausível para ser contestada.
+6. Os conflitos são condições iniciais, não resultados obrigatórios. A simulação e as ações de campanha podem resolvê-los, agravá-los ou transformá-los.
+7. A hierarquia inicial de vinte assentamentos é a primeira camada de trabalho. A próxima revisão deve cruzar cada um com rotas, economia, NPCs, facções, demografia e relógios, corrigindo sobreposições e relações que não fecharem.
+
+## 30. Escopo editorial e não integração
+
+O trabalho atual é a criação e revisão narrativa do ecossistema de Aeltharyn. Carregamento no APK, serialização, integração com modelos do jogo, automação de testes e CI não são critérios para concluir o texto do reino e não devem bloquear a fase editorial. Esses itens pertencem a uma etapa técnica posterior, depois da composição e revisão dos cinco reinos.
