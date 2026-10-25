@@ -14,6 +14,7 @@
 - [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md): números populacionais provisórios, conexões documentadas, lacunas de acesso dos assentamentos e cruzamento dos sete relógios com recursos e consequências observáveis.
 - [06 — Modelo operacional e geração de aventuras](06-modelo-operacional-e-geracao-de-aventuras.md): cadeia causal de eventos, geração e resolução de oportunidades, autonomia dos agentes, consequências da inação, proteção contra contradições e contrato de contexto mínimo para LLM pequena.
 - [07 — Registro operacional de rotas](07-registro-operacional-de-rotas.md): inventário das ligações com tempos explícitos, corredores sem duração validada, divergências de viagem e regras para não inventar itinerários.
+- [08 — Registro operacional de recursos](08-registro-operacional-de-recursos.md): modelo para produção, reservas, demanda, reposição, perdas, substitutos e dependências materiais, com estados de evidência e sem números inventados.
 
 ## Identidade resumida
 
@@ -47,6 +48,7 @@ Os quatro nomes futuros são rótulos provisórios, sem história ou geografia c
 - [ ] Auditar nomes, idades, cargos, genealogias, relações, conhecimento de NPCs e duplicações.
 - [ ] Auditar demografia, jurisdições, rotas, tempos de viagem, recursos e dependências ecológicas; ver [05 — Auditoria de demografia, rotas e recursos](05-auditoria-demografia-rotas-recursos.md) para as lacunas registradas.
 - [x] Cruzar os sete relógios iniciais com os recursos, rotas, localidades afetadas e limites de conhecimento; manter explícito que o cruzamento não comprova causas nem avança relógios automaticamente.
+- [x] Criar registro operacional de recursos com campos mínimos, estados de evidência, procedimento de escassez e pendências quantitativas explícitas.
 - [x] Definir contrato editorial operacional para converter eventos e conflitos em oportunidades de aventura sem transformar hipóteses em fatos nem exigir que uma LLM pequena receba toda a lore em cada turno.
 - [x] Criar índice canônico ligando os vinte assentamentos aos IDs estáveis de suas lideranças, distinguindo o NPC já existente dos dezenove novos perfis editoriais.
 - [x] Sincronizar o quadro de assentamentos do documento principal com os vinte perfis detalhados e seus IDs canônicos.
