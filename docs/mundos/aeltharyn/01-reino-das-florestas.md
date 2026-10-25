@@ -1074,7 +1074,7 @@ O Reino das Florestas só será considerado concluído quando todas estas verifi
 
 ## 28. Princípio político canônico: uma coroa, várias autoridades
 
-Aeltharyn é o reino principal governado por uma monarquia élfica, mas isso não significa que o rei governe diretamente cada comunidade, nem que todas as cidades sejam élf icas ou aceitem a Coroa sem contestação. As dez cidades descritas neste documento são centros de autoridade regional; cada uma possui ou reconhece autoridades próprias. Sob elas existem vilas, aldeias, povoados, entrepostos, comunidades móveis, postos de rota e domínios especiais. A jurisdição deve ser definida por pacto, costume, concessão, posse comunitária ou disputa histórica — nunca presumida apenas pela proximidade no mapa.
+Aeltharyn é o reino principal governado por uma monarquia élfica, mas isso não significa que o rei governe diretamente cada comunidade, nem que todas as cidades sejam élficas ou aceitem a Coroa sem contestação. As dez cidades descritas neste documento são centros de autoridade regional; cada uma possui ou reconhece autoridades próprias. Sob elas existem vilas, aldeias, povoados, entrepostos, comunidades móveis, postos de rota e domínios especiais. A jurisdição deve ser definida por pacto, costume, concessão, posse comunitária ou disputa histórica — nunca presumida apenas pela proximidade no mapa.
 
 ### 28.1 O que a Coroa pode e não pode fazer
 
