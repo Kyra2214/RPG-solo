@@ -58,8 +58,10 @@ object CampaignStarter {
         val problems = mutableListOf<String>()
         if (name.isBlank()) problems += "dê um nome à campanha"
         if (store.campaign(campaignId) != null) problems += "já existe uma campanha com o id $campaignId"
-        if (worldId != null && worldId != AeltharynWorld.id) problems += "mundo não suportado: $worldId"
-        if (worldId == AeltharynWorld.id) problems += AeltharynWorld.validate().map { "catálogo de mundo inválido: $it" }
+        if (worldId != null && worldId != AeltharynWorld.ID) problems += "mundo não suportado: $worldId"
+        if (worldId == AeltharynWorld.ID) {
+            problems += AeltharynWorld.validate().map { "catálogo de mundo inválido: $it" }
+        }
         if (ficha.system.editionId != edition.id) {
             problems += "a ficha é de ${ficha.system.editionId}, mas a campanha usa ${edition.id}; fichas de sistemas diferentes não se misturam"
         }
@@ -71,8 +73,8 @@ object CampaignStarter {
         if (problems.isNotEmpty()) return StartResult.Refused(problems)
 
         val settingName =
-            if (worldId == AeltharynWorld.id) {
-                AeltharynWorld.name
+            if (worldId == AeltharynWorld.ID) {
+                AeltharynWorld.NAME
             } else {
                 customSetting?.trim()?.takeIf { it.isNotEmpty() }
                     ?: config.settingIds.firstNotNullOfOrNull { catalog?.entry(it)?.name }
@@ -109,7 +111,7 @@ object CampaignStarter {
             }
         }
 
-        if (worldId == AeltharynWorld.id) {
+        if (worldId == AeltharynWorld.ID) {
             when (val installed = AeltharynWorld.install(session)) {
                 is ExecResult.Accepted -> {}
                 is ExecResult.Rejected -> {
@@ -121,7 +123,7 @@ object CampaignStarter {
 
         val notes = ready.notes.toMutableList()
         if (pkg == null) notes += "não há pacote de regras instalado para ${edition.id}: a ficha e os NPCs não são validados pelo motor"
-        if (worldId == AeltharynWorld.id) notes += "Aeltharyn instalado: dez cidades, mapa conectado e sete relógios iniciais; só Elarion começa descoberta."
+        if (worldId == AeltharynWorld.ID) notes += "Aeltharyn instalado: dez cidades, mapa conectado e sete relógios iniciais; só Elarion começa descoberta."
         return StartResult.Started(session, record, campanha, pkg, ficha.id, notes)
     }
 }
