@@ -1,5 +1,6 @@
 package dev.rpgsolo.rules
 
+import dev.rpgsolo.engine.AeltharynWorld
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.Ficha
@@ -92,6 +93,36 @@ class CampaignStarterTest {
         // Já está salva: reabre com o mesmo estado.
         val reopened = CampaignSession.open(store, "c1")
         assertTrue("pj1" in reopened.state.entities)
+    }
+
+
+    @Test fun selecionaAeltharynEInstalaMapaERelogiosNaCampanha() {
+        val cat = catalog()
+        val reg = registry(cat)
+        val store = InMemoryEventStore()
+        val (cfg, rd) = ready(cat, "proprio", "sistema-proprio")
+        val result = CampaignStarter.start(
+            store,
+            reg,
+            cat,
+            rd,
+            cfg,
+            fichaPadrao(cat, reg),
+            "aeltharyn-1",
+            "Crônicas do Primeiro Verde",
+            742L,
+            worldId = AeltharynWorld.id,
+        ) as StartResult.Started
+
+        assertEquals(AeltharynWorld.name, result.campanha.ambientacao.name)
+        assertEquals(10, result.session.state.places.size)
+        assertEquals(setOf(AeltharynWorld.capitalCityId), result.session.state.knownPlaces)
+        assertEquals(7, result.session.state.clocks.size)
+        assertTrue(result.notes.any { "Aeltharyn instalado" in it })
+
+        val reopened = CampaignSession.open(store, "aeltharyn-1")
+        assertEquals(10, reopened.state.places.size)
+        assertEquals(7, reopened.state.clocks.size)
     }
 
     @Test fun ambientacaoLivreTemPrioridadeSobreOCatalogo() {
