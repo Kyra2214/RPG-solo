@@ -16,7 +16,7 @@
 - [07 — Registro operacional de rotas](07-registro-operacional-de-rotas.md): inventário das ligações com tempos explícitos, corredores sem duração validada, divergências de viagem e regras para não inventar itinerários.
 - [08 — Registro operacional de recursos](08-registro-operacional-de-recursos.md): modelo para produção, reservas, demanda, reposição, perdas, substitutos e dependências materiais, com estados de evidência e sem números inventados.
 - [09 — Matriz material dos assentamentos](09-matriz-material-dos-assentamentos.md): cruza os vinte assentamentos com recursos, obrigações, dependências, riscos e lacunas de dados, sem presumir estoques ou rotas não confirmados.
-- [10 — Matriz de povos nativos, cidades e forasteiros](10-matriz-povos-nativos-cidades-e-forasteiros.md): corrige a definição de Aeltharyn como reino, organiza onze povos nativos de referência, diferencia linhagens de raças-base e registra a estrutura correta de dez cidades no total: Elarion, a capital, mais nove cidades.
+- [10 — Matriz de povos nativos, cidades e forasteiros](10-matriz-povos-nativos-cidades-e-forasteiros.md): corrige a definição de Aeltharyn como reino, organiza onze povos nativos de referência, diferencia linhagens de raças-base, registra a estrutura correta de dez cidades no total e consolida uma proposta de distribuição transversal dos onze povos nativos.
 
 ## Identidade resumida
 
