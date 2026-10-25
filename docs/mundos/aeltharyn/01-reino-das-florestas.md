@@ -657,7 +657,7 @@ O reino só pode ser considerado editorialmente completo quando houver:
 - [x] Identidade, calendário, eras e estado inicial.
 - [x] Geografia regional, rios, clima, biomas e riscos naturais.
 - [x] Ecologia com flora, fauna, espécies raras e relações ambientais.
-- [x] Seleção de raças do catálogo existente, com IDs válidos e explicação de presença.
+- [x] Seleção delimitada de povos próximos aos elfos, com IDs do catálogo e distinção entre originários, aliados e migrantes.
 - [x] Governo, soberano, herdeira, conselho e tensões políticas.
 - [x] Dez cidades com IDs, população estimada, governo, economia, defesa, locais, facções, problemas, rumores e lendas.
 - [x] Rede de rotas e distâncias aproximadas.
@@ -877,43 +877,41 @@ As idades e datas são aproximadas. O calendário tem quatro estações principa
 
 **Meda Martelo-Calmo — guardiã viva dos aprendizes e dos padrões de segurança.** Gnoma, 88 anos. Ensina que uma ferramenta bem-feita deve poder ser reparada e que nenhuma encomenda justifica esconder defeitos. Perde contratos por recusar prazos impossíveis e protege aprendizes de punições abusivas.
 
-## 20. Matriz de povos e representação heroica
+## 20. Povos de Aeltharyn: origem, vizinhança e diáspora
 
-Aeltharyn não é habitada por uma única raça, e a raça de alguém não determina caráter, profissão, cidadania ou lealdade. A matriz abaixo registra povos com presença significativa ou histórica neste reino; as demais raças do catálogo não são apagadas do mundo, apenas não recebem aqui uma diáspora detalhada antes da composição dos outros reinos.
+Aeltharyn é um reino élfico antigo. **Não abriga as 50 raças como povos originários** e não deve parecer uma feira que reúne indiscriminadamente todo o catálogo. O núcleo cultural élfico e os povos próximos foram escolhidos por ligação ecológica, história compartilhada, rotas locais e pactos de longa duração. A presença de estrangeiros é possível, mas não altera a identidade do reino.
 
-| Povo/ID do catálogo | Núcleo de memória | Heroísmo reconhecido | Guardião ou instituição atual |
+| Povo / ID do catálogo | Relação com Aeltharyn | Núcleos de presença | Posição no ano 742 |
 |---|---|---|---|
-| `elfo` | Elarion e a Coroa | Avarra, Maereth | Arquivo das Seivas |
-| `elfo-dos-bosques` | Vael-Tir | Luneth do Galho Partido | Vigias do Primeiro Verde |
-| `elfo-das-estrelas` | Elarion e Caladwen | Asha Nove-Pergaminhos | Arquivistas da Seiva |
-| `elfo-do-crepusculo` | Orvass e Brumafunda | Nessa Água-Lenta | Rede dos Guias |
-| `pequenino` | Nymvar e Arven | Sorela do Último Cesto | Liga dos Celeiros |
-| `pequenino-ribeirinho` | Nymvar | Dena Três-Correntes | Inspeção dos Canais |
-| `gnomo` | Elarion e Torvelume | Parel Três-Parafusos | Oficina de Precisão |
-| `gnomo-dos-vales` | Caladwen | Vessa Engrenagem-de-Lua | Colégio dos Ciclos |
-| `tritao` | Thalanor | Rilma Concha-de-Cobre | Vigias da Costa |
-| `abissal-das-enseadas` | Thalanor | Náren da Maré Reversa | Conselho Portuário |
-| `centauro` | Arven e Vael-Tir | Lessa Cervo-Manso | Conselho dos Corredores |
-| `centauro-das-florestas` | Vael-Tir | Tavro Passo-de-Raiz | Círculo das Trilhas |
-| `orcano` | Orvass | Korga Ponta-de-Junco | Conselho das Estacas |
-| `orcano-das-matas` | Orvass e Vael-Tir | Korga Ponta-de-Junco | Vigias do Brejo |
-| `tabaxi` | Brumafunda | Milo Passo-de-Bruma | Rede dos Guias |
-| `felideo-das-selvas` | Vael-Tir e Brumafunda | Sivra Pata-de-Musgo | Vigias da Fauna |
-| `kenku` | Brumafunda | Kheva Ouvido-de-Névoa | Círculo dos Ecos |
-| `corvideo-dos-telhados` | Brumafunda | Kheva Ouvido-de-Névoa | Casa dos Ecos |
-| `satiro` | Silvaran | Voro Canção-de-Pedra | Artífices do Som |
-| `silvano-dos-festivais` | Silvaran | Miri Corda-de-Lua | Círculo das Estações |
-| `feerico` | Silvaran e Brumafunda | Selenê Máscara-Clara | Casa da Hospitalidade |
-| `plantae` | Arven | Ruma Coração-de-Solo | Guardiões do Solo |
-| `fungal` | Orvass | Voz-de-Muitas-Raízes | Círculo Micelial |
-| `elemental-agua` | Nymvar e Thalanor | Mara Barro-Claro | Irmandade das Águas |
-| `elemental-ar` | Vael-Tir e Caladwen | Elyon Prisma-Claro | Observatório e patrulhas |
-| `ancestral-estelar` | Caladwen | Elyon Prisma-Claro | Observatório das Quatro Estações |
-| `anao` | Torvelume | Hadrik das Sete Bigornas | Liga dos Artífices |
-| `goblin` | Torvelume | Kivo Rebite-Ligeiro | Oficina das Sete Bigornas |
-| `humano` | Thalanor e Silvaran | Davi Riso-de-Inverno | Conselho Portuário e Casa da Hospitalidade |
+| Elfo `elfo` | Povo fundador e dominante da Coroa | Elarion, Vael-Tir, Caladwen | Casas reais, arquivos, administração e comunidades locais; não existe uma única opinião élfica |
+| Elfo dos Bosques `elfo-dos-bosques` | Linhagem central da mata ancestral | Vael-Tir, Elarion, Brumafunda | Manejo florestal, patrulha, trilhas e pactos de preservação |
+| Elfo das Estrelas `elfo-das-estrelas` | Linhagem histórica de observação e registro | Caladwen, Elarion | Astronomia, calendário, cartografia e conservação de fontes |
+| Elfo do Crepúsculo `elfo-do-crepusculo` | Linhagem ligada a rotas noturnas e zonas de fronteira | Orvass, Brumafunda, Elarion | Guias, investigação, mensageria noturna; não é inerentemente maligna |
+| Feérico `feerico` | Povo antigo vizinho dos bosques e de lugares liminares | Silvaran, Brumafunda | Comunidades pequenas, pactos de hospitalidade e territórios com leis próprias |
+| Verdejante `plantae` | Povo nativo de áreas de solo vivo e árvores-coração | Arven, Vael-Tir | Guardiões de mudas, recuperação de solo e interlocução ecológica; não são propriedade da Coroa |
+| Micélioide `fungal` | Povo antigo de zonas úmidas, decomposição e redes subterrâneas | Orvass, Brumafunda | Monitoramento de água e fungos; sua comunicação exige intérpretes pacientes |
+| Sátiro / Silvano Festivo `satiro`, `silvano-dos-festivais` | Povo vizinho ligado a ciclos sazonais e pactos orais | Silvaran, Arven | Festivais, mediação, música e preservação de histórias locais |
+| Centauro das Florestas `centauro-das-florestas` | Aliado regional de longa data, com território e autoridade próprios | Vael-Tir, Arven | Corredores de migração, pastagens e rotas de emergência; não é súdito sem direitos |
+| Felídeo das Selvas `felideo-das-selvas` | Povo de mata densa, integrado às rotas interiores | Brumafunda, Vael-Tir | Guias, rastreadores, cuidadores de fauna e comerciantes |
+| Orcano das Matas `orcano-das-matas` | Comunidades florestais com pactos locais e memória de conflitos | Orvass, Vael-Tir | Medicina, passarelas, defesa de aldeias e manejo de recursos |
+| Pequenino Ribeirinho `pequenino-ribeirinho` | Povo das margens, canais e várzeas | Nymvar, Arven | Agricultura, barcaças, sementes e manutenção comunitária de diques |
+| Gnomo dos Vales `gnomo-dos-vales` | Povo vizinho de vales e cursos d'água, integrado por ofícios | Caladwen, Nymvar, Elarion | Instrumentos, irrigação, medição e reparos de precisão |
+| Corvário das Torres `homem-corvo-das-torres` | Comunidades de torres e rotas de mensageiros | Brumafunda, Elarion | Mensagens, observação e arquivo; não são espiões por natureza |
+| Abissal das Enseadas `abissal-das-enseadas` | Aliado costeiro, ligado a enseadas e canais de maré | Thalanor | Navegação costeira, resgate e leitura de correntes; não governa o interior |
 
-Esta matriz é uma seleção deliberada para o Reino das Florestas, não um censo de todas as raças do cenário. A presença de um povo numa cidade não significa que ele seja originário dali: migração, trabalho, refúgio, comércio e casamentos explicam comunidades mistas. A origem cultural de cada povo e sua distribuição continental serão detalhadas quando os outros reinos forem construídos, sem antecipar suas histórias agora.
+### 20.1 Povos que não definem este reino
+
+Humanos, anões, goblins, ratoides, draconatos, malditos, metamorfos, bestiais de outras linhagens e demais povos do catálogo podem surgir como viajantes, refugiados, mercadores, diplomatas ou residentes individuais. Isso deve ser justificado pela história local do personagem ou da comunidade. **Não recebem automaticamente cidade de origem, facção nativa ou tríade heroica em Aeltharyn.** Seus territórios de origem serão definidos nas etapas próprias, na ordem já estabelecida.
+
+A regra vale também para raças com afinidade visual ou mágica com a floresta: afinidade não equivale a origem. Um elemental da água pode trabalhar em Nymvar sem que exista ali um povo elemental organizado; um anão pode viver em Torvelume sem transformar a cidade em cidade anã; um humano pode nascer em Thalanor sem tornar o reino humano.
+
+### 20.2 Regras de representação
+
+- “Originário” significa que o povo tem raízes históricas comprovadas no território; “aliado” significa que mantém pactos sem perder autonomia; “residente” indica moradia, não origem.
+- Uma sub-raça é uma linhagem cultural ou biológica do povo-pai, conforme o catálogo. Ela não deve ser contada como uma raça mundial independente só para inflar números.
+- Cidadania, cultura, raça e lealdade são dimensões diferentes. Um elfo pode se opor ao rei; um centauro aliado pode negar passagem; um residente de origem estrangeira pode defender a cidade onde nasceu.
+- A presença de um povo numa cidade precisa ter causa, ocupação, vínculos e conflitos próprios; não basta colocá-lo numa lista de população.
+- Nenhuma cidade deve ser definida apenas pela raça mais numerosa: água, relevo, rotas, instituições, economia e memória também determinam sua identidade.
 
 ## 21. Gerações, memória e divergência histórica
 
@@ -968,40 +966,109 @@ A versão anterior superestimava a completude do ecossistema. A descrição das 
 
 ## 24. Tríades de referência: herói, guardião e benfeitor por povo
 
-A matriz da seção 20 era apenas uma primeira amostra e não atendia à regra mais exigente de representação. Para os povos escolhidos como parte do ecossistema de Aeltharyn, esta seção estabelece três referências distintas: **herói** (feito extraordinário que entrou na memória coletiva), **guardião** (pessoa ou função viva que protege algo necessário à comunidade) e **benfeitor** (alguém que melhora concretamente a vida do povo). Eles não precisam morar na mesma cidade, pertencer à mesma facção ou concordar entre si. Alguns heróis são mortos; guardiões e benfeitores são em geral vivos no ano 742, salvo indicação contrária. Os nomes são personagens do cenário editorial, ainda não entidades carregadas pelo motor.
+Esta matriz cobre **os 15 povos e linhagens relevantes de Aeltharyn definidos na seção 20**, não as 50 raças do catálogo. Cada linha apresenta três pessoas distintas: **herói** (feito histórico ou extraordinário que entrou na memória coletiva), **guardião** (quem protege atualmente um bem, direito ou instituição) e **benfeitor** (quem melhora concretamente a vida da comunidade). “Herói” não significa moralmente perfeito; os feitos têm custos, limites e versões contestadas.
 
-| Povo / ID exato do catálogo | Herói e feito lembrado | Guardião e dever atual | Benfeitor e contribuição concreta |
+| Povo / ID do catálogo | Herói e feito lembrado | Guardião no ano 742 | Benfeitor no ano 742 |
 |---|---|---|---|
-| `elfo` | **Avarra das Sete Pontes**, morta — uniu os assentamentos de Elarion, embora a obra tenha deslocado famílias. | **Saelith Arco-de-Chuva**, viva — coordena a defesa florestal e investiga cortes ilegais sem criminalizar comunidades inteiras. | **Edran Sem-Selo**, vivo — garante que moradores comuns tenham voz em processos da capital. |
-| `elfo-dos-bosques` | **Luneth do Galho Partido**, morta — retirou civis de uma mata incendiada ao contrariar uma ordem militar. | **Eshara Chuva-na-Folha**, viva — negocia e protege corredores ecológicos. | **Tavro Passo-de-Raiz**, vivo — mantém abrigos de rota sem exigir juramento político. |
-| `elfo-das-estrelas` | **Maereth, Cartógrafa das Copas**, morta — mapeou evacuações seguras após a queda de uma ponte. | **Asha Nove-Pergaminhos**, viva — preserva fontes primárias e registra alterações de manuscritos. | **Nimeth Vela-de-Chuva**, viva — recupera e duplica arquivos sem expor informantes. |
-| `elfo-do-crepusculo` | **Syris do Canal Velado**, morta — durante décadas como guia, provou que vários desaparecimentos eram causados por mapas de canal desatualizados, não por monstros. | **Nessa Água-Lenta**, no ano 742, é uma personagem viva de Orvass; sua lenda antiga é atribuída por engano a uma homônima. | **Veyra Pavio-Silencioso**, viva — financia lanternas protegidas e rotas noturnas para moradores que trabalham em turnos. |
-| `pequenino` | **Sorela do Último Cesto**, morta — abriu reservas de alimento durante a fome e assumiu o risco político. | **Bento Sete-Sementes**, vivo — protege a diversidade das sementes comunitárias. | **Peren Colmeia-Aberta**, vivo — financia a recuperação de colmeias de pequenos produtores. |
-| `pequenino-ribeirinho` | **Dena Três-Correntes**, morta — redesenhou comportas para reduzir as perdas de enchentes. | **Mara Barro-Claro**, viva — inspeciona os canais e suspende travessias quando os diques estão inseguros. | **Lio Junco-Firme**, vivo — construiu rampas e cais acessíveis a idosos e pessoas feridas. |
-| `gnomo` | **Parel Três-Parafusos**, vivo — criou inspeções simples de pontes que qualquer morador pode aprender. | **Meda Martelo-Calmo**, viva — protege padrões de segurança nas oficinas de Torvelume. | **Vessa Engrenagem-de-Lua**, viva — fornece ferramentas e bolsas para aprendizes sem recursos. |
-| `gnomo-dos-vales` | **Vessa Engrenagem-de-Lua**, viva — desenvolveu instrumentos baratos para observar ciclos agrícolas. | **Tavian Lume-Fino**, vivo — mantém instrumentos calibrados e publica incertezas em vez de prometer previsões infalíveis. | **Omi Três-Lentes**, vivo — empresta instrumentos a escolas rurais e ensina reparos básicos. |
-| `tritao` | **Rilma Concha-de-Cobre**, viva — organiza a identificação e o abrigo de náufragos. | **Náren da Maré Reversa**, vivo — orienta resgates em canais portuários sem expor tripulações a risco suicida. | **Eshun Rede-Nova**, vivo — fornece redes e coletes de flutuação a pescadores sem crédito. |
-| `abissal-das-enseadas` | **Yssara Folha-de-Sal**, morta — padronizou cartas de resgate e protocolos de tempestade, embora tenha autorizado um abandono controverso. | **Náren da Maré Reversa**, vivo — monitora correntes rasas e coordena os sinais do porto. | **Mira Sal-de-Prata**, viva — mantém um fundo para famílias de marinheiros desaparecidos. |
-| `centauro` | **Lessa Cervo-Manso**, viva — negociou a primeira passagem sazonal que evitou conflito entre rebanhos e lavouras. | **Tavro Passo-de-Raiz**, vivo — cuida de pontos de água e abrigos ao longo das rotas. | **Orvek Quatro-Passos**, vivo — mantém trilhas de emergência e oferece transporte a feridos. |
-| `centauro-das-florestas` | **Oranna Passo-Largo**, viva — mediou pactos entre patrulheiros e comunidades de copa. | **Eshara Chuva-na-Folha**, viva — impede abertura de trilhas em áreas de reprodução sem consulta local. | **Calar Raiz-Curva**, vivo — replantou margens degradadas e treinou jovens em manejo de solo. |
-| `orcano` | **Aruã das Lanternas Baixas**, morto — conduziu uma caravana por canais durante uma seca e transportou famílias sem pagamento. | **Korga Ponta-de-Junco**, viva — protege bairros alagados e mantém passarelas seguras. | **Dorga Erva-Amarga**, viva — distribui remédios testados e registra efeitos adversos em vez de esconder falhas. |
-| `orcano-das-matas` | **Nima Raiz-de-Lodo**, morta — registrou tratamentos locais e os perigos das misturas que falharam. | **Korga Ponta-de-Junco**, viva — representa os bairros de água perante o conselho. | **Rokan Casca-Dura**, vivo — construiu depósitos elevados para proteger alimentos e ferramentas das cheias. |
-| `tabaxi` | **Milo Passo-de-Bruma**, vivo — criou um protocolo de resgate em grupos pequenos para viajantes perdidos. | **Sivra Pata-de-Musgo**, viva — protege fauna ferida e documenta caça ilegal. | **Tarek Mapa-Leve**, vivo — oferece mapas atualizados a viajantes que não podem pagar guias particulares. |
-| `felideo-das-selvas` | **Sela dos Retornos**, desaparecida — desenvolveu cordões táteis e marcas sonoras para atravessar neblina. | **Sivra Pata-de-Musgo**, viva — protege ninhos e corredores de espécies raras. | **Milo Passo-de-Bruma**, vivo — mantém abrigo para quem retorna de expedições incompletas. |
-| `kenku` | **Kheva Ouvido-de-Névoa**, viva — documentou sinais sonoros que permitiram reabrir uma trilha segura. | **Kheva Ouvido-de-Névoa**, viva — verifica ecos e marcos sem confundir observação com superstição. | **Ressa Voz-de-Pedra**, viva — ensina códigos sonoros de emergência a crianças e viajantes. |
-| `corvideo-dos-telhados` | **Kheva Ouvido-de-Névoa**, viva — recuperou os sinais de orientação perdidos após uma tempestade. | **Teren Asa-de-Corda**, vivo — mantém passagens altas e impede que ninhos sejam usados como postos de vigia. | **Nilo Recado-Certo**, vivo — criou uma rede de mensageiros com confirmação de entrega e cópias de avisos urgentes. |
-| `satiro` | **Miri Corda-de-Lua**, morta — abriu uma negociação entre casas rivais por meio de uma peça pública. | **Voro Canção-de-Pedra**, vivo — mantém espaços de ensaio e protege artistas contra coerção de patrocinadores. | **Dara Passo-Rítmico**, viva — organiza apresentações gratuitas em bairros sem acesso a festivais. |
-| `silvano-dos-festivais` | **Alena das Quatro Máscaras**, morta — revelou fraude documental durante um festival e sofreu perseguição por isso. | **Selenê Máscara-Clara**, viva — testemunha pactos de hospitalidade e registra seus limites. | **Voro Canção-de-Pedra**, vivo — fornece instrumentos e espaço de ensaio a grupos itinerantes. |
-| `feerico` | **Iria dos Ecos**, viva — impediu a entrada de curiosos numa zona instável da Torre sem Sino e documentou mudanças de sombra. | **Selenê Máscara-Clara**, viva — protege pessoas acolhidas de boa-fé sem conceder imunidade a crimes. | **Luma Folha-de-Prata**, viva — mantém jardins de repouso e fontes públicas abertas a viajantes. |
-| `plantae` | **Ruma Coração-de-Solo**, viva — identificou um esgotamento do solo que ameaçava uma safra inteira. | **Mirel Caule-Vivo**, vivo — monitora as árvores-coração e comunica sinais de doença sem alegar conhecer sua causa. | **Sava Broto-Novo**, viva — distribui mudas de espécies nativas e ensina a recuperar áreas degradadas. |
-| `fungal` | **Voz-de-Muitas-Raízes**, viva — ajudou a identificar contaminação de água por mudanças na rede micelial. | **Voz-de-Muitas-Raízes**, viva — mantém zonas de preservação e alerta sobre perturbações no pântano. | **Nima Raiz-de-Lodo**, morta — deixou cadernos que ajudaram gerações de curandeiros a distinguir remédios úteis de misturas perigosas. |
-| `elemental-agua` | **Mara Barro-Claro**, viva — desenvolveu sinais de alerta para comportas durante cheias repentinas. | **Náren da Maré Reversa**, vivo — coordena observações de corrente e maré entre Nymvar e Thalanor. | **Eshun Rede-Nova**, vivo — fornece equipamento de segurança a pescadores e barqueiros. |
-| `elemental-ar` | **Elyon Prisma-Claro**, vivo — publicou previsões atmosféricas com margem de incerteza que ajudaram a evitar travessias perigosas. | **Neralis Vento-Manso**, vivo — coordena avisos de neblina e suspende rotas quando os sinais não são confiáveis. | **Arel Brisa-Mansa**, vivo — instalou cata-ventos e sinais de tempestade em aldeias sem observatório. |
-| `ancestral-estelar` | **Teren do Lago Quieto**, morto — mapeou a profundidade sazonal do lago e encerrou uma perseguição injusta. | **Elyon Prisma-Claro**, vivo — protege a integridade das observações do Observatório. | **Asha Nove-Pergaminhos**, viva — torna cópias verificáveis de pesquisas acessíveis sem expor originais frágeis. |
+| Elfo `elfo` | **Avarra das Sete Pontes**, morta — conectou os primeiros núcleos de Elarion, mas sua obra deslocou famílias. | **Saelith Arco-de-Chuva**, viva — coordena a defesa sem tratar toda comunidade suspeita como inimiga. | **Edran Sem-Selo**, vivo — acompanha processos e garante voz a moradores sem influência. |
+| Elfo dos Bosques `elfo-dos-bosques` | **Luneth do Galho Partido**, morta — retirou civis de uma mata incendiada contra ordem militar. | **Eshara Chuva-na-Folha**, viva — protege corredores ecológicos e negocia com seus moradores. | **Tavro Passo-de-Raiz**, vivo — mantém abrigos de rota sem exigir juramento político. |
+| Elfo das Estrelas `elfo-das-estrelas` | **Ithren das Quatro Estações**, morto — corrigiu tabelas de plantio e enfrentou oposição ritual. | **Asha Nove-Pergaminhos**, viva — verifica fontes e registra alterações em manuscritos. | **Nimeth Vela-de-Chuva**, viva — recupera e duplica arquivos sem expor informantes. |
+| Elfo do Crepúsculo `elfo-do-crepusculo` | **Syris do Canal Velado**, morto — provou que desaparecimentos eram agravados por mapas de canais desatualizados. | **Nessa Água-Lenta**, viva — mantém nomes de desaparecidos sem registrar rumores como fatos. | **Veyra Pavio-Silencioso**, viva — financia lanternas protegidas e rotas noturnas de trabalhadores. |
+| Feérico `feerico` | **Iria dos Ecos**, viva — impediu curiosos de entrar numa zona instável e documentou mudanças sem inventar causas. | **Selenê Máscara-Clara**, viva — protege hóspedes acolhidos de boa-fé, sem dar imunidade a crimes. | **Luma Folha-de-Prata**, viva — mantém jardins de repouso e fontes abertas a viajantes. |
+| Verdejante `plantae` | **Ruma Coração-de-Solo**, viva — identificou esgotamento do solo antes de uma safra inteira se perder. | **Mirel Caule-Vivo**, vivo — acompanha as árvores-coração sem fingir conhecer a causa de toda doença. | **Sava Broto-Novo**, viva — distribui mudas nativas e ensina a recuperar áreas degradadas. |
+| Micélioide `fungal` | **Oru Rede-de-Chuva**, morto — identificou uma contaminação que passava despercebida nas fontes superficiais. | **Voz-de-Muitas-Raízes**, viva — preserva redes miceliais e comunica sinais de desequilíbrio. | **Nima Raiz-de-Lodo**, morta — deixou registros de tratamentos úteis e de misturas perigosas. |
+| Sátiro `satiro` | **Miri Corda-de-Lua**, morta — abriu negociação entre casas rivais por meio de uma peça pública, sem resolver sozinha a disputa de terras. | **Voro Canção-de-Pedra**, vivo — protege espaços de ensaio e artistas contra coerção de patrocinadores. | **Dara Passo-Rítmico**, viva — leva apresentações gratuitas a bairros afastados. |
+| Silvano dos Festivais `silvano-dos-festivais` | **Alena das Quatro Máscaras**, morta — revelou fraude documental durante um festival e sofreu perseguição. | **Selenê Máscara-Clara**, viva — testemunha pactos de hospitalidade; sua função abrange também comunidades feéricas por acordo documentado, não por equivalência de raça. | **Voro Canção-de-Pedra**, vivo — oferece instrumentos e espaço a grupos itinerantes; mantém registro de patrocínios para evitar captura política. |
+| Centauro das Florestas `centauro-das-florestas` | **Oranna Passo-Largo**, viva — mediou um pacto que preservou corredores de migração sem expulsar agricultores. | **Calar Raiz-Curva**, vivo — vigia margens e trilhas usadas por rebanhos e comunidades locais. | **Orvek Quatro-Passos**, vivo — mantém transporte de emergência para feridos em rotas largas. |
+| Felídeo das Selvas `felideo-das-selvas` | **Sela dos Retornos**, desaparecida — criou orientação tátil e sonora para travessias na neblina. | **Sivra Pata-de-Musgo**, viva — protege ninhos e registra caça ilegal. | **Tarek Mapa-Leve**, vivo — distribui mapas atualizados a viajantes sem recursos para contratar guia. |
+| Orcano das Matas `orcano-das-matas` | **Aruã das Lanternas Baixas**, morto — guiou uma caravana por canais secos e transportou famílias sem pagamento. | **Korga Ponta-de-Junco**, viva — mantém passarelas e depósitos elevados nos bairros alagados. | **Rokan Casca-Dura**, vivo — constrói depósitos comunitários resistentes a cheias e pragas. |
+| Pequenino Ribeirinho `pequenino-ribeirinho` | **Dena Três-Correntes**, morta — redesenhou comportas, reduzindo perdas, mas deslocando famílias em um dos canais. | **Mara Barro-Claro**, viva — suspende travessias quando diques não estão seguros. | **Lio Junco-Firme**, vivo — constrói rampas e cais acessíveis a idosos e feridos. |
+| Gnomo dos Vales `gnomo-dos-vales` | **Omi Três-Lentes**, morto — desenvolveu instrumentos de baixo custo para medir ciclos agrícolas. | **Meda Martelo-Calmo**, viva — protege padrões de segurança em oficinas e sistemas de irrigação. | **Vessa Engrenagem-de-Lua**, viva — fornece ferramentas e bolsas a aprendizes sem recursos. |
+| Corvário das Torres `homem-corvo-das-torres` | **Kheva Ouvido-de-Névoa**, viva — recuperou sinais sonoros de orientação após uma tempestade; seu feito foi coletivo, embora seu nome tenha prevalecido. | **Teren Asa-de-Corda**, vivo — mantém passagens altas sem permitir que ninhos virem postos de vigilância. | **Nilo Recado-Certo**, vivo — criou uma rede de mensagens com confirmação de entrega e cópia de avisos urgentes. |
+| Abissal das Enseadas `abissal-das-enseadas` | **Yssara Folha-de-Sal**, morta — padronizou cartas de resgate, mas autorizou um abandono cuja ética ainda é discutida. | **Náren da Maré Reversa**, vivo — monitora correntes rasas e coordena alertas de maré. | **Mira Sal-de-Prata**, viva — mantém fundo de apoio a famílias de marinheiros desaparecidos. |
 
-**Regras de consistência desta matriz:**
-1. A tríade representa funções sociais, não três títulos concedidos automaticamente a todo membro do povo.
-2. Uma pessoa pode ser referência de mais de um povo quando há vínculos familiares, adoção, aprendizagem ou trabalho conjunto; a narrativa deve explicar o vínculo, não presumir equivalência biológica.
-3. A presença dos povos listados em Aeltharyn não os torna originários do reino. Origem, diáspora e distribuição mundial serão tratadas ao compor cada região na ordem definida.
-4. As figuras que aparecem em outras seções mantêm suas biografias e limitações; esta matriz não cria uma segunda versão canônica delas.
-5. O elenco não é prova de implementação no motor. Para persistência real, cada figura precisa de identidade estável, estado, relações, conhecimento, agenda e eventos registrados pelo sistema.
+### 24.1 Regras para evitar duplicações e falsa equivalência
+
+1. As tríades são referências culturais e comunitárias, não títulos automáticos de todo membro do povo.
+2. Cada linha tem pessoas diferentes para as três funções. Personagens podem colaborar entre povos, mas não são contados como representantes de duas linhagens sem vínculo narrativo explícito.
+3. Algumas figuras históricas aparecem também nas seções de cidade porque são as mesmas pessoas; isso não cria versões alternativas de suas biografias.
+4. Um povo aliado ou residente não se torna originário de Aeltharyn por ter uma tríade de referência. A matriz só inclui povos com presença histórica relevante no ecossistema local.
+5. Personagens visitantes de povos de outros reinos podem aparecer em missões, mas suas origens, instituições e heróis próprios serão desenvolvidos quando chegar a vez de seu território.
+6. A matriz ainda é conteúdo editorial. Para funcionar no jogo, as figuras precisam ser convertidas em registros estáveis e relacionados ao modelo de campanha, sem duplicar estruturas já existentes.
+
+
+## 25. Dependência entre as dez cidades: a economia que mantém o reino vivo
+
+As cidades não são dez cenários independentes. Uma crise local produz consequências fora de suas muralhas, e nenhuma cidade consegue sustentar sozinha todas as necessidades de seus habitantes. A tabela registra as dependências normais do ano 742; guerra, desastre ou decisões de campanha podem alterá-las.
+
+| Cidade | O que entrega à rede | Do que depende | Consequência se a ligação falhar |
+|---|---|---|---|
+| Elarion | administração, arquivos, formação de escribas, decisões de defesa | alimentos de Nymvar e Arven; ferramentas de Torvelume; notícias das rotas | escassez política e material; ordens reais chegam tarde às periferias |
+| Nymvar | grãos, peixe de rio, ervas, transporte fluvial e conhecimento de diques | ferramentas de Torvelume; sementes de Arven; alertas de Vael-Tir sobre deslizamentos e troncos | preços sobem na capital e em Thalanor; cheias podem interromper abastecimento |
+| Thalanor | sal costeiro, pescado, cartas náuticas, comércio e resgate | alimentos de Nymvar/Arven; madeira manejada de Vael-Tir; observações de Caladwen | rotas marítimas ficam inseguras, mercadorias apodrecem e o fundo dos náufragos perde receita |
+| Vael-Tir | madeira autorizada, guias, patrulha ecológica e corredores terrestres | ferramentas de Torvelume; provisões de Arven; registros de fauna de Brumafunda | extração ilegal cresce, corredores se fecham e caravanas desviam para áreas frágeis |
+| Orvass | plantas medicinais, pesca de pântano, fungos úteis e conhecimento de águas | grãos de Nymvar; materiais de ponte de Torvelume; acesso seguro por Brumafunda | surtos ficam mais difíceis de conter e os bairros alagados perdem acesso a remédios |
+| Caladwen | calendários, observações climáticas, mapas e ensino | instrumentos de precisão dos gnomos; amostras de Thalanor; alimentos de Arven | previsões perdem confiabilidade e plantio, navegação e ritos divergem |
+| Brumafunda | guias, sinais de trilha, conhecimento da neblina e resgate interior | mantimentos de Arven; mapas de Caladwen; patrulha de Vael-Tir | viajantes desaparecem, rotas comerciais ficam mais caras e fauna rara perde proteção |
+| Arven | grãos, frutas, mel, fibras e sementes | água e canais de Nymvar; polinizadores e solo vivo; ferramentas de Torvelume | falta de alimentos e sementes; migração para as cidades e pressão sobre a mata |
+| Silvaran | festivais, hospitalidade, artes, mediação e circulação de histórias | excedentes agrícolas de Arven; rotas seguras de Brumafunda; mercadorias de Thalanor | pactos culturais se enfraquecem, artistas migram e tensões locais perdem espaços de negociação |
+| Torvelume | ferramentas, ferragens, reparos, portões e padrões de manutenção | carvão vegetal limitado e autorizado; alimentos de Arven/Nymvar; rotas seguras de Vael-Tir | pontes e diques não recebem reparos; a extração ilegal de minério e madeira aumenta |
+
+### 25.1 Corredores, tempo e custo
+
+- **Eixo do Lúmen:** Elarion–Nymvar–Thalanor. Barco de carga costuma levar 2 dias entre Elarion e Nymvar e mais 3–4 dias até Thalanor, dependendo de chuva, corrente e inspeções. Contra a corrente, o retorno pode demorar quase o dobro.
+- **Corredor das Copas:** Elarion–Vael-Tir–Brumafunda. Mensageiros treinados levam de 1 a 3 dias por trecho; viajantes comuns levam mais, pois precisam de guias e pausas para evitar zonas de reprodução.
+- **Rota dos Celeiros:** Nymvar–Arven–Silvaran. Caravanas levam 2–4 dias entre cidades; no Despertar, lama e cheias podem duplicar o prazo.
+- **Estrada da Espinha:** Caladwen–Torvelume–Vael-Tir. O percurso leva 3–5 dias em condições normais; geada, deslizamentos ou interdição por fauna podem fechar passagens.
+- **Rota do Pântano:** Orvass–Nymvar e Orvass–Brumafunda. O tempo varia de 2 a 6 dias porque a navegação depende do nível da água e de canais mutáveis. Mapas antigos não são garantia de passagem.
+
+Os tempos são estimativas de jogo para deslocamento normal, não cronômetros absolutos. Caravanas grandes, feridos, clima, perseguição, carga e estado das pontes alteram a duração. Nenhuma viagem deve ser instantânea apenas porque a cena precisa mudar.
+
+### 25.2 Ciclo material e ecológico
+
+1. A chuva nas elevações abastece o Lúmen e os afluentes; diques de Nymvar reduzem enchentes, mas alteram o transporte de sedimentos para Arven e as áreas úmidas.
+2. A agricultura de Arven depende de polinizadores, solo vivo e água em época certa. O uso excessivo de pesticidas ou a retirada de flores silvestres reduz a colheita e também o mel.
+3. A extração de madeira em Vael-Tir altera sombra, erosão, ninhos e vazão dos rios. Uma licença pode beneficiar Torvelume no curto prazo e causar prejuízo a Nymvar semanas depois.
+4. Os fungos de Orvass e Brumafunda decompõem matéria e revelam certos tipos de contaminação, mas não identificam magicamente todo veneno nem substituem investigação.
+5. A costa de Thalanor depende do fluxo de água doce e sedimentos; resíduos de mineração ou diques mal projetados podem afetar a pesca e as enseadas.
+6. As árvores-coração são organismos raros ligados a redes locais de solo, água e espécies. A Coroa pode protegê-las, mas não ordena que se curem; a doença atual continua sem causa comprovada.
+
+### 25.3 Quatro cadeias de consequência prontas para o jogo
+
+- **Dique rompido em Nymvar:** inundação local → perda de sementes em Arven → preço dos alimentos sobe em Elarion e Silvaran → comerciantes pedem importação acelerada → cresce pressão para cortar madeira em Vael-Tir.
+- **Corte ilegal em Vael-Tir:** erosão e lama no afluente → água turva em Nymvar → alertas miceliais em Orvass → suspeita contra curandeiros e madeireiros → disputa no Conselho das Sete Copas.
+- **Navio sem tripulação em Thalanor:** quarentena reduz descarga no porto → mercadorias atrasam → artesãos de Torvelume ficam sem insumos → Liga das Rotas pressiona por reabertura → famílias de náufragos exigem investigação.
+- **Falha nas previsões de Caladwen:** plantio atrasado em Arven → menor excedente enviado a outras cidades → Silvaran reduz festivais e refeições públicas → a população culpa os estudiosos ou o calendário, mesmo que o clima tenha mudado por causa ainda desconhecida.
+
+As cadeias são possibilidades causais, não eventos obrigatórios. A narração deve mostrar pistas e escolhas antes de aplicar consequências graves.
+
+## 26. Estado do reino e relógios de campanha no ano 742
+
+Aeltharyn começa em equilíbrio tenso, não em paz perfeita nem em colapso inevitável. Os relógios abaixo permitem que o mundo avance quando o jogador ignora problemas, mas não autorizam resolver mistérios sem evidências.
+
+| Relógio | Estado inicial | O que faz avançar | Efeito ao completar |
+|---|---:|---|---|
+| Doença das árvores-coração | 2/6 | semanas sem coleta de amostras, corte próximo a raízes ou ocultação de relatórios | uma árvore perde uma função ecológica importante; a causa ainda precisa ser descoberta |
+| Dívida dos diques | 3/6 | cheias, adiamento de reparos e disputa por verbas | um bairro de Nymvar sofre inundação grave e a crise chega ao conselho |
+| Contrabando de resina | 2/6 | licenças falsas, patrulhas desviadas e demanda elevada | surge uma rede de extração organizada; não prova que toda a Liga das Rotas esteja envolvida |
+| Desconfiança entre cidades | 1/6 | tributos desiguais, rumores e distribuição injusta de socorro | duas cidades suspendem temporariamente uma obrigação do Pacto das Dez Cidades |
+| Navio sem tripulação | 1/6 | provas ignoradas, carga movimentada sem registro ou testemunhas intimidadas | evidência física é perdida ou um segundo incidente acontece; não revela automaticamente o culpado |
+| Mina selada de Torvelume | 1/6 | escavação clandestina, tremores ou sabotagem | um acesso se rompe e cria perigo real; a natureza do que existe abaixo permanece em aberto |
+| Corredores centauros | 2/6 | novas cercas, colheita fora de época ou patrulhas sem consulta | uma rota sazonal é fechada e caravanas precisam desviar |
+
+**Regras dos relógios:** cada avanço precisa de uma causa observável; uma mesma cena não avança automaticamente todos os relógios; personagens só reagem ao que sabem; concluir um relógio cria uma mudança de estado, não uma solução narrativa completa. O jogador pode impedir, atrasar, redirecionar ou agravar cada processo.
+
+## 27. Portas de conclusão antes de desenvolver as Montanhas
+
+O Reino das Florestas só será considerado concluído quando todas estas verificações forem feitas na própria branch:
+
+- [ ] Fechar a auditoria de nomes, idades, cargos e biografias duplicadas entre as seções 8, 9, 17, 19 e 24.
+- [ ] Conferir as 10 cidades, seus moradores e os 15 povos/linhagens contra os IDs reais do catálogo.
+- [ ] Revisar cada rota, tempo de viagem, fluxo de mercadorias e dependência ecológica para eliminar contradições.
+- [ ] Dar a cada NPC central agenda plausível, relações, recursos, limites de conhecimento e reação a mudanças.
+- [ ] Definir como as cidades e figuras serão serializadas no modelo de mundo/campanha existente, sem criar um segundo sistema de personagens ou agenda.
+- [ ] Implementar carregamento e validação dos dados de Aeltharyn; documentar o formato canônico e as regras de fallback.
+- [ ] Acrescentar testes para IDs inexistentes, referências quebradas, relações entre cidades e estado inicial dos relógios.
+- [ ] Executar os testes relevantes e confirmar o resultado real do CI para o commit final desta etapa.
+
+**Bloqueio de escopo:** não iniciar conteúdo narrativo das Coroas de Pedra enquanto qualquer porta acima estiver aberta. Os quatro reinos restantes continuam sem desenvolvimento detalhado.
