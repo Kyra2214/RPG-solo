@@ -200,11 +200,11 @@ fun NewCampaignSection(model: AppModel) {
                                 withContext(Dispatchers.IO) {
                                     model.exclusiveTurn {
                                         flow.start(
-                                                ficha,
-                                                campaignName,
-                                                Random.nextLong(),
-                                                worldId = if (useAeltharyn) "kingdom.aeltharyn" else null,
-                                            ).also {
+                                            ficha,
+                                            campaignName,
+                                            Random.nextLong(),
+                                            worldId = if (useAeltharyn) "kingdom.aeltharyn" else null,
+                                        ).also {
                                             if (it is NewCampaignFlow.Step.Started) model.activate(it.result)
                                         }
                                     }
