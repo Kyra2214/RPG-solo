@@ -225,6 +225,7 @@ class CheckMenu(
             durationRounds = definition.durationRounds,
             damagePerRound = definition.damagePerRound,
             damageResource = definition.damageResource,
+            damagePercent = definition.damagePercent,
         )
     }
 
@@ -422,7 +423,8 @@ class CheckMenu(
     ): Int {
         val hazard = entry.hazard ?: return entry.damage
         val max = healthResource()?.let { state.entities[playerId]?.resources?.get(it)?.max } ?: return 0
-        return pkg.hazardDamage(hazard, max) ?: 0
+        val reduce = state.entities[playerId]?.let { pkg.hazardReductionPercent(it) } ?: 0
+        return pkg.hazardDamage(hazard, max, reduce) ?: 0
     }
 
     /** Aplica ao teste, na hora de rolar, o Ganho/Perda das condições ativas e os bônus dos traços do jogador. */
@@ -498,7 +500,9 @@ class CheckMenu(
                         val details =
                             buildList {
                                 condition.durationRounds?.let { add("duração: " + it + " rodadas") }
-                                if (condition.damagePerRound > 0) {
+                                if (condition.damagePercent > 0) {
+                                    add("dano por rodada: " + condition.damagePercent + "% do máximo de " + condition.damageResource + " (mín. 1)")
+                                } else if (condition.damagePerRound > 0) {
                                     add("dano por rodada: " + condition.damagePerRound + " " + condition.damageResource)
                                 }
                                 condition.effect?.let {

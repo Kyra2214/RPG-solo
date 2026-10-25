@@ -1,19 +1,28 @@
-# id|nome|tipo|slot|descricao|efeitos (opcional: ataque:+1;dano:+1;defesa:+1)|preco (opcional, em moedas; vazio = não negociável)
-espada-curta|Espada curta|equipamento|mao|Arma simples para combate corpo a corpo.|ataque:+1;dano:+1|15
-escudo-leve|Escudo leve|equipamento|outra-mao|Proteção portátil que aumenta a defesa.|defesa:+1|10
+# id|nome|tipo|slot|descricao|efeitos (opcional: ataque, dano, defesa, um atributo ou max_<recurso>, ex.: ataque:+1;sorte:+1;max_pv:+2)|preco (opcional, em moedas; vazio = não negociável)|nivel (opcional, só equipamento: nível mínimo para equipar; padrão 1)|peso (opcional, só equipamento: pesado, medio ou leve; peça de peso fora da classe vale metade dos bônus positivos)|tipo (opcional, só equipamento: tipo da arma, ex.: espada, arco, cajado; fora da classe vale metade dos bônus positivos)
+# colunas 9-11 (N-13/N-14): peso, tipo da arma, maos (1 ou 2; duas mãos bloqueia o escudo e rende ataque x1,5)
+# colunas 12-14 (N-16, só arma): elemento (agua, fogo, ferro, vento, terra, luz, trevas), condicao (id de condicoes.txt) e chance base em % (d100 + 2% por Sorte, teto 90%)
+# coluna 15 (escala, só equipamento): escopo (sorte, destreza, agilidade, defesa, ataque, max_pv...) que ganha ⌈nível ÷ 10⌉ de bônus base de qualidade normal (×5 em max_pv); vale só se o item não declara efeito nesse escopo; a qualidade multiplica depois
+# slots de equipamento: mao (arma), outra-mao (escudo), elmo (Sorte), luvas (Destreza), botas (Agilidade), calca (defesa), peito (PV máximo)
+espada-curta|Espada curta|equipamento|mao|Arma simples para combate corpo a corpo.|ataque:+1;dano:+1|15||-|espada
+escudo-leve|Escudo leve|equipamento|outra-mao|Proteção portátil que dá Resistência.|resistencia:+1;max_pv:+5|10
 pocao-cura|Poção de cura|consumivel|-|Recupera recurso quando uma regra do pacote definir seu uso.|-|8
 chave-antiga|Chave antiga|narrativo|-|Item de história sem efeito mecânico automático.
-adaga|Adaga|equipamento|mao|Lâmina curta e leve, boa para golpes precisos.|ataque:+1|8
-clava|Clava|equipamento|mao|Porrete pesado de madeira ou osso.|dano:+1|5
-lanca|Lança|equipamento|mao|Haste com ponta de metal, alcança o inimigo antes dele.|ataque:+1|10
-machado|Machado|equipamento|mao|Lâmina larga que pesa no golpe e cobra o preço na guarda.|dano:+2;ataque:-1|18
-arco-curto|Arco curto|equipamento|mao|Arco leve para disparos rápidos.|ataque:+1|14
-espada-longa|Espada longa|equipamento|mao|Arma de lâmina equilibrada, superior à espada curta.|ataque:+1;dano:+2|30
-escudo-pesado|Escudo pesado|equipamento|outra-mao|Escudo largo e robusto que protege bem, mas atrapalha o corpo.|defesa:+2|22
-roupa-reforcada|Roupa reforçada|equipamento|corpo|Tecido grosso e couro fino sobre o torso.|defesa:+1|6
-couro-batido|Armadura de couro|equipamento|corpo|Couro endurecido que cobre tronco e braços.|defesa:+2|20
-cota-de-malha|Cota de malha|equipamento|corpo|Anéis de metal entrelaçados; protege muito, mas pesa.|defesa:+3;ataque:-1|45
-capacete|Capacete|equipamento|cabeca|Proteção simples para a cabeça.|defesa:+1|9
+adaga|Adaga|equipamento|mao|Lâmina curta e leve, boa para golpes precisos.|ataque:+1|8||-|adaga
+clava|Clava|equipamento|mao|Porrete pesado de madeira ou osso.|dano:+1|5||-|clava
+lanca|Lança|equipamento|mao|Haste com ponta de metal, alcança o inimigo antes dele.|ataque:+1|10||-|lanca
+machado|Machado|equipamento|mao|Lâmina larga que pesa no golpe e cobra o preço na guarda.|dano:+2;ataque:-1|18||-|machado
+arco-curto|Arco curto|equipamento|mao|Arco leve para disparos rápidos.|ataque:+1|14||-|arco
+espada-longa|Espada longa|equipamento|mao|Arma de lâmina equilibrada, superior à espada curta.|ataque:+1;dano:+2|30|5|-|espada
+escudo-pesado|Escudo pesado|equipamento|outra-mao|Escudo largo e robusto que protege bem, mas atrapalha o corpo.|resistencia:+1;max_pv:+5;ataque:-1|22|5
+roupa-reforcada|Roupa reforçada|equipamento|peito|Tecido grosso e couro fino sobre o torso.|max_pv:+2|6||leve|-
+couro-batido|Armadura de couro|equipamento|peito|Couro endurecido que cobre tronco e braços.|max_pv:+4|20||medio|-
+cota-de-malha|Cota de malha|equipamento|peito|Anéis de metal entrelaçados; protege muito, mas pesa.|max_pv:+6;ataque:-1|45|5|pesado|-
+capacete|Capacete|equipamento|elmo|Proteção simples para a cabeça.|sorte:+1|9||medio|-
+luvas-de-couro|Luvas de couro|equipamento|luvas|Couro macio que firma a pegada e a mira.|destreza:+1|8||leve|-
+botas-de-couro|Botas de couro|equipamento|botas|Solado firme e silencioso para correr e esquivar.|agilidade:+1|8||leve|-
+calca-reforcada|Calça reforçada|equipamento|calca|Tecido grosso com remendos de couro nas pernas.|defesa:+1|8||leve|-
+calca-de-couro|Calça de couro|equipamento|calca|Couro endurecido que protege coxas e canelas.|defesa:+2|18|5|medio|-
+cajado|Cajado|equipamento|mao|Haste de madeira que ajuda a canalizar o raciocínio e a magia.|inteligencia:+1|12||-|cajado
 pocao-cura-maior|Poção de cura maior|consumivel|-|Frasco denso que restaura muita vitalidade.|-|20
 bandagem|Bandagem|consumivel|-|Faixas limpas para estancar ferimentos leves.|-|2
 pocao-mana|Poção de mana|consumivel|-|Líquido azulado que restaura pontos de magia.|-|12
@@ -67,3 +76,96 @@ couro-curtido|Couro curtido|narrativo|-|Couro tratado, pronto para costura e arm
 madeira-resistente|Madeira resistente|narrativo|-|Tora seca e firme para cabos e arcos. Material de criação.|-|4
 cristal-bruto|Cristal bruto|narrativo|-|Cristal sem lapidar, canal natural de magia. Material de criação.|-|18
 osso-polido|Osso polido|narrativo|-|Osso limpo usado em talismãs e ferramentas. Material de criação.|-|3
+montante|Montante|equipamento|mao|Espada enorme que exige as duas mãos e golpeia com muito mais força.|ataque:+1;dano:+2|45|5|-|espada|2
+arco-longo|Arco longo|equipamento|mao|Arco alto e tenso que exige as duas mãos.|ataque:+1|28|5|-|arco|2
+espada-de-brasa|Espada de brasa|equipamento|mao|Lâmina aquecida que queima o que corta.|ataque:+1|60|||espada|1|fogo|queimando|20
+adaga-envenenada|Adaga envenenada|equipamento|mao|Lâmina curta com veneno nas ranhuras.|ataque:+1|40|||adaga|1|-|envenenado|25
+pergaminho-elemento-agua|Pergaminho de Água|consumivel|-|Encanta por 1 dia a arma ou o peito equipado com água; some no próximo descanso completo.|-|150
+pergaminho-elemento-fogo|Pergaminho de Fogo|consumivel|-|Encanta por 1 dia a arma ou o peito equipado com fogo; some no próximo descanso completo.|-|150
+pergaminho-elemento-ferro|Pergaminho de Ferro|consumivel|-|Encanta por 1 dia a arma ou o peito equipado com ferro; some no próximo descanso completo.|-|150
+pergaminho-elemento-vento|Pergaminho de Vento|consumivel|-|Encanta por 1 dia a arma ou o peito equipado com vento; some no próximo descanso completo.|-|150
+pergaminho-elemento-terra|Pergaminho de Terra|consumivel|-|Encanta por 1 dia a arma ou o peito equipado com terra; some no próximo descanso completo.|-|150
+pergaminho-elemento-luz|Pergaminho de Luz|consumivel|-|Encanta por 1 dia a arma ou o peito equipado com Luz; some no próximo descanso completo.|-|300
+pergaminho-elemento-trevas|Pergaminho de Trevas|consumivel|-|Encanta por 1 dia a arma ou o peito equipado com Trevas; some no próximo descanso completo.|-|300
+# N-21: materiais de ofício e peças quebradas (entrada das receitas de consertar)
+fibra-vegetal|Fibra vegetal|narrativo|-|Fibras longas e resistentes. Material de criação.|-|2
+tecido|Tecido|narrativo|-|Pano grosso, pronto para costura. Material de criação.|-|4
+corda|Corda|narrativo|-|Corda trançada e firme. Material de criação.|-|3
+flecha|Flecha|narrativo|-|Haste emplumada com ponta de ferro. Munição.|-|1
+espada-curta-quebrada|Espada curta quebrada|narrativo|-|Lâmina rachada; precisa de conserto.|-
+machado-quebrado|Machado quebrado|narrativo|-|Cabo partido e gume lascado; precisa de conserto.|-
+capacete-quebrado|Capacete quebrado|narrativo|-|Elmo amassado; precisa de conserto.|-
+arco-curto-quebrado|Arco curto quebrado|narrativo|-|Arco com a haste rachada; precisa de conserto.|-
+calca-reforcada-quebrada|Calça reforçada rasgada|narrativo|-|Calça rasgada; precisa de conserto.|-
+botas-de-couro-quebradas|Botas de couro rasgadas|narrativo|-|Botas com a sola solta; precisam de conserto.|-
+luvas-de-couro-quebradas|Luvas de couro rasgadas|narrativo|-|Luvas rasgadas; precisam de conserto.|-
+# N-22: materiais e preparos de ofício (sem efeito mecânico até haver ações em criacao.txt)
+farinha|Farinha|narrativo|-|Farinha fina de trigo. Material de preparo.|-|2
+graos|Grãos|narrativo|-|Grãos secos de cevada e trigo. Material de preparo.|-|2
+carne-fresca|Carne fresca|narrativo|-|Corte limpo, pronto para o fogo. Material de preparo.|-|4
+flor-aromatica|Flor aromática|narrativo|-|Pétalas de cheiro forte. Material de preparo.|-|3
+glandula-venenosa|Glândula venenosa|narrativo|-|Bolsa de veneno bruto. Material de preparo.|-|6
+ensopado|Ensopado|narrativo|-|Refeição quente e substanciosa.|-|5
+pao-assado|Pão assado|narrativo|-|Pão fresco e crocante.|-|2
+cerveja|Cerveja|narrativo|-|Caneca de cerveja encorpada.|-|3
+perfume|Perfume|narrativo|-|Essência delicada em frasco pequeno.|-|15
+veneno-de-lamina|Veneno de lâmina|narrativo|-|Toxina espessa para untar armas.|-|12
+# N-23: peças e engenhocas de Mecanismos (sem efeito mecânico até haver ações em criacao.txt)
+engrenagem|Engrenagem|narrativo|-|Roda dentada de metal. Material de criação.|-|4
+mola-de-aco|Mola de aço|narrativo|-|Mola temperada. Material de criação.|-|5
+engenhoca-quebrada|Engenhoca quebrada|narrativo|-|Engenho com peças soltas; pode ser consertado.
+engenhoca-de-fumaca|Engenhoca de fumaça|narrativo|-|Cilindro que solta fumaça densa quando acionado.|-|18
+armadilha-de-mola|Armadilha de mola|narrativo|-|Armadilha de ferro com mola tensionada.|-|16
+relogio-de-bolso|Relógio de bolso|narrativo|-|Relógio pequeno e preciso.|-|40
+artefato-quebrado|Artefato quebrado|narrativo|-|Artefato antigo com o mecanismo danificado.
+artefato-restaurado|Artefato restaurado|narrativo|-|Artefato antigo de novo em funcionamento.|-|60
+# N-24: itens de Identificação e relíquias (narrativos; o mestre os concede)
+reliquia-desconhecida|Relíquia desconhecida|narrativo|-|Objeto antigo de origem incerta.
+reliquia-autentica|Relíquia autêntica|narrativo|-|Objeto antigo confirmado como genuíno.|-|45
+reliquia-falsa|Relíquia falsa|narrativo|-|Cópia sem valor passada por antiga.|-|2
+mapa-cifrado|Mapa cifrado|narrativo|-|Mapa com marcas que ninguém leu ainda.
+mapa-decifrado|Mapa decifrado|narrativo|-|Mapa com as marcas traduzidas.|-|25
+reliquia-restaurada|Relíquia restaurada|narrativo|-|Relíquia reparada, de volta à forma original.|-|80
+reliquia-quebrada|Relíquia quebrada|narrativo|-|Relíquia em pedaços que ainda podem ser reunidos.
+peixe-fresco|Peixe fresco|narrativo|-|Peixe recém-pescado, bom para cozinhar ou vender. Material de preparo.|-|3
+alga-marinha|Alga marinha|narrativo|-|Alga colhida do mar ou do rio. Material de criação.|-|2
+perola-bruta|Pérola bruta|narrativo|-|Pérola ainda sem polimento, achada por mergulhadores. Material de criação.|-|25
+rastro-seguido|Rastro seguido|narrativo|-|Marcas de passagem seguidas até onde levam. Registra o que o rastreador descobriu.
+pista-colhida|Pista colhida|narrativo|-|Indício recolhido na cena e anotado com cuidado.
+armadilha-desarmada|Armadilha desarmada|narrativo|-|Armadilha tornada inofensiva; o caminho está livre.
+fechadura-aberta|Fechadura aberta|narrativo|-|Fechadura vencida sem arrombar; a passagem está aberta.
+rumor-ouvido|Rumor ouvido|narrativo|-|Boato colhido em conversa; pode ser verdadeiro ou não.
+contrato-fechado|Contrato fechado|narrativo|-|Acordo combinado com alguém, com termos e prazo definidos pelo mestre.
+engenhoca-desarmada|Engenhoca desarmada|narrativo|-|Mecanismo desativado com cuidado; já não oferece perigo.
+artefato-reprogramado|Artefato reprogramado|narrativo|-|Artefato com a função ajustada pelo seu operador.
+animal-pequeno-adestrado|Animal pequeno adestrado|narrativo|-|Cão, gato, ave ou roedor que aprendeu a obedecer. Marca o resultado do adestramento; o mestre narra o que o animal faz.
+animal-medio-adestrado|Animal médio adestrado|narrativo|-|Lobo, cabra, porco ou cão de guarda treinado. Marca o resultado do adestramento; o mestre narra o que o animal faz.
+animal-grande-adestrado|Animal grande adestrado|narrativo|-|Cavalo, boi ou urso acostumado ao seu comando. Marca o resultado do adestramento; o mestre narra o que o animal faz.
+fera-adestrada|Fera adestrada|narrativo|-|Predador ou besta perigosa que aceitou o adestrador. Marca o resultado do adestramento; o mestre narra o que a fera faz.
+criatura-colossal-adestrada|Criatura colossal adestrada|narrativo|-|Criatura gigantesca ou lendária dobrada pela paciência do adestrador. Marca o resultado do adestramento; o mestre narra o que ela faz.
+refeicao-preparada|Refeição preparada|narrativo|-|Prato quente e completo. Comida boa para companheiros humanoides.|-|6
+refeicao-de-carne|Refeição de carne|narrativo|-|Carne temperada e bem cozida. Comida rara para animais quadrúpedes.|-|12
+ovo|Ovo|narrativo|-|Ovo fresco. Alimento de animais e ingrediente de preparo.|-|2
+fruta|Fruta|narrativo|-|Fruta madura e doce. Comida de animais e insetos.|-|2
+fruta-rara|Fruta rara|narrativo|-|Fruta exótica de sabor intenso. Comida rara para animais alados.|-|15
+mel|Mel|narrativo|-|Mel dourado e espesso. Comida boa para insetos e aracnídeos.|-|5
+doce|Doce|narrativo|-|Guloseima açucarada. Comida rara para companheiros humanoides.|-|4
+iguaria|Iguaria|narrativo|-|Prato fino e raro. Comida rara para companheiros humanoides.|-|20
+nectar|Néctar|narrativo|-|Néctar puro de flor rara. Comida rara para insetos e aracnídeos.|-|25
+cogumelo-raro|Cogumelo raro|narrativo|-|Cogumelo de sabor forte, difícil de achar. Comida rara para insetos e aracnídeos.|-|25
+presa-viva|Presa viva|narrativo|-|Pequena presa capturada viva. Comida rara para animais rastejantes.|-|10
+presa-rara|Presa rara|narrativo|-|Presa incomum e valorizada. Comida rara para animais rastejantes.|-|30
+peixe-raro|Peixe raro|narrativo|-|Peixe de espécie difícil de pescar. Comida rara para animais aquáticos.|-|12
+# N-33.4: gemas de engaste (qualidade 1 a 3). O bônus vem de Gems.bonusOf (motor); aqui só o item de inventário.
+gema-ataque-1|Gema de Ataque (bruta)|narrativo|-|Gema de engaste bruta: +2 em Ataque quando engastada em uma peça equipada.|-|40
+gema-ataque-2|Gema de Ataque (lapidada)|narrativo|-|Gema de engaste lapidada: +4 em Ataque quando engastada em uma peça equipada.|-|120
+gema-ataque-3|Gema de Ataque (perfeita)|narrativo|-|Gema de engaste perfeita: +6 em Ataque quando engastada em uma peça equipada.|-|360
+gema-defesa-1|Gema de Defesa (bruta)|narrativo|-|Gema de engaste bruta: +2 em Defesa quando engastada em uma peça equipada.|-|40
+gema-defesa-2|Gema de Defesa (lapidada)|narrativo|-|Gema de engaste lapidada: +4 em Defesa quando engastada em uma peça equipada.|-|120
+gema-defesa-3|Gema de Defesa (perfeita)|narrativo|-|Gema de engaste perfeita: +6 em Defesa quando engastada em uma peça equipada.|-|360
+gema-velocidade-1|Gema de Velocidade (bruta)|narrativo|-|Gema de engaste bruta: +2 em Velocidade quando engastada em uma peça equipada.|-|40
+gema-velocidade-2|Gema de Velocidade (lapidada)|narrativo|-|Gema de engaste lapidada: +4 em Velocidade quando engastada em uma peça equipada.|-|120
+gema-velocidade-3|Gema de Velocidade (perfeita)|narrativo|-|Gema de engaste perfeita: +6 em Velocidade quando engastada em uma peça equipada.|-|360
+gema-pv-1|Gema de Vida (bruta)|narrativo|-|Gema de engaste bruta: +10 em PV máximo quando engastada em uma peça equipada.|-|40
+gema-pv-2|Gema de Vida (lapidada)|narrativo|-|Gema de engaste lapidada: +20 em PV máximo quando engastada em uma peça equipada.|-|120
+gema-pv-3|Gema de Vida (perfeita)|narrativo|-|Gema de engaste perfeita: +30 em PV máximo quando engastada em uma peça equipada.|-|360

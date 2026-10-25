@@ -13,9 +13,11 @@ enum class ElementPath { WATER, FIRE, WIND, EARTH, METAL, YIN, YANG, NONE }
 
 enum class SkillOrigin { RACE, SUBRACE, CLASS, PROFESSION, HYBRID, CURSED_CLASS, SHARED, CURSE }
 
-enum class SkillEffectRecipient { SELF, TARGET }
+/** [ALLIES] (N-29): todos os aliados em combate (ver [allyIdsInCombat]); o usuário não entra. */
+enum class SkillEffectRecipient { SELF, TARGET, ALLIES }
 
-enum class SkillActionKind { MODIFIER, REVIVE, POWER_STRIKE, MULTI_HIT }
+/** [OUT_OF_COMBAT] (N-19): ação de ofício ou utilidade que só pode ser usada fora de combate; gasta o custo e aplica os efeitos como [MODIFIER]. */
+enum class SkillActionKind { MODIFIER, REVIVE, POWER_STRIKE, MULTI_HIT, OUT_OF_COMBAT }
 
 data class SkillEffectSpec(
     val id: String,
@@ -79,8 +81,8 @@ data class SkillTreeSkill(
         require(actionKind != SkillActionKind.MULTI_HIT || hitCount >= 2) { "multiataque exige ao menos dois golpes" }
         require(scrollRank == null || scrollRank in 1..7) { "posição de pergaminho deve ficar entre 1 e 7" }
         require(!freeBaseSkill || unlockPointCost == 0) { "habilidade básica gratuita não pode cobrar desbloqueio" }
-        require(!freeBaseSkill || origin in setOf(SkillOrigin.RACE, SkillOrigin.SUBRACE, SkillOrigin.CURSED_CLASS)) {
-            "habilidade básica gratuita exige origem raça, sub-raça ou Classe de Malditos"
+        require(!freeBaseSkill || origin in SkillTreeProgression.FREE_BASE_ORIGINS) {
+            "habilidade básica gratuita exige origem raça, sub-raça, Classe de Malditos, classe ou profissão"
         }
         require(prerequisiteSkillIds.none { it == id }) { "habilidade não pode depender de si mesma" }
     }
@@ -158,6 +160,19 @@ object SkillTreeEconomy {
  */
 object SkillTreeProgression {
     const val POINT_COST_PER_UPGRADE = 1
+
+    /** N-19: degraus de habilidade por nível do personagem, iguais para todas as classes e profissões. */
+    val TIER_LEVELS: List<Int> = listOf(1, 7, 13, 21, 30)
+
+    /** N-19: origens cujo degrau 1 pode ser gratuito e ativo na criação (classe + profissão, além de raça, sub-raça e Classe de Malditos). */
+    val FREE_BASE_ORIGINS: Set<SkillOrigin> =
+        setOf(SkillOrigin.RACE, SkillOrigin.SUBRACE, SkillOrigin.CURSED_CLASS, SkillOrigin.CLASS, SkillOrigin.PROFESSION)
+
+    /** N-19: maior degrau (1..5) liberado para o nível de personagem [characterLevel]; 0 abaixo do nível 1. */
+    fun unlockedTier(characterLevel: Int): Int = TIER_LEVELS.count { characterLevel >= it }
+
+    /** N-19: degrau (1..5) de uma habilidade pelo nível mínimo de personagem; null se não coincide com um degrau (cadeias antigas de 5, 10, 15...). */
+    fun tierOf(requiredCharacterLevel: Int): Int? = TIER_LEVELS.indexOf(requiredCharacterLevel).takeIf { it >= 0 }?.plus(1)
 
     fun validate(
         skill: SkillTreeSkill,

@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -226,10 +227,15 @@ private fun PlayContent(
             item(key = "poderes") { PowersPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "arvore-pericias") { SkillTreePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "maldições") { CursePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "oficios") { RecipesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "marcas") { TattooPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "gemas") { GemsPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "companheiro") { CompanionPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "usos-tracos") { TraitUsesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "remover-condicoes") {
                 ConditionRemovalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
             }
+            item(key = "legado") { LegacyPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "sobrevivencia") { SurvivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             luckOffer?.let { offer ->
                 item(key = "fortuna") {
@@ -455,7 +461,9 @@ private fun InventoryPanel(
                     Muted(item.description)
                     if (item.kind == "equipamento" && item.slot != null) {
                         Muted(
-                            stringResource(R.string.inventory_slot, item.slot) + if (item.equipped) stringResource(R.string.inventory_equipped_suffix) else "",
+                            stringResource(R.string.inventory_slot, item.slot) +
+                                (if (item.equipped) stringResource(R.string.inventory_equipped_suffix) else "") +
+                                (if (item.restricted) stringResource(R.string.inventory_restricted_suffix) else ""),
                         )
                     } else {
                         Muted(stringResource(R.string.inventory_kind, item.kind))
@@ -580,6 +588,323 @@ private fun PowersPanel(
 }
 
 @Composable
+private fun RecipesPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    var open by remember { mutableStateOf(false) }
+    val recipes = model.recipesView()
+    if (recipes.isEmpty()) return
+    AppCard {
+        TextButton(onClick = { open = !open }) {
+            Text(stringResource(R.string.recipes_title, recipes.size), style = MaterialTheme.typography.titleSmall)
+        }
+        if (open) {
+            recipes.forEach { r ->
+                Column(Modifier.fillMaxWidth()) {
+                    Text(r.name)
+                    Muted(
+                        if (r.inputs.isBlank()) {
+                            stringResource(R.string.recipes_gives, r.outputs)
+                        } else {
+                            stringResource(R.string.recipes_uses_gives, r.inputs, r.outputs)
+                        },
+                    )
+                    TextButton(
+                        enabled = enabled,
+                        onClick = {
+                            val id = r.id
+                            act({ model.craftRecipe(id) }) { message = it }
+                        },
+                    ) { Text(stringResource(R.string.recipes_do, r.name)) }
+                }
+            }
+        }
+        message?.let { Muted(it) }
+    }
+}
+
+@Composable
+private fun CompanionPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    var open by remember { mutableStateOf(false) }
+    var tameName by remember { mutableStateOf("") }
+    val pets = model.companionViews()
+    val options = model.companionTameOptions()
+    val lostPets = model.companionLostViews()
+    if (pets.isEmpty() && options.isEmpty() && lostPets.isEmpty()) return
+    AppCard {
+        TextButton(onClick = {
+            open = !open
+            model.companionNotice = null
+        }) {
+            Text(stringResource(R.string.companion_title, pets.size), style = MaterialTheme.typography.titleSmall)
+        }
+        model.companionNotice?.let { Muted(it) }
+        if (open) {
+            options.forEach { o ->
+                Column(Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.companion_tame, o.itemName))
+                    OutlinedTextField(
+                        value = tameName,
+                        onValueChange = { tameName = it },
+                        label = { Text(stringResource(R.string.companion_name)) },
+                    )
+                    model.activePackageCompanionBodies().forEach { (bodyId, bodyName) ->
+                        TextButton(
+                            enabled = enabled,
+                            onClick = { act({ model.tameCompanion(o.itemId, tameName, bodyId) }) { message = it } },
+                        ) { Text(bodyName) }
+                    }
+                }
+            }
+            lostPets.forEach { l ->
+                Column(Modifier.fillMaxWidth()) {
+                    Text(l.name, style = MaterialTheme.typography.titleSmall)
+                    Muted(stringResource(R.string.companion_lost, l.level, l.attemptsLeft))
+                    if (l.options.isEmpty()) Muted(stringResource(R.string.companion_retrain_need_item))
+                    l.options.forEach { o ->
+                        TextButton(
+                            enabled = enabled && !model.inCombatNow(),
+                            onClick = { act({ model.companionRetrain(l.id, o.itemId) }) { message = it } },
+                        ) {
+                            Text(stringResource(R.string.companion_retrain, o.itemName, o.chance))
+                        }
+                    }
+                }
+            }
+            pets.forEach { p ->
+                Column(Modifier.fillMaxWidth()) {
+                    Text(p.name, style = MaterialTheme.typography.titleSmall)
+                    Muted(stringResource(R.string.companion_top, p.bodyName, p.level, p.hp, p.hpMax, p.loyalty))
+                    if (p.stabled) {
+                        Muted(stringResource(R.string.companion_stabled))
+                        if (p.canVisit) {
+                            TextButton(enabled = enabled, onClick = { act({ model.companionVisit(p.id) }) { message = it } }) {
+                                Text(stringResource(R.string.companion_visit))
+                            }
+                        }
+                        TextButton(
+                            enabled = enabled && !model.inCombatNow(),
+                            onClick = { act({ model.companionBring(p.id) }) { message = it } },
+                        ) {
+                            Text(stringResource(R.string.companion_bring, p.bringFee))
+                        }
+                    } else {
+                        Muted(
+                            stringResource(
+                                R.string.companion_training,
+                                p.trainingLevel,
+                                p.trainingLevel * dev.rpgsolo.engine.Companions.TRAINING_BONUS_PER_LEVEL,
+                            ),
+                        )
+                        p.stats.forEach { (id, v) ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("${model.companionStatLabel(id)}: $v", Modifier.weight(1f))
+                                if (p.freeStatPoints > 0) {
+                                    TextButton(
+                                        enabled = enabled,
+                                        onClick = { act({ model.companionAllocate(p.id, id) }) { message = it } },
+                                    ) { Text("+") }
+                                }
+                            }
+                        }
+                        if (p.freeStatPoints > 0) Muted(stringResource(R.string.companion_free_points, p.freeStatPoints))
+                        if (p.attackId == null) {
+                            Muted(stringResource(R.string.companion_pick_attack))
+                            p.attackOptions.forEach { (id, name) ->
+                                TextButton(
+                                    enabled = enabled,
+                                    onClick = { act({ model.companionChooseAttack(p.id, id) }) { message = it } },
+                                ) { Text(name) }
+                            }
+                        } else {
+                            Text(p.attackLine)
+                            if (p.abilityPoints > 0) {
+                                TextButton(enabled = enabled, onClick = { act({ model.companionRaiseAttack(p.id) }) { message = it } }) {
+                                    Text(stringResource(R.string.companion_raise_attack, p.abilityPoints))
+                                }
+                            }
+                            if (p.isTurn) {
+                                p.enemies.forEach { (id, name) ->
+                                    TextButton(enabled = enabled, onClick = { act({ model.companionStrike(p.id, id) }) { message = it } }) {
+                                        Text(stringResource(R.string.companion_strike, name))
+                                    }
+                                }
+                            }
+                        }
+                        p.knownTricks.filter { !model.inCombatNow() || it.combat }.forEach { t ->
+                            TextButton(enabled = enabled, onClick = { act({ model.companionOrderTrick(p.id, t.id) }) { message = it } }) {
+                                Text(stringResource(R.string.companion_order, t.name, t.chancePercent))
+                            }
+                        }
+                        if (!model.inCombatNow()) {
+                            p.learnableTricks.forEach { t ->
+                                TextButton(
+                                    enabled = enabled,
+                                    onClick = { act({ model.companionLearnTrick(p.id, t.id) }) { message = it } },
+                                ) {
+                                    Text(stringResource(R.string.companion_learn, t.name, t.chancePercent))
+                                }
+                            }
+                            p.foods.forEach { (id, name) ->
+                                TextButton(enabled = enabled, onClick = { act({ model.companionFeed(p.id, id) }) { message = it } }) {
+                                    Text(stringResource(R.string.companion_feed, name))
+                                }
+                            }
+                            if (p.canPet) {
+                                TextButton(enabled = enabled, onClick = { act({ model.companionPet(p.id) }) { message = it } }) {
+                                    Text(stringResource(R.string.companion_pet))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        message?.let { Muted(it) }
+    }
+}
+
+@Composable
+private fun TattooPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    var open by remember { mutableStateOf(false) }
+    var viaNpc by remember { mutableStateOf(false) }
+    var npcGrade by remember { mutableStateOf(1) }
+    var cover by remember { mutableStateOf<Int?>(null) }
+    val view = model.tattooView()
+    if (view.heroGrade == 0 && view.marks.isEmpty()) return
+    val grade = if (viaNpc || view.heroGrade == 0) npcGrade else view.heroGrade
+    val free = enabled && !model.inCombatNow()
+    AppCard {
+        TextButton(onClick = { open = !open }) {
+            Text(stringResource(R.string.tattoo_title, view.marks.size, view.limit), style = MaterialTheme.typography.titleSmall)
+        }
+        if (open) {
+            view.marks.forEachIndexed { i, m ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.tattoo_mark, model.tattooScopeLabel(m.scope), m.grade), Modifier.weight(1f))
+                    if (view.isFull && m.grade < grade) {
+                        TextButton(enabled = free, onClick = { cover = if (cover == i) null else i }) {
+                            Text(stringResource(if (cover == i) R.string.tattoo_cover_selected else R.string.tattoo_cover))
+                        }
+                    }
+                }
+            }
+            if (view.heroGrade > 0) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Switch(checked = viaNpc, onCheckedChange = { viaNpc = it })
+                    Text(stringResource(R.string.tattoo_via_npc), Modifier.padding(start = 8.dp))
+                }
+            }
+            if (viaNpc || view.heroGrade == 0) {
+                Row {
+                    (1..dev.rpgsolo.engine.Tattoos.MAX_GRADE).forEach { g ->
+                        TextButton(onClick = { npcGrade = g }) { Text(if (g == npcGrade) "[$g]" else "$g") }
+                    }
+                }
+            }
+            val coverIndex = cover
+            if (!view.isFull || coverIndex != null) {
+                Muted(stringResource(R.string.tattoo_price, dev.rpgsolo.engine.Tattoos.price(grade)))
+                dev.rpgsolo.engine.Tattoos.SCOPES.forEach { scope ->
+                    TextButton(enabled = free, onClick = {
+                        act({ model.tattooHero(scope, grade, coverIndex) }) {
+                            message = it ?: ""
+                            cover = null
+                        }
+                    }) {
+                        Text(stringResource(R.string.tattoo_apply, model.tattooScopeLabel(scope), grade))
+                    }
+                }
+            } else {
+                Muted(stringResource(R.string.tattoo_full))
+            }
+        }
+        message?.takeIf { it.isNotEmpty() }?.let { Muted(it) }
+    }
+}
+
+@Composable
+private fun GemsPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    var open by remember { mutableStateOf(false) }
+    var viaNpc by remember { mutableStateOf(false) }
+    val view = model.gemsView()
+    if (view.isEmpty) return
+    val free = enabled && !model.inCombatNow()
+    AppCard {
+        TextButton(onClick = { open = !open }) {
+            Text(stringResource(R.string.gems_title, view.stock.sumOf { it.quantity }), style = MaterialTheme.typography.titleSmall)
+        }
+        if (open) {
+            if (!view.canSet) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Switch(checked = viaNpc, onCheckedChange = { viaNpc = it })
+                    Text(stringResource(R.string.gems_via_npc), Modifier.padding(start = 8.dp))
+                }
+                if (!viaNpc) Muted(stringResource(R.string.gems_need_setter))
+            }
+            val useNpc = viaNpc && !view.canSet
+            val allowed = free && (view.canSet || useNpc)
+            view.slots.forEach { slot ->
+                Column(Modifier.fillMaxWidth()) {
+                    Text(
+                        stringResource(R.string.gems_slot, slot.itemName, slot.gems.size, slot.sockets),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    slot.gems.forEachIndexed { index, name ->
+                        TextButton(enabled = allowed, onClick = { act({ model.removeGem(slot.slot, index, useNpc) }) { message = it } }) {
+                            Text(stringResource(R.string.gems_remove, name))
+                        }
+                    }
+                    if (slot.gems.size < slot.sockets) {
+                        view.stock.forEach { g ->
+                            TextButton(
+                                enabled = allowed,
+                                onClick = { act({ model.socketGem(slot.slot, g.itemId, useNpc) }) { message = it } },
+                            ) {
+                                Text(stringResource(R.string.gems_socket, g.name, if (useNpc) g.npcFee else 0))
+                            }
+                        }
+                    }
+                }
+            }
+            view.stock.filter { it.canCut }.forEach { g ->
+                TextButton(enabled = free, onClick = { act({ model.cutGem(g.itemId) }) { message = it } }) {
+                    Text(stringResource(R.string.gems_cut, g.name, g.quantity))
+                }
+            }
+            Muted(stringResource(R.string.gems_rules))
+        }
+        message?.let { Muted(it) }
+    }
+}
+
+@Composable
 private fun TraitUsesPanel(
     model: AppModel,
     enabled: Boolean,
@@ -626,6 +951,46 @@ private fun ConditionRemovalPanel(
         list.forEach { (id, name) ->
             TextButton(enabled = enabled, onClick = { act({ model.removeCondition(id) }) { message = it } }) {
                 Text(stringResource(R.string.conditions_try_remove, name))
+            }
+        }
+        message?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun LegacyPanel(
+    model: AppModel,
+    enabled: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+) {
+    @Suppress("UNUSED_VARIABLE")
+    val observeVersion = model.campaignVersion
+    var message by remember { mutableStateOf<String?>(null) }
+    val view = model.legacyView() ?: return
+    AppCard {
+        Text(stringResource(R.string.legacy_title, view.heroName), style = MaterialTheme.typography.titleSmall)
+        if (view.endedReason != null) {
+            Muted(stringResource(R.string.legacy_ended, view.endedReason))
+        } else if (view.rebirthItemName != null) {
+            Muted(stringResource(R.string.legacy_rebirth_hint))
+            TextButton(enabled = enabled, onClick = { act({ model.legacyRebirth() }) { message = it } }) {
+                Text(stringResource(R.string.legacy_rebirth, view.rebirthItemName))
+            }
+        } else if (view.npcs.isNotEmpty()) {
+            Muted(stringResource(R.string.legacy_assume_hint))
+            view.npcs.forEach { npc ->
+                Column(Modifier.fillMaxWidth()) {
+                    Text(npc.name, style = MaterialTheme.typography.titleSmall)
+                    if (npc.known.isNotEmpty()) Muted(npc.known.joinToString("; "))
+                    TextButton(enabled = enabled, onClick = { act({ model.legacyAssume(npc.id) }) { message = it } }) {
+                        Text(stringResource(R.string.legacy_assume, npc.name))
+                    }
+                }
+            }
+        } else {
+            Muted(stringResource(R.string.legacy_none))
+            TextButton(enabled = enabled, onClick = { act({ model.legacyEnd() }) { message = it } }) {
+                Text(stringResource(R.string.legacy_end))
             }
         }
         message?.let { ErrorText(it) }

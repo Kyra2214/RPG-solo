@@ -29,6 +29,7 @@ import dev.rpgsolo.engine.Secret
 import dev.rpgsolo.engine.SpendResource
 import dev.rpgsolo.rules.NpcProposal
 import dev.rpgsolo.rules.RuleSource
+import dev.rpgsolo.rules.ThreatCategory
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -468,6 +469,11 @@ object ProposalParser {
             skills = intMap("skills", optional = true),
             dossier = dossier,
             resources = intMap("resources", optional = true),
+            threat =
+                o.str("threat")?.let { ThreatCategory.parse(it) ?: throw Bad("campo 'threat' deve ser capanga, comum, elite, chefe ou chefe-final") }
+                    ?: ThreatCategory.COMUM,
+            level = o.int("level")?.also { if (it !in 1..99) throw Bad("campo 'level' deve estar entre 1 e 99") } ?: 1,
+            bossPercent = o.int("boss_percent"),
         )
     }
 

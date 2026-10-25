@@ -109,11 +109,214 @@ class RulePackage internal constructor(val data: PackageData) {
     /** Definição do item; ids com qualidade (`base#rara`) resolvem para o item base se a qualidade for válida. */
     fun item(id: String): ItemDef? = if (ItemRef.quality(id) == null) null else itemById[ItemRef.base(id)]
 
+    /** N-17: elemento efetivo da arma/peça: o próprio do item ou o do encantamento. */
+    fun effectiveElement(itemId: String): dev.rpgsolo.engine.ElementPath =
+        item(itemId)?.element?.takeIf { it != dev.rpgsolo.engine.ElementPath.NONE } ?: ItemRef.enchantment(itemId)
+
+    companion object {
+        const val SMITH_ENCHANT_SKILL = "profissao-ferreiro-5"
+
+        /** N-22: habilidades (degrau 1 gratuito) que dão o direito de afanar: Ladino, Assassino, Agente das Sombras e Espião. */
+        val PILFER_SKILLS: Set<String> = setOf("classe-ladino-1", "classe-assassino-1", "classe-agente-das-sombras-1", "profissao-espiao-1")
+
+        /** N-23: profissões de Exploração que reduzem o dano de perigos (degraus 3, 4 e 5: 10%, 20%, 30%). */
+        val HAZARD_TREES: List<String> =
+            listOf(
+                "cacador", "guia-de-montanha", "guia-de-floresta", "guia-de-deserto", "guarda-florestal",
+                "minerador", "geologo", "observador-do-clima", "cartografo-de-campo",
+            )
+
+        /** N-23: profissões de Comércio que melhoram preços (degraus 2 a 5: 5%, 10%, 15%, 20%). */
+        val TRADE_TREES: List<String> = listOf("comerciante", "contador")
+
+        private fun highestTier(
+            entity: dev.rpgsolo.engine.Entity,
+            trees: List<String>,
+        ): Int = trees.maxOfOrNull { t -> (1..5).lastOrNull { (entity.skillTreeLevels["profissao-$t-$it"] ?: 0) > 0 } ?: 0 } ?: 0
+    }
+
+    /** N-32.2: dados do companheiro (corpos, ataques, truques e comidas) do pacote. */
+    val companions: CompanionData get() = data.companions
+
+    fun companionAttacks(bodyType: String): List<CompanionAttackDef> = data.companions.attacks.filter { it.bodyType == bodyType }
+
+    fun companionAttack(id: String): CompanionAttackDef? = data.companions.attacks.firstOrNull { it.id == id }
+
+    fun companionTrick(id: String): CompanionTrickDef? = data.companions.tricks.firstOrNull { it.id == id }
+
+    /** Comida aceita pelo tipo de corpo, ou null (o animal não aceita o item). */
+    fun companionFood(
+        bodyType: String,
+        itemId: String,
+    ): CompanionFoodDef? = data.companions.foods.firstOrNull { it.bodyType == bodyType && it.itemId == ItemRef.base(itemId) }
+
+    /** N-20: receita de `receitas.txt`; null se o id não existe (a IA nunca inventa receita). */
+    fun recipe(id: String): RecipeDef? = data.recipes.firstOrNull { it.id == id }
+
+    fun recipes(kind: dev.rpgsolo.engine.CraftKind? = null): List<RecipeDef> = data.recipes.filter { kind == null || it.kind == kind }
+
+    /** N-21: motivo pelo qual [entity] não pode usar [recipe] (degrau de profissão não aprendido ou nível baixo), ou null. */
+    fun recipeBlock(
+        recipe: RecipeDef,
+        entity: dev.rpgsolo.engine.Entity,
+    ): String? {
+        if (entity.level < recipe.minLevel) return "${entity.name} precisa do nível ${recipe.minLevel} para ${recipe.name}"
+        recipe.skillId?.let { if ((entity.skillTreeLevels[it] ?: 0) <= 0) return "${recipe.name} exige a habilidade $it" }
+        return null
+    }
+
+    /** N-21: degraus de ofício aprendidos acima do primeiro na árvore de [recipe] (cada um +5% de chance). */
+    fun craftTierBonus(
+        recipe: RecipeDef,
+        entity: dev.rpgsolo.engine.Entity,
+    ): Int {
+        val prefix = recipe.skillId?.substringBeforeLast('-')?.plus("-") ?: return 0
+        return (
+            entity.skillTreeLevels.count {
+                    (id, level) ->
+                level > 0 && id.startsWith(prefix) && id.removePrefix(prefix).toIntOrNull() != null
+            } - 1
+        ).coerceAtLeast(0)
+    }
+
+    /**
+     * N-20/N-21: chance (%) de [recipe] para [entity]. Soma [tierBonus] aos degraus aprendidos; [guaranteed] ou o degrau `garantida_por` dão 100%.
+     * Null se [recipeBlock] bloqueia.
+     */
+    fun craftChance(
+        recipe: RecipeDef,
+        entity: dev.rpgsolo.engine.Entity,
+        tierBonus: Int = 0,
+        guaranteed: Boolean = false,
+    ): Int? {
+        if (recipeBlock(recipe, entity) != null) return null
+        if (guaranteed || recipe.guaranteedBy?.let { (entity.skillTreeLevels[it] ?: 0) > 0 } == true) return 100
+        return dev.rpgsolo.engine.CraftChance.percent(
+            entity.stats["habilidade"] ?: 0,
+            entity.stats["sorte"] ?: 0,
+            tierBonus + craftTierBonus(recipe, entity),
+            recipe.difficulty,
+        )
+    }
+
+    /** N-20: executa [recipeId] para [ownerId] na sessão: valida receita e habilidade, calcula a chance e delega ao motor. */
+    fun executeRecipe(
+        session: dev.rpgsolo.engine.CampaignSession,
+        ownerId: String,
+        recipeId: String,
+        tierBonus: Int = 0,
+        guaranteed: Boolean = false,
+    ): dev.rpgsolo.engine.CraftResult {
+        val recipe = recipe(recipeId) ?: return dev.rpgsolo.engine.CraftResult.Refused("receita inexistente: $recipeId")
+        val ent = session.state.entities[ownerId] ?: return dev.rpgsolo.engine.CraftResult.Refused("entidade inexistente: $ownerId")
+        recipeBlock(recipe, ent)?.let { return dev.rpgsolo.engine.CraftResult.Refused(it) }
+        val chance = craftChance(recipe, ent, tierBonus, guaranteed) ?: return dev.rpgsolo.engine.CraftResult.Refused("receita indisponível")
+        val result = session.attemptCraft(ownerId, recipe.kind, recipe.inputs, recipe.outputs, chance, recipe.keepOnFailure)
+        // N-35: cada receita define o próprio tempo; o relógio avança quando o ofício foi realmente tentado.
+        if (result is dev.rpgsolo.engine.CraftResult.Done && recipe.days > 0) session.execute(dev.rpgsolo.engine.AdvanceDays(recipe.days))
+        return result
+    }
+
+    /** N-23: % de redução do dano de perigo de [entity] (maior degrau de Exploração: 3 = 10, 4 = 20, 5 = 30). */
+    fun hazardReductionPercent(entity: dev.rpgsolo.engine.Entity): Int = ((highestTier(entity, HAZARD_TREES) - 2) * 10).coerceIn(0, 30)
+
+    /** N-23: % de desconto na compra e de bônus na venda de [entity] (maior degrau de Comércio: 2 = 5 até 5 = 20). */
+    fun tradePercent(entity: dev.rpgsolo.engine.Entity): Int = ((highestTier(entity, TRADE_TREES) - 1) * 5).coerceIn(0, 20)
+
+    /** N-23: preço total de compra com desconto de [percent]% (arredonda para cima, mínimo 1 se [total] > 0). */
+    fun discountedPrice(
+        total: Int,
+        percent: Int,
+    ): Int = if (total <= 0) total else maxOf(1, ((total.toLong() * (100 - percent.coerceIn(0, 100)) + 99) / 100).toInt())
+
+    /** N-23: valor total de venda com bônus de [percent]% (arredonda para baixo). */
+    fun boostedSale(
+        total: Int,
+        percent: Int,
+    ): Int = (total.toLong() * (100 + percent.coerceAtLeast(0)) / 100).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+
+    /** N-22: se [entity] sabe afanar (tem o degrau 1 de alguma árvore de [PILFER_SKILLS]). */
+    fun canPilfer(entity: dev.rpgsolo.engine.Entity): Boolean = PILFER_SKILLS.any { (entity.skillTreeLevels[it] ?: 0) > 0 }
+
+    /** N-21: receitas que [entity] já pode usar (habilidade e nível). */
+    fun availableRecipes(entity: dev.rpgsolo.engine.Entity): List<RecipeDef> = data.recipes.filter { recipeBlock(it, entity) == null }
+
+    /** N-21: material do encantamento feito pelo Ferreiro jogador (1 pedra do elemento; ASSUMINDO: gelo=água, raio=ferro, sombra=trevas). */
+    fun enchantMaterial(element: dev.rpgsolo.engine.ElementPath): String? =
+        when (element) {
+            dev.rpgsolo.engine.ElementPath.WATER -> "pedra-gelo"
+            dev.rpgsolo.engine.ElementPath.FIRE -> "pedra-fogo"
+            dev.rpgsolo.engine.ElementPath.METAL -> "pedra-raio"
+            dev.rpgsolo.engine.ElementPath.WIND -> "pedra-vento"
+            dev.rpgsolo.engine.ElementPath.EARTH -> "pedra-terra"
+            dev.rpgsolo.engine.ElementPath.YANG -> "pedra-luz"
+            dev.rpgsolo.engine.ElementPath.YIN -> "pedra-sombra"
+            dev.rpgsolo.engine.ElementPath.NONE -> null
+        }?.takeIf { id -> data.items.any { it.id == id } }
+
+    /** N-21: motivo pelo qual [entity] não pode encantar [itemId] como Ferreiro (degrau 5 e limite de nível), ou null. */
+    fun smithEnchantBlock(
+        entity: dev.rpgsolo.engine.Entity,
+        itemId: String,
+    ): String? {
+        if ((entity.skillTreeLevels[SMITH_ENCHANT_SKILL] ?: 0) <= 0) return "encantar exige a habilidade $SMITH_ENCHANT_SKILL"
+        enchantBlock(itemId)?.let { return it }
+        if (requiredLevel(itemId) > CRAFT_TIER_LEVEL_CAP.last()) return "o item passa do limite de nível do Ferreiro"
+        return null
+    }
+
+    /** N-17: motivo pelo qual [itemId] não aceita encantamento, ou null. Só peito e arma, um por peça, sem elemento próprio. */
+    fun enchantBlock(itemId: String): String? {
+        val def = item(itemId) ?: return "item não existe no pacote ativo"
+        if (def.kind != "equipamento" || (def.slot != WEAPON_SLOT && def.slot != CHEST_SLOT)) return "só peito e arma podem ser encantados"
+        if (def.element != dev.rpgsolo.engine.ElementPath.NONE) return "o item já tem elemento próprio"
+        if (ItemRef.enchantment(itemId) != dev.rpgsolo.engine.ElementPath.NONE) return "a peça já está encantada"
+        if (def.price == null) return "o item não tem preço para calcular o encantamento"
+        return null
+    }
+
+    /** N-18: motivo pelo qual [itemId] não aceita pergaminho de elemento, ou null. Peça já encantada ou com elemento próprio não aceita. */
+    fun scrollBlock(itemId: String): String? {
+        val def = item(itemId) ?: return "item não existe no pacote ativo"
+        if (def.kind != "equipamento" || (def.slot != WEAPON_SLOT && def.slot != CHEST_SLOT)) return "só peito e arma aceitam pergaminho de elemento"
+        if (def.element != dev.rpgsolo.engine.ElementPath.NONE) return "o item já tem elemento próprio"
+        if (ItemRef.enchantment(itemId) != dev.rpgsolo.engine.ElementPath.NONE) return "peça encantada pelo ferreiro não aceita pergaminho"
+        return null
+    }
+
+    /** N-17: preço no ferreiro NPC = 5 × preço do item × multiplicador da qualidade (arredonda para cima). */
+    fun enchantPrice(itemId: String): Int? {
+        val price = item(itemId)?.price ?: return null
+        val percent = qualityPercent(ItemRef.quality(itemId) ?: ItemQuality.NORMAL)
+        return ((5L * price * percent + 99) / 100).toInt()
+    }
+
     /** Percentual de efeito da qualidade (`qualidade_<id>_percent` em criacao.txt; padrão em [ItemQuality.defaultPercent]). */
     fun qualityPercent(quality: ItemQuality): Int =
-        data.creation["qualidade_${quality.id}_percent"]?.toIntOrNull() ?: quality.defaultPercent
+        data.creation["qualidade_${quality.id}_percent"]?.toIntOrNull()
+            ?: (if (quality == ItemQuality.OTIMA) data.creation["qualidade_boa_percent"]?.toIntOrNull() else null)
+            ?: quality.defaultPercent
+
+    /** N-12: nível mínimo para equipar [itemId]: o do item ou o da qualidade (épica e lendária, 10), o que for maior. */
+    fun requiredLevel(itemId: String): Int = maxOf(item(itemId)?.minLevel ?: 1, (ItemRef.quality(itemId) ?: ItemQuality.NORMAL).minLevel)
 
     /** Escala [value] positivo pela qualidade do item [itemId] (arredonda para o mais próximo, mínimo 1); zero ou negativo não muda. */
+
+    /**
+     * N-26: cura de [itemId] sobre um recurso de máximo [max]: o maior entre o valor fixo (`quantidade`, escalado pela qualidade)
+     * e `percentual` do máximo (arredondado para cima; o percentual também escala pela qualidade, limitado a 100).
+     */
+    fun healAmount(
+        itemId: String,
+        max: Int,
+    ): Int? {
+        val base = ItemRef.base(itemId)
+        val fixed = data.creation["item_${base}_quantidade"]?.toIntOrNull()?.takeIf { it > 0 }?.let { scaleByQuality(it, itemId) } ?: return null
+        val pct = data.creation["item_${base}_percentual"]?.toIntOrNull()?.takeIf { it > 0 } ?: return fixed
+        val scaled = scaleByQuality(pct, itemId).coerceAtMost(100)
+        return maxOf(fixed, ((max.toLong() * scaled + 99) / 100).toInt())
+    }
+
     fun scaleByQuality(
         value: Int,
         itemId: String,
@@ -174,14 +377,85 @@ class RulePackage internal constructor(val data: PackageData) {
         return CoinPayment(silverPaid, gold, gold * ratio - missing)
     }
 
-    /** Soma os efeitos dos equipamentos atualmente equipados para um escopo mecânico. */
+    /**
+     * Soma os efeitos dos equipamentos atualmente equipados para um escopo mecânico. N-13: com [wearer], peça de peso
+     * ou arma de tipo fora do perfil vale metade dos bônus positivos (já escalados pela qualidade, arredondado para cima).
+     */
     fun equipmentBonus(
         itemIds: Collection<String>,
         scope: String,
+        wearer: WearerProfile? = null,
     ): Int =
         itemIds.sumOf { id ->
-            item(id)?.effects.orEmpty().filter { it.scope == scope }.sumOf { scaleByQuality(it.bonus, id) }
+            val restricted = isRestricted(id, wearer)
+            val fromLevel =
+                levelScaleBase(id, scope).let { base ->
+                    if (base == 0) 0 else scaleByQuality(base, id).let { if (restricted) (it + 1) / 2 else it }
+                }
+            fromLevel +
+                item(id)?.effects.orEmpty().filter { it.scope == scope }.sumOf { effect ->
+                    val twoHanded = item(id)?.hands == 2 && scope == "ataque" && effect.bonus > 0
+                    val scaled = scaleByQuality(effect.bonus, id).let { if (twoHanded) (it * 3 + 1) / 2 else it }
+                    if (restricted && scaled > 0) (scaled + 1) / 2 else scaled
+                }
         }
+
+    /** Bônus base de normal por faixa de nível: ⌈nível mínimo ÷ 10⌉ (×5 em `max_pv`); 0 se o item não escala nesse escopo ou já declara efeito nele. */
+    fun levelScaleBase(
+        itemId: String,
+        scope: String,
+    ): Int {
+        val def = item(itemId) ?: return 0
+        if (def.scaleScope != scope || def.effects.any { it.scope == scope }) return 0
+        val tier = (def.minLevel + 9) / 10
+        return if (scope == "max_pv") tier * 5 else tier
+    }
+
+    /**
+     * N-14: motivo pelo qual [itemId] não pode ser equipado junto do que já está em [equipped] (slot → item), ou null.
+     * Arma de duas mãos bloqueia o escudo nos dois sentidos.
+     */
+    fun handsConflict(
+        itemId: String,
+        equipped: Map<String, String>,
+    ): String? {
+        val def = item(itemId) ?: return null
+        if (def.hands == 2 && def.slot == WEAPON_SLOT && equipped.containsKey(SHIELD_SLOT)) {
+            return "arma de duas mãos não pode ser usada com escudo"
+        }
+        if (def.slot == SHIELD_SLOT && equipped[WEAPON_SLOT]?.let { item(it)?.hands } == 2) {
+            return "escudo não pode ser usado com arma de duas mãos"
+        }
+        return null
+    }
+
+    /** N-13: true se [itemId] tem peso ou tipo de arma fora do perfil de [wearer] (e nenhum Mestre anula). */
+    fun isRestricted(
+        itemId: String,
+        wearer: WearerProfile?,
+    ): Boolean {
+        if (wearer == null) return false
+        val def = item(itemId) ?: return false
+        def.weight?.let { w -> return !wearer.masterGear && wearer.armorWeights.isNotEmpty() && w !in wearer.armorWeights }
+        def.weaponType?.let { t -> return !wearer.masterWeapons && wearer.weaponTypes.isNotEmpty() && t !in wearer.weaponTypes }
+        return false
+    }
+
+    /**
+     * N-13: perfil de quem veste, a partir dos pesos e tipos permitidos pelas classes e dos traços da ficha
+     * (`mestre_armas` e `mestre_equipamentos` com bônus positivo anulam a penalidade de arma e de equipamento).
+     */
+    fun wearerProfile(
+        armorWeights: Set<ItemWeight>,
+        weaponTypes: Set<String>,
+        traitIds: Collection<String>,
+    ): WearerProfile =
+        WearerProfile(
+            armorWeights,
+            weaponTypes,
+            traitBonus(traitIds, "mestre_armas") > 0,
+            traitBonus(traitIds, "mestre_equipamentos") > 0,
+        )
 
     /** Bônus mecânico de traços para testes e combate (ataque, dano, defesa e resistência/vulnerabilidade a dano). */
     fun traitBonus(
@@ -199,10 +473,12 @@ class RulePackage internal constructor(val data: PackageData) {
     fun hazardDamage(
         hazardId: String,
         maxHealth: Int,
+        reducePercent: Int = 0,
     ): Int? {
         val hazard = data.hazards.firstOrNull { it.id == hazardId } ?: return null
         if (maxHealth <= 0) return 0
-        return maxOf(1, (maxHealth * hazard.percent + 99) / 100).coerceAtMost(maxHealth)
+        val base = maxOf(1, (maxHealth * hazard.percent + 99) / 100).coerceAtMost(maxHealth)
+        return maxOf(1, (base * (100 - reducePercent.coerceIn(0, 100)) + 99) / 100)
     }
 
     fun isEquipableItem(
@@ -261,6 +537,8 @@ class RulePackage internal constructor(val data: PackageData) {
             rebirthItems = rebirthItemIds,
             rebirthPercent = data.creation["renascimento_percentual"]?.toIntOrNull() ?: 50,
             levelThresholds = data.progression ?: emptyList(),
+            levelCostFactor = data.creation["custo_nivel_fator"]?.toIntOrNull()?.takeIf { it in 0..100000 } ?: 0,
+            victoryXpPercent = data.creation["combate_xp_vitoria_percentual"]?.toIntOrNull()?.takeIf { it in 0..1000 } ?: 0,
             defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
             advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
             masteryLevels =
@@ -269,6 +547,8 @@ class RulePackage internal constructor(val data: PackageData) {
             spellSlotLevels =
                 data.creation["niveis_slot_magia"]?.trim()
                     ?.takeIf { it.isNotEmpty() && it != "-" }?.split(",")?.map { it.trim().toInt() } ?: emptyList(),
+            initialStatPoints = data.creation["pontos_iniciais_status"]?.toIntOrNull()?.takeIf { it in 0..1000 } ?: 10,
+            initialAbilityPoints = data.creation["pontos_iniciais_habilidade"]?.toIntOrNull()?.takeIf { it in 0..1000 } ?: 2,
             statPointsPerLevel = data.creation["pontos_status_por_nivel"]?.toIntOrNull() ?: 0,
             abilityPointsPerLevel = data.creation["pontos_habilidade_por_nivel"]?.toIntOrNull() ?: 0,
             levelResourceRewards = parseResourceRewards(data.creation["recompensa_recurso"]),
@@ -294,7 +574,7 @@ class RulePackage internal constructor(val data: PackageData) {
         data.resources.associate { r ->
             val v = r.stat?.let { stats[it] ?: statById[it]?.default ?: 0 } ?: 0
             // M-01.6: traços com escopo `max_<recurso>` somam ao máximo derivado.
-            val max = maxOf(0, r.base + r.mult * v + traitBonus(traitIds, "max_" + r.id))
+            val max = maxOf(r.min, r.base + r.mult * v + traitBonus(traitIds, "max_" + r.id))
             r.id to Resource(max, max)
         }
 
@@ -572,7 +852,11 @@ class RulePackage internal constructor(val data: PackageData) {
                     append(it.description)
                     it.effect?.let { effect -> append(" Efeito nos testes: ").append(if (effect.dice > 0) "Ganho" else "Perda") }
                     it.durationRounds?.let { rounds -> append(" Duração: ").append(rounds).append(" rodadas.") }
-                    if (it.damagePerRound > 0) {
+                    if (it.damagePercent > 0) {
+                        append(
+                            " Dano por rodada: ",
+                        ).append(it.damagePercent).append("% do máximo de ").append(it.damageResource).append(" (mín. 1).")
+                    } else if (it.damagePerRound > 0) {
                         append(
                             " Dano por rodada: ",
                         ).append(it.damagePerRound).append(" ").append(it.damageResource).append(".")
@@ -581,7 +865,7 @@ class RulePackage internal constructor(val data: PackageData) {
             all += RuleSnippet("condicao", it.id, it.name, mechanics, score(it.name, mechanics))
         }
         data.stats.forEach {
-            all += RuleSnippet("atributo", it.id, it.name, "Limites ${it.min}..${it.max}; padrão ${it.default}.", score(it.name, it.id))
+            all += RuleSnippet("atributo", it.id, it.name, if (it.uncapped) "Mínimo ${it.min}, sem teto; padrão ${it.default}." else "Limites ${it.min}..${it.max}; padrão ${it.default}.", score(it.name, it.id))
         }
         data.resources.forEach {
             val text = "Recurso ${it.name}; base ${it.base}; atributo ${it.stat ?: "nenhum"}; multiplicador ${it.mult}."
@@ -590,11 +874,13 @@ class RulePackage internal constructor(val data: PackageData) {
         data.items.forEach {
             val mechanics =
                 it.description +
-                    if (it.effects.isEmpty()) {
-                        ""
-                    } else {
-                        " Efeitos: " + it.effects.joinToString(", ") { e -> "${e.scope} ${if (e.bonus >= 0) "+" else ""}${e.bonus}" }
-                    }
+                    (
+                        if (it.effects.isEmpty()) {
+                            ""
+                        } else {
+                            " Efeitos: " + it.effects.joinToString(", ") { e -> "${e.scope} ${if (e.bonus >= 0) "+" else ""}${e.bonus}" }
+                        }
+                    ) + (if (it.minLevel > 1) " Nível mínimo: ${it.minLevel}." else "")
             all += RuleSnippet("item", it.id, it.name, mechanics, score(it.name, mechanics))
         }
         data.damage.forEach {
@@ -713,7 +999,7 @@ object PackageValidator {
             if (c.durationRounds != null && c.durationRounds <= 0) p += "condição ${c.id}: duração deve ser positiva"
             if (c.damageResource.isBlank()) p += "condição ${c.id}: recurso de dano vazio"
             if (c.damagePerRound < 0) p += "condição ${c.id}: dano por rodada negativo"
-            if (c.damagePerRound > 0 && d.resources.none { it.id == c.damageResource }) {
+            if ((c.damagePerRound > 0 || c.damagePercent > 0) && d.resources.none { it.id == c.damageResource }) {
                 p += "condição ${c.id}: recurso de dano inexistente ${c.damageResource}"
             }
         }
@@ -762,7 +1048,7 @@ object PackageValidator {
             item.effects.filter { it.scope.isBlank() || it.scope.length > 80 || it.bonus !in -100..100 }
                 .forEach { p += "item ${item.id}: escopo ou bônus de efeito inválido" }
         }
-        val validItemScopes = setOf("ataque", "dano", "defesa")
+        val validItemScopes = setOf("ataque", "dano", "defesa") + stats + d.resources.map { "max_" + it.id }
         d.items.forEach { item ->
             item.effects.filter { it.scope !in validItemScopes }
                 .forEach { p += "item ${item.id}: escopo de efeito sem regra mecânica: ${it.scope}" }
@@ -775,7 +1061,7 @@ object PackageValidator {
             stats +
                 d.checks.map {
                     it.id
-                } + traits + setOf("ataque", "dano", "defesa", "resistencia_dano") +
+                } + traits + setOf("ataque", "dano", "defesa", "resistencia_dano", "mestre_armas", "mestre_equipamentos") +
                 d.resources.map {
                     "max_" + it.id
                 } + d.conditions.map { "imune_" + it.id }
@@ -855,6 +1141,17 @@ object PackageValidator {
         ).forEach { (key, value) ->
             if (value != null && value !in stats) p += "criacao.txt: '$key' referencia atributo inexistente: $value"
         }
+        val hitKey = d.creation["combate_atributo_acerto"]
+        val dodgeKey = d.creation["combate_atributo_esquiva"]
+        if ((hitKey == null) != (dodgeKey == null)) p += "criacao.txt: combate_atributo_acerto e combate_atributo_esquiva devem ser definidos juntos"
+        listOf(
+            "combate_atributo_acerto" to hitKey,
+            "combate_atributo_esquiva" to dodgeKey,
+            "combate_atributo_sorte" to d.creation["combate_atributo_sorte"],
+        ).forEach {
+                (key, value) ->
+            if (value != null && value !in stats) p += "criacao.txt: '$key' referencia atributo inexistente: $value"
+        }
         d.creation["combate_defesa_base"]?.let {
             if ((it.toIntOrNull() ?: -1) < 0) p += "criacao.txt: 'combate_defesa_base' inválido"
         }
@@ -863,6 +1160,12 @@ object PackageValidator {
         }
         d.creation["combate_xp_vitoria"]?.let {
             if ((it.toIntOrNull() ?: -1) !in 0..100000) p += "criacao.txt: 'combate_xp_vitoria' deve ficar entre 0 e 100000"
+        }
+        d.creation["custo_nivel_fator"]?.let {
+            if ((it.toIntOrNull() ?: -1) !in 0..100000) p += "criacao.txt: 'custo_nivel_fator' deve ficar entre 0 e 100000"
+        }
+        d.creation["combate_xp_vitoria_percentual"]?.let {
+            if ((it.toIntOrNull() ?: -1) !in 0..1000) p += "criacao.txt: 'combate_xp_vitoria_percentual' deve ficar entre 0 e 1000"
         }
         d.creation["combate_bonus_defender"]?.let {
             if ((it.toIntOrNull() ?: -1) !in 0..10) p += "criacao.txt: 'combate_bonus_defender' deve ficar entre 0 e 10"
@@ -886,6 +1189,7 @@ object PackageValidator {
                 "acao" -> if (value !in itemActions) p += "criacao.txt: ação de item não suportada: $value"
                 "recurso" -> if (d.resources.none { it.id == value }) p += "criacao.txt: recurso de item inexistente: $value"
                 "quantidade" -> if ((value.toIntOrNull() ?: 0) <= 0) p += "criacao.txt: quantidade de item inválida: $value"
+                "percentual" -> if ((value.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: percentual de item inválido (1 a 100): $value"
                 "condicao" -> if (d.conditions.none { it.id == value }) p += "criacao.txt: condição de item inexistente: $value"
                 "duracao" -> if ((value.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: duração de item inválida (1 a 100 rodadas): $value"
                 else -> p += "criacao.txt: propriedade de item desconhecida: $key"
@@ -894,12 +1198,13 @@ object PackageValidator {
         d.items.filter { it.kind == "consumivel" }.forEach { item ->
             val prefix = "item_${item.id}_"
             val action = d.creation[prefix + "acao"]
-            val others = listOf("recurso", "quantidade", "condicao", "duracao").filter { d.creation.containsKey(prefix + it) }
+            val others = listOf("recurso", "quantidade", "percentual", "condicao", "duracao").filter { d.creation.containsKey(prefix + it) }
             if (action == null && others.isNotEmpty()) p += "criacao.txt: consumível ${item.id} define ${others.joinToString("/")} sem ação"
             when (action) {
                 "cura" -> {
                     if (!d.creation.containsKey(prefix + "recurso")) p += "criacao.txt: consumível ${item.id} sem recurso"
                     if (!d.creation.containsKey(prefix + "quantidade")) p += "criacao.txt: consumível ${item.id} sem quantidade"
+                    if (d.creation.containsKey(prefix + "percentual") && d.creation[prefix + "recurso"] == null) p += "criacao.txt: consumível ${item.id} sem recurso"
                 }
                 "remover-condicao", "aplicar-condicao" ->
                     if (!d.creation.containsKey(prefix + "condicao")) p += "criacao.txt: consumível ${item.id} sem condição"
@@ -919,7 +1224,7 @@ object PackageValidator {
                 y < x
             }
         ) {
-            p += "criacao.txt: os percentuais de qualidade devem ser crescentes (normal ≤ boa ≤ rara ≤ lendária)"
+            p += "criacao.txt: os percentuais de qualidade devem ser crescentes (normal ≤ ótima ≤ rara ≤ épica ≤ lendária)"
         }
         d.creation["renascimento_percentual"]?.let {
             if ((it.toIntOrNull() ?: 0) !in 1..100) p += "criacao.txt: renascimento_percentual deve ficar entre 1 e 100"

@@ -29,6 +29,7 @@ object MasterPrompt {
         15. Agenda e relógios: avance relógios somente quando a ação ou a passagem de tempo justificar progresso. Nunca mostre o nome interno do relógio, a quantidade de casas ou números ao jogador. Quando um relógio completar, narre sinais e consequências no mundo; não fale da mecânica do relógio. Não avance todos os relógios em toda resposta.
         16. Notas mecânicas desta resolução prevalecem sobre a tabela narrativa: se o motor disser que uma condição foi bloqueada por imunidade, não descreva a condição como aplicada. Narre a resistência de forma natural e sem revelar termos técnicos, ids ou números.
         17. Ciclo de cena e turno: avance apenas um momento significativo por resposta. Depois de narrar a consequência mecânica já resolvida, termine com uma pergunta direta sobre a próxima ação do jogador. Fora de combate, não encerre a resposta com uma sequência de decisões já tomadas pela personagem. Em combate, descreva a situação atual sem escolher a ação do jogador; se for o turno dele, peça uma ação concreta, e se for o turno de um NPC, aguarde a resolução do motor antes de narrar o resultado.
+        18. Oportunidades de ofício: ao menos uma vez em cada campanha, sem o jogador pedir, quando a cena permitir (mata, rio, costa, mar, montanha, deserto, mina, feira ou palco), mostre na própria narração uma chance natural de coletar, caçar, pescar, mergulhar ou se apresentar (ex.: cardume no rio, veio de minério exposto, praça movimentada) e deixe a escolha com o jogador. Se as últimas cenas ou a linha do tempo já mostram uma dessas chances, não repita só por repetir. Ao oferecer pela primeira vez, registre com record_fact (key \"oficio-oferecido\", value \"sim\"); o pedido do contexto lembra enquanto isso não foi registrado. Você não resolve a coleta nem concede itens ou prata: quem faz isso é o motor, quando o jogador agir. Não cite receitas, degraus, números nem nomes de mecânica.
         ${ProposalSchema.INSTRUCTIONS}
         """.trimIndent()
 }
@@ -63,7 +64,12 @@ data class ContextInput(
     val resumeBriefing: String? = null,
     /** DC-05.1: trechos do documento-fonte escolhidos pelo código para esta cena (ver [SourceContext]); cortável pelo orçamento. */
     val sourceContext: String? = null,
+    /** Há receitas de ofício no pacote ativo; liga o lembrete da regra 18 enquanto o fato [CRAFT_OFFER_FACT] não existe. */
+    val craftOpportunity: Boolean = false,
 )
+
+/** Fato gravado pelo mestre (record_fact) depois de oferecer a primeira oportunidade de ofício. */
+const val CRAFT_OFFER_FACT = "oficio-oferecido"
 
 object ContextAssembler {
     private fun outcomeWord(result: CheckResult): String =
@@ -242,6 +248,11 @@ object ContextAssembler {
                 input.checkMenu?.takeIf { it.isNotBlank() },
                 input.worldContext?.takeIf { it.isNotBlank() },
                 input.resumeBriefing?.takeIf { it.isNotBlank() },
+                if (input.craftOpportunity && resolving == null && s.combat == null && CRAFT_OFFER_FACT !in s.facts) {
+                    "Lembrete (regra 18): você ainda não ofereceu ao jogador uma oportunidade de ofício nesta campanha. Se a cena permitir, ofereça uma agora, na narração, e envie record_fact com key \"$CRAFT_OFFER_FACT\" e value \"sim\"; se não couber, deixe para a próxima cena."
+                } else {
+                    null
+                },
                 input.mechanicalNotes.takeIf { it.isNotEmpty() }
                     ?.let { "Notas mecânicas desta resolução (obrigatórias; não exponha termos técnicos):\n" + it.joinToString("\n") { note -> "- $note" } },
             ) + input.npcPrivate

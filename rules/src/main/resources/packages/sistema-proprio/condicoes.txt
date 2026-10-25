@@ -1,13 +1,13 @@
-# id|nome|descrição|efeito de teste opcional|duração em rodadas opcional|dano por rodada opcional|recurso de dano opcional|remoção por teste opcional (teste ou teste:dificuldade)
+# id|nome|descrição|efeito de teste opcional|duração em rodadas opcional|dano por rodada opcional (número fixo ou N% do máximo, N-08)|recurso de dano opcional|remoção por teste opcional (teste ou teste:dificuldade)
 caido|Caído|No chão; testes físicos ficam prejudicados até se levantar.|perda:*||0|pv
 atordoado|Atordoado|Fica debilitado e perde eficiência até o fim da próxima rodada.|perda:*|1|0|pv
 exausto|Exausto|Fadiga acumulada; testes de esforço ficam prejudicados até descansar.|perda:*||0|pv
-sangramento|Sangramento|Ferida aberta que causa 1 PV de dano ao fim de cada rodada por 3 rodadas, salvo se removida antes.|-|3|1|pv|pericia:facil
+sangramento|Sangramento|Ferida aberta que causa 10% do PV máximo (mín. 1) de dano ao fim de cada rodada por 3 rodadas, salvo se removida antes.|-|3|10%|pv|pericia:facil
 visao-turva|Visão turva|A vista falha: ações que dependem de enxergar ficam mais difíceis até passar.|perda:habilidade||0|pv
 amaldicoado|Amaldiçoado|Maldição que prejudica testes até ser desfeita.|perda:*||0|pv
 abencoado|Abençoado|Bênção que melhora testes até acabar.|ganho:*||0|pv
-envenenado|Envenenado|Toxina no organismo; causa 1 PV de dano ao fim de cada rodada por 3 rodadas, salvo tratamento.|perda:*|3|1|pv|pericia:media
-queimando|Queimando|Chamas ou calor intenso causam 2 PV de dano ao fim de cada rodada por 2 rodadas, salvo se apagadas.|perda:*|2|2|pv|esquiva:facil
+envenenado|Envenenado|Toxina no organismo; causa 5% do PV máximo (mín. 1) de dano ao fim de cada rodada por 3 rodadas, salvo tratamento.|perda:*|3|5%|pv|pericia:media
+queimando|Queimando|Chamas ou calor intenso causam 15% do PV máximo (mín. 1) de dano ao fim de cada rodada por 2 rodadas, salvo se apagadas.|perda:*|2|15%|pv|esquiva:facil
 sono|Sono|Sono forçado: a vítima mal reage até acordar ou ser despertada.|perda:*|3|0|pv|pericia:media
 paralisado|Paralisado|Músculos travados; ações físicas ficam muito prejudicadas por poucas rodadas.|perda:*|2|0|pv|pericia:dificil
 medo|Medo|Pavor que derruba a coragem e atrapalha testes até passar.|perda:*|3|0|pv|pericia:media

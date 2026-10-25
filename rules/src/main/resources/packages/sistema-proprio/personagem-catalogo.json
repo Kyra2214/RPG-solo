@@ -2196,7 +2196,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "arco",
+        "adaga"
+      ]
     },
     {
       "id": "guerreiro",
@@ -2214,7 +2219,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "guardiao",
@@ -2232,7 +2244,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "explorador",
@@ -2250,7 +2269,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "ladino",
@@ -2268,7 +2294,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "adaga",
+        "espada"
+      ]
     },
     {
       "id": "mago",
@@ -2286,7 +2317,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "feiticeiro",
@@ -2304,7 +2340,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "invocador",
@@ -2322,7 +2363,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "curandeiro",
@@ -2340,7 +2386,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "sacerdote",
@@ -2358,7 +2409,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "druida",
@@ -2376,7 +2432,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "batedor",
@@ -2394,7 +2455,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "duelista",
@@ -2412,7 +2480,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "monge",
@@ -2430,7 +2505,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "berserker",
@@ -2448,7 +2530,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "paladino",
@@ -2466,7 +2555,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "bardo",
@@ -2484,7 +2580,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "alquimista",
@@ -2502,7 +2603,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "cacador-de-monstros",
@@ -2520,7 +2626,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "domador",
@@ -2538,7 +2651,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "artifice",
@@ -2556,7 +2676,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "estrategista",
@@ -2574,7 +2701,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "cavaleiro",
@@ -2592,7 +2724,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "gladiador",
@@ -2610,7 +2749,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "assassino",
@@ -2628,7 +2774,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "adaga",
+        "espada"
+      ]
     },
     {
       "id": "agente-das-sombras",
@@ -2646,7 +2797,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "adaga",
+        "espada"
+      ]
     },
     {
       "id": "guardiao-do-codigo",
@@ -2664,7 +2820,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "pirata",
@@ -2682,7 +2845,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "marinheiro",
@@ -2700,7 +2870,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "pistoleiro",
@@ -2718,7 +2895,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "arco",
+        "adaga"
+      ]
     },
     {
       "id": "atirador-de-precisao",
@@ -2736,7 +2918,11 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "arco"
+      ]
     },
     {
       "id": "medico-de-campo",
@@ -2754,7 +2940,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "investigador",
@@ -2772,7 +2963,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "diplomata",
@@ -2790,7 +2986,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "comandante",
@@ -2808,7 +3009,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "oraculo",
@@ -2826,7 +3034,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "xama",
@@ -2844,7 +3057,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "ilusionista",
@@ -2862,7 +3080,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "cronista",
@@ -2880,7 +3103,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "cartografo",
@@ -2898,7 +3126,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "bucaneiro",
@@ -2916,7 +3149,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "guardiao-runico",
@@ -2934,7 +3174,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "psiquico",
@@ -2952,7 +3199,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "tecelao-de-sonhos",
@@ -2970,7 +3222,12 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "leve",
+      "weaponTypes": [
+        "cajado",
+        "adaga"
+      ]
     },
     {
       "id": "sentinela",
@@ -2988,7 +3245,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "espadachim",
@@ -3006,7 +3270,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "lanceiro",
@@ -3024,7 +3295,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     },
     {
       "id": "artista-marcial",
@@ -3042,7 +3320,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "sobrevivente",
@@ -3060,7 +3345,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "medio",
+      "weaponTypes": [
+        "espada",
+        "adaga",
+        "lanca",
+        "arco"
+      ]
     },
     {
       "id": "guardiao-de-reliquias",
@@ -3078,7 +3370,14 @@
           "bonus": 1
         }
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "armorWeight": "pesado",
+      "weaponTypes": [
+        "espada",
+        "machado",
+        "clava",
+        "lanca"
+      ]
     }
   ],
   "professions": [
@@ -4819,6 +5118,24 @@
       "mechanicalEffects": [
         {
           "scope": "lideranca",
+          "bonus": 1
+        }
+      ],
+      "tags": [
+        "profissao",
+        "original"
+      ],
+      "contentVersion": 1
+    },
+    {
+      "id": "adestrador",
+      "name": "Adestrador",
+      "summary": "Ensina animais a obedecer, dos pequenos aos colossais, com paciência, comando e confiança.",
+      "lore": "Ensina animais a obedecer, dos pequenos aos colossais, com paciência, comando e confiança.",
+      "competencies": [],
+      "mechanicalEffects": [
+        {
+          "scope": "adestramento",
           "bonus": 1
         }
       ],

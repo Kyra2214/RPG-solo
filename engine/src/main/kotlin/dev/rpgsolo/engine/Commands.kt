@@ -14,6 +14,8 @@ data class Damage(
     val amount: Int,
     /** MU-02.6: true = ignora o escudo (ataque que ignora defesa). */
     val bypassShield: Boolean = false,
+    /** LG-01: quem causou o dano (null = ambiente ou origem desconhecida); vai para [EntityDied.killerId] se o dano matar. */
+    val sourceId: String? = null,
 ) : Command
 
 /** MU-02.6: soma [amount] (> 0) ao escudo de uma entidade viva. */
@@ -29,15 +31,51 @@ data class SpendResource(val entityId: String, val resource: String, val cost: I
 data class SpendTraitUse(val entityId: String, val traitId: String, val limit: Int) : Command
 
 /** Devolve os usos de [traitIds] (vazio = todos os traços da entidade). */
+
+/** N-18: avança [days] dias da campanha (descanso completo = 1; o mestre pode avançar mais, ex.: viagem longa). */
+data class AdvanceDays(val days: Int = 1) : Command
+
+/** N-18: pergaminho de elemento na peça equipada de [slot] (só `mao` ou `peito`), por [days] dias; um por peça. */
+data class ApplyScrollEnchant(
+    val ownerId: String,
+    val slot: String,
+    val itemId: String,
+    val element: ElementPath,
+    val days: Int = 1,
+) : Command
+
+/**
+ * N-36: marca de Tatuador em [ownerId] no status [scope], com o [grade] de quem tatua. Sem [coverIndex] ocupa uma vaga livre
+ * (limite = 1 por grau do Tatuador do herói); com [coverIndex] cobre aquela marca, que precisa ser de grau menor.
+ * O pagamento (100 prata × grau) é feito por quem chama.
+ */
+data class SocketGem(val ownerId: String, val slot: String, val gem: Gem, val maxSockets: Int) : Command
+
+data class RemoveGem(val ownerId: String, val slot: String, val index: Int) : Command
+
+data class ApplyTattoo(val ownerId: String, val scope: String, val grade: Int, val coverIndex: Int? = null) : Command
+
 data class ResetTraitUses(val entityId: String, val traitIds: List<String> = emptyList()) : Command
 
 data class AddItem(val ownerId: String, val itemId: String, val qty: Int = 1) : Command
 
 data class ConsumeItem(val ownerId: String, val itemId: String, val qty: Int = 1) : Command
 
-data class EquipItem(val ownerId: String, val itemId: String, val slot: String) : Command
+data class EquipItem(
+    val ownerId: String,
+    val itemId: String,
+    val slot: String,
+    /** N-11: variação do máximo de recursos (ex.: peito com `max_pv`); aplicada junto da troca. */
+    val maxDelta: Map<String, Int> = emptyMap(),
+    /** N-12: nível mínimo do portador para equipar. */
+    val minLevel: Int = 1,
+) : Command
 
-data class UnequipItem(val ownerId: String, val slot: String) : Command
+data class UnequipItem(
+    val ownerId: String,
+    val slot: String,
+    val maxDelta: Map<String, Int> = emptyMap(),
+) : Command
 
 data class GainXp(val entityId: String, val amount: Int) : Command
 
@@ -79,6 +117,16 @@ data class ProgressSkillTree(
 data class ApplyTargetSkillEffects(
     val actorId: String,
     val targetId: String,
+    val skillId: String,
+    val effects: List<ActiveEffect>,
+) : Command
+
+/**
+ * N-29 (Inspirar): aplica os mesmos [effects] a todos os aliados em combate de [actorId] (ver [allyIdsInCombat]).
+ * Só no turno de quem usa; recusa se não houver nenhum aliado elegível. Efeitos positivos e temporários apenas.
+ */
+data class ApplyAllySkillEffects(
+    val actorId: String,
     val skillId: String,
     val effects: List<ActiveEffect>,
 ) : Command
@@ -183,6 +231,7 @@ data class AddCondition(
     val durationRounds: Int? = null,
     val damagePerRound: Int = 0,
     val damageResource: String = "hp",
+    val damagePercent: Int = 0,
 ) : Command
 
 data class RemoveCondition(val entityId: String, val condition: String) : Command
@@ -243,6 +292,10 @@ data class EngineConfig(
     val rebirthPercent: Int = 50,
     /** XP total necessário para o nível 2, 3, 4... (crescente). Vazio = o sistema não sobe de nível por XP. */
     val levelThresholds: List<Int> = emptyList(),
+    /** N-04: custo de cada nível além da tabela = fator × nível (5 → subir para o nível N custa 5 × N). 0 = a tabela é o teto. */
+    val levelCostFactor: Int = 0,
+    /** N-04: XP por inimigo derrotado, em % do custo do próximo nível do jogador (modulado pela diferença de nível). 0 = desligado. */
+    val victoryXpPercent: Int = 0,
     /** Bônus de defesa da ação Defend; 0 desativa a ação. */
     val defendBonus: Int = 0,
     /** Pontos concedidos por cada nível novo, conforme declarado pelo pacote. */
@@ -251,6 +304,10 @@ data class EngineConfig(
     val statPointsPerLevel: Int = 0,
     /** MU-05.2: pontos de habilidade concedidos por nível novo (reserva própria). */
     val abilityPointsPerLevel: Int = 0,
+    /** N-02: distribuição inicial única: exatamente este total de pontos de status entre os atributos... */
+    val initialStatPoints: Int = 10,
+    /** ...e este total de pontos de habilidade/profissão (concedidos de uma vez). */
+    val initialAbilityPoints: Int = 2,
     /** MU-06.2: níveis-chave; cada um permite liberar o nível 2 de uma perícia (por missão). */
     val masteryLevels: List<Int> = emptyList(),
     /** MU-07.2: níveis-chave que concedem 1 slot de magia cada (`niveis_slot_magia`). Vazio = sem magia. */
@@ -275,6 +332,9 @@ data class EngineConfig(
         }
         require(spellSlotLevels.all { it > 0 } && spellSlotLevels.zipWithNext().all { (a, b) -> a < b }) {
             "spellSlotLevels deve ser positivo e estritamente crescente"
+        }
+        require(initialStatPoints in 0..1000 && initialAbilityPoints in 0..1000) {
+            "initialStatPoints e initialAbilityPoints devem ficar entre 0 e 1000"
         }
         require(statPointsPerLevel in 0..100 && abilityPointsPerLevel in 0..100) {
             "statPointsPerLevel e abilityPointsPerLevel devem ficar entre 0 e 100"
@@ -307,16 +367,53 @@ data class EngineConfig(
     }
 
     /** Nível correspondente a um total de XP. */
-    fun levelFor(xp: Int): Int = 1 + levelThresholds.count { xp >= it }
+    fun levelFor(xp: Int): Int {
+        var level = 1 + levelThresholds.count { xp >= it }
+        if (levelCostFactor > 0 && levelThresholds.isNotEmpty() && level == levelThresholds.size + 1) {
+            var total = levelThresholds.last().toLong()
+            while (true) {
+                total += levelCostFactor.toLong() * (level + 1)
+                if (xp < total) break
+                level++
+            }
+        }
+        return level
+    }
+
+    /** N-04: XP necessário para sair do nível [level] para o seguinte (0 se não houver). */
+    fun levelCost(level: Int): Int {
+        if (levelThresholds.isEmpty()) return 0
+        val i = level - 1
+        return when {
+            i < 0 -> 0
+            i < levelThresholds.size -> levelThresholds[i] - if (i == 0) 0 else levelThresholds[i - 1]
+            levelCostFactor > 0 -> levelCostFactor * (level + 1)
+            else -> levelThresholds.last() - if (levelThresholds.size == 1) 0 else levelThresholds[levelThresholds.size - 2]
+        }
+    }
+
+    /**
+     * N-04: XP de um inimigo derrotado. Base = [victoryXpPercent] % do custo do próximo nível do jogador; inimigo mais forte paga mais
+     * (+20% por nível, até 200%), mais fraco paga menos (−20% por nível, 0 a partir de 5 níveis abaixo). Mínimo 1 quando paga algo.
+     */
+    fun battleXp(
+        playerLevel: Int,
+        enemyLevel: Int,
+    ): Int {
+        if (victoryXpPercent <= 0) return 0
+        val diff = enemyLevel - playerLevel
+        val factor = if (diff <= -5) 0 else (100 + 20 * diff).coerceAtMost(200)
+        if (factor == 0) return 0
+        return maxOf(1, (levelCost(playerLevel).toLong() * victoryXpPercent * factor / 10000).toInt())
+    }
 
     /**
      * MU-05.1: teto de XP por missão no nível [level] = XP necessário para subir um nível (no máximo um nível
-     * por missão). Acima do último limiar vale a última faixa. Sem limiares não há teto (XP não gera nível).
+     * por missão). Acima do último limiar vale fator × (nível + 1) (N-04) ou, sem fator, a última faixa. Sem limiares não há teto (XP não gera nível).
      */
     fun maxQuestXp(level: Int): Int {
         if (levelThresholds.isEmpty()) return Int.MAX_VALUE
-        val i = (level - 1).coerceIn(0, levelThresholds.lastIndex)
-        return levelThresholds[i] - if (i == 0) 0 else levelThresholds[i - 1]
+        return levelCost(level.coerceAtLeast(1))
     }
 
     /**
@@ -326,11 +423,13 @@ data class EngineConfig(
     internal fun zeroEvent(
         ent: Entity,
         amount: Int,
+        killerId: String? = null,
+        cause: String? = null,
     ): Event? =
         when {
-            deathMode != DeathMode.DOWNED || ent.kind != EntityKind.PLAYER -> EntityDied(ent.id)
+            deathMode != DeathMode.DOWNED || ent.kind != EntityKind.PLAYER -> EntityDied(ent.id, killerId, cause)
             !ent.downed -> EntityDowned(ent.id)
-            amount > 0 -> EntityDied(ent.id)
+            amount > 0 -> EntityDied(ent.id, killerId, cause)
             else -> null
         }
 }
@@ -405,7 +504,13 @@ fun decide(
             if (absorbed > 0) events += ShieldChanged(ent.id, ent.shield - absorbed)
             if (absorbed == 0 || rest > 0) {
                 events += ResourceChanged(ent.id, cmd.resource, newValue, newValue - res.current)
-                if (newValue == 0 && config.deathResource == cmd.resource) config.zeroEvent(ent, cmd.amount)?.let { events += it }
+                if (newValue == 0 && config.deathResource == cmd.resource) {
+                    config.zeroEvent(
+                        ent,
+                        cmd.amount,
+                        cmd.sourceId,
+                    )?.let { events += it }
+                }
             }
             if (events.any { it is EntityDied } && state.combat != null) {
                 val afterDamage = events.fold(state) { current, event -> current.apply(event) }
@@ -465,6 +570,102 @@ fun decide(
             return Decision.Ok(listOf(TraitUseSpent(cmd.entityId, cmd.traitId, used + 1)))
         }
 
+        is TameCompanion, is FeedCompanion, is PetCompanion, is ChooseCompanionAttack, is RaiseCompanionAttack,
+        is LevelUpCompanion, is LearnCompanionTrick, is OrderCompanionTrick, is GainCompanionXp,
+        is StableCompanion, is VisitCompanion, is SettleKennel, is BringCompanion, is RetrainCompanion, is SyncTrainerBonus,
+        -> return decideCompanion(state, cmd, config)
+
+        is AdvanceDays -> {
+            if (cmd.days !in 1..365) return no("dias fora de 1..365")
+            return Decision.Ok(listOf(DaysAdvanced(cmd.days)))
+        }
+
+        is ApplyScrollEnchant -> {
+            val ent = entity(cmd.ownerId) ?: return no("entidade inexistente: ${cmd.ownerId}")
+            if (cmd.slot != "mao" && cmd.slot != "peito") return no("pergaminho só vale para arma e peito")
+            if (cmd.element == ElementPath.NONE) return no("elemento inválido")
+            if (cmd.days !in 1..365) return no("dias fora de 1..365")
+            if (state.equipped[cmd.ownerId]?.get(cmd.slot) != cmd.itemId) return no("a peça não está equipada em ${cmd.slot}")
+            if (state.scrollEnchants[cmd.ownerId]?.get(cmd.slot)?.itemId == cmd.itemId) {
+                return no(
+                    "${ent.name} já tem um pergaminho nesta peça",
+                )
+            }
+            return Decision.Ok(listOf(ScrollEnchantApplied(cmd.ownerId, cmd.slot, cmd.itemId, cmd.element, cmd.days)))
+        }
+
+        is SocketGem -> {
+            val ent = entity(cmd.ownerId) ?: return no("entidade inexistente: ${cmd.ownerId}")
+            if (cmd.gem.type !in Gems.TYPES) return no("tipo de gema inválido: ${cmd.gem.type}")
+            if (cmd.gem.quality !in Gems.MIN_QUALITY..Gems.MAX_QUALITY) return no("qualidade da gema fora de 1..${Gems.MAX_QUALITY}")
+            if (cmd.maxSockets < 1) return no("a peça não tem vaga de engaste")
+            val itemId = state.equipped[cmd.ownerId]?.get(cmd.slot) ?: return no("não há peça equipada em ${cmd.slot}")
+            val current = state.gems[cmd.ownerId]?.get(cmd.slot)?.takeIf { it.itemId == itemId }?.gems.orEmpty()
+            if (current.size >= cmd.maxSockets) return no("a peça já usa todas as vagas (${current.size}/${cmd.maxSockets})")
+            if (cmd.gem.type == "max_pv" && ent.resources["pv"] == null) return no("recurso inexistente: pv")
+            return Decision.Ok(
+                listOf(
+                    GemSocketed(
+                        cmd.ownerId,
+                        cmd.slot,
+                        itemId,
+                        cmd.gem,
+                        if (cmd.gem.type == "max_pv") mapOf("pv" to Gems.bonusOf(cmd.gem)) else emptyMap(),
+                    ),
+                ),
+            )
+        }
+
+        is RemoveGem -> {
+            val ent = entity(cmd.ownerId) ?: return no("entidade inexistente: ${cmd.ownerId}")
+            val itemId = state.equipped[cmd.ownerId]?.get(cmd.slot) ?: return no("não há peça equipada em ${cmd.slot}")
+            val current = state.gems[cmd.ownerId]?.get(cmd.slot)?.takeIf { it.itemId == itemId }?.gems.orEmpty()
+            val gem = current.getOrNull(cmd.index) ?: return no("não há gema na posição ${cmd.index}")
+            if (gem.type == "max_pv" && ent.resources["pv"] == null) return no("recurso inexistente: pv")
+            return Decision.Ok(
+                listOf(
+                    GemRemoved(
+                        cmd.ownerId,
+                        cmd.slot,
+                        itemId,
+                        cmd.index,
+                        if (gem.type == "max_pv") mapOf("pv" to -Gems.bonusOf(gem)) else emptyMap(),
+                    ),
+                ),
+            )
+        }
+
+        is ApplyTattoo -> {
+            val ent = entity(cmd.ownerId) ?: return no("entidade inexistente: ${cmd.ownerId}")
+            if (cmd.scope !in Tattoos.SCOPES) return no("status inválido para marca: ${cmd.scope}")
+            if (cmd.grade !in 1..Tattoos.MAX_GRADE) return no("grau do Tatuador fora de 1..${Tattoos.MAX_GRADE}")
+            val marks = state.tattoos[cmd.ownerId].orEmpty()
+            val covered =
+                if (cmd.coverIndex == null) {
+                    if (marks.size >= Tattoos.limit(ent.skillTreeLevels)) return no("${ent.name} já tem o máximo de marcas (${marks.size})")
+                    null
+                } else {
+                    val old = marks.getOrNull(cmd.coverIndex) ?: return no("não há marca na posição ${cmd.coverIndex}")
+                    if (cmd.grade <= old.grade) return no("a nova marca precisa ser de grau maior que a coberta (${old.grade})")
+                    old
+                }
+            val pvDelta =
+                (if (cmd.scope == "max_pv") Tattoos.PV_PER_GRADE * cmd.grade else 0) -
+                    (if (covered?.scope == "max_pv") Tattoos.PV_PER_GRADE * covered.grade else 0)
+            if (pvDelta != 0 && ent.resources["pv"] == null) return no("recurso inexistente: pv")
+            return Decision.Ok(
+                listOf(
+                    TattooApplied(
+                        cmd.ownerId,
+                        cmd.scope,
+                        cmd.grade,
+                        cmd.coverIndex,
+                        if (pvDelta != 0) mapOf("pv" to pvDelta) else emptyMap(),
+                    ),
+                ),
+            )
+        }
+
         is ResetTraitUses -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
             val spent = state.traitUses[cmd.entityId].orEmpty()
@@ -491,15 +692,17 @@ fun decide(
             if (cmd.itemId.isBlank() || cmd.slot.isBlank()) return no("item e slot são obrigatórios")
             val have = state.inventory[cmd.ownerId]?.get(cmd.itemId) ?: 0
             if (have <= 0) return no("item ausente: ${cmd.itemId}")
+            if (ent.level < cmd.minLevel) return no("${ent.name} precisa do nível ${cmd.minLevel} para equipar este item")
             if (state.equipped[cmd.ownerId]?.containsKey(cmd.slot) == true) return no("slot ocupado: ${cmd.slot}")
-            return Decision.Ok(listOf(EquipmentChanged(cmd.ownerId, cmd.slot, cmd.itemId)))
+            cmd.maxDelta.keys.firstOrNull { ent.resources[it] == null }?.let { return no("recurso inexistente: $it") }
+            return Decision.Ok(listOf(EquipmentChanged(cmd.ownerId, cmd.slot, cmd.itemId, cmd.maxDelta)))
         }
 
         is UnequipItem -> {
             if (entity(cmd.ownerId) == null) return no("dono inexistente: ${cmd.ownerId}")
             if (cmd.slot.isBlank()) return no("slot vazio")
             if (state.equipped[cmd.ownerId]?.containsKey(cmd.slot) != true) return no("slot vazio: ${cmd.slot}")
-            return Decision.Ok(listOf(EquipmentChanged(cmd.ownerId, cmd.slot, null)))
+            return Decision.Ok(listOf(EquipmentChanged(cmd.ownerId, cmd.slot, null, cmd.maxDelta)))
         }
 
         is GainXp -> {
@@ -582,7 +785,8 @@ fun decide(
             if (cmd.increases.isEmpty()) return no("escolha ao menos um aumento")
             if (cmd.increases.values.any { it <= 0 }) return no("aumentos devem ser inteiros positivos")
             for ((stat, increase) in cmd.increases) {
-                val current = ent.stats[stat] ?: return no("atributo inexistente na ficha: $stat")
+                // Fichas antigas não têm os atributos acrescentados depois (N-02): valem o padrão do pacote (0).
+                val current = ent.stats[stat] ?: config.statDefaults[stat] ?: return no("atributo inexistente na ficha: $stat")
                 if (current.toLong() + increase.toLong() > Int.MAX_VALUE) return no("aumento excede o limite suportado em $stat")
             }
             val cost = cmd.increases.values.sumOf { it.toLong() }
@@ -627,17 +831,23 @@ fun decide(
         is AllocateInitialBuild -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
             if (!ent.alive) return no("${ent.name} está morto")
-            if (ent.initialBuildAllocated) return no("os 12 pontos iniciais já foram distribuídos")
+            if (ent.initialBuildAllocated) return no("a distribuição inicial de pontos já foi feita")
             if (cmd.skillPoints < 0 || cmd.statIncreases.values.any { it < 0 }) {
                 return no(
                     "a distribuição não pode conter valores negativos",
                 )
             }
-            if (cmd.statIncreases.keys.any { it !in ent.stats }) return no("atributo inexistente na ficha")
+            // Fichas antigas não têm os atributos acrescentados depois (N-02): valem o padrão do pacote.
+            if (cmd.statIncreases.keys.any { it !in ent.stats && it !in config.statDefaults }) return no("atributo inexistente na ficha")
             val statTotal = cmd.statIncreases.values.sumOf { it.toLong() }
-            if (statTotal + cmd.skillPoints.toLong() != 12L) return no("distribua exatamente 12 pontos entre atributos e habilidades")
+            if (statTotal != config.initialStatPoints.toLong()) {
+                return no("distribua exatamente ${config.initialStatPoints} pontos de status entre os atributos")
+            }
+            if (cmd.skillPoints != config.initialAbilityPoints) {
+                return no("a distribuição inicial concede exatamente ${config.initialAbilityPoints} pontos de habilidade")
+            }
             for ((key, increase) in cmd.statIncreases) {
-                val current = ent.stats[key] ?: return no("atributo inexistente na ficha: $key")
+                val current = ent.stats[key] ?: config.statDefaults[key] ?: return no("atributo inexistente na ficha: $key")
                 val cap = config.statCaps[key] ?: return no("o pacote não define limite para o atributo: $key")
                 if (current.toLong() + increase.toLong() > cap.toLong()) return no("o atributo $key ultrapassaria o limite $cap")
             }
@@ -700,6 +910,23 @@ fun decide(
                 return no("efeito de alvo inválido")
             }
             return Decision.Ok(listOf(TargetSkillEffectsApplied(actor.id, target.id, cmd.skillId, cmd.effects)))
+        }
+
+        is ApplyAllySkillEffects -> {
+            val actor = entity(cmd.actorId) ?: return no("usuário inexistente: ${cmd.actorId}")
+            if (!actor.alive || actor.downed) return no("usuário da habilidade está fora de combate")
+            if ((actor.skillTreeLevels[cmd.skillId] ?: 0) <= 0 && cmd.skillId !in actor.abilities) {
+                return no("habilidade não aprendida: ${cmd.skillId}")
+            }
+            val combat = state.combat ?: return no("inspirar aliados exige combate")
+            if (combat.current != actor.id) return no("não é o turno de quem usa a habilidade")
+            if (cmd.effects.isEmpty()) return no("habilidade sem efeitos para os aliados")
+            if (cmd.effects.any { it.remainingRounds <= 0 || it.target.isBlank() || it.value <= 0 || !it.sourceId.startsWith("habilidade:") }) {
+                return no("efeito de aliado inválido: só bônus positivos e temporários")
+            }
+            val allies = state.allyIdsInCombat(actor.id)
+            if (allies.isEmpty()) return no("nenhum aliado em combate para receber o efeito")
+            return Decision.Ok(listOf(AllySkillEffectsApplied(actor.id, allies, cmd.skillId, cmd.effects)))
         }
 
         is ResetSkillTreeProgress -> {
@@ -922,7 +1149,8 @@ fun decide(
             if (state.conditions[ent.id]?.contains(cmd.condition) == true) return no("${ent.name} já tem a condição ${cmd.condition}")
             if (cmd.durationRounds != null && cmd.durationRounds <= 0) return no("duração de condição inválida")
             if (cmd.damagePerRound < 0) return no("dano de condição negativo")
-            if (cmd.damagePerRound > 0 && ent.resources[cmd.damageResource] == null) {
+            if (cmd.damagePercent !in 0..100) return no("percentual de dano de condição fora de 0..100")
+            if ((cmd.damagePerRound > 0 || cmd.damagePercent > 0) && ent.resources[cmd.damageResource] == null) {
                 return no("recurso inexistente: ${cmd.damageResource}")
             }
             return Decision.Ok(
@@ -933,6 +1161,7 @@ fun decide(
                         cmd.durationRounds,
                         cmd.damagePerRound,
                         cmd.damageResource,
+                        cmd.damagePercent,
                     ),
                 ),
             )
@@ -981,8 +1210,9 @@ fun decide(
                                 val ent = tickState.entities[entityId] ?: continue
                                 if (!ent.alive) continue
                                 val resource = ent.resources[effect.damageResource]
-                                if (resource == null && effect.damagePerRound > 0) continue
-                                val newValue = resource?.let { maxOf(0, it.current - effect.damagePerRound) }
+                                if (resource == null && effect.dealsDamage) continue
+                                val tickAmount = resource?.let { effect.tickDamage(it.max) } ?: 0
+                                val newValue = resource?.let { maxOf(0, it.current - tickAmount) }
                                 val remaining = effect.remainingRounds?.let { maxOf(0, it - 1) }
                                 val tick =
                                     ConditionTicked(
@@ -996,7 +1226,7 @@ fun decide(
                                 events += tick
                                 tickState = tickState.apply(tick)
                                 if (resource != null && newValue == 0 && config.deathResource == effect.damageResource) {
-                                    config.zeroEvent(ent, effect.damagePerRound)?.let { death ->
+                                    config.zeroEvent(ent, tickAmount, cause = "$CAUSE_CONDITION_PREFIX$condition")?.let { death ->
                                         events += death
                                         tickState = tickState.apply(death)
                                     }

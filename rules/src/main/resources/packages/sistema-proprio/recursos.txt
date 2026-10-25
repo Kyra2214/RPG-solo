@@ -1,4 +1,5 @@
-# id|nome|base|atributo|mult   (maximo = base + mult * atributo). Fórmulas aprovadas em 22/10/2026.
-pa|Pontos de Ação|1|poder|1
-pm|Pontos de Magia|2|habilidade|2
-pv|Pontos de Vida|4|resistencia|3
+# id|nome|base|atributo|mult|minimo   (maximo = max(minimo, base + mult * atributo)). N-03, 24/10/2026.
+# PV = 5 x Resistência (mín. 1); PM = 2 x Inteligência; PA = 1 + Habilidade.
+pa|Pontos de Ação|1|habilidade|1|1
+pm|Pontos de Magia|0|inteligencia|2|0
+pv|Pontos de Vida|0|resistencia|5|1

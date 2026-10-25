@@ -24,6 +24,7 @@ class CombatBonuses(
     private val activeFicha: () -> Ficha?,
     private val playerId: () -> String,
     private val catalogBonuses: (RulePackage) -> List<dev.rpgsolo.rules.ExternalBonus>,
+    private val wearerClassIds: () -> List<String> = { emptyList() },
 ) {
     private val skillTreeDefinitions: List<dev.rpgsolo.engine.SkillTreeSkill> by lazy {
         val stream =
@@ -45,6 +46,21 @@ class CombatBonuses(
         val loaded = dev.rpgsolo.rules.CurseCatalogLoader.load(raw)
         require(loaded.valid) { loaded.errors.joinToString("; ") }
         loaded.curses
+    }
+
+    /**
+     * N-35: utilidades fora de combate já aprendidas por [entityId]: habilidades passivas cujo efeito vale para um teste
+     * (escopo que não é de combate). Devolve "Nome → escopo", para o mestre pedir o teste com esse escopo.
+     */
+    fun utilityHints(entityId: String): List<String> {
+        val entity = session().state.entities[entityId] ?: return emptyList()
+        val combatScopes = setOf("ataque", "dano", "defesa", "resistencia_dano", "velocidade", "precisao", "percepcao", "cura")
+        val defs = skillTreeDefinitions.associateBy { it.id }
+        return entity.skillTreeLevels.mapNotNull { (id, level) ->
+            val skill = defs[id]?.takeIf { level > 0 && it.category == dev.rpgsolo.engine.SkillCategory.PASSIVE } ?: return@mapNotNull null
+            val scopes = skill.effects.map { it.target }.filter { it !in combatScopes }.distinct()
+            if (scopes.isEmpty()) null else "${skill.name} → ${scopes.joinToString("/")}"
+        }.sorted()
     }
 
     /** Efeitos permanentes/temporários de maldições realmente aplicadas à entidade. */
@@ -236,6 +252,22 @@ class CombatBonuses(
             val effectStats = effect?.stats
             if (effect != null && (effectStats == null || stat in effectStats)) effect.dice else 0
         }
+
+    /**
+     * N-13: perfil de equipamento do herói (pesos e tipos de arma das classes, mais Mestre das Armas e Mestre dos
+     * Equipamentos). Só o herói tem classe; NPC e demais entidades vestem sem penalidade (null).
+     * ASSUMINDO: com várias classes vale a união dos pesos e dos tipos; classe sem peso declarado não restringe.
+     */
+    fun wearerProfile(entityId: String): dev.rpgsolo.rules.WearerProfile? {
+        if (entityId != playerId()) return null
+        val pkg = activePackage() ?: return null
+        val classIds = wearerClassIds()
+        return pkg.wearerProfile(
+            classIds.mapNotNull { CharacterCreationCatalog.classArmorWeight(it) }.toSet(),
+            classIds.flatMap { CharacterCreationCatalog.classWeaponTypes(it) }.toSet(),
+            combatTraitIds(entityId),
+        )
+    }
 
     /** Traços mecânicos do combatente; a ficha salva cobre campanhas antigas cujo Entity ainda não os continha. */
     fun combatTraitIds(entityId: String): List<String> =

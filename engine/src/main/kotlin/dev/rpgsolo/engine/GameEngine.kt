@@ -64,7 +64,10 @@ class GameEngine private constructor(
     /**
      * Resolve um ataque inteiramente no motor. A IA pode narrar a consequência,
      * mas não escolhe a rolagem, a defesa nem o dano.
+     *
+     * N-09: caminho antigo (d20 + atributo contra defesa base), sem uso no app; o jogo usa [unifiedAttack].
      */
+    @Deprecated("N-09: use unifiedAttack/unifiedAttackBetween")
     fun attack(spec: AttackSpec): AttackResult {
         val combat = state.combat ?: return AttackResult.Rejected("não há combate ativo")
         if (combat.current != spec.attackerId) {
@@ -135,7 +138,7 @@ class GameEngine private constructor(
         recordEvent(AttackResolved(spec.attackerId, spec.targetId, defense, hit, actualDamage))
         if (defending) recordEvent(CombatantDefenseConsumed(target.id))
         if (hit) {
-            when (val result = execute(Damage(spec.targetId, spec.damageResource, resolvedDamage))) {
+            when (val result = execute(Damage(spec.targetId, spec.damageResource, resolvedDamage, sourceId = spec.attackerId))) {
                 is ExecResult.Accepted -> return AttackResult.Resolved(roll, true, defense, actualDamage, eventsSince(mark), damageRoll)
                 is ExecResult.Rejected -> {
                     rollbackTo(mark)
@@ -170,7 +173,8 @@ class GameEngine private constructor(
         val mark = mark()
         // MU-02.5: em recarga, o "ignorar defesa" não é tentado (nem rola o d10); o ataque segue normal.
         val ignoreSpec = spec.ignoreDefense?.takeIf { (state.ignoreCooldowns[spec.attackerId] ?: 0) <= 0 }
-        val clash =
+        val defending = target.id in combat.defending
+        val raw =
             UnifiedCombat.resolve(
                 spec.attack,
                 spec.defense,
@@ -179,8 +183,15 @@ class GameEngine private constructor(
                 spec.guaranteedCrit,
                 spec.canCrit,
                 ignoreSpec,
+                spec.hit,
+                spec.luck,
+                spec.luckBonus,
             )
+        val elemental = if (spec.elementPercent != 100) raw.copy(damage = ElementChart.apply(raw.damage, spec.elementPercent)) else raw
+        val clash = if (spec.damageReduction > 0) elemental.copy(damage = maxOf(0, elemental.damage - spec.damageReduction)) else elemental
+        if (defending) recordEvent(CombatantDefenseConsumed(target.id))
         val label = "${spec.attackerId}->${spec.targetId}"
+        clash.hit?.let { recordRoll("acerto:$label", it.roll) }
         clash.crit?.roll?.let { recordRoll("critico:$label", it) }
         clash.ignore?.roll?.let { recordRoll("ignora-defesa:$label", it) }
         clash.attackRoll?.let { recordRoll("ataque:$label", it) }
@@ -199,6 +210,7 @@ class GameEngine private constructor(
                 clash.attackRoll?.dice.orEmpty(), clash.defenseRoll?.dice.orEmpty(),
                 clash.crit?.threshold, clash.crit?.roll?.total, clash.crit?.guaranteed == true,
                 clash.ignore?.threshold, clash.ignore?.roll?.total, clash.ignore?.guaranteed == true,
+                clash.hit?.chance, clash.hit?.roll?.total, clash.missed,
             ),
         )
         recordEvent(AttackResolved(spec.attackerId, spec.targetId, clash.defenseTotal, clash.damage > 0, clash.damage))
@@ -206,7 +218,18 @@ class GameEngine private constructor(
             recordEvent(IgnoreDefenseCooldownStarted(spec.attackerId, ignoreSpec.cooldownRounds))
         }
         if (clash.damage > 0) {
-            when (val result = execute(Damage(spec.targetId, spec.damageResource, clash.damage, bypassShield = clash.ignoredDefense))) {
+            when (
+                val result =
+                    execute(
+                        Damage(
+                            spec.targetId,
+                            spec.damageResource,
+                            clash.damage,
+                            bypassShield = clash.ignoredDefense,
+                            sourceId = spec.attackerId,
+                        ),
+                    )
+            ) {
                 is ExecResult.Accepted -> Unit
                 is ExecResult.Rejected -> {
                     rollbackTo(mark)
@@ -215,6 +238,151 @@ class GameEngine private constructor(
             }
         }
         return UnifiedAttackResult.Resolved(clash, eventsSince(mark))
+    }
+
+    /**
+     * N-16: tenta aplicar [condition] em [targetId] com [chancePercent] (d100 em silêncio, aplica com dado <= chance; 100 não rola).
+     * A rolagem vai ao log; recusa do comando desfaz a rolagem. Devolve true quando a condição foi aplicada.
+     */
+    fun applyConditionByChance(
+        targetId: String,
+        condition: String,
+        chancePercent: Int,
+        durationRounds: Int? = null,
+        damagePerRound: Int = 0,
+        damageResource: String = "hp",
+        damagePercent: Int = 0,
+        /** N-17: percentual do dano da condição (peito encantado = 50). */
+        damageFactorPercent: Int = 100,
+    ): Boolean {
+        require(chancePercent in 0..100) { "chance fora de 0..100" }
+        require(damageFactorPercent in 0..100) { "fator de dano fora de 0..100" }
+        val mark = mark()
+        if (chancePercent < 100) {
+            val roll = dice.roll(1, 100)
+            recordRoll("condicao:$targetId:$condition", roll)
+            if (roll.total > chancePercent) return false
+        }
+        val perRound = damagePerRound * damageFactorPercent / 100
+        val percent = damagePercent * damageFactorPercent / 100
+        return when (val result = execute(AddCondition(targetId, condition, durationRounds, perRound, damageResource, percent))) {
+            is ExecResult.Accepted -> true
+            is ExecResult.Rejected -> {
+                rollbackTo(mark)
+                false
+            }
+        }
+    }
+
+    /**
+     * N-20: ação genérica de ofício (criar, preparar, consertar, identificar). Rola d100 em silêncio (100 não rola) com [chancePercent].
+     * Sucesso: consome todas as [inputs] e entrega as [outputs]. Falha: perde metade (arredondada para baixo) das entradas fora de [keepOnFailure].
+     * Nada muda se faltar algum item ou o motor recusar um passo (a rolagem é desfeita).
+     */
+    fun attemptCraft(
+        ownerId: String,
+        kind: CraftKind,
+        inputs: Map<String, Int>,
+        outputs: Map<String, Int>,
+        chancePercent: Int,
+        keepOnFailure: Set<String> = emptySet(),
+    ): CraftResult {
+        require(chancePercent in 0..100) { "chance fora de 0..100" }
+        val ent = state.entities[ownerId] ?: return CraftResult.Refused("entidade inexistente: $ownerId")
+        if (!ent.alive) return CraftResult.Refused("${ent.name} está morto")
+        if (state.combat != null) return CraftResult.Refused("ofício não vale em combate")
+        if (outputs.isEmpty() || outputs.values.any { it <= 0 }) {
+            return CraftResult.Refused(
+                "a receita precisa de saída com quantidade positiva",
+            )
+        }
+        if (inputs.values.any { it <= 0 }) return CraftResult.Refused("quantidade de entrada inválida")
+        if (kind != CraftKind.CRAFT && inputs.isEmpty()) return CraftResult.Refused("a receita precisa de entrada")
+        inputs.forEach { (id, qty) ->
+            val have = state.inventory[ownerId]?.get(id) ?: 0
+            if (have < qty) return CraftResult.Refused("item ausente ou insuficiente: $id ($have/$qty)")
+            if (state.equipped[ownerId].orEmpty().values.contains(id)) return CraftResult.Refused("desequipe $id antes")
+        }
+        val mark = mark()
+        var roll: Int? = null
+        if (chancePercent < 100) {
+            val r = dice.roll(1, 100)
+            recordRoll("oficio:${kind.id}:$ownerId", r)
+            roll = r.total
+        }
+        val success = roll == null || roll <= chancePercent
+        val consumed =
+            if (success) {
+                inputs
+            } else {
+                inputs.mapValues {
+                        (id, qty) ->
+                    if (id in keepOnFailure) {
+                        0
+                    } else if (kind == CraftKind.REPAIR) {
+                        qty
+                    } else {
+                        qty / 2
+                    }
+                }.filterValues { it > 0 }
+            }
+        val produced = if (success) outputs else emptyMap()
+        val steps: List<Command> =
+            consumed.map {
+                    (id, qty) ->
+                ConsumeItem(ownerId, id, qty)
+            } + produced.map { (id, qty) -> AddItem(ownerId, id, qty) }
+        for (step in steps) {
+            val result = execute(step)
+            if (result is ExecResult.Rejected) {
+                rollbackTo(mark)
+                return CraftResult.Refused(result.reason)
+            }
+        }
+        return CraftResult.Done(success, chancePercent, roll, consumed, produced)
+    }
+
+    /**
+     * N-20: afanar [qty] de [itemId] do inventário de [targetId] (item não equipado). Chance = acerto de Destreza do ladrão × Agilidade do alvo
+     * ([dexterity] e [agility] já efetivas, como no acerto do combate). Falha: o alvo percebe e a relação dele com o ladrão cai em
+     * [PILFER_CAUGHT_RELATION]. Fora de combate.
+     */
+    fun attemptPilfer(
+        thiefId: String,
+        targetId: String,
+        itemId: String,
+        dexterity: Int,
+        agility: Int,
+        qty: Int = 1,
+    ): CraftResult {
+        val thief = state.entities[thiefId] ?: return CraftResult.Refused("entidade inexistente: $thiefId")
+        val target = state.entities[targetId] ?: return CraftResult.Refused("entidade inexistente: $targetId")
+        if (thief.id == target.id) return CraftResult.Refused("não é possível afanar de si mesmo")
+        if (!thief.alive) return CraftResult.Refused("${thief.name} está morto")
+        if (state.combat != null) return CraftResult.Refused("afanar não vale em combate")
+        if (qty <= 0) return CraftResult.Refused("quantidade inválida")
+        val have = state.inventory[targetId]?.get(itemId) ?: 0
+        if (have < qty) return CraftResult.Refused("${target.name} não tem $itemId ($have/$qty)")
+        if (state.equipped[targetId].orEmpty().values.contains(itemId)) return CraftResult.Refused("item equipado não pode ser afanado")
+        val chance = UnifiedCombat.hitChance(dexterity, agility)
+        val mark = mark()
+        val r = dice.roll(1, 100)
+        recordRoll("afanar:$thiefId:$targetId", r)
+        val success = r.total <= chance
+        val steps: List<Command> =
+            if (success) {
+                listOf(ConsumeItem(targetId, itemId, qty), AddItem(thiefId, itemId, qty))
+            } else {
+                listOf(ChangeRelation(targetId, thiefId, PILFER_CAUGHT_RELATION, "flagrou ${thief.name} afanando"))
+            }
+        for (step in steps) {
+            val result = execute(step)
+            if (result is ExecResult.Rejected && success) {
+                rollbackTo(mark)
+                return CraftResult.Refused(result.reason)
+            }
+        }
+        return CraftResult.Done(success, chance, r.total, emptyMap(), if (success) mapOf(itemId to qty) else emptyMap(), caught = !success)
     }
 
     /**
@@ -290,7 +458,26 @@ class GameEngine private constructor(
         canCrit: Boolean = true,
         ignoreDefense: IgnoreDefenseSpec? = null,
         damageResource: String = "hp",
+        hitStat: String? = null,
+        dodgeStat: String? = null,
+        luckStat: String? = null,
+        damageReduction: Int = 0,
+        luckItemBonus: Int = 0,
+        elementPercent: Int = 100,
     ): UnifiedAttackResult {
+        val itemLuck = luckItemBonus.coerceAtLeast(0)
+        val luck = luckStat?.let { CombatantValues.breakdown(state, attackerId, it, providers)?.value }?.let { maxOf(0, it - itemLuck) } ?: 0
+        val hitSpec =
+            if (hitStat != null && dodgeStat != null) {
+                HitSpec(
+                    CombatantValues.breakdown(state, attackerId, hitStat, providers)
+                        ?: return UnifiedAttackResult.Rejected("entidade inexistente: $attackerId"),
+                    CombatantValues.breakdown(state, targetId, dodgeStat, providers)
+                        ?: return UnifiedAttackResult.Rejected("entidade inexistente: $targetId"),
+                )
+            } else {
+                null
+            }
         val attack =
             CombatantValues.breakdown(state, attackerId, attackStat, providers)
                 ?: return UnifiedAttackResult.Rejected("entidade inexistente: $attackerId")
@@ -305,7 +492,7 @@ class GameEngine private constructor(
             UnifiedAttackSpec(
                 attackerId, targetId, attack, defense,
                 CombatantValues.modifiers(state, attackerId, UnifiedCombat.CRIT_TARGET, providers),
-                guaranteedCrit, canCrit, ignore, damageResource,
+                guaranteedCrit, canCrit, ignore, damageResource, hitSpec, luck, itemLuck, damageReduction, elementPercent,
             ),
         )
     }
@@ -354,7 +541,7 @@ class GameEngine private constructor(
                         val roll = dice.roll(effect.diceCount, effect.diceSides, effect.bonus)
                         recordRoll("poder:${spec.powerId}->$targetId", roll)
                         damageRoll = roll
-                        Damage(targetId, effect.resource, maxOf(0, roll.total - effect.reduction))
+                        Damage(targetId, effect.resource, maxOf(0, roll.total - effect.reduction), sourceId = spec.userId)
                     }
                     is PowerEffect.Inflict ->
                         AddCondition(
@@ -363,6 +550,7 @@ class GameEngine private constructor(
                             effect.durationRounds,
                             effect.damagePerRound,
                             effect.damageResource,
+                            effect.damagePercent,
                         )
                     is PowerEffect.Cleanse -> RemoveCondition(targetId, effect.condition)
                     is PowerEffect.Shield -> GrantShield(targetId, effect.amount)
@@ -445,6 +633,18 @@ class GameEngine private constructor(
     }
 
     /** Marca um ponto do log (ex.: início de uma jogada) para desfazer depois. */
+
+    /** N-32.4: rola 1d[sides] (d20 do animal, d100 da ordem) e registra a rolagem no log; quem chama usa o total. */
+    fun rollPlain(
+        label: String,
+        sides: Int,
+    ): Int {
+        require(sides in 2..1000) { "lados fora de 2..1000" }
+        val r = dice.roll(1, sides)
+        recordRoll(label, r)
+        return r.total
+    }
+
     fun mark(): Int = log.size
 
     /** Desfaz tudo depois de [mark], inclusive rolagens (os mesmos dados voltam a sair). */
@@ -520,7 +720,7 @@ fun validateState(state: GameState): List<String> {
             if (condition !in state.conditions[id].orEmpty()) problems += "estado de condição órfão: $id/$condition"
             if (effect.remainingRounds != null && effect.remainingRounds <= 0) problems += "duração inválida: $id/$condition"
             if (effect.damagePerRound < 0) problems += "dano por rodada negativo: $id/$condition"
-            if (effect.damagePerRound > 0 && entity?.resources?.containsKey(effect.damageResource) != true) {
+            if (effect.dealsDamage && entity?.resources?.containsKey(effect.damageResource) != true) {
                 problems += "recurso de dano de condição inexistente: $id/$condition/${effect.damageResource}"
             }
         }
@@ -568,6 +768,23 @@ fun GameState.relation(
     fromId: String,
     toId: String,
 ): Int = relations[relationKey(fromId, toId)] ?: 0
+
+/** N-29: relação mínima do NPC com o personagem para contar como aliado (10 = simpatia, a faixa positiva mais baixa). */
+const val ALLY_RELATION_MIN = 10
+
+/**
+ * N-29: aliados de [actorId] no combate atual: NPCs vivos e de pé que participam da iniciativa e cuja relação com
+ * [actorId] é ao menos [ALLY_RELATION_MIN]. Sem combate, lista vazia. Não existe lado fixo no motor; o mestre
+ * transforma um NPC em aliado mudando a relação dele com o personagem.
+ */
+fun GameState.allyIdsInCombat(actorId: String): List<String> {
+    val order = combat?.order ?: return emptyList()
+    return order.filter { id ->
+        val e = entities[id]
+        id != actorId && e != null && e.kind == EntityKind.NPC && e.alive && !e.downed && relation(id, actorId) >= ALLY_RELATION_MIN &&
+            companions[id]?.awayReason() == null
+    }
+}
 
 /** Relógios que já se completaram (a IA deve narrar a consequência; quem completa é o motor). */
 fun GameState.fullClocks(): List<Clock> = clocks.values.filter { it.full }

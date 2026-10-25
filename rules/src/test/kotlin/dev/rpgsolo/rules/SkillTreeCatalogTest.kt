@@ -7,6 +7,38 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SkillTreeCatalogTest {
+    /** N-21: profissões da Ondas 1a, 1b, 2 e 3, convertidas para 5 degraus (níveis 1, 7, 13, 21 e 30). */
+    private val fiveStepTrees =
+        setOf(
+            "ferreiro", "armeiro", "armeiro-de-armaduras", "perito-em-arcos", "fabricante-de-arcos", "fabricante-de-flechas",
+            "alfaiate", "tecelao", "curtidor", "sapateiro", "cordoeiro", "preparador-de-peles",
+            // N-22: Onda 1b
+            "alquimista-de-oficina", "herbalista", "cozinheiro", "padeiro", "cervejeiro", "especialista-em-toxinas", "perfumista",
+            "curandeiro-comunitario", "enfermeiro", "cirurgiao", "espiao", "mensageiro", "perito-em-armadilhas", "detetive",
+            "cacador-de-recompensas", "carcereiro",
+            // N-23: Onda 2
+            "cacador", "guia-de-montanha", "guia-de-floresta", "guia-de-deserto", "guarda-florestal", "minerador", "geologo",
+            "observador-do-clima", "cartografo-de-campo", "comerciante", "contador", "estalajadeiro", "taverneiro",
+            "diplomata-de-corte", "mediador", "advogado", "organizador-de-eventos", "mestre-de-cerimonias",
+            "escolta-profissional", "mecanico", "mecanico-de-artefatos", "inventor", "relojoeiro",
+            // N-24: Onda 3
+            "pescador", "pescador-de-profundidade", "mergulhador", "navegador", "marinheiro-de-carga", "criador-de-animais",
+            "tratador-de-montarias", "tratador-de-aves-mensageiras", "treinador", "adestrador", "artista", "musico", "ator", "dancarino",
+            "tatuador", "avaliador-de-antiguidades", "avaliador-de-materiais", "arqueologo", "restaurador",
+            "reparador-de-reliquias", "tradutor", "criptoanalista",
+            // N-35: Construção (acampamento, N-33.5)
+            "carpinteiro", "marceneiro", "pedreiro", "arquiteto", "construtor-de-barcos", "engenheiro-de-pontes",
+            "construtor-de-fortificacoes",
+            // N-35: Conhecimento e registro, Vida cotidiana (só realinhamento dos degraus)
+            "escriba", "bibliotecario", "professor", "astronomo",
+            "paleontologo", "botanico", "heraldista", "genealogista",
+            "arquivista", "escrivao-judicial", "investigador-de-incendios", "agricultor",
+            "apicultor", "jardineiro", "lavadeiro", "barbeiro",
+            "saboeiro",
+            // N-33.4: Joias, vidro e cerâmica (gemas)
+            "especialista-em-joias", "ourives", "lapidador", "montador-de-gemas", "joalheiro-de-campo", "vidreiro", "oleiro",
+        )
+
     private fun catalogText(): String =
         requireNotNull(javaClass.classLoader?.getResourceAsStream("catalogs/sistema-proprio/habilidades-arvore.txt")) {
             "catálogo de habilidades não encontrado nos recursos de teste"
@@ -57,8 +89,10 @@ class SkillTreeCatalogTest {
             trees.forEach { treeId ->
                 val skills = byTree.getValue(treeId)
                 val ranked = skills.filter { it.scrollRank != null }
-                assertEquals("árvore $treeId deveria ter sete habilidades com pergaminho", 7, ranked.size)
-                assertEquals("árvore $treeId deveria ter as posições 1..7", (1..7).toList(), ranked.mapNotNull { it.scrollRank })
+                val steps = if (origin == SkillOrigin.PROFESSION && treeId in fiveStepTrees) 5 else 7
+                assertEquals("árvore $treeId deveria ter $steps habilidades com pergaminho", steps, ranked.size)
+                assertEquals("árvore $treeId deveria ter as posições 1..$steps", (1..steps).toList(), ranked.mapNotNull { it.scrollRank })
+                if (steps == 5) assertEquals(listOf(1, 7, 13, 21, 30), ranked.map { it.requiredCharacterLevel })
                 if (origin == SkillOrigin.CURSED_CLASS) {
                     assertEquals(
                         "árvore amaldiçoada $treeId deveria ter uma habilidade básica gratuita",
@@ -66,7 +100,9 @@ class SkillTreeCatalogTest {
                         skills.count { it.freeBaseSkill },
                     )
                 } else {
-                    assertEquals("árvore $treeId não deve ter habilidade básica extra", 0, skills.count { it.freeBaseSkill })
+                    // N-19: o degrau 1 de classe e profissão é gratuito e ativo na criação (um por árvore).
+                    assertEquals("árvore $treeId deve ter só o degrau 1 gratuito", 1, skills.count { it.freeBaseSkill })
+                    assertEquals(1, skills.single { it.freeBaseSkill }.requiredCharacterLevel)
                 }
             }
         }
@@ -193,23 +229,23 @@ class SkillTreeCatalogTest {
         val result = SkillTreeCatalogLoader.load(catalogText())
         assertTrue(result.errors.joinToString("; "), result.valid)
         val capstones = result.skills.filter { it.origin == SkillOrigin.PROFESSION && it.scrollRank == 7 }
-        assertEquals(103, capstones.size)
+        assertEquals(104 - fiveStepTrees.size, capstones.size)
         assertEquals(capstones.size, capstones.map { it.name }.distinct().size)
         assertTrue(capstones.none { it.name.startsWith("Técnica Suprema de") })
         assertTrue(
             "ofícios não combatentes precisam de culminâncias passivas",
             capstones.count {
                 it.category == dev.rpgsolo.engine.SkillCategory.PASSIVE
-            } >= 90,
+            } >= 90 - fiveStepTrees.size,
         )
         assertTrue(
             "profissões de combate devem continuar usando ações ofensivas tipadas",
-            capstones.any {
-                it.actionKind == dev.rpgsolo.engine.SkillActionKind.POWER_STRIKE
+            result.skills.any {
+                it.origin == SkillOrigin.PROFESSION && it.actionKind == dev.rpgsolo.engine.SkillActionKind.POWER_STRIKE
             },
         )
         val ferreiro = result.skills.filter { it.treeId == "ferreiro" }.sortedBy { it.scrollRank }
-        assertEquals((1..7).toList(), ferreiro.map { it.effects.single().baseValue })
+        assertEquals((1..5).toList(), ferreiro.map { it.effects.single().baseValue })
         assertEquals(1, ferreiro.map { it.effects.single().stackingGroup }.distinct().size)
     }
 
@@ -231,8 +267,8 @@ class SkillTreeCatalogTest {
                 .filter { it.origin == SkillOrigin.PROFESSION && it.scrollRank != null }
                 .groupBy { it.treeId }
                 .filterValues { skills ->
-                    skills.size == 7 &&
-                        skills.mapNotNull { it.scrollRank }.sorted() == (1..7).toList() &&
+                    skills.size == 5 &&
+                        skills.mapNotNull { it.scrollRank }.sorted() == (1..5).toList() &&
                         skills.all { it.category == dev.rpgsolo.engine.SkillCategory.PASSIVE }
                 }
 
@@ -241,7 +277,7 @@ class SkillTreeCatalogTest {
             val baseline =
                 skills.single { it.scrollRank == 1 }.effects
                     .map { it.target to it.stackingGroup }.sortedBy { "${it.first}|${it.second}" }
-            (2..7).forEach { rank ->
+            (2..5).forEach { rank ->
                 val current =
                     skills.single { it.scrollRank == rank }.effects
                         .map { it.target to it.stackingGroup }.sortedBy { "${it.first}|${it.second}" }

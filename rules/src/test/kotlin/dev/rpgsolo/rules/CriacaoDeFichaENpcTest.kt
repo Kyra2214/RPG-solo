@@ -106,6 +106,7 @@ class CriacaoDeFichaENpcTest {
                 listOf("Tiro Preciso"),
                 resources = mapOf("pv" to 22),
                 ruleSource = RuleSource.IA_NAO_VERIFICADA,
+                level = 5,
             )
         assertTrue(NpcFactory.create(p, null) is NpcResult.Rejected) // precisa saber o sistema
         val sheet = (NpcFactory.create(p, null, SystemRef("externo", "externo-1")) as NpcResult.Created).sheet

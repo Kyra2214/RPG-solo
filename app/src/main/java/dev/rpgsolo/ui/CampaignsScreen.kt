@@ -512,11 +512,15 @@ fun CampaignsScreen(model: AppModel) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(choice.name, style = MaterialTheme.typography.bodyMedium)
                             Muted(
-                                stringResource(
-                                    if (choice.skill) R.string.advancement_choice_skill else R.string.advancement_choice_stat,
-                                    choice.current,
-                                    choice.max,
-                                ),
+                                if (!choice.skill && choice.max == dev.rpgsolo.rules.StatDef.NO_CAP) {
+                                    stringResource(R.string.advancement_choice_stat_uncapped, choice.current)
+                                } else {
+                                    stringResource(
+                                        if (choice.skill) R.string.advancement_choice_skill else R.string.advancement_choice_stat,
+                                        choice.current,
+                                        choice.max,
+                                    )
+                                },
                             )
                         }
                         Button(

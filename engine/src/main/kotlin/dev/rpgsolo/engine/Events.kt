@@ -20,8 +20,50 @@ data class TraitUseSpent(val entityId: String, val traitId: String, val uses: In
 @Serializable
 data class TraitUsesReset(val entityId: String, val traitIds: List<String> = emptyList()) : Event
 
+/** N-18: [days] dias passam; pergaminhos vencidos caem. */
 @Serializable
-data class EntityDied(val entityId: String) : Event
+data class DaysAdvanced(val days: Int) : Event
+
+/** N-18: pergaminho de elemento aplicado à peça [itemId] no [slot] de [ownerId] por [days] dias. */
+@Serializable
+data class ScrollEnchantApplied(val ownerId: String, val slot: String, val itemId: String, val element: ElementPath, val days: Int) : Event
+
+/** N-36: marca de Tatuador aplicada (nova ou cobrindo a de [coverIndex]); [maxDelta] ajusta o máximo de PV. */
+@Serializable
+data class TattooApplied(
+    val ownerId: String,
+    val scope: String,
+    val grade: Int,
+    val coverIndex: Int? = null,
+    val maxDelta: Map<String, Int> = emptyMap(),
+) : Event
+
+/** N-33.4: gema engastada em [itemId] (peça equipada em [slot]); [maxDelta] ajusta o máximo de PV. */
+@Serializable
+data class GemSocketed(
+    val ownerId: String,
+    val slot: String,
+    val itemId: String,
+    val gem: Gem,
+    val maxDelta: Map<String, Int> = emptyMap(),
+) : Event
+
+/** N-33.4: gema da posição [index] removida da peça; a gema não se destrói. */
+@Serializable
+data class GemRemoved(
+    val ownerId: String,
+    val slot: String,
+    val itemId: String,
+    val index: Int,
+    val maxDelta: Map<String, Int> = emptyMap(),
+) : Event
+
+/**
+ * [killerId]/[cause] (LG-01): quem ou o que causou a morte; ambos null = ambiente ou origem desconhecida.
+ * [cause] só é preenchida quando não há um autor (ex.: `condicao:veneno`). Logs antigos decodificam com null.
+ */
+@Serializable
+data class EntityDied(val entityId: String, val killerId: String? = null, val cause: String? = null) : Event
 
 /** M-04: a entidade caiu (continua viva). */
 @Serializable
@@ -53,7 +95,12 @@ data class CampaignEnded(val reason: String) : Event
 data class ItemChanged(val ownerId: String, val itemId: String, val delta: Int) : Event
 
 @Serializable
-data class EquipmentChanged(val ownerId: String, val slot: String, val itemId: String?) : Event
+data class EquipmentChanged(
+    val ownerId: String,
+    val slot: String,
+    val itemId: String?,
+    val maxDelta: Map<String, Int> = emptyMap(),
+) : Event
 
 @Serializable
 data class XpGained(val entityId: String, val amount: Int) : Event
@@ -85,7 +132,7 @@ data class SkillTreeProgressed(
     val freeBase: Boolean,
 ) : Event
 
-/** Distribuição inicial única de 12 pontos entre atributos e pontos de habilidade. */
+/** Distribuição inicial única (N-02): 10 pontos de status entre os atributos + 2 pontos de habilidade (valores do pacote). */
 @Serializable
 data class InitialBuildAllocated(
     val entityId: String,
@@ -128,6 +175,15 @@ data class CurseRemoved(val targetId: String, val curseId: String, val reason: S
 data class TargetSkillEffectsApplied(
     val actorId: String,
     val targetId: String,
+    val skillId: String,
+    val effects: List<ActiveEffect>,
+) : Event
+
+/** N-29: efeitos de uma habilidade de apoio aplicados a todos os [targetIds] (aliados em combate) de uma vez. */
+@Serializable
+data class AllySkillEffectsApplied(
+    val actorId: String,
+    val targetIds: List<String>,
     val skillId: String,
     val effects: List<ActiveEffect>,
 ) : Event
@@ -195,6 +251,7 @@ data class ConditionAdded(
     val durationRounds: Int? = null,
     val damagePerRound: Int = 0,
     val damageResource: String = "hp",
+    val damagePercent: Int = 0,
 ) : Event
 
 @Serializable
@@ -309,6 +366,10 @@ data class ClashRecorded(
     val ignoreThreshold: Int? = null,
     val ignoreRoll: Int? = null,
     val ignoreGuaranteed: Boolean = false,
+    /** N-06: chance (%) e dado d100 do teste de acerto; nulos quando o confronto não teve teste. */
+    val hitChance: Int? = null,
+    val hitRoll: Int? = null,
+    val missed: Boolean = false,
 ) : Event
 
 @Serializable
@@ -323,6 +384,29 @@ data class AttackResolved(
 private fun GameState.entity(id: String): Entity = requireNotNull(entities[id]) { "evento aponta para entidade inexistente: $id" }
 
 /** Reducer: estado novo = estado antigo + evento. Assume evento já validado por [decide]. */
+
+/** N-33.4: soma [delta] ao máximo dos recursos de [ownerId] (sobe o atual junto; ao descer, o atual não passa do máximo e não zera quem está vivo). */
+private fun withMaxDelta(
+    entities: Map<String, Entity>,
+    ownerId: String,
+    delta: Map<String, Int>,
+): Map<String, Entity> {
+    val ent = entities[ownerId] ?: return entities
+    if (delta.isEmpty()) return entities
+    val resources =
+        ent.resources.mapValues { (id, r) ->
+            val d = delta[id] ?: 0
+            if (d == 0) {
+                r
+            } else {
+                val max = (r.max + d).coerceAtLeast(0)
+                val cur = (if (d > 0) r.current + d else r.current).coerceIn(0, max)
+                Resource(if (r.current > 0) cur.coerceAtLeast(1).coerceAtMost(max) else cur, max)
+            }
+        }
+    return entities + (ent.id to ent.copy(resources = resources))
+}
+
 fun GameState.apply(e: Event): GameState {
     val next =
         when (e) {
@@ -332,11 +416,19 @@ fun GameState.apply(e: Event): GameState {
                 val res = requireNotNull(ent.resources[e.resource]) { "recurso inexistente: ${e.resource}" }
                 copy(entities = entities + (ent.id to ent.copy(resources = ent.resources + (e.resource to res.copy(current = e.newValue)))))
             }
-            is EntityDied ->
-                copy(
-                    entities = entities + (e.entityId to entity(e.entityId).copy(alive = false, downed = false, deathFailures = 0)),
-                    combat = combat?.copy(defending = combat.defending - e.entityId),
-                )
+            is EntityDied -> {
+                val dying = entity(e.entityId)
+                val died =
+                    copy(
+                        entities = entities + (e.entityId to dying.copy(alive = false, downed = false, deathFailures = 0)),
+                        combat = combat?.copy(defending = combat.defending - e.entityId),
+                    )
+                if (dying.kind == EntityKind.PLAYER) {
+                    died.copy(legacies = legacies + (dying.id to legacyOf(dying, e.killerId, e.cause)))
+                } else {
+                    died
+                }
+            }
             is EntityDowned ->
                 copy(
                     entities = entities + (e.entityId to entity(e.entityId).copy(downed = true, deathFailures = 0)),
@@ -347,6 +439,7 @@ fun GameState.apply(e: Event): GameState {
             is EntityRevived ->
                 copy(
                     entities = entities + (e.entityId to entity(e.entityId).copy(alive = true, downed = false, deathFailures = 0)),
+                    legacies = legacies - e.entityId,
                 )
             is NpcAssumed ->
                 copy(
@@ -365,7 +458,23 @@ fun GameState.apply(e: Event): GameState {
             is EquipmentChanged -> {
                 val owner = equipped[e.ownerId] ?: emptyMap()
                 val nextOwner = if (e.itemId == null) owner - e.slot else owner + (e.slot to e.itemId)
-                copy(equipped = if (nextOwner.isEmpty()) equipped - e.ownerId else equipped + (e.ownerId to nextOwner))
+                val ent = entities[e.ownerId]
+                val resources =
+                    ent?.resources?.mapValues { (id, r) ->
+                        val delta = e.maxDelta[id] ?: 0
+                        if (delta == 0) {
+                            r
+                        } else {
+                            val max = (r.max + delta).coerceAtLeast(0)
+                            val cur = (if (delta > 0) r.current + delta else r.current).coerceIn(0, max)
+                            Resource(if (r.current > 0) cur.coerceAtLeast(1).coerceAtMost(max) else cur, max)
+                        }
+                    }
+                val nextEntities = if (ent != null && e.maxDelta.isNotEmpty()) entities + (ent.id to ent.copy(resources = resources!!)) else entities
+                copy(
+                    equipped = if (nextOwner.isEmpty()) equipped - e.ownerId else equipped + (e.ownerId to nextOwner),
+                    entities = nextEntities,
+                )
             }
             is XpGained -> {
                 val ent = entity(e.entityId)
@@ -475,6 +584,16 @@ fun GameState.apply(e: Event): GameState {
                 val kept = activeEffects[e.targetId].orEmpty().filter { it.sourceId != source && it.sourceId != "$source:desvantagem" }
                 copy(activeEffects = activeEffects + (e.targetId to (kept + e.effects)))
             }
+            is AllySkillEffectsApplied -> {
+                val source = "habilidade:${e.skillId}"
+                copy(
+                    activeEffects =
+                        activeEffects +
+                            e.targetIds.associateWith { id ->
+                                activeEffects[id].orEmpty().filter { it.sourceId != source && it.sourceId != "$source:desvantagem" } + e.effects
+                            },
+                )
+            }
             is SkillTreeProgressReset -> {
                 val current = entity(e.entityId)
                 copy(
@@ -577,6 +696,194 @@ fun GameState.apply(e: Event): GameState {
                 val kept = if (e.traitIds.isEmpty()) emptyMap() else current - e.traitIds.toSet()
                 copy(traitUses = if (kept.isEmpty()) traitUses - e.entityId else traitUses + (e.entityId to kept))
             }
+            is CompanionTamed ->
+                copy(
+                    entities = entities + (e.entity.id to e.entity),
+                    companions =
+                        companions.mapValues {
+                                (id, c) ->
+                            if (id in e.stabledIds) c.copy(stabled = true, visitedWeek = Kennel.weekOf(day)) else c
+                        } +
+                            (e.entity.id to e.companion),
+                    kennelWeek = kennelWeek ?: Kennel.weekOf(day),
+                    relations =
+                        relations +
+                            (
+                                relationKey(e.entity.id, e.companion.ownerId) to
+                                    maxOf(relations[relationKey(e.entity.id, e.companion.ownerId)] ?: 0, ALLY_RELATION_MIN)
+                            ),
+                )
+            is CompanionXpGained -> {
+                val animal = entities.getValue(e.animalId)
+                copy(
+                    entities = entities + (e.animalId to animal.copy(xp = animal.xp + e.amount, level = e.newLevel, abilityPoints = animal.abilityPoints + e.abilityPointsGained)),
+                    companions = companions + (e.animalId to companions.getValue(e.animalId).copy(loyalty = e.newLoyalty)),
+                )
+            }
+            is CompanionAttackChosen ->
+                copy(companions = companions + (e.animalId to companions.getValue(e.animalId).copy(attackId = e.attackId)))
+            is CompanionAttackRaised -> {
+                val animal = entities.getValue(e.animalId)
+                copy(
+                    entities = entities + (e.animalId to animal.copy(abilityPoints = animal.abilityPoints - 1)),
+                    companions = companions + (e.animalId to companions.getValue(e.animalId).copy(attackLevel = e.newLevel)),
+                )
+            }
+            is CompanionLeveledUp -> {
+                val animal = entities.getValue(e.animalId)
+                copy(
+                    entities = entities + (e.animalId to animal.copy(level = e.newLevel, abilityPoints = animal.abilityPoints + if (e.abilityPointGained) 1 else 0)),
+                    companions = companions + (e.animalId to companions.getValue(e.animalId).copy(loyalty = e.newLoyalty)),
+                )
+            }
+            is CompanionTrickLearnAttempted -> {
+                val current = companions.getValue(e.animalId)
+                copy(
+                    companions =
+                        companions +
+                            (
+                                e.animalId to
+                                    current.copy(tricks = if (e.success) current.tricks + e.trickId else current.tricks, lastLearnDay = e.day)
+                            ),
+                )
+            }
+            is CompanionTrickOrdered -> this
+            is CompanionStabled ->
+                copy(companions = companions + (e.animalId to companions.getValue(e.animalId).copy(stabled = true, visitedWeek = e.week)))
+            is CompanionBrought ->
+                copy(
+                    companions =
+                        companions.mapValues { (id, c) ->
+                            when {
+                                id == e.animalId -> c.copy(stabled = false)
+                                id in e.stabledIds -> c.copy(stabled = true, visitedWeek = e.week)
+                                else -> c
+                            }
+                        },
+                )
+            is CompanionRetrained -> {
+                val current = companions.getValue(e.animalId)
+                if (e.success) {
+                    copy(
+                        companions =
+                            companions.mapValues { (id, c) ->
+                                when {
+                                    id == e.animalId ->
+                                        c.copy(
+                                            lost = false,
+                                            stabled = false,
+                                            loyalty = e.newLoyalty,
+                                            retrainAttempts = 0,
+                                            visitedWeek = e.week,
+                                        )
+                                    id in e.stabledIds -> c.copy(stabled = true, visitedWeek = e.week)
+                                    else -> c
+                                }
+                            },
+                        relations =
+                            relations +
+                                (
+                                    relationKey(e.animalId, current.ownerId) to
+                                        maxOf(relations[relationKey(e.animalId, current.ownerId)] ?: 0, ALLY_RELATION_MIN)
+                                ),
+                    )
+                } else {
+                    copy(companions = companions + (e.animalId to current.copy(retrainAttempts = e.attempt, abandoned = e.abandoned)))
+                }
+            }
+            is TrainerBonusSynced -> {
+                var nextEntities = entities
+                var nextCompanions = companions
+                for ((id, wanted) in e.bonus) {
+                    val c = nextCompanions[id] ?: continue
+                    val ent = nextEntities[id]
+                    if (ent != null) {
+                        val stats = ent.stats.toMutableMap()
+                        for (stat in c.trainerBonus.keys + wanted.keys) {
+                            val delta = (wanted[stat] ?: 0) - (c.trainerBonus[stat] ?: 0)
+                            if (delta != 0) stats[stat] = (stats[stat] ?: 0) + delta
+                        }
+                        nextEntities = nextEntities + (id to ent.copy(stats = stats))
+                    }
+                    nextCompanions = nextCompanions + (id to c.copy(trainerBonus = wanted))
+                }
+                copy(entities = nextEntities, companions = nextCompanions)
+            }
+            is CompanionVisited ->
+                copy(
+                    companions =
+                        companions +
+                            (e.animalId to companions.getValue(e.animalId).copy(loyalty = e.newValue, lastPetDay = e.day, visitedWeek = e.week)),
+                )
+            is KennelWeekSettled -> {
+                var nextCompanions = companions
+                var nextRelations = relations
+                for (change in e.changes) {
+                    val current = nextCompanions.getValue(change.animalId)
+                    val gone = change.animalId in e.lost
+                    nextCompanions = nextCompanions + (change.animalId to current.copy(loyalty = change.newValue, lost = current.lost || gone))
+                    if (gone) nextRelations = nextRelations - relationKey(change.animalId, current.ownerId)
+                }
+                copy(companions = nextCompanions, relations = nextRelations, kennelWeek = e.week)
+            }
+            is CompanionLoyaltyChanged -> {
+                val current = companions.getValue(e.animalId)
+                copy(
+                    companions = companions + (e.animalId to current.copy(loyalty = e.newValue, lastPetDay = e.petDay ?: current.lastPetDay)),
+                )
+            }
+            is DaysAdvanced -> {
+                val now = day + e.days
+                val kept =
+                    scrollEnchants.mapValues { (_, bySlot) -> bySlot.filterValues { it.expiresDay > now } }.filterValues { it.isNotEmpty() }
+                copy(day = now, scrollEnchants = kept)
+            }
+            is ScrollEnchantApplied ->
+                copy(
+                    scrollEnchants =
+                        scrollEnchants +
+                            (e.ownerId to ((scrollEnchants[e.ownerId] ?: emptyMap()) + (e.slot to ScrollEnchant(e.itemId, e.element, day + e.days)))),
+                )
+            is TattooApplied -> {
+                val marks = tattoos[e.ownerId].orEmpty()
+                val mark = Tattoo(e.scope, e.grade)
+                val nextMarks = if (e.coverIndex == null) marks + mark else marks.mapIndexed { i, m -> if (i == e.coverIndex) mark else m }
+                val ent = entities[e.ownerId]
+                val nextEntities =
+                    if (ent != null && e.maxDelta.isNotEmpty()) {
+                        val resources =
+                            ent.resources.mapValues { (id, r) ->
+                                val delta = e.maxDelta[id] ?: 0
+                                if (delta == 0) {
+                                    r
+                                } else {
+                                    val max = (r.max + delta).coerceAtLeast(0)
+                                    val cur = (if (delta > 0) r.current + delta else r.current).coerceIn(0, max)
+                                    Resource(if (r.current > 0) cur.coerceAtLeast(1).coerceAtMost(max) else cur, max)
+                                }
+                            }
+                        entities + (ent.id to ent.copy(resources = resources))
+                    } else {
+                        entities
+                    }
+                copy(tattoos = tattoos + (e.ownerId to nextMarks), entities = nextEntities)
+            }
+            is GemSocketed -> {
+                val bySlot = gems[e.ownerId].orEmpty()
+                val old = bySlot[e.slot]?.takeIf { it.itemId == e.itemId }?.gems.orEmpty()
+                val next = bySlot + (e.slot to SocketedGems(e.itemId, old + e.gem))
+                copy(gems = gems + (e.ownerId to next), entities = withMaxDelta(entities, e.ownerId, e.maxDelta))
+            }
+            is GemRemoved -> {
+                val bySlot = gems[e.ownerId].orEmpty()
+                val old = bySlot[e.slot]?.takeIf { it.itemId == e.itemId }?.gems.orEmpty()
+                val left = old.filterIndexed { i, _ -> i != e.index }
+                val next = if (left.isEmpty()) bySlot - e.slot else bySlot + (e.slot to SocketedGems(e.itemId, left))
+                copy(
+                    gems = if (next.isEmpty()) gems - e.ownerId else gems + (e.ownerId to next),
+                    entities = withMaxDelta(entities, e.ownerId, e.maxDelta),
+                )
+            }
             is FactRecorded -> copy(facts = facts + (e.key to e.value))
             is MemoryNoted ->
                 copy(
@@ -605,7 +912,7 @@ fun GameState.apply(e: Event): GameState {
                         conditionStates + (
                             e.entityId to (
                                 (conditionStates[e.entityId] ?: emptyMap()) +
-                                    (e.condition to ConditionState(e.durationRounds, e.damagePerRound, e.damageResource))
+                                    (e.condition to ConditionState(e.durationRounds, e.damagePerRound, e.damageResource, e.damagePercent))
                             )
                         ),
                 )

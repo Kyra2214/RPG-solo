@@ -130,14 +130,28 @@ data class GameState(
     val sourceMode: SourceMode? = null,
     /** entidade -> traço -> usos já gastos desde o último zeramento (M-01). Sem entrada = nenhum uso. */
     val traitUses: Map<String, Map<String, Int>> = emptyMap(),
+    /** N-18: dia da campanha; avança no descanso e por [AdvanceDays]. */
+    val day: Int = 0,
+    /** N-18: pergaminhos de elemento ativos: dono -> (slot -> encantamento temporário). */
+    val scrollEnchants: Map<String, Map<String, ScrollEnchant>> = emptyMap(),
+    /** N-36: marcas de Tatuador por dono, na ordem em que foram feitas; dados antigos assumem vazio. */
+    val tattoos: Map<String, List<Tattoo>> = emptyMap(),
+    /** N-33.4: gemas engastadas por dono e slot; dados antigos assumem vazio. */
+    val gems: Map<String, Map<String, SocketedGems>> = emptyMap(),
     /** I-02.1: NPC/lugar -> notas do que importa lembrar (as mais recentes, até [MEMORY_NOTES_PER_SUBJECT]). */
     val memories: Map<String, List<String>> = emptyMap(),
     /** MU-06.3: entidade -> efeitos temporários de habilidades, com duração em rodadas gravada. */
     val activeEffects: Map<String, List<ActiveEffect>> = emptyMap(),
     /** MU-02.5: entidade -> rodadas restantes de recarga do "ignorar defesa"; some ao chegar a 0. */
     val ignoreCooldowns: Map<String, Int> = emptyMap(),
+    /** N-32: animais adestrados (id da entidade NPC -> adestramento); dados antigos assumem vazio. */
+    val companions: Map<String, CompanionState> = emptyMap(),
+    /** N-33.2: última semana ([Kennel.weekOf]) já liquidada no criadouro; null até o primeiro animal ser adestrado. */
+    val kennelWeek: Int? = null,
     /** M-04: motivo do fim da campanha (game over); null = em andamento. Encerrada, o motor recusa novos comandos. */
     val endedReason: String? = null,
+    /** LG-01: legado de cada herói morto (id do herói -> legado); renascer apaga. Dados antigos assumem vazio. */
+    val legacies: Map<String, HeroLegacy> = emptyMap(),
 )
 
 const val MEMORY_NOTES_PER_SUBJECT = 5
@@ -156,12 +170,20 @@ data class ConditionState(
     val remainingRounds: Int?,
     val damagePerRound: Int = 0,
     val damageResource: String = "hp",
+    /** N-08: dano por rodada em % do máximo do recurso (1–100, arredondado para cima, mínimo 1). 0 = usa [damagePerRound] fixo. */
+    val damagePercent: Int = 0,
 ) {
     init {
         require(remainingRounds == null || remainingRounds > 0) { "duração de condição inválida" }
         require(damagePerRound >= 0) { "dano de condição negativo" }
+        require(damagePercent in 0..100) { "percentual de dano de condição fora de 0..100" }
         require(damageResource.isNotBlank()) { "recurso de condição vazio" }
     }
+
+    val dealsDamage: Boolean get() = damagePerRound > 0 || damagePercent > 0
+
+    /** Dano deste tique para um recurso de máximo [resourceMax]. */
+    fun tickDamage(resourceMax: Int): Int = if (damagePercent > 0) maxOf(1, (resourceMax * damagePercent + 99) / 100) else damagePerRound
 }
 
 /** [order] já vem decidido (iniciativa rolada pelo motor). */
@@ -231,3 +253,7 @@ internal fun relationKey(
     fromId: String,
     toId: String,
 ): String = "$fromId\u0000$toId"
+
+/** N-18: encantamento temporário de pergaminho em [itemId] (arma ou peito equipado); vale enquanto [GameState.day] < [expiresDay]. */
+@Serializable
+data class ScrollEnchant(val itemId: String, val element: ElementPath, val expiresDay: Int)

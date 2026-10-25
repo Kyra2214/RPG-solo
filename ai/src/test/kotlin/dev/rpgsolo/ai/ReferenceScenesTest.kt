@@ -108,6 +108,7 @@ class ReferenceScenesTest {
         listOf(
             "Imersão",
             "Ciclo de cena e turno",
+            "Oportunidades de ofício",
             "request_check",
             "request_roll",
             "request_npc",
@@ -142,5 +143,16 @@ class ReferenceScenesTest {
         val noTitle = ProposalParser.parse("""{"narrative":"x","request_quest":{"objectives":["a"]}}""")
         val badXp = ProposalParser.parse("""{"narrative":"x","request_quest":{"title":"T","xpReward":"muito"}}""")
         listOf(withProposals, noTitle, badXp).forEach { assertTrue(it is ParseResult.Invalid) }
+    }
+
+    @Test
+    fun lembreteDeOficioSoApareceAteOMestreRegistrarOFato() {
+        val base = dev.rpgsolo.engine.GameState()
+
+        fun text(state: dev.rpgsolo.engine.GameState): String =
+            ContextAssembler.build(ContextInput(state, "hero", "olho ao redor", craftOpportunity = true)).messages.last().content
+        assertTrue("regra 18" in text(base))
+        assertTrue("regra 18" !in text(base.copy(facts = mapOf(CRAFT_OFFER_FACT to "sim"))))
+        assertTrue("regra 18" !in ContextAssembler.build(ContextInput(base, "hero", "olho ao redor")).messages.last().content)
     }
 }

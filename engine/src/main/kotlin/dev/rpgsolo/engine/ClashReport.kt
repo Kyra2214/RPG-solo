@@ -24,6 +24,8 @@ data class ClashReport(
     val rejectedSources: List<String>,
     val critLine: String?,
     val ignoreLine: String?,
+    val hitLine: String? = null,
+    val missed: Boolean = false,
 ) {
     /** Linhas em português para o cartão/histórico (strings localizadas ficam para a interface, U-03). */
     fun lines(
@@ -32,6 +34,11 @@ data class ClashReport(
     ): List<String> =
         buildList {
             add("Ataque de $attackerLabel em $targetLabel")
+            hitLine?.let { add(it) }
+            if (missed) {
+                add("Errou: sem dano")
+                return@buildList
+            }
             addAll(attackSources.map { "• $it" })
             add("Valor efetivo: $attackValue · expressão $attackExpression")
             critLine?.let { add(it) }
@@ -72,6 +79,8 @@ data class ClashReport(
                         else -> "Ignorar defesa: dado ${e.ignoreRoll} (precisa de $t+)${if (e.ignoredDefense) " → ignorou" else ""}"
                     }
                 },
+                e.hitChance?.let { c -> "Acerto: dado ${e.hitRoll} (precisa de $c ou menos)${if (e.missed) " → errou" else " → acertou"}" },
+                e.missed,
             )
     }
 }

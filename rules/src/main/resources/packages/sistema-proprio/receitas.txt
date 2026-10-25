@@ -1,0 +1,111 @@
+# N-20: receitas de ofício. A IA nunca inventa receita; só as deste arquivo valem.
+# id|nome|tipo|entradas|saidas|nivel|dificuldade (opcional, 0-40, tira % da chance)|manter_na_falha (opcional, entradas que não se perdem)|habilidade (opcional, N-21: id do degrau que libera a receita)|garantida_por (opcional: degrau que tira a chance de falha)
+# tipo: criar, preparar, consertar, identificar. Entradas e saídas: item:quantidade separados por vírgula (ids aceitam qualidade, ex.: espada-curta#rara).
+# coluna 11 (N-35, opcional): tempo em dias (0-30) que a receita leva; avança o relógio da campanha ao tentar.
+# chance: 50% + 5% por Habilidade + 2% por Sorte + 5% por degrau de ofício acima do primeiro - dificuldade (5% a 95%). Falha: perde metade das entradas (arredondada para baixo) que não estão em manter_na_falha; em consertar (N-35) perde todas.
+forjar-barra-ferro|Forjar barra de ferro|criar|minerio-ferro:2|barra-de-ferro:1|1|0|
+curtir-couro|Curtir couro|criar|couro-cru:2|couro-curtido:1|1|0|
+preparar-pocao-cura-menor|Preparar poção de cura menor|preparar|erva-curativa:2,frasco-vazio:1|pocao-cura-menor:1|1|5|
+preparar-pocao-mana|Preparar poção de mana|preparar|essencia-arcana:1,frasco-vazio:1|pocao-mana:1|1|10|
+consertar-espada-curta|Consertar espada curta|consertar|espada-curta-quebrada:1,barra-de-ferro:1|espada-curta:1|1|5|espada-curta-quebrada|profissao-ferreiro-2|profissao-ferreiro-4
+forjar-espada-curta|Fazer espada curta|criar|barra-de-ferro:3|espada-curta:1|1|10||profissao-ferreiro-3|
+forjar-cota-de-malha|Forjar cota de malha|criar|barra-de-ferro:8,couro-curtido:2|cota-de-malha:1|1|15||profissao-ferreiro-3||2
+forjar-espada-longa|Forjar espada longa|criar|barra-de-ferro:6,couro-curtido:1|espada-longa:1|1|15||profissao-ferreiro-3||1
+consertar-machado|Consertar machado|consertar|machado-quebrado:1,madeira-resistente:1|machado:1|1|5|machado-quebrado|profissao-armeiro-2|profissao-armeiro-4
+forjar-machado|Fazer machado|criar|barra-de-ferro:2,madeira-resistente:1|machado:1|1|10||profissao-armeiro-3|
+forjar-lanca|Fazer lança|criar|barra-de-ferro:1,madeira-resistente:2|lanca:1|1|5||profissao-armeiro-3|
+forjar-montante|Forjar montante|criar|barra-de-ferro:8,couro-curtido:1|montante:1|1|15||profissao-armeiro-3|
+consertar-capacete|Consertar capacete|consertar|capacete-quebrado:1,barra-de-ferro:1|capacete:1|1|5|capacete-quebrado|profissao-armeiro-de-armaduras-2|profissao-armeiro-de-armaduras-4
+forjar-capacete|Fazer capacete|criar|barra-de-ferro:3|capacete:1|1|10||profissao-armeiro-de-armaduras-3|
+forjar-escudo-leve|Fazer escudo leve|criar|madeira-resistente:3,couro-curtido:1|escudo-leve:1|1|5||profissao-armeiro-de-armaduras-3|
+forjar-escudo-pesado|Forjar escudo pesado|criar|barra-de-ferro:6,madeira-resistente:2|escudo-pesado:1|1|15||profissao-armeiro-de-armaduras-3|
+consertar-arco-curto|Consertar arco curto|consertar|arco-curto-quebrado:1,corda:1|arco-curto:1|1|5|arco-curto-quebrado|profissao-perito-em-arcos-2|profissao-perito-em-arcos-4
+forjar-arco-longo|Fazer arco longo|criar|madeira-resistente:4,corda:2|arco-longo:1|1|15||profissao-perito-em-arcos-3|
+forjar-arco-curto|Fazer arco curto|criar|madeira-resistente:3,corda:1|arco-curto:1|1|5||profissao-fabricante-de-arcos-3|
+fazer-flechas|Fazer flechas|criar|madeira-resistente:1,barra-de-ferro:1,fibra-vegetal:1|flecha:10|1|0||profissao-fabricante-de-flechas-2|
+consertar-calca-reforcada|Consertar calça reforçada|consertar|calca-reforcada-quebrada:1,tecido:1|calca-reforcada:1|1|5|calca-reforcada-quebrada|profissao-alfaiate-2|profissao-alfaiate-4
+forjar-calca-reforcada|Fazer calça reforçada|criar|tecido:3,couro-curtido:1|calca-reforcada:1|1|10||profissao-alfaiate-3|
+fazer-tecido|Tecer tecido|criar|fibra-vegetal:3|tecido:1|1|0||profissao-tecelao-2|
+forjar-roupa-reforcada|Confeccionar roupa reforçada|criar|tecido:4,couro-curtido:2|roupa-reforcada:1|1|5||profissao-tecelao-3|
+consertar-luvas-de-couro|Consertar luvas de couro|consertar|luvas-de-couro-quebradas:1,couro-curtido:1|luvas-de-couro:1|1|5|luvas-de-couro-quebradas|profissao-curtidor-2|profissao-curtidor-4
+forjar-luvas-de-couro|Fazer luvas de couro|criar|couro-curtido:2|luvas-de-couro:1|1|10||profissao-curtidor-3|
+curtir-couro-oficio|Curtir couro com perícia|criar|couro-cru:2|couro-curtido:2|1|0||profissao-curtidor-2|
+consertar-botas-de-couro|Consertar botas de couro|consertar|botas-de-couro-quebradas:1,couro-curtido:1|botas-de-couro:1|1|5|botas-de-couro-quebradas|profissao-sapateiro-2|profissao-sapateiro-4
+forjar-botas-de-couro|Fazer botas de couro|criar|couro-curtido:3|botas-de-couro:1|1|10||profissao-sapateiro-3|
+fazer-corda|Trançar corda|criar|fibra-vegetal:3|corda:1|1|0||profissao-cordoeiro-2|
+fazer-corda-reforcada|Trançar corda em lote|criar|fibra-vegetal:8|corda:3|1|5||profissao-cordoeiro-3|
+preparar-couro-curtido|Preparar couro curtido|criar|couro-cru:3,osso-polido:1|couro-curtido:3|1|0||profissao-preparador-de-peles-2|
+forjar-couro-batido|Fazer couro batido|criar|couro-curtido:4,osso-polido:1|couro-batido:1|1|5||profissao-preparador-de-peles-3|
+alquimia-pocao-cura-menor|Poção de cura menor (alquimia)|preparar|erva-curativa:2,frasco-vazio:1|pocao-cura-menor:1|1|0||profissao-alquimista-de-oficina-2|profissao-alquimista-de-oficina-4
+alquimia-pocao-cura-maior|Poção de cura maior|preparar|erva-curativa:4,essencia-arcana:1,frasco-vazio:1|pocao-cura-maior:1|1|10||profissao-alquimista-de-oficina-3|profissao-alquimista-de-oficina-5
+alquimia-pocao-mana|Poção de mana (alquimia)|preparar|essencia-arcana:1,frasco-vazio:1|pocao-mana:1|1|5||profissao-alquimista-de-oficina-3|
+herbalismo-antidoto|Antídoto|preparar|raiz-amarga:2,frasco-vazio:1|antidoto:1|1|0||profissao-herbalista-2|profissao-herbalista-4
+herbalismo-bandagem|Bandagens de ervas|preparar|erva-curativa:1,tecido:1|bandagem:2|1|0||profissao-herbalista-2|
+herbalismo-unguento|Unguento para queimaduras (ervas)|preparar|erva-curativa:2,cogumelo-ardente:1|unguento-queimadura:1|1|5||profissao-herbalista-3|
+cozinha-ensopado|Ensopado|preparar|carne-fresca:1,erva-curativa:1|ensopado:2|1|0||profissao-cozinheiro-2|
+cozinha-ensopado-farto|Ensopado farto|preparar|carne-fresca:3,raiz-amarga:1|ensopado:5|1|5||profissao-cozinheiro-3|
+padaria-pao|Assar pão|preparar|farinha:2|pao-assado:3|1|0||profissao-padeiro-2|
+padaria-pao-lote|Assar fornada|preparar|farinha:6|pao-assado:10|1|5||profissao-padeiro-3|
+cervejaria-cerveja|Fermentar cerveja|preparar|graos:3|cerveja:3|1|0||profissao-cervejeiro-2|
+cervejaria-barril|Fermentar barril|preparar|graos:10|cerveja:12|1|5||profissao-cervejeiro-3|
+perfumaria-perfume|Destilar perfume|preparar|flor-aromatica:3,frasco-vazio:1|perfume:1|1|0||profissao-perfumista-2|
+perfumaria-perfume-raro|Perfume raro|preparar|flor-aromatica:6,essencia-arcana:1,frasco-vazio:1|perfume:3|1|10||profissao-perfumista-3|
+toxinas-veneno-lamina|Veneno de lâmina|preparar|glandula-venenosa:1,frasco-vazio:1|veneno-de-lamina:2|1|5||profissao-especialista-em-toxinas-2|
+cuidados-bandagem-comunitaria|Bandagens (curandeiro)|preparar|tecido:1,erva-curativa:1|bandagem:3|1|0||profissao-curandeiro-comunitario-3|
+cuidados-bandagem-enfermaria|Bandagens (enfermaria)|preparar|tecido:1,erva-curativa:1|bandagem:3|1|0||profissao-enfermeiro-3|
+cuidados-coagulante|Poção coagulante|preparar|erva-curativa:2,raiz-amarga:1,frasco-vazio:1|pocao-coagulante:1|1|5||profissao-cirurgiao-3|profissao-cirurgiao-4
+# N-23: Mecanismos (Mecânico, Mecânico de Artefatos, Inventor, Relojoeiro)
+mec-forjar-engrenagem|Forjar engrenagens|criar|barra-de-ferro:1|engrenagem:2|1|0||profissao-relojoeiro-2|
+mec-forjar-mola|Forjar molas|criar|barra-de-ferro:1|mola-de-aco:2|1|0||profissao-inventor-2|
+mec-consertar-engenhoca|Consertar engenhoca|consertar|engenhoca-quebrada:1,engrenagem:1|engenhoca-de-fumaca:1|1|5|engenhoca-quebrada|profissao-mecanico-2|profissao-mecanico-4
+mec-montar-armadilha-de-mola|Montar armadilha de mola|criar|mola-de-aco:2,barra-de-ferro:1|armadilha-de-mola:1|1|10||profissao-mecanico-3|
+mec-montar-engenhoca-de-fumaca|Montar engenhoca de fumaça|criar|engrenagem:1,mola-de-aco:1|engenhoca-de-fumaca:1|1|10||profissao-inventor-3|profissao-inventor-5
+mec-montar-relogio-de-bolso|Montar relógio de bolso|criar|engrenagem:3,mola-de-aco:1|relogio-de-bolso:1|1|15||profissao-relojoeiro-3|profissao-relojoeiro-5
+mec-restaurar-artefato|Restaurar artefato|consertar|artefato-quebrado:1,engrenagem:2|artefato-restaurado:1|1|20|artefato-quebrado|profissao-mecanico-de-artefatos-3|profissao-mecanico-de-artefatos-5
+# N-24: Identificação e relíquias
+ide-identificar-reliquia|Identificar relíquia|identificar|reliquia-desconhecida:1|reliquia-autentica:1|1|10|reliquia-desconhecida|profissao-avaliador-de-antiguidades-2|profissao-avaliador-de-antiguidades-4
+ide-reconhecer-falsificacao|Reconhecer falsificação|identificar|reliquia-desconhecida:1|reliquia-falsa:1|1|15|reliquia-desconhecida|profissao-avaliador-de-materiais-3|
+ide-decifrar-mapa|Decifrar mapa|identificar|mapa-cifrado:1|mapa-decifrado:1|1|10|mapa-cifrado|profissao-tradutor-3|profissao-tradutor-5
+ide-decifrar-mapa-cifra|Decifrar mapa (criptoanálise)|identificar|mapa-cifrado:1|mapa-decifrado:1|1|0|mapa-cifrado|profissao-criptoanalista-3|profissao-criptoanalista-5
+ide-escavar-identificar|Examinar achado|identificar|reliquia-desconhecida:1|reliquia-autentica:1|1|20|reliquia-desconhecida|profissao-arqueologo-3|
+ide-restaurar-reliquia|Restaurar relíquia|consertar|reliquia-quebrada:1|reliquia-restaurada:1|1|20|reliquia-quebrada|profissao-restaurador-3|profissao-restaurador-5
+ide-reparar-reliquia|Reparar relíquia|consertar|reliquia-quebrada:1|reliquia-restaurada:1|1|15|reliquia-quebrada|profissao-reparador-de-reliquias-3|profissao-reparador-de-reliquias-5
+col-cacar|Caçar|criar||carne-fresca:2,couro-cru:1|1|10||profissao-cacador-2|profissao-cacador-4
+col-cortar-madeira|Cortar madeira|criar||madeira-resistente:2,fibra-vegetal:2|1|10||profissao-guarda-florestal-2|profissao-guarda-florestal-4
+col-colher-ervas|Colher ervas|criar||erva-curativa:2,raiz-amarga:1|1|10||profissao-guia-de-floresta-2|profissao-guia-de-floresta-4
+col-garimpar-montanha|Garimpar na montanha|criar||minerio-ferro:2|1|10||profissao-guia-de-montanha-2|profissao-guia-de-montanha-4
+col-colher-deserto|Colher no deserto|criar||cogumelo-ardente:2|1|10||profissao-guia-de-deserto-2|profissao-guia-de-deserto-4
+col-minerar|Minerar|criar||minerio-ferro:3,cristal-bruto:1|1|15||profissao-minerador-2|profissao-minerador-4
+col-prospectar-cristais|Prospectar cristais|criar||cristal-bruto:2,pedra-terra:1|1|15||profissao-geologo-2|profissao-geologo-4
+col-colher-ventos|Colher pedra de vento|criar||pedra-vento:1|1|20||profissao-observador-do-clima-2|profissao-observador-do-clima-4
+col-coletar-fibras|Coletar fibras|criar||fibra-vegetal:2|1|10||profissao-cartografo-de-campo-2|profissao-cartografo-de-campo-4
+mar-pescar|Pescar|criar||peixe-fresco:2|1|10||profissao-pescador-2|profissao-pescador-4
+mar-pescar-fundo|Pescar em águas fundas|criar||peixe-fresco:3|1|15||profissao-pescador-de-profundidade-2|profissao-pescador-de-profundidade-4
+mar-mergulhar|Mergulhar|criar||perola-bruta:1,alga-marinha:2|1|20||profissao-mergulhador-2|profissao-mergulhador-4
+mar-pescar-rede|Pescar com rede|criar||peixe-fresco:2|1|10||profissao-navegador-2|profissao-navegador-4
+mar-recolher-rede|Recolher a rede de carga|criar||peixe-fresco:1,alga-marinha:1|1|10||profissao-marinheiro-de-carga-2|profissao-marinheiro-de-carga-4
+art-apresentar-artista|Apresentação de artista|criar||moeda:5|1|10||profissao-artista-2|profissao-artista-4
+art-apresentar-musico|Apresentação de músico|criar||moeda:5|1|10||profissao-musico-2|profissao-musico-4
+art-apresentar-ator|Apresentação de ator|criar||moeda:5|1|10||profissao-ator-2|profissao-ator-4
+art-apresentar-dancarino|Apresentação de dançarino|criar||moeda:5|1|10||profissao-dancarino-2|profissao-dancarino-4
+fur-rastrear|Rastrear|criar||rastro-seguido:1|1|10||profissao-cacador-de-recompensas-2|profissao-cacador-de-recompensas-4
+fur-colher-pistas|Colher pistas|criar||pista-colhida:1|1|10||profissao-detetive-2|profissao-detetive-4
+fur-desarmar-armadilha|Desarmar armadilha|criar||armadilha-desarmada:1|1|15||profissao-perito-em-armadilhas-2|profissao-perito-em-armadilhas-4
+fur-abrir-fechadura|Abrir fechadura|criar||fechadura-aberta:1|1|15||profissao-espiao-2|profissao-espiao-4
+com-rumores-estalagem|Ouvir rumores na estalagem|criar||rumor-ouvido:1|1|10||profissao-estalajadeiro-2|profissao-estalajadeiro-4
+com-rumores-taverna|Ouvir rumores na taverna|criar||rumor-ouvido:1|1|10||profissao-taverneiro-2|profissao-taverneiro-4
+com-contrato-comerciante|Fechar contrato de negócio|criar||contrato-fechado:1|1|15||profissao-comerciante-2|profissao-comerciante-4
+com-contrato-advogado|Redigir contrato|criar||contrato-fechado:1|1|15||profissao-advogado-2|profissao-advogado-4
+com-contrato-escolta|Fechar contrato de escolta|criar||contrato-fechado:1|1|15||profissao-escolta-profissional-2|profissao-escolta-profissional-4
+mec-desarmar-engenhoca|Desarmar engenhoca|criar||engenhoca-desarmada:1|1|15||profissao-mecanico-2|profissao-mecanico-4
+mec-reprogramar-artefato|Reprogramar artefato|criar||artefato-reprogramado:1|1|20||profissao-mecanico-de-artefatos-2|profissao-mecanico-de-artefatos-4
+ade-pequeno|Adestrar pequeno animal|criar||animal-pequeno-adestrado:1|1|5||profissao-adestrador-1|profissao-adestrador-3
+ade-medio|Adestrar animal médio|criar||animal-medio-adestrado:1|1|10||profissao-adestrador-2|profissao-adestrador-4
+ade-grande|Adestrar animal grande|criar||animal-grande-adestrado:1|1|15||profissao-adestrador-3|profissao-adestrador-5
+ade-fera|Adestrar fera|criar||fera-adestrada:1|1|25||profissao-adestrador-4|
+ade-colossal|Adestrar criatura colossal|criar||criatura-colossal-adestrada:1|1|35||profissao-adestrador-5|
+# N-33.4: extração de gemas brutas (qualidade 1) por profissão de coleta; a qualidade sobe com o Lapidador. Minerador: Ataque e Defesa; Geólogo: Velocidade e Vida.
+col-extrair-gema-ataque|Extrair gema de ataque|criar||gema-ataque-1:1|1|20||profissao-minerador-3|profissao-minerador-5
+col-extrair-gema-defesa|Extrair gema de defesa|criar||gema-defesa-1:1|1|20||profissao-minerador-3|profissao-minerador-5
+col-extrair-gema-velocidade|Extrair gema de velocidade|criar||gema-velocidade-1:1|1|20||profissao-geologo-3|profissao-geologo-5
+col-extrair-gema-pv|Extrair gema de vida|criar||gema-pv-1:1|1|20||profissao-geologo-3|profissao-geologo-5

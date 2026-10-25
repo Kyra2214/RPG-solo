@@ -187,6 +187,7 @@ class CampaignSession private constructor(
     ): ExecResult = atomically { engine.rollInitiative(ids, diceCount, diceSides, statKey, highestFirst).also { save() } }
 
     /** Resolve um ataque no motor e salva as rolagens, o resultado e o dano confirmados. */
+    @Suppress("DEPRECATION")
     fun attack(spec: AttackSpec): AttackResult = atomically { engine.attack(spec).also { save() } }
 
     /** Ativa um poder no motor e salva custo, rolagens e efeito como uma única operação. */
@@ -205,12 +206,70 @@ class CampaignSession private constructor(
         canCrit: Boolean = true,
         ignoreDefense: IgnoreDefenseSpec? = null,
         damageResource: String = "hp",
+        hitStat: String? = null,
+        dodgeStat: String? = null,
+        luckStat: String? = null,
+        damageReduction: Int = 0,
+        luckItemBonus: Int = 0,
+        elementPercent: Int = 100,
     ): UnifiedAttackResult =
         atomically {
-            engine.unifiedAttackBetween(attackerId, targetId, providers, attackStat, defenseStat, guaranteedCrit, canCrit, ignoreDefense, damageResource).also {
+            engine.unifiedAttackBetween(
+                attackerId, targetId, providers, attackStat, defenseStat, guaranteedCrit, canCrit, ignoreDefense, damageResource, hitStat, dodgeStat, luckStat, damageReduction, luckItemBonus, elementPercent,
+            ).also {
                 save()
             }
         }
+
+    /** N-16: aplica a condição com chance (d100) no mesmo log persistido. */
+    fun applyConditionByChance(
+        targetId: String,
+        condition: String,
+        chancePercent: Int,
+        durationRounds: Int? = null,
+        damagePerRound: Int = 0,
+        damageResource: String = "hp",
+        damagePercent: Int = 0,
+        damageFactorPercent: Int = 100,
+    ): Boolean =
+        atomically {
+            engine.applyConditionByChance(
+                targetId,
+                condition,
+                chancePercent,
+                durationRounds,
+                damagePerRound,
+                damageResource,
+                damagePercent,
+                damageFactorPercent,
+            ).also { save() }
+        }
+
+    /** N-20: ação de ofício no mesmo log persistido. */
+    fun attemptCraft(
+        ownerId: String,
+        kind: CraftKind,
+        inputs: Map<String, Int>,
+        outputs: Map<String, Int>,
+        chancePercent: Int,
+        keepOnFailure: Set<String> = emptySet(),
+    ): CraftResult = atomically { engine.attemptCraft(ownerId, kind, inputs, outputs, chancePercent, keepOnFailure).also { save() } }
+
+    /** N-20: afanar no mesmo log persistido. */
+    fun attemptPilfer(
+        thiefId: String,
+        targetId: String,
+        itemId: String,
+        dexterity: Int,
+        agility: Int,
+        qty: Int = 1,
+    ): CraftResult = atomically { engine.attemptPilfer(thiefId, targetId, itemId, dexterity, agility, qty).also { save() } }
+
+    /** N-32.4: rolagem simples registrada no log persistido. */
+    fun rollPlain(
+        label: String,
+        sides: Int,
+    ): Int = atomically { engine.rollPlain(label, sides).also { save() } }
 
     /** MU-05.1: XP de missão concluída, uma vez, com teto por nível. */
     fun awardQuestXp(

@@ -21,10 +21,18 @@ class UnifiedCombatTest {
         value: Int,
     ) = Modifier(source, source, target, value)
 
-    @Test fun danoEhAtaqueMenosDefesaSemMinimo() {
-        assertEquals(6, UnifiedCombat.damageOf(10, 4))
+    @Test fun danoEhAtaqueMenosSessentaECincoPorCentoDaDefesaArredondadoParaCima() {
+        assertEquals(8, UnifiedCombat.damageOf(10, 4))
         assertEquals(0, UnifiedCombat.damageOf(3, 5))
-        assertEquals(0, UnifiedCombat.damageOf(5, 5))
+        assertEquals(2, UnifiedCombat.damageOf(5, 5))
+        assertEquals(7, UnifiedCombat.damageOf(8, 3))
+        assertEquals(1, UnifiedCombat.damageOf(7, 10))
+        assertEquals(0, UnifiedCombat.damageOf(6, 10))
+        assertEquals(0, UnifiedCombat.damageOf(0, 0))
+    }
+
+    @Test fun defesaNegativaNuncaAumentaODano() {
+        assertEquals(5, UnifiedCombat.damageOf(5, -3))
     }
 
     @Test fun invarianteDeDanoEmVariasSeeds() {
@@ -37,8 +45,9 @@ class UnifiedCombatTest {
             } else {
                 assertNotNull(r.attackRoll)
             }
-            assertEquals(maxOf(0, r.attackTotal - r.defenseTotal), r.damage)
-            r.crit?.roll?.let { assertTrue(it.total in 1..6) }
+            assertTrue(r.defenseTotal >= 0)
+            assertEquals(UnifiedCombat.damageOf(r.attackTotal, r.defenseTotal), r.damage)
+            r.crit?.roll?.let { assertTrue(it.total in 1..10) }
         }
     }
 
@@ -54,7 +63,7 @@ class UnifiedCombatTest {
         assertTrue(r.crit!!.guaranteed)
         assertNull(r.crit!!.roll)
         assertNull(r.attackRoll)
-        assertEquals(maxOf(0, 10 - r.defenseTotal), r.damage)
+        assertEquals(UnifiedCombat.damageOf(10, r.defenseTotal), r.damage)
     }
 
     @Test fun semPermissaoDeCriticoNaoHaCriticoEHaRolagemDeAtaque() {
@@ -65,9 +74,9 @@ class UnifiedCombatTest {
     }
 
     @Test fun limiarDeCriticoCaiComBonusAteUm() {
-        assertEquals(6, UnifiedCombat.checkCrit(emptyList(), false, Dice(1)).threshold)
-        assertEquals(5, UnifiedCombat.checkCrit(listOf(mod("a", "crit", 1)), false, Dice(1)).threshold)
-        assertEquals(3, UnifiedCombat.checkCrit(listOf(mod("a", "crit", 1), mod("b", "crit", 2)), false, Dice(1)).threshold)
+        assertEquals(10, UnifiedCombat.checkCrit(emptyList(), false, Dice(1)).threshold)
+        assertEquals(9, UnifiedCombat.checkCrit(listOf(mod("a", "crit", 1)), false, Dice(1)).threshold)
+        assertEquals(7, UnifiedCombat.checkCrit(listOf(mod("a", "crit", 1), mod("b", "crit", 2)), false, Dice(1)).threshold)
         val floor = UnifiedCombat.checkCrit(listOf(mod("a", "crit", 20)), false, Dice(1))
         assertEquals(1, floor.threshold)
         assertTrue(floor.critical)
@@ -75,7 +84,32 @@ class UnifiedCombatTest {
 
     @Test fun bonusDeCriticoDaMesmaFonteNaoRepete() {
         val c = UnifiedCombat.checkCrit(listOf(mod("a", "crit", 1), mod("a", "crit", 1)), false, Dice(1))
-        assertEquals(5, c.threshold)
+        assertEquals(9, c.threshold)
+    }
+
+    @Test fun sorteReduzOLimiteAteSeisETetoDeSetentaPorCento() {
+        assertEquals(9, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 1).threshold)
+        assertEquals(4, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 6).threshold)
+        assertEquals(4, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 20).threshold)
+        assertEquals(10, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = -3).threshold)
+    }
+
+    @Test fun sorteDeItemPassaDoTetoDeSetentaPorCentoAteCemPorCento() {
+        assertEquals(3, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 6, luckBonus = 1).threshold)
+        assertEquals(2, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 6, luckBonus = 2).threshold)
+        assertEquals(1, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 6, luckBonus = 3).threshold)
+        assertEquals(1, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 6, luckBonus = 9).threshold)
+        assertEquals(10, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 0, luckBonus = -2).threshold)
+    }
+
+    @Test fun sorteDeAtributoAcimaDeSeisNaoContaMasADeItemContaInteira() {
+        assertEquals(4, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 9).threshold)
+        assertEquals(3, UnifiedCombat.checkCrit(emptyList(), false, Dice(1), luck = 9, luckBonus = 1).threshold)
+    }
+
+    @Test fun itensLevamOCriticoAteCemPorCentoSomandoComASorte() {
+        assertEquals(1, UnifiedCombat.checkCrit(listOf(mod("elmo", "crit", 3)), false, Dice(1), luck = 6).threshold)
+        assertEquals(1, UnifiedCombat.checkCrit(listOf(mod("elmo", "crit", 9)), false, Dice(1), luck = 6).threshold)
     }
 
     @Test fun ignorarDefesaGarantidoCausaCentoECinquentaPorCentoSemDados() {
@@ -256,5 +290,41 @@ class UnifiedCombatTest {
             ).validate(state).size,
         )
         assertEquals(1, ExceptionRegistry(listOf(MechanicalException("", "boss", "d", effect))).validate(state).size)
+    }
+
+    @Test fun chanceDeAcertoDependeDeDestrezaEAgilidade() {
+        assertEquals(50, UnifiedCombat.hitChance(3, 3))
+        assertEquals(65, UnifiedCombat.hitChance(6, 3))
+        assertEquals(35, UnifiedCombat.hitChance(3, 6))
+        assertEquals(95, UnifiedCombat.hitChance(50, 0))
+        assertEquals(5, UnifiedCombat.hitChance(0, 50))
+    }
+
+    @Test fun erroNaoRolaCriticoNemAtaqueNemDefesaENaoCausaDano() {
+        val spec = HitSpec(bd("destreza", 0), bd("agilidade", 50))
+        var misses = 0
+        var hits = 0
+        repeat(300) { seed ->
+            val r = UnifiedCombat.resolve(bd("attack", 9), bd("defense", 2), Dice(seed.toLong()), hitSpec = spec)
+            assertEquals(5, r.hit!!.chance)
+            if (r.missed) {
+                misses++
+                assertEquals(0, r.damage)
+                assertNull(r.crit)
+                assertNull(r.attackRoll)
+                assertNull(r.defenseRoll)
+            } else {
+                hits++
+                assertNotNull(r.defenseRoll)
+            }
+        }
+        assertTrue(misses > hits)
+        assertTrue(hits > 0)
+    }
+
+    @Test fun semTesteDeAcertoOConfrontoNaoMudou() {
+        val a = UnifiedCombat.resolve(bd("attack", 8), bd("defense", 6), Dice(11))
+        assertNull(a.hit)
+        assertTrue(!a.missed)
     }
 }

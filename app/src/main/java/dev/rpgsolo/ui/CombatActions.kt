@@ -1,6 +1,5 @@
 package dev.rpgsolo.ui
 
-import dev.rpgsolo.engine.AttackSpec
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.NextTurn
@@ -20,6 +19,8 @@ class CombatActions(
     private val savePending: () -> Unit,
     private val onChanged: () -> Unit,
     private val bonuses: CombatBonuses,
+    /** N-33.2c: avisa quando o companheiro sobe de nível por XP de combate (nome do animal, novo nível). */
+    private val onCompanionLevelUp: (String, Int) -> Unit = { _, _ -> },
 ) {
     /** Inicia a iniciativa do jogador e dos NPCs preparados para este encontro; os números vêm do motor. */
     fun startCombat(): String? =
@@ -126,9 +127,30 @@ class CombatActions(
     /** Só recompensa quando o combate terminou e todos os NPCs que participaram foram derrotados. */
     fun awardCombatVictoryXp(combatantIds: Collection<String>): Int {
         if (session().state.combat != null || session().state.entities[playerId()]?.alive != true) return 0
-        val npcIds = combatantIds.filter { session().state.entities[it]?.kind == EntityKind.NPC }
+        val companionIds = session().state.companions.values.filter { it.ownerId == playerId() }.map { it.entityId }.toSet()
+        val npcIds = combatantIds.filter { session().state.entities[it]?.kind == EntityKind.NPC && it !in companionIds }
         if (npcIds.isEmpty() || npcIds.any { session().state.entities[it]?.alive == true }) return 0
-        val xp = activePackage()?.data?.creation?.get("combate_xp_vitoria")?.toIntOrNull() ?: 0
+        val config = activePackage()?.engineConfig()
+        val fixed = activePackage()?.data?.creation?.get("combate_xp_vitoria")?.toIntOrNull() ?: 0
+
+        fun xpFor(level: Int): Int =
+            if ((config?.victoryXpPercent ?: 0) > 0) {
+                npcIds.sumOf { config!!.battleXp(level, session().state.entities[it]?.level ?: 1) }
+            } else {
+                fixed
+            }
+        // N-33.1: o companheiro vivo que participou ganha XP pelo nível dele (única fonte de XP do animal).
+        for (animalId in combatantIds.filter { it in companionIds }) {
+            val animal = session().state.entities[animalId]?.takeIf { it.alive } ?: continue
+            val animalXp = xpFor(animal.level)
+            if (animalXp > 0) {
+                val before = animal.level
+                session().execute(dev.rpgsolo.engine.GainCompanionXp(animalId, animalXp))
+                val after = session().state.entities[animalId]?.level ?: before
+                if (after > before) onCompanionLevelUp(animal.name, after)
+            }
+        }
+        val xp = xpFor(session().state.entities[playerId()]?.level ?: 1)
         if (xp <= 0) return 0
         return when (session().execute(dev.rpgsolo.engine.GainXp(playerId(), xp))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> xp
@@ -143,63 +165,8 @@ class CombatActions(
     ): String? {
         val combat = session().state.combat ?: return "Não há combate ativo."
         if (combat.current != attackerId) return "não é o turno de $attackerId"
-        val pkg = activePackage() ?: return "pacote de regras não está ativo"
-        val resource = pkg.manifest.deathResource ?: return "o pacote não define o recurso de vida usado no combate"
-        val attackStat =
-            pkg.data.creation["combate_atributo_ataque"]
-                ?: return "o pacote não define o atributo de ataque"
-        val defenseStat =
-            pkg.data.creation["combate_atributo_defesa"]
-                ?: return "o pacote não define o atributo de defesa"
-        val combatBonuses =
-            dev.rpgsolo.engine.ModifierProvider { state, entity, target ->
-                val scope =
-                    when (target) {
-                        attackStat -> "ataque"
-                        defenseStat -> "defesa"
-                        else -> target
-                    }
-                val external =
-                    bonuses.externalSkillAndCurseBonuses(entity.id, setOf(scope, target))
-                        .filter { it.scope == scope || it.scope == target }
-                        .mapIndexed { index, effect ->
-                            dev.rpgsolo.engine.Modifier(
-                                sourceId = "unified:${entity.id}:${effect.source}:$index",
-                                label = effect.source,
-                                target = target,
-                                value = effect.bonus,
-                            )
-                        }
-                val equipment = pkg.equipmentBonus(state.equipped[entity.id].orEmpty().values, scope)
-                val traits = pkg.traitBonus(bonuses.combatTraitIds(entity.id), scope)
-                val adaptations = bonuses.approvedRuleBonus(scope)
-                val total = equipment + traits + adaptations
-                external +
-                    if (total == 0) {
-                        emptyList()
-                    } else {
-                        listOf(
-                            dev.rpgsolo.engine.Modifier(
-                                sourceId = "unified:${entity.id}:package:$scope",
-                                label = "fontes do pacote",
-                                target = target,
-                                value = total,
-                            ),
-                        )
-                    }
-            }
         val mark = session().mark()
-        return when (
-            val result =
-                session().unifiedAttackBetween(
-                    attackerId,
-                    targetId,
-                    listOfNotNull(combatBonuses, pkg.exceptionRegistry()),
-                    attackStat,
-                    defenseStat,
-                    damageResource = resource,
-                )
-        ) {
+        return when (val result = strike(attackerId, targetId)) {
             is dev.rpgsolo.engine.UnifiedAttackResult.Rejected -> result.reason
             is dev.rpgsolo.engine.UnifiedAttackResult.Resolved -> {
                 val targetName = session().state.entities[targetId]?.name ?: targetId
@@ -208,7 +175,7 @@ class CombatActions(
                         if (attackerId == playerId()) awardCombatVictoryXp(combat.order)
                         onChanged()
                         val attackerName = session().state.entities[attackerId]?.name ?: attackerId
-                        "$attackerName atacou $targetName."
+                        if (result.clash.missed) "$attackerName errou o ataque em $targetName." else "$attackerName atacou $targetName."
                     }
                     is dev.rpgsolo.engine.ExecResult.Rejected -> {
                         session().rollbackTo(mark)
@@ -218,6 +185,144 @@ class CombatActions(
             }
         }
     }
+
+    /**
+     * N-09: único golpe do jogo (jogador, NPC, aliado, chefe, habilidades): pipeline unificado de acerto, crítico, ataque e defesa.
+     * [extraAttack] soma ao ataque (habilidades); [elementalScope] soma resistência elementar do alvo. Não avança o turno.
+     */
+    private fun strike(
+        attackerId: String,
+        targetId: String,
+        extraAttack: Int = 0,
+        elementalScope: String? = null,
+    ): dev.rpgsolo.engine.UnifiedAttackResult {
+        fun rejected(reason: String) = dev.rpgsolo.engine.UnifiedAttackResult.Rejected(reason)
+        val pkg = activePackage() ?: return rejected("pacote de regras não está ativo")
+        val resource = pkg.manifest.deathResource ?: return rejected("o pacote não define o recurso de vida usado no combate")
+        val attackStat = pkg.data.creation["combate_atributo_ataque"] ?: return rejected("o pacote não define o atributo de ataque")
+        val defenseStat = pkg.data.creation["combate_atributo_defesa"] ?: return rejected("o pacote não define o atributo de defesa")
+        val hitStat = pkg.data.creation["combate_atributo_acerto"]
+        val dodgeStat = pkg.data.creation["combate_atributo_esquiva"]
+        val luckStat = pkg.data.creation["combate_atributo_sorte"]
+        val defendBonus = pkg.engineConfig().defendBonus
+        val combatBonuses =
+            dev.rpgsolo.engine.ModifierProvider { state, entity, target ->
+                val scopes =
+                    when (target) {
+                        attackStat -> listOf("ataque", "dano")
+                        defenseStat -> listOf("defesa")
+                        else -> listOf(target)
+                    }
+                val external =
+                    bonuses.externalSkillAndCurseBonuses(entity.id, scopes.toSet() + target)
+                        .filter { it.scope in scopes || it.scope == target }
+                        .mapIndexed { index, effect ->
+                            dev.rpgsolo.engine.Modifier(
+                                sourceId = "unified:${entity.id}:${effect.source}:$index",
+                                label = effect.source,
+                                target = target,
+                                value = effect.bonus,
+                            )
+                        }
+                val total =
+                    scopes.sumOf { scope ->
+                        pkg.equipmentBonus(state.equipped[entity.id].orEmpty().values, scope, bonuses.wearerProfile(entity.id)) +
+                            dev.rpgsolo.engine.Tattoos.bonus(state.tattoos[entity.id], scope) +
+                            dev.rpgsolo.engine.Gems.bonus(state.gems[entity.id], state.equipped[entity.id], scope) +
+                            pkg.traitBonus(bonuses.combatTraitIds(entity.id), scope) +
+                            bonuses.approvedRuleBonus(scope)
+                    }
+                val extras = mutableListOf<dev.rpgsolo.engine.Modifier>()
+                if (total != 0) {
+                    extras += dev.rpgsolo.engine.Modifier("unified:${entity.id}:package:$target", "fontes do pacote", target, total)
+                }
+                if (target == attackStat || target == defenseStat) {
+                    val shift = bonuses.conditionDiceShift(entity.id, target)
+                    if (shift != 0) extras += dev.rpgsolo.engine.Modifier("unified:${entity.id}:conditions:$target", "condições", target, shift)
+                }
+                if (target == attackStat && entity.id == attackerId && extraAttack != 0) {
+                    extras += dev.rpgsolo.engine.Modifier("unified:${entity.id}:skill-extra", "habilidade", target, extraAttack)
+                }
+                if (target == defenseStat && defendBonus > 0 && state.combat?.defending?.contains(entity.id) == true) {
+                    extras += dev.rpgsolo.engine.Modifier("unified:${entity.id}:defend", "postura defensiva", target, defendBonus)
+                }
+                external + extras
+            }
+        val reduction =
+            pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_dano") +
+                bonuses.skillTreeAndActiveBonus(targetId, "resistencia_dano") +
+                (
+                    elementalScope?.let { scope ->
+                        pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_$scope") +
+                            bonuses.skillTreeAndActiveBonus(targetId, "resistencia_$scope")
+                    } ?: 0
+                )
+        val weaponId = session().state.equipped[attackerId]?.get(dev.rpgsolo.rules.WEAPON_SLOT)
+        val weapon = weaponId?.let { pkg.item(it) }
+        val none = dev.rpgsolo.engine.ElementPath.NONE
+        val attackElement =
+            elementalScope?.let { dev.rpgsolo.engine.ElementChart.parse(it) } ?: weaponId?.let { id ->
+                pkg.effectiveElement(id).takeIf { it != none } ?: scrollElement(attackerId, dev.rpgsolo.rules.WEAPON_SLOT, id)
+            } ?: none
+        val chestId = session().state.equipped[targetId]?.get(dev.rpgsolo.rules.CHEST_SLOT)
+        val chestElement =
+            chestId?.let { id ->
+                dev.rpgsolo.rules.ItemRef.enchantment(id).takeIf { it != none } ?: scrollElement(targetId, dev.rpgsolo.rules.CHEST_SLOT, id)
+            } ?: none
+        val affinity =
+            session().state.entities[targetId]?.skillTreeElement?.takeIf { it.isNotBlank() }
+                ?.let { dev.rpgsolo.engine.ElementChart.parse(it) } ?: none
+        val elementPercent =
+            if (chestElement != none) {
+                dev.rpgsolo.engine.ElementChart.armorPercent(setOf(attackElement), chestElement)
+            } else {
+                dev.rpgsolo.engine.ElementChart.percent(setOf(attackElement), affinity)
+            }
+        val result =
+            session().unifiedAttackBetween(
+                attackerId,
+                targetId,
+                listOfNotNull(combatBonuses, pkg.exceptionRegistry()),
+                attackStat,
+                defenseStat,
+                damageResource = resource,
+                hitStat = hitStat,
+                dodgeStat = dodgeStat,
+                luckStat = luckStat,
+                damageReduction = reduction.coerceAtLeast(0),
+                luckItemBonus =
+                    luckStat?.let {
+                        pkg.equipmentBonus(session().state.equipped[attackerId].orEmpty().values, it, bonuses.wearerProfile(attackerId))
+                    } ?: 0,
+                elementPercent = elementPercent,
+            )
+        val conditionId = weapon?.conditionId
+        if (weapon != null && conditionId != null && elementalScope == null && result is dev.rpgsolo.engine.UnifiedAttackResult.Resolved &&
+            !result.clash.missed && result.clash.damage > 0
+        ) {
+            val luck = luckStat?.let { session().state.entities[attackerId]?.stats?.get(it) } ?: 0
+            val def = pkg.data.conditions.firstOrNull { it.id == conditionId }
+            session().applyConditionByChance(
+                targetId,
+                conditionId,
+                dev.rpgsolo.engine.ConditionChance.chance(weapon.conditionChance, luck),
+                def?.durationRounds,
+                def?.damagePerRound ?: 0,
+                def?.damageResource ?: "hp",
+                def?.damagePercent ?: 0,
+                if (chestElement != none) 50 else 100,
+            )
+        }
+        return result
+    }
+
+    /** N-18: elemento do pergaminho ativo na peça [itemId] equipada no [slot] de [ownerId]; NONE se não houver ou for de outra peça. */
+    private fun scrollElement(
+        ownerId: String,
+        slot: String,
+        itemId: String,
+    ): dev.rpgsolo.engine.ElementPath =
+        session().state.scrollEnchants[ownerId]?.get(slot)?.takeIf { it.itemId == itemId }?.element ?: dev.rpgsolo.engine.ElementPath.NONE
 
     /** Resolve o ataque do inimigo atual e só então avança o turno; nenhum número vem da IA. */
     fun resolveNpcTurn(): String? {
@@ -240,7 +345,7 @@ class CombatActions(
         return unifiedAttack(targetId, combat.current)
     }
 
-    /** Ataque local: atributos e bônus vêm do pacote e do equipamento; a IA não escolhe números. */
+    /** Ataque local (inclui multiataque e habilidades com custo): cada golpe passa pelo pipeline unificado; a IA não escolhe números. */
     fun attack(
         targetId: String,
         strikeCount: Int = 1,
@@ -255,40 +360,7 @@ class CombatActions(
             require(strikeCount in 1..20) { "quantidade de golpes inválida" }
             if (strikeCount > 1) require(session().state.combat != null) { "multiataque só pode ser usado durante combate" }
             val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
-            val resource =
-                pkg.manifest.deathResource
-                    ?: return "o pacote não define o recurso de vida usado no combate"
-            val attackStat =
-                pkg.data.creation["combate_atributo_ataque"]
-                    ?: return "o pacote não define o atributo de ataque"
-            val defenseStat =
-                pkg.data.creation["combate_atributo_defesa"]
-                    ?: return "o pacote não define o atributo de defesa"
-            val attackDiceCount =
-                pkg.data.creation["combate_dados_ataque"]?.toIntOrNull()
-                    ?: return "o pacote não define combate_dados_ataque"
-            val attackDiceSides =
-                pkg.data.creation["combate_lados_ataque"]?.toIntOrNull()
-                    ?: return "o pacote não define combate_lados_ataque"
-            val attackComparison =
-                pkg.data.creation["combate_comparacao_ataque"]?.let {
-                    runCatching { dev.rpgsolo.engine.Comparison.valueOf(it) }.getOrNull()
-                } ?: return "o pacote não define uma comparação de ataque válida"
-            val baseDamage =
-                pkg.data.creation["combate_dano_base"]?.toIntOrNull()
-                    ?: return "o pacote não define combate_dano_base"
-            val baseDefense =
-                pkg.data.creation["combate_defesa_base"]?.toIntOrNull()
-                    ?: return "o pacote não define combate_defesa_base"
-            val damageDef =
-                pkg.data.creation["combate_dano"]?.let { id ->
-                    pkg.data.damage.firstOrNull { it.id == id }
-                        ?: return "o pacote referencia um perfil de dano inexistente: $id"
-                }
-            val attackerEquipment = session().state.equipped[playerId()].orEmpty().values
-            val targetEquipment = session().state.equipped[targetId].orEmpty().values
-            val attackConditionShift = bonuses.conditionDiceShift(playerId(), attackStat)
-            val targetConditionShift = bonuses.conditionDiceShift(targetId, defenseStat)
+            val damageDef = pkg.data.creation["combate_dano"]?.let { id -> pkg.data.damage.firstOrNull { it.id == id } }
             val combatantsBefore = session().state.combat?.order.orEmpty()
             val attackMark = session().mark()
             if (spendResource != null && spendCost > 0) {
@@ -297,56 +369,12 @@ class CombatActions(
                     is dev.rpgsolo.engine.ExecResult.Rejected -> return spent.reason
                 }
             }
-            val spec =
-                dev.rpgsolo.engine.AttackSpec(
-                    attackerId = playerId(),
-                    targetId = targetId,
-                    attackStat = attackStat,
-                    defenseStat = defenseStat,
-                    attackDiceCount = attackDiceCount,
-                    attackDiceSides = attackDiceSides,
-                    attackComparison = attackComparison,
-                    damageResource = resource,
-                    damage = baseDamage,
-                    defenseDefault = baseDefense,
-                    attackBonus =
-                        pkg.equipmentBonus(attackerEquipment, "ataque") +
-                            pkg.traitBonus(bonuses.combatTraitIds(playerId()), "ataque") +
-                            bonuses.skillTreeAndActiveBonus(playerId(), "ataque") +
-                            bonuses.skillTreeAndActiveBonus(playerId(), "precisao") +
-                            bonuses.skillTreeAndActiveBonus(playerId(), "velocidade") +
-                            bonuses.approvedRuleBonus("ataque") +
-                            bonuses.approvedRuleBonus(attackStat) + attackConditionShift,
-                    damageBonus =
-                        pkg.equipmentBonus(attackerEquipment, "dano") +
-                            pkg.traitBonus(bonuses.combatTraitIds(playerId()), "dano") +
-                            bonuses.skillTreeAndActiveBonus(playerId(), "dano") +
-                            bonuses.approvedRuleBonus("dano") +
-                            (damageDef?.bonusStat?.let(bonuses::approvedRuleBonus) ?: 0) + extraDamageBonus,
-                    defenseBonus =
-                        pkg.equipmentBonus(targetEquipment, "defesa") +
-                            pkg.traitBonus(bonuses.combatTraitIds(targetId), "defesa") +
-                            bonuses.skillTreeAndActiveBonus(targetId, "defesa") +
-                            bonuses.skillTreeAndActiveBonus(targetId, "velocidade") + targetConditionShift,
-                    damageReduction =
-                        pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_dano") +
-                            bonuses.skillTreeAndActiveBonus(targetId, "resistencia_dano") +
-                            (
-                                elementalResistanceScope?.let { scope ->
-                                    pkg.traitBonus(bonuses.combatTraitIds(targetId), "resistencia_$scope") +
-                                        bonuses.skillTreeAndActiveBonus(targetId, "resistencia_$scope")
-                                } ?: 0
-                            ),
-                    damageDiceCount = damageDef?.diceCount ?: 0,
-                    damageDiceSides = damageDef?.diceSides ?: 0,
-                    damageStat = damageDef?.bonusStat,
-                )
-            val results = mutableListOf<dev.rpgsolo.engine.AttackResult.Resolved>()
+            val results = mutableListOf<dev.rpgsolo.engine.ClashResult>()
             repeat(strikeCount) {
                 if (session().state.entities[targetId]?.alive != true) return@repeat
-                when (val result = session().attack(spec)) {
-                    is dev.rpgsolo.engine.AttackResult.Resolved -> results += result
-                    is dev.rpgsolo.engine.AttackResult.Rejected -> {
+                when (val result = strike(playerId(), targetId, extraDamageBonus, elementalResistanceScope)) {
+                    is dev.rpgsolo.engine.UnifiedAttackResult.Resolved -> results += result.clash
+                    is dev.rpgsolo.engine.UnifiedAttackResult.Rejected -> {
                         session().rollbackTo(attackMark)
                         return result.reason
                     }
@@ -368,18 +396,15 @@ class CombatActions(
             val victoryXp = awardCombatVictoryXp(combatantsBefore)
             onChanged()
             val outcome =
-                results.mapIndexed { index, result ->
-                    val attackText = "${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}"
-                    if (result.hit) {
-                        val damageText =
-                            result.damageRoll?.let {
-                                " Dano rolado: ${it.expression} [${it.dice.joinToString(", ")}] = ${it.total}."
-                            }.orEmpty()
-                        "Golpe ${index + 1}: acertou e causou ${result.damage} de dano.$damageText"
-                    } else {
-                        "Golpe ${index + 1}: errou (ataque $attackText)."
+                results.mapIndexed { index, clash ->
+                    when {
+                        clash.missed -> "Golpe ${index + 1}: errou (acerto ${clash.hit?.roll?.total} contra ${clash.hit?.chance}%)."
+                        clash.damage > 0 ->
+                            "Golpe ${index + 1}: acertou${if (clash.critical) " (crítico)" else ""} e causou ${clash.damage} de dano."
+                        else -> "Golpe ${index + 1}: acertou, mas a defesa absorveu o dano."
                     }
                 }.joinToString(" ")
+            val attackStat = pkg.data.creation["combate_atributo_ataque"].orEmpty()
             val withSources =
                 outcome +
                     bonuses.selectedCatalogBonusSummary(pkg, listOf("ataque", "dano")) +

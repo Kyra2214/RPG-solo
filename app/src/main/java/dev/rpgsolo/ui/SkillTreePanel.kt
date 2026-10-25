@@ -35,14 +35,9 @@ fun SkillTreePanel(
     var selectedTargets by remember { mutableStateOf(emptyMap<String, String>()) }
     var completedQuestId by remember { mutableStateOf("") }
     var initialInputs by remember { mutableStateOf(emptyMap<String, String>()) }
-    var initialSkillPoints by remember { mutableStateOf("0") }
     val initial = model.initialBuildState()
-    val initialValuesValid =
-        initialInputs.values.all { it.toIntOrNull()?.let { value -> value >= 0 } == true } &&
-            initialSkillPoints.toIntOrNull()?.let { it >= 0 } == true
-    val initialTotal =
-        initialInputs.values.sumOf { it.toIntOrNull()?.toLong() ?: 0L } +
-            (initialSkillPoints.toIntOrNull()?.toLong() ?: 0L)
+    val initialValuesValid = initialInputs.values.all { it.toIntOrNull()?.let { value -> value >= 0 } == true }
+    val initialTotal = initialInputs.values.sumOf { it.toIntOrNull()?.toLong() ?: 0L }
     val actions = remember(model, version, model.campaignVersion, model.packageVersion) { model.skillTreeActions() }
     val entries = remember(version, model.campaignVersion, model.packageVersion) { actions.view() }
     val targets = remember(version, model.campaignVersion) { actions.targets() }
@@ -56,8 +51,8 @@ fun SkillTreePanel(
         )
         if (!initial.allocated) {
             SectionTitle(
-                stringResource(R.string.skilltree_initial_title),
-                stringResource(R.string.skilltree_initial_help),
+                stringResource(R.string.skilltree_initial_title, initial.statPoints, initial.abilityPoints),
+                stringResource(R.string.skilltree_initial_help, initial.statPoints, initial.abilityPoints),
             )
             initial.stats.forEach { stat ->
                 OutlinedTextField(
@@ -68,21 +63,14 @@ fun SkillTreePanel(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-            OutlinedTextField(
-                value = initialSkillPoints,
-                onValueChange = { initialSkillPoints = it.filter { ch -> ch.isDigit() } },
-                label = { Text(stringResource(R.string.skilltree_skill_points)) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Muted(stringResource(R.string.skilltree_distributed, initialTotal))
+            Muted(stringResource(R.string.skilltree_distributed, initialTotal, initial.statPoints))
             Button(
-                enabled = enabled && initialValuesValid && initialTotal == 12L && initial.stats.isNotEmpty(),
+                enabled = enabled && initialValuesValid && initialTotal == initial.statPoints.toLong() && initial.stats.isNotEmpty(),
                 onClick = {
                     val statIncreases =
                         initial.stats.associate { stat -> stat.id to (initialInputs[stat.id]?.toIntOrNull() ?: 0) }
                             .filterValues { it > 0 }
-                    act({ model.allocateInitialBuild(statIncreases, initialSkillPoints.toIntOrNull() ?: 0) }) { result ->
+                    act({ model.allocateInitialBuild(statIncreases, initial.abilityPoints) }) { result ->
                         message = result ?: context.getString(R.string.skilltree_initial_done)
                         version++
                     }

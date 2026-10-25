@@ -19,7 +19,7 @@ object BundledContent {
     private val FILES =
         listOf(
             "manifest", "atributos", "recursos", "tracos", "testes", "dificuldades", "condicoes",
-            "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo", "poderes", "perigos",
+            "dano", "itens", "criacao", "progressao", "incerto", "tutorial", "exemplos", "arquetipos", "opcoes-arquetipo", "poderes", "perigos", "receitas", "companheiros",
         )
 
     // Único sistema embutido: o sistema próprio. Pacotes de teste ficam só nos testes.

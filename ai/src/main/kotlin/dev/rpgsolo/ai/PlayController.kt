@@ -69,6 +69,8 @@ class PlayController(
     private val quests: QuestLog? = null,
     /** Recursos que "descansar" recupera (6.4.3). Padrão: só o de saúde; vazio = descanso recusado. */
     private val restResources: Set<String> = healthResource?.let { setOf(it) } ?: emptySet(),
+    /** N-33.5: descanso parcial e acampamento; null = descanso integral. */
+    private val restRules: RestRules? = null,
     /** Ficha do jogador para o mestre ver (vantagens, desvantagens, atributos...). null = o mestre só vê a saúde em palavras. */
     private val sheet: PlayerSheet? = null,
     /** id da condição -> nome para mostrar no painel (ex.: "visao-turva" -> "Visão turva"). Sem entrada, mostra o id. */
@@ -85,6 +87,8 @@ class PlayController(
     private val generationPreferences: () -> String? = { null },
     /** CP-03: briefing de retomada (ver [ResumeBriefing]); enviado só até a primeira narração depois de abrir a campanha. */
     private val resumeBriefing: () -> String? = { null },
+    /** Regra 18: o pacote ativo tem receitas de ofício (liga o lembrete até o mestre oferecer uma). */
+    private val craftOpportunity: () -> Boolean = { false },
     /** DC-05.1: trechos do documento-fonte para o texto da jogada (ver [SourceContext]). */
     private val sourceContext: (String) -> String? = { null },
 ) {
@@ -190,6 +194,7 @@ class PlayController(
                     sourceContext = sourceContext(text),
                     worldContext = worldContext(),
                     resumeBriefing = resumeBriefing(),
+                    craftOpportunity = craftOpportunity(),
                     generationPreferences = generationPreferences(),
                     playerSheet = sheetNow?.second,
                     sheetLevel = sheetNow?.first,
@@ -231,6 +236,7 @@ class PlayController(
                     sourceContext = sourceContext(pending.playerText),
                     worldContext = worldContext(),
                     resumeBriefing = resumeBriefing(),
+                    craftOpportunity = craftOpportunity(),
                     generationPreferences = generationPreferences(),
                     playerSheet = sheetNow?.second,
                     sheetLevel = sheetNow?.first,
@@ -291,7 +297,7 @@ class PlayController(
         start: Int,
     ): PlayResult {
         val mark = session.mark()
-        return when (val r = LocalActions.run(action, session, playerId, restResources)) {
+        return when (val r = LocalActions.run(action, session, playerId, restResources, restRules)) {
             is LocalResult.Done -> {
                 synchronized(chat) { entries.addLast(Entry(start, localMark = if (r.changedState) mark else null, viaLoop = false)) }
                 chat += ChatLine(Author.SYSTEM, r.text)

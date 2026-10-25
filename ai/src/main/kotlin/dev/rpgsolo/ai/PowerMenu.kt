@@ -161,7 +161,7 @@ class PowerMenu(
                     if (pkg.isImmuneToCondition(victimTraits, c.id) || exceptions?.isImmune(resolvedTarget ?: userId, c.id) == true) {
                         return PowerBuild.Invalid("o alvo é imune a ${c.name}")
                     }
-                    PowerEffect.Inflict(c.id, c.durationRounds, c.damagePerRound, c.damageResource)
+                    PowerEffect.Inflict(c.id, c.durationRounds, c.damagePerRound, c.damageResource, c.damagePercent)
                 }
                 PowerEffectKind.REMOVE_CONDITION -> PowerEffect.Cleanse(def.param)
                 PowerEffectKind.SHIELD -> {

@@ -19,6 +19,7 @@ sealed interface PowerEffect {
         val durationRounds: Int? = null,
         val damagePerRound: Int = 0,
         val damageResource: String = "hp",
+        val damagePercent: Int = 0,
     ) : PowerEffect
 
     data class Cleanse(val condition: String) : PowerEffect

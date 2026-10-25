@@ -167,6 +167,14 @@ class PackageRegistry(private val catalog: Catalog? = null) {
         hazards = byId(b.hazards, c.hazards) { it.id },
         abilities = byId(b.abilities, c.abilities) { it.id },
         exceptions = byId(b.exceptions, c.exceptions) { it.id },
+        recipes = byId(b.recipes, c.recipes) { it.id },
+        companions =
+            CompanionData(
+                bodies = byId(b.companions.bodies, c.companions.bodies) { it.id },
+                attacks = byId(b.companions.attacks, c.companions.attacks) { it.id },
+                tricks = byId(b.companions.tricks, c.companions.tricks) { it.id },
+                foods = byId(b.companions.foods, c.companions.foods) { "${it.bodyType}/${it.itemId}" },
+            ),
     )
 
     companion object {

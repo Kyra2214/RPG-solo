@@ -8,7 +8,7 @@
 ## Decisões fechadas
 
 1. Personagem começa no nível 1.
-2. Recebe 12 pontos iniciais, distribuídos livremente entre atributos e habilidades.
+2. Recebe pontos iniciais separados por tipo (N-02): **10 de status**, distribuídos entre os atributos, e **2 de habilidade/profissão**, concedidos de uma vez (antes eram 12 livres entre atributos e habilidades).
 3. A cada nível recebe +1 ponto de atributo e +1 ponto de habilidade.
 4. Escolher raça/sub-raça, classe, profissão ou combinação híbrida não cobra pontos.
 5. Toda raça e sub-raça tem uma habilidade básica própria gratuita; evoluir custa pontos.
@@ -120,7 +120,7 @@ Este bloco complementa o status anterior. Ele **não** declara as 17 fases concl
 Implementações adicionadas nesta branch:
 
 - Modelo persistente de níveis de habilidades, investimentos, habilidades gratuitas de origem, distribuição única dos 12 pontos iniciais e recompensas de pergaminhos por missão.
-- Distribuição inicial livre entre atributos e pontos de habilidade, com validação de exatamente 12 pontos e respeito aos limites de atributos definidos pelo pacote.
+- Distribuição inicial única (N-02): validação de exatamente 10 pontos de status entre os atributos e 2 pontos de habilidade (`pontos_iniciais_status` e `pontos_iniciais_habilidade` em `criacao.txt`), respeitando o teto de atributos do pacote (sem teto no sistema próprio).
 - Árvores carregadas por catálogo tipado: habilidades raciais/sub-raciais gratuitas, árvores de classe e profissão, e vertentes da Classe de Malditos.
 - Progressão sem teto global fixo, desbloqueio por ponto, custos de evolução validados pelo motor, preços de pergaminhos em prata e reset por 25.000 prata.
 - Despertar de classes híbridas por ordem: classe principal no nível 1, segunda no nível 10, terceira no nível 20 e quarta no nível 30. A interface e o contexto da IA recebem a consequência visual/social da mistura.

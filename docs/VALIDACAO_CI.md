@@ -32,7 +32,39 @@ Correções realizadas durante a validação: tipagem de `ResetTraitUses`, regra
 
 O teste Android completo e o E2E permanecem dependentes do GitHub Actions, pois o Sandbox não tem Android SDK. Eles não devem ser marcados como aprovados até uma execução verde do workflow no commit publicado.
 
-## Estado atual (2026-10-22)
+## Estado atual (2026-10-24)
+
+**Validação completa e verde.** O workflow Android CI [#40097446606](https://github.com/Kyra2214/RPG-solo/actions/runs/40097446606) (`main`, commit `40c38b1e26a0330b8de67447a83adb49ca2dbda9`, "Keep play chat controls accessible on small screens") terminou com sucesso em 24/10/2026; o job `test-and-build` levou cerca de 5 min 46 s. Relatório completo: [`docs/relatorios/ci-android-2026-10-24.md`](relatorios/ci-android-2026-10-24.md).
+
+| Etapa / módulo | Resultado | Commit | Data | Link |
+|---|---|---|---|---|
+| `Check Kotlin style` (ktlint) | **Passou** | `40c38b1` | 2026-10-24 | [#40097446606](https://github.com/Kyra2214/RPG-solo/actions/runs/40097446606) |
+| `Run JVM and Android tests` (`./gradlew test --continue`) | **Passou** — 650 testes JVM, 0 falhas | `40c38b1` | 2026-10-24 | idem |
+| `ai` / `engine` / `rules` | **203 / 255 / 192** testes aprovados (68 relatórios JUnit) | `40c38b1` | 2026-10-24 | idem |
+| E2E Android do app (`:app:connectedDebugAndroidTest`) | **Passou** — 9 testes, emulador API 35 x86_64, perfil Pixel 2 | `40c38b1` | 2026-10-24 | idem |
+| Testes instrumentados de `data` (`:data:connectedDebugAndroidTest`) | **Passou** — 6 testes (migrações Room) | `40c38b1` | 2026-10-24 | idem |
+| `Build debug APK` e upload (`rpgsolo-debug-apk`) | **Passou** — `app-debug.apk`, 11.365.245 bytes, SHA-256 `dd870c22fbc4b90f03e06070efaaac7a55bec7875adf0c0ac16cb04057d68fad` | `40c38b1` | 2026-10-24 | idem |
+
+O APK é de **debug**; não é release nem serve para publicação na Play Store. Retenção dos artefatos: 14 dias (APK, relatórios JVM e diagnósticos E2E).
+
+### Como o E2E ficou verde (2026-10-23 e 24)
+
+O E2E vinha falhando com os mesmos 9 testes escritos sem execução prévia. As correções foram, em ordem:
+
+1. **Texto de prontidão errado.** Os testes esperavam "A mesa ainda está vazia", texto que não existe mais no app; a tela inicial mostra "Preparar sua mesa" (`play_setup_title`). `waitForAppReady` e as asserções passaram a usar o texto real.
+2. **Mensagem de ficha criada.** A gravação da ficha é assíncrona, então a mensagem "Ficha de … criada e salva." precisa ser aguardada (`waitForText` em `AiTestSupport.kt`, com rolagem até o texto) em vez de verificada logo após o clique.
+3. **Layout estreito do emulador (Pixel 2).** "Regras", "Sistemas" e "Config" ficam no menu "Mais"; os testes usam `openTab`. O título "Campanhas" coincide com o rótulo da aba (dois nós iguais), e `hasSetTextAction` batia em vários campos; as asserções foram trocadas por conteúdo único da tela e pelo botão "Restaurar texto" habilitado após "Gerar texto".
+4. **Isolamento entre testes.** `FakeAiConfigTest` passou a esperar o app iniciar (`waitForAppReady`), e o app usa o Android Test Orchestrator com `clearPackageData`, para que dados criados por um teste não vazem para o seguinte.
+5. **Jogada completa com IA falsa.** O commit `40c38b1` reorganizou a tela de jogo para manter o campo de ação e o botão **Enviar** acessíveis em telas pequenas, e `jogadaCompletaComRolagemEnarracao` agora exige **Enviar** visível e habilitado antes de tocar nele; isso cobria a regressão que impedia a jogada de chegar ao transporte falso.
+
+### Pendências
+
+- O passo do emulador em `.github/workflows/android-ci.yml` ainda trata `:data:connectedDebugAndroidTest` como informativo (só `:app:` define o código de saída). Como os 6 testes de `data` passaram, o próximo passo é fazer o job falhar quando eles falharem.
+- `data/schemas` só tem `2.json` e `3.json`; o schema v10 gerado pelo build está no artefato `rpgsolo-room-schemas` e ainda precisa ser commitado. Enquanto isso, `migracaoCompleta_validaContraEsquemaExportadoDaVersaoAtual` é ignorado por `assumeTrue`.
+- Validação visual em aparelho físico (TalkBack, contraste, layout) continua pendente.
+- Avisos que não são falhas: mensagens gráficas do emulador e depreciação do runtime Node.js 20 em ações de terceiros.
+
+## Estado em 2026-10-22 (histórico)
 
 O bloqueio de runner descrito no histórico abaixo foi resolvido em 2026-10-19, quando o repositório passou a ser público e os runners padrão do GitHub Actions voltaram a iniciar. Registros anteriores a esta revisão:
 
@@ -53,9 +85,9 @@ O bloqueio de runner descrito no histórico abaixo foi resolvido em 2026-10-19, 
 | Build/upload do APK de debug | **Pendente** (depende de o job chegar a essas etapas) | `9c84a6c` | 2026-10-22 | Android CI #296 (link a preencher) |
 | ktlint (execução anterior) | Falhou — 1.331 violações em 26 arquivos do módulo `ai`; testes, E2E e APK ignorados | `cee31e7` | 2026-10-22 | [run #39829094817](https://github.com/Kyra2214/RPG-solo/actions/runs/39829094817) · [log](ci/android-ci-39829094817-ktlint-failure.log) |
 
-## Testes preparados e ainda não executados (2026-10-22)
+## Testes preparados em 2026-10-22 (executados e aprovados em 2026-10-24)
 
-`RpgDatabaseMigrationTest` (módulo `data`), `RollCardRevealTest`, `NavigationAccessibilityTest` e `CampaignStarterTest.ambientacaoNaoAlteraAFichaDoJogador` foram escritos sem Gradle/SDK e não constam de nenhuma execução do CI. Os testes instrumentados de `data` rodam no emulador do E2E sem bloquear o job; o resultado fica em `data-androidtest-result.txt` e em `data/build/reports/androidTests/connected` (artefato `rpgsolo-e2e-diagnostics`). Os esquemas Room gerados pelo build ficam no artefato `rpgsolo-room-schemas` e precisam ser commitados em `data/schemas`.
+`RpgDatabaseMigrationTest` (módulo `data`), `RollCardRevealTest`, `NavigationAccessibilityTest` e `CampaignStarterTest.ambientacaoNaoAlteraAFichaDoJogador` foram escritos sem Gradle/SDK. Passaram no CI #40097446606 (2026-10-24): os 6 testes de `data` e os 9 do app rodaram no emulador, e o passo agregado `./gradlew test` terminou sem falhas. Os esquemas Room gerados pelo build ficam no artefato `rpgsolo-room-schemas` e precisam ser commitados em `data/schemas`.
 
 ## Histórico: período sem runner (2026-10-18 e 2026-10-19, resolvido)
 

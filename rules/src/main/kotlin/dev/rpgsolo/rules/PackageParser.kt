@@ -19,6 +19,8 @@ object PackageFiles {
     const val HAZARDS = "perigos.txt"
     const val ABILITIES = "habilidades.txt"
     const val EXCEPTIONS = "excecoes.txt"
+    const val RECIPES = "receitas.txt"
+    const val COMPANIONS = "companheiros.txt"
     const val CREATION = "criacao.txt"
     const val PROGRESSION = "progressao.txt"
     const val UNCERTAIN = "incerto.txt"
@@ -29,7 +31,7 @@ object PackageFiles {
     val ALL =
         setOf(
             MANIFEST, STATS, RESOURCES, TRAITS, CHECKS, DIFFICULTIES, CONDITIONS, DAMAGE, ITEMS,
-            CREATION, PROGRESSION, UNCERTAIN, TUTORIAL, EXAMPLES, ARCHETYPES, ARCHETYPE_OPTIONS, POWERS, HAZARDS, ABILITIES, EXCEPTIONS,
+            CREATION, PROGRESSION, UNCERTAIN, TUTORIAL, EXAMPLES, ARCHETYPES, ARCHETYPE_OPTIONS, POWERS, HAZARDS, ABILITIES, EXCEPTIONS, RECIPES, COMPANIONS,
         )
 }
 
@@ -115,7 +117,6 @@ object PackageParser {
             val kv = part.split(":", limit = 2)
             if (kv.size != 2) bad("efeito de item inválido: '$part' (use escopo:+N)")
             val scope = id(kv[0].trim(), "escopo do efeito de item")
-            if (scope !in setOf("ataque", "dano", "defesa")) bad("escopo de item não suportado: '$scope' (use ataque, dano ou defesa)")
             ItemEffect(scope, int(kv[1].trim(), "bônus do item"))
         }
     }
@@ -280,14 +281,17 @@ object PackageParser {
 
         val stats =
             table(PackageFiles.STATS, 5) { f ->
-                val s = StatDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "min"), int(f[3], "max"), int(f[4], "padrao"))
+                val max = if (f[3].trim() == "-") StatDef.NO_CAP else int(f[3], "max")
+                val s = StatDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "min"), max, int(f[4], "padrao"))
                 if (s.min > s.max) bad("min maior que max")
                 if (s.default !in s.min..s.max) bad("padrao fora de min..max")
                 s
             }
         val resources =
-            table(PackageFiles.RESOURCES, 5) { f ->
-                ResourceDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "base"), optId(f[3], "atributo"), int(f[4], "mult"))
+            table(PackageFiles.RESOURCES, 5, 6) { f ->
+                val minimum = f.getOrNull(5)?.takeIf { !blank(it) }?.let { int(it, "mínimo") } ?: 0
+                if (minimum < 0) bad("mínimo do recurso negativo")
+                ResourceDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "base"), optId(f[3], "atributo"), int(f[4], "mult"), minimum)
             }
         val traits =
             table(PackageFiles.TRAITS, 6, 10) { f ->
@@ -395,15 +399,24 @@ object PackageParser {
             table(PackageFiles.CONDITIONS, 3, 8) { f ->
                 val duration = f.getOrNull(4)?.takeIf { !blank(it) }?.let { int(it, "duração em rodadas") }
                 if (duration != null && duration <= 0) bad("duração de condição deve ser positiva")
-                val damagePerRound = f.getOrNull(5)?.takeIf { !blank(it) }?.let { int(it, "dano por rodada") } ?: 0
+                val damageField = f.getOrNull(5)?.takeIf { !blank(it) }
+                val damagePercent =
+                    if (damageField?.endsWith("%") == true) int(damageField.dropLast(1), "dano por rodada em %") else 0
+                if (damagePercent !in 0..100) bad("dano por rodada em % deve ficar entre 1 e 100")
+                val damagePerRound =
+                    if (damagePercent > 0) 0 else damageField?.let { int(it, "dano por rodada") } ?: 0
                 if (damagePerRound < 0) bad("dano por rodada negativo")
-                val resource = f.getOrNull(6)?.takeIf { !blank(it) }?.let { id(it, "recurso de condição") } ?: "hp"
+                val resource =
+                    f.getOrNull(6)?.takeIf {
+                        !blank(it)
+                    }?.let { id(it, "recurso de condição") } ?: (mf["morte"]?.takeIf { it.isNotBlank() } ?: "hp")
                 val removal = f.getOrNull(7)?.takeIf { !blank(it) }?.split(":", limit = 2)
                 ConditionDef(
                     id(f[0], "id"), text(f[1], "nome"), f[2],
                     f.getOrNull(3)?.let { conditionEffect(it) }, duration, damagePerRound, resource,
                     removalCheck = removal?.get(0)?.let { id(it, "teste de remoção") },
                     removalDifficulty = removal?.getOrNull(1)?.takeIf { it.isNotEmpty() }?.let { id(it, "dificuldade de remoção") },
+                    damagePercent = damagePercent,
                 )
             }
         val damage =
@@ -521,8 +534,142 @@ object PackageParser {
                 if (modifiers.isEmpty() && immune.isEmpty()) bad("exceção deve declarar efeito ou imunidade")
                 ExceptionDef(id(f[0], "id"), id(f[1], "entidade"), text(f[2], "descricao"), modifiers, immune)
             }
+        val recipes =
+            table(PackageFiles.RECIPES, 6, 11) { f ->
+                val kind = dev.rpgsolo.engine.CraftKind.fromId(f[2]) ?: bad("tipo de receita inválido: '${f[2]}'")
+
+                fun qtyMap(
+                    s: String,
+                    what: String,
+                ): Map<String, Int> =
+                    if (blank(s)) {
+                        emptyMap()
+                    } else {
+                        s.split(",").map { part ->
+                            val pieces = part.trim().split(":")
+                            if (pieces.size != 2) bad("$what inválido: '$part' (use item:quantidade)")
+                            val qty = int(pieces[1].trim(), "quantidade")
+                            if (qty <= 0) bad("quantidade de $what deve ser positiva")
+                            pieces[0].trim() to qty
+                        }.toMap()
+                    }
+                val inputs = qtyMap(f[3], "entrada")
+                val outputs = qtyMap(f[4], "saída")
+                if (outputs.isEmpty()) bad("receita sem saída")
+                if (kind != dev.rpgsolo.engine.CraftKind.CRAFT && inputs.isEmpty()) bad("receita de ${kind.id} exige entrada")
+                val minLevel = int(f[5], "nível")
+                if (minLevel < 1) bad("nível mínimo deve ser >= 1")
+                val difficulty = f.getOrNull(6)?.takeIf { !blank(it) }?.let { int(it, "dificuldade") } ?: 0
+                if (difficulty !in 0..40) bad("dificuldade fora de 0..40")
+                val keep = f.getOrNull(7)?.takeIf { !blank(it) }?.split(",")?.map { it.trim() }?.toSet().orEmpty()
+                if (!inputs.keys.containsAll(keep)) bad("manter_na_falha deve citar apenas entradas da receita")
+                val skill = f.getOrNull(8)?.takeIf { !blank(it) }?.let { id(it, "habilidade") }
+                val guaranteed = f.getOrNull(9)?.takeIf { !blank(it) }?.let { id(it, "garantida_por") }
+                listOfNotNull(skill, guaranteed).forEach { s ->
+                    val tier = s.substringAfterLast('-').toIntOrNull()
+                    if (tier == null || tier !in 1..5 || !s.startsWith("profissao-")) {
+                        bad(
+                            "degrau inválido: '$s' (use profissao-<arvore>-<1..5>)",
+                        )
+                    }
+                }
+                if (guaranteed != null && skill == null) bad("garantida_por exige habilidade")
+                val days = f.getOrNull(10)?.takeIf { !blank(it) }?.let { int(it, "tempo") } ?: 0
+                if (days !in 0..30) bad("tempo fora de 0..30 dias")
+                RecipeDef(id(f[0], "id"), text(f[1], "nome"), kind, inputs, outputs, minLevel, difficulty, keep, skill, guaranteed, days)
+            }
+        // N-32.2: companheiros.txt (corpo|id|nome, ataque|id|corpo|nome|dano|efeito|chance, truque|id|nome|dificuldade|lealdade_min|combate|descricao, comida|corpo|item|ganho|preferida)
+        val companionBodies = mutableListOf<CompanionBodyDef>()
+        val companionAttacks = mutableListOf<CompanionAttackDef>()
+        val companionTricks = mutableListOf<CompanionTrickDef>()
+        val companionFoods = mutableListOf<CompanionFoodDef>()
+        for ((n, f) in rows(PackageFiles.COMPANIONS)) {
+            try {
+                when (f[0]) {
+                    "corpo" -> {
+                        if (f.size != 3) bad("corpo exige 3 campos (corpo|id|nome)")
+                        val bodyId = id(f[1], "id")
+                        if (bodyId !in dev.rpgsolo.engine.Companions.BODY_TYPES) {
+                            bad(
+                                "tipo de corpo desconhecido: '$bodyId' (use ${dev.rpgsolo.engine.Companions.BODY_TYPES.sorted().joinToString()})",
+                            )
+                        }
+                        companionBodies += CompanionBodyDef(bodyId, text(f[2], "nome"))
+                    }
+                    "ataque" -> {
+                        if (f.size != 7) bad("ataque exige 7 campos (ataque|id|corpo|nome|dano|efeito|chance)")
+                        val damage = CompanionDamage.fromId(f[4]) ?: bad("dano de ataque inválido: '${f[4]}' (use leve, normal ou alto)")
+                        val effect = f[5]
+                        val chance = optInt(f[6], "chance")
+                        var kind = CompanionEffectKind.NONE
+                        var ref: String? = null
+                        when {
+                            blank(effect) -> Unit
+                            effect == "distancia" -> kind = CompanionEffectKind.RANGED
+                            effect.startsWith("condicao:") -> {
+                                kind = CompanionEffectKind.CONDITION
+                                ref = id(effect.removePrefix("condicao:"), "condição")
+                            }
+                            effect.startsWith("elemento:") -> {
+                                kind = CompanionEffectKind.ELEMENT
+                                val raw = effect.removePrefix("elemento:")
+                                val el =
+                                    runCatching { dev.rpgsolo.engine.ElementChart.parse(raw) }.getOrElse {
+                                            e ->
+                                        bad(e.message.orEmpty())
+                                    }
+                                if (el == dev.rpgsolo.engine.ElementPath.NONE) bad("elemento do ataque não pode ser nenhum")
+                                ref = id(raw, "elemento")
+                            }
+                            else -> bad("efeito de ataque inválido: '$effect' (use -, condicao:<id>, elemento:<id> ou distancia)")
+                        }
+                        if (kind == CompanionEffectKind.CONDITION) {
+                            if (chance == null || chance !in 1..100) bad("chance de efeito deve estar em 1..100")
+                        } else if (chance != null) {
+                            bad("chance só vale para efeito de condição")
+                        }
+                        companionAttacks +=
+                            CompanionAttackDef(id(f[1], "id"), id(f[2], "corpo"), text(f[3], "nome"), damage, kind, ref, chance ?: 0)
+                    }
+                    "truque" -> {
+                        if (f.size != 7) bad("truque exige 7 campos (truque|id|nome|dificuldade|lealdade_min|combate|descricao)")
+                        val difficulty = int(f[3], "dificuldade")
+                        if (difficulty !in 1..20) bad("dificuldade do truque fora de 1..20")
+                        val minLoyalty = int(f[4], "lealdade mínima")
+                        if (minLoyalty !in 0..dev.rpgsolo.engine.Companions.MAX_LOYALTY) bad("lealdade mínima fora de 0..100")
+                        val combat =
+                            when (f[5]) {
+                                "sim" -> true
+                                "nao" -> false
+                                else -> bad("combate deve ser sim ou nao: '${f[5]}'")
+                            }
+                        companionTricks += CompanionTrickDef(id(f[1], "id"), text(f[2], "nome"), difficulty, minLoyalty, combat, text(f[6], "descricao"))
+                    }
+                    "comida" -> {
+                        if (f.size != 5) bad("comida exige 5 campos (comida|corpo|item|ganho|preferida)")
+                        val gain = int(f[3], "ganho")
+                        if (gain !in 1..dev.rpgsolo.engine.Companions.MAX_BASE_GAIN) {
+                            bad(
+                                "ganho de comida fora de 1..${dev.rpgsolo.engine.Companions.MAX_BASE_GAIN}",
+                            )
+                        }
+                        val preferred =
+                            when (f[4]) {
+                                "sim" -> true
+                                "nao" -> false
+                                else -> bad("preferida deve ser sim ou nao: '${f[4]}'")
+                            }
+                        companionFoods += CompanionFoodDef(id(f[1], "corpo"), id(f[2], "item"), gain, preferred)
+                    }
+                    else -> bad("tipo de linha desconhecido: '${f[0]}' (use corpo, ataque, truque ou comida)")
+                }
+            } catch (e: IllegalArgumentException) {
+                errors += "${PackageFiles.COMPANIONS} linha $n: ${e.message}"
+            }
+        }
+        val companions = CompanionData(companionBodies, companionAttacks, companionTricks, companionFoods)
         val items =
-            table(PackageFiles.ITEMS, 5, 7) { f ->
+            table(PackageFiles.ITEMS, 5, 15) { f ->
                 val kind = f[2]
                 if (kind !in setOf("equipamento", "consumivel", "narrativo")) bad("tipo de item inválido: '$kind'")
                 val slot = optId(f[3], "slot")
@@ -532,7 +679,58 @@ object PackageParser {
                 if (kind != "equipamento" && effects.isNotEmpty()) bad("apenas equipamento pode ter efeitos automáticos")
                 val price = f.getOrNull(6)?.takeIf { !blank(it) }?.let { int(it, "preço") }
                 if (price != null && price !in 1..1_000_000) bad("preço fora de 1..1000000")
-                ItemDef(id(f[0], "id"), text(f[1], "nome"), kind, slot, text(f[4], "descricao"), effects, price)
+                val minLevel = f.getOrNull(7)?.takeIf { !blank(it) && it.trim() != "-" }?.let { int(it, "nível mínimo") } ?: 1
+                if (minLevel < 1) bad("nível mínimo do item deve ser 1 ou mais")
+                if (kind != "equipamento" && minLevel != 1) bad("apenas equipamento pode ter nível mínimo")
+                val weight =
+                    f.getOrNull(8)?.takeIf { !blank(it) && it.trim() != "-" }?.let {
+                        ItemWeight.fromId(it.trim()) ?: bad("peso de item inválido: '${it.trim()}' (use pesado, medio ou leve)")
+                    }
+                val weaponType = f.getOrNull(9)?.takeIf { !blank(it) && it.trim() != "-" }?.let { id(it.trim(), "tipo de arma") }
+                if (kind != "equipamento" && (weight != null || weaponType != null)) bad("apenas equipamento pode ter peso ou tipo de arma")
+                if (weight != null && weaponType != null) bad("item não pode ter peso e tipo de arma ao mesmo tempo")
+                val hands = f.getOrNull(10)?.takeIf { !blank(it) && it.trim() != "-" }?.let { int(it, "mãos") } ?: 1
+                if (hands !in 1..2) bad("mãos do item deve ser 1 ou 2")
+                if (hands == 2 && (kind != "equipamento" || slot != WEAPON_SLOT)) {
+                    bad(
+                        "apenas arma no slot $WEAPON_SLOT pode ocupar duas mãos",
+                    )
+                }
+                val element =
+                    f.getOrNull(11)?.let {
+                        runCatching { dev.rpgsolo.engine.ElementChart.parse(it) }.getOrElse {
+                                e ->
+                            bad(e.message.orEmpty())
+                        }
+                    } ?: dev.rpgsolo.engine.ElementPath.NONE
+                val conditionId = f.getOrNull(12)?.takeIf { !blank(it) && it.trim() != "-" }?.let { id(it.trim(), "condição do item") }
+                val conditionChance = f.getOrNull(13)?.takeIf { !blank(it) && it.trim() != "-" }?.let { int(it, "chance de condição") } ?: 0
+                if ((element != dev.rpgsolo.engine.ElementPath.NONE || conditionId != null) && (kind != "equipamento" || slot != WEAPON_SLOT)) {
+                    bad("apenas arma no slot $WEAPON_SLOT pode ter elemento ou condição")
+                }
+                if (conditionId != null && conditionChance !in 1..100) bad("chance de condição deve ficar em 1..100")
+                if (conditionId == null && conditionChance != 0) bad("chance de condição exige a condição")
+                val scaleScope = f.getOrNull(14)?.takeIf { !blank(it) && it.trim() != "-" }?.trim()
+                if (scaleScope != null) {
+                    if (kind != "equipamento") bad("apenas equipamento pode ter escala por nível")
+                    if (itemEffects("$scaleScope:+1").single().scope != scaleScope) bad("escala inválida: '$scaleScope'")
+                }
+                ItemDef(
+                    id(
+                        f[0],
+                        "id",
+                    ),
+                    text(
+                        f[1],
+                        "nome",
+                    ),
+                    kind, slot,
+                    text(
+                        f[4],
+                        "descricao",
+                    ),
+                    effects, price, minLevel, weight, weaponType, hands, element, conditionId, conditionChance, scaleScope,
+                )
             }
         val creationRows = table(PackageFiles.CREATION, 2) { f -> text(f[0], "chave") to f[1] }
         noDups(PackageFiles.CREATION, creationRows.map { it.first })
@@ -633,6 +831,16 @@ object PackageParser {
         noDups(PackageFiles.HAZARDS, hazards.map { it.id })
         noDups(PackageFiles.ABILITIES, abilities.map { it.id })
         noDups(PackageFiles.EXCEPTIONS, exceptions.map { it.id })
+        noDups(PackageFiles.RECIPES, recipes.map { it.id })
+        noDups(
+            PackageFiles.COMPANIONS,
+            companions.bodies.map {
+                "corpo:${it.id}"
+            } +
+                companions.attacks.map {
+                    "ataque:${it.id}"
+                } + companions.tricks.map { "truque:${it.id}" } + companions.foods.map { "comida:${it.bodyType}/${it.itemId}" },
+        )
         exceptions.forEach { ex ->
             ex.immuneConditions.filter { c -> conditions.none { it.id == c } }.forEach {
                 errors += "${PackageFiles.EXCEPTIONS}: exceção '${ex.id}' referencia condição inexistente '$it'"
@@ -654,7 +862,7 @@ object PackageParser {
             val checkIds = checks.map { it.id }.toSet()
             val supportedTraitScopes =
                 statIds + checkIds + traitIds +
-                    setOf("ataque", "dano", "defesa", "resistencia_dano") +
+                    setOf("ataque", "dano", "defesa", "resistencia_dano", "mestre_armas", "mestre_equipamentos") +
                     resourceIds.map { "max_$it" } + conditions.map { "imune_${it.id}" }
 
             resources.forEach { resource ->
@@ -756,7 +964,7 @@ object PackageParser {
                 condition.effect?.stats?.filter { it !in statIds }?.forEach { unknown ->
                     errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' referencia atributo inexistente no efeito '$unknown'"
                 }
-                if (condition.damagePerRound > 0 && condition.damageResource !in resourceIds) {
+                if ((condition.damagePerRound > 0 || condition.damagePercent > 0) && condition.damageResource !in resourceIds) {
                     errors += "${PackageFiles.CONDITIONS}: condição '${condition.id}' causa dano em recurso inexistente '${condition.damageResource}'"
                 }
             }
@@ -790,12 +998,55 @@ object PackageParser {
                         }
                 }
             }
-            val validItemScopes = setOf("ataque", "dano", "defesa")
+            val validItemScopes = setOf("ataque", "dano", "defesa") + statIds + resourceIds.map { "max_$it" }
             items.forEach { item ->
+                if (item.conditionId != null && conditions.none { it.id == item.conditionId }) {
+                    errors += "${PackageFiles.ITEMS}: item '${item.id}' referencia condição inexistente '${item.conditionId}'"
+                }
                 item.effects.forEach { effect ->
                     if (effect.scope !in validItemScopes) {
                         errors += "${PackageFiles.ITEMS}: item '${item.id}' usa escopo de efeito desconhecido '${effect.scope}'"
                     }
+                }
+            }
+            recipes.forEach { recipe ->
+                recipe.skillId?.let { skill ->
+                    val cap = CRAFT_TIER_LEVEL_CAP[skill.substringAfterLast('-').toInt() - 1]
+                    recipe.outputs.keys.forEach { out ->
+                        val def = items.firstOrNull { it.id == ItemRef.base(out) }
+                        if (def != null && def.kind == "equipamento") {
+                            val required = maxOf(def.minLevel, (ItemRef.quality(out) ?: ItemQuality.NORMAL).minLevel)
+                            if (required > cap) {
+                                errors += "${PackageFiles.RECIPES}: receita '${recipe.id}' cria '$out' (nível $required) acima do limite $cap do degrau $skill"
+                            }
+                        }
+                    }
+                }
+                (recipe.inputs.keys + recipe.outputs.keys).filter {
+                        ref ->
+                    ItemRef.quality(ref) == null || items.none { it.id == ItemRef.base(ref) }
+                }.forEach { unknown ->
+                    errors += "${PackageFiles.RECIPES}: receita '${recipe.id}' referencia item inexistente '$unknown'"
+                }
+            }
+            companions.attacks.forEach { attack ->
+                if (companions.bodies.none { it.id == attack.bodyType }) {
+                    errors += "${PackageFiles.COMPANIONS}: ataque '${attack.id}' referencia tipo de corpo inexistente '${attack.bodyType}'"
+                }
+                if (attack.effectKind == CompanionEffectKind.CONDITION && conditions.none { it.id == attack.effectRef }) {
+                    errors += "${PackageFiles.COMPANIONS}: ataque '${attack.id}' referencia condição inexistente '${attack.effectRef}'"
+                }
+            }
+            companions.bodies.forEach { body ->
+                val count = companions.attacks.count { it.bodyType == body.id }
+                if (count != 3) errors += "${PackageFiles.COMPANIONS}: tipo de corpo '${body.id}' deve ter 3 opções de ataque (tem $count)"
+            }
+            companions.foods.forEach { food ->
+                if (companions.bodies.none { it.id == food.bodyType }) {
+                    errors += "${PackageFiles.COMPANIONS}: comida '${food.itemId}' referencia tipo de corpo inexistente '${food.bodyType}'"
+                }
+                if (items.none { it.id == food.itemId }) {
+                    errors += "${PackageFiles.COMPANIONS}: comida referencia item inexistente '${food.itemId}'"
                 }
             }
             examples.forEach { example ->
@@ -831,7 +1082,7 @@ object PackageParser {
         return ParseResult.Ok(
             PackageData(
                 manifest, stats, resources, traits, checks, difficulties, conditions, damage, items,
-                creationMap, progression, uncertain, tutorial, examples, archetypes, archetypeOptions, powers, hazards, abilities, exceptions,
+                creationMap, progression, uncertain, tutorial, examples, archetypes, archetypeOptions, powers, hazards, abilities, exceptions, recipes, companions,
             ),
         )
     }

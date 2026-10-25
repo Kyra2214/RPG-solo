@@ -203,4 +203,17 @@ class PlayerSheetTest {
         val users = provider.requests.map { it.messages.last().content }
         assertTrue("Treino de combate" in users[0] && "Treino de combate" in users[1])
     }
+
+    @Test fun utilidadesForaDeCombateEntramNaFichaDoMestre() {
+        val p = pkg()
+        val f = ficha(p)
+        val st = session(f).state
+        val com = PlayerSheet(p, f, utilities = { listOf("Mãos Leves → fechaduras") })
+        listOf(SheetLevel.FULL, SheetLevel.BRIEF).forEach { level ->
+            val text = com.render(st, "hero", level)!!
+            assertTrue(text.contains("Mãos Leves → fechaduras"))
+            assertTrue(text.contains("\"skill\""))
+        }
+        assertFalse(PlayerSheet(p, f).render(st, "hero", SheetLevel.BRIEF)!!.contains("Utilidades"))
+    }
 }

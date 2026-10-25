@@ -1,6 +1,5 @@
 package dev.rpgsolo.rules
 
-import dev.rpgsolo.engine.ElementPath
 import dev.rpgsolo.engine.SkillActionKind
 import dev.rpgsolo.engine.SkillCategory
 import dev.rpgsolo.engine.SkillEffectRecipient
@@ -64,8 +63,8 @@ object SkillTreeCatalogLoader {
                 val treeId = id(fields[1], "id da árvore")
                 val origin = SkillOrigin.valueOf(fields[3].uppercase())
                 val category = SkillCategory.valueOf(fields[4].uppercase())
-                val element = if (fields[5] == "-" || fields[5].isEmpty()) ElementPath.NONE else ElementPath.valueOf(fields[5].uppercase())
-                val requiredElement = opt(fields[6])?.let { ElementPath.valueOf(it.uppercase()) }
+                val element = dev.rpgsolo.engine.ElementChart.parse(fields[5])
+                val requiredElement = opt(fields[6])?.let { dev.rpgsolo.engine.ElementChart.parse(it) }
                 val affinityBound = fields[7].toBooleanStrict()
                 val weaponTags = opt(fields[8])?.split(",")?.map { id(it, "tag de arma") }?.toSet().orEmpty()
                 val level = fields[9].toInt().also { require(it >= 1) { "nível mínimo inválido" } }
@@ -98,6 +97,24 @@ object SkillTreeCatalogLoader {
                     require(effects.isNotEmpty()) { "habilidade direcionada precisa de efeito tipado" }
                     require(effects.all { it.target in combatTargets }) { "habilidade direcionada usa escopo de combate não suportado" }
                     require(effects.all { it.durationRounds != null }) { "efeito direcionado precisa declarar duração" }
+                }
+                if (recipient == SkillEffectRecipient.ALLIES) {
+                    val combatTargets = setOf("ataque", "dano", "defesa", "resistencia_dano", "velocidade", "precisao", "percepcao")
+                    require(actionKind == SkillActionKind.MODIFIER) { "habilidade de aliados só aceita a ação MODIFIER" }
+                    require(actionCost > 0 && actionResource != null) { "habilidade de aliados precisa declarar custo positivo e recurso" }
+                    require(effects.isNotEmpty()) { "habilidade de aliados precisa de efeito tipado" }
+                    require(effects.all { it.target in combatTargets }) { "habilidade de aliados usa escopo de combate não suportado" }
+                    require(effects.all { it.durationRounds != null }) { "efeito de aliados precisa declarar duração" }
+                    require(
+                        effects.all {
+                            it.baseValue > 0 && it.perLevel >= 0
+                        },
+                    ) { "efeito de aliados só pode ser bônus (valor positivo, sem queda por nível)" }
+                }
+                if (actionKind == SkillActionKind.OUT_OF_COMBAT) {
+                    require(actionCost > 0 && actionResource != null) { "ação fora de combate precisa declarar custo positivo e recurso" }
+                    require(effects.isNotEmpty() && effects.all { it.target == "cura" }) { "ação fora de combate só aceita efeito de cura" }
+                    require(recipient == SkillEffectRecipient.SELF) { "ação fora de combate age em quem usa ou no aliado escolhido" }
                 }
                 if (actionKind == SkillActionKind.REVIVE) {
                     require(actionCost > 0 && actionResource != null) { "ressurreição precisa declarar custo positivo e recurso" }
@@ -138,7 +155,7 @@ object SkillTreeCatalogLoader {
             val ranks = entries.mapNotNull { it.scrollRank }
             if (ranks.size != ranks.distinct().size) errors += "árvore $treeId tem posições de pergaminho duplicadas"
             if (ranks.isNotEmpty() && ranks.sorted() != ranks) errors += "árvore $treeId deve declarar posições de pergaminho em ordem"
-            entries.filter { it.freeBaseSkill && it.origin !in setOf(SkillOrigin.RACE, SkillOrigin.SUBRACE, SkillOrigin.CURSED_CLASS) }
+            entries.filter { it.freeBaseSkill && it.origin !in dev.rpgsolo.engine.SkillTreeProgression.FREE_BASE_ORIGINS }
                 .forEach { errors += "habilidade básica gratuita ${it.id} tem origem inválida" }
             entries.filter { it.prerequisiteSkillIds.any { req -> entries.none { candidate -> candidate.id == req } } }
                 .forEach { errors += "pré-requisito ausente na árvore $treeId: ${it.id}" }

@@ -35,6 +35,8 @@ data class PlayInput(
     val generationPreferences: String? = null,
     /** CP-03: briefing de retomada; só é enviado enquanto não há cenas recentes na memória do loop. */
     val resumeBriefing: String? = null,
+    /** Lembrete da regra 18 (oportunidade de ofício) ligado quando o pacote tem receitas. */
+    val craftOpportunity: Boolean = false,
     /** DC-05.1: trechos do documento-fonte para esta cena. */
     val sourceContext: String? = null,
     /** Notas mecânicas privadas persistidas para regenerar a mesma narração sem perder imunidades aplicadas. */
@@ -88,6 +90,8 @@ class GameLoop(
     private val playerTraits: () -> List<String> = { emptyList() },
     /** Bônus mecânicos de adaptações aprovadas, consultados por escopo (teste, atributo ou perícia). */
     private val additionalBonus: (String) -> Int = { 0 },
+    /** N-35: bônus de Sorte em todos os testes do jogador (+1 a cada 2 pontos de Sorte, atributo e itens), por id da entidade. */
+    private val luckTestBonus: (String) -> Int = { 0 },
     /** Efeitos tipados de outras fontes, preservando a origem no registro do teste. */
     private val externalBonuses: (Collection<String>) -> List<dev.rpgsolo.rules.ExternalBonus> = { emptyList() },
     /** Origem individual das adaptações aprovadas; o total mecânico continua vindo de additionalBonus. */
@@ -172,7 +176,9 @@ class GameLoop(
         val scopes = listOfNotNull(spec.checkId, spec.stat, skill).distinct()
         // Adaptações aprovadas alteram a ficha do jogador; não devem virar bônus globais de NPC.
         val isPlayerEntity = session.state.entities[playerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
-        val bonus = if (isPlayerEntity) scopes.sumOf(additionalBonus) else 0
+        val adaptationBonus = if (isPlayerEntity) scopes.sumOf(additionalBonus) else 0
+        val luckBonus = if (isPlayerEntity) luckTestBonus(playerId) else 0
+        val bonus = adaptationBonus + luckBonus
         val adaptationSources =
             if (isPlayerEntity) {
                 additionalBonusSources(scopes)
@@ -194,11 +200,8 @@ class GameLoop(
                             }
                     }
                 val totalLabel =
-                    if (bonus == 0) {
-                        ""
-                    } else {
-                        " · adaptação " + if (bonus > 0) "+$bonus" else bonus.toString()
-                    }
+                    (if (adaptationBonus == 0) "" else " · adaptação " + if (adaptationBonus > 0) "+$adaptationBonus" else adaptationBonus.toString()) +
+                        (if (luckBonus == 0) "" else " · Sorte +$luckBonus")
                 val label = adjusted.label + sourceLabel + totalLabel
                 if (bonus == 0) {
                     adjusted.copy(label = label)
@@ -732,6 +735,7 @@ class GameLoop(
                     recentNarrative = narrations.toList(),
                     resumeBriefing = if (narrations.isEmpty()) input.resumeBriefing else null,
                     sourceContext = input.sourceContext,
+                    craftOpportunity = input.craftOpportunity,
                     budgetTokens = input.budgetTokens,
                 ),
             )

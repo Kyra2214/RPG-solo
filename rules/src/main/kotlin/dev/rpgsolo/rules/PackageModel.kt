@@ -51,10 +51,17 @@ data class Manifest(
     val survivalFailures: Int? = null,
 )
 
-data class StatDef(val id: String, val name: String, val min: Int, val max: Int, val default: Int)
+data class StatDef(val id: String, val name: String, val min: Int, val max: Int, val default: Int) {
+    /** Atributo sem teto (`max` = "-" em `atributos.txt`): guardado como [NO_CAP]. */
+    val uncapped: Boolean get() = max == NO_CAP
 
-/** Recurso derivado: máximo = base + mult * atributo (stat nulo = só a base). */
-data class ResourceDef(val id: String, val name: String, val base: Int, val stat: String?, val mult: Int)
+    companion object {
+        const val NO_CAP: Int = Int.MAX_VALUE
+    }
+}
+
+/** Recurso derivado: máximo = max(min, base + mult * atributo) (stat nulo = só a base; min padrão 0, N-03). */
+data class ResourceDef(val id: String, val name: String, val base: Int, val stat: String?, val mult: Int, val min: Int = 0)
 
 sealed interface Requirement {
     data class MinStat(val stat: String, val min: Int) : Requirement
@@ -170,6 +177,8 @@ data class ConditionDef(
     val removalCheck: String? = null,
     /** M-05: id da dificuldade do teste de remoção; null = dificuldade padrão do pacote. */
     val removalDifficulty: String? = null,
+    /** N-08: dano por rodada em % do máximo do recurso (coluna 6 com sufixo `%`); 0 = usa [damagePerRound]. */
+    val damagePercent: Int = 0,
 )
 
 data class DamageDef(val id: String, val name: String, val diceCount: Int, val diceSides: Int, val bonusStat: String?)
@@ -187,7 +196,35 @@ data class ItemDef(
     val effects: List<ItemEffect> = emptyList(),
     /** Preço em unidades do item de moeda (`moeda_item` em criacao.txt); null = não negociável. */
     val price: Int? = null,
+    /** N-12: nível mínimo do portador para equipar (1, 5, 10, 20, 30...); qualidades épica e lendária exigem ao menos 10. */
+    val minLevel: Int = 1,
+    /** N-13: peso da peça de armadura (coluna 9 `peso`); null = sem peso, nunca sofre penalidade de classe. */
+    val weight: ItemWeight? = null,
+    /** N-13: tipo da arma (coluna 10 `tipo`, ex.: espada, arco, cajado); null = sem tipo, nunca sofre penalidade de classe. */
+    val weaponType: String? = null,
+    /** N-14: mãos que a arma ocupa (coluna 11 `maos`, 1 ou 2); duas mãos bloqueia o escudo e rende ataque ×1,5. */
+    val hands: Int = 1,
+    /** N-16: elemento da arma (coluna 12 `elemento`); NONE = sem elemento. */
+    val element: dev.rpgsolo.engine.ElementPath = dev.rpgsolo.engine.ElementPath.NONE,
+    /** N-16: condição aplicada ao acertar (coluna 13 `condicao`); null = nenhuma. */
+    val conditionId: String? = null,
+    /** N-16: chance base em % (coluna 14 `chance`, 1..100; d100 + 2% por Sorte, teto 90% sem itens/buffs). */
+    val conditionChance: Int = 0,
+    /** Escala por nível (coluna 15 `escala`): escopo que ganha ⌈nível mínimo ÷ 10⌉ (×5 em `max_pv`) quando o item não declara efeito nesse escopo; null = sem escala. */
+    val scaleScope: String? = null,
 )
+
+/** N-13: peso de equipamento, de acordo com a classe (pesado, médio ou leve). */
+enum class ItemWeight(val id: String, val setNames: List<String>) {
+    PESADO("pesado", listOf("Baluarte", "Couraça", "Titã")),
+    MEDIO("medio", listOf("Patrulha", "Malha", "Andarilho")),
+    LEVE("leve", listOf("Véu", "Manto", "Sombra")),
+    ;
+
+    companion object {
+        fun fromId(id: String): ItemWeight? = entries.firstOrNull { it.id == id }
+    }
+}
 
 /** Quem recebe o efeito de um poder. */
 enum class PowerTarget { SELF, ENEMY }
@@ -299,4 +336,86 @@ data class PackageData(
     val hazards: List<HazardDef> = emptyList(),
     val abilities: List<AbilityDef> = emptyList(),
     val exceptions: List<ExceptionDef> = emptyList(),
+    /** N-20: receitas de ofício de `receitas.txt`. */
+    val recipes: List<RecipeDef> = emptyList(),
+    /** N-32.2: tipos de corpo, ataques, truques e comidas do companheiro de `companheiros.txt`. */
+    val companions: CompanionData = CompanionData(),
 )
+
+/**
+ * N-20: receita de ofício (criar, preparar, consertar ou identificar). [inputs] e [outputs] são ids de item (aceitam qualidade) com quantidade;
+ * [keepOnFailure] são entradas que não se perdem na falha (ex.: a peça a consertar). [minLevel] é o nível mínimo do personagem;
+ * [difficulty] (0–40) reduz a chance em pontos percentuais.
+ */
+data class RecipeDef(
+    val id: String,
+    val name: String,
+    val kind: dev.rpgsolo.engine.CraftKind,
+    val inputs: Map<String, Int>,
+    val outputs: Map<String, Int>,
+    val minLevel: Int = 1,
+    val difficulty: Int = 0,
+    val keepOnFailure: Set<String> = emptySet(),
+    /** N-21: degrau de profissão (`profissao-<arvore>-<1..5>`) que libera a receita; null = qualquer herói. */
+    val skillId: String? = null,
+    /** N-21: degrau que tira a chance de falha (100%); null = nenhum. */
+    val guaranteedBy: String? = null,
+    /** N-35: dias que a receita leva (avançam o relógio da campanha ao fazer, com sucesso ou não); 0 = instantânea. */
+    val days: Int = 0,
+)
+
+/** N-21: nível máximo de equipamento que cada degrau (1 a 5) de uma profissão de ofício pode criar. */
+val CRAFT_TIER_LEVEL_CAP: List<Int> = listOf(1, 5, 10, 20, 30)
+
+/** N-32.2: dano do ataque do animal em relação ao status Ataque dele: leve ×0,8, normal ×1, alto ×1,3. */
+enum class CompanionDamage(val id: String, val percent: Int) {
+    LIGHT("leve", 80),
+    NORMAL("normal", 100),
+    HIGH("alto", 130),
+    ;
+
+    companion object {
+        fun fromId(id: String): CompanionDamage? = entries.firstOrNull { it.id == id }
+    }
+}
+
+/** N-32.2: efeito extra de um ataque do animal: nenhum, condição (d100), elemento ou à distância. */
+enum class CompanionEffectKind { NONE, CONDITION, ELEMENT, RANGED }
+
+data class CompanionBodyDef(val id: String, val name: String)
+
+/**
+ * N-32.2: opção de ataque de um tipo de corpo. [effectRef] é o id da condição (CONDITION) ou do elemento (ELEMENT);
+ * [baseChance] (1–100) é a chance base de efeito em d100 (só CONDITION; +5% por nível da habilidade, teto 90%, calculado no N-32.3).
+ */
+data class CompanionAttackDef(
+    val id: String,
+    val bodyType: String,
+    val name: String,
+    val damage: CompanionDamage,
+    val effectKind: CompanionEffectKind = CompanionEffectKind.NONE,
+    val effectRef: String? = null,
+    val baseChance: Int = 0,
+)
+
+/** N-32.2: truque em d20: [difficulty] (1–20) e [minLoyalty] (0–100) para aprender; [combat] = pode ser ordenado em combate. */
+data class CompanionTrickDef(
+    val id: String,
+    val name: String,
+    val difficulty: Int,
+    val minLoyalty: Int,
+    val combat: Boolean,
+    val description: String,
+)
+
+/** N-32.2: comida aceita por um tipo de corpo; [baseGain] (comum 2, boa 5, rara 10) dobra se [preferred]. */
+data class CompanionFoodDef(val bodyType: String, val itemId: String, val baseGain: Int, val preferred: Boolean)
+
+data class CompanionData(
+    val bodies: List<CompanionBodyDef> = emptyList(),
+    val attacks: List<CompanionAttackDef> = emptyList(),
+    val tricks: List<CompanionTrickDef> = emptyList(),
+    val foods: List<CompanionFoodDef> = emptyList(),
+) {
+    val isEmpty: Boolean get() = bodies.isEmpty() && attacks.isEmpty() && tricks.isEmpty() && foods.isEmpty()
+}

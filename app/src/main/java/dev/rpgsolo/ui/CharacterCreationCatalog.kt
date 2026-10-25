@@ -111,6 +111,21 @@ object CharacterCreationCatalog {
         }
     }
 
+    private fun classEntry(classId: String): JSONObject? {
+        val array = catalog?.optJSONArray("classes") ?: return null
+        return (0 until array.length()).mapNotNull { array.optJSONObject(it) }.firstOrNull { it.optString("id") == classId }
+    }
+
+    /** N-13: peso de equipamento da classe (`armorWeight` no catálogo), ou null se a classe não declara. */
+    fun classArmorWeight(classId: String): dev.rpgsolo.rules.ItemWeight? =
+        classEntry(classId)?.optString("armorWeight")?.let { dev.rpgsolo.rules.ItemWeight.fromId(it) }
+
+    /** N-13: tipos de arma da classe (`weaponTypes` no catálogo); vazio se a classe não declara. */
+    fun classWeaponTypes(classId: String): List<String> =
+        classEntry(classId)?.optJSONArray("weaponTypes")?.let { arr ->
+            (0 until arr.length()).map { arr.optString(it) }.filter { it.isNotBlank() }
+        }.orEmpty()
+
     private fun entries(key: String): List<CharacterCatalogEntry> {
         val array = catalog?.optJSONArray(key) ?: return emptyList()
         return (0 until array.length()).mapNotNull { index ->

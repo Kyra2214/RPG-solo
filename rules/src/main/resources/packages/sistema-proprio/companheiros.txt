@@ -1,0 +1,68 @@
+# N-32.2: companheiro adestrado. Linhas por tipo:
+# corpo|id|nome (id em quadrupede, alado, rastejante, aquatico, humanoide, inseto)
+# ataque|id|corpo|nome|dano|efeito|chance (dano: leve x0,8, normal x1, alto x1,3 do Ataque do animal; efeito: -, condicao:<id>, elemento:<id> ou distancia; chance: d100 base, só em condicao, +5% por nível da habilidade, teto 90%; cada corpo tem exatamente 3 ataques)
+# truque|id|nome|dificuldade (d20, 1..20)|lealdade_min (0..100)|combate (sim/nao)|descricao
+# comida|corpo|item|ganho (comum 2, boa 5, rara 10)|preferida (sim/nao; preferida dobra o ganho)
+corpo|quadrupede|Quadrúpedes
+corpo|alado|Alados
+corpo|rastejante|Rastejantes
+corpo|aquatico|Aquáticos
+corpo|humanoide|Humanoides
+corpo|inseto|Insetos e aracnídeos
+ataque|quad-mordida|quadrupede|Mordida|normal|-|-
+ataque|quad-investida|quadrupede|Investida|alto|condicao:caido|30
+ataque|quad-garra|quadrupede|Garra|normal|condicao:sangramento|30
+ataque|ala-bicada|alado|Bicada|normal|-|-
+ataque|ala-mergulho|alado|Mergulho|alto|-|-
+ataque|ala-rajada|alado|Rajada de asas|leve|condicao:atordoado|25
+ataque|ras-mordida-venenosa|rastejante|Mordida venenosa|normal|condicao:envenenado|40
+ataque|ras-constricao|rastejante|Constrição|leve|condicao:paralisado|30
+ataque|ras-golpe-de-cauda|rastejante|Golpe de cauda|normal|-|-
+ataque|aqu-mordida|aquatico|Mordida|normal|-|-
+ataque|aqu-jato-dagua|aquatico|Jato d'água|normal|elemento:agua|-
+ataque|aqu-golpe-de-cauda|aquatico|Golpe de cauda|leve|condicao:atordoado|25
+ataque|hum-golpe-com-arma|humanoide|Golpe com arma|normal|-|-
+ataque|hum-soco-e-chute|humanoide|Soco e chute|normal|-|-
+ataque|hum-arremesso|humanoide|Arremesso|leve|distancia|-
+ataque|ins-ferrao|inseto|Ferrão|normal|condicao:envenenado|40
+ataque|ins-teia|inseto|Teia|leve|condicao:paralisado|30
+ataque|ins-picada|inseto|Picada|normal|-|-
+truque|sentar-e-ficar|Sentar e ficar|5|10|nao|Fica parado, não foge nem atrapalha.
+truque|vir|Vir|5|10|nao|Volta ao dono na hora.
+truque|alertar|Alertar|5|10|nao|+2 em percepção ao dono na cena.
+truque|buscar|Buscar|8|25|nao|Traz um item pequeno da cena.
+truque|rastrear|Rastrear|8|25|nao|+3 para seguir um rastro.
+truque|guardar|Guardar|8|25|nao|Vigia o acampamento ou o inventário durante o descanso.
+truque|esconder-se|Esconder-se|11|40|nao|Fica fora de vista até ser chamado.
+truque|carregar|Carregar|11|40|nao|Aumenta a carga do dono.
+truque|atacar-a-ordem|Atacar à ordem|11|40|sim|Ataca o alvo que o dono escolher.
+truque|proteger-o-dono|Proteger o dono|14|60|sim|Toma o golpe no lugar do dono.
+truque|distrair|Distrair|14|60|sim|O inimigo ataca o animal em vez do dono.
+truque|resgatar|Resgatar|14|60|nao|Tira o dono caído do perigo.
+comida|quadrupede|graos|2|nao
+comida|quadrupede|pao-assado|2|nao
+comida|quadrupede|carne-fresca|5|sim
+comida|quadrupede|refeicao-de-carne|10|nao
+comida|alado|graos|2|nao
+comida|alado|peixe-fresco|5|sim
+comida|alado|carne-fresca|5|sim
+comida|alado|ovo|10|nao
+comida|alado|fruta-rara|10|nao
+comida|rastejante|carne-fresca|2|nao
+comida|rastejante|ovo|5|sim
+comida|rastejante|peixe-fresco|5|sim
+comida|rastejante|presa-viva|10|nao
+comida|rastejante|presa-rara|10|nao
+comida|aquatico|alga-marinha|2|nao
+comida|aquatico|peixe-fresco|5|sim
+comida|aquatico|perola-bruta|10|nao
+comida|aquatico|peixe-raro|10|nao
+comida|humanoide|pao-assado|2|nao
+comida|humanoide|refeicao-preparada|5|sim
+comida|humanoide|doce|10|nao
+comida|humanoide|iguaria|10|nao
+comida|inseto|fibra-vegetal|2|nao
+comida|inseto|mel|5|sim
+comida|inseto|fruta|5|sim
+comida|inseto|nectar|10|nao
+comida|inseto|cogumelo-raro|10|nao

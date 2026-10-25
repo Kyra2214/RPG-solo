@@ -42,7 +42,7 @@ class ItensQualidadeTest {
         assertEquals("Poção de cura", p.item("pocao-cura#rara")?.name)
         assertEquals(ItemQuality.RARA, ItemRef.quality("pocao-cura#rara"))
         assertEquals("pocao-cura", ItemRef.base("pocao-cura#rara"))
-        assertEquals("pocao-cura#boa", ItemRef.of("pocao-cura", ItemQuality.BOA))
+        assertEquals("pocao-cura#otima", ItemRef.of("pocao-cura", ItemQuality.OTIMA))
         assertEquals("pocao-cura", ItemRef.of("pocao-cura", ItemQuality.NORMAL))
         assertNull(p.item("pocao-cura#mitica"))
         assertNull(ItemRef.quality("pocao-cura#mitica"))
@@ -53,11 +53,12 @@ class ItensQualidadeTest {
         assertEquals(5, p.scaleByQuality(5, "pocao-cura"))
         assertEquals(6, p.scaleByQuality(5, "pocao-cura#boa"))
         assertEquals(8, p.scaleByQuality(5, "pocao-cura#rara"))
-        assertEquals(10, p.scaleByQuality(5, "pocao-cura#lendaria"))
-        assertEquals(2, p.scaleByQuality(1, "espada-curta#lendaria"))
+        assertEquals(10, p.scaleByQuality(5, "pocao-cura#epica"))
+        assertEquals(13, p.scaleByQuality(5, "pocao-cura#lendaria"))
+        assertEquals(3, p.scaleByQuality(1, "espada-curta#lendaria"))
         assertEquals(-1, p.scaleByQuality(-1, "machado#lendaria"))
         assertEquals(1, p.equipmentBonus(listOf("espada-curta"), "dano"))
-        assertEquals(2, p.equipmentBonus(listOf("espada-curta#lendaria"), "dano"))
+        assertEquals(3, p.equipmentBonus(listOf("espada-curta#lendaria"), "dano"))
     }
 
     @Test fun renascimentoVemDoPacoteEInclusiveComQualidade() {

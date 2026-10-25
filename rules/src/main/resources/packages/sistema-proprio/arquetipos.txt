@@ -1,73 +1,73 @@
 # id|nome|descricao|atributos|tracos   (ponto de partida editável; precisa passar nas regras do pacote)
 alquimista|Alquimista|Mistura ingredientes e saber para criar efeitos estranhos. Vive entre bancadas, frascos e experimentos arriscados.|poder=0,habilidade=3,resistencia=1|conhecimento,oficios,pocoes-rapidas,efeitos-colaterais
-batedor|Batedor|Vai na frente do grupo, lê o terreno e evita emboscadas. Prefere observar a lutar.|poder=1,habilidade=3,resistencia=1|furtividade,sobrevivencia,olho-de-aguia,inquietacao-de-trilha
+batedor|Batedor|Vai na frente do grupo, lê o terreno e evita emboscadas. Prefere observar a lutar.|poder=1,habilidade=2,resistencia=1,agilidade=2|furtividade,sobrevivencia,olho-de-aguia,inquietacao-de-trilha
 curandeiro|Curandeiro|Cuida de feridas e de gente cansada. Sabe que o grupo inteiro depende de quem fica de pé no fim.|poder=0,habilidade=2,resistencia=3|cuidados,conhecimento,maos-de-alivio,peso-do-paciente
-duelista|Duelista|Luta com técnica e ritmo, ganhando na precisão. Ousado, às vezes demais.|poder=2,habilidade=3,resistencia=1|atletismo,estocada-perfeita,vaidade-de-lamina
-erudito|Erudito|Passou anos em livros e arquivos. Resolve problemas com informação antes de recorrer à força.|poder=0,habilidade=3,resistencia=1|conhecimento,persuasao,biblioteca-mental,cabeca-nas-nuvens
+duelista|Duelista|Luta com técnica e ritmo, ganhando na precisão. Ousado, às vezes demais.|poder=2,habilidade=0,resistencia=1,agilidade=3,destreza=2|atletismo,estocada-perfeita,vaidade-de-lamina
+erudito|Erudito|Passou anos em livros e arquivos. Resolve problemas com informação antes de recorrer à força.|poder=0,habilidade=1,resistencia=1,inteligencia=2|conhecimento,persuasao,biblioteca-mental,cabeca-nas-nuvens
 guardiao|Guardião|Protege os outros e aguenta o tranco. Se alguém precisa de um escudo, é ele.|poder=2,habilidade=1,resistencia=3|atletismo,escudo-vivo,dever-de-proteger
-ilusionista|Ilusionista|Engana olhos e mentes com truques, palavras e magia leve. Poucos sabem o que é real perto dele.|poder=0,habilidade=3,resistencia=1|persuasao,furtividade,miragem,talento-arcano,fama-de-trapaceiro,concentracao-fragil,mentiroso-compulsivo
+ilusionista|Ilusionista|Engana olhos e mentes com truques, palavras e magia leve. Poucos sabem o que é real perto dele.|poder=0,habilidade=1,resistencia=1,inteligencia=2|persuasao,furtividade,miragem,talento-arcano,fama-de-trapaceiro,concentracao-fragil,mentiroso-compulsivo
 mercenario|Mercenário|Vende a espada a quem paga, mas tem código próprio. Conhece o preço de tudo, inclusive o do perigo.|poder=3,habilidade=1,resistencia=2|atletismo,contrato-justo,so-por-dinheiro
-orfao-das-ruas|Órfão das ruas|Cresceu sozinho, aprendeu a sumir e a se virar. Desconfia de quem oferece ajuda de graça.|poder=1,habilidade=2,resistencia=2|furtividade,percepcao,oficios,faro-de-rua,nao-confia-em-ninguem
+orfao-das-ruas|Órfão das ruas|Cresceu sozinho, aprendeu a sumir e a se virar. Desconfia de quem oferece ajuda de graça.|poder=1,habilidade=1,resistencia=2,agilidade=2|furtividade,percepcao,oficios,faro-de-rua,nao-confia-em-ninguem
 viajante|Viajante|Anda por estradas e povoados, conhece muita gente e muitas histórias. Raramente fica no mesmo lugar.|poder=1,habilidade=2,resistencia=2|sobrevivencia,persuasao,mapa-na-cabeca,pe-na-estrada
 anao|Anão|Povo das montanhas e das minas: teimoso, resistente e orgulhoso do próprio ofício.|poder=2,habilidade=1,resistencia=3|oficios,tenacidade-anao,rancor-ancestral
-elfo|Elfo|Ser longevo e gracioso, ligado à natureza e à magia antiga.|poder=0,habilidade=3,resistencia=1|graca-feerica,talento-arcano,melancolia-longa,desdem-pelos-efemeros,orgulhoso
-elfo-negro|Elfo negro|Elfo das profundezas, afeito a sombras, intrigas e magia proibida.|poder=1,habilidade=3,resistencia=1|furtividade,veu-de-sombras,talento-arcano,desconfianca-geral,intriga-familiar,fraqueza-solar
+elfo|Elfo|Ser longevo e gracioso, ligado à natureza e à magia antiga.|poder=0,habilidade=2,resistencia=1,inteligencia=2,agilidade=2|graca-feerica,talento-arcano,melancolia-longa,desdem-pelos-efemeros,orgulhoso
+elfo-negro|Elfo negro|Elfo das profundezas, afeito a sombras, intrigas e magia proibida.|poder=1,habilidade=1,resistencia=1,inteligencia=2,destreza=2|furtividade,veu-de-sombras,talento-arcano,desconfianca-geral,intriga-familiar,fraqueza-solar
 lobisomem|Lobisomem|Fera e pessoa dividem o mesmo corpo: ferocidade enorme e controle frágil.|poder=3,habilidade=1,resistencia=2|furia-da-lua,instinto-de-fera
-vampiro|Vampiro|Morto-vivo elegante que se alimenta de sangue e vive preso a eras passadas.|poder=2,habilidade=2,resistencia=2|fascinar,convite-necessario
+vampiro|Vampiro|Morto-vivo elegante que se alimenta de sangue e vive preso a eras passadas.|poder=2,habilidade=0,resistencia=2,inteligencia=2|fascinar,convite-necessario
 ciborgue|Ciborgue|Metade carne, metade máquina. Os implantes ajudam, mas exigem energia e manutenção.|poder=2,habilidade=1,resistencia=2|sistemas,sobrecarga,vulneravel-a-pulso
 orc|Orc|Guerreiro de clã, forte e direto, desprezado por quem só enxerga brutalidade.|poder=3,habilidade=0,resistencia=3|intimidacao,sangue-de-guerra,temperamento-explosivo
-goblin|Goblin|Pequeno, esperto e oportunista; sobrevive improvisando e fugindo na hora certa.|poder=0,habilidade=3,resistencia=1|furtividade,oficios,improviso-sujo,covardia-calculada
-pequenino|Pequenino|Povo miúdo de vida simples, que surpreende pela sorte e pela coragem inesperada.|poder=0,habilidade=3,resistencia=2|furtividade,pe-leve,apego-ao-lar
-fada|Fada|Criatura minúscula e voadora, ligada a uma magia caprichosa.|poder=0,habilidade=4,resistencia=0|po-de-fada,pequena-demais
-androide|Androide|Máquina que aprendeu a sentir e ainda tenta entender o que é ser humano.|poder=1,habilidade=3,resistencia=2|sistemas,pontaria,calculo-preciso,emocao-confusa
+goblin|Goblin|Pequeno, esperto e oportunista; sobrevive improvisando e fugindo na hora certa.|poder=0,habilidade=1,resistencia=1,destreza=2|furtividade,oficios,improviso-sujo,covardia-calculada
+pequenino|Pequenino|Povo miúdo de vida simples, que surpreende pela sorte e pela coragem inesperada.|poder=0,habilidade=1,resistencia=2,agilidade=2|furtividade,pe-leve,apego-ao-lar
+fada|Fada|Criatura minúscula e voadora, ligada a uma magia caprichosa.|poder=0,habilidade=0,resistencia=0,inteligencia=3,agilidade=2|po-de-fada,pequena-demais
+androide|Androide|Máquina que aprendeu a sentir e ainda tenta entender o que é ser humano.|poder=1,habilidade=1,resistencia=2,inteligencia=2|sistemas,pontaria,calculo-preciso,emocao-confusa
 morto-vivo|Morto-vivo|Voltou do túmulo sem saber por quê. Não sente dor, mas carrega a marca da morte.|poder=2,habilidade=0,resistencia=3|intimidacao,sem-dor,frio-da-tumba
-sereia|Sereia ou tritão|Vive no mar e anda desajeitado em terra, mas tem voz e olhar que prendem qualquer um.|poder=1,habilidade=3,resistencia=1|atletismo,persuasao,canto-hipnotico,ressecar-fora-d-agua
+sereia|Sereia ou tritão|Vive no mar e anda desajeitado em terra, mas tem voz e olhar que prendem qualquer um.|poder=1,habilidade=0,resistencia=1,inteligencia=2,agilidade=1|atletismo,persuasao,canto-hipnotico,ressecar-fora-d-agua
 minotauro|Minotauro|Gigante chifrudo de força imensa e orgulho ainda maior.|poder=3,habilidade=0,resistencia=3|investida-brutal,labirinto-na-mente
-meio-demonio|Meio-demônio|Sangue infernal e coração dividido: poder tentador e olhares de desconfiança.|poder=2,habilidade=2,resistencia=1|intimidacao,chama-infernal,talento-arcano,marca-do-inferno,voz-do-sangue,inimigo
-anjo-caido|Anjo caído|Ex-servo dos céus, banido por escolhas que nunca explica.|poder=2,habilidade=2,resistencia=2|luz-remanescente,peso-da-queda
+meio-demonio|Meio-demônio|Sangue infernal e coração dividido: poder tentador e olhares de desconfiança.|poder=2,habilidade=1,resistencia=1,inteligencia=2|intimidacao,chama-infernal,talento-arcano,marca-do-inferno,voz-do-sangue,inimigo
+anjo-caido|Anjo caído|Ex-servo dos céus, banido por escolhas que nunca explica.|poder=2,habilidade=0,resistencia=2,inteligencia=1,agilidade=2|luz-remanescente,peso-da-queda
 golem|Golem|Construto de pedra ou barro animado por magia. Obedece, mas começa a duvidar.|poder=3,habilidade=0,resistencia=4|corpo-de-pedra,ordens-literais
-raposa-espiritual|Raposa espiritual|Espírito de raposa em forma humana, mestre de truques e ilusões.|poder=0,habilidade=3,resistencia=1|persuasao,ilusao-astuta,talento-arcano,curiosidade-fatal,vaidade-espiritual,mentiroso-compulsivo
+raposa-espiritual|Raposa espiritual|Espírito de raposa em forma humana, mestre de truques e ilusões.|poder=0,habilidade=1,resistencia=1,inteligencia=2|persuasao,ilusao-astuta,talento-arcano,curiosidade-fatal,vaidade-espiritual,mentiroso-compulsivo
 draconico|Dracônico|Descendente de dragões, de escamas duras e presença imponente.|poder=3,habilidade=1,resistencia=2|intimidacao,sopro-elemental,avareza-de-dragao
-arqueiro|Arqueiro|Atira de longe com calma e precisão, quase sempre antes de ser visto.|poder=1,habilidade=3,resistencia=1|pontaria,percepcao,tiro-certeiro,dependente-de-municao
+arqueiro|Arqueiro|Atira de longe com calma e precisão, quase sempre antes de ser visto.|poder=1,habilidade=1,resistencia=1,destreza=2|pontaria,percepcao,tiro-certeiro,dependente-de-municao
 bardo|Bardo|Músico e contador de histórias que abre portas com a língua.|poder=0,habilidade=3,resistencia=1|persuasao,conhecimento,cancao-inspiradora,lingua-solta
 cacador-de-recompensas|Caçador de recompensas|Rastreia gente por dinheiro, com paciência e pragmatismo.|poder=2,habilidade=2,resistencia=1|pontaria,sobrevivencia,percepcao,rastreador-nato,bolso-vazio
 cavaleiro|Cavaleiro|Guerreiro de armadura, palavra dada e juramento, sempre com sua montaria.|poder=3,habilidade=1,resistencia=2|montaria,carga-heroica,juramento-de-vassalo
-sacerdote|Sacerdote|Guia espiritual que cura e aconselha, ancorado numa fé.|poder=0,habilidade=2,resistencia=3|cuidados,persuasao,mao-curadora,talento-arcano,voto-de-ajuda,dizimo-pesado,pacifista
-detetive|Detetive|Junta pistas pequenas até formar a imagem inteira.|poder=0,habilidade=3,resistencia=1|olhar-atento,percepcao,persuasao,deducao-brilhante,mente-obsessiva
+sacerdote|Sacerdote|Guia espiritual que cura e aconselha, ancorado numa fé.|poder=0,habilidade=0,resistencia=3,inteligencia=2|cuidados,persuasao,mao-curadora,talento-arcano,voto-de-ajuda,dizimo-pesado,pacifista
+detetive|Detetive|Junta pistas pequenas até formar a imagem inteira.|poder=0,habilidade=2,resistencia=1,inteligencia=2|olhar-atento,percepcao,persuasao,deducao-brilhante,mente-obsessiva
 engenheiro|Engenheiro|Constrói e conserta máquinas: para ele, todo problema tem solução com ferramentas.|poder=0,habilidade=3,resistencia=1|oficios,conhecimento,sistemas,engenhoca,obsessao-por-melhorias
-espiao|Espião|Vive de identidades falsas e segredos alheios.|poder=0,habilidade=3,resistencia=1|furtividade,persuasao,percepcao,mascara-perfeita,vida-dupla
-feiticeiro|Feiticeiro|Magia no sangue, instável e poderosa, difícil de domar.|poder=0,habilidade=3,resistencia=1|ocultismo,poder-instavel,talento-arcano,magia-descontrolada,marca-do-sangue,impulsivo
-gladiador|Gladiador|Cresceu na arena: luta para a plateia e para sobreviver.|poder=3,habilidade=2,resistencia=1|atletismo,intimidacao,favorito-da-plateia,sede-de-aplausos
-hacker|Hacker|Mora nas redes: invade, desvia e some antes de ser rastreado.|poder=0,habilidade=3,resistencia=1|sistemas,conhecimento,furtividade,acesso-total,rastro-digital
-ladrao|Ladrão|Dedos leves e passos curtos; sempre sabe a rota de fuga.|poder=1,habilidade=3,resistencia=1|furtividade,percepcao,golpe-furtivo,consciencia-leve
-marinheiro|Marinheiro|Criado entre ondas e tabernas: resistente, supersticioso e leal à tripulação.|poder=1,habilidade=2,resistencia=2|atletismo,sobrevivencia,pernas-do-mar,saudade-do-mar
-monge|Monge|Disciplina, silêncio e um corpo treinado como arma.|poder=2,habilidade=2,resistencia=2|atletismo,punho-de-ferro,voto-de-pobreza
-necromante|Necromante|Conversa com os mortos e paga o preço dessa intimidade.|poder=0,habilidade=3,resistencia=1|ocultismo,conhecimento,servo-morto,talento-arcano,toque-da-morte,cacado-por-templos,preconceito
+espiao|Espião|Vive de identidades falsas e segredos alheios.|poder=0,habilidade=2,resistencia=1,destreza=2|furtividade,persuasao,percepcao,mascara-perfeita,vida-dupla
+feiticeiro|Feiticeiro|Magia no sangue, instável e poderosa, difícil de domar.|poder=0,habilidade=1,resistencia=1,inteligencia=2|ocultismo,poder-instavel,talento-arcano,magia-descontrolada,marca-do-sangue,impulsivo
+gladiador|Gladiador|Cresceu na arena: luta para a plateia e para sobreviver.|poder=3,habilidade=1,resistencia=1,destreza=1|atletismo,intimidacao,favorito-da-plateia,sede-de-aplausos
+hacker|Hacker|Mora nas redes: invade, desvia e some antes de ser rastreado.|poder=0,habilidade=1,resistencia=1,inteligencia=2|sistemas,conhecimento,furtividade,acesso-total,rastro-digital
+ladrao|Ladrão|Dedos leves e passos curtos; sempre sabe a rota de fuga.|poder=1,habilidade=1,resistencia=1,destreza=2|furtividade,percepcao,golpe-furtivo,consciencia-leve
+marinheiro|Marinheiro|Criado entre ondas e tabernas: resistente, supersticioso e leal à tripulação.|poder=1,habilidade=1,resistencia=2,agilidade=1|atletismo,sobrevivencia,pernas-do-mar,saudade-do-mar
+monge|Monge|Disciplina, silêncio e um corpo treinado como arma.|poder=2,habilidade=0,resistencia=2,agilidade=2|atletismo,punho-de-ferro,voto-de-pobreza
+necromante|Necromante|Conversa com os mortos e paga o preço dessa intimidade.|poder=0,habilidade=1,resistencia=1,inteligencia=2|ocultismo,conhecimento,servo-morto,talento-arcano,toque-da-morte,cacado-por-templos,preconceito
 nobre|Nobre|Berço de ouro, educação fina e obrigações pesadas.|poder=0,habilidade=2,resistencia=1|persuasao,lideranca,conhecimento,montaria,nome-de-peso,dever-de-casa
-piloto|Piloto|Faz qualquer veículo voar, rolar ou flutuar além do limite.|poder=0,habilidade=3,resistencia=1|pilotagem,sistemas,manobra-impossivel,adrenalina-viciante
-pirata|Pirata|Saqueador dos mares, com bandeira própria e leis próprias.|poder=2,habilidade=2,resistencia=1|atletismo,intimidacao,pontaria,sorte-do-mar,supersticioso
-xama|Xamã|Ponte entre o povo e os espíritos da terra.|poder=0,habilidade=3,resistencia=1|sobrevivencia,cuidados,ocultismo,voz-dos-espiritos,talento-arcano,tabu-ancestral,espiritos-cobram,solitario
+piloto|Piloto|Faz qualquer veículo voar, rolar ou flutuar além do limite.|poder=0,habilidade=2,resistencia=1,agilidade=2|pilotagem,sistemas,manobra-impossivel,adrenalina-viciante
+pirata|Pirata|Saqueador dos mares, com bandeira própria e leis próprias.|poder=2,habilidade=1,resistencia=1,sorte=1|atletismo,intimidacao,pontaria,sorte-do-mar,supersticioso
+xama|Xamã|Ponte entre o povo e os espíritos da terra.|poder=0,habilidade=1,resistencia=1,inteligencia=2|sobrevivencia,cuidados,ocultismo,voz-dos-espiritos,talento-arcano,tabu-ancestral,espiritos-cobram,solitario
 soldado|Soldado|Treinado em fileiras, disciplinado e acostumado ao fardo.|poder=2,habilidade=1,resistencia=3|atletismo,pontaria,lideranca,disciplina-de-ferro,cadeia-de-comando
-lutador-de-rua|Lutador de rua|Briga para viver e conhece cada beco e cada truque sujo.|poder=3,habilidade=1,resistencia=2|atletismo,intimidacao,soco-sujo,sangue-quente
+lutador-de-rua|Lutador de rua|Briga para viver e conhece cada beco e cada truque sujo.|poder=3,habilidade=0,resistencia=2,agilidade=1|atletismo,intimidacao,soco-sujo,sangue-quente
 cacador-de-monstros|Caçador de monstros|Estuda criaturas para saber onde ferir e quando fugir.|poder=2,habilidade=2,resistencia=2|conhecimento,pontaria,sobrevivencia,ocultismo,ponto-fraco,trauma-de-cacada
-druida|Druida|Protetor de bosques que conversa com plantas e animais.|poder=0,habilidade=3,resistencia=2|sobrevivencia,forma-selvagem,talento-arcano,aversao-ao-ferro,longe-do-verde,solitario
+druida|Druida|Protetor de bosques que conversa com plantas e animais.|poder=0,habilidade=2,resistencia=2,inteligencia=2|sobrevivencia,forma-selvagem,talento-arcano,aversao-ao-ferro,longe-do-verde,solitario
 mercador|Mercador|Negocia, viaja e sabe o preço e a história de cada mercadoria.|poder=0,habilidade=2,resistencia=2|persuasao,conhecimento,olho-de-avaliador,calculo-constante
-explorador-de-ruinas|Explorador de ruínas|Procura tesouros e segredos em lugares esquecidos.|poder=1,habilidade=3,resistencia=1|sobrevivencia,conhecimento,faro-de-armadilha,febre-de-tesouro
+explorador-de-ruinas|Explorador de ruínas|Procura tesouros e segredos em lugares esquecidos.|poder=1,habilidade=2,resistencia=1,inteligencia=2,agilidade=1|sobrevivencia,conhecimento,faro-de-armadilha,febre-de-tesouro
 domador|Domador|Entende animais melhor do que pessoas.|poder=1,habilidade=2,resistencia=2|montaria,sobrevivencia,cuidados,laco-com-a-fera,apego-ao-bicho
-assassino|Assassino|Eliminação limpa e silenciosa; cada contrato cobra um pedaço de si.|poder=2,habilidade=3,resistencia=0|furtividade,pontaria,golpe-mortal,contrato-de-sangue
+assassino|Assassino|Eliminação limpa e silenciosa; cada contrato cobra um pedaço de si.|poder=2,habilidade=0,resistencia=0,agilidade=2,destreza=3|furtividade,pontaria,golpe-mortal,contrato-de-sangue
 policial|Policial|Mantém a ordem num bairro difícil, entre a lei e o bom senso.|poder=1,habilidade=2,resistencia=2|percepcao,persuasao,pontaria,voz-de-autoridade,burocracia-pesada
-medico|Médico|Estudou o corpo e as doenças e trabalha bem sob pressão.|poder=0,habilidade=3,resistencia=2|cuidados,conhecimento,percepcao,bisturi-firme,culpa-de-paciente
-mago-de-guerra|Mago de guerra|Magia a serviço de exércitos, com disciplina militar.|poder=1,habilidade=3,resistencia=1|lideranca,atletismo,barreira-de-campanha,talento-arcano,disciplina-rigida,ouvidos-de-batalha,inimigo
+medico|Médico|Estudou o corpo e as doenças e trabalha bem sob pressão.|poder=0,habilidade=2,resistencia=2,inteligencia=2|cuidados,conhecimento,percepcao,bisturi-firme,culpa-de-paciente
+mago-de-guerra|Mago de guerra|Magia a serviço de exércitos, com disciplina militar.|poder=1,habilidade=1,resistencia=1,inteligencia=2|lideranca,atletismo,barreira-de-campanha,talento-arcano,disciplina-rigida,ouvidos-de-batalha,inimigo
 sobrevivente|Sobrevivente|Viveu o fim de algo grande e aprendeu a durar. Não confia fácil.|poder=1,habilidade=2,resistencia=2|sobrevivencia,percepcao,oficios,cheiro-de-perigo,racao-contada
 ferreiro|Ferreiro|Forja armas e armaduras, com braços fortes e paciência de bigorna.|poder=3,habilidade=1,resistencia=2|oficios,martelo-certeiro,cheiro-de-forja
-acrobata|Acrobata|Corpo leve e coragem de sobra; vive de saltos impossíveis.|poder=1,habilidade=3,resistencia=1|atletismo,salto-impossivel,corpo-de-artista
-cientista|Cientista|Pesquisa o desconhecido com método e teimosia.|poder=0,habilidade=3,resistencia=1|conhecimento,sistemas,oficios,metodo-rigoroso,obstinacao-cientifica
+acrobata|Acrobata|Corpo leve e coragem de sobra; vive de saltos impossíveis.|poder=1,habilidade=1,resistencia=1,agilidade=2|atletismo,salto-impossivel,corpo-de-artista
+cientista|Cientista|Pesquisa o desconhecido com método e teimosia.|poder=0,habilidade=1,resistencia=1,inteligencia=2|conhecimento,sistemas,oficios,metodo-rigoroso,obstinacao-cientifica
 barbaro|Bárbaro|Vem de terras duras e luta com fúria e instinto. Respeito se conquista na lâmina.|poder=3,habilidade=1,resistencia=2|atletismo,intimidacao,furia-guerreira,nao-foge-de-luta
-paladino|Paladino|Guerreiro de fé, jurou proteger os fracos e viver pelo próprio código.|poder=2,habilidade=1,resistencia=3|lideranca,persuasao,bencao-da-fe,juramento-sagrado
+paladino|Paladino|Guerreiro de fé, jurou proteger os fracos e viver pelo próprio código.|poder=2,habilidade=0,resistencia=3,inteligencia=1|lideranca,persuasao,bencao-da-fe,juramento-sagrado
 guerreiro|Guerreiro|Treinou por anos com armas e armaduras; resolve a maioria dos problemas na prática.|poder=3,habilidade=1,resistencia=2|atletismo,pontaria,mestre-de-armas,mao-pesada
-mago|Mago|Estudioso das artes arcanas, vive entre pergaminhos, fórmulas e experimentos.|poder=0,habilidade=3,resistencia=2|grimorio-vasto,talento-arcano,dependente-do-grimorio,cabeca-em-livros,corpo-fraco
-patrulheiro|Patrulheiro|Guarda das fronteiras e das trilhas; caça o que ameaça os viajantes.|poder=1,habilidade=3,resistencia=1|sobrevivencia,pontaria,inimigo-favorito,obsessao-pela-caca
-bruxo|Bruxo|Fez um pacto por poder e agora vive entre favores e cobranças.|poder=0,habilidade=3,resistencia=1|ocultismo,pacto-sombrio,talento-arcano,divida-com-patrono,marca-do-pacto,inimigo
-samurai|Samurai|Guerreiro de código rígido, com uma lâmina treinada para um único corte.|poder=3,habilidade=2,resistencia=1|atletismo,corte-perfeito,honra-acima-da-vida
-ninja|Ninja|Agente de um clã secreto, mestre de infiltração e fuga.|poder=1,habilidade=3,resistencia=1|furtividade,passo-de-sombra,lealdade-ao-cla
-inquisidor|Inquisidor|Caça hereges, mentirosos e magia proibida em nome de uma ordem.|poder=1,habilidade=2,resistencia=2|percepcao,intimidacao,olhar-de-juiz,fe-intransigente
+mago|Mago|Estudioso das artes arcanas, vive entre pergaminhos, fórmulas e experimentos.|poder=0,habilidade=0,resistencia=2,inteligencia=3|grimorio-vasto,talento-arcano,dependente-do-grimorio,cabeca-em-livros,corpo-fraco
+patrulheiro|Patrulheiro|Guarda das fronteiras e das trilhas; caça o que ameaça os viajantes.|poder=1,habilidade=1,resistencia=1,agilidade=2,destreza=1|sobrevivencia,pontaria,inimigo-favorito,obsessao-pela-caca
+bruxo|Bruxo|Fez um pacto por poder e agora vive entre favores e cobranças.|poder=0,habilidade=1,resistencia=1,inteligencia=2|ocultismo,pacto-sombrio,talento-arcano,divida-com-patrono,marca-do-pacto,inimigo
+samurai|Samurai|Guerreiro de código rígido, com uma lâmina treinada para um único corte.|poder=3,habilidade=2,resistencia=1,destreza=1|atletismo,corte-perfeito,honra-acima-da-vida
+ninja|Ninja|Agente de um clã secreto, mestre de infiltração e fuga.|poder=1,habilidade=0,resistencia=1,agilidade=3,destreza=2|furtividade,passo-de-sombra,lealdade-ao-cla
+inquisidor|Inquisidor|Caça hereges, mentirosos e magia proibida em nome de uma ordem.|poder=1,habilidade=1,resistencia=2,inteligencia=1|percepcao,intimidacao,olhar-de-juiz,fe-intransigente

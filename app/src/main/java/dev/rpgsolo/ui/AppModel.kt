@@ -86,6 +86,9 @@ data class RelationshipView(val npcName: String, val attitude: String)
 
 data class EquipmentView(val id: String, val name: String, val quantity: Int, val slot: String, val equipped: Boolean)
 
+/** N-20/N-21: receita liberada ao herói, com entradas e saídas já em texto para a tela. */
+data class RecipeView(val id: String, val name: String, val inputs: String, val outputs: String)
+
 data class TraitUseView(val id: String, val name: String, val description: String, val used: Int, val limit: Int)
 
 data class PowerView(
@@ -106,6 +109,8 @@ data class InventoryView(
     val equipped: Boolean,
     val description: String,
     val price: Int? = null,
+    /** N-13: peso ou tipo de arma fora da classe do herói (bônus positivos pela metade). */
+    val restricted: Boolean = false,
 )
 
 data class ShopEntry(val id: String, val name: String, val price: Int, val description: String)
@@ -129,7 +134,14 @@ data class AdvancementState(val pointsAvailable: Int, val choices: List<Advancem
 
 data class StatPointsState(val statPoints: Int, val abilityPoints: Int, val choices: List<AdvancementChoice>)
 
-data class InitialBuildState(val allocated: Boolean, val stats: List<AdvancementChoice>)
+data class InitialBuildState(
+    val allocated: Boolean,
+    val stats: List<AdvancementChoice>,
+    /** Pontos de status a distribuir entre os atributos (N-02: 10). */
+    val statPoints: Int = 10,
+    /** Pontos de habilidade concedidos de uma vez (N-02: 2). */
+    val abilityPoints: Int = 2,
+)
 
 data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val campaignReady: Boolean) {
     val complete: Boolean get() = providerReady && heroReady && campaignReady
@@ -223,7 +235,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             activeFicha = { activeFicha },
             playerId = { playerId },
             catalogBonuses = { pkg -> selectedCatalogBonuses(pkg) },
+            wearerClassIds = { heroClassIds() },
         )
+
+    /** N-13: classes do herói ativo (ordem salva na entidade, ou as escolhas da ficha) para peso e tipo de equipamento. */
+    private fun heroClassIds(): List<String> {
+        val saved = session.state.entities[playerId]?.skillTreeClassOrder.orEmpty()
+        if (saved.isNotEmpty()) return saved
+        val choices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
+        return (listOf(choices.classId) + choices.additionalClassIds).filter { it.isNotBlank() }.distinct()
+    }
 
     private fun selectedCatalogBonus(
         pkg: RulePackage,
@@ -276,7 +297,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val affinityName =
             mapOf(
                 "WATER" to "Água", "FIRE" to "Fogo", "WIND" to "Vento", "EARTH" to "Terra",
-                "METAL" to "Metal", "YIN" to "Yin", "YANG" to "Yang",
+                "METAL" to "Ferro", "YIN" to "Trevas", "YANG" to "Luz",
             )[choices.elementalAffinity] ?: "não definida"
         val unlockedSkills =
             runCatching {
@@ -437,6 +458,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Sobe a cada mudança de capítulo/missão para a tela de campanhas redesenhar. */
     var campaignVersion by mutableIntStateOf(0)
+
+    /** N-33.2c: aviso do card do Companheiro (subiu de nível); some quando o jogador abre o card. */
+    var companionNotice by mutableStateOf<String?>(null)
         private set
     var sourceLibraryVersion by mutableIntStateOf(0)
         private set
@@ -1223,6 +1247,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             savePending = { savePendingCombatNpcIds() },
             onChanged = { campaignVersion++ },
             bonuses = bonuses,
+            onCompanionLevelUp = { name, level -> companionNotice = "$name subiu para o nível $level." },
         )
 
     /** Inicia a iniciativa do jogador e dos NPCs preparados para este encontro; os números vêm do motor. */
@@ -1298,6 +1323,29 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }
 
     private fun approvedRuleBonus(scope: String): Int = bonuses.approvedRuleBonus(scope)
+
+    /** N-33.5: grau (0 a 5) de Construção do herói: o maior posto aprendido entre as profissões de construção, limitado a 5. */
+    private fun constructionGrade(entity: dev.rpgsolo.engine.Entity): Int =
+        listOf(
+            "carpinteiro",
+            "marceneiro",
+            "pedreiro",
+            "arquiteto",
+            "construtor-de-barcos",
+            "engenheiro-de-pontes",
+            "construtor-de-fortificacoes",
+        ).maxOf { tree -> (1..5).lastOrNull { (entity.skillTreeLevels["profissao-$tree-$it"] ?: 0) > 0 } ?: 0 }
+
+    /** N-35: +1 em todos os testes a cada 2 pontos de Sorte (atributo + itens equipados). */
+    private fun luckTestBonusOf(entityId: String): Int {
+        val pkg = activePackage ?: return 0
+        val luckStat = pkg.data.creation["combate_atributo_sorte"] ?: return 0
+        val state = session.state
+        val points =
+            (state.entities[entityId]?.stats?.get(luckStat) ?: 0) +
+                pkg.equipmentBonus(state.equipped[entityId].orEmpty().values, luckStat, bonuses.wearerProfile(entityId))
+        return dev.rpgsolo.engine.LuckRules.testBonus(points)
+    }
 
     private fun approvedRuleEffects(scopes: Collection<String>): List<dev.rpgsolo.rules.ExternalBonus> = bonuses.approvedRuleEffects(scopes)
 
@@ -1510,7 +1558,101 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             playerId = { playerId },
             isPlayerCombatTurn = { isPlayerCombatTurn() },
             onChanged = { campaignVersion++ },
+            wearer = { bonuses.wearerProfile(playerId) },
         )
+
+    private val legacy =
+        LegacyActions(
+            session = { session },
+            activePackage = { activePackage },
+            playerId = { playerId },
+            setPlayer = { playerId = it },
+            onChanged = { campaignVersion++ },
+        )
+
+    /** M-04: opções quando o herói morre (null com o herói vivo). */
+    fun legacyView(): LegacyView? = legacy.view()
+
+    fun legacyRebirth(): String? = legacy.useRebirth()
+
+    /** Assume o NPC e grava o novo herói nos metadados da campanha (senão a reabertura voltaria ao herói morto). */
+    fun legacyAssume(npcId: String): String? = legacy.assume(npcId).also { if (it == null) saveMetadata() }
+
+    fun legacyEnd(): String? = legacy.endCampaign()
+
+    private val companionActions =
+        CompanionActions(
+            session = { session },
+            activePackage = { activePackage },
+            playerId = { playerId },
+            onChanged = { campaignVersion++ },
+        )
+
+    /** N-32.4: companheiros adestrados do herói e marcas de adestramento no inventário. */
+    fun companionViews(): List<CompanionView> = companionActions.views()
+
+    /** Tipos de corpo do pacote ativo (id, nome) para a escolha ao adestrar. */
+    fun activePackageCompanionBodies(): List<Pair<String, String>> = activePackage?.companions?.bodies.orEmpty().map { it.id to it.name }
+
+    fun inCombatNow(): Boolean = session.state.combat != null
+
+    fun companionTameOptions(): List<TameOption> = companionActions.tameOptions()
+
+    /** N-33.2d: animais perdidos que ainda podem ser readestrados. */
+    fun companionLostViews(): List<LostCompanionView> = companionActions.lostViews()
+
+    fun companionRetrain(
+        animalId: String,
+        itemId: String,
+    ): String? = companionActions.retrain(animalId, itemId)
+
+    fun companionStatLabel(id: String): String = companionActions.statLabel(id)
+
+    fun tameCompanion(
+        itemId: String,
+        name: String,
+        bodyType: String,
+    ): String? = companionActions.tame(itemId, name, bodyType)
+
+    fun companionChooseAttack(
+        animalId: String,
+        attackId: String,
+    ): String? = companionActions.chooseAttack(animalId, attackId)
+
+    fun companionAllocate(
+        animalId: String,
+        stat: String,
+    ): String? = companionActions.allocate(animalId, stat)
+
+    fun companionRaiseAttack(animalId: String): String? = companionActions.raiseAttack(animalId)
+
+    fun companionLearnTrick(
+        animalId: String,
+        trickId: String,
+    ): String? = companionActions.learnTrick(animalId, trickId)
+
+    fun companionOrderTrick(
+        animalId: String,
+        trickId: String,
+    ): String? = companionActions.orderTrick(animalId, trickId)
+
+    fun companionFeed(
+        animalId: String,
+        itemId: String,
+    ): String? = companionActions.feed(animalId, itemId)
+
+    fun companionPet(animalId: String): String? = companionActions.pet(animalId)
+
+    /** N-33.2c: visita ao animal guardado no criadouro (1d6 de lealdade). */
+    fun companionVisit(animalId: String): String? = companionActions.visit(animalId)
+
+    /** N-33.2c: traz o animal guardado (10 prata, 1 dia) e guarda o que andava com o herói. */
+    fun companionBring(animalId: String): String? = companionActions.bring(animalId)
+
+    fun companionStrike(
+        animalId: String,
+        targetId: String,
+    ): String? = companionActions.strike(animalId, targetId)
 
     fun inventoryView(): List<InventoryView> = inventory.inventoryView()
 
@@ -1525,6 +1667,68 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         itemId: String,
         qty: Int = 1,
     ): String? = inventory.buyItem(itemId, qty)
+
+    fun enchantItem(
+        itemId: String,
+        element: dev.rpgsolo.engine.ElementPath,
+    ): String? = inventory.enchantItem(itemId, element)
+
+    fun availableRecipes(): List<dev.rpgsolo.rules.RecipeDef> = inventory.availableRecipes()
+
+    fun craftRecipe(recipeId: String): String = inventory.craftRecipe(recipeId)
+
+    /** Receitas que o herói pode usar agora, com nomes de item do pacote ativo. */
+    fun recipesView(): List<RecipeView> {
+        val pkg = activePackage ?: return emptyList()
+
+        fun line(m: Map<String, Int>): String = m.entries.joinToString(", ") { (id, qty) -> "$qty× ${pkg.item(id)?.name ?: id}" }
+        return inventory.availableRecipes().map { RecipeView(it.id, it.name, line(it.inputs), line(it.outputs)) }
+    }
+
+    fun pilfer(
+        targetId: String,
+        itemId: String,
+    ): String = inventory.pilfer(targetId, itemId)
+
+    fun gemsView(): GemsView = inventory.gemsView()
+
+    /** N-33.4: gemas (ver `InventoryActions.socketGem`, `removeGem` e `cutGem`). */
+    fun socketGem(
+        slot: String,
+        gemItemId: String,
+        viaNpc: Boolean = false,
+    ): String? = inventory.socketGem(slot, gemItemId, viaNpc)
+
+    fun removeGem(
+        slot: String,
+        index: Int,
+        viaNpc: Boolean = false,
+    ): String? = inventory.removeGem(slot, index, viaNpc)
+
+    fun cutGem(gemItemId: String): String = inventory.cutGem(gemItemId)
+
+    fun tattooView(): TattooView = inventory.tattooView()
+
+    fun tattooScopeLabel(scope: String): String =
+        when (scope) {
+            "ataque" -> "Ataque"
+            "defesa" -> "Defesa"
+            "velocidade" -> "Velocidade"
+            "max_pv" -> "PV máximo"
+            else -> scope
+        }
+
+    /** N-36: tatua o herói (ver `InventoryActions.tattooHero`). */
+    fun tattooHero(
+        scope: String,
+        tattooerGrade: Int,
+        coverIndex: Int? = null,
+    ): String? = inventory.tattooHero(scope, tattooerGrade, coverIndex)
+
+    fun smithEnchantItem(
+        itemId: String,
+        element: dev.rpgsolo.engine.ElementPath,
+    ): String? = inventory.smithEnchantItem(itemId, element)
 
     fun sellItem(
         itemId: String,
@@ -2100,6 +2304,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 questExecutor = { q -> addQuest(q.title, q.objectives, q.xpReward, q.masterySkillId, q.spellRewardId) },
                 playerTraits = { activeFicha?.traits.orEmpty() },
                 additionalBonus = { scope -> approvedRuleBonus(scope) },
+                luckTestBonus = { id -> luckTestBonusOf(id) },
                 externalBonuses = { scopes ->
                     bonuses.externalSkillAndCurseBonuses(playerId, scopes.toSet())
                 },
@@ -2118,7 +2323,18 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             restResources =
                 activePackage?.data?.resources?.map { it.id }?.toSet()
                     ?: session.state.entities[playerId]?.resources?.keys.orEmpty(),
-            sheet = PlayerSheet(activePackage, activeFicha, characterChoicesForAi(activeFicha?.id.orEmpty())),
+            restRules =
+                dev.rpgsolo.ai.RestRules(
+                    partial = setOf("pv", "pm"),
+                    campGrade = { e -> constructionGrade(e) },
+                    kennelBudget = { companionActions.kennelBudget() },
+                    kennelPay = { companionActions.payCommands(it) },
+                    breederDegree = { companionActions.breederDegree() },
+                ),
+            sheet =
+                PlayerSheet(activePackage, activeFicha, characterChoicesForAi(activeFicha?.id.orEmpty()), utilities = {
+                    bonuses.utilityHints(it.id)
+                }),
             conditionNames = activePackage?.data?.conditions?.associate { it.id to it.name }.orEmpty(),
             ruleLookup = { query ->
                 val packageRules = activePackage?.search(query, 5)?.map { "${it.kind}: ${it.title} — ${it.text}" }.orEmpty()
@@ -2135,6 +2351,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             },
             chapterSummary = { chapters.summaries().takeLast(3).joinToString("\n").ifBlank { null } },
             resumeBriefing = { dev.rpgsolo.ai.ResumeBriefing.build(quests.all(), quests.timeline(), chapters.summaries()) },
+            craftOpportunity = { activePackage?.recipes()?.isNotEmpty() == true },
             sourceContext = { text -> sourceContextForScene(text) },
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
@@ -2491,10 +2708,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     skill = false,
                 )
             }
-        return InitialBuildState(player.initialBuildAllocated, stats)
+        val config = session.engine.config
+        return InitialBuildState(player.initialBuildAllocated, stats, config.initialStatPoints, config.initialAbilityPoints)
     }
 
-    /** O motor exige exatamente 12 pontos e impede repetir a distribuição inicial. */
+    /** O motor exige exatamente os pontos iniciais do pacote (10 de status + 2 de habilidade) e impede repetir a distribuição. */
     fun allocateInitialBuild(
         statIncreases: Map<String, Int>,
         skillPoints: Int,

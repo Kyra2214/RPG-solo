@@ -1,3 +1,530 @@
+## 2026-10-25 — plano: bloco WD (mundo pré-configurado principal), só documentação
+
+- `docs/MUNDO_PRECONFIGURADO.md`: proposta do autor guardada como referência (5 reinos, 50 cidades, 8 a 12 NPCs por reino, geografia, povos, facções, 3 modos de cânone).
+- `PLANO_RPG_SOLO.md`: novo bloco **WD** (WD-01 a WD-10). Decisões: molde estático e imutável nos recursos + deltas no log da campanha com instanciação sob demanda; reaproveita o pipeline de documento-fonte (`SourceIndex`/`SourceContext`) e `CanonFacts` (ORIGINAL, DIVERGENCE, AI_CREATED); dois eixos independentes (fidelidade `SourceMode` × persistência: compartilhado, alternativa, cópia); validador de mundo com testes no CI. MP-08 passa a priorizar um mundo principal rico em vez de 3 a 5 rasos.
+- Em aberto: concorrência no cânone compartilhado; nome, tom e conceito do mundo; formato dos dados; destino do Boss do cenário. Nenhum código alterado. Próximo: LG-02.
+
+## 2026-10-25 — plano: fuga 1/3 com XP 50%, Poupar só para relevantes e escolha de mundo (MP-08), só documentação
+
+- RV-01: chance de fuga **1/3**, **XP da fuga = 50%**; botão **Poupar** só para `ELITE`, `CHEFE` e `CHEFE_FINAL` com dossiê (evita repetição em toda batalha). Lacuna anotada: a `ThreatCategory` não fica gravada na entidade.
+- **MP-08** (novo): na criação do personagem o jogador escolhe mundo anterior, mundo pré-configurado ou cria o próprio; `WorldTemplate` (molde) separado do Mundo/crônica (instância, MP-07). Ordem: MP-08 antes do MP-07.
+- Em aberto: destino do Boss do cenário (morto ou derrotado). Nenhum código alterado. Próximo: LG-02.
+
+## 2026-10-25 — plano: fuga por d6 (RV-01) e legado em ficha nova (MP-07), só documentação
+
+- RV-01 decidido: NPC elegível que zera os PV rola 1d6 no motor; **5 ou 6 foge** vivo com 1 PV e deixa cair 1 item do próprio inventário (sem item, nada); 1 a 4 morre. A IA só narra. Limiar configurável no pacote. ASSUMINDO que "5/6" é resultado 5 ou 6 (1/3).
+- MP-07: ficha nova no mundo anterior recebe histórias de legado e NPCs que conheceram o herói antigo (vínculos do LG-01 + marcos do MP-01).
+- Em aberto: destino do Boss do cenário (morto ou derrotado). Nenhum código alterado. Próximo: LG-02.
+
+## 2026-10-25 — plano: mundo persistente e fama (MP-07), só documentação
+
+- `PLANO_RPG_SOLO.md`: novo **MP-07** (mundo/crônica herdado entre campanhas, fama com alcance e disposição por região, rumores exatos, exagerados ou falsos que viajam pelos `placeLinks`). A escolha **mundo anterior ou mundo novo** é feita na criação da campanha, com a mesma ficha ou outra.
+- **Regra revisada:** o escopo do procurado deixou de ser "tudo do mundo fica para trás". Com a mesma ficha e o mesmo mundo, cartaz, reputação e rumores continuam; só em mundo novo o procurado entra como rumor de nível baixo. Ordem sugerida atualizada (MP-07 depois do MP-02).
+- Nenhum código alterado. Decisões em aberto continuam: poupar (jogador ou motor) e o destino do Boss (morto ou derrotado). Próximo: LG-02.
+
+## 2026-10-25 — plano: frente MP (memória entre campanhas, rivais e procurado), só documentação
+
+- `PLANO_RPG_SOLO.md`: novo bloco **MP** depois do bloco LG, com RV-01 a RV-06 e MP-01 a MP-06: marcos estruturados com certeza e escopo (PESSOA ou MUNDO), estados de derrota (poupado, fugiu, humilhado), persistência entre campanhas, vida fora de cena limitada, reencontro com justificativa, relação em eixos, alcance e procurado (Boss que age por intermediários) e a regra de escopo do procurado (acompanha o protagonista com a ficha). O LG-05 (panteão) passa a ser parte do MP-02.
+- `docs/NPCS_RECORRENTES_MEMORIA_ENTRE_CAMPANHAS.md`: proposta do autor guardada como referência.
+- Decisões em aberto registradas: poupar por escolha do jogador ou fuga decidida pelo motor; no cenário do Boss nível 99, morto ou só derrotado. Nenhum código alterado. Próximo: LG-02.
+
+## 2026-10-25 — engine: registro do legado e do assassino (LG-01, não compilado)
+
+- `Damage.sourceId` (opcional) e `EntityDied.killerId/cause` (opcionais; logs antigos decodificam com `null`). Origem passada nos ataques do motor (`attack`, `unifiedAttack`), nos poderes `Strike` e no ataque do companheiro; morte por condição grava `cause = "condicao:<id>"`.
+- `Legacy.kt`: `HeroLegacy`, `LegacyBond`, `DeathKind`, `KillerStatus` e `HeroLegacy.killerStatus(state, playerId)`. `GameState.legacies` (dados antigos assumem vazio): o `apply` de `EntityDied` de um PLAYER grava o legado (nome, nível, conceito, dia, assassino e até 5 vínculos com |relação| ≥ 30 de NPCs vivos); `EntityRevived` apaga. Trocar de herói (`NpcAssumed`) preserva o legado, e o segundo herói ganha o próprio.
+- Plano: bloco **LG** no `PLANO_RPG_SOLO.md` com os módulos LG-01 a LG-06.
+- `LegadoLg01Test` (20 testes) escrito. ASSUMINDO: só `Damage` com `sourceId` identifica o assassino; dano de proposta da IA, perigos do `GameLoop` e `FailSurvival` ficam como `UNKNOWN` (sem vingança). **Escrito, não compilado nem executado** (sem Gradle neste ambiente). Próximo: LG-02.
+
+## 2026-10-25 — app: painel do herói morto (legado, M-04 (f) parcial, não compilado)
+
+- `LegacyActions` (`app`) e `LegacyPanel` (aba Jogar, aparece só com o herói morto ou a campanha encerrada). Ordem do M-04: (1) item de renascimento vale primeiro (botão "Usar <item>", `UseRebirthItem`); (2) sem item, lista os NPCs vivos com **só o que o jogador já descobriu** (`npcSheet().discovered`) e o botão "Assumir <nome>" (`AssumeNpc`); (3) sem item e sem NPC, "Encerrar a campanha" (`EndCampaign`). O motor valida tudo; recusas aparecem no card.
+- `AppModel.legacyView/legacyRebirth/legacyAssume/legacyEnd`: ao assumir, troca `playerId` para o NPC e chama `saveMetadata()` (senão a reabertura voltaria ao herói morto). 8 strings `legacy_*`.
+- **Correção do plano:** o `request_spell` da IA já existia (MU-07.6: `request_power` com `power: "magia:<id>"`); a nota "segue pendente" estava desatualizada.
+- ASSUMINDO: o painel só enxerga o herói atual (`playerId`); depois de encerrada a campanha o motor recusa tudo e o card só mostra o motivo (arquivar na biblioteca ainda não foi feito); a oferta do NPC é pela tela, não pela narração do mestre. **Ainda falta do legado:** (b) o mestre oferecer o NPC no fluxo e o contexto/prompt dele, (c) teste de recuperação dos itens do corpo, (d) arquivar a campanha encerrada, (e) aliados acompanharem o nível do herói. Os testes `AssumeNpcTest` e `RebirthAndEndTest` não rodam fora do Gradle (usam persistência/JSON stubada). Nada do `app` foi compilado.
+
+## 2026-10-25 — app: painel de marcas do Tatuador na aba Jogar (N-36, não compilado)
+
+- `TattooPanel` (`PlayScreen.kt`): card recolhível "Marcas do Tatuador (n de limite)" com as marcas atuais (status e grau), botões **Tatuar** por status (Ataque, Defesa, Velocidade, PV máximo) com o grau e o preço (100 prata × grau), interruptor para usar um Tatuador NPC (escolha do grau 1 a 5) e **Cobrir** para trocar uma marca de grau menor quando o limite está cheio. Desabilitado em combate e durante a narração.
+- `InventoryActions.tattooView()` e `AppModel.tattooView()/tattooScopeLabel()` com `TattooView` e `TattooMarkView`; 8 strings `tattoo_*`. A ação de pagar e tatuar é a que já existia (`tattooHero`).
+- ASSUMINDO: o painel só aparece para quem é Tatuador ou já tem marca (quem nunca tatuou e não tem a profissão não vê o card; a primeira marca de NPC vem pelo mestre ou por subir o grau); herói Tatuador usa o próprio grau por padrão, o interruptor troca para NPC; a cobertura exige grau da nova maior que o da marca coberta (o motor recusa o resto). Sem teste de interface. Nada compilado nem executado.
+
+## 2026-10-25 — engine/ai/app: Criador de Animais e Treinador ligados ao companheiro (N-33.3, motor executado; ai/app não compilados)
+
+- **Criador (lealdade semanal):** `Kennel.plan(state, silver, breederDegree)` e `SettleKennel(silver, breederDegree)` somam +1 de lealdade por grau (0 a 5) por semana a todos os animais que o herói ainda tem, guardados ou não, depois das quedas da semana (teto 100; quem chegou a 0 na semana já está perdido e não recebe). Entra no mesmo evento `KennelWeekSettled` (o `delta` é o líquido). `KennelSettlement.after`, `RestRules.breederDegree` e `CompanionActions.breederDegree` (maior degrau aprendido de `profissao-criador-de-animais-N`) levam o grau ao descanso e ao trazer animal.
+- **Treinador (pontos de status):** `SyncTrainerBonus(ownerId, degree)` e evento `TrainerBonusSynced`: o animal que anda com o herói (vivo, não guardado nem perdido) recebe 1 ponto por grau (`Companions.trainerPoints`, distribuição pelo tipo de corpo); os outros perdem o que tinham, então o bônus pertence ao herói e acompanha a troca. Guardado em `CompanionState.trainerBonus` e somado a `Entity.stats` só pela diferença. Sem diferença não grava nada. Todo lote de `CompanionActions.run` termina com esse ajuste (`trainerDegree` lê `profissao-treinador-N`).
+- **Testes:** `CriadorTreinadorN33Test` (6). **Validação:** `engine` compilado com o compilador Kotlin do npm (serialização stubada); 46 de 46 passam (`CriadorTreinadorN33Test`, `ReadestramentoN33Test`, `CriadouroN33Test`, `CompanheiroN32Test`, `CompanheiroXpN33Test`, `CompanheiroCombateN32Test`). `ai` e `app` (`KennelSettlement`, `LocalActions`, `CompanionActions`, `AppModel`) não foram compilados.
+- ASSUMINDO: os pesos por tipo de corpo estão no código (`Companions.TRAINER_ORDER`: quadrúpede ataque/resistência/velocidade, alado velocidade/destreza/ataque, rastejante destreza/ataque/resistência, aquático resistência/velocidade/ataque, humanoide destreza/ataque/resistência, inseto destreza/velocidade/ataque; o 1º ponto vai ao status principal e a lista se repete até o 5º) e não em `companheiros.txt`, por serem meus e ajustáveis; o bônus só se acerta quando se usa o painel Companheiro (não no descanso), então após subir de grau vale a partir da próxima ação do painel; o Criador soma mesmo ao animal que anda com o herói e ao de lealdade 100 (sem efeito).
+
+## 2026-10-25 — engine/app: readestramento do animal perdido (N-33.2d, motor executado; app não compilado)
+
+- **Motor:** `RetrainCompanion(animalId, baseChance, percentRoll, loyaltyRoll, maxAnimals)` e evento `CompanionRetrained` (`Kennel.kt`, `Companion.kt`, `Events.kt`). A chance é a da receita de adestrar menos 30 pontos (`Companions.retrainChance`, piso 5% e teto 95%, como as receitas); d100 <= chance acerta. No sucesso o animal volta a andar com o herói com lealdade igual ao d20, mantém nível, ataque e truques, recupera a relação de aliado e o que andava com o herói vai para o criadouro. Na falha gasta 1 de 2 tentativas (`CompanionState.retrainAttempts`); a segunda falha marca `abandoned` (perdido para sempre, recusa tudo, inclusive trazer).
+- Recusas: animal que não está perdido, abandonado, sem tentativas, herói ou animal morto, combate em andamento, dados fora de faixa e, só no sucesso, limite de animais por grau de Adestrador (`maxAnimals`).
+- **App:** `CompanionActions.lostViews/retrain` e `AppModel.companionLostViews/companionRetrain`; o painel Companheiro lista o animal perdido com as tentativas que restam e um botão por marca de adestramento do inventário ("Readestrar com X (chance%)"). A marca é consumida na tentativa, mesmo na falha, no mesmo lote do comando (recusa desfaz tudo). O texto do resultado aparece no card. 3 strings novas.
+- **Testes:** `ReadestramentoN33Test` (6). **Validação:** compilei o `engine` com o compilador Kotlin do npm (serialização stubada) e rodei de verdade `ReadestramentoN33Test`, `CriadouroN33Test`, `CompanheiroN32Test` e `CompanheiroXpN33Test`: 34 de 34 passam. `app` (`CompanionActions`, `AppModel`, `PlayScreen`, strings) **não foi compilado** (sem Android SDK nem Gradle).
+- ASSUMINDO: qualquer marca de adestramento do inventário serve ao readestramento, e a chance usa a receita dessa marca (o herói precisa saber fazê-la, senão a opção não aparece); a lealdade volta como um d20 novo, como no primeiro adestramento; o animal readestrado fica com o herói, sem pagar manutenção; não há tela de recusa específica no mestre (a narração fica com ele). Falta N-33.2e (testes finais da fase).
+
+## 2026-10-25 — ai/app: criadouro no app, Visitar, Trazer e aviso de nível (N-33.2c, não compilado)
+
+- **Cobrança ligada ao tempo (`ai`):** `KennelSettlement.after` calcula, com o estado já avançado, a prata devida pelas semanas viradas e monta o lote `pagamento + SettleKennel`. O descanso (`LocalActions.rest`) usa isso quando há companheiros: se uma semana vira, cobra do saldo do herói (prata e, se faltar, ouro com troco) e o chat diz quanto foi pago, quem ficou sem pagamento e quem foi perdido. `RestRules` ganhou `kennelBudget` e `kennelPay`.
+- **App:** `CompanionActions.visit` (1d6 rolado pelo motor), `bring` (10 prata + 1 dia + liquidação se uma semana virar + troca, tudo em um lote atômico), `kennelBudget`/`payCommands` (prata primeiro, ouro no que faltar); `tame` passa o limite de animais (1 por grau de Adestrador). A lista do Companheiro esconde animais perdidos.
+- **Painel Companheiro (`PlayScreen`):** animal guardado mostra só nome, nível, lealdade e os botões **Visitar** (se ainda não visitou hoje) e **Trazer para o herói** (preço na etiqueta, desabilitado em combate). Aviso de nível: `CombatActions.awardCombatVictoryXp` avisa ("X subiu para o nível N") e o aviso aparece no card até o jogador abri-lo.
+- **Testes:** `KennelSettlementN33Test` (4) executado fora do Gradle e passando. `LocalActions`, `CompanionActions`, `AppModel`, `PlayScreen` e strings **não foram compilados** (sem Android SDK nem Gradle); o compilador Kotlin só checou `engine`, `rules` e `ai` e não apontou erro nos arquivos tocados.
+- ASSUMINDO: sem detecção de cidade (a etiqueta diz "só numa cidade" e quem decide é o jogador, como no ferreiro NPC); a taxa de 10 prata é paga antes da cobrança semanal, que usa só o saldo restante; o aviso de nível é só de memória (some ao fechar o app); sem teste de interface. Falta N-33.2d (readestramento do animal perdido) e N-33.2e (testes finais).
+
+## 2026-10-25 — engine: trazer e trocar o animal (N-33.2b, validado por execução parcial)
+
+- `BringCompanion(animalId)` (`Kennel.kt`): traz o animal guardado para andar com o herói e guarda o que andava com ele (evento `CompanionBrought`; o que sai conta como visitado na semana atual). Recusa animal perdido, morto, que já anda com o herói, e qualquer troca em combate. Constantes `Kennel.BRING_FEE` (10 prata) e `Kennel.BRING_DAYS` (1 dia).
+- O motor não conhece cidade nem prata: o app (N-33.2c) confere que o herói está na cidade e monta o lote `consumir 10 prata → AdvanceDays(1) → BringCompanion`.
+- Testes: 3 novos em `CriadouroN33Test` (17 no total); `CriadouroN33Test` + `CompanheiroN32Test` = 24 de 24 executados fora do Gradle (compilador Kotlin do Gradle local, serialização stubada). `rules`, `ai` e `app` seguem sem compilar.
+- ASSUMINDO: o animal trazido não paga manutenção a partir do momento em que chega; a semana de chegada do que sai conta como visitada. Falta N-33.2c (app) e N-33.2d (readestramento).
+
+## 2026-10-25 — engine: criadouro, manutenção semanal e perda do animal (N-33.2a, validado por execução parcial)
+
+- `Kennel.kt` (motor): semana de jogo = 7 dias de `GameState.day`; `GameState.kennelWeek` guarda a última semana liquidada (começa ao adestrar o primeiro animal). `CompanionState` ganhou `stabled` (no criadouro), `visitedWeek` e `lost` (perdido).
+- **Só 1 animal anda com o herói:** adestrar um novo guarda o anterior no criadouro (`CompanionTamed.stabledIds`); `TameCompanion.maxAnimals` (1 por grau de Adestrador, quem chama informa) recusa além do limite, sem contar animais perdidos. `StableCompanion` guarda o animal ativo (recusado em combate) e a semana em que ele é guardado conta como visitada.
+- **Cobrança (`SettleKennel(silver)`):** liquida todas as semanas viradas. Por semana: cuidador primeiro (10 prata × animais guardados), depois cada animal do menor nível para o maior (5 prata × nível), até acabar a prata. Sem pagamento: -30 de lealdade; pago e sem visita na semana: -10; pago e visitado: 0. O motor não mexe em prata: `Kennel.plan(state, saldo)` informa o total (`KennelWeekSettled.silverPaid`) e quem chama consome no mesmo lote.
+- **Visita (`VisitCompanion(animalId, roll)`):** só animal guardado; 1d6 de lealdade (teto 100), 1 por dia (conta como carinho), marca a semana como visitada.
+- **Perda:** lealdade 0 marca `lost`, remove a relação de aliado e para a cobrança; a entidade continua no estado para o readestramento (N-33.2d). Animal guardado ou perdido não age, não é aliado em combate (`allyIdsInCombat`) nem recebe comida, carinho ou truque.
+- Teste `CriadouroN33Test` (14). **Validação:** sem Gradle (sem rede), compilei `engine` com o compilador Kotlin 2.0.21 do Gradle local, serialização stubada, e rodei de verdade `CriadouroN33Test` (14) e `CompanheiroN32Test`: 21 de 21 passam. A suíte JVM inteira do motor tem o mesmo conjunto de falhas do ZIP original (as de persistência/JSON, por causa dos stubs), ou seja, nenhuma regressão nova. Módulos `rules`, `ai` e `app` não foram tocados e seguem sem compilar.
+- ASSUMINDO: cada cobrança é inteira (não paga pela metade); se o cuidador não é pago, os animais também ficam sem pagamento (a regra "até acabar a prata" parando na primeira que não cabe); a visita não evita o -30 do não pago; a semana de manutenção é cobrada inteira mesmo no primeiro ou último dia de guarda; o animal que sai do criadouro (N-33.2b) deve zerar `stabled` e marcar `visitedWeek`; a lealdade semanal do Criador (N-33.3) entra depois na mesma liquidação. Falta N-33.2b (trazer/trocar na cidade, 10 prata e 1 dia), N-33.2c (botão Visitar, aviso de nível e ligação do `SettleKennel` ao app) e N-33.2d (readestramento).
+
+## 2026-10-25 — rules: origem das gemas por loja e extração (N-33.4, não compilado)
+
+- **Loja (NPCs das cidades):** já funciona sem código novo. `shopView` lista todo item com preço e as 12 gemas têm preço (40, 120 e 360 de prata por qualidade 1, 2 e 3).
+- **Extração por profissão:** 4 receitas `col-extrair-gema-*` em `receitas.txt` (sem entrada, saída uma gema bruta de qualidade 1, dificuldade 20, liberadas no degrau 3 e garantidas no degrau 5): Minerador → Ataque e Defesa; Geólogo → Velocidade e Vida. A qualidade sobe depois com o Lapidador. Teste `mineradorEGeologoExtraemGemasBrutas` em `GemasSlotsN33Test`.
+- **Drop em combate e exploração: não feito.** O projeto não tem tabela de drop nem espólio (`LuckRules.dropPercentBonus` segue sem chamador), e inventar as tabelas seria decidir por você: quais NPCs/lugares dropam o quê, com que chance base e quem concede (motor ou mestre). Falta decidir.
+- ASSUMINDO: a divisão Minerador (Ataque/Defesa) e Geólogo (Velocidade/Vida) é minha e ajustável; só existe gema bruta por extração (sem receita de qualidade 2 ou 3, que vêm da lapidação e da loja). Nada compilado nem executado.
+
+## 2026-10-25 — app: painel de gemas na aba Jogar (N-33.4, não compilado)
+
+- `GemsPanel` (`PlayScreen.kt`): card recolhível "Gemas" (some se não há gema no inventário nem engastada). Lista as peças equipadas com vagas ("Espada (Rara): 1 de 2 vagas"), botões **Remover** por gema, **Engastar** (uma por gema do inventário, enquanto houver vaga) e **Lapidar** (só para o Lapidador, enquanto a gema não está na qualidade 3). Sem Montador de Gemas, um interruptor liga o ferreiro NPC, que cobra 50 prata × qualidade (o preço aparece no botão). Tudo desabilitado durante combate, narração, rolagem ou teste pendente; o resultado da lapidação (d20) aparece no próprio card.
+- `InventoryActions.gemsView()` e `AppModel.gemsView()` com `GemsView`, `GemSlotView` e `GemStockView`; 8 strings novas (`gems_*`).
+- ASSUMINDO: o botão de engastar mostra "custo: 0 prata" quando o herói é o Montador; sem pré-visualização do bônus da gema na peça; o painel não aparece sem gemas (a origem das gemas ainda não existe, então hoje só entram por item dado pela campanha). Sem teste de interface. Nada compilado nem executado.
+
+## 2026-10-25 — engine/rules/app: gemas de engaste e Joias com 5 degraus (N-33.4/N-25, não compilado)
+
+- **Motor:** `Gems.kt` (`Gem`, `SocketedGems`, `Gems`), comandos `SocketGem` e `RemoveGem`, eventos `GemSocketed` e `GemRemoved`, `GameState.gems` (dono → slot → peça + gemas; dados antigos assumem vazio). Quatro tipos (Ataque, Defesa, Velocidade, PV máximo), qualidade 1 a 3, valores +2/+4/+6 e PV +10/+20/+30. A gema só conta enquanto a peça engastada continua equipada no slot; a gema de PV sobe e desce o máximo de PV no mesmo evento. `Gems.cut`: d20, 1 a 5 falha (25%); sucesso sobe 1 nível (teto 3), falha desce 1 e a de qualidade 1 some. Ferreiro NPC cobra 50 prata × qualidade (`Gems.npcFee`).
+- **Regras:** `ItemQuality.gemSockets` (comum 1, rara 2, lendária 3) e 12 itens `gema-<tipo>-<qualidade>` em `itens.txt` (PV usa `gema-pv-N`). As 7 profissões de Joias, vidro e cerâmica (Especialista em Joias, Ourives, Lapidador, Montador de Gemas, Joalheiro de Campo, Vidreiro, Oleiro) passaram a 5 degraus (1, 7, 13, 21, 30). **Agora as 104 árvores de profissão têm 5 degraus**: o N-35 fecha a conversão por ondas.
+- **App:** `InventoryActions.socketGem/removeGem/cutGem` (e `AppModel`): o Montador de Gemas do herói engasta e remove sem custo; com `viaNpc` o ferreiro NPC cobra; só o Lapidador do herói lapida (d20 registrado no log). O bônus entra na soma de combate de `CombatActions` junto de equipamento e marcas.
+- **Testes:** `GemasN33Test` (engine), `GemasSlotsN33Test` (rules); `SkillTreeCatalogTest` inclui as 7 árvores em `FIVE_STEP_TREES` e a verificação das passivas agora olha árvores de 5 postos (não restam de 7).
+- ASSUMINDO: peça normal e ótima = 1 vaga, rara e épica = 2, lendária = 3; a gema fica gravada por slot e item (volta a valer se a mesma peça for reequipada); engastar e remover recusam durante o combate; a lapidação só cobre a gema do inventário (sem custo em prata e sem limite de tentativas); o ferreiro NPC é escolhido pelo parâmetro `viaNpc`, sem detecção do lugar. **Sem tela** (nem engaste, nem lapidação), sem origem das gemas (drop, loja e mineração ainda não geram gemas) e sem receita de Joias. Nada compilado nem executado.
+
+## 2026-10-25 — rules: Conhecimento e Vida cotidiana com 5 degraus (N-35, não compilado)
+
+- As 17 profissões sem habilidade nova (Escriba, Bibliotecário, Professor, Astrônomo, Paleontólogo, Botânico, Heraldista, Genealogista, Arquivista, Escrivão Judicial, Investigador de Incêndios, Agricultor, Apicultor, Jardineiro, Lavadeiro, Barbeiro, Saboeiro) foram realinhadas dos 7 postos antigos para **5 degraus nos níveis 1, 7, 13, 21 e 30**. Seguem com a passiva genérica no escopo da profissão (valor 1 a 5); degrau 1 gratuito.
+- Os degraus 1 a 4 mantêm os nomes antigos; o degrau 5 herda o nome único da antiga culminância (ex.: Escriba → "Registro Impecável"). Os postos 5 e 6 antigos ("Execução de Mestre", "Mestria Profissional") foram descartados.
+- Teste: as 17 árvores entraram em `FIVE_STEP_TREES` (`SkillTreeCatalogTest`). Agora 97 das 104 árvores de profissão têm 5 degraus; as 7 restantes (Joias, vidro e cerâmica) aguardam as gemas (N-33.4).
+- ASSUMINDO: nenhuma mecânica nova para essas famílias (decisão da §12); personagens salvos com os postos 6 e 7 antigos dessas profissões perdem o vínculo com esses ids. Nada compilado nem executado.
+
+## 2026-10-25 — rules: Construção com 5 degraus (N-35, não compilado)
+
+- As 7 profissões de Construção (Carpinteiro, Marceneiro, Pedreiro, Arquiteto, Construtor de Barcos, Engenheiro de Pontes, Construtor de Fortificações) saíram do molde antigo de 7 postos (níveis 1, 5, 10…) e passaram a **5 degraus nos níveis 1, 7, 13, 21 e 30**, como as outras 73 já convertidas. Passiva no escopo da própria profissão, valor 1 a 5; o degrau 1 é gratuito. Nomes próprios por degrau (ex.: Pedreiro: Olho para Alvenaria → Reforçar Muros → Levantar Parede → Argamassa Perfeita → Obra de Pedra). Efeito direto no acampamento: o grau (1 a 5) lido por `AppModel`/`RestRules` agora coincide com o último degrau aprendido, sem os postos 6 e 7 que eram ignorados.
+- Teste: `SkillTreeCatalogTest` inclui as 7 árvores em `FIVE_STEP_TREES` (as contagens de culminâncias derivam dessa lista).
+- ASSUMINDO: só a passiva genérica por degrau; sem receitas de construção (barricada, ponte, barco) nem itens novos, que ficam para o próximo módulo. Os nomes dos degraus são meus e ajustáveis. Restam 24 árvores no molde antigo: Joias (7, aguardam o código das gemas, N-33.4) e Conhecimento/Vida cotidiana (17, sem habilidade nova; falta só realinhar os níveis). Nada compilado nem executado.
+
+## 2026-10-24 — ai/app: descanso parcial e acampamento (N-33.5, não compilado)
+
+- Decisão do proprietário (24/10/2026): o descanso comum recupera **50%** de PV e PM; o acampamento soma **+10% por grau** de Construção (1 a 5; grau 5 = 100%); a estalagem/cidade recupera 100%.
+- `RestRules` (`LocalActions.kt`) e `LocalAction.INN_REST` ("dormir na estalagem", "pousar"…); `PlayController` e `AppModel` ligam a regra (PV e PM parciais, PA e o resto continuam integrais). O grau vem do maior posto aprendido (limite 5) entre carpinteiro, marceneiro, pedreiro, arquiteto, construtor de barcos, engenheiro de pontes e construtor de fortificações. Sem `RestRules` o descanso segue integral (testes antigos intactos). Teste `AcampamentoN33Test`.
+- ASSUMINDO: o percentual é do máximo (não do que falta); o jogador escolhe a estalagem pela frase, sem botão; o descanso integral na cidade não detecta o lugar sozinho. Nada compilado nem executado.
+
+## 2026-10-24 — ai/app: utilidades fora de combate na ficha do mestre (N-35, não compilado)
+
+- `PlayerSheet` ganhou o parâmetro `utilities`; a linha "Utilidades fora de combate (…informe o escopo em "skill"): Mãos Leves → fechaduras; …" entra nos níveis FULL e BRIEF (e, por herdar o BRIEF, no ROUND). `CombatBonuses.utilityHints` lista as passivas aprendidas cujo efeito não é de combate; `AppModel` liga as duas.
+- ASSUMINDO: vale também para passivas de profissão com escopo de teste. Teste em `PlayerSheetTest`. Pendente do N-35: conversão das 103 profissões por ondas. Nada compilado nem executado.
+
+## 2026-10-24 — rules: utilidades fora de combate nas classes (N-35, não compilado)
+
+- `habilidades-arvore.txt`: o posto 6 de 48 das 50 classes (suporte/buff de combate) virou **passiva de utilidade** com bônus em um escopo de teste (ex.: Ladino "Mãos Leves" → `fechaduras`; Batedor "Rastreador" → `rastrear`; Mago "Estudo Arcano" → `arcano`; Pirata "Rota dos Mares" → `navegacao`). Escopos usados: fechaduras, rastrear, furtividade, persuasao, intimidar, vigiar, sobrevivencia, arcano, natureza, animais, navegacao, mecanismos, identificar, investigar, conhecimento, espiritos, meditacao, estrategia. Curandeiro e Médico de Campo mantêm a cura fora de combate (N-22).
+- Valor +3 (+1 por nível da habilidade) em todas, escolha minha. A passiva entra pela mesma via das outras (`SkillTreeModifierProvider`), quando o teste pedido tem esse escopo como perícia.
+- ASSUMINDO: o mestre (IA) precisa pedir o teste com a perícia pelo nome do escopo; ainda não há lista desses escopos no prompt do mestre nem no menu de testes (próximo passo). A escolha da utilidade por classe é minha e ajustável. Teste `UtilidadesClassesN35Test`. Nada compilado nem executado.
+
+## 2026-10-24 — engine/rules/app: consertar e tempo de criar (N-35, não compilado)
+
+- **Consertar:** falha gasta todo o material (o item quebrado em `manter_na_falha` continua); antes perdia metade. Criar e preparar seguem perdendo metade. Sem material suficiente nem rola o teste (já era assim). Teste de `OficioN20Test` ajustado; mensagem do app atualizada.
+- **Criar:** `receitas.txt` ganhou a coluna 11 opcional `tempo` (0 a 30 dias, `RecipeDef.days`); `executeRecipe` avança o relógio (`AdvanceDays`) ao tentar. ASSUMINDO: valores de exemplo 2 dias (cota de malha) e 1 (espada longa), meus; o tempo passa mesmo na falha. Teste `OficioTempoN35Test`.
+- Afanar: o mestre narra a consequência quando o ladrão é pego (já havia `caught` e relação −10); nada novo no código. Pendentes do N-35: utilidades fora de combate das classes e conversão das 103 profissões por ondas. Nada compilado nem executado.
+
+## 2026-10-24 — engine/ai/app: Sorte nos testes e no drop (N-35, não compilado)
+
+- `LuckRules` (motor): `testBonus` = +1 a cada 2 pontos de Sorte, sem teto; `dropPercentBonus` = +1% por ponto. `GameLoop` ganhou `luckTestBonus` (só jogador) e o rótulo do teste mostra " · Sorte +N"; `AppModel.luckTestBonusOf` soma Sorte de atributo e de itens equipados. Teste `SorteN35Test`.
+- Degraus 1/7/13/21/30 já estavam em código (N-19, inclusive Ferreiro): nada a realinhar.
+- ASSUMINDO: o bônus entra nos testes narrados pelo `GameLoop`, não no confronto de combate (que já usa Sorte no crítico); não há sistema de drop no código, então `dropPercentBonus` fica pronto sem chamador. Pendentes do N-35: utilidades fora de combate das classes, consertar/afanar/criar ajustes e conversão das 103 profissões por ondas. Nada compilado nem executado.
+
+## 2026-10-24 — engine: defesa rolada com mínimo 1 (N-34, não compilado)
+
+- `UnifiedCombat.DEFENSE_ROLL_MIN = 1`: o valor rolado da defesa nunca fica abaixo de 1, antes da fórmula do dano; `ClashResult.defenseTotal` segue a mesma regra. Teste `DefesaMinimaN34Test`.
+- Multiplicador de chefe: `NpcProposal.bossPercent` (campo `boss_percent` da proposta da IA, 200 a 300) só vale para chefe e chefe-final; fora da faixa ou em outra categoria a proposta é recusada; vale no PV com pacote e no teto sem pacote (`ThreatCategory.scale/healthCap`). Teste `ChefeMultiplicadorN34Test`.
+- Já estavam em código: teste de acerto, Sorte d10 (`CRIT_DIE_SIDES`) e Sorte de itens até 100% (N-15). ASSUMINDO: sem `boss_percent`, chefe segue ×2 e chefe-final ×3. Nada compilado nem executado.
+
+## 2026-10-24 — engine/rules/app: marcas do Tatuador e nomes dos conjuntos por peso (N-36, não compilado)
+
+- Motor: `Tattoo.kt` (`Tattoo`, `Tattoos`), comando `ApplyTattoo`, evento `TattooApplied` e `GameState.tattoos`. Limite de 1 marca por grau do Tatuador do herói (`profissao-tatuador-N`); bônus +1 por grau no status (Ataque, Defesa, Velocidade) e PV máximo +5 por grau; cobertura por marca de grau maior, que substitui a anterior (PV máximo sobe ou desce junto).
+- App: `InventoryActions.tattooHero` (paga 100 prata × grau de quem tatua, troca atômica) e `AppModel.tattooHero`; o bônus das marcas entra na soma de combate de `CombatActions` junto do equipamento. Sem tela: só a ação.
+- Regras: `ItemWeight.setNames` (Baluarte/Couraça/Titã, Patrulha/Malha/Andarilho, Véu/Manto/Sombra). O mapeamento das 50 classes já estava no catálogo (N-13) e não mudou.
+- ASSUMINDO: quem não tem a profissão Tatuador pode receber 1 marca; o grau de quem tatua é informado por quem chama (jogador ou NPC); cobrir paga o preço integral da nova; marcas repetidas no mesmo status somam; os três nomes de cada peso ainda não viraram peças nem faixas de nível (o texto da decisão não diz como se distribuem), então nenhum item novo foi criado.
+- Testes: `TatuadorN36Test` (7) e `ConjuntosPesoN36Test` (1) escritos. **Validação:** nada compilado nem executado (sem rede para o Gradle); contas dos testes feitas à mão.
+
+## 2026-10-24 — docs: peso das classes e Tatuador (N-36, só documentação)
+
+- `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` §15.13: nomes dos conjuntos por peso (Baluarte/Couraça/Titã, Patrulha/Malha/Andarilho, Véu/Manto/Sombra), mapeamento das 50 classes e distribuição de bônus confirmados; Tatuador com 1 marca por grau, +1 em status de combate por grau (PV +5), cobertura por marca de grau maior e preço de 100 prata × grau.
+- Nada implementado, compilado nem executado.
+
+## 2026-10-24 — docs: Sorte, degraus de profissão e mecânicas fora de combate (N-35, só documentação)
+
+- `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` §15.12: Sorte dá +1 nos testes a cada 2 pontos e +1% de drop por ponto (itens contam também); degraus de profissão em 1, 7, 13, 21 e 30 (o 1 grátis, os outros 1 ponto); 3 a 5 habilidades por profissão; classes com utilidades fora de combate; consertar (falha gasta o material), afanar (mestre narra), criar (tempo por receita); conversão das 103 profissões por famílias e ondas.
+- Nada implementado, compilado nem executado.
+
+## 2026-10-24 — docs: confirmação dos valores em aberto (N-34, só documentação)
+
+- `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` §15.11: XP de batalha e missão e desconto por inimigo fraco confirmados como estão; defesa rolada com mínimo 1; fluxo de ataque (acerto, crítico, dano) confirmado; d10 para Sorte e crítico; Sorte de itens até 100% com +3; qualidades de itens mantidas; PV por categoria de ameaça (chefe ×2 a ×3 a critério do mestre).
+- Nada implementado, compilado nem executado.
+
+## 2026-10-24 — docs: decisão sobre o histórico do Git (R-04, só documentação)
+
+- `PLANO_RPG_SOLO.md`: o proprietário decidiu **reescrever o histórico** para remover o conteúdo de terceiros. A execução (`git filter-repo` e force push) continua pendente e é feita por ele; invalida clones e PRs existentes.
+
+## 2026-10-24 — docs: origem das gemas e acampamento (N-33.4 e N-33.5, só documentação)
+
+- `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` §15.9: gemas vêm de drop, compra em NPCs e extração por profissão. §15.10: acampamento montado em qualquer lugar, com +10% por grau de Construção (1 a 5) de PV e PM recuperados no descanso.
+- O N-25 deixa de estar bloqueado; faltam os módulos de implementação.
+- Nada implementado, compilado nem executado.
+
+## 2026-10-24 — docs: gemas como itens de engaste (N-33.4, só documentação)
+
+- `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` §15.9: 4 tipos de gema (Ataque, Defesa, Velocidade, PV), qualidade 1 a 3 (+2/+4/+6; PV +10/+20/+30), vagas por qualidade da peça (1/2/3), engaste removível, lapidar para subir 1 nível (d20, falha em 1 a 5 derruba 1 nível) e engaste pelo Montador de Gemas ou ferreiro NPC (50 prata × qualidade).
+- Destrava o N-25 quanto às gemas; acampamento e origem das gemas seguem em aberto.
+- Nada implementado, compilado nem executado.
+
+## 2026-10-24 — docs: Criador de Animais e Treinador ligados ao companheiro (N-33.3, só documentação)
+
+- `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` §15.8: Criador de Animais dá +1 de lealdade por semana por grau (1 a 5) a todos os animais do herói; Treinador dá +1 ponto de status por grau (1 a 5) só ao animal que anda com o herói, distribuído conforme o tipo de corpo.
+- Nada implementado, compilado nem executado.
+
+## 2026-10-24 — docs: criadouro, manutenção e perda do animal (N-33.2, só documentação)
+
+- Novo `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` §15.7 com as decisões do proprietário: XP do animal igual ao do herói, só se vivo, aviso só ao subir de nível; limite de 1 animal por grau de Adestrador; só 1 anda com o herói e os outros ficam no criadouro; manutenção semanal (5 prata × nível do animal + cuidador NPC a 10 prata × animais guardados); quedas de lealdade (-30 sem pagar, -10 sem visita); botão "Visitar" (+1d6); troca só na cidade (10 prata, 1 dia); lealdade 0 perde o animal, com readestramento (-30 pontos, uma tentativa extra, mantém nível, ataque e truques).
+- Renumeração: o antigo N-33.2 (ligar Criador de Animais e Treinador ao companheiro) virou N-33.3; as gemas (N-25) viraram N-33.4.
+- Nada implementado, compilado nem executado.
+
+## 2026-10-24 — engine/app: XP do animal só por combate (N-33.1, não compilado)
+
+- Motor: comando `GainCompanionXp(animalId, amount)` e evento `CompanionXpGained`. O nível do animal sai da mesma tabela do herói (`EngineConfig.levelFor`); cada nível ganho soma +5 de lealdade (teto 100) e 1 ponto de habilidade a cada 3 níveis (conta todos os níveis cruzados de uma vez). `GainXp` continua só para o jogador. `decideCompanion` passou a receber a configuração do motor.
+- App: `CombatActions.awardCombatVictoryXp` dá XP a cada companheiro vivo que participou da vitória, calculado pelo nível do animal (mesma fórmula `battleXp` ou o valor fixo `combate_xp_vitoria`), antes do XP do herói; o animal não conta como inimigo derrotado. Não há outra fonte de XP do animal (nem missão, nem botão).
+- ASSUMINDO: o animal ganha o mesmo XP que o herói ganharia no nível dele (diferença de nível do inimigo conta pelo nível do animal); precisa estar vivo e ter entrado na iniciativa; o comando manual `LevelUpCompanion` fica no motor, sem botão; sem mensagem de interface sobre o XP ou o nível ganho pelo animal.
+- Testes: `CompanheiroXpN33Test` (4) escrito. **Validação:** nada compilado nem executado; contas dos testes feitas à mão.
+
+## 2026-10-24 — app: painel "Companheiro" na aba Jogar (N-32.4, não compilado)
+
+- `CompanionActions.kt` (novo) + `AppModel`: `CompanionView`/`TrickView`/`TameOption`; adestrar a partir da marca do Adestrador (item `*-adestrado`/`fera-adestrada`, consumido; lealdade inicial = d20 do motor), escolha única do ataque entre as 3 opções do corpo, +1 de status (Ataque, Resistência, Velocidade, Destreza; 3 pontos iniciais), subir o ataque com ponto de habilidade, aprender truque (d20, 1 por descanso), ordenar truque (d100), alimentar (comida do inventário aceita pelo corpo; preferida dobra; grau do Adestrador pela árvore `profissao-adestrador-N`), carinho e ataque do animal no turno dele contra inimigos do combate. Tudo passa por `act` (trava de turno).
+- `PlayScreen.CompanionPanel` (card recolhível "Companheiro (N)", só aparece com animal ou marca de adestramento) e 13 strings; em combate só aparecem Ordenar (truques de combate) e Atacar.
+- Motor: `GameEngine.rollPlain` e `CampaignSession.rollPlain` (rolagem 1dN registrada no log) para o d20 e o d100 do animal.
+- ASSUMINDO: a captura já foi resolvida pela receita (o painel só rola a lealdade inicial); PV inicial por porte 10/20/30/45/60 (valores meus, ajustáveis); sem limite de animais por dono; sem botão de subir de nível do animal (`LevelUpCompanion` fica sem gatilho de interface até haver regra de XP do animal); o animal não escolhe alvo sozinho (o jogador toca no inimigo); efeitos dos truques (Proteger, Distrair, Resgatar etc.) seguem narrativos: o painel só registra a obediência; sem tela separada para a escolha do ataque (aparece no próprio card logo após adestrar).
+- **Validação:** nada compilado nem executado; sem teste de interface; conferência estática de imports e assinaturas por leitura.
+
+## 2026-10-24 — engine: ataque, truques, nível e turno do animal (N-32.3, não compilado)
+
+- `Companion.kt`: `CompanionState` ganhou `attackId`, `attackLevel`, `tricks` e `lastLearnDay` (padrões; dados antigos seguem válidos). `Companions`: `attackDamage` (Ataque × fator, para cima), `effectChance` (base + 5% por nível, teto 90%), `d20Success` (20 natural passa, 1 natural falha), `trickD20Percent` (+3 por nível de adestramento), `orderChance` (d20 + (100 − d20) × lealdade ÷ 100; 100 = 100%) e `learnSuccess` (d20 + lealdade ÷ 10 + 3 por nível).
+- Comandos e eventos: `ChooseCompanionAttack` (uma vez), `RaiseCompanionAttack` (gasta 1 ponto de habilidade do animal), `LevelUpCompanion` (nível +1, lealdade +5 com teto 100, 1 ponto de habilidade a cada 3 níveis), `LearnCompanionTrick` (1 tentativa por descanso, exige lealdade mínima, d20 rolado por quem chama) e `OrderCompanionTrick` (d100 rolado por quem chama; em combate só truque de combate); eventos `CompanionAttackChosen`, `CompanionAttackRaised`, `CompanionLeveledUp`, `CompanionTrickLearnAttempted`, `CompanionTrickOrdered`. Ramos novos em `decide` e `apply`.
+- `GameEngine.companionStrike`: no turno do animal aplica o dano (`Damage`), a condição se o d100 do efeito for ≤ à chance (`AddCondition`) e passa o turno (`NextTurn`); recusa fora do turno, sem combate e contra dono ou aliados.
+- ASSUMINDO: o ataque do animal sempre acerta (sem teste de acerto, defesa nem Resistência do alvo); `attackId`, dano, chance, dificuldade e lealdade mínima vêm do pacote (N-32.2) por quem chama, e o motor só guarda; o aprender soma também o bônus de adestramento; ordem de truque de combate não gasta o turno do dono (a ordem só registra o resultado; o efeito do truque, como Proteger e Distrair, fica para o N-32.4/mestre); sem escolha automática do alvo pelo animal.
+- Testes: `CompanheiroCombateN32Test` (6) escrito. **Validação:** nada compilado nem executado; conferência estática: ramos novos nos `when` exaustivos de `Command` (`Commands.kt`) e `Event` (`Events.kt`), contas dos testes feitas à mão.
+
+## 2026-10-24 — rules: pacote do companheiro, `companheiros.txt` (N-32.2, não compilado)
+
+- Novo arquivo opcional `companheiros.txt` (`PackageFiles.COMPANIONS`; `PackageData.companions`: `CompanionData`; herança por id; `RulePackage.companions`, `companionAttacks`, `companionAttack`, `companionTrick`, `companionFood`). Linhas por tipo: `corpo`, `ataque` (dano leve/normal/alto = ×0,8/×1/×1,3 do Ataque do animal; efeito `-`, `condicao:<id>`, `elemento:<id>` ou `distancia`; chance d100 base só em condição), `truque` (dificuldade d20 1–20, lealdade mínima 0–100, combate sim/nao) e `comida` (ganho base, preferida sim/nao). Parser recusa: corpo fora de `Companions.BODY_TYPES`, corpo sem exatamente 3 ataques, condição, item ou corpo inexistente, dano/dificuldade/ganho fora da faixa e ids duplicados.
+- Sistema próprio: 6 tipos de corpo, 18 ataques, 12 truques (simples 5/10, médio 8/25, difícil 11/40, mestre 14/60; 3 de combate) e 27 comidas por tipo; 13 itens narrativos novos em `itens.txt` (`refeicao-preparada`, `refeicao-de-carne`, `ovo`, `fruta`, `fruta-rara`, `mel`, `doce`, `iguaria`, `nectar`, `cogumelo-raro`, `presa-viva`, `presa-rara`, `peixe-raro`). `BundledContent` passou a ler `companheiros.txt`.
+- ASSUMINDO: só dados e leitura (sem cálculo de ataque, chance de efeito, truque nem turno: N-32.3); "preferida" = comida "boa" do tipo (dobra o ganho no motor); "peixe raro" e "fruta rara" viraram itens próprios (`peixe-raro`, `fruta-rara`) em vez de qualidade; sem comida odiada (o animal aceita só o que o tipo lista); ataques com efeito `elemento` e `distancia` ficam sem chance (valem sempre).
+- Testes: `CompanheiroPacoteN32Test` (5) escrito. **Validação:** nada compilado nem executado (sem Gradle nem rede); conferência estática: 149 itens com ids únicos, 18 ataques (3 por corpo), 12 truques, comidas apontando para itens existentes.
+
+## 2026-10-24 — engine: companheiro adestrado, estado e lealdade (N-32.1, não compilado)
+
+- `Companion.kt` (novo): `Companions` (tipos de corpo, teto de lealdade 100, fatores por nível do animal 100/75/50/25% e por grau do Adestrador 100% a 200%, `loyaltyGain` com um só arredondamento para cima e mínimo 1), `CompanionState` (entidade, dono, tipo de corpo, lealdade, nível de adestramento, dia do último carinho), comandos `TameCompanion` (lealdade inicial = d20 rolado pelo chamador, 1..20), `FeedCompanion` (ganho base da comida + grau do Adestrador) e `PetCompanion` (+3 base, uma vez por descanso/dia), eventos `CompanionTamed` e `CompanionLoyaltyChanged`. `GameState.companions` (padrão vazio, dados antigos seguem válidos); ramos novos em `decide` (`Commands.kt`) e `apply` (`Events.kt`).
+- O animal é uma entidade NPC comum; adestrar define a relação animal→dono em pelo menos 10 (`ALLY_RELATION_MIN`), então `allyIdsInCombat` já o reconhece como aliado.
+- ASSUMINDO: o chamador rola o d20 e informa o ganho base da comida (qualidade e dobro da preferida ficam para o módulo do pacote); sem limite de animais por dono neste módulo; sem perda de lealdade; subir de nível do animal (+5 de lealdade), ataque, truques, turno e painel ficam para os próximos módulos.
+- Testes: `CompanheiroN32Test` (7) escrito. **Validação:** nada compilado nem executado (sem Gradle nem rede para baixá-lo); conferência estática: ramos novos em todos os `when` exaustivos de `Command` e `Event` (só `Commands.kt` e `Events.kt`; `AutomaticTimeline` tem `else`) e contas dos testes feitas à mão.
+
+## 2026-10-24 — docs: ficha do animal adestrado, decisões do companheiro (N-32, só documentação)
+
+- `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` §15.6 e `PLANO_RPG_SOLO.md` (Andamento da seção 3.10): registram a ficha própria do animal (3 pontos de status em Ataque, Resistência, Velocidade e Destreza; 1 ponto de habilidade a cada 3 níveis; uma só habilidade de ataque; 6 tipos de corpo com 3 opções de ataque cada; o jogador escolhe 1 como único ataque e os pontos de habilidade sobem o nível dela), truques em d20 (+15% por nível de adestramento) e lealdade (d20 automático ao adestrar, 100% = 100% de chance, mais difícil em níveis altos, sobe com comida, carinho e nível) e o nível do Adestrador (1 a 5) que multiplica o ganho de lealdade (×1 a ×2) e dá +3 no d20 da captura por nível.
+- Também: painel "Companheiro" na aba Jogar (status, ataque, adestramento, truques, alimentar e carinho); comidas por tipo de corpo (comum +2, boa +5, rara +10; preferida dobra; carinho +3 por descanso); efeitos dos 18 ataques por tipo de corpo (dano leve/normal/alto ×0,8/×1/×1,3; chance de efeito d100 base + 5% por nível da habilidade, teto 90%; condições já existentes); 12 truques sugeridos em 4 níveis de dificuldade e a regra de combate: o animal tem o turno dele e segue a lógica de NPC companheiro (aliado, relação ≥ 10, `allyIdsInCombat`).
+- ASSUMINDO: numerado N-32; a ordem de truque de combate não gasta o turno do dono e o animal vira entidade NPC; os 6 tipos de corpo (quadrúpedes, alados, rastejantes, aquáticos, humanoides, insetos e aracnídeos) e as opções de ataque vieram de proposta aceita; valores marcados com 🔶 são propostas aceitas para ajuste. Sem código novo.
+- **Validação:** nada compilado nem executado (só documentação).
+
+## 2026-10-24 — rules: nova profissão Adestrador, 5 degraus por porte do animal (N-31, não compilado)
+
+- `habilidades-arvore.txt`: árvore `adestrador` (104ª profissão) com 5 degraus (1, 7, 13, 21, 30; degrau 1 grátis), todos passivos (+N na perícia `adestrador`): pequenos animais, médios, grandes, feras e bestas, criaturas colossais. `personagem-catalogo.json`: entrada editorial `adestrador` (escopo `adestramento`, +1).
+- `receitas.txt`: 5 receitas `ade-*` sem entrada, cada uma liberada pelo degrau do seu porte (dificuldade 5, 10, 15, 25 e 35); sem falha garantida a partir do degrau 3, 4 e 5 nos três primeiros portes; feras e colossais sempre arriscam. `itens.txt`: 5 itens narrativos de resultado (`animal-pequeno-adestrado`, `animal-medio-adestrado`, `animal-grande-adestrado`, `fera-adestrada`, `criatura-colossal-adestrada`).
+- Testes: `SkillTreeCatalogTest` ajustado (lista de árvores de 5 degraus e total de 104 profissões); sem testes novos.
+- ASSUMINDO: o item é a marca do sucesso e o mestre narra o que o animal faz (sem entidade de companheiro, que segue pendente); sem limite por cena; o Treinador continua como profissão de ensino em geral; README e PLANO passam a contar 104 profissões.
+- **Validação:** nada compilado nem executado; conferência estática: catálogo com 1368 habilidades de 20 colunas e ids únicos, JSON válido com 104 profissões, receitas apontando para itens e degraus existentes.
+
+## 2026-10-24 — rules: montaria e ave em combate (pendência do N-24, não compilado)
+
+- `habilidades-arvore.txt`: degrau 3 (nível 13) do Tratador de Montarias virou ativo (BUFF em quem usa, 3 PM, 4 rodadas: velocidade +2 e defesa +1, +1 por nível da habilidade) e o do Tratador de Aves Mensageiras também (percepção +2, +1 por nível). Sem código novo.
+- ASSUMINDO: montaria e ave são bônus temporários de quem usa, sem entidade própria e sem estado de "montado"; o degrau 3 perde o bônus passivo de +3 na perícia (fica o +2 do degrau 2 entre os níveis 13 e 20); Criador de Animais e Treinador (companheiro) e Tatuador seguem pendentes.
+- **Validação:** nada compilado nem executado; sem testes novos, por orientação do proprietário. `SkillTreeCatalogTest` e `OficioN24Test` não dependem do degrau 3 ser passivo (conferido por leitura).
+
+## 2026-10-24 — engine/rules: Inspirar, buff pequeno em aliados (pendência do N-24, não compilado)
+
+- Motor: novo destinatário `SkillEffectRecipient.ALLIES`, comando `ApplyAllySkillEffects` e evento `AllySkillEffectsApplied` (aplica o mesmo efeito temporário a todos os aliados de uma vez; reaplicar troca o efeito anterior da mesma habilidade). `GameState.allyIdsInCombat` define aliado: NPC vivo e de pé na iniciativa cuja relação com o personagem é ≥ `ALLY_RELATION_MIN` (10, simpatia). Recusa fora de combate, fora do turno de quem usa, sem aliado elegível ou com efeito não positivo.
+- Catálogo: o parser aceita `ALLIES` só com ação `MODIFIER`, custo positivo, efeitos de combate positivos, sem queda por nível e com duração. Degrau 3 de Artista, Músico, Ator e Dançarino (nível 13) virou ativo (BUFF, 3 PM, 3 rodadas, +1 e +1 por nível da habilidade): precisão, ataque, defesa e velocidade nos aliados.
+- App: `SkillTreeActions.activate` valida o aliado antes de gastar PM e envia o efeito; a tela não mudou (sem seletor de alvo, o botão Ativar já serve).
+- ASSUMINDO: o usuário não recebe o efeito (só aliados); o motor não tem lados, então o mestre cria o aliado mudando a relação do NPC com o personagem; só em combate; o degrau 3 deixa de dar o bônus passivo +3 na perícia (fica o +2 do degrau 2 entre os níveis 13 e 20; degraus 4 e 5 seguem passivos); Tatuador, montaria e companheiro continuam pendentes.
+- **Validação:** nada compilado nem executado; sem testes novos, por orientação do proprietário.
+
+## 2026-10-24 — rules: bônus base por faixa de nível, coluna `escala` (N-12, não compilado)
+
+- `itens.txt` coluna 15 opcional `escala` (`ItemDef.scaleScope`): o item informa o escopo que escala e o nível mínimo define o bônus de qualidade **normal** = ⌈nível ÷ 10⌉ (×5 em `max_pv`); `RulePackage.levelScaleBase` e `equipmentBonus` somam esse valor depois de aplicar a qualidade (ótima 125%, rara 150%, épica 200%, lendária 250%) e a metade da penalidade de peso/tipo. Documentado no cabeçalho de `itens.txt` e em `FORMATO_PACOTE.md`.
+- Tabela decidida: peito → PV máximo; elmo → Sorte; luvas → Destreza; botas → Agilidade; calça → defesa; arma → ataque (cajado: Inteligência). Nível 1/10/20/30 = bônus 1/1/2/3 (peito 5/5/10/15 PV).
+- ASSUMINDO: itens atuais não mudam (todos declaram efeito e a escala não vale quando o escopo já tem efeito declarado); a escala vale só para itens novos que usem a coluna; encantamentos continuam somando por fora, acima do normal; o arredondamento da qualidade segue o código atual (`scaleByQuality` arredonda ao mais próximo, não para cima), sem alteração.
+- **Validação:** nada compilado nem executado; `EscalaNivelTest` (3) escrito.
+
+## 2026-10-24 — rules: rumores, contratos, desarmar e reprogramar por receita (pendência do N-23, não compilado)
+
+- `receitas.txt`: 5 receitas `com-*` (rumores: Estalajadeiro e Taverneiro; contrato: Comerciante, Advogado e Escolta Profissional) e 2 `mec-*` (desarmar engenhoca: Mecânico; reprogramar artefato: Mecânico de Artefatos), sem entrada, liberadas no degrau 2 e sem falha no degrau 4. `itens.txt`: `rumor-ouvido`, `contrato-fechado`, `engenhoca-desarmada`, `artefato-reprogramado` (narrativos). Sem código novo.
+- ASSUMINDO: o item é a marca do resultado e o mestre decide o conteúdo (rumor verdadeiro ou falso, termos do contrato, o que o artefato passa a fazer); rumores e contratos não mexem em preço nem em relação de NPC pelo motor; sem limite por cena; outras profissões de Comércio seguem narrativas.
+- **Validação:** nada compilado nem executado; `ComercioMecanismosN23Test` (1) escrito; conferência estática: 94 receitas, ids únicos, itens e degraus existentes.
+
+## 2026-10-24 — rules: ações de Furtividade por receita (pendência do N-22, não compilado)
+
+- `receitas.txt`: 4 receitas `fur-*` sem entrada (rastrear: Caçador de Recompensas; colher pistas: Detetive; desarmar armadilha: Perito em Armadilhas; abrir fechadura: Espião), liberadas no degrau 2 e sem falha no degrau 4. `itens.txt`: 4 itens narrativos de resultado (`rastro-seguido`, `pista-colhida`, `armadilha-desarmada`, `fechadura-aberta`). Sem código novo.
+- ASSUMINDO: o item é a marca do sucesso na ficha; o mestre vê o item e narra a consequência (o motor não abre portas nem revela segredos sozinho); sem limite por cena; Mensageiro e Carcereiro seguem sem receita; o item pode ficar acumulado no inventário.
+- **Validação:** nada compilado nem executado; `FurtividadeN22Test` (1) escrito; conferência estática: 87 receitas, ids únicos, itens e degraus existentes.
+
+## 2026-10-24 — ai/app: gatilho garantido da oportunidade de ofício (não compilado)
+
+- `ContextInput.craftOpportunity` (via `PlayInput` e `PlayController.craftOpportunity`, ligado no `AppModel` quando o pacote ativo tem receitas): enquanto o fato `oficio-oferecido` não existe em `GameState.facts`, fora de combate e sem teste pendente, o contexto traz um lembrete da regra 18; o mestre oferece a chance na narração e grava o fato com `record_fact`, e o lembrete some. `CRAFT_OFFER_FACT` em `Master.kt`; regra 18 do prompt cita o registro.
+- ASSUMINDO: o lembrete é pedido, não obrigação: se a cena não couber, o mestre adia e o lembrete volta na jogada seguinte; se o mestre oferecer e não gravar o fato, o lembrete continua; campanhas já salvas sem o fato recebem o lembrete uma vez; sem código no motor.
+- **Validação:** nada compilado nem executado; `ReferenceScenesTest` ganhou 1 teste (lembrete liga, some com o fato e não aparece sem a opção).
+
+## 2026-10-24 — app: tela de receitas de ofício na aba Jogar (não compilado)
+
+- `PlayScreen`: `RecipesPanel` (card recolhível "Ofícios e receitas (N)") lista as receitas liberadas ao herói (`AppModel.recipesView`, com nomes de item do pacote) e o botão "Fazer" chama `AppModel.craftRecipe` via `act` (trava de turno). Cobre preparos, forja, consertos, identificação, coleta (`col-*`), pesca/mergulho (`mar-*`) e apresentações (`art-*`). `RecipeView` e 4 strings novas.
+- ASSUMINDO: o resultado (sucesso, falha ou recusa, inclusive em combate) aparece como texto no próprio card; sem prévia de chance nem seletor de qualidade; o painel só aparece com pelo menos uma receita liberada e fica habilitado só com a tela livre; sem lista de materiais do inventário no card.
+- **Validação:** nada compilado nem executado; sem teste de interface.
+
+## 2026-10-24 — ai: mestre oferece coleta, pesca e ofícios sem o jogador pedir (não compilado)
+
+- `MasterPrompt.SYSTEM`: regra 18, "Oportunidades de ofício": ao menos uma vez por campanha, quando a cena permitir, o mestre mostra na narração uma chance natural de coletar, caçar, pescar, mergulhar ou se apresentar, sem o jogador pedir, e deixa a escolha com ele. Não repete se as cenas recentes já mostraram uma; não resolve a coleta nem concede itens (isso é do motor via receitas `col-*`, `mar-*` e `art-*`); não cita receitas, degraus nem números.
+- ASSUMINDO: só instrução de prompt (sem contador no motor): "uma vez" depende do mestre ver as cenas recentes e a linha do tempo, então pode repetir ou atrasar; um gatilho garantido por código exigiria registrar o aviso no estado e fica fora. `ReferenceScenesTest` ajustado para exigir a regra no prompt.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — rules: pesca, mergulho e apresentações (pendência do N-24, não compilado)
+
+- `receitas.txt`: 5 receitas `mar-*` (Pescador, Pescador de Profundidade, Mergulhador, Navegador, Marinheiro de Carga) e 4 `art-apresentar-*` (Artista, Músico, Ator, Dançarino), tipo `criar` sem entrada, liberadas pelo degrau 2 e sem falha no degrau 4. Artes rendem 5 de prata (`moeda:5`). `itens.txt`: `peixe-fresco`, `alga-marinha`, `perola-bruta`. Sem código novo.
+- ASSUMINDO: dificuldade 10–20; sem limite por cena ou lugar (o mestre decide); Tatuador não tem receita. **Seguem pendentes:** montaria e companheiro (Animais) e inspirar (Artes), por exigirem entidade/efeito novo no motor.
+- **Validação:** nada compilado nem executado; `MarArtesN24Test` (1) escrito.
+
+## 2026-10-24 — rules: coleta de materiais da Exploração (pendência do N-23, não compilado)
+
+- `receitas.txt`: 9 receitas `col-*` (tipo `criar`, sem entrada), uma por profissão de Exploração (Caçador, Guarda-Florestal, Guia de Floresta/Montanha/Deserto, Minerador, Geólogo, Observador do Clima, Cartógrafo de Campo). Liberadas pelo degrau 2 e sem falha no degrau 4; entregam materiais já existentes em `itens.txt` (carne, couro cru, madeira, fibra, ervas, minério, cristal, cogumelo, pedras de terra e vento). Usa `executeRecipe`/`craftRecipe` existentes; sem código novo (o parser e o motor já aceitam `criar` sem entrada).
+- ASSUMINDO: dificuldade 10–20; falha não perde nada (não há entrada); sem limite por cena, tempo ou lugar (o mestre decide quando permitir); Pescador e Mar seguem para as ações do N-24; sem tela de receitas.
+- **Validação:** nada compilado nem executado; `ColetaN23Test` (1) escrito.
+
+## 2026-10-24 — rules: cura das classes Curandeiro e Médico de Campo (pendência do N-22, não compilado)
+
+- `habilidades-arvore.txt`: o posto 6 (Amparo Avançado) de `curandeiro` e de `medico-de-campo` passa a `OUT_OF_COMBAT` com efeito `cura` (Curandeiro: custo 6 PM, cura 10 + 2/nível; Médico de Campo: custo 5 PM, cura 8 + 2/nível). Usa o fluxo existente de `SkillTreeActions.activate` (cura o herói ou um aliado vivo, só fora de combate); sem código novo.
+- ASSUMINDO: valores de custo e cura escolhidos entre os degraus 2 e 4 de Cuidados (N-22); o bônus de combate `resistencia_dano` do posto 6 dessas duas classes deixa de existir (postos 3, 4 e 7 mantêm); posto 7 (culminância) e demais classes inalterados; sem tela nova.
+- **Validação:** nada compilado nem executado; `CuraClassesN22Test` (1) escrito.
+
+## 2026-10-24 — Fase 20 concluída em código: revisão geral (N-28, não compilada)
+
+- **Suíte completa:** não executada. `./gradlew --offline :engine:test :rules:test :ai:test` falhou ao baixar o Gradle (sem rede), então nada compilou nem rodou. Testes novos da Fase 19 e 20 seguem não executados: `DegrausN19Test` 2, `OficioN20Test` 13, `OficioN21Test` 6, `OficioN22Test` 5, `OficioN23Test` 5, `OficioN24Test` 2, `CuraPercentualN26Test` 4, `AmeacaN27Test` 4.
+- **Conferência estática (script local):** 1363 habilidades com 20 colunas, ids e nomes únicos e pré-requisitos válidos; todas as receitas apontam para itens e degraus existentes; todo `item_<id>_percentual` aponta para item existente; arquivos de dados terminam como antes. Ajuste encontrado e feito no N-24: `SkillTreeCatalogTest` (culminância ofensiva) e `CriacaoDeFichaENpcTest` (teto de PV do N-27). Nenhuma regressão achada por leitura.
+- ASSUMINDO: o N-25 (Joias e Construção) segue ⛔ bloqueado por gemas e acampamento e fica fora da Fase 20; fórmulas e testes antigos que dependam dos valores anteriores só serão confirmados no CI.
+- **Pendente fora do ambiente:** `./gradlew test :app:assembleDebug` e correção do que falhar (inclui ktlint).
+
+## 2026-10-24 — rules/ai: categorias de ameaça e teto de PV sem pacote (N-27, não compilado)
+
+- `ThreatCategory` (capanga ×0,5, comum ×1, elite ×1,5, chefe ×2, chefe final ×3, arredondando para cima, mínimo 1); `NpcProposal.threat`/`level`; `NpcFactory.create` com pacote multiplica o PV (recurso de morte do manifesto) da ficha derivada por 5 × Resistência. `request_npc` da IA aceita `threat` e `level` (1–99; padrão comum e nível 1).
+- Sem pacote: recurso negativo é recusado (antes `Resource` lançava exceção na construção) e o `pv` é recortado a 5 × (nível + 2) × multiplicador, com aviso.
+- ASSUMINDO: sem pacote o recurso limitado é o de id `pv`; o teto não vale para NPCs já salvos; PM e PA não são escalados pela categoria; sem escala automática por nível do jogador (a IA informa `level`); `CriacaoDeFichaENpcTest` ajustado (nível 5 para o NPC de 22 PV).
+- **Validação:** nada compilado nem executado; `AmeacaN27Test` (4) escrito.
+
+## 2026-10-24 — rules/app: itens de cura em percentual (N-26, não compilado)
+
+- `criacao.txt`: propriedade opcional `item_<id>_percentual` (1–100, validada) ao lado de `quantidade`; `RulePackage.healAmount` cura o maior entre o valor fixo e esse % do máximo do recurso (arredondado para cima). `InventoryActions.useItem` usa `healAmount`. Valores: bandagem 10%, poções de cura 20/30/50/100% (menor, comum, maior, suprema), pergaminhos de cura 40/70%; PM e PA seguem fixos.
+- ASSUMINDO: o percentual também escala pela qualidade do item (limitado a 100); a cura de `OUT_OF_COMBAT` das profissões e a cura de poderes não mudam; sem efeito para pacotes importados que não declaram `percentual`.
+- **Validação:** nada compilado nem executado; `CuraPercentualN26Test` (4) escrito; documentado em `FORMATO_PACOTE.md`.
+
+## 2026-10-24 — rules: Onda 3, Mar, Animais, Artes e Identificação (N-24, não compilado)
+
+- `habilidades-arvore.txt`: 21 profissões (5 de Mar e rios, 4 de Animais e montarias, 5 de Artes e performance, 7 de Identificação e relíquias) com 5 degraus (1, 7, 13, 21, 30; degrau 1 gratuito; posições de pergaminho 1–5), todas passivas (+N na perícia do ofício).
+- `receitas.txt`: 7 receitas `ide-*` (identificar relíquia, reconhecer falsificação, decifrar mapa por tradução e por criptoanálise, examinar achado, restaurar e reparar relíquia) liberadas por degrau; `itens.txt`: 7 itens narrativos de relíquias e mapas.
+- ASSUMINDO: Mar, Animais e Artes ficam só com os degraus passivos (pescar/coletar, mergulho, montaria e companheiro, apresentação que rende prata, inspirar e tatuagem não têm ação nem receita); as receitas de identificação mantêm o item na falha; relíquia desconhecida, falsa e quebrada são concedidas pelo mestre; sem tela.
+- **Validação:** nada compilado nem executado; `OficioN24Test` (2) escrito; `SkillTreeCatalogTest` ajustado (72 árvores com 5 degraus).
+
+## 2026-10-24 — rules/ai/app: Onda 2, Exploração, Comércio e Mecanismos (N-23, não compilado)
+
+- `habilidades-arvore.txt`: 23 profissões (9 de Exploração, 10 de Comércio e diplomacia, 4 de Mecanismos) com 5 degraus (1, 7, 13, 21, 30; degrau 1 gratuito; posições de pergaminho 1–5). Caçador, Guarda-Florestal e Escolta Profissional mantêm as habilidades de combate antigas dos postos 1, 3, 4, 5 e 7; as demais são passivas (+N na perícia do ofício).
+- `RulePackage`: `hazardReductionPercent` (maior degrau de Exploração: 3 = 10%, 4 = 20%, 5 = 30%), `hazardDamage(…, reducePercent)` (mínimo 1) usado por `CheckMenu.rollDamage`; `tradePercent` (Comerciante e Contador: degraus 2 a 5 = 5/10/15/20%), `discountedPrice` e `boostedSale` usados em `InventoryActions.trade` (desconto na compra, bônus na venda).
+- `receitas.txt`: 7 receitas `mec-*` (engrenagens, molas, consertar engenhoca, armadilha de mola, engenhoca de fumaça, relógio de bolso, restaurar artefato) liberadas por degrau; `itens.txt`: 8 itens de Mecanismos.
+- ASSUMINDO: degraus 2–5 de Exploração e Comércio são passivos; só Comerciante e Contador mexem em preço (as demais de Comércio seguem narrativas); o bônus de perigo vale só para perigos por perfil (`hazard`), não para dano direto; **coleta de materiais (ervas, minério, caça) fica para depois** (sem ação nem receita de coleta); desarmar e reprogramar (Mecanismos) e rumores/contratos (Comércio) não têm ação; itens de Mecanismos são narrativos; sem tela.
+- **Validação:** nada compilado nem executado; `OficioN23Test` (5) escrito; `SkillTreeCatalogTest` ajustado (51 árvores com 5 degraus; a culminância ofensiva agora é checada em qualquer degrau de profissão).
+
+## 2026-10-24 — rules/app: Onda 1b, Preparos, Cuidados e Furtividade (N-22, não compilado)
+
+- `habilidades-arvore.txt`: 16 profissões (7 de Preparos, 3 de Cuidados, 6 de Furtividade e investigação) com 5 degraus (1, 7, 13, 21, 30). Nas de Cuidados os degraus 1, 2, 4 e 5 são `OUT_OF_COMBAT` com efeito `cura` (custo em PM, cura crescente; o degrau 1 é gratuito); nas 4 de combate (Toxinas, Caçador de Recompensas, Espião, Perito em Armadilhas) ficaram as habilidades de combate antigas dos postos 1, 3, 4, 5 e 7.
+- O carregador exige que `OUT_OF_COMBAT` declare custo e recurso e só aceite efeito `cura`. App: `SkillTreeActions.activate` cura o herói ou um aliado vivo fora de combate (gasta PM, cura `valueAt(nível)` no recurso de saúde do pacote).
+- `receitas.txt`: 17 receitas de preparo liberadas por degrau; `itens.txt`: 10 itens de material e preparo. Afanar: `RulePackage.canPilfer` (degrau 1 de Ladino, Assassino, Agente das Sombras ou Espião) e `InventoryActions/AppModel.pilfer` sobre `attemptPilfer`.
+- ASSUMINDO: refeições, cerveja, perfume e veneno de lâmina são itens narrativos (sem buff nem condição até haver ações em `criacao.txt`); Furtividade sem receitas (rastrear, pistas, desarmar armadilha e abrir fechaduras ficam para depois); afanar usa Destreza e Agilidade base da ficha; **cura das classes Curandeiro e Médico de Campo não foi feita** (as cadeias de classe seguem de combate; só as profissões de Cuidados curam); sem tela.
+- **Validação:** nada compilado nem executado; `OficioN22Test` (5) escrito; `SkillTreeCatalogTest` ajustado (28 árvores com 5 degraus).
+
+## 2026-10-24 — rules/app: Onda 1a, Forja e armas e Vestuário e couro (N-21, não compilado)
+
+- `habilidades-arvore.txt`: as 12 profissões (Ferreiro, Armeiro, Armeiro de Armaduras, Perito em Arcos, Fabricante de Arcos e de Flechas, Alfaiate, Tecelão, Curtidor, Sapateiro, Cordoeiro, Preparador de Peles) passam de 7 para 5 degraus (níveis 1, 7, 13, 21, 30; degrau 1 gratuito; posições de pergaminho 1–5).
+- `receitas.txt`: colunas `habilidade` (degrau que libera) e `garantida_por` (degrau sem falha); 28 receitas novas; o parser recusa receita que cria equipamento acima do limite de nível do degrau (1/5/10/20/30, `CRAFT_TIER_LEVEL_CAP`). `itens.txt`: materiais (`fibra-vegetal`, `tecido`, `corda`, `flecha`) e 7 peças quebradas.
+- `RulePackage`: `recipeBlock`, `craftTierBonus` (+5% por degrau aprendido além do primeiro), `availableRecipes`, `smithEnchantBlock`, `enchantMaterial`. App: `craftRecipe`, `availableRecipes` e `smithEnchantItem` (Ferreiro degrau 5 encanta peito/arma gastando 1 pedra do elemento, sem preço em moedas).
+- ASSUMINDO: degraus 2–5 são passivos (+N na perícia do ofício, como antes) e liberam receitas; `OUT_OF_COMBAT` segue sem uso (entra com cura/furto no N-22); sem tela de receitas; mapa pedra→elemento (gelo=água, raio=ferro, sombra=trevas); itens quebrados são `narrativo` e a IA/mestre os concede; a "resistência ao fogo" do Ferreiro fica fora até haver resistência elemental.
+- **Validação:** nada compilado nem executado; `OficioN21Test` (6) escrito; `SkillTreeCatalogTest` ajustado (5 degraus nas 12 árvores).
+
+## 2026-10-24 — engine/rules: mecânicas comuns de ofício (N-20, não compilado)
+
+- `CraftKind` (criar, preparar, consertar, identificar), `CraftChance` e `GameEngine.attemptCraft`/`attemptPilfer` (+ `CampaignSession`): d100 no log; sucesso consome as entradas e entrega as saídas; falha perde metade das entradas fora de `manter_na_falha`; afanar usa a chance de acerto (Destreza × Agilidade) e, ao falhar, derruba em 10 a relação do alvo com o ladrão. Nada vale em combate.
+- Pacote: `receitas.txt` (`RecipeDef`, validação de ids, tipo, nível e dificuldade; herança por id), `RulePackage.recipe/recipes/craftChance/executeRecipe` (a IA nunca inventa receita), 4 receitas de exemplo e carregamento no app (`BundledContent`).
+- ASSUMINDO: chance = 50% + 5% × Habilidade + 2% × Sorte + 5% × degrau acima do primeiro − dificuldade (5–95%; 100% se a habilidade garante); falha de conserto mantém a peça e perde metade dos materiais; sem durabilidade nem item "quebrado" no catálogo (receitas de conserto/identificação só quando o pacote declarar os ids); sem tela, proposta da IA nem habilidade `OUT_OF_COMBAT` ligada (entram com as ondas N-21 a N-24).
+- **Validação:** nada compilado nem executado; `OficioN20Test` (engine 8, rules 5) escrito.
+
+## 2026-10-24 — engine/rules/app: degraus de habilidade (N-19, não compilado)
+
+- `TIER_LEVELS` 1, 7, 13, 21, 30 pelo nível do personagem; degrau 1 de classe e profissão gratuito e concedido na criação (153 linhas do catálogo); `SkillActionKind.OUT_OF_COMBAT`; concessão automática pula o degrau 1 que ainda não cumpre requisitos.
+- ASSUMINDO: níveis das cadeias atuais mantidos até os degraus por profissão (N-21 em diante); nenhuma habilidade usa a nova ação ainda.
+- **Validação:** nada compilado nem executado; `DegrausN19Test` (2) escrito e `SkillTreeCatalogTest` ajustado.
+
+## 2026-10-24 — Fase 18 concluída em código: elementos e encantamentos (N-16 a N-18, não compilada)
+
+- **Suíte completa:** não executada. `./gradlew --offline :engine:test :rules:test :ai:test` falhou ao baixar o Gradle (sem rede), então nada compilou nem rodou; os 12 testes novos da fase (`ElementosN16Test` 7, `EncantamentoN17Test` 3, `DiasPergaminhoN18Test` 4, `PergaminhoElementoN18Test` 2) seguem não executados.
+- **Conferência estática:** corrigida a ordem de imports em `LocalActions.kt` (ktlint) e removido um import sem uso em `SkillTreeCatalog.kt`; `when` sobre eventos têm `else`; ids com `@elemento` passam por `ItemRef`. Nenhuma regressão encontrada por leitura.
+- **Pendente fora do ambiente:** `./gradlew test :app:assembleDebug` e correção do que falhar.
+
+## 2026-10-24 — engine/rules/ai/app: pergaminhos de elemento e contador de dias (N-18, não compilado)
+
+- Motor: `GameState.day`, `AdvanceDays`, `ApplyScrollEnchant` e `scrollEnchants` (arma ou peito equipado, um por peça, vence ao passar os dias); descanso local avança 1 dia. 7 pergaminhos `pergaminho-elemento-*` (1 dia; ação `encantar`), `scrollBlock` recusa peça encantada ou com elemento próprio; o golpe usa o elemento do pergaminho (arma e peito).
+- ASSUMINDO: sem comando de dias para a IA; preços e a falta de material/item mágico/criação são propostas; o peito com pergaminho também reduz 50% das condições.
+- **Validação:** nada compilado nem executado; `DiasPergaminhoN18Test` (4) e `PergaminhoElementoN18Test` (2) escritos.
+
+## 2026-10-24 — rules/engine/app: encantamento do ferreiro (N-17, não compilado)
+
+- Encantamento permanente no id (`base#qualidade@elemento`), só peito e arma, um por peça, sem elemento próprio; preço ⌈5 × item × qualidade⌉; `enchantItem` (ferreiro NPC) troca a peça pela encantada. Arma encantada dá elemento ao golpe; peito encantado define o elemento do defensor (Luz/Trevas ignoram o outro do par) e reduz em 50% o dano das condições (`damageFactorPercent`).
+- ASSUMINDO: sem tela de ferreiro nem desencantar; peça só desequipada e fora de combate; peça com elemento próprio não aceita encantamento.
+- **Validação:** nada compilado nem executado; `EncantamentoN17Test` (3) e +1 em `ElementosN16Test` escritos.
+
+## 2026-10-24 — engine/rules/app: elementos e condições (N-16, não compilado)
+
+- `ElementChart`: ciclo água>fogo>ferro>vento>terra>água (+50%; o oposto zera o ataque puro), Luz/Trevas +50% nos demais e ×2 entre si, magia combinada +50% (soma com vantagem; 50% contra o elemento que vence um dos dois). `ConditionChance`: base + 2% por Sorte, teto 90%, itens/buffs até 100%. `elementPercent` no ataque unificado e `applyConditionByChance` (d100 no log).
+- `itens.txt` colunas 12–14 (`elemento|condicao|chance`, só arma), `espada-de-brasa` e `adaga-envenenada`; catálogo de habilidades aceita `ferro`/`luz`/`trevas`; golpe do app usa elemento da habilidade ou da arma contra a afinidade do alvo e aplica a condição da arma.
+- ASSUMINDO: `METAL`=ferro, `YANG`=Luz, `YIN`=Trevas; alvo sem afinidade = sem elemento (NPC até o N-17); percentual antes da resistência fixa; nenhuma habilidade declara elemento ainda; custo da magia combinada pendente.
+- **Validação:** nada compilado nem executado; `ElementosN16Test` (6 testes) escrito.
+
+## 2026-10-24 — engine/app: Sorte de equipamento e teto de crítico (N-15, não compilado)
+
+- A Sorte de atributo segue com teto 6 (70%); a Sorte de itens (`luckBonus`) passa do teto, +10% por ponto, até 100% (limite do d10 mínimo 1); `unifiedAttackBetween(luckItemBonus)` e `CombatActions` separam as duas partes.
+- ASSUMINDO: só equipamento conta como Sorte de item (encantamentos entram no N-17); buffs e traços ficam sob o teto; Sorte de item negativa conta 0.
+- **Validação:** nada compilado nem executado; 2 testes novos em `UnifiedCombatTest`.
+
+## 2026-10-24 — rules/app: escudo e arma de duas mãos (N-14, não compilado)
+
+- Coluna 11 `maos` em `itens.txt`; arma de duas mãos bloqueia o escudo nos dois sentidos (`handsConflict`) e rende ataque ×1,5; escudos dão Resistência (`resistencia:+1;max_pv:+5`); novos `montante` e `arco-longo`.
+- ASSUMINDO: escudo +1 em qualquer nível até os itens de nível alto; ×1,5 só em `ataque`; bloqueio só ao equipar.
+- **Validação:** nada compilado nem executado; `EscudoDuasMaosN14Test` (4 testes) escrito.
+
+## 2026-10-24 — rules/app: peso, classe e penalidade (N-13, não compilado)
+
+- Peso de equipamento (`peso`, coluna 9) e tipo de arma (`tipo`, coluna 10) em `itens.txt`; `armorWeight` (13 pesadas, 18 médias, 19 leves) e `weaponTypes` nas 50 classes de `personagem-catalogo.json`; peça ou arma fora da classe do herói vale metade dos bônus positivos (arredonda para cima, depois da qualidade; penalidades da peça inteiras); vantagens `mestre-das-armas` e `mestre-dos-equipamentos` anulam a penalidade; combate, `max_<recurso>` e inventário usam o perfil do herói. Corrigido o validador do `PackageParser`, que ainda recusava efeitos de item de atributo e `max_<recurso>`.
+- ASSUMINDO: pesos dos itens e tipos de arma por classe são proposta; várias classes = união; NPC sem penalidade; escudo sem peso até o N-14; `max_<recurso>` calculado com o perfil do momento ao equipar e desequipar.
+- **Validação:** nada compilado nem executado; `PesoClassePenalidadeN13Test` (12 testes) escrito.
+
+## 2026-10-24 — docs: decisões de N-12 a N-27 (só documentação, nada compilado)
+
+- `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md`: nova seção 15 e anotações ✅ nos itens ❓ e nos módulos N-12, N-13, N-14, N-16, N-17, N-18, N-19, N-26 e N-27. Decisões: bônus base de item = ⌈nível ÷ 10⌉ (peito vira PV máximo, 5 × o bônus); Mestre das Armas (qualquer arma sem penalidade) e Mestre dos Equipamentos (sem penalidade de classe), obtidos na criação pela tabela de equilíbrio existente; peça de peso errado vale metade dos bônus positivos; duas mãos bloqueia o escudo e dá ataque ×1,5; sete elementos com ciclo de +50%, Luz e Trevas (+50% em todos, recebem +50%, dobro entre si), ataque puro sem dano contra o oposto, magia combinada soma +50% e perde o bônus (e 50% do dano) contra o elemento que vence o seu; chance de condição = fixa + 2% por Sorte (teto 90%, 100% com itens/buffs); encantamento permanente do ferreiro, um por peça (−50% condição, −100% elemento), preço 5 × item × qualidade; pergaminho de elemento dura 1 dia (1 descanso completo = 1 dia); degraus pelo nível do personagem e criação com classe + profissão; cura em percentual do PV máximo; categorias de ameaça ×0,5 a ×3 e teto de PV sem pacote.
+- Pendência de N-02/N-03 fechada: os 10 pontos são os mesmos (10 de status + 2 de habilidade).
+- ASSUMINDO: peito de Luz/Trevas ignora o outro do par; custo da magia combinada ainda por definir (N-16); ritmo do equilíbrio de vantagens depois de 3 = 5 segue `equilibrio_apos|dobrar` até confirmação.
+- **Validação:** nada compilado nem executado; nenhuma mudança de código.
+
+## 2026-10-24 — engine/rules/app: nível mínimo e qualidades (N-12, não compilado)
+
+- Qualidades normal 100 / ótima 125 / rara 150 / épica 200 / lendária 250 (épica e lendária só a partir do nível 10; `boa` vira alias de ótima); coluna 8 `nivel` em `itens.txt` e `EquipItem.minLevel` (motor recusa abaixo do nível); 4 itens de nível 5. `NivelMinimoQualidadeN12Test` (4), `EquipamentoNivelMinimoTest` (1), `ItensQualidadeTest` ajustado.
+- ASSUMINDO: bônus base por faixa de nível ainda em aberto; trava só ao equipar.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — engine/rules/app: slots e efeitos de equipamento (N-11, não compilado)
+
+- Slots `elmo`, `luvas`, `botas`, `calca`, `peito` (+ `mao`, `outra-mao`); efeitos de item aceitam atributos e `max_<recurso>`; `EquipItem`/`UnequipItem`/`EquipmentChanged` com `maxDelta` (padrão vazio, log antigo abre) ajustam o máximo do recurso sem matar. Itens do sistema próprio redistribuídos e +5 itens (luvas, botas, 2 calças, cajado). `EquipamentoMaxRecursoTest` (3), `SlotsEquipamentoN11Test` (3).
+- ASSUMINDO: bônus numéricos são proposta (N-12 recalibra); `inteligencia` de arma não recalcula PM.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — rules: traços e requisitos (N-10, não compilado)
+
+- 93 requisitos `habilidade>=N` de `tracos.txt` migraram para o atributo do tema: Inteligência (magia, espíritos, conhecimento, informática; 53), Agilidade (movimento, furtividade, esquiva; 21), Destreza (precisão, furto, tiro; 18) e Sorte (`sorte-do-mar`); Habilidade segue em ofício/técnica. Arquétipos e `exemplos.txt` reajustados para continuarem alcançando seus traços e cardápios (máx. 10 pontos). `TracosRequisitosN10Test` (5); `EquilibrioEOpcoesTest` ajustado.
+- ASSUMINDO: mapeamento por tema e limiares N mantidos são proposta; fichas salvas não são revalidadas.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — engine/app: combate único (N-09, não compilado)
+
+- Golpe do jogador, multiataque, habilidades e turno de NPC usam só o pipeline unificado (`CombatActions.strike`); redução de dano (`UnifiedAttackSpec.damageReduction`) e postura defensiva no pipeline; `GameEngine.attack` marcado `@Deprecated`. `CombateUnicoTest` (3).
+- ASSUMINDO: bônus de `dano` soma ao ataque; perfil de dano 1d6 não é mais lido pelo ataque; remoção do caminho antigo no N-28.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — engine/rules/ai/app: condições percentuais (N-08, não compilado)
+
+- Dano por rodada em % do máximo do recurso (arredondado para cima, mínimo 1): `ConditionState.damagePercent`/`tickDamage`, `AddCondition`/`ConditionAdded`/`Inflict`, coluna `N%` em `condicoes.txt`; `sangramento` 10%, `envenenado` 5%, `queimando` 15%. Testes novos: `CondicoesPercentuaisTest` (5) e `CondicoesPercentuaisPacoteTest` (1).
+- ASSUMINDO: percentuais confirmados por "Siga"; dano fixo antigo segue válido.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — engine/rules/app: crítico e Sorte (N-07, não compilado)
+
+- Crítico em d10 (base 10%), limite = 10 − min(Sorte, 6) − bônus `crit`, mínimo 1; teto de 70% pelos atributos, 100% com itens. `combate_atributo_sorte|sorte`; `unifiedAttackBetween(luckStat)`. `UnifiedCombatTest` ajustado (+2).
+- ASSUMINDO: Sorte só afeta o crítico; d10 vale para todos os pacotes.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — engine/rules/app: acerto, esquiva e iniciativa (N-06, não compilado)
+
+- Teste de acerto automático (50% + 5% × (Destreza − Agilidade), 5–95%, d100) antes do crítico; erro = sem dano. `combate_atributo_acerto|destreza`, `combate_atributo_esquiva|agilidade`, iniciativa por `agilidade`. `ClashRecorded`/`ClashReport` com campos de acerto (padrão nulo; log antigo abre). `UnifiedCombatTest` +3.
+- ASSUMINDO: escala e limites propostos por mim; caminho antigo de `Combat.kt` fica para o N-09.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — engine/rules: dano e defesa (N-05, não compilado)
+
+- `UnifiedCombat.damageOf`: dano = ataque − 0,65 × defesa, arredondado para cima, mínimo 0; defesa rolada nunca negativa (`ClashResult.defenseTotal`); `combate_atributo_defesa|resistencia` no sistema próprio. `UnifiedCombatTest` atualizado (+1).
+- ASSUMINDO: caminho antigo de `Combat.kt` inalterado até o N-09; sem mudança de equipamento.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — engine/rules/app: progressão sem teto (N-04, não compilado)
+
+- `custo_nivel_fator|5`: curva de XP 5 × N além da tabela (`EngineConfig.levelCostFactor`, `levelFor`, `levelCost`); `maxQuestXp` por fórmula; `combate_xp_vitoria_percentual|8` e `EngineConfig.battleXp` (XP por inimigo, escala com nível e diferença); `CombatActions.awardCombatVictoryXp` usa o novo cálculo. `FORMATO_PACOTE.md` atualizado.
+- Teste novo: `ProgressaoSemTetoTest` (5), escrito e não executado.
+- ASSUMINDO: modulação ±20% por nível de diferença (0 abaixo de −5); percentual 8%; pacotes sem as chaves mantêm o comportamento antigo.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — rules: recursos PV, PM e PA (N-03, não compilado)
+
+- `recursos.txt` do sistema próprio: PV = 5 × Resistência (mín. 1), PM = 2 × Inteligência, PA = 1 + Habilidade. Nova coluna opcional `minimo` em `recursos.txt` (`ResourceDef.min`, parser, `resourcesFor`); `FORMATO_PACOTE.md` atualizado. Condições sem `recurso` herdam o recurso de `morte` do manifesto (`pv` × `hp` sem divergência).
+- Teste novo: `RecursosN03Test` (5), escrito e não executado.
+- ASSUMINDO: PM e PA fechados aqui (sem confirmação); fichas salvas não são recalculadas; defesa e iniciativa seguem em Habilidade até N-05/N-06; ❓ custo de PM da árvore com PM menor (N-19).
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — engine/rules/app: distribuição inicial de 10 pontos de status + 2 de habilidade (N-02, não compilado)
+
+- `AllocateInitialBuild` passa a exigir exatamente 10 pontos de status entre os atributos e 2 pontos de habilidade (antes: 12 livres entre os dois). Novos `EngineConfig.initialStatPoints`/`initialAbilityPoints` (padrão 10 e 2, lidos de `pontos_iniciais_status`/`pontos_iniciais_habilidade` em `criacao.txt`); atributo ausente em ficha antiga usa o padrão do pacote. A tela da árvore de habilidades pede só os pontos de status e concede os 2 de habilidade; textos atualizados.
+- Testes: +2 em `AtributosSemTetoTest` e verificação da config em `SeteAtributosTest`, escritos e não executados.
+- ASSUMINDO: o atributo Sorte ainda não influencia o crítico (N-07). ❓ Conferir se os 10 pontos da criação da ficha e os 10 da distribuição inicial não se somam.
+- **Validação:** nada compilado nem executado.
+
+## 2026-10-24 — rules/engine: sete atributos sem teto (N-02, não compilado)
+
+- `atributos.txt` do sistema próprio passa a ter Poder, Habilidade, Resistência, **Inteligência, Agilidade, Destreza e Sorte**, todos com mínimo 0, padrão 0 e `max` = `-` (sem teto). `PackageParser` aceita `-` (vira `StatDef.NO_CAP`, `StatDef.uncapped`) e continua aceitando teto numérico; trecho de regra e tela de evolução dizem "sem teto". `AllocateStatPoints` usa o padrão do pacote para atributo que a ficha antiga não tem (fichas antigas abrem com os novos em 0).
+- Testes: `SeteAtributosTest` (6) e `AtributosSemTetoTest` (3), escritos e não executados.
+- ASSUMINDO: o id `sorte` do atributo coincide com o do teste `sorte` e do escopo do traço Sortudo (sem conflito no parser; o N-07 decide a ligação). Fórmulas de recursos, atributos de combate e requisitos de traços **não mudaram** (N-03, N-05/N-06 e N-10). A distribuição inicial do motor segue em "12 pontos" (❓ no documento de refinamentos).
+- **Validação:** nada compilado nem executado (último CI verde: #40097446606, sem este módulo).
+
+## 2026-10-24 — CI: Android CI #40097446606 verde (ktlint, JVM, E2E, migrações Room e APK de debug)
+
+- Commit `40c38b1`: `Check Kotlin style` passou; `./gradlew test` passou com 650 testes JVM (`ai` 203, `engine` 255, `rules` 192); `:app:connectedDebugAndroidTest` rodou 9 testes no emulador API 35 (Pixel 2); `:data:connectedDebugAndroidTest` rodou 6 testes de migração Room; `:app:assembleDebug` e o upload de `rpgsolo-debug-apk` passaram (APK de debug, 11.365.245 bytes, SHA-256 `dd870c22…8fad`).
+- E2E corrigido: textos de prontidão alinhados a "Preparar sua mesa", espera da mensagem assíncrona de ficha criada, navegação pelo menu "Mais" no layout estreito, matchers sem ambiguidade, Android Test Orchestrator com `clearPackageData` e tela de jogo com campo de ação e **Enviar** acessíveis em telas pequenas.
+- Docs: novo `docs/relatorios/ci-android-2026-10-24.md`; `docs/VALIDACAO_CI.md` e `README.md` atualizados com o estado verde e as pendências (tornar os testes de `data` bloqueantes no workflow, commitar o schema Room v10, validação visual em aparelho).
+- **Validação:** run #40097446606 no GitHub Actions (link em `docs/VALIDACAO_CI.md`).
+
 ## 2026-10-23 — docs: decisões da fundação dos atributos e do combate (N-01, só documentação)
 
 - Novo `docs/REFINAMENTOS_ATRIBUTOS_COMBATE.md` com o plano em 28 módulos (N-01 a N-28, fases 15 a 20) e a regra de fechamento por módulo. Decisões do N-01: Habilidade passa a PA e bônus em testes de ofício/perícia, iniciativa vai para a Agilidade; 10 pontos de status + 2 de habilidade/profissão na criação (+1 e +1 por nível); curva de XP sem teto (subir para o nível N custa 5 × N); XP de missão e de vitória em batalha balanceado por nível (hoje a vitória paga 5 fixo e o teto de missão para na última faixa da tabela); ligação `pv` × `hp` no N-03; testes novos autorizados nesta rodada.

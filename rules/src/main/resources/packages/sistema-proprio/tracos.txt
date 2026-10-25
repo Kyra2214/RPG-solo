@@ -9,10 +9,10 @@ sobrevivencia|pericia|Sobrevivência|1||Encontrar abrigo, comida e rastros em am
 cuidados|pericia|Cuidados|1||Primeiros socorros e tratamento de ferimentos.|cuidados:+2
 olhar-atento|pericia|Olhar atento|2|trait:percepcao|Evolução da Percepção: quase nada passa despercebido.|percepcao:+1
 golpe-forte|vantagem|Golpe forte|0|poder>=2|Ataques corpo a corpo castigam mais.
-reflexos|vantagem|Reflexos|0|habilidade>=2|Reação rápida diante de surpresas.|esquiva:+2;defesa:+1
+reflexos|vantagem|Reflexos|0|agilidade>=2|Reação rápida diante de surpresas.|esquiva:+2;defesa:+1
 pele-dura|vantagem|Pele dura|0|resistencia>=2|Aguenta pancadas que derrubariam outros.|resistencia_dano:+1
 aliado|vantagem|Aliado|0||Alguém de confiança ajuda o herói quando pode.
-talento-arcano|poder|Talento arcano|0|habilidade>=2|Permite gastar PM em efeitos fora do comum.
+talento-arcano|poder|Talento arcano|0|inteligencia>=2|Permite gastar PM em efeitos fora do comum.
 fragil|desvantagem|Frágil|0|not:pele-dura|Corpo delicado, se machuca com facilidade.|resistencia_dano:-1
 devedor|desvantagem|Devedor|0||Deve um favor ou dinheiro a alguém perigoso.
 inimigo|desvantagem|Inimigo|0||Alguém poderoso quer ver o herói em apuros.
@@ -26,7 +26,7 @@ regeneracao|poder|Regeneração|0|resistencia>=2|Recupera ferimentos aos poucos,
 forma-bestial|poder|Forma bestial|0|poder>=2|Assume forma de fera, com força e ferocidade maiores.
 mordida-vital|poder|Mordida vital|0|poder>=1|Ataque que rouba vida da vítima para quem morde.
 implantes|poder|Implantes|0|resistencia>=1|Partes artificiais dão força, precisão ou resistência extra.
-voo|poder|Voo|0|habilidade>=2|Pode voar por curtos períodos.
+voo|poder|Voo|0|agilidade>=2|Pode voar por curtos períodos.
 sistemas|pericia|Sistemas|1||Operar, invadir e consertar sistemas eletrônicos.|sistemas:+2
 pontaria|pericia|Pontaria|1||Tiro e arremesso precisos.|pontaria:+2
 lideranca|pericia|Liderança|1||Comandar, inspirar e coordenar um grupo.|lideranca:+2
@@ -49,57 +49,57 @@ bencao-da-fe|vantagem|Bênção da fé|0|resistencia>=1;trait:juramento-sagrado|
 juramento-sagrado|desvantagem|Juramento sagrado|0||Paladino: Não pode fazer maldade: mentir, trair ou ferir indefesos tira a bênção até se redimir.
 mestre-de-armas|vantagem|Mestre de armas|0|poder>=2;trait:mao-pesada|Guerreiro: Uma vez por luta, repete um ataque que falhou.
 mao-pesada|desvantagem|Mão pesada|0||Guerreiro: Tem dificuldade com ações delicadas ou discretas (-1 nesses testes).|furtividade:-1;oficios:-1
-grimorio-vasto|vantagem|Grimório vasto|0|habilidade>=2;trait:dependente-do-grimorio|Mago: Conhece mais magias e prepara efeitos novos com uma hora de estudo.
+grimorio-vasto|vantagem|Grimório vasto|0|inteligencia>=2;trait:dependente-do-grimorio|Mago: Conhece mais magias e prepara efeitos novos com uma hora de estudo.
 dependente-do-grimorio|desvantagem|Dependente do grimório|0||Mago: Sem o grimório, perde -2 nos testes de magia.
-golpe-furtivo|vantagem|Golpe furtivo|0|habilidade>=2;trait:consciencia-leve|Ladino: Ataque surpresa soma +1d6 se o alvo não o viu.
+golpe-furtivo|vantagem|Golpe furtivo|0|destreza>=2;trait:consciencia-leve|Ladino: Ataque surpresa soma +1d6 se o alvo não o viu.
 consciencia-leve|desvantagem|Consciência leve|0||Ladino: Mal resiste a um bom roubo; a cobiça o enfia em encrenca.
-mao-curadora|vantagem|Mão curadora|0|habilidade>=1;trait:voto-de-ajuda|Clérigo: Cura PV de aliados gastando PM.
+mao-curadora|vantagem|Mão curadora|0|inteligencia>=1;trait:voto-de-ajuda|Clérigo: Cura PV de aliados gastando PM.
 voto-de-ajuda|desvantagem|Voto de ajuda|0||Clérigo: Não pode recusar ajuda a quem pede, nem a um inimigo ferido.
 cancao-inspiradora|vantagem|Canção inspiradora|0|habilidade>=1;trait:lingua-solta|Bardo: Aliados que o ouvem ganham +1 em testes por uma cena.
 lingua-solta|desvantagem|Língua solta|0||Bardo: Fala demais; segredos confiados a ele podem vazar.
-forma-selvagem|vantagem|Forma selvagem|0|habilidade>=2;trait:aversao-ao-ferro|Druida: Assume a forma de um animal pequeno ou médio por uma cena.
+forma-selvagem|vantagem|Forma selvagem|0|inteligencia>=2;trait:aversao-ao-ferro|Druida: Assume a forma de um animal pequeno ou médio por uma cena.
 aversao-ao-ferro|desvantagem|Aversão ao ferro|0||Druida: Armas e armaduras de ferro o incomodam (-1 ao usá-las).
 punho-de-ferro|vantagem|Punho de ferro|0|poder>=1;trait:voto-de-pobreza|Monge: Ataques desarmados contam como armas e somam +1.
 voto-de-pobreza|desvantagem|Voto de pobreza|0||Monge: Não acumula riquezas; bens valiosos viram fardo e peso na consciência.
 inimigo-favorito|vantagem|Inimigo favorito|0|habilidade>=1;trait:obsessao-pela-caca|Patrulheiro: Escolhe um tipo de criatura: +1d6 de dano contra ela e rastreia melhor.
 obsessao-pela-caca|desvantagem|Obsessão pela caça|0||Patrulheiro: Não larga um rastro e ignora conselhos enquanto persegue o alvo.
-poder-instavel|vantagem|Poder instável|0|habilidade>=2;trait:magia-descontrolada|Feiticeiro: Magias saem mais fortes (+1d6 de efeito) ao custo de 1 PM extra.
+poder-instavel|vantagem|Poder instável|0|inteligencia>=2;trait:magia-descontrolada|Feiticeiro: Magias saem mais fortes (+1d6 de efeito) ao custo de 1 PM extra.
 magia-descontrolada|desvantagem|Magia descontrolada|0||Feiticeiro: Em falha crítica, a magia se volta contra ele ou contra o ambiente.
-pacto-sombrio|vantagem|Pacto sombrio|0|habilidade>=2;trait:divida-com-patrono|Bruxo: Um patrono sobrenatural empresta poder e, uma vez por cena, um favor.
+pacto-sombrio|vantagem|Pacto sombrio|0|inteligencia>=2;trait:divida-com-patrono|Bruxo: Um patrono sobrenatural empresta poder e, uma vez por cena, um favor.
 divida-com-patrono|desvantagem|Dívida com o patrono|0||Bruxo: O patrono cobra tarefas; recusar traz castigo.
-servo-morto|vantagem|Servo morto|0|habilidade>=2;trait:toque-da-morte|Necromante: Comanda um morto-vivo menor como aliado.
+servo-morto|vantagem|Servo morto|0|inteligencia>=2;trait:toque-da-morte|Necromante: Comanda um morto-vivo menor como aliado.
 toque-da-morte|desvantagem|Toque da morte|0||Necromante: Plantas murcham e animais fogem; -1 em testes sociais com os vivos.
 pocoes-rapidas|vantagem|Poções rápidas|0|habilidade>=2;trait:efeitos-colaterais|Alquimista: Prepara uma poção de efeito simples por cena sem custo.
 efeitos-colaterais|desvantagem|Efeitos colaterais|0||Alquimista: Em falha crítica, a poção tem um efeito inesperado e ruim.
-corte-perfeito|vantagem|Corte perfeito|0|poder>=2;habilidade>=1;trait:honra-acima-da-vida|Samurai: Um ataque por luta sempre acerta e soma +1d6 de dano.
+corte-perfeito|vantagem|Corte perfeito|0|poder>=2;destreza>=1;trait:honra-acima-da-vida|Samurai: Um ataque por luta sempre acerta e soma +1d6 de dano.
 honra-acima-da-vida|desvantagem|Honra acima da vida|0||Samurai: Não ataca pelas costas nem recusa um duelo; perder a honra o abate.
-passo-de-sombra|vantagem|Passo de sombra|0|habilidade>=3;trait:lealdade-ao-cla|Ninja: Some de vista uma vez por cena, com +2 para fugir ou surpreender.
+passo-de-sombra|vantagem|Passo de sombra|0|agilidade>=3;trait:lealdade-ao-cla|Ninja: Some de vista uma vez por cena, com +2 para fugir ou surpreender.
 lealdade-ao-cla|desvantagem|Lealdade ao clã|0||Ninja: Obedece às ordens do clã, mesmo contra a própria vontade.
-olhar-de-juiz|vantagem|Olhar de juiz|0|habilidade>=1;trait:fe-intransigente|Inquisidor: Percebe mentiras e magia disfarçada com +2.
+olhar-de-juiz|vantagem|Olhar de juiz|0|inteligencia>=1;trait:fe-intransigente|Inquisidor: Percebe mentiras e magia disfarçada com +2.
 fe-intransigente|desvantagem|Fé intransigente|0||Inquisidor: Não tolera hereges nem desculpas; negocia mal.
 carga-heroica|vantagem|Carga heroica|0|poder>=2;trait:juramento-de-vassalo|Cavaleiro: Montado, soma +1d6 ao primeiro ataque da luta.
 juramento-de-vassalo|desvantagem|Juramento de vassalo|0||Cavaleiro: Deve obediência a um senhor; as ordens dele vêm antes das suas.
 favorito-da-plateia|vantagem|Favorito da plateia|0|poder>=1;trait:sede-de-aplausos|Gladiador: Ganha +1 em testes diante de público.
 sede-de-aplausos|desvantagem|Sede de aplausos|0||Gladiador: Gosta de se exibir e arrisca mais do que devia.
-sorte-do-mar|vantagem|Sorte do mar|0|habilidade>=1;trait:supersticioso|Pirata: Em navios e portos, repete um teste por cena.
+sorte-do-mar|vantagem|Sorte do mar|0|sorte>=1;trait:supersticioso|Pirata: Em navios e portos, repete um teste por cena.
 supersticioso|desvantagem|Supersticioso|0||Pirata: Evita o que dá azar e hesita diante de maus presságios.
-golpe-mortal|vantagem|Golpe mortal|0|habilidade>=3;trait:contrato-de-sangue|Assassino: Ataque contra alvo desprevenido soma +2d6 de dano.
+golpe-mortal|vantagem|Golpe mortal|0|destreza>=3;trait:contrato-de-sangue|Assassino: Ataque contra alvo desprevenido soma +2d6 de dano.
 contrato-de-sangue|desvantagem|Contrato de sangue|0||Assassino: Aceita contratos sem questionar; quebrar um traz perseguição.
 ponto-fraco|vantagem|Ponto fraco|0|habilidade>=1;trait:trauma-de-cacada|Caçador de monstros: Depois de um turno observando, o ataque contra um monstro soma +1d6.
 trauma-de-cacada|desvantagem|Trauma de caçada|0||Caçador de monstros: Um tipo de criatura o paralisa (-2 diante dela).
-voz-dos-espiritos|vantagem|Voz dos espíritos|0|habilidade>=2;trait:tabu-ancestral|Xamã: Consulta os espíritos uma vez por cena e recebe uma pista.
+voz-dos-espiritos|vantagem|Voz dos espíritos|0|inteligencia>=2;trait:tabu-ancestral|Xamã: Consulta os espíritos uma vez por cena e recebe uma pista.
 tabu-ancestral|desvantagem|Tabu ancestral|0||Xamã: Uma regra do povo (comida, lugar ou ato) que ele nunca pode quebrar.
-tiro-certeiro|vantagem|Tiro certeiro|0|habilidade>=2;trait:dependente-de-municao|Arqueiro: Mirar por um turno dá +1d6 no próximo disparo.
+tiro-certeiro|vantagem|Tiro certeiro|0|destreza>=2;trait:dependente-de-municao|Arqueiro: Mirar por um turno dá +1d6 no próximo disparo.
 dependente-de-municao|desvantagem|Dependente de munição|0||Arqueiro: Sem flechas ou munição, perde quase toda a eficácia.
 engenhoca|vantagem|Engenhoca|0|habilidade>=2;trait:obsessao-por-melhorias|Engenheiro: Improvisa um dispositivo útil uma vez por cena.
 obsessao-por-melhorias|desvantagem|Obsessão por melhorias|0||Engenheiro: Mexe em tudo e às vezes piora o que funcionava.
-acesso-total|vantagem|Acesso total|0|habilidade>=2;trait:rastro-digital|Hacker: Invade um sistema com +2 uma vez por cena.
+acesso-total|vantagem|Acesso total|0|inteligencia>=2;trait:rastro-digital|Hacker: Invade um sistema com +2 uma vez por cena.
 rastro-digital|desvantagem|Rastro digital|0||Hacker: Deixa pegadas; inimigos podem localizá-lo.
-deducao-brilhante|vantagem|Dedução brilhante|0|habilidade>=2;trait:mente-obsessiva|Detetive: Uma vez por cena, faz ao mestre uma pergunta sobre a cena e recebe resposta verdadeira.
+deducao-brilhante|vantagem|Dedução brilhante|0|inteligencia>=2;trait:mente-obsessiva|Detetive: Uma vez por cena, faz ao mestre uma pergunta sobre a cena e recebe resposta verdadeira.
 mente-obsessiva|desvantagem|Mente obsessiva|0||Detetive: Não larga um caso e ignora os riscos pessoais.
 furia-da-lua|vantagem|Fúria da lua|0|poder>=2;trait:instinto-de-fera|Lobisomem: À noite ou em fúria, +1d6 no ataque e +2 PV temporários.
 instinto-de-fera|desvantagem|Instinto de fera|0||Lobisomem: Cheiro de sangue ou provocação o fazem atacar sem pensar.
-fascinar|vantagem|Fascinar|0|habilidade>=1;trait:convite-necessario|Vampiro: Olhar que dobra vontades fracas por uma cena.
+fascinar|vantagem|Fascinar|0|inteligencia>=1;trait:convite-necessario|Vampiro: Olhar que dobra vontades fracas por uma cena.
 convite-necessario|desvantagem|Convite necessário|0||Vampiro: Não entra em lugares onde não foi convidado.
 sobrecarga|vantagem|Sobrecarga|0|resistencia>=1;trait:vulneravel-a-pulso|Ciborgue: Gasta energia para +1d6 em força ou velocidade por um turno.
 vulneravel-a-pulso|desvantagem|Vulnerável a pulso|0||Ciborgue: Ataques elétricos ou de pulso desligam implantes (-2).
@@ -107,19 +107,19 @@ tenacidade-anao|vantagem|Tenacidade anã|0|resistencia>=2;trait:rancor-ancestral
 rancor-ancestral|desvantagem|Rancor ancestral|0||Anão: Guarda mágoas por gerações; custa a perdoar ou fazer as pazes.
 graca-feerica|vantagem|Graça feérica|0|habilidade>=2;trait:melancolia-longa|Elfo: +1 em testes de movimento e de percepção natural.|atletismo:+1;percepcao:+1
 melancolia-longa|desvantagem|Melancolia longa|0||Elfo: A vida longa pesa; perde o ânimo diante de perdas.
-veu-de-sombras|vantagem|Véu de sombras|0|habilidade>=2;trait:desconfianca-geral|Elfo negro: Cria uma escuridão curta que favorece fuga e emboscada.
+veu-de-sombras|vantagem|Véu de sombras|0|inteligencia>=2;trait:desconfianca-geral|Elfo negro: Cria uma escuridão curta que favorece fuga e emboscada.
 desconfianca-geral|desvantagem|Desconfiança geral|0||Elfo negro: Quase todos o evitam ou o vigiam (-1 em testes sociais).|persuasao:-1;intimidacao:-1
 sangue-de-guerra|vantagem|Sangue de guerra|0|poder>=2;trait:temperamento-explosivo|Orc: Ao ferir um inimigo, ganha +1 no próximo ataque.
 temperamento-explosivo|desvantagem|Temperamento explosivo|0||Orc: Provocações o tiram do sério.
 corpo-de-pedra|vantagem|Corpo de pedra|0|resistencia>=3;trait:ordens-literais|Golem: Imune a veneno e doença; reduz em 1 o dano comum.|resistencia_dano:+1
 ordens-literais|desvantagem|Ordens literais|0||Golem: Cumpre ordens ao pé da letra; a ambiguidade o trava.
-po-de-fada|vantagem|Pó de fada|0|habilidade>=3;trait:pequena-demais|Fada: Faz um alvo flutuar ou brilhar por uma cena.
+po-de-fada|vantagem|Pó de fada|0|inteligencia>=3;trait:pequena-demais|Fada: Faz um alvo flutuar ou brilhar por uma cena.
 pequena-demais|desvantagem|Pequena demais|0||Fada: Tamanho minúsculo: força física quase nula e fácil de capturar.
-calculo-preciso|vantagem|Cálculo preciso|0|habilidade>=2;trait:emocao-confusa|Androide: +2 em testes de análise e de pontaria uma vez por cena.
+calculo-preciso|vantagem|Cálculo preciso|0|inteligencia>=2;trait:emocao-confusa|Androide: +2 em testes de análise e de pontaria uma vez por cena.
 emocao-confusa|desvantagem|Emoção confusa|0||Androide: Tem dificuldade em entender sentimentos (-1 em testes sociais).|persuasao:-1;intimidacao:-1
 investida-brutal|vantagem|Investida brutal|0|poder>=3;trait:labirinto-na-mente|Minotauro: Ao investir, derruba o alvo e soma +1d6 de dano.
 labirinto-na-mente|desvantagem|Labirinto na mente|0||Minotauro: Fácil de enganar e de desorientar em lugares apertados.
-luz-remanescente|vantagem|Luz remanescente|0|habilidade>=1;trait:peso-da-queda|Anjo caído: Uma vez por cena, ilumina e fere seres sombrios.
+luz-remanescente|vantagem|Luz remanescente|0|inteligencia>=1;trait:peso-da-queda|Anjo caído: Uma vez por cena, ilumina e fere seres sombrios.
 peso-da-queda|desvantagem|Peso da queda|0||Anjo caído: Sente culpa e recusa ajuda de seres sagrados.
 chama-infernal|vantagem|Chama infernal|0|poder>=1;trait:marca-do-inferno|Meio-demônio: Ataque de fogo com +1d6, uma vez por cena.
 marca-do-inferno|desvantagem|Marca do inferno|0||Meio-demônio: Sinal visível; seres sagrados o rejeitam.
@@ -127,19 +127,19 @@ sem-dor|vantagem|Sem dor|0|resistencia>=2;trait:frio-da-tumba|Morto-vivo: Ignora
 frio-da-tumba|desvantagem|Frio da tumba|0||Morto-vivo: Não recupera PV com descanso comum; precisa de um ritual.
 sopro-elemental|vantagem|Sopro elemental|0|poder>=2;trait:avareza-de-dragao|Dracônico: Sopro em cone com dano de um elemento, uma vez por cena.
 avareza-de-dragao|desvantagem|Avareza de dragão|0||Dracônico: Cobiça tesouros e dificilmente os divide.
-canto-hipnotico|vantagem|Canto hipnótico|0|habilidade>=2;trait:ressecar-fora-d-agua|Sereia ou tritão: Canto que encanta quem ouve por uma cena.
+canto-hipnotico|vantagem|Canto hipnótico|0|inteligencia>=2;trait:ressecar-fora-d-agua|Sereia ou tritão: Canto que encanta quem ouve por uma cena.
 ressecar-fora-d-agua|desvantagem|Ressecar fora d'água|0||Sereia ou tritão: Longe da água, sofre -1 em tudo depois de uma cena.
-ilusao-astuta|vantagem|Ilusão astuta|0|habilidade>=2;trait:curiosidade-fatal|Raposa espiritual: Cria uma cópia ilusória que engana por um turno.
+ilusao-astuta|vantagem|Ilusão astuta|0|inteligencia>=2;trait:curiosidade-fatal|Raposa espiritual: Cria uma cópia ilusória que engana por um turno.
 curiosidade-fatal|desvantagem|Curiosidade fatal|0||Raposa espiritual: Não resiste a segredos e a armadilhas intrigantes.
 improviso-sujo|vantagem|Improviso sujo|0|habilidade>=1;trait:covardia-calculada|Goblin: Transforma lixo em arma ou armadilha útil.
 covardia-calculada|desvantagem|Covardia calculada|0||Goblin: Foge quando o combate vira, mesmo deixando aliados para trás.
-pe-leve|vantagem|Pé leve|0|habilidade>=2;trait:apego-ao-lar|Pequenino: Esquiva de um ataque com +1, uma vez por cena.
+pe-leve|vantagem|Pé leve|0|agilidade>=2;trait:apego-ao-lar|Pequenino: Esquiva de um ataque com +1, uma vez por cena.
 apego-ao-lar|desvantagem|Apego ao lar|0||Pequenino: Sente falta de casa; longe dela, perde o ânimo.
 disciplina-de-ferro|vantagem|Disciplina de ferro|0|poder>=1;trait:cadeia-de-comando|Soldado: Em formação ou sob ordens, +1 em ataque e defesa.
 cadeia-de-comando|desvantagem|Cadeia de comando|0||Soldado: Segue ordens superiores mesmo discordando.
 nome-de-peso|vantagem|Nome de peso|0|habilidade>=1;trait:dever-de-casa|Nobre: Portas se abrem: +2 em testes sociais em ambientes formais.
 dever-de-casa|desvantagem|Dever de casa|0||Nobre: A família exige favores, presença e discrição.
-manobra-impossivel|vantagem|Manobra impossível|0|habilidade>=2;trait:adrenalina-viciante|Piloto: Uma vez por cena, faz uma manobra arriscada com +2.
+manobra-impossivel|vantagem|Manobra impossível|0|agilidade>=2;trait:adrenalina-viciante|Piloto: Uma vez por cena, faz uma manobra arriscada com +2.
 adrenalina-viciante|desvantagem|Adrenalina viciante|0||Piloto: Busca perigo sem necessidade e tolera mal tarefas calmas.
 contrato-justo|vantagem|Contrato justo|0|poder>=1;trait:so-por-dinheiro|Mercenário: Recebe melhor e ganha +1 em testes quando trabalha por contrato.
 so-por-dinheiro|desvantagem|Só por dinheiro|0||Mercenário: Custa a ajudar de graça e a confiar em ideais.
@@ -191,7 +191,7 @@ elixir-de-vigor|vantagem|Elixir de vigor|0|habilidade>=2|Alquimista: Uma vez por
 nariz-queimado|desvantagem|Nariz queimado|0||Alquimista: Perdeu o olfato com os fumos: não sente cheiros nem gás, e tem -2 para notar venenos no ar.
 # --- Batedor ---
 olho-de-aguia|vantagem|Olho de águia|0|habilidade>=2;trait:inquietacao-de-trilha|Batedor: Lê o terreno antes do grupo: +2 para achar rastros, emboscadas e rotas seguras.
-passo-silencioso|vantagem|Passo silencioso|0|habilidade>=2|Batedor: Movendo-se devagar, ignora o barulho do terreno (galhos, cascalho) e tem +1 em Furtividade.
+passo-silencioso|vantagem|Passo silencioso|0|agilidade>=2|Batedor: Movendo-se devagar, ignora o barulho do terreno (galhos, cascalho) e tem +1 em Furtividade.
 aviso-a-tempo|vantagem|Aviso a tempo|0|habilidade>=1|Batedor: Uma vez por cena, sinaliza ao grupo: aliados próximos não sofrem surpresa.
 inquietacao-de-trilha|desvantagem|Inquietação de trilha|0||Batedor: Não consegue ficar parado; em cercos ou esperas longas, -1 em tudo e tende a agir sozinho.
 avesso-a-multidoes|desvantagem|Avesso a multidões|0||Batedor: Em cidades cheias, -2 em testes sociais e de percepção; só relaxa no mato.
@@ -202,15 +202,15 @@ calma-no-caos|vantagem|Calma no caos|0|resistencia>=2|Curandeiro: Tratando algu�
 peso-do-paciente|desvantagem|Peso do paciente|0||Curandeiro: Cada aliado caído o abala: -1 em tudo na cena seguinte a um ferimento grave ou morte de aliado.
 estoque-curto|desvantagem|Estoque curto|0||Curandeiro: Ataduras e ervas acabam: depois de cada cura, precisa repor suprimentos antes de repetir.
 # --- Duelista ---
-estocada-perfeita|vantagem|Estocada perfeita|0|poder>=1;habilidade>=2;trait:vaidade-de-lamina|Duelista: Em duelo um contra um, uma vez por luta, o ataque soma +1d6 e ignora a defesa comum.
-finta-elegante|vantagem|Finta elegante|0|habilidade>=2|Duelista: Uma vez por luta, engana o oponente: o próximo ataque contra ele ganha +2.
-contra-ataque|vantagem|Contra-ataque|0|habilidade>=3|Duelista: Ao esquivar com sucesso, pode atacar o mesmo oponente de imediato.
+estocada-perfeita|vantagem|Estocada perfeita|0|poder>=1;destreza>=2;trait:vaidade-de-lamina|Duelista: Em duelo um contra um, uma vez por luta, o ataque soma +1d6 e ignora a defesa comum.
+finta-elegante|vantagem|Finta elegante|0|destreza>=2|Duelista: Uma vez por luta, engana o oponente: o próximo ataque contra ele ganha +2.
+contra-ataque|vantagem|Contra-ataque|0|agilidade>=3|Duelista: Ao esquivar com sucesso, pode atacar o mesmo oponente de imediato.
 vaidade-de-lamina|desvantagem|Vaidade de lâmina|0||Duelista: Não aceita ganhar sujo nem fugir de desafio; recusar ou perder um duelo lhe tira -1 em tudo na cena.
 fama-de-desafiante|desvantagem|Fama de desafiante|0||Duelista: Rivais o procuram para duelar; uma vez por sessão o mestre traz um desafio inesperado.
 # --- Erudito ---
-biblioteca-mental|vantagem|Biblioteca mental|0|habilidade>=2;trait:cabeca-nas-nuvens|Erudito: Uma vez por cena, lembra um fato útil sobre o problema e o mestre responde com a verdade.
-linguas-antigas|vantagem|Línguas antigas|0|habilidade>=2|Erudito: Lê línguas mortas e códigos; +2 para decifrar textos e inscrições.
-pesquisa-rapida|vantagem|Pesquisa rápida|0|habilidade>=2|Erudito: Com livros ou arquivos à mão, uma hora de pesquisa vale +2 num teste de Conhecimento.
+biblioteca-mental|vantagem|Biblioteca mental|0|inteligencia>=2;trait:cabeca-nas-nuvens|Erudito: Uma vez por cena, lembra um fato útil sobre o problema e o mestre responde com a verdade.
+linguas-antigas|vantagem|Línguas antigas|0|inteligencia>=2|Erudito: Lê línguas mortas e códigos; +2 para decifrar textos e inscrições.
+pesquisa-rapida|vantagem|Pesquisa rápida|0|inteligencia>=2|Erudito: Com livros ou arquivos à mão, uma hora de pesquisa vale +2 num teste de Conhecimento.
 cabeca-nas-nuvens|desvantagem|Cabeça nas nuvens|0||Erudito: Absorto em ideias, -1 em testes de reação e para perceber perigo físico.
 rato-de-biblioteca|desvantagem|Rato de biblioteca|0||Erudito: Fora de ambientes civilizados, -1 em Sobrevivência e Atletismo.
 # --- Guardião ---
@@ -220,9 +220,9 @@ grito-de-guarda|vantagem|Grito de guarda|0|poder>=1|Guardião: Uma vez por luta,
 dever-de-proteger|desvantagem|Dever de proteger|0||Guardião: Não abandona quem protege; recusa fugir enquanto houver aliado em perigo.
 peso-da-armadura|desvantagem|Peso da armadura|0||Guardião: Armadura pesada atrapalha: -1 em Furtividade e para nadar, e cansa em marchas longas.|furtividade:-1
 # --- Ilusionista ---
-miragem|vantagem|Miragem|0|habilidade>=2;trait:fama-de-trapaceiro|Ilusionista: Cria uma imagem falsa convincente por uma cena (gasta 1 PM).
-disfarce-instantaneo|vantagem|Disfarce instantâneo|0|habilidade>=2|Ilusionista: Muda a própria aparência por uma cena; +2 para se passar por outra pessoa.
-distracao-brilhante|vantagem|Distração brilhante|0|habilidade>=2|Ilusionista: Uma vez por cena, cria luz ou som que atrai todos os olhares: aliados agem sem serem notados por um turno.
+miragem|vantagem|Miragem|0|inteligencia>=2;trait:fama-de-trapaceiro|Ilusionista: Cria uma imagem falsa convincente por uma cena (gasta 1 PM).
+disfarce-instantaneo|vantagem|Disfarce instantâneo|0|inteligencia>=2|Ilusionista: Muda a própria aparência por uma cena; +2 para se passar por outra pessoa.
+distracao-brilhante|vantagem|Distração brilhante|0|inteligencia>=2|Ilusionista: Uma vez por cena, cria luz ou som que atrai todos os olhares: aliados agem sem serem notados por um turno.
 fama-de-trapaceiro|desvantagem|Fama de trapaceiro|0||Ilusionista: Ninguém acredita nele de primeira: -1 em testes sociais com quem já viu seus truques.
 concentracao-fragil|desvantagem|Concentração frágil|0||Ilusionista: Se sofrer dano, a ilusão em andamento se desfaz.
 # --- Mercenário ---
@@ -231,7 +231,7 @@ veterano-de-campo|vantagem|Veterano de campo|0|resistencia>=1|Mercenário: Uma v
 reputacao-de-vendido|desvantagem|Reputação de vendido|0||Mercenário: Nobres e fiéis desconfiam; -1 em testes sociais com quem preza lealdade.
 # --- Órfão das ruas ---
 faro-de-rua|vantagem|Faro de rua|0|habilidade>=1;trait:nao-confia-em-ninguem|Órfão das ruas: Sente armadilhas e traições: +2 para perceber mentira e golpe sujo.
-rota-de-fuga|vantagem|Rota de fuga|0|habilidade>=2|Órfão das ruas: Uma vez por cena, acha um atalho ou esconderijo na cidade para escapar.
+rota-de-fuga|vantagem|Rota de fuga|0|agilidade>=2|Órfão das ruas: Uma vez por cena, acha um atalho ou esconderijo na cidade para escapar.
 estomago-de-ferro|vantagem|Estômago de ferro|0|resistencia>=1|Órfão das ruas: Come qualquer coisa sem adoecer e aguenta dias de fome sem penalidade.
 nao-confia-em-ninguem|desvantagem|Não confia em ninguém|0||Órfão das ruas: Recusa ajuda e bondade de graça; -1 em testes de cooperar com desconhecidos.
 fome-antiga|desvantagem|Fome antiga|0||Órfão das ruas: Não resiste a comida e abrigo oferecidos; um prato quente pode comprar sua simpatia.
@@ -246,18 +246,18 @@ olho-de-minerador|vantagem|Olho de minerador|0|habilidade>=1|Anão: Reconhece me
 figado-de-anao|vantagem|Fígado de anão|0|resistencia>=2|Anão: +2 para resistir a álcool, veneno e doença.
 saudade-da-pedra|desvantagem|Saudade da pedra|0||Anão: Longe de pedra e túneis por muitos dias, perde o ânimo: -1 em tudo.
 # --- Elfo ---
-passo-de-folha|vantagem|Passo de folha|0|habilidade>=2|Elfo: Em ambientes naturais não deixa rastros e tem +2 em Furtividade ao ar livre.
-memoria-secular|vantagem|Memória secular|0|habilidade>=2|Elfo: Já viu quase tudo: uma vez por cena, lembra um evento histórico ou lenda relevante.
+passo-de-folha|vantagem|Passo de folha|0|agilidade>=2|Elfo: Em ambientes naturais não deixa rastros e tem +2 em Furtividade ao ar livre.
+memoria-secular|vantagem|Memória secular|0|inteligencia>=2|Elfo: Já viu quase tudo: uma vez por cena, lembra um evento histórico ou lenda relevante.
 desdem-pelos-efemeros|desvantagem|Desdém pelos efêmeros|0||Elfo: Subestima os mortais de vida curta: -1 para ler as intenções de humanos e anões.
 # --- Elfo negro ---
-lamina-envenenada|vantagem|Lâmina envenenada|0|habilidade>=2|Elfo negro: Aplica veneno numa arma: o próximo ataque causa +1d6 e pode enfraquecer o alvo.
+lamina-envenenada|vantagem|Lâmina envenenada|0|destreza>=2|Elfo negro: Aplica veneno numa arma: o próximo ataque causa +1d6 e pode enfraquecer o alvo.
 olhos-sem-luz|vantagem|Olhos sem luz|0|habilidade>=1|Elfo negro: Enxerga no escuro total, mesmo sem luz nenhuma, e não é cegado por escuridão mágica.
 intriga-familiar|desvantagem|Intriga familiar|0||Elfo negro: Uma casa rival o quer morto ou de volta; o mestre pode trazer agentes dela.
 # --- Lobisomem ---
 faro-de-cacador|vantagem|Faro de caçador|0|habilidade>=1|Lobisomem: Segue rastros pelo cheiro: +2 para rastrear e descobrir quem esteve num lugar.
 prata-me-fere|desvantagem|Prata me fere|0||Lobisomem: Armas de prata causam +1d6 de dano contra ele, e esses ferimentos só fecham ao amanhecer.
 # --- Vampiro ---
-forma-de-nevoa|vantagem|Forma de névoa|0|habilidade>=2|Vampiro: Uma vez por cena, vira névoa por um turno: imune a ataques físicos comuns, mas não pode atacar.
+forma-de-nevoa|vantagem|Forma de névoa|0|inteligencia>=2|Vampiro: Uma vez por cena, vira névoa por um turno: imune a ataques físicos comuns, mas não pode atacar.
 reflexo-ausente|desvantagem|Sem reflexo|0||Vampiro: Não aparece em espelhos nem em água calma: -2 para se disfarçar entre mortais.
 # --- Ciborgue ---
 braco-integrado|vantagem|Braço integrado|0|poder>=1|Ciborgue: Um braço esconde uma arma ou ferramenta: +2 no primeiro ataque de uma luta por surpresa.
@@ -268,25 +268,25 @@ forca-bruta|vantagem|Força bruta|0|poder>=3|Orc: Uma vez por cena, quebra porta
 divida-de-cla|desvantagem|Dívida de clã|0||Orc: Quando o clã chama, abandona tudo ou perde a honra perante os seus.
 # --- Goblin ---
 bolsos-fundos|vantagem|Bolsos fundos|0|habilidade>=1|Goblin: Uma vez por cena, "acha" no bolso um objeto pequeno e útil.
-golpe-baixo|vantagem|Golpe baixo|0|habilidade>=2|Goblin: Atacando um alvo distraído ou preso, soma +1d6 de dano.
+golpe-baixo|vantagem|Golpe baixo|0|destreza>=2|Goblin: Atacando um alvo distraído ou preso, soma +1d6 de dano.
 pequeno-e-fraco|desvantagem|Pequeno e fraco|0||Goblin: -1 em testes de força e para segurar objetos pesados.
 # --- Pequenino ---
-esconderijo-natural|vantagem|Esconderijo natural|0|habilidade>=1|Pequenino: Some atrás de objetos pequenos: +2 em Furtividade quando há qualquer cobertura.
+esconderijo-natural|vantagem|Esconderijo natural|0|agilidade>=1|Pequenino: Some atrás de objetos pequenos: +2 em Furtividade quando há qualquer cobertura.
 coragem-inesperada|vantagem|Coragem inesperada|0|resistencia>=1|Pequenino: Uma vez por sessão, quando é a última esperança, soma +2 num teste crucial.
 passos-curtos|desvantagem|Passos curtos|0||Pequenino: Anda devagar e alcança pouco: -1 para fugir e para alcançar coisas altas.
 # --- Fada ---
-brilho-de-fada|vantagem|Brilho de fada|0|habilidade>=2|Fada: Faz uma luz suave que distrai: +2 em testes de distração e ilumina áreas escuras.
+brilho-de-fada|vantagem|Brilho de fada|0|inteligencia>=2|Fada: Faz uma luz suave que distrai: +2 em testes de distração e ilumina áreas escuras.
 capricho-feerico|desvantagem|Capricho feérico|0||Fada: Não resiste a travessuras: o mestre pode exigir teste de Habilidade (média) para não pregar uma peça.
 # --- Androide ---
-memoria-perfeita|vantagem|Memória perfeita|0|habilidade>=2|Androide: Lembra com precisão tudo o que viu ou ouviu e pode reproduzir vozes ouvidas.
+memoria-perfeita|vantagem|Memória perfeita|0|inteligencia>=2|Androide: Lembra com precisão tudo o que viu ou ouviu e pode reproduzir vozes ouvidas.
 bateria-estendida|vantagem|Bateria estendida|0|resistencia>=1|Androide: Não precisa dormir nem comer; vigia a noite toda sem penalidade.
 protocolo-rigido|desvantagem|Protocolo rígido|0||Androide: Segue regras escritas; contrariar um protocolo exige teste de Habilidade (difícil).
 # --- Morto-vivo ---
 olhar-vazio|vantagem|Olhar vazio|0|poder>=1|Morto-vivo: Não sente medo: imune a pânico e +2 contra intimidação.
 cheiro-de-cova|desvantagem|Cheiro de cova|0||Morto-vivo: Fede a podridão: animais fogem dele e -2 em testes sociais com vivos.
 # --- Sereia ou tritão ---
-nadador-nato|vantagem|Nadador nato|0|habilidade>=1|Sereia ou tritão: Respira e luta debaixo d'água sem penalidade; +2 para nadar.
-voz-de-eco|vantagem|Voz de eco|0|habilidade>=2|Sereia ou tritão: Fala com peixes e criaturas do mar; uma vez por cena, recebe um aviso do ambiente.
+nadador-nato|vantagem|Nadador nato|0|agilidade>=1|Sereia ou tritão: Respira e luta debaixo d'água sem penalidade; +2 para nadar.
+voz-de-eco|vantagem|Voz de eco|0|inteligencia>=2|Sereia ou tritão: Fala com peixes e criaturas do mar; uma vez por cena, recebe um aviso do ambiente.
 desajeitado-em-terra|desvantagem|Desajeitado em terra|0||Sereia ou tritão: Em terra firme, -1 em Atletismo e fuga.
 # --- Minotauro ---
 chifres-de-guerra|vantagem|Chifres de guerra|0|poder>=2|Minotauro: Ataca com os chifres como arma natural e tem +1 contra portas, muros e barreiras.
@@ -297,23 +297,23 @@ olhos-de-brasa|vantagem|Olhos de brasa|0|habilidade>=1|Meio-demônio: Vê no esc
 pele-infernal|vantagem|Pele infernal|0|resistencia>=1|Meio-demônio: Imune a fogo comum e +2 para resistir a calor e chamas.
 voz-do-sangue|desvantagem|Voz do sangue|0||Meio-demônio: Uma vez por sessão, a herança infernal o tenta: o mestre propõe uma oferta difícil de recusar.
 # --- Anjo caído ---
-palavra-celeste|vantagem|Palavra celeste|0|habilidade>=1|Anjo caído: Uma vez por cena, uma ordem simples dita com autoridade é obedecida por criaturas fracas.
+palavra-celeste|vantagem|Palavra celeste|0|inteligencia>=1|Anjo caído: Uma vez por cena, uma ordem simples dita com autoridade é obedecida por criaturas fracas.
 saudade-do-ceu|desvantagem|Saudade do céu|0||Anjo caído: Diante de algo belo ou sagrado, pode perder a ação num momento de tensão (uma vez por sessão, a critério do mestre).
 # --- Golem ---
 punho-de-rocha|vantagem|Punho de rocha|0|poder>=2|Golem: Ataques desarmados contam como armas pesadas e quebram portas e escudos.
 sem-necessidades|vantagem|Sem necessidades|0|resistencia>=2|Golem: Não come, dorme nem respira; imune a gases e afogamento.
 peso-de-pedra|desvantagem|Peso de pedra|0||Golem: Pesado demais: afunda na água, quebra pisos frágeis e não consegue escalar.
 # --- Raposa espiritual ---
-forma-de-raposa|vantagem|Forma de raposa|0|habilidade>=2|Raposa espiritual: Assume a forma de uma raposa comum por uma cena: +2 para fugir e se esconder.
-fogo-fatuo|vantagem|Fogo-fátuo|0|habilidade>=2|Raposa espiritual: Cria chamas azuis ilusórias que guiam ou desorientam: +2 para enganar ou conduzir alguém.
+forma-de-raposa|vantagem|Forma de raposa|0|inteligencia>=2|Raposa espiritual: Assume a forma de uma raposa comum por uma cena: +2 para fugir e se esconder.
+fogo-fatuo|vantagem|Fogo-fátuo|0|inteligencia>=2|Raposa espiritual: Cria chamas azuis ilusórias que guiam ou desorientam: +2 para enganar ou conduzir alguém.
 vaidade-espiritual|desvantagem|Vaidade espiritual|0||Raposa espiritual: Elogios baixam sua guarda: -2 contra bajulação e promessas de fama.
 # --- Dracônico ---
 escamas-de-dragao|vantagem|Escamas de dragão|0|resistencia>=2|Dracônico: Reduz em 2 o dano do elemento do seu sangue.
 presenca-de-dragao|vantagem|Presença de dragão|0|poder>=2|Dracônico: Sua aura impõe respeito: +2 para intimidar ou comandar quem teme dragões.
 elemento-oposto|desvantagem|Elemento oposto|0||Dracônico: O elemento oposto ao do seu sangue causa +1d6 de dano contra ele.
 # --- Arqueiro ---
-chuva-de-flechas|vantagem|Chuva de flechas|0|habilidade>=2|Arqueiro: Uma vez por luta, atira em até três alvos pequenos: -1 no ataque, mas atinge todos.
-flecha-presa|vantagem|Flecha presa|0|habilidade>=2|Arqueiro: Uma vez por cena, prende o alvo ao chão ou à parede (Resistência média dele, ou fica preso por um turno).
+chuva-de-flechas|vantagem|Chuva de flechas|0|destreza>=2|Arqueiro: Uma vez por luta, atira em até três alvos pequenos: -1 no ataque, mas atinge todos.
+flecha-presa|vantagem|Flecha presa|0|destreza>=2|Arqueiro: Uma vez por cena, prende o alvo ao chão ou à parede (Resistência média dele, ou fica preso por um turno).
 dependencia-de-visao|desvantagem|Dependência de visão|0||Arqueiro: Sem visão clara do alvo (fumaça, chuva forte, escuridão), -2 nos disparos.
 # --- Bardo ---
 verso-afiado|vantagem|Verso afiado|0|habilidade>=2|Bardo: Uma vez por cena, humilha um oponente com versos: ele sofre -2 no próximo teste.
@@ -330,11 +330,11 @@ cavalaria-treinada|vantagem|Montaria de guerra|0|habilidade>=1|Cavaleiro: Seu ca
 armadura-de-campeao|vantagem|Armadura de campeão|0|resistencia>=2|Cavaleiro: Em armadura completa, reduz em 1 o dano de golpes comuns.
 cortesia-cega|desvantagem|Cortesia cega|0||Cavaleiro: Não ataca inimigo desarmado ou ferido e aceita qualquer desafio formal.
 # --- Sacerdote ---
-palavra-de-conforto|vantagem|Palavra de conforto|0|habilidade>=1|Sacerdote: Uma vez por cena, acalma um aliado: remove medo ou atordoamento.
+palavra-de-conforto|vantagem|Palavra de conforto|0|inteligencia>=1|Sacerdote: Uma vez por cena, acalma um aliado: remove medo ou atordoamento.
 escudo-de-fe|vantagem|Escudo de fé|0|resistencia>=2|Sacerdote: Uma vez por luta, reza para dar +2 de defesa a um aliado até seu próximo turno.
 dizimo-pesado|desvantagem|Dízimo pesado|0||Sacerdote: A ordem exige tempo, ofertas e rituais: perde um descanso por sessão em deveres.
 # --- Detetive ---
-cena-do-crime|vantagem|Cena do crime|0|habilidade>=2|Detetive: Examinar uma cena por um turno revela um detalhe oculto (+2 em Percepção).
+cena-do-crime|vantagem|Cena do crime|0|inteligencia>=2|Detetive: Examinar uma cena por um turno revela um detalhe oculto (+2 em Percepção).
 interrogatorio-sutil|vantagem|Interrogatório sutil|0|habilidade>=2|Detetive: Percebe mentiras com +2 e pode forçar uma pergunta extra.
 desconfia-de-todos|desvantagem|Desconfia de todos|0||Detetive: Vê culpa em todos: -1 em testes sociais para criar confiança.
 # --- Engenheiro ---
@@ -344,38 +344,38 @@ peca-faltando|desvantagem|Peça faltando|0||Engenheiro: Consertos grandes exigem
 # --- Espião ---
 mascara-perfeita|vantagem|Máscara perfeita|0|habilidade>=2;trait:vida-dupla|Espião: Interpreta qualquer papel: +2 para manter um disfarce ou fingir lealdade.
 escuta-de-parede|vantagem|Escuta de parede|0|habilidade>=2|Espião: Ouve conversas à distância ou atrás de portas: +2 em testes de ouvir.
-copia-de-chave|vantagem|Cópia de chave|0|habilidade>=2|Espião: Copia chaves, selos e assinaturas: +2 para falsificar.
+copia-de-chave|vantagem|Cópia de chave|0|destreza>=2|Espião: Copia chaves, selos e assinaturas: +2 para falsificar.
 vida-dupla|desvantagem|Vida dupla|0||Espião: Mantém identidades falsas; segredos vazam: o mestre pode expor uma mentira por sessão.
 segredo-guardado|desvantagem|Segredo guardado|0||Espião: Guarda um segredo comprometedor sobre si; se vazar, perde aliados.
 # --- Feiticeiro ---
-reflexo-arcano|vantagem|Reflexo arcano|0|habilidade>=2|Feiticeiro: Uma vez por cena, solta um efeito mágico sem gastar PM, mas sem controle fino.
+reflexo-arcano|vantagem|Reflexo arcano|0|inteligencia>=2|Feiticeiro: Uma vez por cena, solta um efeito mágico sem gastar PM, mas sem controle fino.
 sangue-arcano|vantagem|Sangue arcano|0|resistencia>=1|Feiticeiro: Reduz em 2 o dano de magia.
 marca-do-sangue|desvantagem|Marca do sangue|0||Feiticeiro: Olhos, cabelo ou pele brilham quando usa magia: impossível lançar escondido.
 # --- Gladiador ---
 golpe-teatral|vantagem|Golpe teatral|0|poder>=2|Gladiador: Uma vez por luta, um golpe espalhafatoso soma +1d6 e intimida quem assiste.
-rede-e-tridente|vantagem|Rede e tridente|0|habilidade>=1|Gladiador: Usa rede ou arma exótica para prender: +2 para imobilizar ou desarmar.
+rede-e-tridente|vantagem|Rede e tridente|0|destreza>=1|Gladiador: Usa rede ou arma exótica para prender: +2 para imobilizar ou desarmar.
 marcas-da-arena|desvantagem|Marcas da arena|0||Gladiador: Cicatrizes e fama: nobres o veem como brinquedo e plebeus como bruto (-1 em testes sociais formais).
 # --- Hacker ---
-porta-dos-fundos|vantagem|Porta dos fundos|0|habilidade>=2|Hacker: Deixa uma entrada escondida em sistemas que já invadiu: volta a eles sem precisar de teste.
-bot-fantasma|vantagem|Bot fantasma|0|habilidade>=2|Hacker: Uma vez por cena, um programa distrai guardas ou câmeras por um turno.
+porta-dos-fundos|vantagem|Porta dos fundos|0|inteligencia>=2|Hacker: Deixa uma entrada escondida em sistemas que já invadiu: volta a eles sem precisar de teste.
+bot-fantasma|vantagem|Bot fantasma|0|inteligencia>=2|Hacker: Uma vez por cena, um programa distrai guardas ou câmeras por um turno.
 rato-de-tela|desvantagem|Rato de tela|0||Hacker: Passa dias sem sol e sem treino: -1 em Atletismo e para resistir a esforço físico.|atletismo:-1
 # --- Ladrão ---
-mao-leve|vantagem|Mão leve|0|habilidade>=2|Ladrão: Rouba itens pequenos de um alvo com +2; mesmo em falha crítica, só chama atenção.
-gazua-certeira|vantagem|Gazua certeira|0|habilidade>=2|Ladrão: Abre fechaduras e armadilhas simples na metade do tempo e com +2.
+mao-leve|vantagem|Mão leve|0|destreza>=2|Ladrão: Rouba itens pequenos de um alvo com +2; mesmo em falha crítica, só chama atenção.
+gazua-certeira|vantagem|Gazua certeira|0|destreza>=2|Ladrão: Abre fechaduras e armadilhas simples na metade do tempo e com +2.
 mal-visto|desvantagem|Mal visto|0||Ladrão: Em qualquer cidade, sumiço de objetos é culpa dele: os guardas o revistam primeiro.
 # --- Marinheiro ---
-pernas-do-mar|vantagem|Pernas do mar|0|habilidade>=1;trait:saudade-do-mar|Marinheiro: Equilíbrio perfeito em barcos, cordas e superfícies instáveis: +2 em Atletismo no mar.
+pernas-do-mar|vantagem|Pernas do mar|0|agilidade>=1;trait:saudade-do-mar|Marinheiro: Equilíbrio perfeito em barcos, cordas e superfícies instáveis: +2 em Atletismo no mar.
 nos-e-velas|vantagem|Nós e velas|0|habilidade>=1|Marinheiro: Conserta velas, cordas e cascos: +2 em Ofícios náuticos.
 lingua-do-porto|vantagem|Língua do porto|0|habilidade>=1|Marinheiro: Conhece portos, tavernas e piadas de marujo: +2 em testes sociais nas docas.
 saudade-do-mar|desvantagem|Saudade do mar|0||Marinheiro: Longe da água por muito tempo, -1 em tudo e fica irritadiço.
 bebida-de-porto|desvantagem|Bebida de porto|0||Marinheiro: Não recusa uma rodada; em tavernas, precisa de teste de Resistência (média) para parar de beber.
 # --- Monge ---
 corpo-de-aco|vantagem|Corpo de aço|0|resistencia>=2|Monge: Endurece o corpo: reduz em 1 o dano de golpes sem arma.
-passo-sem-peso|vantagem|Passo sem peso|0|habilidade>=2|Monge: Corre por paredes e telhados curtos: +2 em saltos e travessias.
+passo-sem-peso|vantagem|Passo sem peso|0|agilidade>=2|Monge: Corre por paredes e telhados curtos: +2 em saltos e travessias.
 voto-de-silencio|desvantagem|Voto de silêncio|0||Monge: Em certos dias ou lugares não pode falar; testes sociais ficam impossíveis nesses momentos.
 # --- Necromante ---
-fala-com-os-mortos|vantagem|Fala com os mortos|0|habilidade>=2|Necromante: Uma vez por cena, faz uma pergunta a um morto recente e ele responde.
-dreno-de-vida|vantagem|Dreno de vida|0|habilidade>=2|Necromante: Toca um inimigo e rouba 1d6 PV (uma vez por luta).
+fala-com-os-mortos|vantagem|Fala com os mortos|0|inteligencia>=2|Necromante: Uma vez por cena, faz uma pergunta a um morto recente e ele responde.
+dreno-de-vida|vantagem|Dreno de vida|0|inteligencia>=2|Necromante: Toca um inimigo e rouba 1d6 PV (uma vez por luta).
 cacado-por-templos|desvantagem|Caçado por templos|0||Necromante: Ordens religiosas o caçam e sacerdotes recusam ajuda.
 # --- Nobre ---
 criado-de-confianca|vantagem|Criado de confiança|0|habilidade>=1|Nobre: Um servo fiel o acompanha e faz tarefas simples uma vez por cena.
@@ -391,7 +391,7 @@ voz-de-capitao|vantagem|Voz de capitão|0|habilidade>=1|Pirata: Comanda tripula�
 maldicao-do-tesouro|desvantagem|Maldição do tesouro|0||Pirata: Um tesouro antigo o chama: recusar uma pista de tesouro exige teste de Habilidade (média).
 # --- Xamã ---
 escudo-espiritual|vantagem|Escudo espiritual|0|resistencia>=1|Xamã: Um espírito protetor reduz em 1 o dano de magia e de golpes sobrenaturais.
-visao-de-transe|vantagem|Visão de transe|0|habilidade>=2|Xamã: Uma vez por sessão, entra em transe e recebe uma visão curta do futuro próximo.
+visao-de-transe|vantagem|Visão de transe|0|inteligencia>=2|Xamã: Uma vez por sessão, entra em transe e recebe uma visão curta do futuro próximo.
 espiritos-cobram|desvantagem|Espíritos cobram|0||Xamã: Depois de uma magia grande, precisa de uma oferenda ou perde 1 em tudo até o próximo descanso.
 # --- Soldado ---
 treino-de-fileira|vantagem|Treino de fileira|0|poder>=1|Soldado: Lutando ao lado de aliados, +1 de defesa para ele e para quem está ao lado.
@@ -400,7 +400,7 @@ trauma-de-guerra|desvantagem|Trauma de guerra|0||Soldado: Barulhos de batalha em
 # --- Lutador de rua ---
 soco-sujo|vantagem|Soco sujo|0|poder>=2;trait:sangue-quente|Lutador de rua: Uma vez por luta, um golpe sujo (areia, cotovelada) soma +1d6 e deixa o alvo Atordoado se falhar em Resistência.
 queixo-de-ferro|vantagem|Queixo de ferro|0|resistencia>=2|Lutador de rua: Uma vez por luta, reduz em 1d6 o dano de um golpe.
-becos-e-atalhos|vantagem|Becos e atalhos|0|habilidade>=1|Lutador de rua: Conhece cada beco: +2 para fugir, perseguir e achar contatos na cidade.
+becos-e-atalhos|vantagem|Becos e atalhos|0|agilidade>=1|Lutador de rua: Conhece cada beco: +2 para fugir, perseguir e achar contatos na cidade.
 sangue-quente|desvantagem|Sangue quente|0||Lutador de rua: Provocado, ataca primeiro e pergunta depois (teste de Habilidade média para se conter).
 maos-de-pugilista|desvantagem|Mãos de pugilista|0||Lutador de rua: Usa mal armas e ferramentas finas: -1 ao manuseá-las.
 # --- Caçador de monstros ---
@@ -419,8 +419,8 @@ calculo-constante|desvantagem|Cálculo constante|0||Mercador: Tudo tem preço: r
 carga-valiosa|desvantagem|Carga valiosa|0||Mercador: Carrega mercadoria preciosa; ladrões e bandidos o escolhem como alvo (o mestre pode trazê-los).
 # --- Explorador de ruínas ---
 faro-de-armadilha|vantagem|Faro de armadilha|0|habilidade>=2;trait:febre-de-tesouro|Explorador de ruínas: Percebe e desarma armadilhas antigas com +2.
-leitor-de-runas|vantagem|Leitor de runas|0|habilidade>=2|Explorador de ruínas: Decifra inscrições e símbolos antigos: +2 em testes de Conhecimento sobre ruínas.
-corda-e-gancho|vantagem|Corda e gancho|0|habilidade>=1|Explorador de ruínas: Escala, atravessa abismos e recupera objetos à distância com +2.
+leitor-de-runas|vantagem|Leitor de runas|0|inteligencia>=2|Explorador de ruínas: Decifra inscrições e símbolos antigos: +2 em testes de Conhecimento sobre ruínas.
+corda-e-gancho|vantagem|Corda e gancho|0|agilidade>=1|Explorador de ruínas: Escala, atravessa abismos e recupera objetos à distância com +2.
 febre-de-tesouro|desvantagem|Febre de tesouro|0||Explorador de ruínas: Não resiste a uma câmara selada ou relíquia à vista: teste de Habilidade (média) para recuar.
 maldicao-de-tumba|desvantagem|Maldição de tumba|0||Explorador de ruínas: Já profanou algo: uma vez por sessão, o mestre traz um azar ligado à maldição.
 # --- Domador ---
@@ -430,8 +430,8 @@ comando-de-ataque|vantagem|Comando de ataque|0|habilidade>=1|Domador: Uma vez po
 apego-ao-bicho|desvantagem|Apego ao bicho|0||Domador: Se o animal é ferido, perde o controle: -2 em tudo até cuidar dele.
 mais-bicho-que-gente|desvantagem|Mais bicho que gente|0||Domador: Prefere a companhia dos animais: -1 em testes sociais com desconhecidos.
 # --- Assassino ---
-veneno-de-lamina|vantagem|Veneno de lâmina|0|habilidade>=2|Assassino: Envenena a arma: o alvo falha em Resistência (média) e fica Exausto.
-sombra-na-multidao|vantagem|Sombra na multidão|0|habilidade>=2|Assassino: Some entre pessoas: +2 em Furtividade em locais cheios.
+veneno-de-lamina|vantagem|Veneno de lâmina|0|destreza>=2|Assassino: Envenena a arma: o alvo falha em Resistência (média) e fica Exausto.
+sombra-na-multidao|vantagem|Sombra na multidão|0|agilidade>=2|Assassino: Some entre pessoas: +2 em Furtividade em locais cheios.
 mao-da-guilda|desvantagem|Mão da guilda|0||Assassino: A guilda o vigia e cobra parte dos lucros; pode mandar agentes atrás dele.
 # --- Policial ---
 voz-de-autoridade|vantagem|Voz de autoridade|0|habilidade>=1;trait:burocracia-pesada|Policial: Ordens dadas com a farda são obedecidas por civis comuns: +2 em testes de comando na cidade.
@@ -441,14 +441,14 @@ burocracia-pesada|desvantagem|Burocracia pesada|0||Policial: Deve seguir procedi
 corrupcao-ao-redor|desvantagem|Corrupção ao redor|0||Policial: Colegas corruptos o vigiam; denunciar traz inimigos dentro da própria força.
 # --- Médico ---
 bisturi-firme|vantagem|Bisturi firme|0|habilidade>=2;trait:culpa-de-paciente|Médico: Cirurgia de campo: cura 1d6+1 PV de um aliado fora de combate e estabiliza moribundos.
-diagnostico-rapido|vantagem|Diagnóstico rápido|0|habilidade>=2|Médico: Entende ferimentos e doenças num olhar: +2 em testes de medicina e perícia.
+diagnostico-rapido|vantagem|Diagnóstico rápido|0|inteligencia>=2|Médico: Entende ferimentos e doenças num olhar: +2 em testes de medicina e perícia.
 antidoto-pronto|vantagem|Antídoto pronto|0|habilidade>=1|Médico: Carrega remédios: uma vez por cena, anula veneno ou doença comum.
 culpa-de-paciente|desvantagem|Culpa de paciente|0||Médico: Cada paciente perdido pesa: falhar em salvar alguém dá -1 em tudo até o fim da cena.
 maos-limpas|desvantagem|Mãos limpas|0||Médico: Detesta sujeira e sangue na roupa: -1 em ambientes imundos.
 # --- Mago de guerra ---
-barreira-de-campanha|vantagem|Barreira de campanha|0|habilidade>=2;trait:disciplina-rigida|Mago de guerra: Ergue um escudo mágico que protege a ele e a um aliado: +2 de defesa por uma luta (gasta PM).
-fogo-de-artilharia|vantagem|Fogo de artilharia|0|habilidade>=2|Mago de guerra: Uma vez por luta, magia em área atinge todos numa área pequena com metade do dano.
-comunicacao-arcana|vantagem|Comunicação arcana|0|habilidade>=2|Mago de guerra: Envia mensagens curtas por magia a quem conhece, em qualquer distância.
+barreira-de-campanha|vantagem|Barreira de campanha|0|inteligencia>=2;trait:disciplina-rigida|Mago de guerra: Ergue um escudo mágico que protege a ele e a um aliado: +2 de defesa por uma luta (gasta PM).
+fogo-de-artilharia|vantagem|Fogo de artilharia|0|inteligencia>=2|Mago de guerra: Uma vez por luta, magia em área atinge todos numa área pequena com metade do dano.
+comunicacao-arcana|vantagem|Comunicação arcana|0|inteligencia>=2|Mago de guerra: Envia mensagens curtas por magia a quem conhece, em qualquer distância.
 disciplina-rigida|desvantagem|Disciplina rígida|0||Mago de guerra: Segue ordens militares; desobedecer uma ordem superior tem consequências e custa -1 em tudo na cena.
 ouvidos-de-batalha|desvantagem|Ouvidos de batalha|0||Mago de guerra: Estrondos de explosão o desorientam: -1 em testes perto de fogo e estrondo.
 # --- Sobrevivente ---
@@ -464,15 +464,15 @@ armadura-sob-medida|vantagem|Armadura sob medida|0|resistencia>=2|Ferreiro: Ajus
 cheiro-de-forja|desvantagem|Cheiro de forja|0||Ferreiro: Suor e fumaça: -1 em testes sociais formais, e sente-se mal longe do ofício.
 orgulho-da-obra|desvantagem|Orgulho da obra|0||Ferreiro: Não suporta ver trabalho mal feito ou arma maltratada; perde a calma e desconta nos outros.
 # --- Acrobata ---
-salto-impossivel|vantagem|Salto impossível|0|habilidade>=2;trait:corpo-de-artista|Acrobata: Salta, rola e cai sem dano: +2 em Atletismo acrobático e ignora dano de queda comum.
-equilibrio-perfeito|vantagem|Equilíbrio perfeito|0|habilidade>=2|Acrobata: Anda em cordas e vigas e nunca cai por falha comum.
-mortal-de-fuga|vantagem|Mortal de fuga|0|habilidade>=2|Acrobata: Uma vez por luta, escapa de agarrão ou cerco sem precisar de teste.
+salto-impossivel|vantagem|Salto impossível|0|agilidade>=2;trait:corpo-de-artista|Acrobata: Salta, rola e cai sem dano: +2 em Atletismo acrobático e ignora dano de queda comum.
+equilibrio-perfeito|vantagem|Equilíbrio perfeito|0|agilidade>=2|Acrobata: Anda em cordas e vigas e nunca cai por falha comum.
+mortal-de-fuga|vantagem|Mortal de fuga|0|agilidade>=2|Acrobata: Uma vez por luta, escapa de agarrão ou cerco sem precisar de teste.
 corpo-de-artista|desvantagem|Corpo de artista|0||Acrobata: Leve e delicado: sofre +1 de dano de golpes pesados.
 vaidade-de-palco|desvantagem|Vaidade de palco|0||Acrobata: Prefere o movimento mais impressionante ao mais seguro: em falha crítica, sofre dano.
 # --- Cientista ---
-metodo-rigoroso|vantagem|Método rigoroso|0|habilidade>=2;trait:obstinacao-cientifica|Cientista: Hipótese e experimento: depois de um turno de análise, +2 em testes de Conhecimento sobre o problema.
-laboratorio-portatil|vantagem|Laboratório portátil|0|habilidade>=2|Cientista: Carrega um kit de análise: identifica substâncias e materiais em um turno.
-formula-de-emergencia|vantagem|Fórmula de emergência|0|habilidade>=2|Cientista: Uma vez por sessão, improvisa uma solução técnica brilhante para um problema físico.
+metodo-rigoroso|vantagem|Método rigoroso|0|inteligencia>=2;trait:obstinacao-cientifica|Cientista: Hipótese e experimento: depois de um turno de análise, +2 em testes de Conhecimento sobre o problema.
+laboratorio-portatil|vantagem|Laboratório portátil|0|inteligencia>=2|Cientista: Carrega um kit de análise: identifica substâncias e materiais em um turno.
+formula-de-emergencia|vantagem|Fórmula de emergência|0|inteligencia>=2|Cientista: Uma vez por sessão, improvisa uma solução técnica brilhante para um problema físico.
 obstinacao-cientifica|desvantagem|Obstinação científica|0||Cientista: Testa tudo antes de aceitar; sem prova, o mestre pode atrasá-lo em decisões urgentes.
 descrente-do-impossivel|desvantagem|Descrente do impossível|0||Cientista: Reluta em aceitar magia e fenômenos estranhos: -2 para reagir ao sobrenatural na primeira vez.
 # --- Bárbaro ---
@@ -480,7 +480,7 @@ pele-de-guerra|vantagem|Pele de guerra|0|resistencia>=2|Bárbaro: Sem armadura p
 grito-de-batalha|vantagem|Grito de batalha|0|poder>=2|Bárbaro: Uma vez por luta, berra: inimigos comuns perdem 1 no próximo ataque.
 estranho-a-civilizacao|desvantagem|Estranho à civilização|0||Bárbaro: Costumes de cidade o confundem: -2 em testes sociais formais e de etiqueta.
 # --- Paladino ---
-maos-de-luz|vantagem|Mãos de luz|0|habilidade>=1|Paladino: Uma vez por cena, toca um aliado e cura 1d6 PV.
+maos-de-luz|vantagem|Mãos de luz|0|inteligencia>=1|Paladino: Uma vez por cena, toca um aliado e cura 1d6 PV.
 aura-de-coragem|vantagem|Aura de coragem|0|resistencia>=2|Paladino: Aliados próximos ignoram medo e ganham +1 contra pânico.
 mal-a-vista|desvantagem|Mal à vista|0||Paladino: Diante de um mal declarado, precisa agir: o mestre pode exigir teste de Habilidade (média) para ignorá-lo.
 # --- Guerreiro ---
@@ -488,26 +488,28 @@ postura-de-batalha|vantagem|Postura de batalha|0|poder>=2|Guerreiro: Ao escolher
 segundo-folego|vantagem|Segundo fôlego|0|resistencia>=1|Guerreiro: Uma vez por luta, recupera 1d6 PV.
 dependente-de-equipamento|desvantagem|Dependente de equipamento|0||Guerreiro: Sem sua arma ou armadura favorita, -2 em ataques e defesa.
 # --- Mago ---
-olho-de-arcanista|vantagem|Olho de arcanista|0|habilidade>=2|Mago: Reconhece magias e itens mágicos com +2 e sabe se algo é encantado.
-contramagia|vantagem|Contramagia|0|habilidade>=3|Mago: Uma vez por luta, tenta anular um feitiço inimigo visível (teste de Habilidade, difícil).
+olho-de-arcanista|vantagem|Olho de arcanista|0|inteligencia>=2|Mago: Reconhece magias e itens mágicos com +2 e sabe se algo é encantado.
+contramagia|vantagem|Contramagia|0|inteligencia>=3|Mago: Uma vez por luta, tenta anular um feitiço inimigo visível (teste de Habilidade, difícil).
 cabeca-em-livros|desvantagem|Cabeça em livros|0||Mago: Pouco treino físico: -1 em Atletismo e fuga.|atletismo:-1
 # --- Patrulheiro ---
-camuflagem-natural|vantagem|Camuflagem natural|0|habilidade>=2|Patrulheiro: Em ambientes naturais some na vegetação: +2 em Furtividade ao ar livre.
-armadilha-de-trilha|vantagem|Armadilha de trilha|0|habilidade>=1|Patrulheiro: Prepara uma armadilha simples em um turno que causa 1d6 de dano ou atrasa o alvo.
+camuflagem-natural|vantagem|Camuflagem natural|0|agilidade>=2|Patrulheiro: Em ambientes naturais some na vegetação: +2 em Furtividade ao ar livre.
+armadilha-de-trilha|vantagem|Armadilha de trilha|0|destreza>=1|Patrulheiro: Prepara uma armadilha simples em um turno que causa 1d6 de dano ou atrasa o alvo.
 sufoca-em-cidades|desvantagem|Sufoca em cidades|0||Patrulheiro: Em cidades grandes, -1 em tudo e dorme mal.
 # --- Bruxo ---
-maldicao-menor|vantagem|Maldição menor|0|habilidade>=2|Bruxo: Amaldiçoa um alvo à vista: -1 em seus testes por uma cena (uma vez por cena).
-familiar|vantagem|Familiar|0|habilidade>=1|Bruxo: Um animal serve de olhos e ouvidos: percebe o que ele vê.
+maldicao-menor|vantagem|Maldição menor|0|inteligencia>=2|Bruxo: Amaldiçoa um alvo à vista: -1 em seus testes por uma cena (uma vez por cena).
+familiar|vantagem|Familiar|0|inteligencia>=1|Bruxo: Um animal serve de olhos e ouvidos: percebe o que ele vê.
 marca-do-pacto|desvantagem|Marca do pacto|0||Bruxo: Marca no corpo que reage a lugares sagrados: -1 em tudo em templos e solo consagrado.
 # --- Samurai ---
-iaijutsu|vantagem|Saque rápido|0|habilidade>=1|Samurai: Sacar a lâmina é ação livre; o primeiro ataque da luta tem +2.
+iaijutsu|vantagem|Saque rápido|0|destreza>=1|Samurai: Sacar a lâmina é ação livre; o primeiro ataque da luta tem +2.
 mente-serena|vantagem|Mente serena|0|habilidade>=2|Samurai: Imune a provocação e pânico por uma cena (uma vez por sessão).
 sem-senhor|desvantagem|Sem senhor|0||Samurai: Sem um senhor a quem servir, -1 em testes sociais com nobres e carrega vergonha.
 # --- Ninja ---
-mao-de-shuriken|vantagem|Mão de shuriken|0|habilidade>=2|Ninja: Atira lâminas pequenas à distância: +1d6 de dano em alvo desprevenido.
-escalada-silenciosa|vantagem|Escalada silenciosa|0|habilidade>=2|Ninja: Escala paredes e tetos sem barulho: +2 em Atletismo e Furtividade na vertical.
+mao-de-shuriken|vantagem|Mão de shuriken|0|destreza>=2|Ninja: Atira lâminas pequenas à distância: +1d6 de dano em alvo desprevenido.
+escalada-silenciosa|vantagem|Escalada silenciosa|0|agilidade>=2|Ninja: Escala paredes e tetos sem barulho: +2 em Atletismo e Furtividade na vertical.
 cla-vigia|desvantagem|Clã vigia|0||Ninja: O clã o vigia e pune falhas graves: uma vez por sessão, o mestre traz um enviado.
 # --- Inquisidor ---
 interrogatorio-duro|vantagem|Interrogatório duro|0|poder>=1|Inquisidor: Intimidação em interrogatório: +2 para arrancar confissão.
 selo-da-ordem|vantagem|Selo da ordem|0|habilidade>=1|Inquisidor: A autoridade da ordem abre portas de guardas e templos: +2 em testes sociais com autoridades.
 ordem-vigia|desvantagem|Ordem vigia|0||Inquisidor: A ordem cobra relatórios e resultados; falhas atraem punição ou investigação.
+mestre-das-armas|vantagem|Mestre das Armas|0||Usa qualquer tipo de arma sem a penalidade de classe (escolhido na criação).|mestre_armas:+1
+mestre-dos-equipamentos|vantagem|Mestre dos Equipamentos|0||Veste qualquer peso de equipamento sem a penalidade de classe (escolhido na criação).|mestre_equipamentos:+1

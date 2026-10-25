@@ -11,9 +11,9 @@ private fun skillElementLabel(element: ElementPath): String =
         ElementPath.FIRE -> "Fogo"
         ElementPath.WIND -> "Vento"
         ElementPath.EARTH -> "Terra"
-        ElementPath.METAL -> "Metal"
-        ElementPath.YIN -> "Yin"
-        ElementPath.YANG -> "Yang"
+        ElementPath.METAL -> "Ferro"
+        ElementPath.YIN -> "Trevas"
+        ElementPath.YANG -> "Luz"
         ElementPath.NONE -> "sem afinidade"
     }
 
@@ -99,11 +99,19 @@ class SkillTreeActions(
                 }
             if (pending.isEmpty()) return null
             val context = context(hero.skillTreeLevels)
-            pending.forEach { skill ->
-                val validation = SkillTreeProgression.validate(skill, context)
-                require(validation.allowed) { validation.reasons.joinToString("; ") }
-            }
-            execute(pending.map { ProgressSkillTree(playerId(), it.id, 0, freeBase = true) })
+            // N-19: o degrau 1 de classe e profissão espera requisito (ex.: afinidade) sem travar as demais; as de origem seguem obrigatórias.
+            val grantable =
+                pending.filter { skill ->
+                    val validation = SkillTreeProgression.validate(skill, context)
+                    if (skill.origin == SkillOrigin.CLASS || skill.origin == SkillOrigin.PROFESSION) {
+                        validation.allowed
+                    } else {
+                        require(validation.allowed) { validation.reasons.joinToString("; ") }
+                        true
+                    }
+                }
+            if (grantable.isEmpty()) return null
+            execute(grantable.map { ProgressSkillTree(playerId(), it.id, 0, freeBase = true) })
         } catch (e: IllegalArgumentException) {
             e.message
         } catch (e: IllegalStateException) {
@@ -114,7 +122,7 @@ class SkillTreeActions(
     fun grantFreeBaseSkill(skillId: String): String? {
         return try {
             val skill = requireSkill(skillId)
-            require(skill.freeBaseSkill && skill.origin in setOf(SkillOrigin.RACE, SkillOrigin.SUBRACE, SkillOrigin.CURSED_CLASS)) {
+            require(skill.freeBaseSkill && skill.origin in SkillTreeProgression.FREE_BASE_ORIGINS) {
                 "esta habilidade não é uma habilidade básica gratuita"
             }
             require(skill.treeId in selectedTreeIds()) { "a origem desta habilidade não está selecionada na ficha" }
@@ -250,6 +258,25 @@ class SkillTreeActions(
             require(validation.allowed) { validation.reasons.joinToString("; ") }
             val combat = session().state.combat
             if (combat != null) require(combat.current == playerId()) { "não é o turno do jogador" }
+            if (skill.actionKind == SkillActionKind.OUT_OF_COMBAT) {
+                require(
+                    combat == null,
+                ) { "${skill.name} só pode ser usada fora de combate" }
+            }
+            if (skill.actionKind == SkillActionKind.OUT_OF_COMBAT) {
+                val heal =
+                    requireNotNull(
+                        skill.effects.firstOrNull { it.target == "cura" },
+                    ) { "esta habilidade fora de combate não tem efeito de cura" }
+                val healTargetId = targetId ?: playerId()
+                val healed = requireNotNull(session().state.entities[healTargetId]) { "alvo inexistente" }
+                require(healed.alive) { "${healed.name} está morto; use ressurreição" }
+                val healResource = requireNotNull(activePackage()?.manifest?.deathResource) { "o pacote não define o recurso de saúde" }
+                val resource = requireNotNull(skill.actionResource) { "a habilidade não define o recurso de custo" }
+                return execute(
+                    listOf(SpendResource(playerId(), resource, skill.actionCost), Heal(healTargetId, healResource, heal.valueAt(level))),
+                )
+            }
             if (skill.actionKind == SkillActionKind.REVIVE) {
                 val reviveTargetId = requireNotNull(targetId) { "selecione quem será ressuscitado" }
                 require(reviveTargetId in revivableTargets().map { it.first }) { "o alvo não está morto ou não pode ser ressuscitado" }
@@ -304,6 +331,13 @@ class SkillTreeActions(
                 targetSpecs.map { effect ->
                     ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
                 }
+            val allyEffects =
+                skill.effects.filter { it.recipient == SkillEffectRecipient.ALLIES }.map { effect ->
+                    ActiveEffect("habilidade:${skill.id}", skill.name, effect.target, effect.valueAt(level), effect.durationRounds ?: 1)
+                }
+            if (allyEffects.isNotEmpty()) {
+                require(session().state.allyIdsInCombat(playerId()).isNotEmpty()) { "nenhum aliado em combate para inspirar" }
+            }
             val commands =
                 buildList<Command> {
                     if (skill.actionCost > 0) {
@@ -318,6 +352,9 @@ class SkillTreeActions(
                         add(
                             ApplyTargetSkillEffects(playerId(), requireNotNull(targetId), skill.id, targetEffects),
                         )
+                    }
+                    if (allyEffects.isNotEmpty()) {
+                        add(ApplyAllySkillEffects(playerId(), skill.id, allyEffects))
                     }
                     if (combat != null) add(NextTurn)
                 }
@@ -392,9 +429,9 @@ class SkillTreeActions(
             ElementPath.FIRE -> "Fogo"
             ElementPath.WIND -> "Vento"
             ElementPath.EARTH -> "Terra"
-            ElementPath.METAL -> "Metal"
-            ElementPath.YIN -> "Yin"
-            ElementPath.YANG -> "Yang"
+            ElementPath.METAL -> "Ferro"
+            ElementPath.YIN -> "Trevas"
+            ElementPath.YANG -> "Luz"
             ElementPath.NONE -> "sem afinidade"
         }
 

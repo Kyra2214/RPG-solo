@@ -26,6 +26,8 @@ class PlayerSheet(
     private val pkg: RulePackage? = null,
     private val ficha: Ficha? = null,
     private val characterChoices: String = "",
+    /** N-35: utilidades fora de combate do personagem, "Nome → escopo"; o mestre pede o teste com esse escopo em "skill". */
+    private val utilities: (Entity) -> List<String> = { emptyList() },
 ) {
     /** Ordem e rótulo dos tipos de traço; tipos que o pacote inventar caem no fim com o próprio nome. */
     private val typeLabels =
@@ -72,6 +74,7 @@ class PlayerSheet(
             if (items.isNotEmpty()) {
                 append("\n- Itens: ").append(items.entries.joinToString(", ") { (k, n) -> if (n > 1) "$k x$n" else k })
             }
+            utilityLine(e)?.let { append("\n").append(it) }
             traitLines().forEach { append("\n").append(it) }
         }
 
@@ -81,7 +84,14 @@ class PlayerSheet(
             ficha?.concept?.takeIf { it.isNotBlank() }?.let { append(" — ").append(it) }
             characterChoices.takeIf { it.isNotBlank() }?.let { append("\n").append(it) }
             if (!e.alive) append(" (MORTO)")
+            utilityLine(e)?.let { append("\n").append(it) }
             traitNames().forEach { append("\n").append(it) }
+        }
+
+    /** Uma linha com as utilidades; o motor soma o bônus sozinho quando o teste pedido leva o escopo em "skill". */
+    private fun utilityLine(e: Entity): String? =
+        utilities(e).takeIf { it.isNotEmpty() }?.let {
+            "Utilidades fora de combate (ao pedir um teste desse tipo, informe o escopo em \"skill\"): " + it.joinToString("; ")
         }
 
     private fun round(
