@@ -24,6 +24,16 @@ class AeltharynWorldTest {
     }
 
     @Test
+    fun everyElvenAdjacentPeopleHasHeroGuardianAndBenefactor() {
+        AeltharynWorld.people.forEach { person ->
+            val roles = AeltharynWorld.figures.filter { it.peopleId == person.id }.map { it.role }.toSet()
+            assertTrue("${person.id} missing HERO", "HERO" in roles)
+            assertTrue("${person.id} missing GUARDIAN", "GUARDIAN" in roles)
+            assertTrue("${person.id} missing BENEFACTOR", "BENEFACTOR" in roles)
+        }
+    }
+
+    @Test
     fun routesAndClocksHaveValidReferencesAndRanges() {
         assertTrue(AeltharynWorld.routes.all { it.days > 0 })
         assertTrue(AeltharynWorld.clocks.all { it.initialProgress in 0..it.segments })
