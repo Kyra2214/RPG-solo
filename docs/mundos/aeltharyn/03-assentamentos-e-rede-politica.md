@@ -24,7 +24,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 2.1 Raiz-de-Prata
 **ID do assentamento:** `settlement.raiz-de-prata`  
 **Tipo:** vila de viveiros e sementes; **população estimada:** 1.800 residentes.  
-**Liderança:** **Nivara Folha-de-Orvalho**, eleita por famílias viveiristas por mandatos de seis anos; a confirmação distrital é formal, mas a recusa real pode provocar disputa.  
+**Liderança:** **Nivara Folha-de-Orvalho** (`npc.nivara-folha-de-orvalho`), eleita por famílias viveiristas por mandatos de seis anos; a confirmação distrital é formal, mas a recusa real pode provocar disputa.  
 **Obrigação:** manter mudas de espécies comuns e uma reserva emergencial de árvores nativas.  
 **Interesse local:** proteger sementes adaptadas ao solo da vila, inclusive variedades que a corte considera pouco produtivas.  
 **Tensão:** a Coroa exige mudas de espécies raras para restaurar áreas nobres; Nivara afirma que retirar as sementes locais agora comprometerá a próxima estação.  
@@ -35,7 +35,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 2.2 Sete Degraus
 **ID do assentamento:** `settlement.sete-degraus`  
 **Tipo:** povoado de ponte, pedágio e hospedagem; **população estimada:** 2.400 residentes.  
-**Liderança:** **Othalen Vira-Pedra**, magistrado eleito por moradores e comerciantes a cada quatro anos.  
+**Liderança:** **Othalen Vira-Pedra** (`npc.othalen-vira-pedra`), magistrado eleito por moradores e comerciantes a cada quatro anos.  
 **Obrigação:** manter a ponte transitável e garantir passagem a mensageiros oficiais, equipes de socorro e evacuações.  
 **Interesse local:** receber pagamento pelo desgaste da ponte e impedir que a isenção de nobres recaia sobre os demais viajantes.  
 **Tensão:** os registros de pedágio não explicam por que três casas nobres atravessam sem pagar. Othalen suspeita de privilégio legal, mas ainda não viu o decreto original.  
@@ -48,7 +48,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 3.1 Junco Alto
 **ID do assentamento:** `settlement.junco-alto`  
 **Tipo:** vila de diques e lavouras ribeirinhas; **população estimada:** 3.100 residentes.  
-**Liderança:** **Beren Três-Canais**, construtor de diques escolhido pelo conselho de famílias e equipes de manutenção.  
+**Liderança:** **Beren Três-Canais** (`npc.beren-tres-canais`), construtor de diques escolhido pelo conselho de famílias e equipes de manutenção.  
 **Obrigação:** manter comportas e fornecer equipes durante cheias extraordinárias.  
 **Interesse local:** priorizar reparos preventivos em vez de grandes obras cerimoniais na capital.  
 **Tensão:** a vila alega que o trecho superior recebe manutenção primeiro, desviando o risco de inundação para bairros abaixo. Beren foi acusado de desviar materiais, mas ainda precisa apresentar todos os registros.  
@@ -59,7 +59,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 3.2 Três Barcas
 **ID do assentamento:** `settlement.tres-barcas`  
 **Tipo:** entreposto fluvial; **população estimada:** 2.200 residentes, com população sazonal adicional ainda não contabilizada.  
-**Liderança:** **Sava Mão-de-Corrente**, mestra das barcas escolhida pelas guildas e sujeita a revisão pública anual.  
+**Liderança:** **Sava Mão-de-Corrente** (`npc.sava-mao-de-corrente`), mestra das barcas escolhida pelas guildas e sujeita a revisão pública anual.  
 **Obrigação:** manter embarcações de emergência e publicar tarifas de travessia.  
 **Interesse local:** ajustar os preços à corrente, à carga e ao risco sem perder o direito de negociar livremente.  
 **Tensão:** a cidade exige tarifa máxima durante crises; barqueiros afirmam que a regra os obriga a operar com prejuízo quando a corrente fica perigosa.  
@@ -72,7 +72,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 4.1 Ponta da Concha
 **ID do assentamento:** `settlement.ponta-da-concha`  
 **Tipo:** vila pesqueira; **população estimada:** 2.700 residentes.  
-**Liderança:** **Yara Sal-de-Maré**, porta-voz eleita por famílias de pesca e capitães de barcos pequenos.  
+**Liderança:** **Yara Sal-de-Maré** (`npc.yara-sal-de-mare`), porta-voz eleita por famílias de pesca e capitães de barcos pequenos.  
 **Obrigação:** manter vigias costeiros e participar do resgate de embarcações quando convocada.  
 **Interesse local:** conservar áreas de pesca tradicionais e impedir que licenças favoreçam grandes frotas.  
 **Tensão:** novas restrições de pesca foram impostas depois de relatos de contaminação, mas nenhuma compensação foi paga às famílias afetadas.  
@@ -83,7 +83,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 4.2 Farol de Âmbar
 **ID do assentamento:** `settlement.farol-de-ambar`  
 **Tipo:** farol e aldeia costeira; **população estimada:** 900 residentes.  
-**Liderança:** **Terenna Luz-de-Lastro**, guardiã escolhida pelos moradores e confirmada pela autoridade portuária.  
+**Liderança:** **Terenna Luz-de-Lastro** (`npc.terenna-luz-de-lastro`), guardiã escolhida pelos moradores e confirmada pela autoridade portuária.  
 **Obrigação:** manter os sinais marítimos e registrar embarcações desconhecidas.  
 **Interesse local:** preservar a autonomia dos faroleiros para emitir alertas mesmo quando isso prejudica o comércio.  
 **Tensão:** a guarda portuária quer usar o farol para observação política e censura de sinais; os moradores temem que atrasos de autorização provoquem naufrágios.  
@@ -96,7 +96,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 5.1 Copa-Funda
 **ID do assentamento:** `settlement.copa-funda`  
 **Tipo:** comunidade de manejo florestal; **população estimada:** 1.600 residentes.  
-**Liderança:** **Arieth Três-Mudas**, escolhida pelo Círculo de Guardiões por voto das famílias residentes e dos trabalhadores de manejo.  
+**Liderança:** **Arieth Três-Mudas** (`npc.arieth-tres-mudas`), escolhida pelo Círculo de Guardiões por voto das famílias residentes e dos trabalhadores de manejo.  
 **Obrigação:** cumprir cotas de extração e patrulhar os limites ancestrais.  
 **Interesse local:** obter cotas ajustadas à praga que reduziu as árvores aptas ao corte, em vez de compensar a perda com corte em áreas novas.  
 **Tensão:** a cota real foi calculada com dados anteriores à praga. Se a vila cumprir a ordem, pode perder a capacidade de regeneração; se recusar, arrisca sanções.  
@@ -107,7 +107,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 5.2 Passo do Veado
 **ID do assentamento:** `settlement.passo-do-veado`  
 **Tipo:** posto de trilha e mercado sazonal; **população estimada:** 1.100 residentes fixos, sem contar visitantes e manadas em passagem.  
-**Liderança:** **Calar Passo-Curvo**, guardião rotativo escolhido por comunidades que utilizam a rota.  
+**Liderança:** **Calar Passo-Curvo** (`npc.calar-passo-curvo`), guardião rotativo escolhido por comunidades que utilizam a rota.  
 **Obrigação:** manter a passagem e suspender a caça durante a migração acordada.  
 **Interesse local:** permitir comércio sem transformar o corredor em estrada permanente.  
 **Tensão:** a Liga das Rotas quer alargar a trilha; comunidades centauras afirmam que o projeto reduzirá a largura segura de passagem.  
@@ -120,7 +120,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 6.1 Lodo-Claro
 **ID do assentamento:** `settlement.lodo-claro`  
 **Tipo:** aldeia de ervas, filtros e cuidados comunitários; **população estimada:** 1.300 residentes.  
-**Liderança:** **Nima Barro-Manso**, escolhida por curandeiros e famílias por mandato revogável.  
+**Liderança:** **Nima Barro-Manso** (`npc.nima-barro-manso`), escolhida por curandeiros e famílias por mandato revogável.  
 **Obrigação:** compartilhar amostras de água e fornecer apoio em surtos, preservando as reservas locais.  
 **Interesse local:** regular a coleta de plantas raras conforme a capacidade de regeneração.  
 **Tensão:** licenças de Orvass permitem coleta comercial acima do que a aldeia considera sustentável; a cidade acusa a aldeia de esconder recursos públicos.  
@@ -131,7 +131,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 6.2 Ilhas do Junco Negro
 **ID do assentamento:** `settlement.ilhas-junco-negro`  
 **Tipo:** conjunto de ilhotas e comunidades aquáticas; **população estimada:** 2.000 residentes distribuídos por três comunidades.  
-**Liderança:** **Vela Três-Margens**, porta-voz escolhido pelas comunidades, com mandato revogável em assembleia.  
+**Liderança:** **Vela Três-Margens** (`npc.vela-tres-margens`), porta-voz escolhido pelas comunidades, com mandato revogável em assembleia.  
 **Obrigação:** manter passagens aquáticas e abrigos de cheia.  
 **Interesse local:** conservar o direito de usar mapas sazonais e canais que não constam nos mapas oficiais.  
 **Tensão:** guardas detêm barqueiros por usar passagens fora dos registros da cidade; os moradores alegam que os canais mudam naturalmente e que os mapas oficiais estão desatualizados.  
@@ -144,7 +144,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 7.1 Vigília do Lago
 **ID do assentamento:** `settlement.vigilia-do-lago`  
 **Tipo:** aldeia de observadores meteorológicos; **população estimada:** 1.000 residentes.  
-**Liderança:** **Orelia Céu-de-Cinza**, curadora do céu escolhida por observadores locais, com prestação de contas pública a cada estação.  
+**Liderança:** **Orelia Céu-de-Cinza** (`npc.orelia-ceu-de-cinza`), curadora do céu escolhida por observadores locais, com prestação de contas pública a cada estação.  
 **Obrigação:** manter registros climáticos e compartilhar alertas de risco com as cidades conectadas.  
 **Interesse local:** publicar dados úteis à população sem entregar observações sensíveis para uso militar exclusivo.  
 **Tensão:** o Colégio dos Ciclos quer classificar certos padrões como informação estratégica; agricultores afirmam que atrasar alertas custa colheitas e vidas.  
@@ -155,7 +155,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 7.2 Papel-Velho
 **ID do assentamento:** `settlement.papel-velho`  
 **Tipo:** povoado de copistas, encadernadores e restauradores; **população estimada:** 1.700 residentes.  
-**Liderança:** **Marel Tinta-Firme**, eleito pelo conselho de oficinas.  
+**Liderança:** **Marel Tinta-Firme** (`npc.marel-tinta-firme`), eleito pelo conselho de oficinas.  
 **Obrigação:** conservar cópias públicas de documentos frágeis e informar danos irreversíveis.  
 **Interesse local:** preservar cópias independentes e permitir que fontes divergentes sejam comparadas.  
 **Tensão:** casas nobres compram cópias privadas e pressionam oficinas a não reproduzir versões que contradizem a história oficial.  
@@ -168,7 +168,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 8.1 Eco Baixo
 **ID do assentamento:** `settlement.eco-baixo`  
 **Tipo:** aldeia de guias; **população estimada:** 1.200 residentes.  
-**Liderança:** **Mira Ouve-Chuva**, eleita pela assembleia de guias e moradores que mantêm as trilhas.  
+**Liderança:** **Mira Ouve-Chuva** (`npc.mira-ouve-chuva`), eleita pela assembleia de guias e moradores que mantêm as trilhas.  
 **Obrigação:** atualizar marcos de trilha e participar de buscas por desaparecidos.  
 **Interesse local:** proteger caminhos residenciais e rotas de resgate sem publicá-los todos para comerciantes e caçadores.  
 **Tensão:** mercadores acusam os guias de esconder rotas para criar monopólio; os moradores temem que divulgar cada passagem leve caçadores a áreas frágeis.  
@@ -179,7 +179,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 8.2 Torre da Névoa Mansa
 **ID do assentamento:** `settlement.torre-nevoa-mansa`  
 **Tipo:** posto de observação com pequena aldeia; **população estimada:** 650 residentes.  
-**Liderança:** **Iven Marca-de-Som**, vigia eleito pelos residentes e confirmado por acordo com os Vigias do Bosque.  
+**Liderança:** **Iven Marca-de-Som** (`npc.iven-marca-de-som`), vigia eleito pelos residentes e confirmado por acordo com os Vigias do Bosque.  
 **Obrigação:** emitir alertas e fechar trilhas quando houver risco verificável.  
 **Interesse local:** manter a autoridade de fechar a passagem com base em sinais locais, sem esperar autorização distante.  
 **Tensão:** estudiosos de Caladwen querem manter a torre aberta para observar um fenômeno; os vigias dizem que os experimentos aumentam o risco para viajantes.  
@@ -192,7 +192,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 9.1 Mel do Poente
 **ID do assentamento:** `settlement.mel-do-poente`  
 **Tipo:** vila de apiários e pomares; **população estimada:** 2.600 residentes.  
-**Liderança:** **Sena Pólen-Dourado**, eleita pelo conselho de apicultores e produtores.  
+**Liderança:** **Sena Pólen-Dourado** (`npc.sena-polen-dourado`), eleita pelo conselho de apicultores e produtores.  
 **Obrigação:** conservar corredores de polinização e contribuir com sementes durante emergências.  
 **Interesse local:** proteger flores silvestres e diversidade de abelhas, mesmo quando reduzem a área disponível para produção intensiva.  
 **Tensão:** grandes produtores querem ampliar os campos e remover faixas floridas; apicultores alertam que a colheita futura cairá se a polinização piorar.  
@@ -203,7 +203,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 9.2 Campo das Três Famílias
 **ID do assentamento:** `settlement.campo-tres-familias`  
 **Tipo:** aldeia agrícola; **população estimada:** 3.400 residentes.  
-**Liderança:** **Doria Três-Sulcos**, juíza de terras escolhida por famílias residentes e confirmada em assembleia anual.  
+**Liderança:** **Doria Três-Sulcos** (`npc.doria-tres-sulcos`), juíza de terras escolhida por famílias residentes e confirmada em assembleia anual.  
 **Obrigação:** entregar a contribuição de grãos pactuada segundo a colheita efetiva.  
 **Interesse local:** rever a base de tributo calculada a partir de uma safra excepcional que não se repetiu.  
 **Tensão:** a administração regional cobra a quantia antiga, alegando que o pacto não foi formalmente alterado; famílias endividadas ameaçam abandonar terras.  
@@ -216,7 +216,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 10.1 Máscara Nova
 **ID do assentamento:** `settlement.mascara-nova`  
 **Tipo:** vila de artistas e artesãos; **população estimada:** 1.500 residentes.  
-**Liderança:** **Vessa Fio-Dourado**, escolhida por conselho de oficinas, artistas e anfitriões.  
+**Liderança:** **Vessa Fio-Dourado** (`npc.vessa-fio-dourado`), escolhida por conselho de oficinas, artistas e anfitriões.  
 **Obrigação:** manter uma casa de acolhimento durante os festivais e oferecer apresentações comunitárias em ocasiões pactuadas.  
 **Interesse local:** preservar o direito de artistas recusarem apresentações sem perder acesso a oficinas e moradia.  
 **Tensão:** Silvaran interpreta a obrigação cultural como serviço gratuito obrigatório; artistas alegam que a exigência se tornou exploração de trabalho.  
@@ -227,7 +227,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 10.2 Fonte do Regresso
 **ID do assentamento:** `settlement.fonte-do-regresso`  
 **Tipo:** povoado de hospitalidade e abrigo; **população estimada:** 1.900 residentes.  
-**Liderança:** **Dalen Porta-Aberta**, anfitrião comunal escolhido por bairros e substituível por votação.  
+**Liderança:** **Dalen Porta-Aberta** (`npc.dalen-porta-aberta`), anfitrião comunal escolhido por bairros e substituível por votação.  
 **Obrigação:** oferecer abrigo temporário a viajantes em perigo e refugiados durante emergências reconhecidas.  
 **Interesse local:** manter o acolhimento como dever comunitário sem transferir todo o custo às famílias anfitriãs.  
 **Tensão:** moradores discordam sobre acolher refugiados de uma disputa política; alguns temem represálias, outros consideram a recusa uma violação do pacto de hospitalidade.  
@@ -240,7 +240,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 11.1 Ferro-Folha
 **ID do assentamento:** `settlement.ferro-folha`  
 **Tipo:** vila de oficinas e reparos; **população estimada:** 2.800 residentes.  
-**Liderança:** **Meda Martelo-Calmo**, eleita por mestres de ofício e trabalhadores, com mandato sujeito a prestação de contas.  
+**Liderança:** **Meda Martelo-Calmo** (`npc.meda-martelo-calmo`), eleita por mestres de ofício e trabalhadores, com mandato sujeito a prestação de contas.  
 **Obrigação:** reparar ferramentas e estruturas comuns conforme prioridades pactuadas.  
 **Interesse local:** dar prioridade a pontes, diques e ferramentas civis antes de encomendas militares extraordinárias.  
 **Tensão:** a guarnição exige armamentos e peças de fortificação enquanto estruturas civis aguardam reparo.  
@@ -251,7 +251,7 @@ Nenhuma tensão tem desfecho obrigatório. Uma campanha pode resolvê-la por neg
 ### 11.2 Porta Selada
 **ID do assentamento:** `settlement.porta-selada`  
 **Tipo:** assentamento próximo às galerias interditadas; **população estimada:** 1.400 residentes.  
-**Liderança:** **Rovan Cinza-de-Ferro**, administrador civil escolhido pelos moradores, sujeito a confirmação comunitária e inspeção da fortaleza.  
+**Liderança:** **Rovan Cinza-de-Ferro** (`npc.rovan-cinza-de-ferro`), administrador civil escolhido pelos moradores, sujeito a confirmação comunitária e inspeção da fortaleza.  
 **Obrigação:** vigiar os acessos às galerias, relatar tremores e impedir entradas não autorizadas.  
 **Interesse local:** garantir salários e investigação transparente antes de qualquer reabertura.  
 **Tensão:** trabalhadores querem retomar a mineração; famílias temem que o selamento esconda negligência, perigo real ou prova de irregularidade antiga.  
