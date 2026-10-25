@@ -37,7 +37,7 @@ A soma de 293.500 é apenas a soma dos dez números apresentados nos perfis. Ain
 | Thalanor | Ponta da Concha | 2.700 |
 | Thalanor | Farol de Âmbar | 900 |
 | Vael-Tir | Copa-Funda | 1.600 |
-| Vael-Tir | Passo do Veado | NaN |
+| Vael-Tir | Passo do Veado | 1.100 residentes fixos; visitantes sazonais não quantificados |
 | Orvass | Lodo-Claro | 1.300 |
 | Orvass | Ilhas do Junco Negro | 2.000 |
 | Caladwen | Vigília do Lago | 1.000 |
@@ -50,9 +50,9 @@ A soma de 293.500 é apenas a soma dos dez números apresentados nos perfis. Ain
 | Silvaran | Fonte do Regresso | 1.900 |
 | Torvelume | Ferro-Folha | 2.800 |
 | Torvelume | Porta Selada | 1.400 |
-| **Subtotal dos vinte assentamentos** | | **NaN** |
+| **Subtotal dos vinte assentamentos** | | **37.250** |
 
-O subtotal de NaN inclui a estimativa fixa de Passo do Veado, mas não contabiliza separadamente os visitantes sazonais desse posto. Não é um total adicional confirmado para somar às cidades. Até que a classificação de cada número seja corrigida, **não declarar a população total de Aeltharyn como NaN**: isso pode contar moradores duas vezes.
+O subtotal de 37.250 inclui os 1.100 residentes fixos estimados de Passo do Veado, mas não contabiliza separadamente os visitantes sazonais desse posto. Não é um total adicional confirmado para somar às cidades. Até que a classificação de cada número seja corrigida, **não declarar a população total de Aeltharyn como 330.750**: isso pode contar moradores duas vezes.
 
 ### 1.3 Decisão editorial obrigatória
 
