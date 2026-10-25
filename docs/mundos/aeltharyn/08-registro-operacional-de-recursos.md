@@ -177,6 +177,6 @@ Não enviar o catálogo completo de economia em toda interação. Não tratar te
 
 ## 11. Critério de conclusão
 
-O registro estará pronto para uma simulação material inicial quando cada recurso crítico usado em aventuras tiver, ao menos nas localidades relevantes, unidade, estado de evidência, demanda ou função, reserva qualitativa ou quantitativa, dependências, prazo de reposição e alternativas conhecidas — ou quando a ausência de um desses dados estiver explicitamente marcada e impedir consequências que dependam dele.
+O registro está editorialmente pronto para orientar aventuras com evidência qualitativa: para cada recurso crítico, devem ser consultados função, estado de evidência, dependências e alternativas conhecidas. Onde não há unidade, reserva ou prazo de reposição documentados, esses campos continuam desconhecidos e impedem consequências quantitativas. Isso não declara a economia numericamente calibrada nem implementada em código.
 
 **Este documento não declara a economia quantitativamente calibrada.** Ele estabelece o formato, os limites de inferência e a sequência de auditoria necessários para calibrá-la sem fabricar precisão.
