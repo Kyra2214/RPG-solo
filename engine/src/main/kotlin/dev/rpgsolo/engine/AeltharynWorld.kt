@@ -1017,7 +1017,29 @@ object AeltharynWorld {
             ),
         )
 
-    /** Instala o mapa e os relógios iniciais numa campanha recém-criada, em um único lote atômico. */
+    /**
+     * Contexto público da cidade atual para o mestre. Só mostra dependências de cidades já conhecidas;
+     * problemas ativos e segredos continuam exclusivamente no campo privado de Place.
+     */
+    fun sceneContext(cityId: String, knownCityIds: Set<String>): String? {
+        val city = cities.firstOrNull { it.id == cityId } ?: return null
+        val localPeople = city.peopleIds.mapNotNull { people.firstOrNull { person -> person.id == it }?.name }
+        val knownDependencies =
+            city.dependsOn.filter { it in knownCityIds }
+                .mapNotNull { dependencyId -> cities.firstOrNull { it.id == dependencyId }?.name }
+        return buildString {
+            append("Contexto de Aeltharyn — ano $YEAR. Cidade: ${city.name}; população aproximada: ${city.population}. ")
+            append("Função na rede do reino: ${city.role}. ")
+            append("Povos com presença local: ${localPeople.joinToString(", ")}. ")
+            append("Recursos e serviços locais: ${city.supplies.joinToString(", ")}.")
+            if (knownDependencies.isNotEmpty()) {
+                append(" Dependências econômicas já conhecidas: ${knownDependencies.joinToString(", ")}.")
+            }
+            append(" Não revele nem invente o problema oculto desta cidade sem descoberta autorizada pelo motor.")
+        }
+    }
+
+    /** Instala o mapa, os NPCs narrativos ativos e os relógios iniciais em um único lote atômico. */
     fun install(session: CampaignSession): ExecResult {
         val problems = validate()
         if (problems.isNotEmpty()) {
