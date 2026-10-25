@@ -54,6 +54,19 @@ A soma de 293.500 é apenas a soma dos dez números apresentados nos perfis. Ain
 
 O subtotal de 37.250 inclui os 1.100 residentes fixos estimados de Passo do Veado, mas não contabiliza separadamente os visitantes sazonais desse posto. Não é um total adicional confirmado para somar às cidades. Até que a classificação de cada número seja corrigida, **não declarar a população total de Aeltharyn como 330.750**: isso pode contar moradores duas vezes.
 
+### 1.2.1 Escala espacial não equivale a unidade populacional
+
+Os vinte nomes do quadro são registros de comunidades, instalações ou núcleos locais. **Não se deve pressupor que sejam vinte vilas isoladas ou que todos fiquem fora do perímetro das cidades-mãe.** Conforme a geografia a ser validada, um registro pode representar bairro, distrito, núcleo periurbano, vila próxima, comunidade afastada, posto de rota ou conjunto de comunidades.
+
+A descrição funcional já existente (por exemplo, vila agrícola, entreposto fluvial ou posto de trilha) não define por si só a distância até a cidade nem se seus moradores já estão incluídos na estimativa urbana. O documento 03 agora registra essa distinção e deixa a posição espacial em aberto quando o cânone ainda não a estabelece.
+
+Consequências para a contagem:
+- se for bairro ou distrito interno, sua população pode já estar incluída na estimativa da cidade;
+- se for vila ou comunidade externa, ainda é necessário verificar se o total da cidade-mãe cobre a jurisdição regional;
+- se for posto com residentes, separar residentes permanentes de trabalhadores, visitantes e usuários sazonais;
+- se for um agrupamento, como Ilhas do Junco Negro, esclarecer se a estimativa se refere ao conjunto inteiro;
+- não alterar os números atuais nem somar os subtotais até que cada caso seja classificado.
+
 ### 1.3 Decisão editorial obrigatória
 
 Para cada cidade, registrar uma destas categorias:
