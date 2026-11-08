@@ -1,0 +1,293 @@
+# Aeltharyn — Auditoria de demografia, rotas e dependências materiais
+
+**Estado:** auditoria editorial consolidada; população em **faixas** com regra de não somar (M2.2, 25/10/2026); valores de perfil permanecem aproximações narrativas  
+**Referência temporal:** ano 742 da Contagem da Seiva  
+**Escopo:** somente o reino de Aeltharyn; nenhum dado foi integrado ao APK ou ao motor do RPG Solo.
+
+Este documento registra o que é possível afirmar a partir do cânone atual, separa números provisórios de fatos confirmados e impede que lacunas sejam preenchidas por suposição. Ele não transforma estimativas narrativas em um censo preciso.
+
+## 1. Resultado demográfico preliminar
+
+### 1.1 Faixas de população das dez cidades (M2.2)
+
+**Valor de uso = faixa.** O número do perfil (coluna "Valor do perfil") é a escala narrativa original; não entra em cálculo, imposto, exército nem consumo de alimentos. Categoria demográfica de todas: **indefinida** (seção 1.4): não está documentado se cada número cobre o núcleo urbano, a jurisdição ou a região.
+
+| Cidade | Valor do perfil | Faixa de uso | Categoria |
+|---|---:|---|---|
+| Elarion | 82.000 | mais de 50.000 | indefinida |
+| Nymvar | 31.000 | 30.000–49.999 | indefinida |
+| Thalanor | 44.000 | 30.000–49.999 | indefinida |
+| Vael-Tir | 19.000 | 15.000–29.999 | indefinida |
+| Orvass | 16.500 | 15.000–29.999 | indefinida |
+| Caladwen | 23.000 | 15.000–29.999 | indefinida |
+| Brumafunda | 12.000 | 10.000–14.999 | indefinida |
+| Arven | 27.000 | 15.000–29.999 | indefinida |
+| Silvaran | 21.000 | 15.000–29.999 | indefinida |
+| Torvelume | 18.000 | 15.000–29.999 | indefinida |
+
+A soma aritmética dos dez valores de perfil é 293.500. É só conferência de auditoria: **não é a população urbana nem a do reino**, porque não há definição comum de "população" nos perfis.
+
+### 1.2 Faixas de população dos vinte assentamentos (M2.2)
+
+| Cidade-mãe | Assentamento | Valor do perfil | Faixa de uso | Categoria |
+|---|---|---:|---|---|
+| Elarion | Raiz-de-Prata | 1.800 | 1.000–1.999 | indefinida |
+| Elarion | Sete Degraus | 2.400 | 2.000–2.999 | indefinida |
+| Nymvar | Junco Alto | 3.100 | 3.000–3.999 | indefinida |
+| Nymvar | Três Barcas | 2.200 | 2.000–2.999 | indefinida |
+| Thalanor | Ponta da Concha | 2.700 | 2.000–2.999 | indefinida |
+| Thalanor | Farol de Âmbar | 900 | 500–999 | indefinida |
+| Vael-Tir | Copa-Funda | 1.600 | 1.000–1.999 | indefinida |
+| Vael-Tir | Passo do Veado | 1.100 fixos | 1.000–1.999 fixos; visitantes e manadas não quantificados | indefinida |
+| Orvass | Lodo-Claro | 1.300 | 1.000–1.999 | indefinida |
+| Orvass | Ilhas do Junco Negro | 2.000 (três comunidades) | 2.000–2.999 | indefinida |
+| Caladwen | Vigília do Lago | 1.000 | 1.000–1.999 | indefinida |
+| Caladwen | Papel-Velho | 1.700 | 1.000–1.999 | indefinida |
+| Brumafunda | Eco Baixo | 1.200 | 1.000–1.999 | indefinida |
+| Brumafunda | Torre da Névoa Mansa | 650 | 500–999 | indefinida |
+| Arven | Mel do Poente | 2.600 | 2.000–2.999 | indefinida |
+| Arven | Campo das Três Famílias | 3.400 | 3.000–3.999 | indefinida |
+| Silvaran | Máscara Nova | 1.500 | 1.000–1.999 | indefinida |
+| Silvaran | Fonte do Regresso | 1.900 | 1.000–1.999 | indefinida |
+| Torvelume | Ferro-Folha | 2.800 | 2.000–2.999 | indefinida |
+| Torvelume | Porta Selada | 1.400 | 1.000–1.999 | indefinida |
+
+O subtotal aritmético dos valores de perfil é 37.250 (inclui os 1.100 fixos de Passo do Veado, sem visitantes). **Não é um total adicional** para somar às cidades; não declarar a população de Aeltharyn como 330.750, pois isso pode contar moradores duas vezes.
+
+### 1.2.0 Regra de não somar (M2.2)
+
+1. Nenhuma soma de faixas ou de valores de perfil é população do reino, de uma cidade ou de uma região. Cenas e IA não calculam total.
+2. Só se soma depois de classificar o número como núcleo urbano, assentamento separado, jurisdição regional, sazonal ou móvel (seção 1.4 e doc 03, seção 13). Enquanto for **indefinida**, usar a faixa isolada.
+3. Para a escala do reino, dizer apenas "centenas de milhares de pessoas", sem número. Para um lugar, citar a faixa ou "cerca de" com o valor do perfil, nunca um valor mais preciso.
+4. Faixa não é intervalo de erro: é um degrau de escala que contém o valor do perfil. Mudar de faixa exige decisão editorial registrada.
+5. Passo do Veado: só os residentes fixos têm faixa; visitantes, manadas e usuários sazonais seguem não quantificados.
+6. Impostos, exércitos, consumo e perdas populacionais: descrever qualitativamente ou pela faixa (ver seção 5, regras 7 e 8).
+
+### 1.2.1 Escala espacial não equivale a unidade populacional
+
+Os vinte nomes do quadro são registros de comunidades, instalações ou núcleos locais. **Não se deve pressupor que sejam vinte vilas isoladas ou que todos fiquem fora do perímetro das cidades-mãe.** Conforme a geografia a ser validada, um registro pode representar bairro, distrito, núcleo periurbano, vila próxima, comunidade afastada, posto de rota ou conjunto de comunidades.
+
+A descrição funcional já existente (por exemplo, vila agrícola, entreposto fluvial ou posto de trilha) não define por si só a distância até a cidade nem se seus moradores já estão incluídos na estimativa urbana. O documento 03 agora registra essa distinção e deixa a posição espacial em aberto quando o cânone ainda não a estabelece.
+
+Consequências para a contagem:
+- se for bairro ou distrito interno, sua população pode já estar incluída na estimativa da cidade;
+- se for vila ou comunidade externa, ainda é necessário verificar se o total da cidade-mãe cobre a jurisdição regional;
+- se for posto com residentes, separar residentes permanentes de trabalhadores, visitantes e usuários sazonais;
+- se for um agrupamento, como Ilhas do Junco Negro, esclarecer se a estimativa se refere ao conjunto inteiro;
+- não alterar os números atuais nem somar os subtotais até que cada caso seja classificado.
+
+### 1.3 Distinção territorial antes da contagem
+
+Os vinte assentamentos não são automaticamente localidades externas às cidades. Cada um pode vir a ser classificado como bairro, distrito/núcleo periurbano, vila próxima, comunidade afastada ou posto sazonal, conforme a geografia validada. A expressão “cidade-mãe” identifica o vínculo político de referência; não prova que o núcleo esteja fora do perímetro urbano nem que sua população deva ser somada separadamente.
+
+Antes de somar qualquer população, registrar para cada núcleo: **posição espacial**, **relação administrativa** e **tratamento demográfico**. São três campos distintos. Um bairro pode estar incluído no número urbano; uma vila pode estar excluída; uma estimativa de jurisdição pode incluir ambos. Se isso ainda não estiver documentado, manter a categoria como **indefinida** e não calcular um total geral.
+
+### 1.4 Decisão editorial obrigatória
+
+Para cada cidade, registrar uma destas categorias:
+- **Núcleo urbano:** moradores dentro do perímetro urbano; assentamentos externos ficam fora.
+- **Jurisdição total:** cidade, aldeias, postos e área rural já incluídos.
+- **Região estimada:** cálculo amplo com limites aproximados.
+- **Indefinida:** manter o número como escala narrativa, sem somá-lo a outros totais.
+
+Até essa decisão, impostos, tamanho de exércitos, consumo de alimentos e perdas populacionais devem ser descritos qualitativamente ou como intervalos, não calculados a partir desses números.
+
+## 2. Rede de rotas: conexões explicitamente documentadas
+
+O documento principal contém as seguintes doze ligações com tempos estimados:
+
+- Elarion ↔ Nymvar: 2 dias por estrada; 1–2 dias pelo rio, conforme corrente.
+- Elarion ↔ Vael-Tir: 3 dias por trilhas patrulhadas; mais se houver quarentena florestal.
+- Elarion ↔ Caladwen: 2 dias de estrada; 1 dia e meio por trilhas rápidas.
+- Elarion ↔ Arven: 1 dia e meio por estrada.
+- Nymvar ↔ Orvass: 3 dias de barco e passarelas; a estação chuvosa altera a rota.
+- Nymvar ↔ Arven: 2–4 dias por caravana; 1 dia só para viajante leve, por estrada e canais (D-12).
+- Thalanor ↔ Elarion: 3 dias de barco pelo Lúmen ou 5 dias por estrada costeira.
+- Thalanor ↔ Silvaran: 4 dias por estrada, passando por pomares e vales.
+- Caladwen ↔ Brumafunda: 2 dias com guia; viajantes sem guia podem gastar muito mais.
+- Brumafunda ↔ Vael-Tir: 2–4 dias conforme as trilhas abertas.
+- Torvelume ↔ Elarion: 4 dias por estrada de fronteira.
+- Torvelume ↔ Caladwen: 3 dias, com risco de deslizamento em época de chuva.
+
+Esses tempos são condições comuns, não garantias. Chuva, quarentena, correnteza, bloqueios, transporte e conhecimento local alteram a duração. O quadro não define uma malha completa: uma ligação ausente da lista não significa que seja impossível viajar entre as cidades; significa apenas que o tempo e o caminho ainda não foram fixados no cânone.
+
+### 2.1 Divergências entre a lista de ligações e os corredores de viagem
+
+A seção 25.1 do documento principal também descreve cinco corredores regionais. Esses corredores estabelecem ou sugerem trechos que não aparecem como ligações individuais na lista acima: **Nymvar–Thalanor**, **Arven–Silvaran**, **Torvelume–Vael-Tir** e **Orvass–Brumafunda**. O corredor das Copas reforça Elarion–Vael-Tir–Brumafunda, e a Estrada da Espinha descreve Caladwen–Torvelume–Vael-Tir.
+
+Há também duas diferenças de escala que precisam ser harmonizadas:
+- **Nymvar–Orvass:** a lista de ligações dá 3 dias de barco e passarelas; a descrição do corredor do Pântano dá uma faixa de 2 a 6 dias, conforme o nível da água e os canais.
+- **Caladwen–Torvelume:** a ligação individual indica 3 dias; a Estrada da Espinha situa o percurso Caladwen–Torvelume–Vael-Tir em 3 a 5 dias em condições normais.
+
+Até revisão do documento principal, as faixas mais amplas devem ser tratadas como alertas de variabilidade, não como autorização para escolher arbitrariamente qualquer duração. O cânone ainda não define se os números menores são percurso rápido, trecho parcial ou estimativa antiga. **Não calcular itinerários exatos por esses corredores antes de resolver a diferença.**
+
+## 2.2 Assentamentos não significam necessariamente localidades separadas
+
+Os vinte registros de assentamento são unidades comunitárias e políticas. Eles podem ser bairros ou distritos dentro de uma cidade, núcleos contíguos, vilas próximas, comunidades afastadas ou postos especializados. Portanto, **“vinte assentamentos” não significa “vinte vilarejos separados das cidades”**.
+
+O documento 03 agora contém uma classificação funcional provisória para cada registro e uma lista do que falta confirmar. Essa classificação não fixa distâncias nem resolve a contagem demográfica. Para cada unidade, a auditoria deve registrar separadamente:
+
+- **relação espacial:** dentro do perímetro urbano, contígua, próxima ou afastada;
+- **tipo de núcleo:** bairro, distrito, vila, aldeia, posto, entreposto ou conjunto de comunidades;
+- **jurisdição:** cidade-mãe, pacto compartilhado ou autoridade local específica;
+- **base populacional:** se a estimativa está incluída no total da cidade, excluída dele ou ainda indefinida.
+
+Até que esses campos sejam confirmados, não somar os vinte números ao total das dez cidades e não presumir que todo assentamento tenha uma estrada própria ou um tempo de viagem interurbano. Para um bairro, o acesso pode ser interno à cidade; para um posto remoto, pode depender de trilha, canal ou rota sazonal. A tabela seguinte lista perguntas de acesso, não prova que todos os núcleos sejam externos.
+
+### 2.3 Cruzamento dos vinte assentamentos com os perfis das cidades
+
+Este cruzamento verifica compatibilidade temática e possíveis colisões de nomes. **Uma função compatível não confirma a localização física nem prova que o nome já apareça no perfil da cidade.** A atribuição de cidade-mãe existe no documento 03; a posição espacial e algumas relações entre locais continuam pendentes.
+
+| Assentamento — cidade-mãe | Evidência ou relação no perfil da cidade | Resultado editorial |
+|---|---|---|
+| Raiz-de-Prata — Elarion | Elarion reúne administração, jardins, árvores-coração e produção de papel; o viveiro não é nomeado no perfil urbano | Função compatível; vínculo local não mencionado explicitamente no perfil da cidade |
+| Sete Degraus — Elarion | Elarion fica junto ao Rio Lúmen e tem pontes vivas; o povoado e seu pedágio não são nomeados | Função compatível; confirmar se a ponte é urbana, contígua ou externa |
+| Junco Alto — Nymvar | Nymvar é ribeirinha, cercada por campos úmidos e enfrenta reparos de diques | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
+| Três Barcas — Nymvar | Nymvar tem canais, transporte fluvial e facções ligadas a barqueiros | Compatibilidade forte; o entreposto não é nomeado no perfil da cidade |
+| Ponta da Concha — Thalanor | Thalanor é porto marítimo com pesca e patrulhas costeiras | Compatibilidade forte; confirmar sua relação com o porto principal |
+| Farol de Âmbar — Thalanor | O perfil urbano já nomeia o **Farol da Folha Azul** | **Decisão consolidada:** são estruturas distintas. Farol da Folha Azul é o farol urbano de Thalanor; Farol de Âmbar é um posto costeiro separado, com comunidade residente, integrado à mesma rede de sinais. Não há distância canônica definida entre ambos. |
+| Copa-Funda — Vael-Tir | Vael-Tir é centro de manejo florestal, resinas autorizadas e patrulhas | Compatibilidade forte; a comunidade não é nomeada no perfil da cidade |
+| Passo do Veado — Vael-Tir | O perfil de Vael-Tir inclui centauros e corredores; o documento principal também tem o conflito ativo dos corredores centauros | Vínculo temático sustentado; a posição exata do posto e o traçado do corredor continuam pendentes |
+| Lodo-Claro — Orvass | Orvass é cidade de pântano, ervas, pesca e cuidados em meio a risco sanitário | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
+| Ilhas do Junco Negro — Orvass | Orvass é formada por ilhas de terra firme e passarelas sobre o pântano; canais variáveis já fazem parte do cenário | Compatibilidade forte; confirmar a relação geográfica entre as três comunidades e a cidade |
+| Vigília do Lago — Caladwen | Caladwen fica junto ao Lago das Lanternas e abriga observatório e estudos climáticos/celestes | Compatibilidade forte; confirmar se a aldeia é parte do conjunto urbano ou um núcleo separado |
+| Papel-Velho — Caladwen | Caladwen abriga a Biblioteca de Casca, cópia de manuscritos e estudos acadêmicos | Compatibilidade forte; confirmar se Papel-Velho é distrito/oficinas da cidade ou povoado externo |
+| Eco Baixo — Brumafunda | Brumafunda depende de guias, trilhas marcadas e buscas por desaparecidos | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
+| Torre da Névoa Mansa — Brumafunda | O perfil de Brumafunda já cita a **Torre sem Sino** e fenômenos de sombra/neblina | **Decisão consolidada:** são locais distintos. Torre sem Sino é um marco local de Brumafunda associado a sombras e trilhas; Torre da Névoa Mansa é um posto de observação separado na rede exterior, com pequena comunidade residente. Não há distância canônica definida entre ambas. |
+| Mel do Poente — Arven | Arven é centro agrícola e cita mel, pomares e problemas de polinização | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
+| Campo das Três Famílias — Arven | Arven é centro agrícola e enfrenta disputa de terras e tributo de safra | Compatibilidade forte; a aldeia não é nomeada no perfil da cidade |
+| Máscara Nova — Silvaran | Silvaran é centro cultural de festivais, música, artes e tecelagem | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
+| Fonte do Regresso — Silvaran | Silvaran tem uma **Casa da Hospitalidade** e pactos de acolhimento | **Decisão consolidada:** Fonte do Regresso é uma comunidade residencial de acolhimento vinculada a Silvaran; Casa da Hospitalidade é uma instituição sediada na cidade, responsável por protocolo e mediação. Cooperam, mas não são o mesmo lugar. |
+| Ferro-Folha — Torvelume | Torvelume é cidade de ofícios e manutenção, com oficina e ferragens | Compatibilidade forte; a vila não é nomeada no perfil da cidade |
+| Porta Selada — Torvelume | O perfil de Torvelume já menciona a **Mina Selada**, galerias antigas e vibrações | Vínculo temático sustentado; confirmar se Porta Selada é o núcleo junto aos acessos da mina e evitar tratar o assentamento como a própria mina |
+
+#### Conclusão do cruzamento
+
+- **Nenhum dos vinte nomes de assentamento é confirmado como bairro ou localidade externa apenas pelos perfis das dez cidades.** A cidade-mãe e a função local estão registradas, mas a posição física exige decisão geográfica.
+- Os perfis das cidades sustentam a coerência temática da maioria dos núcleos, sem nomeá-los individualmente.
+- [x] Distinções estabelecidas: **Farol de Âmbar** (posto costeiro separado) × **Farol da Folha Azul** (farol urbano); **Torre da Névoa Mansa** (posto exterior) × **Torre sem Sino** (marco local); **Fonte do Regresso** (comunidade de acolhimento) × **Casa da Hospitalidade** (instituição de Silvaran).
+- Passo do Veado e Porta Selada têm conexões temáticas mais diretamente apoiadas pelos conflitos já existentes, mas isso não resolve seus limites espaciais.
+- Não foram criados novos locais, rotas, distâncias ou populações. As ambiguidades acima ficam abertas para a próxima decisão editorial.
+
+## 3. Auditoria de posição espacial e acesso dos assentamentos
+
+A lista de vinte assentamentos não representa automaticamente vinte localidades externas às cidades. Cada registro pode corresponder a um bairro, distrito/núcleo periurbano, vila próxima, comunidade afastada ou posto sazonal. A classificação é individual e depende de evidência geográfica; não deve ser inferida apenas pela função do local ou por sua cidade-mãe.
+
+Use os seguintes estados editoriais:
+- **Confirmado no texto:** a documentação existente descreve explicitamente a posição ou a relação espacial.
+- **Proposta de classificação:** hipótese útil para organizar o mapa, ainda não confirmada por descrição geográfica.
+- **Indefinido:** não há informação suficiente; preservar a lacuna em vez de criar distância, muralha, estrada ou fronteira.
+
+A classificação espacial deve ser registrada separadamente do vínculo político. Também deve ser separada da contagem demográfica: mesmo que um assentamento seja classificado como bairro, ainda é necessário verificar se a estimativa da cidade já o inclui. Não somar populações nem alterar totais até essa conferência.
+
+Antes de fixar a posição, verificar o perfil da cidade-mãe, as rotas existentes, os obstáculos geográficos e as referências explícitas no documento 03. Uma conexão política ou comercial, por si só, não prova que o assentamento esteja fora do perímetro urbano nem determina um tempo de deslocamento.
+
+### 3.1 Ficha mínima de classificação
+
+| Campo | Regra |
+|---|---|
+| ID do assentamento | Usar o ID estável já definido no documento 03. |
+| Cidade-mãe / vínculo político | Preservar a relação existente; não a tratar como coordenada. |
+| Categoria espacial | Bairro urbano, distrito/núcleo periurbano, vila próxima, comunidade afastada, posto/núcleo sazonal ou indefinido. |
+| Evidência | Citar a descrição já documentada que sustenta a categoria. |
+| Estado editorial | Confirmado no texto, proposta de classificação ou indefinido. |
+| Relação com o total urbano | Incluído, excluído ou ainda não determinado — somente quando houver base para decidir. |
+| Acesso | Rota, modo e duração apenas quando documentados ou validados; caso contrário, manter pendente. |
+
+## 3.2 Auditoria de acesso dos assentamentos
+
+Cada assentamento está associado a uma cidade-mãe, mas isso não basta para estabelecer o tempo de viagem. Antes de criar números, cada entrada precisa indicar:
+1. rota principal e tipo de deslocamento;
+2. duração normal como intervalo, não precisão falsa;
+3. estação ou evento que pode fechar/desviar a rota;
+4. alternativa conhecida por moradores, se houver;
+5. quem mantém a rota e quem tem autoridade para interditá-la;
+6. se a rota é pública, controlada, sazonal, secreta ou disputada.
+
+| Cidade-mãe | Assentamentos | Questão a resolver antes de fixar tempo |
+|---|---|---|
+| Elarion | Raiz-de-Prata; Sete Degraus | distinguir viveiros e ponte local das rotas interurbanas e definir a cobrança no pedágio |
+| Nymvar | Junco Alto; Três Barcas | mapear diques, correnteza e travessias durante cheia |
+| Thalanor | Ponta da Concha; Farol de Âmbar | separar acesso costeiro, marés e autorização portuária |
+| Vael-Tir | Copa-Funda; Passo do Veado | preservar o corredor migratório e registrar fechamento de trilhas |
+| Orvass | Lodo-Claro; Ilhas do Junco Negro | reconhecer canais sazonais que os mapas oficiais não acompanham |
+| Caladwen | Vigília do Lago; Papel-Velho | definir caminho de acesso ao lago e transporte de documentos frágeis |
+| Brumafunda | Eco Baixo; Torre da Névoa Mansa | indicar rotas que exigem guia e critérios de fechamento por risco |
+| Arven | Mel do Poente; Campo das Três Famílias | separar estradas agrícolas, canais e corredores de polinização |
+| Silvaran | Máscara Nova; Fonte do Regresso | distinguir rotas de festival e refúgios de hospitalidade |
+| Torvelume | Ferro-Folha; Porta Selada | separar estradas de abastecimento, perímetro militar e acesso interditado às galerias |
+
+**Não foram inventados tempos de viagem locais nesta revisão.** Eles serão fixados quando a geografia relativa e os obstáculos estiverem definidos.
+
+## 4. Dependências materiais que precisam de medida ou escala
+
+| Sistema | O que já está estabelecido | O que ainda falta para simulação coerente |
+|---|---|---|
+| Alimentos | Arven produz; Nymvar é celeiro e centro de transporte; Silvaran depende de excedentes para festivais | reservas aproximadas, estação de colheita, perdas por fungo e prioridade de distribuição |
+| Água e diques | Nymvar tem reparos atrasados e conflito de manutenção; Orvass depende de canais variáveis | trechos críticos, tempo de reparo, bairros/campos expostos e impacto de uma cheia |
+| Floresta | Vael-Tir controla manejo e cotas; Raiz-de-Prata mantém viveiros; há praga e pressão por madeira/resina | regeneração por estação, áreas interditadas e custo de extração acima da cota |
+| Porto e comércio | Thalanor liga o reino ao mar; Torvelume fornece ferramentas e reparos; há contrabando de resina | cargas críticas, prazo de reposição, rotas alternativas e efeito de bloqueio |
+| Saúde | Orvass fornece ervas e filtros; Nymvar tem hospital e risco de água contaminada | estoques mínimos, alcance de atendimento e velocidade plausível de propagação de surtos |
+| Informação | Caladwen e Papel-Velho preservam registros; guias conhecem trilhas locais | tempo de mensageiro, registros acessíveis e diferença entre rumor, testemunho e prova |
+
+Não é necessário transformar tudo em números agora. Para cada recurso, basta estabelecer uma escala consistente — baixo/médio/alto ou intervalo plausível — e uma consequência observável quando ele falta.
+
+## 5. Regras de consistência para a simulação
+
+1. Uma rota fechada deve afetar comércio, mensagens, socorro e deslocamento conforme o que realmente passa por ela.
+2. Uma cheia não deve prejudicar todas as cidades da mesma forma; o impacto depende da bacia, dos diques e das rotas alternativas.
+3. A escassez deve ter causa, duração provável e grupos afetados. Não surge apenas porque uma missão precisa de crise.
+4. O estoque de um assentamento não é automaticamente igual ao da cidade-mãe.
+5. Uma rota secreta não é conhecida por toda a Coroa; o conhecimento deve ter origem e possibilidade de vazamento.
+6. A chegada de uma notícia depende de mensageiros, rotas e condições. Não atualizar o conhecimento de todos os NPCs instantaneamente.
+7. Não derivar força militar diretamente da população enquanto a categoria demográfica e os compromissos de defesa não estiverem definidos.
+8. Um dado ausente permanece desconhecido; não o preencher com número exato sem base narrativa.
+
+## 6. Pendências desta auditoria
+
+- [x] Trocar as estimativas pontuais por faixas e fixar a regra de não somar (M2.2; seções 1.1, 1.2 e 1.2.0).
+- [x] Tratar estimativas das dez cidades como escala narrativa aproximada, sem inferir uma definição censitária uniforme.
+- [x] Registrar a sobreposição demográfica como desconhecida e não somar assentamentos às cidades; precisão censitária não é requisito narrativo atual.
+- [x] Classificar qualitativamente os vinte assentamentos em `03-assentamentos-e-rede-politica.md`, sem inventar coordenadas ou tempos de viagem.
+- [x] Reconciliar as rotas principais e definir os trechos da Estrada da Espinha; conexões sem duração individual seguem explicitamente não validadas.
+- [x] Não inventar tempos locais sem base geográfica; acessos dos assentamentos são pré-requisito em cenas com prazo crítico.
+- [x] Estabelecer escalas qualitativas e declarar desconhecidos os estoques sem evidência; valores numéricos ficam pendentes até haver unidade, período e evento de referência.
+- [x] Cruzar os sete relógios com localidades, rotas, recursos, consequências possíveis e limites de conhecimento.
+- [x] Atualizar documento principal, perfis de assentamentos e registro operacional de rotas com as decisões editoriais.
+
+**Regra de escopo:** este é um registro de auditoria editorial. Não implementa código, não altera regras mecânicas e não inicia os outros quatro reinos.
+
+
+## 7. Cruzamento dos sete relógios com recursos, rotas e conhecimento
+
+Esta matriz liga os relógios já definidos na seção 26 do documento principal aos sistemas materiais descritos acima. Ela **não avança nenhum relógio por conta própria**: registra quais sinais podem justificar avanço e quais condições precisam ser verificadas antes de aplicar consequências.
+
+| Relógio existente | Sistemas e locais diretamente envolvidos | Sinais observáveis que podem justificar avanço | Consequência material plausível | Limite de inferência |
+|---|---|---|---|---|
+| Doença das árvores-coração (2/6) | viveiros de Raiz-de-Prata; manejo de Vael-Tir; solo, água e espécies próximas às árvores afetadas | amostras que pioram; corte documentado perto de raízes; relatórios retidos; mudanças verificáveis em espécies associadas | perda localizada de função ecológica, piora de mudas ou restrição de manejo na área afetada | não atribuir causa à extração, magia ou sabotagem sem evidência; uma árvore doente não significa que todas adoecerão |
+| Dívida dos diques (3/6) | Nymvar, Junco Alto, Três Barcas; campos e sementes de Arven; transporte pelo Rio das Três Vozes | inspeção reprovada; reparo adiado; cheia prevista ou observada; material insuficiente; comporta que não fecha | interrupção de travessia, alagamento localizado, perda de sementes ou deslocamento temporário | não inundar todo Nymvar automaticamente; identificar trecho, nível da água, manutenção e área baixa atingida |
+| Contrabando de resina (2/6) | cotas e patrulhas de Vael-Tir; viveiros de Raiz-de-Prata; transporte, pedágios e mercado | divergência entre licença e carga; trilha com sinais de extração; estoque sem origem; patrulha desviada | pressão sobre cotas, perda de confiança, apreensão de carga ou erosão se houver corte associado | resina contrabandeada não prova corte de árvores ancestrais nem culpa coletiva da Liga das Rotas |
+| Desconfiança entre cidades (1/6) | Pacto das Dez Cidades; distribuição de socorro; tarifas e rotas entre cidades | obrigação vencida; registro de ajuda desigual; mensagem não entregue; decisão contestada formalmente | atraso de contribuição, inspeções extras, recusa temporária de cooperação ou disputa no conselho | boato isolado não equivale a decisão oficial; registrar quem sabe, quem acredita e qual autoridade agiu |
+| Navio sem tripulação (1/6) | porto de Thalanor, Farol de Âmbar, Ponta da Concha; cargas destinadas a Torvelume e interior | lacre rompido; inventário divergente; testemunho corroborado; quarentena prorrogada; objeto removido sem registro | carga retida, abastecimento atrasado, perda de prova ou segundo incidente | atraso comercial não demonstra relação com o navio; preservar hipóteses concorrentes e cadeia de custódia |
+| Mina selada de Torvelume (1/6) | Porta Selada, Ferro-Folha; estrada de fronteira e rota para Caladwen; abastecimento de ferramentas | tremores registrados; fissura medida; escavação detectada; mudança de vibração; material retirado sem autorização | isolamento de acesso, interrupção de suprimento, inspeção técnica ou risco estrutural | tremor não confirma presença de criatura nem determina o que existe na mina; a natureza do perigo permanece desconhecida |
+| Corredores centauros (2/6) | Passo do Veado; rotas sazonais de Vael-Tir e Arven; pastagens e deslocamento de caravanas | cerca nova no corredor; cultivo no período de passagem; patrulha impede trânsito; acordo de passagem expirado | desvio de caravanas, conflito por pasto, atraso de entrega ou fechamento sazonal negociado | não presumir que todos os centauros concordam nem que uma interdição seja permanente |
+
+### 7.1 Procedimento mínimo antes de avançar um relógio
+
+1. **Identificar o gatilho:** qual fato ocorreu, onde e quando? Distinguir evento observado de rumor.
+2. **Verificar o nexo:** o fato afeta realmente o sistema descrito pelo relógio? Se a relação for apenas possível, registrar como hipótese.
+3. **Mapear a exposição:** quais assentamentos, grupos, cargas ou trechos de rota estão conectados ao local afetado?
+4. **Verificar alternativas:** estoque, rota secundária, reparo emergencial, mediação ou outra resposta pode conter o efeito?
+5. **Atualizar conhecimento separadamente:** quem presenciou o fato, quem recebeu mensagem, quem tem prova e quem apenas suspeita?
+6. **Aplicar uma mudança proporcional:** avançar no máximo o que o evento sustenta; não usar um único acontecimento para avançar automaticamente vários relógios.
+7. **Registrar o próximo ponto de decisão:** prazo, recurso ou condição que poderá agravar, resolver ou redirecionar a situação.
+
+### 7.2 O que a auditoria já resolveu — e o que não resolveu
+
+- [x] Cruzar os sete relógios existentes com os sistemas materiais, rotas, locais e limites de inferência.
+- [x] Definir um procedimento editorial mínimo para evitar avanço automático ou conhecimento instantâneo dos NPCs.
+- [x] Manter reservas, produção, consumo e reposição qualitativos/desconhecidos sem evidência; precisão numérica não é requisito desta etapa.
+- [x] Confirmar tipo funcional e vínculo político dos vinte assentamentos; não atribuir distância ou duração sem fonte.
+- [x] Registrar a possível sobreposição e não produzir total populacional agregado do reino.
+
+O cruzamento é uma regra de consistência narrativa, não uma tabela numérica de simulação nem uma implementação no APK.

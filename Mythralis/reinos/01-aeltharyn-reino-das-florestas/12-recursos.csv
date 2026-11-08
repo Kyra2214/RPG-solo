@@ -1,0 +1,38 @@
+recurso,localidade,papel,producao,reserva,demanda,estado_evidencia,fonte,nota
+graos,city.nymvar,produtor,"5 (provisório, ±1)",?,4,Documentado (papel); produção: estimativa provisória (D-13); demanda derivada,doc 01 §11; doc 01 §25 (dependências),"produz grãos, frutas e ervas; depende de sementes de Arven"
+graos,city.arven,produtor,"5 (provisório, ±1)",?,3,Documentado (papel); produção: estimativa provisória (D-13); demanda derivada,doc 01 §11; doc 01 §25 (dependências),"produz grãos, frutas, mel, fibras e sementes; depende de água e canais de Nymvar"
+graos,settlement.campo-tres-familias,"produtor local (cultivo, produção de grãos e tributo)","3 (provisório, ±1)",?,?,Documentado (papel); produção: estimativa provisória (D-13),doc 03 §16 e §9.2,não presumir que abastece além da jurisdição
+graos,city.elarion,dependente,?,?,5,Documentado (papel); demanda derivada,doc 01 §25 (dependências),depende de Nymvar e Arven
+graos,city.thalanor,dependente,?,?,4,Documentado (papel); demanda derivada,doc 01 §25 (dependências),depende de Nymvar e Arven
+graos,city.orvass,dependente,?,?,3,Documentado (papel); demanda derivada,doc 01 §25 (dependências),depende de grãos de Nymvar
+graos,city.silvaran,dependente,?,?,3,Documentado (papel); demanda derivada,doc 01 §25 (dependências),depende de excedentes de Arven
+graos,city.caladwen,dependente,?,?,3,Documentado (papel); demanda derivada,doc 01 §25 (dependências),depende de alimentos de Arven
+graos,city.brumafunda,dependente,?,?,2,Documentado (papel); demanda derivada,doc 01 §25 (dependências),depende de mantimentos de Arven
+graos,city.vael-tir,dependente,?,?,3,Documentado (papel); demanda derivada,doc 01 §25 (dependências),depende de provisões de Arven
+graos,city.torvelume,dependente,?,?,3,Documentado (papel); demanda derivada,doc 01 §25 (dependências),depende de alimentos de Arven e Nymvar
+agua,city.elarion,fonte/uso documentado,?,?,5,Documentado (papel); demanda derivada,doc 01 §25 (dependências),Rio Lúmen
+agua,city.nymvar,fonte/uso documentado,?,?,4,Documentado (papel); demanda derivada,doc 01 §25 (dependências); doc 08 §4,Rio das Três Vozes; diques; risco de água contaminada
+agua,city.thalanor,fonte/uso documentado,?,?,4,Documentado (papel); demanda derivada,doc 08 §4,Lúmen e costa (água potável não detalhada)
+agua,city.orvass,fonte/uso documentado,?,?,3,Documentado (papel); demanda derivada,doc 08 §4; doc 03 §6.1,pântano; filtros e cuidados em Lodo-Claro
+agua,city.arven,fonte/uso documentado,?,?,3,Documentado (papel); demanda derivada,doc 01 §25 (dependências),água e canais de Nymvar (depende)
+agua,city.vael-tir,fonte não documentada,?,?,3,Documentado (papel); demanda derivada,doc 08 §10 (pendente),fonte de água potável e tratamento: desconhecidos
+agua,city.caladwen,fonte não documentada,?,?,3,Documentado (papel); demanda derivada,doc 08 §10 (pendente),fonte de água potável e tratamento: desconhecidos
+agua,city.brumafunda,fonte não documentada,?,?,2,Documentado (papel); demanda derivada,doc 08 §10 (pendente),fonte de água potável e tratamento: desconhecidos
+agua,city.silvaran,fonte não documentada,?,?,3,Documentado (papel); demanda derivada,doc 08 §10 (pendente),fonte de água potável e tratamento: desconhecidos
+agua,city.torvelume,fonte não documentada,?,?,3,Documentado (papel); demanda derivada,doc 08 §10 (pendente),fonte de água potável e tratamento: desconhecidos
+madeira,city.vael-tir,produtor autorizado (cotas e manejo),"3 (provisório, ±1)",?,?,Documentado (papel); produção: estimativa provisória (D-13),doc 01 §11; doc 01 §25 (dependências),cotas efetivas e volumes: desconhecidos
+madeira,settlement.copa-funda,manejo florestal com cotas de extração,"2 (provisório, ±1)",?,?,Documentado (papel); produção: estimativa provisória (D-13),doc 03 §5.1 e §16,
+madeira,city.thalanor,dependente de madeira manejada de Vael-Tir,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §25 (dependências),
+madeira,city.torvelume,usa carvão vegetal limitado e autorizado; origem não documentada,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §25 (dependências),
+resina,city.vael-tir,fiscalização da resina; extração regulada de forma desigual,?,?,?,Documentado (papel); níveis desconhecidos,doc 08 §4 e §5,produção legal: desconhecida
+resina,settlement.copa-funda,trabalhadores vendem resina a intermediários da Companhia do Âmbar (parte ilegal alegada),"2 (provisório, ±1)",?,?,Documentado (papel); produção: estimativa provisória (D-13),doc 03 §5.1,nexo e volume não confirmados
+resina,faction.companhia-ambar,comercializa resina certificada e âmbar; ala compra resina ilegal,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §7.6,"culpa a investigar, não presumida"
+resina,city.thalanor,comércio e âmbar,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §11,
+minerio,city.torvelume,ferramentas e ferragens; mina selada (peso na cadeia: desconhecido),"1 (provisório, ±1)",?,?,Documentado (papel); produção: estimativa provisória (D-13),doc 01 §11; doc 08 §10,produção atual do minério: desconhecida
+minerio,settlement.porta-selada,junto às galerias interditadas,?,?,?,Documentado (papel); níveis desconhecidos,doc 03 §11.2,
+minerio,reino,importa metais refinados; não é autossuficiente,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §11,quantidades: desconhecidas
+minerio,city.elarion,dependente de ferramentas de Torvelume,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §25 (dependências),
+minerio,city.nymvar,dependente de ferramentas de Torvelume,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §25 (dependências),
+minerio,city.vael-tir,dependente de ferramentas de Torvelume,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §25 (dependências),
+minerio,city.arven,dependente de ferramentas de Torvelume,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §25 (dependências),
+minerio,city.orvass,dependente de materiais de ponte de Torvelume,?,?,?,Documentado (papel); níveis desconhecidos,doc 01 §25 (dependências),

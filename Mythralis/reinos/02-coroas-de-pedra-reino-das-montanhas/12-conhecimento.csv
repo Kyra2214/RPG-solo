@@ -1,0 +1,83 @@
+npc_id,estado,fato,fonte
+npc.velka-selo-firme,confirmado,Preside o Concílio neste ciclo; guarda o selo,12-fichas.md (R2-4.1)
+npc.velka-selo-firme,suspeita,Escondeu uma ata que ela mesma não quer ler em voz alta,12-fichas.md (R2-4.1)
+npc.velka-selo-firme,desconhecido,Quem escolherá o próximo presidente,12-fichas.md (R2-4.1)
+npc.maro-tinta-velha,confirmado,Guarda o Arquivo das Coroas,12-fichas.md (R2-4.1)
+npc.maro-tinta-velha,suspeita,Copiou um pacto que as cidades juram nunca ter assinado,12-fichas.md (R2-4.1)
+npc.maro-tinta-velha,desconhecido,Quem assinou o pacto e por que as cidades o negam,12-fichas.md (R2-4.1)
+npc.thaurak-escama-fria,confirmado,Comanda os vigias do Portão-Cinza,12-fichas.md (R2-4.1)
+npc.thaurak-escama-fria,suspeita,Sabe quem arrancou páginas do Livro e protege essa pessoa,12-fichas.md (R2-4.1)
+npc.thaurak-escama-fria,desconhecido,Por que as luzes vistas à noite nunca apareceram nos registros,12-fichas.md (R2-4.1)
+npc.gundrik-muralha-lenta,confirmado,Comanda a guarda de Brasalume e de Veio-Fundo,12-fichas.md (R2-4.1)
+npc.gundrik-muralha-lenta,suspeita,Guarda uma saída de ventilação que não consta nos mapas oficiais,12-fichas.md (R2-4.1)
+npc.gundrik-muralha-lenta,desconhecido,Se a Fornalha-Mãe pode mesmo apagar,12-fichas.md (R2-4.1)
+npc.karna-brasa-mansa,confirmado,Mantém a Fornalha-Mãe,12-fichas.md (R2-4.1)
+npc.karna-brasa-mansa,suspeita,Esconde uma liga que não esfria,12-fichas.md (R2-4.1)
+npc.karna-brasa-mansa,desconhecido,Se a liga é do passado ou do futuro,12-fichas.md (R2-4.1)
+npc.vireo-vento-rapido,confirmado,Salvou uma caravana na Escadaria Cega em uma nevasca,12-fichas.md (R2-4.1)
+npc.vireo-vento-rapido,suspeita,Esconde uma queda que quase o tirou do ar,12-fichas.md (R2-4.1)
+npc.vireo-vento-rapido,desconhecido,O que ouviu no passo que só se abre a quem não pergunta,12-fichas.md (R2-4.1)
+npc.zhae-garra-de-nevoa,confirmado,Guia viajantes pelos passos de Altavento,12-fichas.md (R2-4.1)
+npc.zhae-garra-de-nevoa,suspeita,Foi expulsa de um grupo de caçadores,12-fichas.md (R2-4.1)
+npc.zhae-garra-de-nevoa,desconhecido,O que a faz ouvir os chamados,12-fichas.md (R2-4.1)
+npc.pelma-gota-medida,confirmado,Registra cada abertura de comporta,12-fichas.md (R2-4.1)
+npc.pelma-gota-medida,suspeita,Alterou um registro para evitar pânico,12-fichas.md (R2-4.1)
+npc.pelma-gota-medida,desconhecido,Se o degelo mudou de data por causa dela,12-fichas.md (R2-4.1)
+npc.maur-camada-velha,confirmado,Segurou o Pórtico durante um desabamento,12-fichas.md (R2-4.1)
+npc.maur-camada-velha,suspeita,É mais velho do que a cidade conta,12-fichas.md (R2-4.1)
+npc.maur-camada-velha,desconhecido,Se vem da pedra ou foi esculpido nela,12-fichas.md (R2-4.1)
+npc.primeira-peca,confirmado,É o construto desperto mais antigo conhecido,12-fichas.md (R2-4.1)
+npc.primeira-peca,suspeita,Guarda uma peça que ninguém soube identificar,12-fichas.md (R2-4.1)
+npc.primeira-peca,desconhecido,Como e por que despertou,12-fichas.md (R2-4.1)
+npc.aurea-faceta-longa,confirmado,Financia a manutenção das lentes,12-fichas.md (R2-4.1)
+npc.aurea-faceta-longa,suspeita,Esconde uma faceta que mostra rostos a quem olha,12-fichas.md (R2-4.1)
+npc.aurea-faceta-longa,desconhecido,O que a caverna lembra e o que ela esquece,12-fichas.md (R2-4.1)
+npc.nael-curva-antiga,confirmado,Preside a Casa dos Guias,12-fichas.md (R2-4.1)
+npc.nael-curva-antiga,suspeita,Sabe de uma galeria que não consta em nenhum mapa,12-fichas.md (R2-4.1)
+npc.nael-curva-antiga,desconhecido,Onde essa galeria vai dar,12-fichas.md (R2-4.1)
+npc.zeka-faisca-mansa,confirmado,lidera Cinzeiro; entregar escória e cinza às fornalhas sem desperdício,doc 03 (settlement.cinzeiro)
+npc.brundar-veio-alto,confirmado,lidera Veio-Fundo; abastecer Brasalume de minério em cotas acordadas,doc 03 (settlement.veio-fundo)
+npc.iskra-pena-longa,confirmado,"lidera Ninho-Seco; manter pouso, comida e abrigo para quem voa",doc 03 (settlement.ninho-seco)
+npc.miraq-salto-de-nevoa,confirmado,lidera Rastro-Branco; guiar viajantes pelos passos e avisar sobre avalanche,doc 03 (settlement.rastro-branco)
+npc.pimm-veio-pequeno,confirmado,lidera Comporta-Velha; manter e registrar a abertura das comportas,doc 03 (settlement.comporta-velha)
+npc.aurel-faceta-calma,confirmado,lidera Lago-de-Cima; fornecer gelo e cristal sem tocar o fundo do lago,doc 03 (settlement.lago-de-cima)
+npc.torgrim-corda-dupla,confirmado,lidera Cordoaria; fornecer cordas e correntes aos cais,doc 03 (settlement.cordoaria)
+npc.seis-eixos,confirmado,lidera Primeira-Rampa; anotar cada barca que desce e cada taxa paga,doc 03 (settlement.primeira-rampa)
+npc.skit-fenda-quente,confirmado,"lidera Albergue-de-Cima; abrigar quem sobe e quem desce, sem perguntar a origem",doc 03 (settlement.albergue-de-cima)
+npc.varkhan-escama-vigia,confirmado,lidera Galeria-Alta; manter a vigília e o Livro de Passagens em dia,doc 03 (settlement.galeria-alta)
+npc.pip-vapor-curto,confirmado,lidera Fenda-Mercado; manter o mercado aberto e neutro entre as famílias de guias,doc 03 (settlement.fenda-mercado)
+npc.ilmeth-curva-segura,confirmado,lidera Boca-Larga; receber quem chega e entregar um guia,doc 03 (settlement.boca-larga)
+npc.brunhild-degrau-fundo,confirmado,lidera Degrau-Pequeno; manter o bairro e as escadas dos pequenos,doc 03 (settlement.degrau-pequeno)
+npc.gorrak-pedra-grande,confirmado,lidera Pasto-de-Cume; fornecer lã e carne à cidade,doc 03 (settlement.pasto-de-cume)
+npc.fenwick-mola-solta,confirmado,lidera Roda-Menor; manter as rodas que movem as oficinas,doc 03 (settlement.roda-menor)
+npc.quinze-pinos,confirmado,lidera Oficina-Sem-Dono; manter o núcleo sem pedir ajuda à cidade,doc 03 (settlement.oficina-sem-dono)
+npc.iridel-luz-partida,confirmado,lidera Poço-Alto; manter o poço limpo e as lentes alinhadas,doc 03 (settlement.poco-alto)
+npc.tuck-lente-torta,confirmado,lidera Corte-Fino; entregar cristal lapidado às lentes e às encomendas da cidade,doc 03 (settlement.corte-fino)
+npc.sharra-selo-de-voto,confirmado,lidera Pátio-das-Delegações; hospedar delegados sem favorecer nenhum,doc 03 (settlement.patio-das-delegacoes)
+npc.haldra-tinta-funda,confirmado,lidera Arquivo-Velho; copiar e guardar as atas do Concílio,doc 03 (settlement.arquivo-velho)
+npc.brakka-luz-no-portao,confirmado,a lenda existe: lenda da vigia que acendeu a primeira luz do Portão,doc 01 parte 2; doc 10 §6.1
+npc.brakka-luz-no-portao,desconhecido,o que de fato aconteceu,doc 01 parte 2
+npc.ciri-faceta-primeira,confirmado,a lenda existe: lenda de quem ouviu o primeiro som da caverna,doc 01 parte 2; doc 10 §6.1
+npc.ciri-faceta-primeira,desconhecido,o que de fato aconteceu,doc 01 parte 2
+npc.dois-fusos,confirmado,a lenda existe: lenda do primeiro construto que se recusou a ser desligado por um dono,doc 01 parte 2; doc 10 §6.1
+npc.dois-fusos,desconhecido,se o dono existiu,doc 10 §6.1
+npc.dorn-primeira-descida,confirmado,a lenda existe: lenda do primeiro a descer o Argente,doc 01 parte 2; doc 10 §6.1
+npc.dorn-primeira-descida,desconhecido,o que de fato aconteceu,doc 01 parte 2
+npc.embra-cinza-viva,confirmado,"a lenda existe: lenda de quem carregou brasa de uma fornalha apagada a outra, por Cinzeiro",doc 01 parte 2; doc 10 §6.1
+npc.embra-cinza-viva,desconhecido,qual fornalha apagou,doc 10 §6.1
+npc.hrodgar-primeiro-fogo,confirmado,a lenda existe: lenda do acendimento da Fornalha-Mãe,doc 01 parte 2; doc 10 §6.1
+npc.hrodgar-primeiro-fogo,desconhecido,o que de fato aconteceu,doc 01 parte 2
+npc.naru-sombra-de-neve,confirmado,a lenda existe: lenda de quem seguiu um chamado do passo e não voltou,doc 01 parte 2; doc 10 §6.1
+npc.naru-sombra-de-neve,desconhecido,que chamado e por que o passo não registra a volta,doc 10 §6.1
+npc.orla-fio-de-mapa,confirmado,a lenda existe: lenda de quem traçou o primeiro mapa das galerias,doc 01 parte 2; doc 10 §6.1
+npc.orla-fio-de-mapa,desconhecido,o que de fato aconteceu,doc 01 parte 2
+npc.sevro-selo-primeiro,confirmado,a lenda existe: lenda de quem propôs o primeiro assento rotativo,doc 01 parte 2; doc 10 §6.1
+npc.sevro-selo-primeiro,desconhecido,o que de fato aconteceu,doc 01 parte 2
+npc.throm-juramento-alto,confirmado,a lenda existe: lenda de quem levantou o Pórtico para que os menores passassem sem curvar-se,doc 01 parte 2; doc 10 §6.1
+npc.throm-juramento-alto,desconhecido,se a versão dos grandes ou a dos menores é a que conta o Pórtico,doc 10 §6.1
+npc.tik-fenda-funda,confirmado,a lenda existe: lenda de quem entrou na fenda de uma galeria nova e voltou com o mapa dela,doc 01 parte 2; doc 10 §6.1
+npc.tik-fenda-funda,desconhecido,se o mapa existiu,doc 10 §6.1
+npc.tobiah-mola-mestra,confirmado,a lenda existe: lenda do relojoeiro da primeira roda,doc 01 parte 2; doc 10 §6.1
+npc.tobiah-mola-mestra,desconhecido,o que de fato aconteceu,doc 01 parte 2
+npc.ysmira-primeiro-degelo,confirmado,a lenda existe: lenda de quem abriu a primeira comporta,doc 01 parte 2; doc 10 §6.1
+npc.ysmira-primeiro-degelo,desconhecido,o que de fato aconteceu,doc 01 parte 2

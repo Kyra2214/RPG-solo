@@ -1,0 +1,103 @@
+# esquema=1
+# uma classe por raça e por sub-raça (50 + 50).
+tipo|id|classe|fonte|etiqueta
+raca|humano|humana|raça (padrão humana)|PROPOSTO
+raca|elfo|milenar|raça|PROPOSTO
+raca|anao|longa|raça|PROPOSTO
+raca|orcano|humana|raça (padrão humana)|PROPOSTO
+raca|pequenino|humana|raça (padrão humana)|PROPOSTO
+raca|gnomo|longa|raça|PROPOSTO
+raca|draconato|humana|raça (padrão humana)|PROPOSTO
+raca|tiefling|humana|raça (padrão humana)|PROPOSTO
+raca|aasimar|humana|raça (padrão humana)|PROPOSTO
+raca|goliath|humana|raça (padrão humana)|PROPOSTO
+raca|tabaxi|humana|raça (padrão humana)|PROPOSTO
+raca|kenku|curta|raça|PROPOSTO
+raca|tortle|longa|raça|PROPOSTO
+raca|tritao|humana|raça (padrão humana)|PROPOSTO
+raca|satiro|humana|raça (padrão humana)|PROPOSTO
+raca|centauro|humana|raça (padrão humana)|PROPOSTO
+raca|minotauro|humana|raça (padrão humana)|PROPOSTO
+raca|goblin|curta|raça|PROPOSTO
+raca|hobgoblin|humana|raça (padrão humana)|PROPOSTO
+raca|bugbear|humana|raça (padrão humana)|PROPOSTO
+raca|kobold|curta|raça|PROPOSTO
+raca|lizardino|humana|raça (padrão humana)|PROPOSTO
+raca|homem-rato|curta|raça|PROPOSTO
+raca|homem-corvo|curta|raça|PROPOSTO
+raca|homem-raposa|curta|raça|PROPOSTO
+raca|homem-coelho|curta|raça|PROPOSTO
+raca|homem-urso|humana|raça (padrão humana)|PROPOSTO
+raca|homem-lobo|humana|raça (padrão humana)|PROPOSTO
+raca|homem-javali|humana|raça (padrão humana)|PROPOSTO
+raca|homem-cervo|humana|raça (padrão humana)|PROPOSTO
+raca|elemental-terra|milenar|raça|PROPOSTO
+raca|elemental-fogo|longa|raça|PROPOSTO
+raca|elemental-agua|milenar|raça|PROPOSTO
+raca|elemental-ar|milenar|raça|PROPOSTO
+raca|feerico|longa|raça|PROPOSTO
+raca|sombrio|longa|raça|PROPOSTO
+raca|onirico|longa|raça|PROPOSTO
+raca|cristalino|milenar|raça|PROPOSTO
+raca|fungal|longa|raça|PROPOSTO
+raca|plantae|milenar|raça|PROPOSTO
+raca|construto|sem_idade|raça|PROPOSTO
+raca|vampirico|longa|raça|PROPOSTO
+raca|licantropo|humana|raça (padrão humana)|PROPOSTO
+raca|metamorfo|humana|raça (padrão humana)|PROPOSTO
+raca|gigante|longa|raça|PROPOSTO
+raca|sereiano|humana|raça (padrão humana)|PROPOSTO
+raca|aracnideo|humana|raça (padrão humana)|PROPOSTO
+raca|insetoide|curta|raça|PROPOSTO
+raca|felino-das-nuvens|humana|raça (padrão humana)|PROPOSTO
+raca|ancestral-estelar|milenar|raça|PROPOSTO
+subraca|humano-das-cidades|humana|herda da raça humano|PROPOSTO
+subraca|humano-das-fronteiras|humana|herda da raça humano|PROPOSTO
+subraca|elfo-dos-bosques|milenar|herda da raça elfo|PROPOSTO
+subraca|elfo-das-estrelas|milenar|herda da raça elfo|PROPOSTO
+subraca|elfo-do-crepusculo|milenar|herda da raça elfo|PROPOSTO
+subraca|anao-das-montanhas|longa|herda da raça anao|PROPOSTO
+subraca|anao-das-forjas|longa|herda da raça anao|PROPOSTO
+subraca|anao-dos-abismos|longa|herda da raça anao|PROPOSTO
+subraca|orcano-das-estepes|humana|herda da raça orcano|PROPOSTO
+subraca|orcano-das-matas|humana|herda da raça orcano|PROPOSTO
+subraca|pequenino-ribeirinho|humana|herda da raça pequenino|PROPOSTO
+subraca|pequenino-viajante|humana|herda da raça pequenino|PROPOSTO
+subraca|gnomo-das-engrenagens|longa|herda da raça gnomo|PROPOSTO
+subraca|gnomo-dos-vales|longa|herda da raça gnomo|PROPOSTO
+subraca|draconato-cinzento|humana|herda da raça draconato|PROPOSTO
+subraca|draconato-de-cobre|humana|herda da raça draconato|PROPOSTO
+subraca|crepuscular-de-chifres|humana|herda da raça tiefling|PROPOSTO
+subraca|crepuscular-de-cauda|humana|herda da raça tiefling|PROPOSTO
+subraca|luminar-do-alvorecer|humana|herda da raça aasimar|PROPOSTO
+subraca|luminar-do-zenite|humana|herda da raça aasimar|PROPOSTO
+subraca|altaneiro-das-neves|humana|herda da raça goliath|PROPOSTO
+subraca|altaneiro-dos-penhascos|humana|herda da raça goliath|PROPOSTO
+subraca|felideo-das-selvas|humana|herda da raça tabaxi|PROPOSTO
+subraca|felideo-das-dunas|humana|herda da raça tabaxi|PROPOSTO
+subraca|corvideo-dos-telhados|curta|herda da raça kenku|PROPOSTO
+subraca|corvideo-das-ruinas|curta|herda da raça kenku|PROPOSTO
+subraca|tartarino-dos-recifes|longa|herda da raça tortle|PROPOSTO
+subraca|tartarino-das-ilhas|longa|herda da raça tortle|PROPOSTO
+subraca|abissal-das-enseadas|humana|herda da raça tritao|PROPOSTO
+subraca|abissal-das-profundezas|humana|herda da raça tritao|PROPOSTO
+subraca|silvano-dos-festivais|humana|herda da raça satiro|PROPOSTO
+subraca|silvano-dos-espinheiros|humana|herda da raça satiro|PROPOSTO
+subraca|centauro-das-pradarias|humana|herda da raça centauro|PROPOSTO
+subraca|centauro-das-florestas|humana|herda da raça centauro|PROPOSTO
+subraca|labirintico-dos-arquivos|humana|herda da raça minotauro|PROPOSTO
+subraca|labirintico-das-fortalezas|humana|herda da raça minotauro|PROPOSTO
+subraca|goblin-das-sucatas|curta|herda da raça goblin|PROPOSTO
+subraca|goblin-dos-pantanos|curta|herda da raça goblin|PROPOSTO
+subraca|legionario-dos-estandartes|humana|herda da raça hobgoblin|PROPOSTO
+subraca|legionario-das-cidadelas|humana|herda da raça hobgoblin|PROPOSTO
+subraca|ursino-da-sombra|humana|herda da raça bugbear|PROPOSTO
+subraca|ursino-das-colinas|humana|herda da raça bugbear|PROPOSTO
+subraca|escamado-das-minas|curta|herda da raça kobold|PROPOSTO
+subraca|escamado-das-ruinas|curta|herda da raça kobold|PROPOSTO
+subraca|escamado-dos-mangues|humana|herda da raça lizardino|PROPOSTO
+subraca|escamado-do-solar|humana|herda da raça lizardino|PROPOSTO
+subraca|ratoide-dos-esgotos|curta|herda da raça homem-rato|PROPOSTO
+subraca|ratoide-dos-mercados|curta|herda da raça homem-rato|PROPOSTO
+subraca|homem-corvo-das-torres|curta|herda da raça homem-corvo|PROPOSTO
+subraca|homem-raposa-dos-vales|curta|herda da raça homem-raposa|PROPOSTO

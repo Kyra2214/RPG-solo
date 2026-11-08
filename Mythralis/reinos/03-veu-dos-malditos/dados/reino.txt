@@ -1,0 +1,3 @@
+# esquema=1
+id|nome|mundo|tema|estado|capital|calendario|fonte
+kingdom.veu-dos-malditos|Véu dos Malditos|mundo.mythralis|reino de neblina, charcos e pactos, sob um rei conquistado em batalha|em_composicao|city.morroveu|calendario.contagem-das-provacoes|D-66; capital = sede da Corte (doc 01 V-01)

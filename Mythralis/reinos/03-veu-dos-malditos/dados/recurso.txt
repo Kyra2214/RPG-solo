@@ -1,0 +1,53 @@
+# esquema=1
+recurso|localidade|papel|producao|reserva|demanda|estado_evidencia|nota|fonte
+tributo em pactos|city.morroveu|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-01; doc 05 §2; doc 04 §7
+escribas e registro|city.morroveu|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-01; doc 05 §2; doc 04 §7
+armas e armaduras para a Provação|city.morroveu|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-01; doc 05 §2; doc 04 §7
+hospedagem de desafiantes|city.morroveu|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-01; doc 05 §2; doc 04 §7
+dependência: dos pactos dos outros lugares|city.morroveu|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-01; doc 05 §2; doc 04 §7
+juncos|city.lamaluz|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-02; doc 05 §2
+peixe de lama|city.lamaluz|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-02; doc 05 §2
+pilotagem|city.lamaluz|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-02; doc 05 §2
+lamparinas|city.lamaluz|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-02; doc 05 §2
+dependência: de canais que mudam com a cheia|city.lamaluz|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-02; doc 05 §2
+dependência: da seca e da cheia na época certa|city.lamaluz|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-02; doc 05 §2
+breu|city.fozbreu|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-03; doc 05 §2
+sal|city.fozbreu|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-03; doc 05 §2
+pesca de barra|city.fozbreu|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-03; doc 05 §2
+cabotagem|city.fozbreu|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-03; doc 05 §2
+dependência: de quem sabe entrar pela barra|city.fozbreu|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-03; doc 05 §2
+falta: frota de guerra própria (não tem)|city.fozbreu|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 V-03; doc 05 §2
+sal|city.beira-sal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-04; doc 05 §2
+água|city.beira-sal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-04; doc 05 §2
+guias|city.beira-sal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-04; doc 05 §2
+acertos|city.beira-sal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-04; doc 05 §2
+dependência: de poucos poços|city.beira-sal|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-04; doc 05 §2
+falta: poços (depende de poucos)|city.beira-sal|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 V-04; doc 05 §2
+arquivo de pactos|city.selovale|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-05; doc 05 §2
+juramentos|city.selovale|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-05; doc 05 §2
+cópia de selos|city.selovale|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-05; doc 05 §2
+parecer|city.selovale|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-05; doc 05 §2
+dependência: de quem guarda os selos|city.selovale|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-05; doc 05 §2
+vigia|city.borda-mansa|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-06; doc 05 §2
+fogueiras de sinal|city.borda-mansa|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-06; doc 05 §2
+couro de charco|city.borda-mansa|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-06; doc 05 §2
+guarda de quem chega|city.borda-mansa|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-06; doc 05 §2
+dependência: da névoa deixar ver|city.borda-mansa|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-06; doc 05 §2
+falta: alcance da vigia (só vê o que a névoa deixa)|city.borda-mansa|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 V-06; doc 05 §2
+hospedagem de repouso|city.fio-longo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-07; doc 05 §2
+tecelagem|city.fio-longo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-07; doc 05 §2
+interpretação de sonhos|city.fio-longo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-07; doc 05 §2
+remédios de sono|city.fio-longo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-07; doc 05 §2
+dependência: dos hóspedes e do pacto do repouso|city.fio-longo|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-07; doc 05 §2
+falta: defesa de quem dorme (não pode se defender|city.fio-longo|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 V-07; doc 05 §2
+falta: protegido só por pacto)|city.fio-longo|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 V-07; doc 05 §2
+ofícios de noite|city.candeia-morta|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-08; doc 05 §2
+luz fria|city.candeia-morta|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-08; doc 05 §2
+guarda de portões|city.candeia-morta|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-08; doc 05 §2
+cuidado dos mortos e das despedidas|city.candeia-morta|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 V-08; doc 05 §2
+dependência: dos turnos de vigia|city.candeia-morta|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 V-08; doc 05 §2
+falta: defesa de dia (cidade frágil)|city.candeia-morta|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 V-08; doc 05 §2
+Descida do Argente|city.fozbreu|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5; M-05 §5
+Rota do Sal|city.beira-sal|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5; M-05 §5
+cuidado dos mortos|city.candeia-morta|produtor|?|?|?|documentado|doc 08 §3 ("cuidado dos mortos e das despedidas")|doc 08 §3
+pilotagem da barra|city.fozbreu|produtor|?|?|?|documentado|doc 08 §4 DR-05|doc 08 §4

@@ -1,0 +1,10 @@
+# esquema=1
+# taxas do motor de Ecos (F5.2).
+chave|valor|descricao|motor|fonte|etiqueta
+eco_atraso_dias|12|dias entre dois passos de difusão de um Eco|ecos|PLANO_MOTOR §7 e §9.2|PROPOSTO
+eco_max_passos|8|passos máximos de difusão de um Eco|ecos|PLANO_MOTOR §7 e §9.2|PROPOSTO
+eco_prob_publico_pm|800|por mil por passo, por vizinho: fato de camada pública passa adiante|ecos|PLANO_MOTOR §7 e §9.2|PROPOSTO
+eco_prob_local_pm|450|idem, camada local|ecos|PLANO_MOTOR §7 e §9.2|PROPOSTO
+eco_prob_restrito_pm|120|idem, camada restrita|ecos|PLANO_MOTOR §7 e §9.2|PROPOSTO
+eco_prob_secreto_pm|20|idem, camada secreta|ecos|PLANO_MOTOR §7 e §9.2|PROPOSTO
+eco_passos_por_degrau|2|passos para a certeza descer um degrau (confirmado, alegado, rumor)|ecos|PLANO_MOTOR §7 e §9.2|PROPOSTO

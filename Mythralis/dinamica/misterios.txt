@@ -1,0 +1,5 @@
+# esquema=1
+# taxas do motor de mistérios (F5.3).
+chave|valor|descricao|motor|fonte|etiqueta
+mist_pista_pm|70|por mil por ano de um mistério aberto produzir uma pista (sem agente, só pista, nunca resposta)|misterios|PLANO_MOTOR §7 e §9.2|PROPOSTO
+mist_max_pistas|6|teto de pistas por mistério (homeostase: o mundo não esgota o mistério sozinho)|misterios|PLANO_MOTOR §7 e §9.2|PROPOSTO

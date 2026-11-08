@@ -1,0 +1,31 @@
+id,tipo,nome,valor_perfil,faixa_uso,categoria,evidencia,confianca
+city.brasalume,cidade,Brasalume,sem número,grande,indefinida,uma voz por fogo registrado no Conselho; forja de base do reino (doc 04 §9; doc 01),média
+city.altavento,cidade,Altavento,sem número,pequena,indefinida,cidade de altitude e ninhos; poucos passos abertos (doc 01 C-02),baixa
+city.veiaclara,cidade,Veiaclara,sem número,média,indefinida,cidade de nascente com colégio de medidores e cidades dependentes (doc 01; doc 04 §9),baixa
+city.barcaalta,cidade,Barcaalta,sem número,grande,indefinida,cais saturado e Descida do Argente (doc 01 C-04; doc 05 §3),média
+city.portao-cinza,cidade,Portão-Cinza,sem número,média,indefinida,"porta de viajantes e caravanas, com hospedagem (doc 01; doc 05 §2.3)",baixa
+city.sinuosa,cidade,Sinuosa,sem número,média,indefinida,cidade-labirinto sempre em escavação; mercado de fendas (doc 01),baixa
+city.cumieira,cidade,Cumieira,sem número,média,indefinida,"escala monumental é de construção, não de população: casa grande para poucos grandes e muitos menores (doc 01)",baixa
+city.rodaviva,cidade,Rodaviva,sem número,média,indefinida,oficinas reunidas e Construtos; quantos Construtos contam como moradores é aberto (doc 04 §9),baixa
+city.geodalia,cidade,Geodália,sem número,pequena,indefinida,caverna de cristal com Câmara e lapidadores (doc 01),baixa
+city.pedra-ata,cidade,Pedra-Ata,sem número,média,indefinida,"sede do Concílio, arquivo e delegações; moradores fixos incertos (doc 04 §2)",baixa
+settlement.cinzeiro,assentamento,Cinzeiro,sem número,pequena,indefinida,categoria espacial do doc 03 (Distrito ou núcleo periurbano),média
+settlement.veio-fundo,assentamento,Veio-Fundo,sem número,pequena,indefinida,categoria espacial do doc 03 (Comunidade afastada),média
+settlement.ninho-seco,assentamento,Ninho-Seco,sem número,mínima e sazonal,indefinida,categoria espacial do doc 03; varia com a estação (Posto ou núcleo sazonal),média
+settlement.rastro-branco,assentamento,Rastro-Branco,sem número,pequena,indefinida,categoria espacial do doc 03 (Comunidade afastada),média
+settlement.comporta-velha,assentamento,Comporta-Velha,sem número,pequena,indefinida,categoria espacial do doc 03 (Distrito ou núcleo periurbano),média
+settlement.lago-de-cima,assentamento,Lago-de-Cima,sem número,pequena,indefinida,categoria espacial do doc 03 (Vila próxima),média
+settlement.cordoaria,assentamento,Cordoaria,sem número,parte da cidade-mãe,indefinida,já está dentro da população da cidade; não conta à parte (Bairro urbano),média
+settlement.primeira-rampa,assentamento,Primeira-Rampa,sem número,pequena,indefinida,categoria espacial do doc 03 (Distrito ou núcleo periurbano),média
+settlement.albergue-de-cima,assentamento,Albergue-de-Cima,sem número,mínima e sazonal,indefinida,categoria espacial do doc 03; varia com a estação (Posto ou núcleo sazonal),média
+settlement.galeria-alta,assentamento,Galeria-Alta,sem número,pequena,indefinida,categoria espacial do doc 03 (Distrito ou núcleo periurbano),média
+settlement.fenda-mercado,assentamento,Fenda-Mercado,sem número,parte da cidade-mãe,indefinida,já está dentro da população da cidade; não conta à parte (Bairro urbano),média
+settlement.boca-larga,assentamento,Boca-Larga,sem número,mínima e sazonal,indefinida,categoria espacial do doc 03; varia com a estação (Posto ou núcleo sazonal),média
+settlement.degrau-pequeno,assentamento,Degrau-Pequeno,sem número,parte da cidade-mãe,indefinida,já está dentro da população da cidade; não conta à parte (Bairro urbano),média
+settlement.pasto-de-cume,assentamento,Pasto-de-Cume,sem número,pequena,indefinida,categoria espacial do doc 03 (Comunidade afastada),média
+settlement.roda-menor,assentamento,Roda-Menor,sem número,pequena,indefinida,categoria espacial do doc 03 (Distrito ou núcleo periurbano),média
+settlement.oficina-sem-dono,assentamento,Oficina-Sem-Dono,sem número,indefinida,indefinida,categoria espacial indefinida no doc 03 (Indefinido),baixa
+settlement.poco-alto,assentamento,Poço-Alto,sem número,pequena,indefinida,categoria espacial do doc 03 (Distrito ou núcleo periurbano),média
+settlement.corte-fino,assentamento,Corte-Fino,sem número,pequena,indefinida,categoria espacial do doc 03 (Vila próxima),média
+settlement.patio-das-delegacoes,assentamento,Pátio-das-Delegações,sem número,parte da cidade-mãe,indefinida,já está dentro da população da cidade; não conta à parte (Bairro urbano),média
+settlement.arquivo-velho,assentamento,Arquivo-Velho,sem número,pequena,indefinida,categoria espacial do doc 03 (Distrito ou núcleo periurbano),média

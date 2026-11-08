@@ -1,0 +1,22 @@
+codigo|gravidade|entidade|mensagem
+W-05|A|anao-dos-abismos|sub-raça sem NPC nem cidade que a use; aparece só em prosa dos reinos
+W-05|A|escamado-das-ruinas|sub-raça sem NPC nem cidade que a use; aparece só em prosa dos reinos
+W-05|A|escamado-do-solar|sub-raça sem NPC nem cidade que a use; aparece só em prosa dos reinos
+W-05|A|goblin-dos-pantanos|sub-raça sem NPC nem cidade que a use; aparece só em prosa dos reinos
+W-05|A|legionario-das-cidadelas|sub-raça sem NPC nem cidade que a use; aparece só em prosa dos reinos
+W-05|A|silvano-dos-espinheiros|sub-raça sem NPC nem cidade que a use; não aparece em nenhum reino
+W-06|A|event.acertos-orais-suspensos|evento.rotas aponta para ID inexistente: route.beira-sal-ermo
+W-06|A|event.assento-vazio|evento.rotas aponta para ID inexistente: route.concilio-pedra-ata
+W-06|A|event.cais-fechado|evento.rotas aponta para ID inexistente: route.barcaalta-argente
+W-06|A|event.comporta-cede|evento.rotas aponta para ID inexistente: route.veiaclara-jusante
+W-06|A|event.conselho-vota-em-publico|evento.rotas aponta para ID inexistente: route.conselho-morroveu
+W-06|A|event.fardos-suspensos|evento.rotas aponta para ID inexistente: route.fozbreu-argente
+W-06|A|event.nevasca-fecha-passos|evento.rotas aponta para ID inexistente: route.altavento-passos
+W-06|A|event.registro-duplo|evento.rotas aponta para ID inexistente: route.concilio-pedra-ata
+W-06|A|event.registro-provado|evento.rotas aponta para ID inexistente: route.veiaclara-jusante
+W-06|A|event.tributo-que-nao-basta|evento.rotas aponta para ID inexistente: route.conselho-morroveu
+W-07|A|mundo|1 NPCs vivos sem cidade nem facção (o motor os coloca "em trânsito"): npc.mirel-caule-vivo
+W-08|A|kingdom.vale-palancar|cidades fora do grafo de rotas: city.rasovau, city.praia-pardo, city.alvasal, city.encosta-aberta
+W-08|A|mundo|rotas com duração: 16 de 55; rotas ENTRE reinos: 0 (depende de M-07)
+W-09|A|mundo|15 eventos sem relógio (gatilho só em prosa): ficam latentes na F4
+# resumo: 0 erros, 20 avisos; 5 reinos, 46 cidades, 233 NPCs, 64 facções, 40 relógios; molde sha256=f11f1c120acc99b1

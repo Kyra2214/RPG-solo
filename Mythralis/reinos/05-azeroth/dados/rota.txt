@@ -1,0 +1,11 @@
+# esquema=1
+id|reino|de|para|meio|duracao_min|duracao_max|unidade|estado|condicao|fonte
+route.campoalvo-vaudouro|kingdom.azeroth|city.campoalvo|city.vaudouro|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.campoalvo-vaudouro
+route.campoalvo-torrefronte|kingdom.azeroth|city.campoalvo|city.torrefronte|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.campoalvo-torrefronte
+route.alvamar-enseada-vigia|kingdom.azeroth|city.alvamar|city.enseada-vigia|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.alvamar-enseada-vigia
+route.alvamar-concharia|kingdom.azeroth|city.alvamar|city.concharia|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.alvamar-concharia
+route.torreclara-pouso-das-brisas|kingdom.azeroth|city.torreclara|city.pouso-das-brisas|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.torreclara-pouso-das-brisas
+route.torreclara-estrelado|kingdom.azeroth|city.torreclara|city.estrelado|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.torreclara-estrelado
+route.meiovau-campoalvo|kingdom.azeroth|city.meiovau|city.campoalvo|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.meiovau-campoalvo
+route.meiovau-alvamar|kingdom.azeroth|city.meiovau|city.alvamar|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.meiovau-alvamar
+route.meiovau-torreclara|kingdom.azeroth|city.meiovau|city.torreclara|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.meiovau-torreclara

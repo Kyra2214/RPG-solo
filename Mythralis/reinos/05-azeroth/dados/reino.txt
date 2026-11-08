@@ -1,0 +1,3 @@
+# esquema=1
+id|nome|mundo|tema|estado|capital|calendario|fonte
+kingdom.azeroth|Azeroth|mundo.mythralis|reino de três coroas rivais (Trigal, Cais e Vento) e uma cidade livre, Meiovau, onde a Mesa das Três Chaves arbitra|em_composicao|—|calendario.contagem-das-chaves|D-138, D-139, D-141; sem capital única: três capitais de coroa (Campoalvo, Alvamar, Torreclara) e Meiovau comum (doc 01 parte 1; ASSUMINDO a chave kingdom.azeroth)

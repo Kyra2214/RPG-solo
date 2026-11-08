@@ -1,0 +1,136 @@
+tipo,id,nome,situacao,id_catalogo,cidade,papel,povo,vivo,extra,ficha_doc
+cidade,city.elarion,Elarion — Cidade das Sete Copas,nos docs e no catálogo,,,,,,"capital política, arquivo e centro cerimonial",
+cidade,city.nymvar,Nymvar — Cidade das Três Vozes,nos docs e no catálogo,,,,,,"cidade ribeirinha, celeiro e centro de cura",
+cidade,city.thalanor,Thalanor — Porto da Folha Azul,nos docs e no catálogo,,,,,,porto marítimo e alfândega,
+cidade,city.vael-tir,Vael-Tir — A Cidade sob as Copas,nos docs e no catálogo,,,,,,"assentamento arbóreo, patrulha e manejo florestal",
+cidade,city.orvass,Orvass — Cidade das Águas Escuras,nos docs e no catálogo,,,,,,"cidade de pântano, pesca, ervas e travessias",
+cidade,city.caladwen,Caladwen — Cidade dos Arquivos Celestes,nos docs e no catálogo,,,,,,centro acadêmico e observatório,
+cidade,city.brumafunda,Brumafunda — A Cidade do Bosque Velado,nos docs e no catálogo,,,,,,"cidade de fronteira ecológica, guias e coleta",
+cidade,city.arven,Arven — As Clareiras Douradas,nos docs e no catálogo,,,,,,centro agrícola e de criação sustentável,
+cidade,city.silvaran,Silvaran — A Cidade dos Festivais,nos docs e no catálogo,,,,,,"centro cultural, santuários sazonais e hospitalidade",
+cidade,city.torvelume,Torvelume — A Fortaleza da Espinha de Vidro,nos docs e no catálogo,,,,,,"fortaleza florestal, posto de fronteira e cidade de ofícios",
+facção,faction.vigias-primeiro-verde,Vigias do Primeiro Verde,só nos docs,,,,,,"Saelith Arco-de-Chuva, general da guarda florestal.  ",
+facção,faction.liga-das-rotas,Liga das Rotas,só nos docs,,,,,,"Tavian Lume-Fino, com representantes locais independentes.  ",
+facção,faction.arquivistas-seiva,Arquivistas da Seiva,só nos docs,,,,,,Lethariel Nascente-Clara.  ,
+facção,faction.circulo-estacoes,Círculo das Estações,só nos docs,,,,,,Lyris Melodia-Clara.  ,
+facção,faction.irmandade-aguas,Irmandade das Águas,só nos docs,,,,,,"Elsin Várzea-Clara, em coordenação com barqueiros locais.  ",
+facção,faction.companhia-ambar,Companhia do Âmbar,só nos docs,,,,,,"Maelor Venn, comerciante carismático que evita cargos públicos.  ",
+facção,faction.circulo-micelial,Círculo Micelial,só nos docs,,,,,,"Voz-de-Muitas-Raízes, identidade coletiva usada por uma assembleia; nem todos os micélioides a reconhecem.  ",
+facção,faction.rede-guias,Rede dos Guias,só nos docs,,,,,,conselho rotativo de guias; a figura mais respeitada é Neralis Vento-Manso.  ,
+facção,faction.liga-celeiros,Liga dos Celeiros,só nos docs,,,,,,Tessa Folhinha.  ,
+facção,faction.guarda-espinha,Guarda da Espinha,só nos docs,,,,,,Dauren Galho-de-Ferro.  ,
+assentamento,settlement.raiz-de-prata,Raiz-de-Prata,só nos docs,,Elarion,,,,vila de viveiros e sementes; 1.800 residentes; liderança npc.nivara-folha-de-orvalho,
+assentamento,settlement.sete-degraus,Sete Degraus,só nos docs,,Elarion,,,,"povoado de ponte, pedágio e hospedagem; 2.400 residentes; liderança npc.othalen-vira-pedra",
+assentamento,settlement.junco-alto,Junco Alto,só nos docs,,Nymvar,,,,vila de diques e lavouras ribeirinhas; 3.100 residentes; liderança npc.beren-tres-canais,
+assentamento,settlement.tres-barcas,Três Barcas,só nos docs,,Nymvar,,,,"entreposto fluvial; 2.200 residentes, com população sazonal adicional ainda não contabilizada; liderança npc.sava-mao-de-corrente",
+assentamento,settlement.ponta-da-concha,Ponta da Concha,só nos docs,,Thalanor,,,,vila pesqueira; 2.700 residentes; liderança npc.yara-sal-de-mare,
+assentamento,settlement.farol-de-ambar,Farol de Âmbar,só nos docs,,Thalanor,,,,farol e aldeia costeira; 900 residentes; liderança npc.terenna-luz-de-lastro,
+assentamento,settlement.copa-funda,Copa-Funda,só nos docs,,Vael-Tir,,,,comunidade de manejo florestal; 1.600 residentes; liderança npc.arieth-tres-mudas,
+assentamento,settlement.passo-do-veado,Passo do Veado,só nos docs,,Vael-Tir,,,,"posto de trilha e mercado sazonal; 1.100 residentes fixos, sem contar visitantes e manadas em passagem; liderança npc.calar-passo-curvo",
+assentamento,settlement.lodo-claro,Lodo-Claro,só nos docs,,Orvass,,,,"aldeia de ervas, filtros e cuidados comunitários; 1.300 residentes; liderança npc.nima-barro-manso",
+assentamento,settlement.ilhas-junco-negro,Ilhas do Junco Negro,só nos docs,,Orvass,,,,conjunto de ilhotas e comunidades aquáticas; 2.000 residentes distribuídos por três comunidades; liderança npc.vela-tres-margens,
+assentamento,settlement.vigilia-do-lago,Vigília do Lago,só nos docs,,Caladwen,,,,aldeia de observadores meteorológicos; 1.000 residentes; liderança npc.orelia-ceu-de-cinza,
+assentamento,settlement.papel-velho,Papel-Velho,só nos docs,,Caladwen,,,,"povoado de copistas, encadernadores e restauradores; 1.700 residentes; liderança npc.marel-tinta-firme",
+assentamento,settlement.eco-baixo,Eco Baixo,só nos docs,,Brumafunda,,,,aldeia de guias; 1.200 residentes; liderança npc.mira-ouve-chuva,
+assentamento,settlement.torre-nevoa-mansa,Torre da Névoa Mansa,só nos docs,,Brumafunda,,,,posto de observação com pequena aldeia; 650 residentes; liderança npc.iven-marca-de-som,
+assentamento,settlement.mel-do-poente,Mel do Poente,só nos docs,,Arven,,,,vila de apiários e pomares; 2.600 residentes; liderança npc.sena-polen-dourado,
+assentamento,settlement.campo-tres-familias,Campo das Três Famílias,só nos docs,,Arven,,,,aldeia agrícola; 3.400 residentes; liderança npc.doria-tres-sulcos,
+assentamento,settlement.mascara-nova,Máscara Nova,só nos docs,,Silvaran,,,,vila de artistas e artesãos; 1.500 residentes; liderança npc.vessa-fio-dourado,
+assentamento,settlement.fonte-do-regresso,Fonte do Regresso,só nos docs,,Silvaran,,,,povoado de hospitalidade e abrigo; 1.900 residentes; liderança npc.dalen-porta-aberta,
+assentamento,settlement.ferro-folha,Ferro-Folha,só nos docs,,Torvelume,,,,vila de oficinas e reparos; 2.800 residentes; liderança npc.meda-martelo-calmo,
+assentamento,settlement.porta-selada,Porta Selada,só nos docs,,Torvelume,,,,assentamento próximo às galerias interditadas; 1.400 residentes; liderança npc.rovan-cinza-de-ferro,
+npc,npc.saelith-arco-de-chuva,Saelith Arco-de-Chuva,nos dois,,Elarion,GUARDIAN,elfo,sim,,"Elfa dos Bosques, cerca de 240 anos."
+npc,npc.dara-guarda-da-rota,Dara Guarda-da-Rota,nos dois,,Silvaran,GUARDIAN,satiro,sim,,
+npc,npc.vessa-fio-dourado,Vessa Fio-Dourado,nos dois,,Silvaran,BENEFACTOR,silvano-dos-festivais,sim,liderança de assentamento,
+npc,npc.ithren-quatro-estacoes,Mestre Ithren das Quatro Estações,nos dois,,Caladwen,HERO,elfo-das-estrelas,não,,"Elfo das Estrelas, falecido há 260 anos."
+npc,npc.avarra-sete-pontes,Avarra das Sete Pontes,nos dois,,Elarion,HERO,elfo,não,,"Elfa dos Bosques, falecida na Era da Coroa de Prata."
+npc,npc.parel-tres-parafusos,Parel Três-Parafusos,nos dois,,Elarion,BENEFACTOR,gnomo-dos-vales,sim,benfeitor vivo dos bairros suspensos,
+npc,npc.dena-tres-correntes,Dena Três-Correntes,nos dois,,Nymvar,HERO,pequenino-ribeirinho,não,,"Pequenina ribeirinha, falecida há cerca de 300 anos."
+npc,npc.voz-muitas-raizes,Voz-de-Muitas-Raízes,nos dois,,Orvass,GUARDIAN,fungal,sim,,Identidade coletiva micélioide.
+npc,npc.dara-passo-ritmico,Dara Passo-Rítmico,nos dois,,Silvaran,BENEFACTOR,satiro,sim,,
+npc,npc.iria-dos-ecos,Iria dos Ecos,nos dois,,Silvaran,HERO,feerico,sim,guardiã viva da Torre sem Sino,
+npc,npc.meda-martelo-calmo,Meda Martelo-Calmo,nos dois,,Torvelume,GUARDIAN,gnomo-dos-vales,sim,liderança de assentamento,
+npc,npc.hadrik-sete-bigornas,Hadrik das Sete Bigornas,nos dois,,Torvelume,HERO,gnomo-dos-vales,não,,"Anão residente, falecido há 180 anos."
+npc,npc.oranna-passo-largo,Oranna Passo-Largo,nos dois,,Vael-Tir,HERO,centauro-das-florestas,sim,,"Centaura das Florestas, viva, idade aproximada de 96 anos."
+npc,npc.oren-galho-quieto,Oren Galho-Quieto,nos dois,,Vael-Tir,HERO,elfo-dos-bosques,não,,"Elfo dos Bosques, falecido há 200 anos."
+npc,npc.doria-tres-sulcos,Doria Três-Sulcos,só nos docs,—,Arven,—,—,—,liderança de assentamento,
+npc,npc.sena-polen-dourado,Sena Pólen-Dourado,só nos docs,—,Arven,—,—,—,liderança de assentamento,
+npc,npc.iven-marca-de-som,Iven Marca-de-Som,só nos docs,—,Brumafunda,—,—,—,liderança de assentamento,
+npc,npc.mira-ouve-chuva,Mira Ouve-Chuva,só nos docs,—,Brumafunda,—,—,—,liderança de assentamento,
+npc,npc.marel-tinta-firme,Marel Tinta-Firme,só nos docs,—,Caladwen,—,—,—,liderança de assentamento,
+npc,npc.orelia-ceu-de-cinza,Orelia Céu-de-Cinza,só nos docs,—,Caladwen,—,—,—,liderança de assentamento,
+npc,npc.tirven-eixo-claro,Tirven Eixo-Claro,só nos docs,—,"Caladwen, Torvelume",—,—,—,"artífice histórico, morto há cerca de 210 anos",
+npc,npc.maereth-cartografa-das-copas,"Maereth, a Cartógrafa das Copas",só nos docs,—,Elarion,—,—,—,"heroína histórica, morta há 430 anos",
+npc,npc.nivara-folha-de-orvalho,Nivara Folha-de-Orvalho,só nos docs,—,Elarion,—,—,—,liderança de assentamento,
+npc,npc.othalen-vira-pedra,Othalen Vira-Pedra,só nos docs,—,Elarion,—,—,—,liderança de assentamento,
+npc,npc.beren-tres-canais,Beren Três-Canais,só nos docs,—,Nymvar,—,—,—,liderança de assentamento,"Orcano das Matas, 61 anos."
+npc,npc.sava-mao-de-corrente,Sava Mão-de-Corrente,só nos docs,—,Nymvar,—,—,—,liderança de assentamento,
+npc,npc.nima-barro-manso,Nima Barro-Manso,só nos docs,—,Orvass,—,—,—,liderança de assentamento,
+npc,npc.vela-tres-margens,Vela Três-Margens,só nos docs,—,Orvass,—,—,—,liderança de assentamento,
+npc,npc.dalen-porta-aberta,Dalen Porta-Aberta,só nos docs,—,Silvaran,—,—,—,liderança de assentamento,
+npc,npc.terenna-luz-de-lastro,Terenna Luz-de-Lastro,só nos docs,—,Thalanor,—,—,—,liderança de assentamento,
+npc,npc.yara-sal-de-mare,Yara Sal-de-Maré,só nos docs,—,Thalanor,—,—,—,liderança de assentamento,
+npc,npc.rovan-cinza-de-ferro,Rovan Cinza-de-Ferro,só nos docs,—,Torvelume,—,—,—,liderança de assentamento,
+npc,npc.arieth-tres-mudas,Arieth Três-Mudas,só nos docs,—,Vael-Tir,—,—,—,liderança de assentamento,
+npc,npc.calar-passo-curvo,Calar Passo-Curvo,só nos docs,—,Vael-Tir,—,—,—,liderança de assentamento,
+npc,npc.toma-mel-de-ambar,Toma Mel-de-Âmbar,nos dois,,Arven,HERO,pequenino-ribeirinho,não,,"Pequenino, falecido há 140 anos."
+npc,npc.avariel-thorne,Avariel Thorne,só nos docs,—,—,—,—,—,,"Elfo, cerca de 176 anos."
+npc,npc.sela-dos-retornos,Sela dos Retornos,nos dois,,Brumafunda,HERO,felideo-das-selvas,não,,"Felídea das Selvas, desaparecida há 70 anos."
+npc,npc.dauren-galho-de-ferro,Dauren Galho-de-Ferro,só nos docs,—,—,—,—,—,,"Anão residente, 118 anos."
+npc,npc.edris-do-sul,Edris do Sul,só nos docs,—,—,—,—,—,,"Humano de família antiga de Nymvar, 48 anos."
+npc,npc.elarwen-segunda,Elarwen II — a Rainha das Nascentes,só nos docs,—,—,—,—,—,,"Elfa, falecida há séculos."
+npc,npc.elsin-varzea-clara,Elsin Várzea-Clara,só nos docs,—,—,—,—,—,,"Pequenina ribeirinha, 64 anos."
+npc,npc.eryndra-folha-verde,Eryndra Folha-Verde,só nos docs,—,—,—,—,—,,"Elfa dos Bosques, cerca de 132 anos."
+npc,npc.fen-orvaluz,Fen Orvaluz,só nos docs,—,—,—,—,—,,"Felídeo das Selvas, cerca de 46 anos."
+npc,npc.ilyra-tres-rios,Ilyra dos Três Rios — a Curandeira da Vigília,só nos docs,—,—,—,—,—,,"Elfa, falecida há cerca de 160 anos."
+npc,npc.ivara-polen-de-lume,Ivara Pólen-de-Lume,só nos docs,—,—,—,—,—,,"Feérica, idade desconhecida."
+npc,npc.lethariel-nascente-clara,Lethariel Nascente-Clara,só nos docs,—,—,—,—,—,,"Elfa das Estrelas, cerca de 310 anos."
+npc,npc.lyris-melodia-clara,Lyris Melodia-Clara,só nos docs,—,—,—,—,—,,"Silvano Festivo, idade aproximada de 72 anos."
+npc,npc.maelor-venn,Maelor Venn,só nos docs,—,—,—,—,—,,"Elfo, cerca de 154 anos."
+npc,npc.odran-sete-bigornas,Mestre Odran Sete-Bigornas — o Artífice sem Coroa,só nos docs,—,—,—,—,—,,"Anão residente em Torvelume, falecido."
+npc,npc.mirel-caule-vivo,Mirel Caule-Vivo,só nos docs,—,—,—,—,—,,"Verdejante, idade incerta; sua comunidade considera a pergunta mal formulada."
+npc,npc.nara-tres-fios,Nara Três-Fios,só nos docs,—,—,—,—,—,,"Corvária, cerca de 39 anos."
+npc,npc.neralis-vento-manso,Neralis Vento-Manso,só nos docs,—,—,—,—,—,,"Elfo do Crepúsculo, cerca de 190 anos."
+npc,npc.nima-raiz-de-lodo,Nima Raiz-de-Lodo,nos dois,,Orvass,HERO,orcano-das-matas,não,,"Curandeira orcana das matas, falecida há 90 anos."
+npc,npc.maereth-vaelorian,Princesa Maereth Vaelorian,só nos docs,—,—,—,—,—,herdeira reconhecida e Guardiã do Pacto das Nascentes,
+npc,npc.aerendyl-vaelorian,Rei Aerendyl Vaelorian,só nos docs,—,—,—,—,—,"Rei de Aeltharyn, guardião formal dos Sete Juramentos",
+npc,npc.selvaris-noctel,Selvaris Noctel,só nos docs,—,—,—,—,—,,"Elfo das Estrelas, cerca de 221 anos."
+npc,npc.miri-corda-de-lua,Miri Corda-de-Lua,nos dois,,Silvaran,HERO,satiro,não,,"Silvana Festiva, falecida há 110 anos."
+npc,npc.syranna-das-mares,Syranna das Marés,só nos docs,—,—,—,—,—,,"Elfa costeira, cerca de 205 anos."
+npc,npc.tavian-lume-fino,Tavian Lume-Fino,só nos docs,—,—,—,—,—,,"Gnomo dos Vales, cerca de 84 anos."
+npc,npc.tessa-folhinha,Tessa Folhinha,só nos docs,—,—,—,—,—,,"Pequenina ribeirinha, 57 anos."
+npc,npc.yssara-folha-de-sal,Capitã Yssara Folha-de-Sal,nos dois,,Thalanor,HERO,abissal-das-enseadas,não,,"Elfa costeira, falecida há 120 anos."
+npc,npc.tharion-folha-de-ferro,Tharion Folha-de-Ferro — o Capitão das Rotas Abertas,só nos docs,—,—,—,—,—,,"Elfo dos Bosques, falecido."
+npc,npc.anelra-copa-aberta,Anelra Copa-Aberta,nos dois,,Arven,HERO,plantae,não,,
+npc,npc.bento-sete-sementes,Bento Sete-Sementes,nos dois,,Arven,BENEFACTOR,pequenino-ribeirinho,sim,,
+npc,npc.calar-raiz-curva,Calar Raiz-Curva,nos dois,,Arven,GUARDIAN,centauro-das-florestas,sim,,
+npc,npc.ruma-coracao-solo,Ruma Coração-de-Solo,nos dois,,Arven,GUARDIAN,plantae,sim,,
+npc,npc.sava-broto-novo,Sava Broto-Novo,nos dois,,Arven,BENEFACTOR,plantae,sim,,
+npc,npc.kheva-ouvido-nevoa,Kheva Ouvido-de-Névoa,nos dois,,Brumafunda,HERO,homem-corvo-das-torres,sim,,
+npc,npc.milo-passo-bruma,Milo Passo-de-Bruma,nos dois,,Brumafunda,BENEFACTOR,felideo-das-selvas,sim,,
+npc,npc.nessa-agua-lenta,Nessa Água-Lenta,nos dois,,Brumafunda,GUARDIAN,elfo-do-crepusculo,sim,,
+npc,npc.nima-rede-micelio,Nima Rede-de-Micélio,nos dois,,Brumafunda,BENEFACTOR,fungal,sim,,
+npc,npc.selene-mascara-clara,Selenê Máscara-Clara,nos dois,,Brumafunda,GUARDIAN,feerico,sim,,
+npc,npc.sivra-pata-musgo,Sivra Pata-de-Musgo,nos dois,,Brumafunda,GUARDIAN,felideo-das-selvas,sim,,
+npc,npc.teren-asa-corda,Teren Asa-de-Corda,nos dois,,Brumafunda,GUARDIAN,homem-corvo-das-torres,sim,,
+npc,npc.asha-nove-pergaminhos,Asha Nove-Pergaminhos,nos dois,,Caladwen,BENEFACTOR,elfo-das-estrelas,sim,,
+npc,npc.elyon-prisma-claro,Elyon Prisma-Claro,nos dois,,Caladwen,GUARDIAN,elfo-das-estrelas,sim,,
+npc,npc.nilo-recado-certo,Nilo Recado-Certo,nos dois,,Elarion,BENEFACTOR,homem-corvo-das-torres,sim,,
+npc,npc.nimeth-vela-chuva,Nimeth Vela-de-Chuva,nos dois,,Elarion,GUARDIAN,elfo-das-estrelas,sim,,
+npc,npc.iven-folhas-brancas,Iven das Folhas Brancas,nos dois,,Nymvar,BENEFACTOR,elfo-dos-bosques,sim,,
+npc,npc.mara-barro-claro,Mara Barro-Claro,nos dois,,Nymvar,GUARDIAN,pequenino-ribeirinho,sim,,
+npc,npc.korga-ponta-junco,Korga Ponta-de-Junco,nos dois,,Orvass,BENEFACTOR,orcano-das-matas,sim,,
+npc,npc.oru-rede-chuva,Oru Rede-de-Chuva,nos dois,,Orvass,HERO,fungal,não,,
+npc,npc.syris-canal-velado,Syris do Canal Velado,nos dois,,Orvass,HERO,elfo-do-crepusculo,não,,
+npc,npc.veyra-pavio-silencioso,Veyra Pavio-Silencioso,nos dois,,Orvass,BENEFACTOR,elfo-do-crepusculo,sim,,
+npc,npc.alena-quatro-mascaras,Alena das Quatro Máscaras,nos dois,,Silvaran,HERO,silvano-dos-festivais,não,,
+npc,npc.luma-folha-prata,Luma Folha-de-Prata,nos dois,,Silvaran,BENEFACTOR,feerico,sim,,
+npc,npc.voro-cancao-pedra,Voro Canção-de-Pedra,nos dois,,Silvaran,GUARDIAN,silvano-dos-festivais,sim,,
+npc,npc.mira-sal-prata,Mira Sal-de-Prata,nos dois,,Thalanor,BENEFACTOR,abissal-das-enseadas,sim,,
+npc,npc.naren-mare-reversa,Náren da Maré Reversa,nos dois,,Thalanor,GUARDIAN,abissal-das-enseadas,sim,,
+npc,npc.talia-cordame-verde,Tália Cordame-Verde,nos dois,,Thalanor,BENEFACTOR,elfo,sim,,
+npc,npc.vessa-engrenagem-lua,Vessa Engrenagem-de-Lua,nos dois,,Torvelume,BENEFACTOR,gnomo-dos-vales,sim,,
+npc,npc.eshara-chuva-folha,Eshara Chuva-na-Folha,nos dois,,Vael-Tir,GUARDIAN,elfo-dos-bosques,sim,,
+npc,npc.mirek-junco-ferro,Mirek Junco-Ferro,nos dois,,Vael-Tir,GUARDIAN,orcano-das-matas,sim,,
+npc,npc.tavro-passo-raiz,Tavro Passo-de-Raiz,nos dois,,Vael-Tir,BENEFACTOR,centauro-das-florestas,sim,,
+npc,npc.vaunor-eir,Vaunor Eir,só nos docs,,,,,,representante das casas de manejo florestal no Conselho das Sete Copas,

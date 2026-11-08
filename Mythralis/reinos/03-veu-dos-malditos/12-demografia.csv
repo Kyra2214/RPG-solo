@@ -1,0 +1,9 @@
+id,tipo,nome,valor_perfil,faixa_uso,categoria,evidencia,confianca
+city.morroveu,cidade,Morrovéu,sem número,grande,indefinida,"capital; Corte, guarda e Arquivo; sede de um assento do Conselho (doc 01 V-01; doc 04 §2.1)",média
+city.lamaluz,cidade,Lamaluz,sem número,média,indefinida,"cidade de charco sobre estacas e passarelas, com pilotos e famílias que querem partir (doc 01 V-02; doc 05 §4)",baixa
+city.fozbreu,cidade,Fozbreu,sem número,média,indefinida,"porto na foz com cabotagem, barra e a chegada da Descida (doc 01 V-03; doc 05 §3)",média
+city.beira-sal,cidade,Beira-Sal,sem número,pequena,indefinida,posto no limite seco que depende de poucos poços (doc 01 V-04),baixa
+city.selovale,cidade,Selovale,sem número,pequena,indefinida,vale encaixado com povoado cercado de pedras de selo e um arquivo (doc 01 V-05),baixa
+city.borda-mansa,cidade,Borda-Mansa,sem número,pequena,indefinida,posto da orla norte com fogueiras de sinal e pequenas patrulhas (doc 01 V-06),baixa
+city.fio-longo,cidade,Fio-Longo,sem número,pequena,indefinida,casa de repouso num vale afastado das trilhas de caravana (doc 01 V-07),baixa
+city.candeia-morta,cidade,Candeia-Morta,sem número,média,indefinida,cidade noturna com turnos de vigília que nunca fecham e cuidado dos mortos (doc 01 V-08; doc 04 §9),baixa

@@ -1,0 +1,24 @@
+codigo|severidade|entidade|mensagem|fonte
+V-06|A|cidade.txt|8 de 8 registros com fonte "proposto" (aguardam o autor)|cidade.txt
+V-06|A|faccao.txt|11 de 11 registros com fonte "proposto" (aguardam o autor)|faccao.txt
+V-06|A|npc.txt|30 de 30 registros com fonte "proposto" (aguardam o autor)|npc.txt
+V-10|A|event.acertos-orais-suspensos|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.beira-sal-ermo|evento.txt
+V-10|A|event.conselho-vota-em-publico|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.conselho-morroveu|evento.txt
+V-10|A|event.fardos-suspensos|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.fozbreu-argente|evento.txt
+V-10|A|event.tributo-que-nao-basta|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.conselho-morroveu|evento.txt
+V-15|A|npc.aun-silencio-primeiro|NPC sem cidade nem facção|npc.txt
+V-15|A|npc.lish-rosto-primeiro|NPC sem cidade nem facção|npc.txt
+V-15|A|npc.mursk-juramento-de-bando|NPC sem cidade nem facção|npc.txt
+V-15|A|npc.xalu-no-primeiro|NPC sem cidade nem facção|npc.txt
+V-15|A|npc.zibb-rede-primeira|NPC sem cidade nem facção|npc.txt
+V-21|A|route.morroveu-fozbreu|[exceção] rota duplicada (mesmo par e meio)|rota.txt
+V-21|A|route.morroveu-selovale|[exceção] rota duplicada (mesmo par e meio)|rota.txt
+V-23|A|kingdom.veu-dos-malditos|cidades conexas só contando rotas de duração desconhecida (nenhuma rota documentada com tempo)|rota.txt
+V-26|A|kingdom.veu-dos-malditos|rio, posição de fortaleza e relevo: revisão manual contra M-04 (não verificável por regra)|M-04
+V-30|A|kingdom.veu-dos-malditos|menos de 10 cidades|—
+V-31|A|mundo|mundo com 1 reino em composição (reinos 3 a 5 e Aeltharyn fora deste conjunto); mínimo 5 só no nível mundo|—
+V-34|A|kingdom.veu-dos-malditos|sem herdeiro; sucessão só pela Provação das Armas, desfecho desconhecido (doc 04 §5)|—
+V-42|A|faction.casa-dos-fios|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.turnos-da-vigilia|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.vigias-da-orla|aliados ou rivais desconhecidos|faccao.txt
+# resumo: 0 erros, 22 avisos, 6 exceções aplicadas

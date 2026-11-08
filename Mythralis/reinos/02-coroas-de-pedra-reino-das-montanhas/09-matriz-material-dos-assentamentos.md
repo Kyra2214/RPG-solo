@@ -1,0 +1,50 @@
+# Coroas de Pedra — Matriz material dos vinte assentamentos (doc 09)
+
+**Estado:** rascunho de R2-3.3 para aprovação do autor · **Data:** 2026-11-04
+**Etiqueta:** **[PROPOSTO]**; cruza `03-assentamentos-e-rede-politica.md` (fonte primária) com `08-registro-operacional-de-recursos.md` e `12-recursos.csv`. Não cria produção, estoque, preço, tempo de reposição nem rota; níveis são os provisórios de D-43 (±1).
+
+## 1. Como ler
+
+“Assentamento” é unidade de registro comunitário, não vila independente por obrigação: pode ser bairro, distrito, vila, comunidade afastada ou posto sazonal (categorias do doc 03). A **cidade-mãe é vínculo político**, não prova de abastecimento, de distância ou de inclusão em faixa de porte. Uma obrigação de entregar não prova que a entrega seja suficiente; uma oficina não prova peça em estoque; um posto sazonal não funciona o ano todo. Nível `?` significa sem produção medível ou sem texto, **nunca zero**.
+
+## 2. Matriz
+
+| ID | Assentamento e cidade-mãe | Categoria | Base material documentada | Dependência ou risco documentado | Nível provisório (recurso: nível) | Dados ainda necessários |
+|---|---|---|---|---|---|---|
+| `settlement.cinzeiro` | Cinzeiro — Vila das Cinzas (S-01) — Brasalume — A Forja dos Dentes | Distrito ou núcleo periurbano | coleta de cinza, escória e vidro vulcânico; obrigação: entregar escória e cinza às fornalhas sem desperdício | as fornalhas exigem toda a cinza; a vila diz que a fumaça adoece as crianças e pede outro lugar de despejo | metal: 3 | volume de cinza e escória por período; local alternativo de despejo; demanda das fornalhas |
+| `settlement.veio-fundo` | Veio-Fundo — A Mina de Superfície (S-02) — Brasalume — A Forja dos Dentes | Comunidade afastada | mina aberta de minério; obrigação: abastecer Brasalume de minério em cotas acordadas | o veio rende menos a cada ano e a cidade não aceita cota menor | metal: 3 | reserva do veio; cota vigente; ritmo da queda; alternativa de novo veio |
+| `settlement.ninho-seco` | Ninho-Seco — O Posto dos Mensageiros (S-03) — Altavento — A Cidade dos Picos | Posto ou núcleo sazonal | posto sazonal de pouso e repasse de mensagens; obrigação: manter pouso, comida e abrigo para quem voa | as outras cidades pagam atrasado e o posto não tem reserva para uma nevasca longa | mensagens-e-passos: ? | reserva para nevasca longa; calendário sazonal; valor devido pelas cidades |
+| `settlement.rastro-branco` | Rastro-Branco — A Comunidade da Neve (S-04) — Altavento — A Cidade dos Picos | Comunidade afastada | caçadores e guias de neve; obrigação: guiar viajantes pelos passos e avisar sobre avalanche | a cidade quer limitar a caça por escassez; a comunidade diz que isso a obriga a descer ao vale | alimento: 2; mensagens-e-passos: 2 | limite de caça aceitável; estado dos passos; alternativa de moradia |
+| `settlement.comporta-velha` | Comporta-Velha — O Distrito das Comportas (S-05) — Veiaclara — A Cidade da Nascente | Distrito ou núcleo periurbano | guarda e manutenção das comportas; obrigação: manter e registrar a abertura das comportas | ninguém paga a manutenção e uma comporta velha ameaça ceder | agua: ? | estado da comporta; quem paga o reparo; registro de aberturas |
+| `settlement.lago-de-cima` | Lago-de-Cima — A Vila do Gelo (S-06) — Veiaclara — A Cidade da Nascente | Vila próxima | coleta de gelo e cristal bruto do lago alto; obrigação: fornecer gelo e cristal sem tocar o fundo do lago | a cidade quer aprofundar a coleta; a vila recusa por um limite que não sabe provar | agua: 3 | limite de coleta (não provado); destino do gelo e do cristal bruto; relação com o degelo |
+| `settlement.cordoaria` | Cordoaria — O Bairro das Cordas (S-07) — Barcaalta — O Porto da Cabeceira | Bairro urbano | oficinas de corda, correntes e velas; obrigação: fornecer cordas e correntes aos cais | o cais compra de fora quando o preço sobe, e as oficinas ficam sem encomenda | carga-e-cais: 3 | capacidade das oficinas; preço do cordame de fora; encomendas do cais |
+| `settlement.primeira-rampa` | Primeira-Rampa — O Núcleo do Registro (S-08) — Barcaalta — O Porto da Cabeceira | Distrito ou núcleo periurbano | registro da Descida e guarda da rampa mais antiga; obrigação: anotar cada barca que desce e cada taxa paga | o registro de carga e o das taxas não batem, e cada lado culpa o outro | carga-e-cais: ? | método de conferência carga × taxa; quem concilia os registros |
+| `settlement.albergue-de-cima` | Albergue-de-Cima — A Hospedagem Sazonal (S-09) — Portão-Cinza — O Limiar do Esporão | Posto ou núcleo sazonal | hospedagem de caravanas em meses de passagem; obrigação: abrigar quem sobe e quem desce, sem perguntar a origem | os vigias querem registrar todos os hóspedes; o albergue diz que isso afasta os clientes | passagem-e-hospedagem: 2 | meses de passagem; capacidade de hospedagem; regra de registro de hóspedes |
+| `settlement.galeria-alta` | Galeria-Alta — O Núcleo dos Vigias (S-10) — Portão-Cinza — O Limiar do Esporão | Distrito ou núcleo periurbano | alojamento e escala dos vigias; obrigação: manter a vigília e o Livro de Passagens em dia | faltam vigias e o Livro tem lacunas que ninguém quer explicar | passagem-e-hospedagem: ? | efetivo de vigias; lacunas do Livro (causa desconhecida); escala |
+| `settlement.fenda-mercado` | Fenda-Mercado — O Mercado de Fendas (S-11) — Sinuosa — A Cidade dos Mil Corredores | Bairro urbano | mercado de rotas e mapas; obrigação: manter o mercado aberto e neutro entre as famílias de guias | mapas rivais circulam e cada família acusa o mercado de vender o mapa errado | mapas-e-guias: ? | mapas em circulação; regra de neutralidade; quem valida o mapa |
+| `settlement.boca-larga` | Boca-Larga — O Acesso Externo (S-12) — Sinuosa — A Cidade dos Mil Corredores | Posto ou núcleo sazonal | posto da entrada mais larga da cidade; obrigação: receber quem chega e entregar um guia | viajantes insistem em entrar sozinhos e um deles se perdeu | mapas-e-guias: 2 | guias por estação; protocolo de entrada; registro de perdidos |
+| `settlement.degrau-pequeno` | Degrau-Pequeno — O Bairro dos Menores (S-13) — Cumieira — A Casa dos Grandes | Bairro urbano | bairro de moradia em escala menor, dentro da cidade grande; obrigação: manter o bairro e as escadas dos pequenos | os grandes veem os pedidos como ofensa à casa antiga |  | estado das escadas dos menores; regra de escala (L-07); manutenção devida |
+| `settlement.pasto-de-cume` | Pasto-de-Cume — O Pasto de Altitude (S-14) — Cumieira — A Casa dos Grandes | Comunidade afastada | rebanhos de altitude e lã grossa; obrigação: fornecer lã e carne à cidade | a cidade quer abrir um caminho pelos pastos e o clã vê nisso uma quebra de juramento | alimento: 2; pedra-e-rebanhos: 3 | tamanho dos rebanhos (sem número); caminho proposto pela cidade; oferta de lã e carne |
+| `settlement.roda-menor` | Roda-Menor — O Distrito das Rodas (S-15) — Rodaviva — A Cidade que Despertou | Distrito ou núcleo periurbano | rodas d'água, engrenagens de carga e relojoaria; obrigação: manter as rodas que movem as oficinas | peças raras somem e a vila é acusada | pecas: 2 | inventário de peças; estado das rodas d'água; origem do sumiço (não provada) |
+| `settlement.oficina-sem-dono` | Oficina-Sem-Dono — A Casa dos Despertos (S-16) — Rodaviva — A Cidade que Despertou | Indefinido | núcleo onde moram construtos sem dono registrado; obrigação: manter o núcleo sem pedir ajuda à cidade | a cidade não definiu se eles têm direitos; algumas oficinas os reclamam como propriedade | pecas: ? | categoria espacial (indefinida); foro dos construtos; recursos que usam |
+| `settlement.poco-alto` | Poço-Alto — O Distrito do Poço de Luz (S-17) — Geodália — A Cidade das Facetas | Distrito ou núcleo periurbano | guarda do poço vertical e das lentes; obrigação: manter o poço limpo e as lentes alinhadas | obras da cidade ameaçam sombrear o poço | cristal-e-luz: ? | estado das lentes; efeito das obras sobre a luz; rotina de manutenção |
+| `settlement.corte-fino` | Corte-Fino — A Comunidade dos Lapidadores (S-18) — Geodália — A Cidade das Facetas | Vila próxima | lapidação e oficinas de cristal; obrigação: entregar cristal lapidado às lentes e às encomendas da cidade | as cotas de extração apertaram depois de um tremor, e os lapidadores perdem encomendas | cristal-e-luz: 3 | cota de extração; estado da faceta rachada; encomendas perdidas |
+| `settlement.patio-das-delegacoes` | Pátio-das-Delegações — O Bairro da Hospedagem (S-19) — Pedra-Ata — A Cidade do Concílio | Bairro urbano | hospedagem e serviço das delegações; obrigação: hospedar delegados sem favorecer nenhum | as cidades mandam delegados sem avisar e o bairro não dá conta | arquivo-e-selos: ? | calendário das delegações; capacidade de hospedagem; aviso prévio |
+| `settlement.arquivo-velho` | Arquivo-Velho — O Núcleo dos Escribas (S-20) — Pedra-Ata — A Cidade do Concílio | Distrito ou núcleo periurbano | escribas e cópia de atas; obrigação: copiar e guardar as atas do Concílio | as cidades contestam atas e cada uma pede cópias diferentes | arquivo-e-selos: 3 | atas e cópias existentes; cadeia de custódia; pedidos pendentes |
+
+## 3. Lacunas gerais
+
+- **Nenhum assentamento herda a especialização da cidade-mãe.** O que um assentamento fornece é só o que o doc 03 diz.
+- **Reserva e demanda:** `?` em todos; demanda de assentamento não existe (bairros já estão dentro da cidade-mãe; postos variam com a estação; D-42).
+- **Sem rota:** nenhum acesso tem duração (D-41).
+- **Sem solução:** as tensões (cota, fumaça, comporta, registro, escala, foro dos Despertos) ficam abertas; este documento só diz o que cada uma toca materialmente.
+
+## 4. Conferências
+
+- 20 assentamentos; 20 com cidade-mãe existente; 11 com nível provisório de produção e 9 com `?`; 0 nível 5; 0 nível 0; 0 número de quantidade.
+- Cada assentamento aparece em `12-recursos.csv` (19 de 20; os demais não têm papel material medível além do registro do doc 03).
+- 0 rota, tempo, NPC, cidade, facção ou assentamento novos; nada sobre Aeltharyn.
+
+## 5. Decisão pendente
+
+**D-43** (ver doc 08, §11).

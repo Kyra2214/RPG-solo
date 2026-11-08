@@ -1,0 +1,9 @@
+id,tipo,nome,valor_perfil,faixa_uso,categoria,evidencia,confianca
+city.tabuleiro-velho,lugar,Tabuleiro-Velho,sem número,média,indefinida,fortaleza-celeiro fixa que abriga clãs em ano ruim; fica guardada por poucos quando os clãs partem (doc 01 §2.1),baixa
+city.rasovau,lugar,Rasovau,sem número,média,indefinida,"vau e mercado de curral fixo, onde clãs, rebanhos e carroças atravessam (doc 01 §2.2)",baixa
+city.praia-pardo,lugar,Praia-Pardo,sem número,pequena,indefinida,pouso fluvial fixo com pouca defesa própria e residentes poucos; visitantes de passagem não contam (doc 01 §2.3; D-103),baixa
+city.alvasal,lugar,Alvasal,sem número,pequena,indefinida,pouso de caravana fixo que depende de uma só cisterna (doc 01 §2.4),baixa
+city.terreiro-maior,lugar,Terreiro-Maior,sem número,grande,indefinida,sazonal; grande na reunião da Assembleia e quase vazio fora dela (doc 01 §2.5),baixa
+city.vazante,lugar,Vazante,sem número,grande,indefinida,"sazonal; acampamento da marcha e corpo de defesa do reino, com carroças e rebanhos (doc 01 §2.6)",baixa
+city.encosta-aberta,lugar,Encosta-Aberta,sem número,pequena,indefinida,sazonal; pouso de vigia e pastagem de espera no pé das elevações (doc 01 §2.7),baixa
+city.gramal,lugar,Gramal,sem número,média,indefinida,sazonal; território de pasto e caça dos clãs de gado e de caça (doc 01 §2.8),baixa

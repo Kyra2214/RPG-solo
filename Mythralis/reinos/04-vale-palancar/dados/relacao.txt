@@ -1,0 +1,83 @@
+# esquema=1
+origem|destino|destino_texto|tipo|descricao|fonte|certeza
+npc.kharos-casco-de-marcha|faction.vigias-da-cisterna|—|aliança|a facção Guardas da Marcha é aliada de Vigias da Cisterna|doc 04 §9 (faction.guardas-da-marcha)|C
+npc.kharos-casco-de-marcha|faction.guias-da-encosta|—|aliança|a facção Guardas da Marcha é aliada de Guias da Encosta|doc 04 §9 (faction.guardas-da-marcha)|C
+npc.gruzk-estandarte-baixo|faction.vigias-da-cisterna|—|aliança|a facção Clãs da Prova é aliada de Vigias da Cisterna|doc 04 §9 (faction.clas-da-prova)|C
+npc.gruzk-estandarte-baixo|faction.guardioes-da-reserva|—|aliança|a facção Clãs da Prova é aliada de Guardiões da Reserva|doc 04 §9 (faction.clas-da-prova)|C
+npc.gruzk-estandarte-baixo|faction.clas-da-aclamacao|—|rivalidade|a facção Clãs da Prova é rival de Clãs da Aclamação|doc 04 §9 (faction.clas-da-prova)|C
+npc.cadrek-cerca-aberta|faction.mesa-da-partilha|—|aliança|a facção Clãs da Aclamação é aliada de Mesa da Partilha|doc 04 §9 (faction.clas-da-aclamacao)|C
+npc.cadrek-cerca-aberta|faction.clas-da-caca|—|aliança|a facção Clãs da Aclamação é aliada de Clãs da Caça|doc 04 §9 (faction.clas-da-aclamacao)|C
+npc.cadrek-cerca-aberta|faction.clas-da-prova|—|rivalidade|a facção Clãs da Aclamação é rival de Clãs da Prova|doc 04 §9 (faction.clas-da-aclamacao)|C
+npc.moura-mel-guardado|faction.clas-da-prova|—|aliança|a facção Guardiões da Reserva é aliada de Clãs da Prova|doc 04 §9 (faction.guardioes-da-reserva)|C
+npc.moura-mel-guardado|faction.clas-do-gado|—|aliança|a facção Guardiões da Reserva é aliada de Clãs do Gado|doc 04 §9 (faction.guardioes-da-reserva)|C
+npc.moura-mel-guardado|faction.vigias-das-trilhas|—|aliança|a facção Guardiões da Reserva é aliada de Vigias das Trilhas|doc 04 §9 (faction.guardioes-da-reserva)|C
+npc.moura-mel-guardado|faction.mesa-da-partilha|—|rivalidade|a facção Guardiões da Reserva é rival de Mesa da Partilha|doc 04 §9 (faction.guardioes-da-reserva)|C
+npc.pocha-ninhada-farta|faction.clas-da-aclamacao|—|aliança|a facção Mesa da Partilha é aliada de Clãs da Aclamação|doc 04 §9 (faction.mesa-da-partilha)|C
+npc.pocha-ninhada-farta|faction.clas-da-caca|—|aliança|a facção Mesa da Partilha é aliada de Clãs da Caça|doc 04 §9 (faction.mesa-da-partilha)|C
+npc.pocha-ninhada-farta|faction.guardioes-da-reserva|—|rivalidade|a facção Mesa da Partilha é rival de Guardiões da Reserva|doc 04 §9 (faction.mesa-da-partilha)|C
+npc.zinu-troca-justa|faction.receptores-do-pouso|—|aliança|a facção Pedras de Cima é aliada de Receptores do Pouso|doc 04 §9 (faction.pedras-de-cima)|C
+npc.zinu-troca-justa|faction.pedras-de-baixo|—|rivalidade|a facção Pedras de Cima é rival de Pedras de Baixo|doc 04 §9 (faction.pedras-de-cima)|C
+npc.lumbo-pedra-de-baixo|faction.balanca-do-pouso|—|aliança|a facção Pedras de Baixo é aliada de Balança do Pouso|doc 04 §9 (faction.pedras-de-baixo)|C
+npc.lumbo-pedra-de-baixo|faction.pedras-de-cima|—|rivalidade|a facção Pedras de Baixo é rival de Pedras de Cima|doc 04 §9 (faction.pedras-de-baixo)|C
+npc.vrissk-colonia-quieta|faction.pedras-de-cima|—|aliança|a facção Receptores do Pouso é aliada de Pedras de Cima|doc 04 §9 (faction.receptores-do-pouso)|C
+npc.vrissk-colonia-quieta|faction.balanca-do-pouso|—|rivalidade|a facção Receptores do Pouso é rival de Balança do Pouso|doc 04 §9 (faction.receptores-do-pouso)|C
+npc.grebb-balanca-justa|faction.pedras-de-baixo|—|aliança|a facção Balança do Pouso é aliada de Pedras de Baixo|doc 04 §9 (faction.balanca-do-pouso)|C
+npc.grebb-balanca-justa|faction.receptores-do-pouso|—|rivalidade|a facção Balança do Pouso é rival de Receptores do Pouso|doc 04 §9 (faction.balanca-do-pouso)|C
+npc.aruun-poco-compartilhado|faction.guardas-da-marcha|—|aliança|a facção Vigias da Cisterna é aliada de Guardas da Marcha|doc 04 §9 (faction.vigias-da-cisterna)|C
+npc.aruun-poco-compartilhado|faction.clas-da-prova|—|aliança|a facção Vigias da Cisterna é aliada de Clãs da Prova|doc 04 §9 (faction.vigias-da-cisterna)|C
+npc.tessun-salto-calado|faction.guardas-da-marcha|—|aliança|a facção Guias da Encosta é aliada de Guardas da Marcha|doc 04 §9 (faction.guias-da-encosta)|C
+npc.tessun-salto-calado|faction.vigias-das-trilhas|—|rivalidade|a facção Guias da Encosta é rival de Vigias das Trilhas|doc 04 §9 (faction.guias-da-encosta)|C
+npc.sendro-clareira-vigia|faction.guardioes-da-reserva|—|aliança|a facção Vigias das Trilhas é aliada de Guardiões da Reserva|doc 04 §9 (faction.vigias-das-trilhas)|C
+npc.sendro-clareira-vigia|faction.guias-da-encosta|—|rivalidade|a facção Vigias das Trilhas é rival de Guias da Encosta|doc 04 §9 (faction.vigias-das-trilhas)|C
+npc.tibbe-salto-curto|faction.guardioes-da-reserva|—|aliança|a facção Clãs do Gado é aliada de Guardiões da Reserva|doc 04 §9 (faction.clas-do-gado)|C
+npc.tibbe-salto-curto|faction.clas-da-caca|—|rivalidade|a facção Clãs do Gado é rival de Clãs da Caça|doc 04 §9 (faction.clas-do-gado)|C
+npc.ghorla-fartura-dividida|faction.clas-da-aclamacao|—|aliança|a facção Clãs da Caça é aliada de Clãs da Aclamação|doc 04 §9 (faction.clas-da-caca)|C
+npc.ghorla-fartura-dividida|faction.mesa-da-partilha|—|aliança|a facção Clãs da Caça é aliada de Mesa da Partilha|doc 04 §9 (faction.clas-da-caca)|C
+npc.ghorla-fartura-dividida|faction.clas-do-gado|—|rivalidade|a facção Clãs da Caça é rival de Clãs do Gado|doc 04 §9 (faction.clas-da-caca)|C
+npc.moura-mel-guardado|city.tabuleiro-velho|—|dívida|Guardar a reserva e os marcos dos pastos pactuados; abrigar clãs em ano ruim|doc 03 §1 e 12-assentamentos.csv (city.tabuleiro-velho)|C
+npc.moura-mel-guardado|city.tabuleiro-velho|—|tensão|Clãs de fora pedem reserva e os guardiões dizem que é de quem a juntou; ninguém concorda sobre o direito quando a migração falha|doc 03 §1 e 12-assentamentos.csv (city.tabuleiro-velho)|C
+npc.zinu-troca-justa|city.rasovau|—|dívida|Manter o vau transitável e o mercado de curral (origem: guardião do lugar na tríade, pois o chefe do Trato é `desconhecido`, doc 04 §8)|doc 03 §1 e 12-assentamentos.csv (city.rasovau)|ASSUMINDO
+npc.zinu-troca-justa|city.rasovau|—|tensão|Dois grupos de clãs cobram pela mesma passagem e cada um diz que o Trato é seu (lideranca_id desconhecido: o Trato está em disputa, doc 04 §8)|doc 03 §1 e 12-assentamentos.csv (city.rasovau)|C
+npc.vrissk-colonia-quieta|city.praia-pardo|—|dívida|Receber, guardar e acertar a carga de quem chega pelo rio|doc 03 §1 e 12-assentamentos.csv (city.praia-pardo)|C
+npc.vrissk-colonia-quieta|city.praia-pardo|—|tensão|Clãs discordam sobre quem pode cobrar o desembarque; carga chega com papel que o Vale não conhece|doc 03 §1 e 12-assentamentos.csv (city.praia-pardo)|C
+npc.aruun-poco-compartilhado|city.alvasal|—|dívida|Guardar a cisterna e quem se prepara para o Ermo|doc 03 §1 e 12-assentamentos.csv (city.alvasal)|C
+npc.aruun-poco-compartilhado|city.alvasal|—|tensão|A cisterna não serve a todas as caravanas ao mesmo tempo; discordância sobre a preferência|doc 03 §1 e 12-assentamentos.csv (city.alvasal)|C
+npc.yorna-palavra-firme|city.terreiro-maior|—|dívida|Reunir os clãs, mediar pactos e acertar contas; o Capitão comparece sem presidir|doc 03 §1 e 12-assentamentos.csv (city.terreiro-maior)|C
+npc.yorna-palavra-firme|city.terreiro-maior|—|tensão|Mandato do Capitão de Marcha perto do fim; Assembleia dividida entre prova e aclamação|doc 03 §1 e 12-assentamentos.csv (city.terreiro-maior)|C
+npc.yorna-palavra-firme|city.tabuleiro-velho|—|dívida|apoio e reserva do lugar-mãe de Terreiro-Maior (vínculo político, não posição)|doc 03 §1 e 12-assentamentos.csv (city.terreiro-maior)|ASSUMINDO
+npc.kharos-casco-de-marcha|city.vazante|—|dívida|Conduzir a migração e a defesa; responder à Assembleia|doc 03 §1 e 12-assentamentos.csv (city.vazante)|C
+npc.kharos-casco-de-marcha|city.vazante|—|tensão|Dois campos de pasto possíveis; qualquer escolha deixa um clã sem pasto|doc 03 §1 e 12-assentamentos.csv (city.vazante)|C
+npc.kharos-casco-de-marcha|city.tabuleiro-velho|—|dívida|apoio e reserva do lugar-mãe de Vazante (vínculo político, não posição)|doc 03 §1 e 12-assentamentos.csv (city.vazante)|ASSUMINDO
+npc.sendro-clareira-vigia|city.encosta-aberta|—|dívida|Vigiar o pé das elevações e guiar quem sobe (origem: guardião do lugar na tríade, pois o chefe do Trato é `desconhecido`, doc 04 §8)|doc 03 §1 e 12-assentamentos.csv (city.encosta-aberta)|ASSUMINDO
+npc.sendro-clareira-vigia|city.encosta-aberta|—|tensão|Dois clãs disputam quem guia o rebanho e quem fica com o que sobra no pouso (lideranca_id desconhecido: o Trato está em disputa, doc 04 §8)|doc 03 §1 e 12-assentamentos.csv (city.encosta-aberta)|C
+npc.sendro-clareira-vigia|city.rasovau|—|dívida|apoio e reserva do lugar-mãe de Encosta-Aberta (vínculo político, não posição)|doc 03 §1 e 12-assentamentos.csv (city.encosta-aberta)|ASSUMINDO
+npc.tibbe-salto-curto|city.gramal|—|dívida|Dividir o pasto e marcar os rebanhos|doc 03 §1 e 12-assentamentos.csv (city.gramal)|C
+npc.tibbe-salto-curto|city.gramal|—|tensão|Clãs de gado e de caça dizem que o mesmo campo é deles|doc 03 §1 e 12-assentamentos.csv (city.gramal)|C
+npc.tibbe-salto-curto|city.tabuleiro-velho|—|dívida|apoio e reserva do lugar-mãe de Gramal (vínculo político, não posição)|doc 03 §1 e 12-assentamentos.csv (city.gramal)|ASSUMINDO
+npc.moura-mel-guardado|npc.pocha-ninhada-farta|—|vínculo de cargo|mesmo lugar (Tabuleiro-Velho); a guardiã do celeiro e a benfeitora que abre a reserva própria a quem o celeiro não atende|doc 01 parte 2 §3 (tríade)|C
+npc.zinu-troca-justa|npc.quira-recado-certo|—|vínculo de cargo|mesmo lugar (Rasovau); o guardião do vau e a benfeitora que leva recados entre os grupos que cobram|doc 01 parte 2 §3 (tríade)|C
+npc.zinu-troca-justa|npc.lumbo-pedra-de-baixo|—|vínculo de cargo|chefes dos dois grupos que reclamam o Trato do Vau (Pedras de Cima e Pedras de Baixo)|doc 01 parte 1 (Rasovau); doc 04 §8 e §9|C
+npc.quira-recado-certo|npc.lumbo-pedra-de-baixo|—|vínculo de cargo|mesmo lugar (Rasovau); Quira leva recados entre os dois grupos que cobram|doc 01 parte 2 §3; doc 04 §9|C
+npc.vrissk-colonia-quieta|npc.grebb-balanca-justa|—|vínculo de cargo|mesmo lugar (Praia-Pardo); o guardião do pouso e o benfeitor que lidera a Balança do Pouso|doc 01 parte 2 §3 (tríade); doc 04 §9|C
+npc.gruzk-estandarte-baixo|npc.aruun-poco-compartilhado|—|vínculo de cargo|mesmo lugar (Alvasal); a vigia de legião e o benfeitor do Trato do Poço|doc 01 parte 2 §3 (tríade); doc 04 §8|C
+npc.yorna-palavra-firme|npc.cassan-galhada-velha|—|vínculo de cargo|mesmo lugar (Terreiro-Maior); a guardiã da Pedra da Palavra e o benfeitor que hospeda clãs de fora|doc 01 parte 2 §3 (tríade)|C
+npc.kharos-casco-de-marcha|npc.rukhan-retorno-certo|—|vínculo de cargo|mesmo lugar (Vazante); o Capitão e o batedor-chefe da Marcha|doc 01 parte 2 §3 (tríade); doc 04 §9|C
+npc.kharos-casco-de-marcha|npc.bolgra-forja-de-campo|—|vínculo de cargo|mesmo lugar (Vazante); o Capitão e o benfeitor do acampamento|doc 01 parte 2 §3 (tríade)|C
+npc.rukhan-retorno-certo|npc.bolgra-forja-de-campo|—|vínculo de cargo|mesmo lugar (Vazante); herói e benfeitor da tríade|doc 01 parte 2 §3 (tríade)|C
+npc.tessun-salto-calado|npc.sendro-clareira-vigia|—|vínculo de cargo|mesmo lugar (Encosta-Aberta); o guia e o vigia, cujos grupos disputam o pouso|doc 01 parte 2 §3; doc 04 §8 e §9|C
+npc.tessun-salto-calado|npc.cadrek-cerca-aberta|—|vínculo de cargo|mesmo lugar (Encosta-Aberta); herói e benfeitor da tríade|doc 01 parte 2 §3 (tríade)|C
+npc.sendro-clareira-vigia|npc.cadrek-cerca-aberta|—|vínculo de cargo|mesmo lugar (Encosta-Aberta); guardião e benfeitor da tríade|doc 01 parte 2 §3 (tríade)|C
+npc.tibbe-salto-curto|npc.ghorla-fartura-dividida|—|vínculo de cargo|mesmo lugar (Gramal); o chefe do Trato dos Rebanhos e a benfeitora que lidera os Clãs da Caça|doc 01 parte 2 §3 (tríade); doc 04 §8 e §9|C
+npc.yorna-palavra-firme|npc.kharos-casco-de-marcha|—|vínculo de cargo|a Assembleia decide na paz e o Capitão comparece sem presidir; Yorna dá a palavra, não vota e não escolhe o Capitão|doc 03 §1 e §4; doc 04 §2 e §3|C
+npc.kharos-casco-de-marcha|—|partir os clãs ao escolher o campo e entregar o mandato incompleto (S)|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.yorna-palavra-firme|—|o Fogo do Meio virar briga com a sucessão em aberto|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.gruzk-estandarte-baixo|—|a cisterna virar briga entre caravanas e clãs|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.moura-mel-guardado|—|fechar a porta a quem precisa ou abri-la a quem esvazia|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.pocha-ninhada-farta|—|ser a causa de o celeiro enfraquecer|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.tessun-salto-calado|—|voltar de lá e não ser acreditado|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.rukhan-retorno-certo|—|errar o campo e custar um clã|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.zinu-troca-justa|—|o vau virar guerra entre os dois grupos|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.quira-recado-certo|—|ser tomada por espiã e perder a confiança dos dois lados|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.vrissk-colonia-quieta|—|o desembarque virar disputa e a carga sumir|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.tibbe-salto-curto|—|a estação acabar antes do acerto|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO
+npc.cassan-galhada-velha|—|ser usado como apoio de um dos lados|medo|medo atribuído na ficha|12-fichas.md (R4-4.1)|ASSUMINDO

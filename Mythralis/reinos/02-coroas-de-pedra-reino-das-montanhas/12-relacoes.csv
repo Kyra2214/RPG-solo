@@ -1,0 +1,92 @@
+origem_id,destino_id,destino_texto,tipo,descricao,fonte,certeza
+npc.karna-brasa-mansa,faction.companhia-da-descida,—,aliança,a facção Casa das Fornalhas é aliada de Companhia da Descida,doc 04 §10 (F-01),C
+npc.karna-brasa-mansa,faction.irmandade-do-veio,—,rivalidade,a facção Casa das Fornalhas é rival de Irmandade do Veio,doc 04 §10 (F-01),C
+npc.brundar-veio-alto,faction.oficinas-reunidas,—,aliança,a facção Irmandade do Veio é aliada de Oficinas Reunidas,doc 04 §10 (F-02),C
+npc.brundar-veio-alto,faction.casa-das-fornalhas,—,rivalidade,a facção Irmandade do Veio é rival de Casa das Fornalhas,doc 04 §10 (F-02),C
+npc.zhae-garra-de-nevoa,faction.vigias-do-limiar,—,aliança,a facção Rede dos Passos Altos é aliada de Vigias do Limiar,doc 04 §10 (F-03),C
+npc.zhae-garra-de-nevoa,faction.casa-dos-guias,—,aliança,a facção Rede dos Passos Altos é aliada de Casa dos Guias,doc 04 §10 (F-03),C
+npc.zhae-garra-de-nevoa,faction.arquivistas-das-coroas,—,aliança,a facção Rede dos Passos Altos é aliada de Arquivistas das Coroas,doc 04 §10 (F-03),C
+npc.pimm-veio-pequeno,faction.coro-das-facetas,—,aliança,a facção Casa das Comportas é aliada de Coro das Facetas,doc 04 §10 (F-04),C
+npc.torgrim-corda-dupla,faction.casa-das-fornalhas,—,aliança,a facção Companhia da Descida é aliada de Casa das Fornalhas,doc 04 §10 (F-05),C
+npc.torgrim-corda-dupla,faction.mercadores-de-fendas,—,aliança,a facção Companhia da Descida é aliada de Mercadores de Fendas,doc 04 §10 (F-05),C
+npc.torgrim-corda-dupla,faction.vigias-do-limiar,—,rivalidade,a facção Companhia da Descida é rival de Vigias do Limiar,doc 04 §10 (F-05),C
+npc.torgrim-corda-dupla,faction.casa-dos-despertos,—,rivalidade,a facção Companhia da Descida é rival de Casa dos Despertos,doc 04 §10 (F-05),C
+npc.thaurak-escama-fria,faction.rede-dos-passos-altos,—,aliança,a facção Vigias do Limiar é aliada de Rede dos Passos Altos,doc 04 §10 (F-06),C
+npc.thaurak-escama-fria,faction.companhia-da-descida,—,rivalidade,a facção Vigias do Limiar é rival de Companhia da Descida,doc 04 §10 (F-06),C
+npc.nael-curva-antiga,faction.rede-dos-passos-altos,—,aliança,a facção Casa dos Guias é aliada de Rede dos Passos Altos,doc 04 §10 (F-07),C
+npc.nael-curva-antiga,faction.mercadores-de-fendas,—,rivalidade,a facção Casa dos Guias é rival de Mercadores de Fendas,doc 04 §10 (F-07),C
+npc.pip-vapor-curto,faction.companhia-da-descida,—,aliança,a facção Mercadores de Fendas é aliada de Companhia da Descida,doc 04 §10 (F-08),C
+npc.pip-vapor-curto,faction.casa-dos-guias,—,rivalidade,a facção Mercadores de Fendas é rival de Casa dos Guias,doc 04 §10 (F-08),C
+npc.gorrak-pedra-grande,faction.liga-dos-degraus,—,rivalidade,a facção Conselho de Sangue é rival de Liga dos Degraus,doc 04 §10 (F-09),C
+npc.brunhild-degrau-fundo,faction.casa-dos-despertos,—,aliança,a facção Liga dos Degraus é aliada de Casa dos Despertos,doc 04 §10 (F-10),C
+npc.brunhild-degrau-fundo,faction.conselho-de-sangue,—,rivalidade,a facção Liga dos Degraus é rival de Conselho de Sangue,doc 04 §10 (F-10),C
+npc.quinze-pinos,faction.liga-dos-degraus,—,aliança,a facção Casa dos Despertos é aliada de Liga dos Degraus,doc 04 §10 (F-11),C
+npc.quinze-pinos,faction.companhia-da-descida,—,rivalidade,a facção Casa dos Despertos é rival de Companhia da Descida,doc 04 §10 (F-11),C
+npc.quinze-pinos,faction.oficinas-reunidas,—,rivalidade,a facção Casa dos Despertos é rival de Oficinas Reunidas,doc 04 §10 (F-11),C
+npc.fenwick-mola-solta,faction.irmandade-do-veio,—,aliança,a facção Oficinas Reunidas é aliada de Irmandade do Veio,doc 04 §10 (F-12),C
+npc.fenwick-mola-solta,faction.casa-dos-despertos,—,rivalidade,a facção Oficinas Reunidas é rival de Casa dos Despertos,doc 04 §10 (F-12),C
+npc.iridel-luz-partida,faction.casa-das-comportas,—,aliança,a facção Coro das Facetas é aliada de Casa das Comportas,doc 04 §10 (F-13),C
+npc.maro-tinta-velha,faction.rede-dos-passos-altos,—,aliança,a facção Arquivistas das Coroas é aliada de Rede dos Passos Altos,doc 04 §10 (F-14),C
+npc.zeka-faisca-mansa,city.brasalume,—,dívida (obrigação),deve a Brasalume: entregar escória e cinza às fornalhas sem desperdício,doc 03 (settlement.cinzeiro),C
+npc.zeka-faisca-mansa,city.brasalume,—,tensão,as fornalhas exigem toda a cinza; a vila diz que a fumaça adoece as crianças e pede outro lugar de despejo,doc 03 (settlement.cinzeiro),C
+npc.brundar-veio-alto,city.brasalume,—,dívida (obrigação),deve a Brasalume: abastecer Brasalume de minério em cotas acordadas,doc 03 (settlement.veio-fundo),C
+npc.brundar-veio-alto,city.brasalume,—,tensão,o veio rende menos a cada ano e a cidade não aceita cota menor,doc 03 (settlement.veio-fundo),C
+npc.iskra-pena-longa,city.altavento,—,dívida (obrigação),"deve a Altavento: manter pouso, comida e abrigo para quem voa",doc 03 (settlement.ninho-seco),C
+npc.iskra-pena-longa,city.altavento,—,tensão,as outras cidades pagam atrasado e o posto não tem reserva para uma nevasca longa,doc 03 (settlement.ninho-seco),C
+npc.miraq-salto-de-nevoa,city.altavento,—,dívida (obrigação),deve a Altavento: guiar viajantes pelos passos e avisar sobre avalanche,doc 03 (settlement.rastro-branco),C
+npc.miraq-salto-de-nevoa,city.altavento,—,tensão,a cidade quer limitar a caça por escassez; a comunidade diz que isso a obriga a descer ao vale,doc 03 (settlement.rastro-branco),C
+npc.pimm-veio-pequeno,city.veiaclara,—,dívida (obrigação),deve a Veiaclara: manter e registrar a abertura das comportas,doc 03 (settlement.comporta-velha),C
+npc.pimm-veio-pequeno,city.veiaclara,—,tensão,ninguém paga a manutenção e uma comporta velha ameaça ceder,doc 03 (settlement.comporta-velha),C
+npc.aurel-faceta-calma,city.veiaclara,—,dívida (obrigação),deve a Veiaclara: fornecer gelo e cristal sem tocar o fundo do lago,doc 03 (settlement.lago-de-cima),C
+npc.aurel-faceta-calma,city.veiaclara,—,tensão,a cidade quer aprofundar a coleta; a vila recusa por um limite que não sabe provar,doc 03 (settlement.lago-de-cima),C
+npc.torgrim-corda-dupla,city.barcaalta,—,dívida (obrigação),deve a Barcaalta: fornecer cordas e correntes aos cais,doc 03 (settlement.cordoaria),C
+npc.torgrim-corda-dupla,city.barcaalta,—,tensão,"o cais compra de fora quando o preço sobe, e as oficinas ficam sem encomenda",doc 03 (settlement.cordoaria),C
+npc.seis-eixos,city.barcaalta,—,dívida (obrigação),deve a Barcaalta: anotar cada barca que desce e cada taxa paga,doc 03 (settlement.primeira-rampa),C
+npc.seis-eixos,city.barcaalta,—,tensão,"o registro de carga e o das taxas não batem, e cada lado culpa o outro",doc 03 (settlement.primeira-rampa),C
+npc.skit-fenda-quente,city.portao-cinza,—,dívida (obrigação),"deve a Portão-Cinza: abrigar quem sobe e quem desce, sem perguntar a origem",doc 03 (settlement.albergue-de-cima),C
+npc.skit-fenda-quente,city.portao-cinza,—,tensão,os vigias querem registrar todos os hóspedes; o albergue diz que isso afasta os clientes,doc 03 (settlement.albergue-de-cima),C
+npc.varkhan-escama-vigia,city.portao-cinza,—,dívida (obrigação),deve a Portão-Cinza: manter a vigília e o Livro de Passagens em dia,doc 03 (settlement.galeria-alta),C
+npc.varkhan-escama-vigia,city.portao-cinza,—,tensão,faltam vigias e o Livro tem lacunas que ninguém quer explicar,doc 03 (settlement.galeria-alta),C
+npc.pip-vapor-curto,city.sinuosa,—,dívida (obrigação),deve a Sinuosa: manter o mercado aberto e neutro entre as famílias de guias,doc 03 (settlement.fenda-mercado),C
+npc.pip-vapor-curto,city.sinuosa,—,tensão,mapas rivais circulam e cada família acusa o mercado de vender o mapa errado,doc 03 (settlement.fenda-mercado),C
+npc.ilmeth-curva-segura,city.sinuosa,—,dívida (obrigação),deve a Sinuosa: receber quem chega e entregar um guia,doc 03 (settlement.boca-larga),C
+npc.ilmeth-curva-segura,city.sinuosa,—,tensão,viajantes insistem em entrar sozinhos e um deles se perdeu,doc 03 (settlement.boca-larga),C
+npc.brunhild-degrau-fundo,city.cumieira,—,dívida (obrigação),deve a Cumieira: manter o bairro e as escadas dos pequenos,doc 03 (settlement.degrau-pequeno),C
+npc.brunhild-degrau-fundo,city.cumieira,—,tensão,os grandes veem os pedidos como ofensa à casa antiga,doc 03 (settlement.degrau-pequeno),C
+npc.gorrak-pedra-grande,city.cumieira,—,dívida (obrigação),deve a Cumieira: fornecer lã e carne à cidade,doc 03 (settlement.pasto-de-cume),C
+npc.gorrak-pedra-grande,city.cumieira,—,tensão,a cidade quer abrir um caminho pelos pastos e o clã vê nisso uma quebra de juramento,doc 03 (settlement.pasto-de-cume),C
+npc.fenwick-mola-solta,city.rodaviva,—,dívida (obrigação),deve a Rodaviva: manter as rodas que movem as oficinas,doc 03 (settlement.roda-menor),C
+npc.fenwick-mola-solta,city.rodaviva,—,tensão,peças raras somem e a vila é acusada,doc 03 (settlement.roda-menor),C
+npc.quinze-pinos,city.rodaviva,—,dívida (obrigação),deve a Rodaviva: manter o núcleo sem pedir ajuda à cidade,doc 03 (settlement.oficina-sem-dono),C
+npc.quinze-pinos,city.rodaviva,—,tensão,a cidade não definiu se eles têm direitos; algumas oficinas os reclamam como propriedade,doc 03 (settlement.oficina-sem-dono),C
+npc.iridel-luz-partida,city.geodalia,—,dívida (obrigação),deve a Geodália: manter o poço limpo e as lentes alinhadas,doc 03 (settlement.poco-alto),C
+npc.iridel-luz-partida,city.geodalia,—,tensão,obras da cidade ameaçam sombrear o poço,doc 03 (settlement.poco-alto),C
+npc.tuck-lente-torta,city.geodalia,—,dívida (obrigação),deve a Geodália: entregar cristal lapidado às lentes e às encomendas da cidade,doc 03 (settlement.corte-fino),C
+npc.tuck-lente-torta,city.geodalia,—,tensão,"as cotas de extração apertaram depois de um tremor, e os lapidadores perdem encomendas",doc 03 (settlement.corte-fino),C
+npc.sharra-selo-de-voto,city.pedra-ata,—,dívida (obrigação),deve a Pedra-Ata: hospedar delegados sem favorecer nenhum,doc 03 (settlement.patio-das-delegacoes),C
+npc.sharra-selo-de-voto,city.pedra-ata,—,tensão,as cidades mandam delegados sem avisar e o bairro não dá conta,doc 03 (settlement.patio-das-delegacoes),C
+npc.haldra-tinta-funda,city.pedra-ata,—,dívida (obrigação),deve a Pedra-Ata: copiar e guardar as atas do Concílio,doc 03 (settlement.arquivo-velho),C
+npc.haldra-tinta-funda,city.pedra-ata,—,tensão,as cidades contestam atas e cada uma pede cópias diferentes,doc 03 (settlement.arquivo-velho),C
+npc.velka-selo-firme,npc.maro-tinta-velha,—,vínculo de cargo,guarda o selo na mesma cidade em que Maro guarda as atas,doc 06 CL-05,C
+npc.gundrik-muralha-lenta,npc.karna-brasa-mansa,—,vínculo de cargo,comanda a guarda da cidade onde Karna mantém a Fornalha-Mãe,doc 06 CL-01,C
+npc.gundrik-muralha-lenta,npc.brundar-veio-alto,—,vínculo de cargo,"comanda a guarda de Veio-Fundo, liderado por Brundar",doc 01 (Brasalume); doc 03 (S-02),C
+npc.vireo-vento-rapido,npc.zhae-garra-de-nevoa,—,vínculo de cargo,"governa Altavento, onde a Rede dos Passos Altos é de Zhae; apoia a Rede sem cargo nela",doc 04 §10 (F-03),C
+npc.vireo-vento-rapido,npc.iskra-pena-longa,—,vínculo de cargo,"governa Altavento, onde Iskra lidera o posto Ninho-Seco",doc 03; doc 06 CL-07,C
+npc.pelma-gota-medida,npc.pimm-veio-pequeno,—,vínculo de cargo,Pimm atua na Casa das Comportas; Pelma abre e fecha as comportas,doc 06 CL-02,C
+npc.primeira-peca,npc.fenwick-mola-solta,—,vínculo de cargo,"Fenwick preside a Assembleia das Oficinas, onde os Despertos não votam",doc 01 (Rodaviva); doc 06 CL-06,C
+npc.nael-curva-antiga,npc.ilmeth-curva-segura,—,vínculo de cargo,Ilmeth preside a Rotunda dos Mapas neste ciclo; Nael preside a Casa dos Guias,doc 01 (Sinuosa),C
+npc.torgrim-corda-dupla,npc.seis-eixos,—,vínculo de cargo,"o Registro da Descida de Seis-Eixos é órgão da Mesa do Cais, presidida por Torgrim",doc 04 §9,C
+npc.thaurak-escama-fria,npc.varkhan-escama-vigia,—,vínculo de cargo,"comanda os vigias do Portão-Cinza, onde Varkhan lidera Galeria-Alta",doc 01 (Portão-Cinza); doc 03,C
+npc.zhae-garra-de-nevoa,npc.miraq-salto-de-nevoa,—,tensão,os caçadores mais velhos de Rastro-Branco seguem Miraq e duvidam de Zhae,doc 04 §10 (F-03),C
+npc.velka-selo-firme,—,que uma ata escondida seja lida em voz alta (S),medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.maro-tinta-velha,—,"ser forçado a copiar o que mente, ou o pacto negado vir à tona (S)",medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.thaurak-escama-fria,—,ser culpado pelas lacunas que herdou (S: protege quem arrancou as páginas),medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.gundrik-muralha-lenta,—,saída que não consta nos mapas ser descoberta (S),medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.karna-brasa-mansa,—,que a liga que não esfria seja tomada (S),medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.vireo-vento-rapido,—,a queda que o quase tirou do ar (S),medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.zhae-garra-de-nevoa,—,ser expulsa de novo (S),medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.pelma-gota-medida,—,"o pânico, motivo de alterar o registro (S)",medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.maur-camada-velha,—,ser lido como pequeno ou grande demais por quem precisa dele,medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.primeira-peca,—,"ser desmontada por uma lei, ou que a peça seja identificada (S)",medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.aurea-faceta-longa,—,que a faceta que mostra rostos seja descoberta (S),medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO
+npc.nael-curva-antiga,—,a galeria sem mapa (S),medo,medo atribuído na ficha,12-fichas.md (R2-4.1),ASSUMINDO

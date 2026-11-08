@@ -1,0 +1,76 @@
+# esquema=1
+origem|destino|destino_texto|tipo|descricao|fonte|certeza
+npc.orsk-cicatriz-de-bando|faction.defensores-da-paz|—|aliança|a facção Guarda do Rei é aliada de Defensores da Paz|doc 04 §9 e §10 (faction.guarda-do-rei)|C
+npc.orsk-cicatriz-de-bando|faction.turnos-da-vigilia|—|aliança|a facção Guarda do Rei é aliada de Turnos da Vigília|doc 04 §9 e §10 (faction.guarda-do-rei)|C
+npc.orsk-cicatriz-de-bando|faction.memoria-das-provacoes|—|rivalidade|a facção Guarda do Rei é rival de Memória das Provações|doc 04 §9 e §10 (faction.guarda-do-rei)|C
+npc.rusk-rede-da-barra|faction.guarda-do-rei|—|aliança|a facção Defensores da Paz é aliada de Guarda do Rei|doc 04 §9 e §10 (faction.defensores-da-paz)|C
+npc.rusk-rede-da-barra|faction.casa-dos-pocos|—|aliança|a facção Defensores da Paz é aliada de Casa dos Poços|doc 04 §9 e §10 (faction.defensores-da-paz)|C
+npc.rusk-rede-da-barra|faction.guardioes-das-lamparinas|—|aliança|a facção Defensores da Paz é aliada de Guardiões das Lamparinas|doc 04 §9 e §10 (faction.defensores-da-paz)|C
+npc.rusk-rede-da-barra|faction.memoria-das-provacoes|—|rivalidade|a facção Defensores da Paz é rival de Memória das Provações|doc 04 §9 e §10 (faction.defensores-da-paz)|C
+npc.rusk-rede-da-barra|faction.irmandade-das-despedidas|—|rivalidade|a facção Defensores da Paz é rival de Irmandade das Despedidas|doc 04 §9 e §10 (faction.defensores-da-paz)|C
+npc.yeshe-forma-emprestada|faction.irmandade-das-despedidas|—|aliança|a facção Memória das Provações é aliada de Irmandade das Despedidas|doc 04 §9 e §10 (faction.memoria-das-provacoes)|C
+npc.yeshe-forma-emprestada|faction.guarda-do-rei|—|rivalidade|a facção Memória das Provações é rival de Guarda do Rei|doc 04 §9 e §10 (faction.memoria-das-provacoes)|C
+npc.yeshe-forma-emprestada|faction.defensores-da-paz|—|rivalidade|a facção Memória das Provações é rival de Defensores da Paz|doc 04 §9 e §10 (faction.memoria-das-provacoes)|C
+npc.tazk-pedra-ao-sol|faction.guias-de-sal|—|aliança|a facção Pilotos dos Canais é aliada de Guias de Sal|doc 04 §9 e §10 (faction.pilotos-dos-canais)|C
+npc.tazk-pedra-ao-sol|faction.guardioes-das-lamparinas|—|rivalidade|a facção Pilotos dos Canais é rival de Guardiões das Lamparinas|doc 04 §9 e §10 (faction.pilotos-dos-canais)|C
+npc.nuvik-canal-torto|faction.defensores-da-paz|—|aliança|a facção Guardiões das Lamparinas é aliada de Defensores da Paz|doc 04 §9 e §10 (faction.guardioes-das-lamparinas)|C
+npc.nuvik-canal-torto|faction.pilotos-dos-canais|—|rivalidade|a facção Guardiões das Lamparinas é rival de Pilotos dos Canais|doc 04 §9 e §10 (faction.guardioes-das-lamparinas)|C
+npc.vurga-sede-vencida|faction.pilotos-dos-canais|—|aliança|a facção Guias de Sal é aliada de Pilotos dos Canais|doc 04 §9 e §10 (faction.guias-de-sal)|C
+npc.vurga-sede-vencida|faction.casa-dos-pocos|—|rivalidade|a facção Guias de Sal é rival de Casa dos Poços|doc 04 §9 e §10 (faction.guias-de-sal)|C
+npc.teshi-no-de-poco|faction.defensores-da-paz|—|aliança|a facção Casa dos Poços é aliada de Defensores da Paz|doc 04 §9 e §10 (faction.casa-dos-pocos)|C
+npc.teshi-no-de-poco|faction.guias-de-sal|—|rivalidade|a facção Casa dos Poços é rival de Guias de Sal|doc 04 §9 e §10 (faction.casa-dos-pocos)|C
+npc.krell-eco-da-vigia|faction.casa-dos-fios|—|aliança|a facção Vigias da Orla é aliada de Casa dos Fios|doc 04 §9 e §10 (faction.vigias-da-orla)|C
+npc.ondra-fio-de-sono|faction.vigias-da-orla|—|aliança|a facção Casa dos Fios é aliada de Vigias da Orla|doc 04 §9 e §10 (faction.casa-dos-fios)|C
+npc.dhun-contorno-quieto|faction.memoria-das-provacoes|—|aliança|a facção Irmandade das Despedidas é aliada de Memória das Provações|doc 04 §9 e §10 (faction.irmandade-das-despedidas)|C
+npc.dhun-contorno-quieto|faction.defensores-da-paz|—|rivalidade|a facção Irmandade das Despedidas é rival de Defensores da Paz|doc 04 §9 e §10 (faction.irmandade-das-despedidas)|C
+npc.ilkar-turno-aberto|faction.guarda-do-rei|—|aliança|a facção Turnos da Vigília é aliada de Guarda do Rei|doc 04 §9 e §10 (faction.turnos-da-vigilia)|C
+npc.morvan-voz-baixa|city.morroveu|—|dívida|Guarda e corte servem ao rei; recebe o tributo em pactos dos demais lugares (ASSUMINDO: leitura de "tributo em pactos" do doc 01)|doc 03 e 12-assentamentos.csv (city.morroveu)|ASSUMINDO
+npc.morvan-voz-baixa|city.morroveu|—|tensão|Pactuários divididos entre defender o rei, que trouxe paz, e lembrar que a regra é o rei ser vencido; lista de desafiantes parada há cerca de cem anos|doc 03 e 12-assentamentos.csv (city.morroveu)|C
+npc.nuvik-canal-torto|city.lamaluz|—|dívida|Pacto das Lamparinas: manter as famílias de pacto no lugar; guiar quem viaja nos canais|doc 03 e 12-assentamentos.csv (city.lamaluz)|C
+npc.nuvik-canal-torto|city.lamaluz|—|tensão|Famílias antigas e lagartos de charco querem partir (Fugas do Véu); quem guia os que partem é acusado de quebrar o pacto|doc 03 e 12-assentamentos.csv (city.lamaluz)|C
+npc.rusk-rede-da-barra|city.fozbreu|—|dívida|Pacto da Barra: dar conta da barra e do que desce o rio|doc 03 e 12-assentamentos.csv (city.fozbreu)|C
+npc.rusk-rede-da-barra|city.fozbreu|—|tensão|Carga sem papel que o pacto reconheça; fardos e visitantes de longe que não são moradores|doc 03 e 12-assentamentos.csv (city.fozbreu)|C
+npc.teshi-no-de-poco|city.beira-sal|—|dívida|Pacto da Caravana: guardar poços e quem atravessa o Ermo|doc 03 e 12-assentamentos.csv (city.beira-sal)|C
+npc.teshi-no-de-poco|city.beira-sal|—|tensão|Guias cobram por pactos orais sem prova; caravanas do outro lado contestam a conta|doc 03 e 12-assentamentos.csv (city.beira-sal)|C
+npc.yeshe-forma-emprestada|city.selovale|—|dívida|Guardar o arquivo e as cláusulas dos pactos antigos|doc 03 e 12-assentamentos.csv (city.selovale)|C
+npc.yeshe-forma-emprestada|city.selovale|—|tensão|Um pacto antigo vence e ninguém sabe o que o fim dele concede; discordância sobre qual versão do texto vale|doc 03 e 12-assentamentos.csv (city.selovale)|C
+npc.krell-eco-da-vigia|city.borda-mansa|—|dívida|Pacto da Orla: abrigar quem chega; manter a vigia|doc 03 e 12-assentamentos.csv (city.borda-mansa)|C
+npc.krell-eco-da-vigia|city.borda-mansa|—|tensão|Gente de longe chega sem guia e sem registro; o posto não sabe quem é quem|doc 03 e 12-assentamentos.csv (city.borda-mansa)|C
+npc.ondra-fio-de-sono|city.fio-longo|—|dívida|Pacto do Repouso: ninguém é atacado dormindo|doc 03 e 12-assentamentos.csv (city.fio-longo)|C
+npc.ondra-fio-de-sono|city.fio-longo|—|tensão|Hóspedes que não querem ir embora; a Casa diz que é escolha, os parentes dizem que não|doc 03 e 12-assentamentos.csv (city.fio-longo)|C
+npc.dhun-contorno-quieto|city.candeia-morta|—|dívida|Pacto da Vigília: os mortos descansam; vigias em turnos|doc 03 e 12-assentamentos.csv (city.candeia-morta)|C
+npc.dhun-contorno-quieto|city.candeia-morta|—|tensão|Pactuários divididos sobre o que o pacto pede de um rei necromante, sem dizer em voz alta|doc 03 e 12-assentamentos.csv (city.candeia-morta)|C
+npc.morvan-voz-baixa|npc.orsk-cicatriz-de-bando|—|vínculo de cargo|a Guarda de Morrovéu serve ao rei que reside na mesma cidade|doc 06 CV-01; doc 01 parte 2 (N-01, N-02)|C
+npc.morvan-voz-baixa|npc.cerrane-heranca-firme|—|vínculo de cargo|o Conselho que Cerrane preside funciona na Corte de Morvan, na mesma cidade|doc 06 CV-01; doc 04 §2|C
+npc.orsk-cicatriz-de-bando|npc.cerrane-heranca-firme|—|vínculo de cargo|mesma cidade; a guarda serve ao rei e os Pactuários testam a lealdade dela|doc 06 CV-01; doc 01 parte 2 (N-02, N-03)|C
+npc.cerrane-heranca-firme|npc.nuvik-canal-torto|—|vínculo de cargo|preside o Conselho em que Nuvik Canal-Torto ocupa o assento do seu lugar; preside e não vota|doc 04 §2.1|C
+npc.cerrane-heranca-firme|npc.rusk-rede-da-barra|—|vínculo de cargo|preside o Conselho em que Rusk Rede-da-Barra ocupa o assento do seu lugar; preside e não vota|doc 04 §2.1|C
+npc.cerrane-heranca-firme|npc.teshi-no-de-poco|—|vínculo de cargo|preside o Conselho em que Teshi Nó-de-Poço ocupa o assento do seu lugar; preside e não vota|doc 04 §2.1|C
+npc.cerrane-heranca-firme|npc.yeshe-forma-emprestada|—|vínculo de cargo|preside o Conselho em que Yeshe Forma-Emprestada ocupa o assento do seu lugar; preside e não vota|doc 04 §2.1|C
+npc.cerrane-heranca-firme|npc.krell-eco-da-vigia|—|vínculo de cargo|preside o Conselho em que Krell Eco-da-Vigia ocupa o assento do seu lugar; preside e não vota|doc 04 §2.1|C
+npc.cerrane-heranca-firme|npc.ondra-fio-de-sono|—|vínculo de cargo|preside o Conselho em que Ondra Fio-de-Sono ocupa o assento do seu lugar; preside e não vota|doc 04 §2.1|C
+npc.cerrane-heranca-firme|npc.dhun-contorno-quieto|—|vínculo de cargo|preside o Conselho em que Dhun Contorno-Quieto ocupa o assento do seu lugar; preside e não vota|doc 04 §2.1|C
+npc.yeshe-forma-emprestada|—|Conselho dos Pactuários e rei|vínculo de cargo|preside o Conselho dos Selos, que decide o conflito entre o rei e o Conselho dos Pactuários|doc 04 §2.2 e §5|C
+npc.tazk-pedra-ao-sol|npc.nuvik-canal-torto|—|vínculo de cargo|compõem a tríade de Lamaluz (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.tazk-pedra-ao-sol|npc.lorra-emprestimo-justo|—|vínculo de cargo|compõem a tríade de Lamaluz (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.nuvik-canal-torto|npc.lorra-emprestimo-justo|—|vínculo de cargo|compõem a tríade de Lamaluz (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.rusk-rede-da-barra|npc.ssavi-lodo-firme|—|vínculo de cargo|compõem a tríade de Fozbreu (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.vurga-sede-vencida|npc.teshi-no-de-poco|—|vínculo de cargo|compõem a tríade de Beira-Sal (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.vurga-sede-vencida|npc.brisk-poco-cheio|—|vínculo de cargo|compõem a tríade de Beira-Sal (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.teshi-no-de-poco|npc.brisk-poco-cheio|—|vínculo de cargo|compõem a tríade de Beira-Sal (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.yeshe-forma-emprestada|npc.garrun-toca-funda|—|vínculo de cargo|compõem a tríade de Selovale (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.krell-eco-da-vigia|npc.szia-fio-aberto|—|vínculo de cargo|compõem a tríade de Borda-Mansa (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.ondra-fio-de-sono|npc.rhek-relato-manso|—|vínculo de cargo|compõem a tríade de Fio-Longo (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.ilkar-turno-aberto|npc.dhun-contorno-quieto|—|vínculo de cargo|compõem a tríade de Candeia-Morta (herói, guardião, benfeitor) e vivem no mesmo lugar|doc 01 parte 2 §3|C
+npc.morvan-voz-baixa|—|ser vencido na Provação das Armas e o que a estabilização custa (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.orsk-cicatriz-de-bando|—|ser forçado a escolher entre rei e cidade (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.cerrane-heranca-firme|—|que o Conselho se parta ou que a cláusula que cala seja lida (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.ilkar-turno-aberto|—|que a Corte peça o que o Pacto da Vigília proíbe (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.tazk-pedra-ao-sol|—|guiar quem parte e ser acusado de quebrar o pacto (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.rusk-rede-da-barra|—|que o fardo sem dono chegue a ele (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.vurga-sede-vencida|—|que um guia sumido volte a falar (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.teshi-no-de-poco|—|que os poços não deem conta (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.yeshe-forma-emprestada|—|invocarem a cláusula antes dela (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.krell-eco-da-vigia|—|que alguém passe com ajuda de dentro (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.ondra-fio-de-sono|—|que a Casa seja acusada de reter hóspedes (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO
+npc.dhun-contorno-quieto|—|o nome que mudou de lugar no Muro (S)|medo|medo atribuído na ficha|12-fichas.md (R3-4.1)|ASSUMINDO

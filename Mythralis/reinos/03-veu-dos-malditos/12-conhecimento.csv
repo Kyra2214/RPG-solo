@@ -1,0 +1,73 @@
+npc_id,estado,fato,fonte
+npc.morvan-voz-baixa,confirmado,É necromante; reina em Morrovéu há cerca de cem anos; estabilizou as terras,12-fichas.md (R3-4.1)
+npc.morvan-voz-baixa,suspeita,A estabilidade tem um custo que ele paga e ninguém nomeia,12-fichas.md (R3-4.1)
+npc.morvan-voz-baixa,desconhecido,"Origem, idade, método da estabilização e por que ninguém o venceu",12-fichas.md (R3-4.1)
+npc.orsk-cicatriz-de-bando,confirmado,Comanda a guarda que serve ao rei,12-fichas.md (R3-4.1)
+npc.orsk-cicatriz-de-bando,suspeita,"Já pensou, sozinho, a quem a guarda seguiria se o rei caísse",12-fichas.md (R3-4.1)
+npc.orsk-cicatriz-de-bando,desconhecido,O que a guarda faria se o rei fosse vencido,12-fichas.md (R3-4.1)
+npc.cerrane-heranca-firme,confirmado,Preside o Conselho dos Pactuários,12-fichas.md (R3-4.1)
+npc.cerrane-heranca-firme,suspeita,Sabe de uma cláusula da coroa que o Conselho não leu,12-fichas.md (R3-4.1)
+npc.cerrane-heranca-firme,desconhecido,Quem presidirá o Conselho se o rei cair,12-fichas.md (R3-4.1)
+npc.ilkar-turno-aberto,confirmado,Comanda as vigias da cidade,12-fichas.md (R3-4.1)
+npc.ilkar-turno-aberto,suspeita,A Corte já pediu algo que o Pacto da Vigília proibiria,12-fichas.md (R3-4.1)
+npc.ilkar-turno-aberto,desconhecido,Se o Pacto da Vigília o obriga a se opor ao rei,12-fichas.md (R3-4.1)
+npc.tazk-pedra-ao-sol,confirmado,Conhece os canais mutáveis de Lamaluz,12-fichas.md (R3-4.1)
+npc.tazk-pedra-ao-sol,suspeita,Já guiou alguém que partia,12-fichas.md (R3-4.1)
+npc.tazk-pedra-ao-sol,desconhecido,Se o pacto pode ser cumprido sem prender ninguém,12-fichas.md (R3-4.1)
+npc.rusk-rede-da-barra,confirmado,Guarda o Pacto da Barra,12-fichas.md (R3-4.1)
+npc.rusk-rede-da-barra,suspeita,Sabe quem é o dono do fardo que ninguém reclamou,12-fichas.md (R3-4.1)
+npc.rusk-rede-da-barra,desconhecido,O que o armazém realmente guarda,12-fichas.md (R3-4.1)
+npc.vurga-sede-vencida,confirmado,Conduz caravanas pelo Ermo,12-fichas.md (R3-4.1)
+npc.vurga-sede-vencida,suspeita,Sabe qual guia sumiu e voltou sem sede,12-fichas.md (R3-4.1)
+npc.vurga-sede-vencida,desconhecido,Por que um poço passou a dar água salgada,12-fichas.md (R3-4.1)
+npc.teshi-no-de-poco,confirmado,Guarda o Poço Primeiro e as sentinelas de sal,12-fichas.md (R3-4.1)
+npc.teshi-no-de-poco,suspeita,Escondeu quanto água o posto realmente tem,12-fichas.md (R3-4.1)
+npc.teshi-no-de-poco,desconhecido,Até quando os poços dão conta,12-fichas.md (R3-4.1)
+npc.yeshe-forma-emprestada,confirmado,Preside o Conselho dos Selos; guarda o Arquivo dos Pactos Velhos,12-fichas.md (R3-4.1)
+npc.yeshe-forma-emprestada,suspeita,Já leu uma cláusula que o Conselho desconhece,12-fichas.md (R3-4.1)
+npc.yeshe-forma-emprestada,desconhecido,"O que o fim do pacto concede, a quem ou contra quem",12-fichas.md (R3-4.1)
+npc.krell-eco-da-vigia,confirmado,Comanda a Torre das Fogueiras,12-fichas.md (R3-4.1)
+npc.krell-eco-da-vigia,suspeita,Alguém sem registro já passou pela orla com ajuda de dentro,12-fichas.md (R3-4.1)
+npc.krell-eco-da-vigia,desconhecido,O que há na faixa de neblina além da orla (só rumor),12-fichas.md (R3-4.1)
+npc.ondra-fio-de-sono,confirmado,Governa a Casa dos Fios,12-fichas.md (R3-4.1)
+npc.ondra-fio-de-sono,suspeita,Sabe de quem não quer partir e por quê,12-fichas.md (R3-4.1)
+npc.ondra-fio-de-sono,desconhecido,O que o quarto que ninguém abre guarda,12-fichas.md (R3-4.1)
+npc.dhun-contorno-quieto,confirmado,Conduz as despedidas e guarda o Muro dos Nomes,12-fichas.md (R3-4.1)
+npc.dhun-contorno-quieto,suspeita,Já viu um nome mudar de lugar no Muro,12-fichas.md (R3-4.1)
+npc.dhun-contorno-quieto,desconhecido,Se o pacto pede algo do rei,12-fichas.md (R3-4.1)
+npc.nuvik-canal-torto,confirmado,Pactuário dos Canais de Lamaluz e líder dos Guardiões das Lamparinas; guardião da tríade,doc 01 §3; doc 04 §2.1 e §9
+npc.nuvik-canal-torto,desconhecido,Poder além do assento e da facção; o que sabe ou suspeita,doc 01 §3 (ficha só no mínimo de D-22)
+npc.lorra-emprestimo-justo,confirmado,Benfeitor(a) da tríade de Lamaluz,doc 01 §3
+npc.lorra-emprestimo-justo,desconhecido,Modo e meios do benefício; o que sabe ou suspeita,doc 01 §3
+npc.ssavi-lodo-firme,confirmado,Benfeitor(a) da tríade de Fozbreu,doc 01 §3
+npc.ssavi-lodo-firme,desconhecido,Modo e meios do benefício; o que sabe ou suspeita,doc 01 §3
+npc.brisk-poco-cheio,confirmado,Benfeitor(a) da tríade de Beira-Sal,doc 01 §3
+npc.brisk-poco-cheio,desconhecido,Modo e meios do benefício; o que sabe ou suspeita,doc 01 §3
+npc.garrun-toca-funda,confirmado,Benfeitor(a) da tríade de Selovale,doc 01 §3
+npc.garrun-toca-funda,desconhecido,Modo e meios do benefício; o que sabe ou suspeita,doc 01 §3
+npc.szia-fio-aberto,confirmado,Benfeitor(a) da tríade de Borda-Mansa,doc 01 §3
+npc.szia-fio-aberto,desconhecido,Modo e meios do benefício; o que sabe ou suspeita,doc 01 §3
+npc.rhek-relato-manso,confirmado,Benfeitor(a) da tríade de Fio-Longo,doc 01 §3
+npc.rhek-relato-manso,desconhecido,Modo e meios do benefício; o que sabe ou suspeita,doc 01 §3
+npc.ardh-primeiro-perdedor,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.ardh-primeiro-perdedor,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.kerrak-eco-do-mar,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.kerrak-eco-do-mar,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.ethra-vale-guardado,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.ethra-vale-guardado,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.piok-fogueira-primeira,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.piok-fogueira-primeira,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.noor-despertar-primeiro,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.noor-despertar-primeiro,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.sorren-vigilia-primeira,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.sorren-vigilia-primeira,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.mursk-juramento-de-bando,confirmado,"Figura lendária do seu povo; lugar, era e feitos desconhecidos",doc 10 §6.1
+npc.mursk-juramento-de-bando,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 10 §6.1
+npc.zibb-rede-primeira,confirmado,"Figura lendária do seu povo; lugar, era e feitos desconhecidos",doc 10 §6.1
+npc.zibb-rede-primeira,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 10 §6.1
+npc.aun-silencio-primeiro,confirmado,"Figura lendária do seu povo; lugar, era e feitos desconhecidos",doc 10 §6.1
+npc.aun-silencio-primeiro,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 10 §6.1
+npc.lish-rosto-primeiro,confirmado,"Figura lendária do seu povo; lugar, era e feitos desconhecidos",doc 10 §6.1
+npc.lish-rosto-primeiro,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 10 §6.1
+npc.xalu-no-primeiro,confirmado,"Figura lendária do seu povo; lugar, era e feitos desconhecidos",doc 10 §6.1
+npc.xalu-no-primeiro,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 10 §6.1

@@ -1,0 +1,84 @@
+# esquema=1
+regra|entidade|motivo|fonte
+V-12|npc.dara-guarda-da-rota|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.vessa-fio-dourado|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.ithren-quatro-estacoes|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.avarra-sete-pontes|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.voz-muitas-raizes|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.iria-dos-ecos|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.meda-martelo-calmo|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.doria-tres-sulcos|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.doria-tres-sulcos|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.sena-polen-dourado|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.sena-polen-dourado|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.iven-marca-de-som|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.mira-ouve-chuva|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.mira-ouve-chuva|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.marel-tinta-firme|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.marel-tinta-firme|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.orelia-ceu-de-cinza|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.orelia-ceu-de-cinza|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.nivara-folha-de-orvalho|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.nivara-folha-de-orvalho|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.othalen-vira-pedra|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.othalen-vira-pedra|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.beren-tres-canais|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.sava-mao-de-corrente|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.nima-barro-manso|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.nima-barro-manso|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.vela-tres-margens|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.vela-tres-margens|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.dalen-porta-aberta|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.dalen-porta-aberta|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.terenna-luz-de-lastro|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.terenna-luz-de-lastro|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.yara-sal-de-mare|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.yara-sal-de-mare|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.rovan-cinza-de-ferro|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.rovan-cinza-de-ferro|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.arieth-tres-mudas|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.arieth-tres-mudas|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.calar-passo-curvo|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.calar-passo-curvo|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.toma-mel-de-ambar|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.avariel-thorne|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.sela-dos-retornos|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.edris-do-sul|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.elsin-varzea-clara|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.ivara-polen-de-lume|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.lethariel-nascente-clara|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.lyris-melodia-clara|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.maelor-venn|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.mirel-caule-vivo|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.nara-tres-fios|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.maereth-vaelorian|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.aerendyl-vaelorian|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.selvaris-noctel|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.tavian-lume-fino|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.tessa-folhinha|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.anelra-copa-aberta|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.bento-sete-sementes|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.ruma-coracao-solo|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.sava-broto-novo|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.kheva-ouvido-nevoa|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.milo-passo-bruma|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.nima-rede-micelio|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.selene-mascara-clara|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.asha-nove-pergaminhos|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.elyon-prisma-claro|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.nilo-recado-certo|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.nimeth-vela-chuva|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.iven-folhas-brancas|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.korga-ponta-junco|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.oru-rede-chuva|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.veyra-pavio-silencioso|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.luma-folha-prata|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.voro-cancao-pedra|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.mira-sal-prata|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.naren-mare-reversa|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.talia-cordame-verde|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.vessa-engrenagem-lua|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.tavro-passo-raiz|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-12|npc.vaunor-eir|povo sem base no texto de Aeltharyn (12-competencias.csv: "povo, classe e profissão sem base no texto"); lacuna explícita, não se inventa|12-competencias.csv; F1
+V-12|npc.vaunor-eir|NPC sem classe no cânone de Aeltharyn (12-competencias.csv grava "—"); a classe é lacuna deliberada, não erro de dado|12-competencias.csv; F1
+V-13|event.ponte-cede|o evento cita figuras históricas mortas (Maereth, cartógrafa das Copas, e Avarra das Sete Pontes) como precedente e lenda da ponte, não como agentes vivos|doc 01; 12-eventos.csv; F1

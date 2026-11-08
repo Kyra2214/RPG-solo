@@ -1,0 +1,11 @@
+id,tipo,nome,valor_perfil,faixa_uso,categoria,evidencia,confianca
+city.campoalvo,lugar,Campoalvo,sem número,grande,indefinida,capital de coroa de planície; celeiros comuns que guardam o excedente de várias vilas; o preço do pão do reino se discute aqui (doc 01 §2.1),baixa
+city.vaudouro,lugar,Vaudouro,sem número,média,indefinida,"cidade fluvial de mercado na junção de dois rios, sem muralha, só comportas e vigias de canal (doc 01 §2.2)",baixa
+city.torrefronte,lugar,Torrefronte,sem número,pequena,indefinida,"fortaleza de limite de torre alta e muro de terra, que depende de suprimento de dentro do reino (doc 01 §2.3)",baixa
+city.alvamar,lugar,Alvamar,sem número,grande,indefinida,capital de coroa e porto com molhe e corrente; recebe a rota das Costas na Doca dos Povos do Mar (doc 01 §2.4),baixa
+city.enseada-vigia,lugar,Enseada-Vigia,sem número,média,indefinida,"porto de rota marítima, de faróis e barra difícil, que recebe quem chega pelas Costas (doc 01 §2.5)",baixa
+city.concharia,lugar,Concharia,sem número,pequena,indefinida,"estaleiro e santuário numa enseada de recifes, com entrada por um canal estreito (doc 01 §2.6)",baixa
+city.torreclara,lugar,Torreclara,sem número,média,indefinida,"capital de coroa e cidade de torres de sinais, com pouca força própria além dos sinais (doc 01 §2.7)",baixa
+city.estrelado,lugar,Estrelado,sem número,pequena,indefinida,"observatório e arquivo celeste, longe de rio e de cidade, sem defesa própria (doc 01 §2.8)",baixa
+city.pouso-das-brisas,lugar,Pouso-das-Brisas,sem número,pequena,indefinida,estação de torres de madeira e vigias e pouso de rota entre o interior e a costa (doc 01 §2.9),baixa
+city.meiovau,lugar,Meiovau,sem número,média,indefinida,"cidade livre, ponto de encontro das três coroas, sem muralha; recebe visitantes e chegados do Véu (doc 01 §2.10)",baixa

@@ -1,0 +1,60 @@
+npc_id,estado,fato,fonte
+npc.nivara-folha-de-orvalho,confirmado,sabe quais lotes tiveram germinação anormal; esconde parte do estoque antes da votação da cota,doc 03 §2.1
+npc.nivara-folha-de-orvalho,desconhecido,causa da germinação anormal,doc 03 §2.1
+npc.othalen-vira-pedra,confirmado,conhece o volume de passagem; mantém cópia local de tarifas que difere da exposta na capital,doc 03 §2.2
+npc.othalen-vira-pedra,suspeita,privilégio legal explica a isenção de três casas nobres,doc 03 §2.2
+npc.othalen-vira-pedra,desconhecido,carga das carroças fechadas; decreto original,doc 03 §2.2
+npc.beren-tres-canais,confirmado,conhece os defeitos estruturais do dique; guardou amostras do último reparo,doc 03 §3.1
+npc.beren-tres-canais,desconhecido,quem autorizou o lote de material inferior,doc 03 §3.1
+npc.sava-mao-de-corrente,confirmado,sabe quais embarcações passaram; autorizou travessia noturna sem registro,doc 03 §3.2
+npc.sava-mao-de-corrente,desconhecido,escrituração completa das cargas,doc 03 §3.2
+npc.yara-sal-de-mare,confirmado,preserva relatos de luzes incomuns perto da rota do navio sem tripulação,doc 03 §4.1
+npc.yara-sal-de-mare,desconhecido,data e distância das luzes; ligação com o navio,doc 03 §4.1
+npc.terenna-luz-de-lastro,confirmado,houve um intervalo de luz não explicado numa noite,doc 03 §4.2
+npc.terenna-luz-de-lastro,desconhecido,"se foi falha mecânica, sabotagem ou sinal clandestino",doc 03 §4.2
+npc.arieth-tres-mudas,confirmado,conhece marcas de corte e árvores doentes; omitiu uma área de doença para evitar interdição total,doc 03 §5.1
+npc.arieth-tres-mudas,desconhecido,quem paga pelos cortes noturnos,doc 03 §5.1
+npc.calar-passo-curvo,confirmado,conhece os horários habituais de passagem; um marco foi movido após enchente,doc 03 §5.2
+npc.calar-passo-curvo,desconhecido,comportamento de todas as manadas,doc 03 §5.2
+npc.nima-barro-manso,confirmado,reconhece alguns sinais de contaminação; guarda amostras que contradizem um relatório oficial,doc 03 §6.1
+npc.nima-barro-manso,desconhecido,qual veneno; origem das amostras,doc 03 §6.1
+npc.vela-tres-margens,confirmado,conhece canais praticáveis em certas estações; sabe de uma passagem usada para contrabando,doc 03 §6.2
+npc.vela-tres-margens,desconhecido,rotas seguras o ano inteiro; responsáveis pelo contrabando,doc 03 §6.2
+npc.orelia-ceu-de-cinza,confirmado,registros mostram padrão incomum de luz no lago; recusou apagar medição embaraçosa,doc 03 §7.1
+npc.orelia-ceu-de-cinza,desconhecido,origem sobrenatural do padrão (não provada),doc 03 §7.1
+npc.marel-tinta-firme,confirmado,achou diferenças entre duas cópias de um tratado; guarda o registro de quem encomendou cada cópia,doc 03 §7.2
+npc.marel-tinta-firme,desconhecido,qual cópia é anterior,doc 03 §7.2
+npc.mira-ouve-chuva,confirmado,sabe quais marcas foram alteradas; mantém trilha de evacuação fora dos mapas comerciais,doc 03 §8.1
+npc.mira-ouve-chuva,desconhecido,quem alterou as marcas,doc 03 §8.1
+npc.iven-marca-de-som,confirmado,registrou sombra que não coincide com a posição da torre; diário com intervalos sem observação,doc 03 §8.2
+npc.iven-marca-de-som,desconhecido,se é uma trilha sobrenatural (não afirma),doc 03 §8.2
+npc.sena-polen-dourado,confirmado,colmeias abandonaram uma área; guardou amostras de pólen de lotes diferentes,doc 03 §9.1
+npc.sena-polen-dourado,desconhecido,"se a causa foi pesticida, clima ou doença",doc 03 §9.1
+npc.doria-tres-sulcos,confirmado,possui cadernos que demonstram a queda de produção,doc 03 §9.2
+npc.doria-tres-sulcos,suspeita,algumas famílias declararam menos do que colheram (teme a publicação),doc 03 §9.2
+npc.vessa-fio-dourado,confirmado,uma canção foi apropriada por uma família nobre,doc 03 §10.1
+npc.vessa-fio-dourado,desconhecido,versão mais antiga que provaria a autoria,doc 03 §10.1
+npc.dalen-porta-aberta,confirmado,sabe quem recebeu abrigo; recusou entregar lista sem ordem legal clara,doc 03 §10.2
+npc.dalen-porta-aberta,desconhecido,passado dos hóspedes,doc 03 §10.2
+npc.meda-martelo-calmo,confirmado,as peças disponíveis não bastam para todas as encomendas,doc 03 §11.1
+npc.meda-martelo-calmo,desconhecido,se a escassez veio de má previsão ou desvio de materiais,doc 03 §11.1
+npc.rovan-cinza-de-ferro,confirmado,tremores não ocorrem em intervalos regulares; guarda cópias de pedidos de inspeção sem resposta,doc 03 §11.2
+npc.rovan-cinza-de-ferro,desconhecido,o que existe nas galerias profundas,doc 03 §11.2
+npc.aerendyl-vaelorian,confirmado,sabe das árvores-coração doentes e de relatórios de extração ilegal,doc 01 §4.1
+npc.aerendyl-vaelorian,desconhecido,responsáveis e causa completa; sua longevidade não o torna onisciente,doc 01 §4.1
+npc.saelith-arco-de-chuva,confirmado,há corte de árvores ancestrais,doc 01 §9
+npc.saelith-arco-de-chuva,desconhecido,quem corta,doc 01 §9
+npc.lethariel-nascente-clara,suspeita,uma crônica menciona uma oitava cidade fundadora (procura-a),doc 01 §9
+npc.neralis-vento-manso,desconhecido,se o mapa recebido da pessoa desaparecida é confiável,doc 01 §9
+npc.elsin-varzea-clara,confirmado,tem provas de que um trecho do dique foi reparado com material inferior,doc 01 §9
+npc.elsin-varzea-clara,desconhecido,quem autorizou a compra,doc 01 §9
+npc.syranna-das-mares,desconhecido,destino do irmão desaparecido,doc 01 §9
+npc.eryndra-folha-verde,confirmado,conhece as marcas de corte na mata,doc 01 §9
+npc.selvaris-noctel,suspeita,um manuscrito pode provar a oitava cidade fundadora,doc 01 §9
+npc.maelor-venn,desconhecido,se sabia da extração ilegal por agentes contratados (ele nega; registros de carga decidem),doc 01 §9
+npc.tavian-lume-fino,desconhecido,se sua rede comercial financiou extração ilegal,doc 01 §9
+npc.avariel-thorne,confirmado,tem relatórios de pontes danificadas,doc 01 §9
+npc.nara-tres-fios,confirmado,um conjunto de mapas do Arquivo foi alterado,doc 01 §9
+npc.nara-tres-fios,desconhecido,quem alterou; não conhece segredos só por trabalhar com mensagens,doc 01 §9
+npc.nimeth-vela-chuva,confirmado,documentos da Guerra das Cinzas Verdes desapareceram,doc 01 §5.1 e .kt
+npc.nimeth-vela-chuva,desconhecido,quem os levou; onde há cópias,doc 01 §5.1 e .kt

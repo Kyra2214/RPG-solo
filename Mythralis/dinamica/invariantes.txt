@@ -1,0 +1,5 @@
+# esquema=1
+# faixas dos invariantes de alerta I-17 e I-18 (F6.2).
+chave|valor|descricao|motor|fonte|etiqueta
+inv_min_importantes_decada|3|I-17: mínimo de deltas de importância 3+ por reino a cada 10 anos (proporcional ao bloco)|invariantes|PLANO_MOTOR §12 e §14|PROPOSTO
+inv_max_importantes_ano|60|I-18: máximo de deltas de importância 3+ por reino em um ano|invariantes|PLANO_MOTOR §12 e §14|PROPOSTO

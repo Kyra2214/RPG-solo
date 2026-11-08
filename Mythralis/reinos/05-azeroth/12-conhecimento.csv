@@ -1,0 +1,89 @@
+npc_id,estado,fato,fonte
+npc.odile-medida-cheia,confirmado,Governa a Coroa do Trigal e reside em Campoalvo.,12-fichas.md (R5-4.1)
+npc.odile-medida-cheia,suspeita,Guarda em segredo o tamanho real dos celeiros.,12-fichas.md (R5-4.1)
+npc.odile-medida-cheia,desconhecido,Como foi reconhecida e o que faria se a precedência fosse perdida.,12-fichas.md (R5-4.1)
+npc.tomlin-horta-larga,confirmado,É o herdeiro reconhecido do Trigal; a regra de sucessão fica para o R5-1.4.,12-fichas.md (R5-4.1)
+npc.tomlin-horta-larga,suspeita,Já conversou com o Cais sem avisar a governante.,12-fichas.md (R5-4.1)
+npc.tomlin-horta-larga,desconhecido,Por que foi reconhecido e o que faria com o preço do pão.,12-fichas.md (R5-4.1)
+npc.garvane-remo-firme,confirmado,Salvou carga e barqueiros na cheia.,12-fichas.md (R5-4.1)
+npc.garvane-remo-firme,suspeita,Já deixou passar uma barcaça sem taxa.,12-fichas.md (R5-4.1)
+npc.garvane-remo-firme,desconhecido,Por que ninguém lhe pediu que chefiasse a Casa.,12-fichas.md (R5-4.1)
+npc.solenne-vigilia-longa,confirmado,Comanda a guarnição de Torrefronte.,12-fichas.md (R5-4.1)
+npc.solenne-vigilia-longa,suspeita,"Já abriu o limite a quem não devia, em nome do Livro.",12-fichas.md (R5-4.1)
+npc.solenne-vigilia-longa,desconhecido,Que ordem original sustenta a vigia e quem escreveu as páginas do Livro.,12-fichas.md (R5-4.1)
+npc.corlan-cais-primeiro,confirmado,Governa a Coroa do Cais e reside em Alvamar.,12-fichas.md (R5-4.1)
+npc.corlan-cais-primeiro,suspeita,Já deixou certos navios descarregarem fora do molhe em troca de apoio.,12-fichas.md (R5-4.1)
+npc.corlan-cais-primeiro,desconhecido,Como chegou ao cargo e quanto a Alfândega realmente arrecada.,12-fichas.md (R5-4.1)
+npc.rilla-espuma-fina,confirmado,É a herdeira reconhecida do Cais; a regra de sucessão fica para o R5-1.4.,12-fichas.md (R5-4.1)
+npc.rilla-espuma-fina,suspeita,Sabe de um navio que descarrega fora do molhe.,12-fichas.md (R5-4.1)
+npc.rilla-espuma-fina,desconhecido,Por que foi reconhecida e de que lado ficaria no caso do canal.,12-fichas.md (R5-4.1)
+npc.dorgan-escudo-lento,confirmado,Comanda o molhe e a corrente.,12-fichas.md (R5-4.1)
+npc.dorgan-escudo-lento,suspeita,Já deixou a corrente frouxa por um motivo que não explicou.,12-fichas.md (R5-4.1)
+npc.dorgan-escudo-lento,desconhecido,"Quando e por que a corrente falhou, e quem a consertou.",12-fichas.md (R5-4.1)
+npc.nerella-canto-da-barra,confirmado,Pilota a barra e guiou a frota.,12-fichas.md (R5-4.1)
+npc.nerella-canto-da-barra,suspeita,Sabe uma rota de volta que não ensinou a ninguém.,12-fichas.md (R5-4.1)
+npc.nerella-canto-da-barra,desconhecido,Como aprendeu a barra e por que continua a pilotar de graça.,12-fichas.md (R5-4.1)
+npc.brevo-rumo-alto,confirmado,Governa a Coroa do Vento e reside em Torreclara.,12-fichas.md (R5-4.1)
+npc.brevo-rumo-alto,suspeita,Já mudou um código de torre sem avisar as outras coroas.,12-fichas.md (R5-4.1)
+npc.brevo-rumo-alto,desconhecido,Quem guarda o código-mestre além dele e o que o Vento faria se perdesse a Torre-Mestra.,12-fichas.md (R5-4.1)
+npc.astrel-noite-clara,confirmado,É o herdeiro reconhecido do Vento; a regra de sucessão fica para o R5-1.4.,12-fichas.md (R5-4.1)
+npc.astrel-noite-clara,suspeita,Leu no céu um sinal que não contou a Brevo.,12-fichas.md (R5-4.1)
+npc.astrel-noite-clara,desconhecido,Por que foi reconhecido e o que faria se a rede fosse partida.,12-fichas.md (R5-4.1)
+npc.tolla-mesa-posta,confirmado,Preside a Mesa de Meiovau.,12-fichas.md (R5-4.1)
+npc.tolla-mesa-posta,suspeita,Sabe qual chave pode ter sido copiada.,12-fichas.md (R5-4.1)
+npc.tolla-mesa-posta,desconhecido,Quem a escolheu para a Mesa e o que a Mesa decidiu sem as três.,12-fichas.md (R5-4.1)
+npc.auriven-porta-acesa,confirmado,Mantém o Albergue dos Chegados.,12-fichas.md (R5-4.1)
+npc.auriven-porta-acesa,suspeita,Sustenta o albergue com doação que não diz de onde vem.,12-fichas.md (R5-4.1)
+npc.auriven-porta-acesa,desconhecido,Por que o albergue nunca fecha.,12-fichas.md (R5-4.1)
+npc.wendra-aterro-primeiro,confirmado,É figura da lenda de Campoalvo (doc 01 parte 1); lenda não é fato.,doc 01 parte 2 §3.1
+npc.wendra-aterro-primeiro,desconhecido,O que de fato aconteceu e se a pessoa existiu como a lenda a conta.,doc 01 parte 2 §3.1
+npc.helion-vigilia-do-celeiro,confirmado,Guardião de Campoalvo.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.helion-vigilia-do-celeiro,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.dodda-prato-cheio,confirmado,Benfeitor de Campoalvo.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.dodda-prato-cheio,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.ebbo-praia-rasa,confirmado,Guardião de Vaudouro.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.ebbo-praia-rasa,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.larkin-barcaca-cheia,confirmado,Benfeitor de Vaudouro.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.larkin-barcaca-cheia,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.halvard-limite-firme,confirmado,É figura da lenda de Torrefronte (doc 01 parte 1); lenda não é fato.,doc 01 parte 2 §3.1
+npc.halvard-limite-firme,desconhecido,O que de fato aconteceu e se a pessoa existiu como a lenda a conta.,doc 01 parte 2 §3.1
+npc.sabeth-patio-aberto,confirmado,Benfeitor de Torrefronte.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.sabeth-patio-aberto,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.sundar-licenca-de-cais,confirmado,É figura da lenda de Alvamar (doc 01 parte 1); lenda não é fato.,doc 01 parte 2 §3.1
+npc.sundar-licenca-de-cais,desconhecido,O que de fato aconteceu e se a pessoa existiu como a lenda a conta.,doc 01 parte 2 §3.1
+npc.marnu-espuma-dada,confirmado,Benfeitor de Alvamar.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.marnu-espuma-dada,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.perrin-farol-aceso,confirmado,Guardião de Enseada-Vigia.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.perrin-farol-aceso,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.ressan-concha-aberta,confirmado,Benfeitor de Enseada-Vigia.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.ressan-concha-aberta,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.mossa-casco-primeiro,confirmado,É figura da lenda de Concharia (doc 01 parte 1); lenda não é fato.,doc 01 parte 2 §3.1
+npc.mossa-casco-primeiro,desconhecido,O que de fato aconteceu e se a pessoa existiu como a lenda a conta.,doc 01 parte 2 §3.1
+npc.orrume-abrigo-de-casco,confirmado,Guardião de Concharia.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.orrume-abrigo-de-casco,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.corali-fundo-de-coral,confirmado,Benfeitor de Concharia.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.corali-fundo-de-coral,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.raffe-sopro-primeiro,confirmado,É figura da lenda de Torreclara (doc 01 parte 1); lenda não é fato.,doc 01 parte 2 §3.1
+npc.raffe-sopro-primeiro,desconhecido,O que de fato aconteceu e se a pessoa existiu como a lenda a conta.,doc 01 parte 2 §3.1
+npc.casimar-codigo-limpo,confirmado,Guardião de Torreclara.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.casimar-codigo-limpo,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.clarel-lume-de-torre,confirmado,Benfeitor de Torreclara.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.clarel-lume-de-torre,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.orbane-rota-perdida,confirmado,É figura da lenda de Estrelado (doc 01 parte 1); lenda não é fato.,doc 01 parte 2 §3.1
+npc.orbane-rota-perdida,desconhecido,O que de fato aconteceu e se a pessoa existiu como a lenda a conta.,doc 01 parte 2 §3.1
+npc.eloh-cupula-acesa,confirmado,Guardião de Estrelado.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.eloh-cupula-acesa,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.ixra-noite-aberta,confirmado,Benfeitor de Estrelado.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.ixra-noite-aberta,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.zefir-pipa-caida,confirmado,É figura da lenda de Pouso-das-Brisas (doc 01 parte 1); lenda não é fato.,doc 01 parte 2 §3.1
+npc.zefir-pipa-caida,desconhecido,O que de fato aconteceu e se a pessoa existiu como a lenda a conta.,doc 01 parte 2 §3.1
+npc.hollis-torre-do-meio,confirmado,Guardião de Pouso-das-Brisas.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.hollis-torre-do-meio,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.poppel-mesa-de-viajante,confirmado,Benfeitor de Pouso-das-Brisas.,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.poppel-mesa-de-viajante,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.ostrel-chave-primeira,confirmado,É figura da lenda de Meiovau (doc 01 parte 1); lenda não é fato.,doc 01 parte 2 §3.1
+npc.ostrel-chave-primeira,desconhecido,O que de fato aconteceu e se a pessoa existiu como a lenda a conta.,doc 01 parte 2 §3.1
+npc.pelmo-balanca-de-porto,confirmado,Líder da Alfândega das Marés (F-04).,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.pelmo-balanca-de-porto,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3
+npc.ruvane-chave-contada,confirmado,Líder da Mesa Estreita (F-15).,doc 01 parte 2 §3; doc 04 §9 e §10
+npc.ruvane-chave-contada,desconhecido,"Como chegou ao cargo, o que faz além do papel escrito e o que pensa das outras coroas.",doc 01 parte 2 §3

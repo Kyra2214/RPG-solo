@@ -1,0 +1,64 @@
+tipo,id,nome,situacao,id_catalogo,cidade,papel,povo,vivo,extra,ficha_doc,povo_id
+cidade,city.campoalvo,Campoalvo — A Capital do Trigal,proposto (D-142),,,,,,"capital de coroa, cidade de planície | regime: fixo",AZ-01 (doc 01 parte 1),
+cidade,city.vaudouro,Vaudouro — O Mercado dos Rios,proposto (D-142),,,,,,cidade fluvial de mercado | regime: fixo,AZ-02 (doc 01 parte 1),
+cidade,city.torrefronte,Torrefronte — A Guarda do Limite,proposto (D-142),,,,,,fortaleza de limite | regime: fixo,AZ-03 (doc 01 parte 1),
+cidade,city.alvamar,Alvamar — A Capital do Cais,proposto (D-142),,,,,,"capital de coroa, porto sobre o Mar Austral | regime: fixo",AZ-04 (doc 01 parte 1),
+cidade,city.enseada-vigia,Enseada-Vigia — O Porto das Costas,proposto (D-142),,,,,,porto de rota marítima | regime: fixo,AZ-05 (doc 01 parte 1),
+cidade,city.concharia,Concharia — O Estaleiro dos Recifes,proposto (D-142),,,,,,estaleiro e santuário costeiro | regime: fixo,AZ-06 (doc 01 parte 1),
+cidade,city.torreclara,Torreclara — A Capital do Vento,proposto (D-142),,,,,,"capital de coroa, cidade de torres de sinais | regime: fixo",AZ-07 (doc 01 parte 1),
+cidade,city.estrelado,Estrelado — O Observatório,proposto (D-142),,,,,,observatório e arquivo celeste | regime: fixo,AZ-08 (doc 01 parte 1),
+cidade,city.pouso-das-brisas,Pouso-das-Brisas — A Estação dos Sinais,proposto (D-142),,,,,,estação de torres e pouso de rota | regime: fixo,AZ-09 (doc 01 parte 1),
+cidade,city.meiovau,Meiovau — A Cidade das Três Chaves,proposto (D-142),,,,,,"cidade livre, ponto de encontro das coroas | regime: fixo",AZ-10 (doc 01 parte 1),
+facção,faction.conselho-dos-celeiros,Conselho dos Celeiros,proposto (D-145),,,,,,líder: Helion Vigília-do-Celeiro | objetivo: manter os celeiros comuns e o preço do pão,F-01 (doc 04 §10),
+facção,faction.guarnicao-do-limite,Guarnição do Limite,proposto (D-145),,,,,,líder: Solenne (N-07) | objetivo: limite vigiado e registro lido de um só modo,F-02 (doc 04 §10),
+facção,faction.casa-dos-barqueiros,Casa dos Barqueiros,proposto (D-145),,,,,,"líder: Ebbo Praia-Rasa | objetivo: docas, canais e comportas na mão dos barqueiros",F-03 (doc 04 §10),
+facção,faction.alfandega-das-mares,Alfândega das Marés,proposto (D-145),,,,,,"líder: Pelmo Balança-de-Porto | objetivo: taxa do porto a serviço do porto, não só da Coroa",F-04 (doc 04 §10),
+facção,faction.guarda-da-corrente,Guarda da Corrente,proposto (D-145),,,,,,líder: Dorgan (N-08) | objetivo: baía fechada a quem não deve entrar e aberta a quem precisa,F-05 (doc 04 §10),
+facção,faction.irmandade-dos-faroleiros,Irmandade dos Faroleiros,proposto (D-145),,,,,,líder: Perrin Farol-Aceso | objetivo: luzes da costa e voz de quem vive de barco,F-06 (doc 04 §10),
+facção,faction.pilotos-da-enseada,Pilotos da Enseada,proposto (D-145),,,,,,"líder: Nerella (N-09) | objetivo: a barra pilotada por ofício, não por coroa",F-07 (doc 04 §10),
+facção,faction.construtores-de-concha,Construtores de Concha,proposto (D-145),,,,,,líder: Orrume Abrigo-de-Casco | objetivo: estaleiro com canal maior para navios maiores,F-08 (doc 04 §10),
+facção,faction.guardas-do-santuario,Guardas do Santuário,proposto (D-145),,,,,,líder: Corali Fundo-de-Coral | objetivo: jardim e santuário em paz,F-09 (doc 04 §10),
+facção,faction.casa-dos-sinais,Casa dos Sinais,proposto (D-145),,,,,,líder: Casimar Código-Limpo | objetivo: rede de torres inteira e códigos guardados,F-10 (doc 04 §10),
+facção,faction.leitores-do-ceu,Leitores do Céu,proposto (D-145),,,,,,líder: Ixra Noite-Aberta | objetivo: leitura do céu pelos estelares,F-11 (doc 04 §10),
+facção,faction.vigilia-da-cupula,Vigília da Cúpula,proposto (D-145),,,,,,líder: Eloh Cúpula-Acesa | objetivo: leitura do céu pelo voto da vigília,F-12 (doc 04 §10),
+facção,faction.posto-dos-pipeiros,Posto dos Pipeiros,proposto (D-145),,,,,,líder: Hollis Torre-do-Meio | objetivo: linha de torres e pousos entre o interior e a costa,F-13 (doc 04 §10),
+facção,faction.albergue-dos-chegados,Albergue dos Chegados,proposto (D-145),,,,,,líder: Auriven (N-12) | objetivo: acolhida larga a quem chega,F-14 (doc 04 §10),
+facção,faction.mesa-estreita,Mesa Estreita,proposto (D-145),,,,,,líder: Ruvane Chave-Contada | objetivo: registro e prazo antes de qualquer sustento,F-15 (doc 04 §10),
+npc,npc.odile-medida-cheia,Odile Medida-Cheia,"proposto, ficha completa (D-144)",,city.campoalvo,governante da Coroa do Trigal; despacha no Salão das Medidas,Humano,sim,categoria: governante; faixa etária: idosa,N-01 (doc 01 parte 2),humano
+npc,npc.corlan-cais-primeiro,Corlan Cais-Primeiro,"proposto, ficha completa (D-144)",,city.alvamar,governante da Coroa do Cais; despacha na Casa do Cais,Abissal Costeiro,sim,categoria: governante; faixa etária: madura,N-02 (doc 01 parte 2),tritao
+npc,npc.brevo-rumo-alto,Brevo Rumo-Alto,"proposto, ficha completa (D-144)",,city.torreclara,governante da Coroa do Vento; despacha na Torre-Mestra,Nascido do Vento,sim,categoria: governante; faixa etária: madura,N-03 (doc 01 parte 2),elemental-ar
+npc,npc.tomlin-horta-larga,Tomlin Horta-Larga,"proposto, ficha completa (D-144)",,city.campoalvo,herdeiro reconhecido da Coroa do Trigal,Pequenino,sim,categoria: herdeiro; faixa etária: jovem,N-04 (doc 01 parte 2),pequenino
+npc,npc.rilla-espuma-fina,Rilla Espuma-Fina,"proposto, ficha completa (D-144)",,city.alvamar,herdeira reconhecida da Coroa do Cais,Nascido da Maré,sim,categoria: herdeira; faixa etária: jovem,N-05 (doc 01 parte 2),elemental-agua
+npc,npc.astrel-noite-clara,Astrel Noite-Clara,"proposto, ficha completa (D-144)",,city.torreclara,herdeiro reconhecido da Coroa do Vento; liga a Torre-Mestra à Mesa dos Astros,Estelar,sim,categoria: herdeiro; faixa etária: jovem,N-06 (doc 01 parte 2),ancestral-estelar
+npc,npc.solenne-vigilia-longa,Solenne Vigília-Longa,"proposto, ficha completa (D-144)",,city.torrefronte,comandante da guarnição do Trigal; guardiã de Torrefronte,Luminar,sim,categoria: general; faixa etária: madura,N-07 (doc 01 parte 2),aasimar
+npc,npc.dorgan-escudo-lento,Dorgan Escudo-Lento,"proposto, ficha completa (D-144)",,city.alvamar,comandante do molhe e da Corrente da Boca; guardião de Alvamar,Tartarino,sim,categoria: general; faixa etária: madura,N-08 (doc 01 parte 2),tortle
+npc,npc.nerella-canto-da-barra,Nerella Canto-da-Barra,"proposto, ficha completa (D-144)",,city.enseada-vigia,"piloto da Barra; herói de Enseada-Vigia (guiou uma frota inteira à barra numa noite sem luz, sem perder um casco)",Sereiano,sim,categoria: herói vivo; faixa etária: adulta,N-09 (doc 01 parte 2),sereiano
+npc,npc.garvane-remo-firme,Garvane Remo-Firme,"proposto, ficha completa (D-144)",,city.vaudouro,"barqueiro-chefe das barcaças de Vaudouro; herói de Vaudouro (manteve as comportas e as barcaças numa cheia, sem perder carga nem barqueiro)",Humano,sim,categoria: herói vivo; faixa etária: adulta,N-10 (doc 01 parte 2),humano
+npc,npc.tolla-mesa-posta,Tolla Mesa-Posta,"proposto, ficha completa (D-144)",,city.meiovau,guardiã das Três Chaves; preside a Mesa de Meiovau,Pequenino,sim,categoria: governante; faixa etária: madura,N-11 (doc 01 parte 2),pequenino
+npc,npc.auriven-porta-acesa,Auriven Porta-Acesa,"proposto, ficha completa (D-144)",,city.meiovau,"benfeitor de Meiovau; mantém o Albergue dos Chegados, que recebe quem chega a pé e de barca",Luminar,sim,categoria: benfeitor; faixa etária: madura,N-12 (doc 01 parte 2),aasimar
+npc,npc.wendra-aterro-primeiro,Wendra Aterro-Primeiro,"proposto, herói lendário (D-144)",,city.campoalvo,Herói lendário,Humano,não,categoria: herói lendário; confirmado: a lenda existe,parte 2 do doc 01 §3,humano
+npc,npc.helion-vigilia-do-celeiro,Helion Vigília-do-Celeiro,"proposto, só tríade (sem ficha)",,city.campoalvo,guardião de Campoalvo,Luminar,sim,categoria: guardião; ficha: R5-4.1,parte 2 do doc 01 §3,aasimar
+npc,npc.dodda-prato-cheio,Dodda Prato-Cheio,"proposto, só tríade (sem ficha)",,city.campoalvo,benfeitor de Campoalvo,Pequenino,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,pequenino
+npc,npc.ebbo-praia-rasa,Ebbo Praia-Rasa,"proposto, só tríade (sem ficha)",,city.vaudouro,guardião de Vaudouro,Nascido da Maré,sim,categoria: guardião; ficha: R5-4.1,parte 2 do doc 01 §3,elemental-agua
+npc,npc.larkin-barcaca-cheia,Larkin Barcaça-Cheia,"proposto, só tríade (sem ficha)",,city.vaudouro,benfeitor de Vaudouro,Pequenino,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,pequenino
+npc,npc.halvard-limite-firme,Halvard Limite-Firme,"proposto, herói lendário (D-144)",,city.torrefronte,Herói lendário,Humano,não,categoria: herói lendário; confirmado: a lenda existe,parte 2 do doc 01 §3,humano
+npc,npc.sabeth-patio-aberto,Sabeth Pátio-Aberto,"proposto, só tríade (sem ficha)",,city.torrefronte,benfeitor de Torrefronte,Humano,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,humano
+npc,npc.sundar-licenca-de-cais,Sundar Licença-de-Cais,"proposto, herói lendário (D-144)",,city.alvamar,Herói lendário,Abissal Costeiro,não,categoria: herói lendário; confirmado: a lenda existe,parte 2 do doc 01 §3,tritao
+npc,npc.marnu-espuma-dada,Marnu Espuma-Dada,"proposto, só tríade (sem ficha)",,city.alvamar,benfeitor de Alvamar,Nascido da Maré,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,elemental-agua
+npc,npc.perrin-farol-aceso,Perrin Farol-Aceso,"proposto, só tríade (sem ficha)",,city.enseada-vigia,guardião de Enseada-Vigia,Humano,sim,categoria: guardião; ficha: R5-4.1,parte 2 do doc 01 §3,humano
+npc,npc.ressan-concha-aberta,Ressan Concha-Aberta,"proposto, só tríade (sem ficha)",,city.enseada-vigia,benfeitor de Enseada-Vigia,Abissal Costeiro,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,tritao
+npc,npc.mossa-casco-primeiro,Mossa Casco-Primeiro,"proposto, herói lendário (D-144)",,city.concharia,Herói lendário,Tartarino,não,categoria: herói lendário; confirmado: a lenda existe,parte 2 do doc 01 §3,tortle
+npc,npc.orrume-abrigo-de-casco,Orrume Abrigo-de-Casco,"proposto, só tríade (sem ficha)",,city.concharia,guardião de Concharia,Tartarino,sim,categoria: guardião; ficha: R5-4.1,parte 2 do doc 01 §3,tortle
+npc,npc.corali-fundo-de-coral,Corali Fundo-de-Coral,"proposto, só tríade (sem ficha)",,city.concharia,benfeitor de Concharia,Sereiano,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,sereiano
+npc,npc.raffe-sopro-primeiro,Raffe Sopro-Primeiro,"proposto, herói lendário (D-144)",,city.torreclara,Herói lendário,Nascido do Vento,não,categoria: herói lendário; confirmado: a lenda existe,parte 2 do doc 01 §3,elemental-ar
+npc,npc.casimar-codigo-limpo,Casimar Código-Limpo,"proposto, só tríade (sem ficha)",,city.torreclara,guardião de Torreclara,Humano,sim,categoria: guardião; ficha: R5-4.1,parte 2 do doc 01 §3,humano
+npc,npc.clarel-lume-de-torre,Clarel Lume-de-Torre,"proposto, só tríade (sem ficha)",,city.torreclara,benfeitor de Torreclara,Luminar,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,aasimar
+npc,npc.orbane-rota-perdida,Orbane Rota-Perdida,"proposto, herói lendário (D-144)",,city.estrelado,Herói lendário,Estelar,não,categoria: herói lendário; confirmado: a lenda existe,parte 2 do doc 01 §3,ancestral-estelar
+npc,npc.eloh-cupula-acesa,Eloh Cúpula-Acesa,"proposto, só tríade (sem ficha)",,city.estrelado,guardião de Estrelado,Luminar,sim,categoria: guardião; ficha: R5-4.1,parte 2 do doc 01 §3,aasimar
+npc,npc.ixra-noite-aberta,Ixra Noite-Aberta,"proposto, só tríade (sem ficha)",,city.estrelado,benfeitor de Estrelado,Estelar,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,ancestral-estelar
+npc,npc.zefir-pipa-caida,Zefir Pipa-Caída,"proposto, herói lendário (D-144)",,city.pouso-das-brisas,Herói lendário,Nascido do Vento,não,categoria: herói lendário; confirmado: a lenda existe,parte 2 do doc 01 §3,elemental-ar
+npc,npc.hollis-torre-do-meio,Hollis Torre-do-Meio,"proposto, só tríade (sem ficha)",,city.pouso-das-brisas,guardião de Pouso-das-Brisas,Humano,sim,categoria: guardião; ficha: R5-4.1,parte 2 do doc 01 §3,humano
+npc,npc.poppel-mesa-de-viajante,Poppel Mesa-de-Viajante,"proposto, só tríade (sem ficha)",,city.pouso-das-brisas,benfeitor de Pouso-das-Brisas,Pequenino,sim,categoria: benfeitor; ficha: R5-4.1,parte 2 do doc 01 §3,pequenino
+npc,npc.ostrel-chave-primeira,Ostrel Chave-Primeira,"proposto, herói lendário (D-144)",,city.meiovau,Herói lendário,Humano,não,categoria: herói lendário; confirmado: a lenda existe,parte 2 do doc 01 §3,humano
+npc,npc.pelmo-balanca-de-porto,Pelmo Balança-de-Porto,"proposto, só líder de facção (sem ficha) (D-145)",,city.alvamar,líder da Alfândega das Marés (F-04),Humano,sim,categoria: líder de facção; ficha: R5-4.1,doc 04 §10,humano
+npc,npc.ruvane-chave-contada,Ruvane Chave-Contada,"proposto, só líder de facção (sem ficha) (D-145)",,city.meiovau,líder da Mesa Estreita (F-15),Humano,sim,categoria: líder de facção; ficha: R5-4.1,doc 04 §10,humano

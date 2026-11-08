@@ -1,0 +1,10 @@
+# esquema=1
+# limite de segurança do regime selado (F5.4) e tensão entre reinos vizinhos do anel (F7.1).
+chave|valor|descricao|motor|fonte|etiqueta
+fronteira_limite_anos|120|anos sem gatilho de fronteira após os quais a Era I (selado) termina por segurança (D-M4)|fronteira|PLANO_MOTOR §8 (D-M4)|PROPOSTO
+front_tensao_base|1|pontos de tensão que cada par vizinho do anel soma por ano|fronteira|PLANO_MOTOR §8 (D-M4)|PROPOSTO
+front_tensao_por_relogio|1|pontos de tensão por ano a mais para cada relógio estourado nos dois reinos do par|fronteira|PLANO_MOTOR §8 (D-M4)|PROPOSTO
+front_tensao_jitter|3|sorteio de 0 a este valor somado à tensão de cada ano (semente por motor e data)|fronteira|PLANO_MOTOR §8 (D-M4)|PROPOSTO
+front_tensao_limiar|300|tensão em que o par produz um incidente de fronteira (o primeiro encerra o regime selado, D-M4)|fronteira|PLANO_MOTOR §8 (D-M4)|PROPOSTO
+front_tensao_pos_incidente|150|tensão do par depois de um incidente (homeostase: a tensão não zera)|fronteira|PLANO_MOTOR §8 (D-M4)|PROPOSTO
+front_tensao_max|400|teto da tensão de um par|fronteira|PLANO_MOTOR §8 (D-M4)|PROPOSTO

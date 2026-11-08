@@ -1,0 +1,9 @@
+# esquema=1
+regra|entidade|motivo|fonte
+V-10|event.assento-vazio|a rota citada é ligação do doc 07 sem dois locais existentes (grupo de cidades, trecho fora do reino ou destino sem nome); não vira rota.txt e não ganha duração|doc 07 §2; R2-7.1
+V-10|event.cais-fechado|a rota citada é ligação do doc 07 sem dois locais existentes (grupo de cidades, trecho fora do reino ou destino sem nome); não vira rota.txt e não ganha duração|doc 07 §2; R2-7.1
+V-10|event.comporta-cede|a rota citada é ligação do doc 07 sem dois locais existentes (grupo de cidades, trecho fora do reino ou destino sem nome); não vira rota.txt e não ganha duração|doc 07 §2; R2-7.1
+V-10|event.nevasca-fecha-passos|a rota citada é ligação do doc 07 sem dois locais existentes (grupo de cidades, trecho fora do reino ou destino sem nome); não vira rota.txt e não ganha duração|doc 07 §2; R2-7.1
+V-10|event.registro-duplo|a rota citada é ligação do doc 07 sem dois locais existentes (grupo de cidades, trecho fora do reino ou destino sem nome); não vira rota.txt e não ganha duração|doc 07 §2; R2-7.1
+V-10|event.registro-provado|a rota citada é ligação do doc 07 sem dois locais existentes (grupo de cidades, trecho fora do reino ou destino sem nome); não vira rota.txt e não ganha duração|doc 07 §2; R2-7.1
+V-21|route.altavento-pedra-ata|mesmo par de route.concilio-altavento-pedra-ata, mas outra natureza (mensageiros carregam cópias, não delegação); meio desconhecido nas duas|doc 07 §2; R2-7.1

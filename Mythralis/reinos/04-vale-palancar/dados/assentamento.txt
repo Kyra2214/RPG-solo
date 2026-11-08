@@ -1,0 +1,2 @@
+# esquema=1
+id|reino|cidade_mae|nome|tipo|populacao_faixa|lideranca|obrigacao|interesse_local|tensao|acesso|fonte

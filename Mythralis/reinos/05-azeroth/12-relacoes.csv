@@ -1,0 +1,92 @@
+origem_id,destino_id,destino_texto,tipo,descricao,fonte,certeza
+npc.helion-vigilia-do-celeiro,faction.casa-dos-barqueiros,—,aliança,a facção Conselho dos Celeiros é aliada de Casa dos Barqueiros,doc 04 §10 (faction.conselho-dos-celeiros),C
+npc.helion-vigilia-do-celeiro,faction.guarnicao-do-limite,—,aliança,a facção Conselho dos Celeiros é aliada de Guarnição do Limite,doc 04 §10 (faction.conselho-dos-celeiros),C
+npc.helion-vigilia-do-celeiro,faction.mesa-estreita,—,aliança,a facção Conselho dos Celeiros é aliada de Mesa Estreita,doc 04 §10 (faction.conselho-dos-celeiros),C
+npc.helion-vigilia-do-celeiro,faction.alfandega-das-mares,—,rivalidade,a facção Conselho dos Celeiros é rival de Alfândega das Marés,doc 04 §10 (faction.conselho-dos-celeiros),C
+npc.solenne-vigilia-longa,faction.conselho-dos-celeiros,—,aliança,a facção Guarnição do Limite é aliada de Conselho dos Celeiros,doc 04 §10 (faction.guarnicao-do-limite),C
+npc.solenne-vigilia-longa,faction.vigilia-da-cupula,—,aliança,a facção Guarnição do Limite é aliada de Vigília da Cúpula,doc 04 §10 (faction.guarnicao-do-limite),C
+npc.solenne-vigilia-longa,faction.mesa-estreita,—,aliança,a facção Guarnição do Limite é aliada de Mesa Estreita,doc 04 §10 (faction.guarnicao-do-limite),C
+npc.solenne-vigilia-longa,faction.posto-dos-pipeiros,—,rivalidade,a facção Guarnição do Limite é rival de Posto dos Pipeiros,doc 04 §10 (faction.guarnicao-do-limite),C
+npc.ebbo-praia-rasa,faction.conselho-dos-celeiros,—,aliança,a facção Casa dos Barqueiros é aliada de Conselho dos Celeiros,doc 04 §10 (faction.casa-dos-barqueiros),C
+npc.ebbo-praia-rasa,faction.albergue-dos-chegados,—,aliança,a facção Casa dos Barqueiros é aliada de Albergue dos Chegados,doc 04 §10 (faction.casa-dos-barqueiros),C
+npc.ebbo-praia-rasa,faction.alfandega-das-mares,—,rivalidade,a facção Casa dos Barqueiros é rival de Alfândega das Marés,doc 04 §10 (faction.casa-dos-barqueiros),C
+npc.pelmo-balanca-de-porto,faction.construtores-de-concha,—,aliança,a facção Alfândega das Marés é aliada de Construtores de Concha,doc 04 §10 (faction.alfandega-das-mares),C
+npc.pelmo-balanca-de-porto,faction.conselho-dos-celeiros,—,rivalidade,a facção Alfândega das Marés é rival de Conselho dos Celeiros,doc 04 §10 (faction.alfandega-das-mares),C
+npc.pelmo-balanca-de-porto,faction.casa-dos-barqueiros,—,rivalidade,a facção Alfândega das Marés é rival de Casa dos Barqueiros,doc 04 §10 (faction.alfandega-das-mares),C
+npc.pelmo-balanca-de-porto,faction.guarda-da-corrente,—,rivalidade,a facção Alfândega das Marés é rival de Guarda da Corrente,doc 04 §10 (faction.alfandega-das-mares),C
+npc.dorgan-escudo-lento,faction.irmandade-dos-faroleiros,—,aliança,a facção Guarda da Corrente é aliada de Irmandade dos Faroleiros,doc 04 §10 (faction.guarda-da-corrente),C
+npc.dorgan-escudo-lento,faction.alfandega-das-mares,—,rivalidade,a facção Guarda da Corrente é rival de Alfândega das Marés,doc 04 §10 (faction.guarda-da-corrente),C
+npc.perrin-farol-aceso,faction.guarda-da-corrente,—,aliança,a facção Irmandade dos Faroleiros é aliada de Guarda da Corrente,doc 04 §10 (faction.irmandade-dos-faroleiros),C
+npc.perrin-farol-aceso,faction.pilotos-da-enseada,—,aliança,a facção Irmandade dos Faroleiros é aliada de Pilotos da Enseada,doc 04 §10 (faction.irmandade-dos-faroleiros),C
+npc.perrin-farol-aceso,faction.albergue-dos-chegados,—,aliança,a facção Irmandade dos Faroleiros é aliada de Albergue dos Chegados,doc 04 §10 (faction.irmandade-dos-faroleiros),C
+npc.perrin-farol-aceso,faction.casa-dos-sinais,—,rivalidade,a facção Irmandade dos Faroleiros é rival de Casa dos Sinais,doc 04 §10 (faction.irmandade-dos-faroleiros),C
+npc.nerella-canto-da-barra,faction.irmandade-dos-faroleiros,—,aliança,a facção Pilotos da Enseada é aliada de Irmandade dos Faroleiros,doc 04 §10 (faction.pilotos-da-enseada),C
+npc.nerella-canto-da-barra,faction.guardas-do-santuario,—,aliança,a facção Pilotos da Enseada é aliada de Guardas do Santuário,doc 04 §10 (faction.pilotos-da-enseada),C
+npc.orrume-abrigo-de-casco,faction.alfandega-das-mares,—,aliança,a facção Construtores de Concha é aliada de Alfândega das Marés,doc 04 §10 (faction.construtores-de-concha),C
+npc.orrume-abrigo-de-casco,faction.guardas-do-santuario,—,rivalidade,a facção Construtores de Concha é rival de Guardas do Santuário,doc 04 §10 (faction.construtores-de-concha),C
+npc.corali-fundo-de-coral,faction.pilotos-da-enseada,—,aliança,a facção Guardas do Santuário é aliada de Pilotos da Enseada,doc 04 §10 (faction.guardas-do-santuario),C
+npc.corali-fundo-de-coral,faction.construtores-de-concha,—,rivalidade,a facção Guardas do Santuário é rival de Construtores de Concha,doc 04 §10 (faction.guardas-do-santuario),C
+npc.casimar-codigo-limpo,faction.posto-dos-pipeiros,—,aliança,a facção Casa dos Sinais é aliada de Posto dos Pipeiros,doc 04 §10 (faction.casa-dos-sinais),C
+npc.casimar-codigo-limpo,faction.leitores-do-ceu,—,aliança,a facção Casa dos Sinais é aliada de Leitores do Céu,doc 04 §10 (faction.casa-dos-sinais),C
+npc.casimar-codigo-limpo,faction.irmandade-dos-faroleiros,—,rivalidade,a facção Casa dos Sinais é rival de Irmandade dos Faroleiros,doc 04 §10 (faction.casa-dos-sinais),C
+npc.ixra-noite-aberta,faction.casa-dos-sinais,—,aliança,a facção Leitores do Céu é aliada de Casa dos Sinais,doc 04 §10 (faction.leitores-do-ceu),C
+npc.ixra-noite-aberta,faction.vigilia-da-cupula,—,rivalidade,a facção Leitores do Céu é rival de Vigília da Cúpula,doc 04 §10 (faction.leitores-do-ceu),C
+npc.eloh-cupula-acesa,faction.guarnicao-do-limite,—,aliança,a facção Vigília da Cúpula é aliada de Guarnição do Limite,doc 04 §10 (faction.vigilia-da-cupula),C
+npc.eloh-cupula-acesa,faction.leitores-do-ceu,—,rivalidade,a facção Vigília da Cúpula é rival de Leitores do Céu,doc 04 §10 (faction.vigilia-da-cupula),C
+npc.hollis-torre-do-meio,faction.casa-dos-sinais,—,aliança,a facção Posto dos Pipeiros é aliada de Casa dos Sinais,doc 04 §10 (faction.posto-dos-pipeiros),C
+npc.hollis-torre-do-meio,faction.guarnicao-do-limite,—,rivalidade,a facção Posto dos Pipeiros é rival de Guarnição do Limite,doc 04 §10 (faction.posto-dos-pipeiros),C
+npc.auriven-porta-acesa,faction.casa-dos-barqueiros,—,aliança,a facção Albergue dos Chegados é aliada de Casa dos Barqueiros,doc 04 §10 (faction.albergue-dos-chegados),C
+npc.auriven-porta-acesa,faction.irmandade-dos-faroleiros,—,aliança,a facção Albergue dos Chegados é aliada de Irmandade dos Faroleiros,doc 04 §10 (faction.albergue-dos-chegados),C
+npc.auriven-porta-acesa,faction.mesa-estreita,—,rivalidade,a facção Albergue dos Chegados é rival de Mesa Estreita,doc 04 §10 (faction.albergue-dos-chegados),C
+npc.ruvane-chave-contada,faction.conselho-dos-celeiros,—,aliança,a facção Mesa Estreita é aliada de Conselho dos Celeiros,doc 04 §10 (faction.mesa-estreita),C
+npc.ruvane-chave-contada,faction.guarnicao-do-limite,—,aliança,a facção Mesa Estreita é aliada de Guarnição do Limite,doc 04 §10 (faction.mesa-estreita),C
+npc.ruvane-chave-contada,faction.albergue-dos-chegados,—,rivalidade,a facção Mesa Estreita é rival de Albergue dos Chegados,doc 04 §10 (faction.mesa-estreita),C
+npc.helion-vigilia-do-celeiro,city.campoalvo,—,tensão,O Trigal exige precedência; quem compra o grão questiona o preço,doc 03 §1 e doc 04 §9,C
+npc.ebbo-praia-rasa,city.campoalvo,—,dívida,"o lugar deve apoio e tributo ao lugar-mãe: Manter docas, canais e comportas; tributar a passagem para o Trigal",doc 03 §1 e doc 04 §9,C
+npc.ebbo-praia-rasa,city.vaudouro,—,tensão,Trigal e Cais discutem quem taxa o que passa; os barqueiros dizem que a cidade é do rio,doc 03 §1 e doc 04 §9,C
+npc.solenne-vigilia-longa,city.campoalvo,—,dívida,o lugar deve apoio e tributo ao lugar-mãe: Vigiar o limite e registrar quem chega e quem parte,doc 03 §1 e doc 04 §9,C
+npc.solenne-vigilia-longa,city.torrefronte,—,tensão,Guarnição e vigia discordam sobre quem responde por quem chega,doc 03 §1 e doc 04 §9,C
+npc.pelmo-balanca-de-porto,city.alvamar,—,tensão,O Cais exige precedência; a Alfândega discute se a taxa serve ao porto ou à Coroa,doc 03 §1 e doc 04 §9,C
+npc.perrin-farol-aceso,city.alvamar,—,dívida,o lugar deve apoio e tributo ao lugar-mãe: Manter as luzes e receber quem chega pela rota das Costas,doc 03 §1 e doc 04 §9,C
+npc.perrin-farol-aceso,city.enseada-vigia,—,tensão,O Cais quer os faroleiros a seu mando e o Vento quer os sinais da costa,doc 03 §1 e doc 04 §9,C
+npc.orrume-abrigo-de-casco,city.alvamar,—,dívida,o lugar deve apoio e tributo ao lugar-mãe: Construir e consertar casco; guardar o santuário e o jardim,"doc 03 §1 e doc 04 §9; origem = guardião do lugar, sem declarar chefe (Mestres de Concha e Mesa dos Astros têm chefe `desconhecido`)",ASSUMINDO
+npc.orrume-abrigo-de-casco,city.concharia,—,tensão,O Cais quer abrir outro canal; o santuário diz que o jardim morre,"doc 03 §1 e doc 04 §9; origem = guardião do lugar, sem declarar chefe (Mestres de Concha e Mesa dos Astros têm chefe `desconhecido`)",ASSUMINDO
+npc.casimar-codigo-limpo,city.torreclara,—,tensão,As outras coroas temem depender de quem pode calar uma torre,doc 03 §1 e doc 04 §9,C
+npc.eloh-cupula-acesa,city.torreclara,—,dívida,"o lugar deve apoio e tributo ao lugar-mãe: Guardar o arquivo celeste, o calendário de rota e o ensino","doc 03 §1 e doc 04 §9; origem = guardião do lugar, sem declarar chefe (Mestres de Concha e Mesa dos Astros têm chefe `desconhecido`)",ASSUMINDO
+npc.eloh-cupula-acesa,city.estrelado,—,tensão,Estelares e luminares discordam sobre quem interpreta o céu; cada coroa pede a previsão que lhe serve,"doc 03 §1 e doc 04 §9; origem = guardião do lugar, sem declarar chefe (Mestres de Concha e Mesa dos Astros têm chefe `desconhecido`)",ASSUMINDO
+npc.hollis-torre-do-meio,city.torreclara,—,dívida,o lugar deve apoio e tributo ao lugar-mãe: Manter as torres e os pousos entre o interior e a costa,doc 03 §1 e doc 04 §9,C
+npc.hollis-torre-do-meio,city.pouso-das-brisas,—,tensão,As outras coroas desconfiam de que a linha serve só ao Vento,doc 03 §1 e doc 04 §9,C
+npc.tolla-mesa-posta,city.meiovau,—,tensão,Como acolher quem chega do Véu; precedência entre coroas,doc 03 §1 e doc 04 §9,C
+npc.odile-medida-cheia,npc.tomlin-horta-larga,—,vínculo de cargo,governante e herdeiro reconhecido,doc 04 §2.2,C
+npc.corlan-cais-primeiro,npc.rilla-espuma-fina,—,vínculo de cargo,governante e herdeiro reconhecido,doc 04 §2.2,C
+npc.brevo-rumo-alto,npc.astrel-noite-clara,—,vínculo de cargo,governante e herdeiro reconhecido,doc 04 §2.2,C
+npc.helion-vigilia-do-celeiro,npc.odile-medida-cheia,—,vínculo de cargo,o órgão do lugar responde ao governante da coroa,doc 04 §9 (Responde a),C
+npc.ebbo-praia-rasa,npc.odile-medida-cheia,—,vínculo de cargo,o órgão do lugar responde ao governante da coroa,doc 04 §9 (Responde a),C
+npc.solenne-vigilia-longa,npc.odile-medida-cheia,—,vínculo de cargo,o órgão do lugar responde ao governante da coroa,doc 04 §9 (Responde a),C
+npc.pelmo-balanca-de-porto,npc.corlan-cais-primeiro,—,vínculo de cargo,o órgão do lugar responde ao governante da coroa,doc 04 §9 (Responde a),C
+npc.dorgan-escudo-lento,npc.corlan-cais-primeiro,—,vínculo de cargo,o órgão do lugar responde ao governante da coroa,doc 04 §9 (Responde a),C
+npc.perrin-farol-aceso,npc.corlan-cais-primeiro,—,vínculo de cargo,o órgão do lugar responde ao governante da coroa,doc 04 §9 (Responde a),C
+npc.casimar-codigo-limpo,npc.brevo-rumo-alto,—,vínculo de cargo,o órgão do lugar responde ao governante da coroa,doc 04 §9 (Responde a),C
+npc.hollis-torre-do-meio,npc.brevo-rumo-alto,—,vínculo de cargo,o órgão do lugar responde ao governante da coroa,doc 04 §9 (Responde a),C
+npc.helion-vigilia-do-celeiro,npc.dodda-prato-cheio,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.ebbo-praia-rasa,npc.larkin-barcaca-cheia,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.solenne-vigilia-longa,npc.sabeth-patio-aberto,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.dorgan-escudo-lento,npc.marnu-espuma-dada,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.perrin-farol-aceso,npc.ressan-concha-aberta,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.orrume-abrigo-de-casco,npc.corali-fundo-de-coral,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.casimar-codigo-limpo,npc.clarel-lume-de-torre,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.eloh-cupula-acesa,npc.ixra-noite-aberta,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.hollis-torre-do-meio,npc.poppel-mesa-de-viajante,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.tolla-mesa-posta,npc.auriven-porta-acesa,—,vínculo de cargo,guardião e benfeitor da mesma tríade do lugar,doc 01 parte 2 §3,C
+npc.odile-medida-cheia,—,que o excedente apodreça e a precedência passe ao Cais,medo,medo: que o excedente apodreça e a precedência passe ao Cais,12-fichas.md (R5-4.1),ASSUMINDO
+npc.tomlin-horta-larga,—,herdar uma precedência já perdida,medo,medo: herdar uma precedência já perdida,12-fichas.md (R5-4.1),ASSUMINDO
+npc.garvane-remo-firme,—,ser feito símbolo da Casa dos Barqueiros e ver a comporta fechada,medo,medo: ser feito símbolo da Casa dos Barqueiros e ver a comporta fechada,12-fichas.md (R5-4.1),ASSUMINDO
+npc.solenne-vigilia-longa,—,"abrir o limite a quem não devia, em nome do Livro",medo,"medo: abrir o limite a quem não devia, em nome do Livro",12-fichas.md (R5-4.1),ASSUMINDO
+npc.corlan-cais-primeiro,—,sufocar o porto com a taxa e perder o apoio da Alfândega,medo,medo: sufocar o porto com a taxa e perder o apoio da Alfândega,12-fichas.md (R5-4.1),ASSUMINDO
+npc.rilla-espuma-fina,—,o porto fechado por uma disputa de taxa,medo,medo: o porto fechado por uma disputa de taxa,12-fichas.md (R5-4.1),ASSUMINDO
+npc.dorgan-escudo-lento,—,a corrente falhar outra vez sem ninguém dizer por quê,medo,medo: a corrente falhar outra vez sem ninguém dizer por quê,12-fichas.md (R5-4.1),ASSUMINDO
+npc.nerella-canto-da-barra,—,o pilotar virar ofício de uma só coroa,medo,medo: o pilotar virar ofício de uma só coroa,12-fichas.md (R5-4.1),ASSUMINDO
+npc.brevo-rumo-alto,—,a Coroa cega numa cerração longa e ser chamado de dono da arma,medo,medo: a Coroa cega numa cerração longa e ser chamado de dono da arma,12-fichas.md (R5-4.1),ASSUMINDO
+npc.astrel-noite-clara,—,a rede partida e a Coroa dependente de um só código,medo,medo: a rede partida e a Coroa dependente de um só código,12-fichas.md (R5-4.1),ASSUMINDO
+npc.tolla-mesa-posta,—,perder Meiovau para uma coroa e a chave copiada vir à tona,medo,medo: perder Meiovau para uma coroa e a chave copiada vir à tona,12-fichas.md (R5-4.1),ASSUMINDO
+npc.auriven-porta-acesa,—,o albergue pedir mais do que o doador dá,medo,medo: o albergue pedir mais do que o doador dá,12-fichas.md (R5-4.1),ASSUMINDO

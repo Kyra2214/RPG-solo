@@ -1,0 +1,4 @@
+# esquema=1
+regra|entidade|motivo|fonte
+V-23|kingdom.vale-palancar|o doc 07 liga os lugares em dois grupos (Praia-Pardo, Rasovau, Encosta-Aberta; Tabuleiro-Velho, Terreiro-Maior, Vazante, Gramal) e deixa Alvasal sem ligação interna; não se inventa rota para fechar o grafo (contrato §5 item 4)|doc 07 §2; R4-7.1
+V-44|city.alvasal|só tem a ligação com o Ermo de Sal (fora do reino); nenhuma rota interna documentada; não se inventa rota|doc 07 §2; R4-7.1

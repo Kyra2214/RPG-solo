@@ -1,0 +1,77 @@
+origem_id,destino_id,destino_texto,tipo,descricao,fonte
+npc.nivara-folha-de-orvalho,faction.liga-celeiros,—,cooperação,coopera,doc 03 §2.1
+npc.nivara-folha-de-orvalho,npc.lethariel-nascente-clara,—,cooperação,troca registros,doc 03 §2.1
+npc.nivara-folha-de-orvalho,faction.companhia-ambar,—,desconfiança,desconfia de contratos,doc 03 §2.1
+npc.nivara-folha-de-orvalho,—,Coroa,rivalidade,recusa entregar sementes locais; Coroa exige mudas raras (disputa possível),doc 03 §2.1 e doc 01 §29
+npc.othalen-vira-pedra,npc.tavian-lume-fino,—,cooperação,fornece dados de trânsito,doc 03 §2.2
+npc.othalen-vira-pedra,city.torvelume,—,dependência,depende das ferragens,doc 03 §2.2
+npc.othalen-vira-pedra,—,guarda real,tensão,a guarda quer instalar posto fixo,doc 03 §2.2
+npc.othalen-vira-pedra,—,três casas nobres isentas,desconfiança,suspeita de privilégio legal; decreto não visto,doc 03 §2.2
+npc.beren-tres-canais,npc.elsin-varzea-clara,—,cooperação,trabalha com ela,doc 03 §3.1
+npc.beren-tres-canais,faction.irmandade-aguas,—,cooperação,trabalha com a Irmandade,doc 03 §3.1
+npc.beren-tres-canais,—,proprietários que desviam água,rivalidade,conflito,doc 03 §3.1
+npc.sava-mao-de-corrente,city.nymvar,—,dependência,regras de canal,doc 03 §3.2
+npc.sava-mao-de-corrente,city.torvelume,—,dependência,peças,doc 03 §3.2
+npc.sava-mao-de-corrente,faction.liga-das-rotas,—,tensão,a Liga quer acesso aos registros de carga,doc 03 §3.2
+npc.yara-sal-de-mare,npc.syranna-das-mares,—,negociação,negocia,doc 03 §4.1
+npc.yara-sal-de-mare,faction.companhia-ambar,—,negociação,negocia,doc 03 §4.1
+npc.yara-sal-de-mare,—,inspetores do porto,rivalidade,acusa fiscalização mais dura sobre barcos pequenos,doc 03 §4.1
+npc.terenna-luz-de-lastro,city.thalanor,—,dependência,responde em navegação; resgate vem antes da alfândega para a comunidade,doc 03 §4.2
+npc.arieth-tres-mudas,npc.eryndra-folha-verde,—,cooperação,coopera,doc 03 §5.1
+npc.arieth-tres-mudas,faction.vigias-primeiro-verde,—,cooperação,coopera,doc 03 §5.1
+npc.arieth-tres-mudas,faction.companhia-ambar,—,ligação comercial,trabalhadores vendem resina a intermediários da Companhia (não é conduta de Arieth),doc 03 §5.1
+npc.calar-passo-curvo,npc.oranna-passo-largo,—,respeito,respeita,doc 03 §5.2
+npc.calar-passo-curvo,—,negociadores da cidade,discordância,acha que subestimam o risco de bloquear uma manada,doc 03 §5.2
+npc.nima-barro-manso,npc.voz-muitas-raizes,—,cooperação,trabalha com,doc 03 §6.1
+npc.nima-barro-manso,faction.irmandade-aguas,—,cooperação,trabalha com,doc 03 §6.1
+npc.nima-barro-manso,—,compradores de amostras,desconfiança,desconfia de quem não declara o uso,doc 03 §6.1
+npc.vela-tres-margens,city.orvass,—,cooperação,presta serviço de resgate,doc 03 §6.2
+npc.vela-tres-margens,—,barqueiros de Nymvar,negociação,negocia,doc 03 §6.2
+npc.orelia-ceu-de-cinza,npc.selvaris-noctel,—,cooperação,coopera,doc 03 §7.1
+npc.orelia-ceu-de-cinza,npc.selvaris-noctel,—,discordância,contesta a autoridade acadêmica quando a pesquisa impede alertas públicos,doc 03 §7.1
+npc.marel-tinta-firme,npc.lethariel-nascente-clara,—,cooperação,mantém contatos,doc 03 §7.2
+npc.marel-tinta-firme,—,Biblioteca de Casca,cooperação,fornece serviços,doc 03 §7.2
+npc.mira-ouve-chuva,npc.neralis-vento-manso,—,cooperação,trabalha com,doc 03 §8.1
+npc.mira-ouve-chuva,faction.rede-guias,—,cooperação,trabalha com,doc 03 §8.1
+npc.mira-ouve-chuva,—,guias de fora,rivalidade,competem por contratos,doc 03 §8.1
+npc.iven-marca-de-som,city.brumafunda,—,dependência,provisões,doc 03 §8.2
+npc.iven-marca-de-som,city.caladwen,—,discordância,"depende da rede de observação, mas há desacordo sobre o que é evidência suficiente",doc 03 §8.2
+npc.sena-polen-dourado,npc.tessa-folhinha,—,negociação,negocia,doc 03 §9.1
+npc.sena-polen-dourado,faction.liga-celeiros,—,negociação,negocia,doc 03 §9.1
+npc.sena-polen-dourado,—,"vendedores de sementes ""resistentes""",desconfiança,suspeita de sementes vendidas sem documentação,doc 03 §9.1
+npc.doria-tres-sulcos,city.arven,—,dependência,celeiros,doc 03 §9.2
+npc.doria-tres-sulcos,city.nymvar,—,dependência,canais,doc 03 §9.2
+npc.doria-tres-sulcos,—,comerciantes de crédito,dívida,oferecem crédito em troca de contratos futuros de colheita (dívida potencial),doc 03 §9.2
+npc.vessa-fio-dourado,npc.lyris-melodia-clara,—,dependência,mediação,doc 03 §10.1
+npc.vessa-fio-dourado,city.arven,—,dependência,alimentos,doc 03 §10.1
+npc.vessa-fio-dourado,—,casa nobre patrocinadora,rivalidade,quer exclusividade artística; apropriou uma canção,doc 03 §10.1
+npc.dalen-porta-aberta,faction.liga-celeiros,—,cooperação,recebe ajuda,doc 03 §10.2
+npc.dalen-porta-aberta,settlement.mascara-nova,—,cooperação,recebe ajuda de artistas,doc 03 §10.2
+npc.dalen-porta-aberta,—,autoridades de Silvaran,tensão,pedem listas de hóspedes que a comunidade considera privadas,doc 03 §10.2
+npc.meda-martelo-calmo,npc.dauren-galho-de-ferro,—,dependência,responde tecnicamente; a assembleia contesta ordens sem orçamento,doc 03 §11.1
+npc.meda-martelo-calmo,city.vael-tir,—,dependência,rotas,doc 03 §11.1
+npc.meda-martelo-calmo,city.arven,—,dependência,alimentos,doc 03 §11.1
+npc.rovan-cinza-de-ferro,npc.dauren-galho-de-ferro,—,dependência,depende,doc 03 §11.2
+npc.rovan-cinza-de-ferro,settlement.ferro-folha,—,dependência,depende,doc 03 §11.2
+npc.rovan-cinza-de-ferro,—,ex-trabalhadores da mina,vínculo,contatos que não confiam nos relatórios oficiais,doc 03 §11.2
+npc.aerendyl-vaelorian,npc.maereth-vaelorian,—,afeto,confia na herdeira,doc 01 §4.1
+npc.aerendyl-vaelorian,npc.maereth-vaelorian,—,discordância,discorda de sua pressa,doc 01 §4.1
+npc.aerendyl-vaelorian,npc.saelith-arco-de-chuva,—,respeito,respeita a general,doc 01 §4.1
+npc.aerendyl-vaelorian,npc.oranna-passo-largo,—,dívida,dívida antiga com a líder centaura,doc 01 §4.1
+npc.maereth-vaelorian,npc.aerendyl-vaelorian,—,discordância,acha que o pai confunde prudência com adiamento,doc 01 §4.2
+npc.maereth-vaelorian,—,conselheiros não informados,vínculo,encontros discretos com comunidades do sul sem informar todos (segredo),doc 01 §4.2
+npc.saelith-arco-de-chuva,npc.maereth-vaelorian,—,afeto,"foi amiga de Maereth (ASSUMINDO: a princesa, pela referência a ""reforma"")",doc 01 §9
+npc.saelith-arco-de-chuva,npc.maereth-vaelorian,—,discordância,discorda de seus métodos de reforma,doc 01 §9
+npc.saelith-arco-de-chuva,—,políticos,desconfiança,desconfiada,doc 01 §9
+npc.syranna-das-mares,—,irmão desaparecido,afeto,não aceita arquivar o caso como naufrágio,doc 01 §9
+npc.maelor-venn,—,agentes contratados,vínculo,nega saber da extração ilegal feita por eles,doc 01 §9
+npc.neralis-vento-manso,—,pessoa desaparecida,vínculo,recebeu dela um mapa de confiabilidade incerta,doc 01 §9
+npc.dauren-galho-de-ferro,—,Coroa,desconfiança,"considera-a negligente, mas cumpre o juramento de defesa",doc 01 §9
+npc.lyris-melodia-clara,—,casa nobre,rivalidade,canção de sua família apropriada,doc 01 §9
+npc.mirel-caule-vivo,—,Coroa,discordância,teme árvores-coração como símbolos políticos,doc 01 §4.3
+npc.edris-do-sul,—,casas tradicionais,rivalidade,questionam sua nomeação,doc 01 §9
+npc.elsin-varzea-clara,—,autor da compra de material inferior,desconfiança,tem provas do material; não sabe quem autorizou,doc 01 §9
+npc.parel-tres-parafusos,—,Coroa,discordância,recusa patrocínio com exclusividade,doc 01 §19.1
+npc.nimeth-vela-chuva,—,críticos,tensão,acusam-na de decidir sozinha o que o povo conhece,doc 01 §19.1
+npc.avarra-sete-pontes,—,famílias removidas,rivalidade,contestam a celebração; duas famílias removidas para o trajeto,doc 01 §17 e §19.1
+npc.avariel-thorne,—,conselho urbano,vínculo,fiscalizado por ele; nomeado pelo rei,doc 01 §5.1

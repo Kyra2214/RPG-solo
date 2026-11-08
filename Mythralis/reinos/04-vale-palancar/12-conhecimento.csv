@@ -1,0 +1,67 @@
+npc_id,estado,fato,fonte
+npc.kharos-casco-de-marcha,confirmado,É o Capitão de Marcha e reside na Vazante.,12-fichas.md (R4-4.1)
+npc.kharos-casco-de-marcha,suspeita,"Já decidiu, sozinho, quem deseja que o suceda.",12-fichas.md (R4-4.1)
+npc.kharos-casco-de-marcha,desconhecido,Como foi escolhido e o que faria se a Assembleia o contrariasse.,12-fichas.md (R4-4.1)
+npc.yorna-palavra-firme,confirmado,Cuida da ordem da reunião.,12-fichas.md (R4-4.1)
+npc.yorna-palavra-firme,suspeita,Sabe de um costume da Pedra da Palavra que a Assembleia esqueceu.,12-fichas.md (R4-4.1)
+npc.yorna-palavra-firme,desconhecido,O que a Pedra da Palavra registra e quem a escolheu para o cargo.,12-fichas.md (R4-4.1)
+npc.gruzk-estandarte-baixo,confirmado,Comanda os turnos de vigia da cisterna.,12-fichas.md (R4-4.1)
+npc.gruzk-estandarte-baixo,suspeita,Já negou água a quem tinha direito para evitar um mal maior.,12-fichas.md (R4-4.1)
+npc.gruzk-estandarte-baixo,desconhecido,Que ordem original sustenta os turnos de legião.,12-fichas.md (R4-4.1)
+npc.moura-mel-guardado,confirmado,Chefia o Trato do Celeiro.,12-fichas.md (R4-4.1)
+npc.moura-mel-guardado,suspeita,Guarda uma parte da reserva fora da conta.,12-fichas.md (R4-4.1)
+npc.moura-mel-guardado,desconhecido,Quem tem direito à reserva quando a migração falha.,12-fichas.md (R4-4.1)
+npc.pocha-ninhada-farta,confirmado,Distribui reserva própria a clãs que o celeiro não atende.,12-fichas.md (R4-4.1)
+npc.pocha-ninhada-farta,suspeita,"Sustenta, sem dizer, um clã que o Trato recusou.",12-fichas.md (R4-4.1)
+npc.pocha-ninhada-farta,desconhecido,De onde vem a reserva dela.,12-fichas.md (R4-4.1)
+npc.tessun-salto-calado,confirmado,Guia rebanhos até o pouso.,12-fichas.md (R4-4.1)
+npc.tessun-salto-calado,suspeita,Já ouviu do outro lado mais do que conta.,12-fichas.md (R4-4.1)
+npc.tessun-salto-calado,desconhecido,Por que escolheu ficar do lado de cá.,12-fichas.md (R4-4.1)
+npc.rukhan-retorno-certo,confirmado,Bate os campos para a Marcha.,12-fichas.md (R4-4.1)
+npc.rukhan-retorno-certo,suspeita,Já viu um terceiro campo e não o disse.,12-fichas.md (R4-4.1)
+npc.rukhan-retorno-certo,desconhecido,O que viu da última vez que se afastou da Marcha.,12-fichas.md (R4-4.1)
+npc.zinu-troca-justa,confirmado,Chefia um dos grupos que cobram.,12-fichas.md (R4-4.1)
+npc.zinu-troca-justa,suspeita,Já deixou passar quem não pagou para ganhar um favor.,12-fichas.md (R4-4.1)
+npc.zinu-troca-justa,desconhecido,A quem pertencem de fato as pedras do vau.,12-fichas.md (R4-4.1)
+npc.quira-recado-certo,confirmado,Leva recados entre os grupos.,12-fichas.md (R4-4.1)
+npc.quira-recado-certo,suspeita,Guarda os recados que preferiu não entregar.,12-fichas.md (R4-4.1)
+npc.quira-recado-certo,desconhecido,O que guarda na Tenda dos Recados.,12-fichas.md (R4-4.1)
+npc.vrissk-colonia-quieta,confirmado,Chefia o Trato do Desembarque.,12-fichas.md (R4-4.1)
+npc.vrissk-colonia-quieta,suspeita,Já recusou carga por um motivo que não explicou.,12-fichas.md (R4-4.1)
+npc.vrissk-colonia-quieta,desconhecido,Quem escolheu o pouso e o que mais chega que ninguém registra.,12-fichas.md (R4-4.1)
+npc.tibbe-salto-curto,confirmado,Chefia o Trato dos Rebanhos.,12-fichas.md (R4-4.1)
+npc.tibbe-salto-curto,suspeita,Já favoreceu os clãs de gado no último acerto.,12-fichas.md (R4-4.1)
+npc.tibbe-salto-curto,desconhecido,Qual lado tem razão sobre o capim.,12-fichas.md (R4-4.1)
+npc.cassan-galhada-velha,confirmado,Hospeda clãs de fora no Terreiro.,12-fichas.md (R4-4.1)
+npc.cassan-galhada-velha,suspeita,Sabe qual clã apoia qual lado.,12-fichas.md (R4-4.1)
+npc.cassan-galhada-velha,desconhecido,Por que a Ramada nunca fica vazia.,12-fichas.md (R4-4.1)
+npc.cadrek-cerca-aberta,confirmado,Benfeitor de Encosta-Aberta (tríade) e líder dos Clãs da Aclamação (Centauro),doc 01 parte 2 §3; doc 04 §9
+npc.cadrek-cerca-aberta,desconhecido,"Origem, idade, em que consiste o benefício ao lugar e o que sabe do outro lado das elevações",não documentado (docs 01 e 04)
+npc.lumbo-pedra-de-baixo,confirmado,"Lidera as Pedras de Baixo (F-07), o grupo de baixo do vau (Leporino)",doc 04 §9; 12-registro-mestre.md
+npc.lumbo-pedra-de-baixo,suspeita,Pode não dizer o que mudou nas pedras do vau,doc 01 MPL-03 (provas possíveis)
+npc.lumbo-pedra-de-baixo,desconhecido,"Origem, idade e a quem pertencem de fato as pedras do vau",não documentado (docs 01 e 04)
+npc.grebb-balanca-justa,confirmado,Benfeitor de Praia-Pardo (tríade) e líder da Balança do Pouso (Goblin),doc 01 parte 2 §3; doc 04 §9
+npc.grebb-balanca-justa,desconhecido,"Origem, idade e em que consiste o benefício ao lugar",não documentado (docs 01 e 04)
+npc.aruun-poco-compartilhado,confirmado,Chefia o Trato do Poço e lidera os Vigias da Cisterna (Lupino),doc 04 §8 e §9
+npc.aruun-poco-compartilhado,suspeita,Pode divergir de Gruzk sobre quanta água há na cisterna,doc 01 MPL-05 (provas possíveis)
+npc.aruun-poco-compartilhado,desconhecido,"Origem, idade e a quem a cisterna deve dar preferência",não documentado (docs 01 e 04)
+npc.sendro-clareira-vigia,confirmado,Guardião de Encosta-Aberta (tríade) e líder dos Vigias das Trilhas (Cervino),doc 01 parte 2 §3; doc 04 §9
+npc.sendro-clareira-vigia,suspeita,Pode divergir de Tessun sobre o que se ouve do outro lado,doc 01 MPL-09 (provas possíveis)
+npc.sendro-clareira-vigia,desconhecido,"Origem, idade e se chefia o Trato da Encosta",não documentado (docs 01 e 04)
+npc.ghorla-fartura-dividida,confirmado,Benfeitora de Gramal (tríade) e líder dos Clãs da Caça (Porcino),doc 01 parte 2 §3; doc 04 §9
+npc.ghorla-fartura-dividida,suspeita,Pode divergir de Tibbe sobre onde caiu a marca,doc 01 MPL-10 (provas possíveis)
+npc.ghorla-fartura-dividida,desconhecido,"Origem, idade e de que lado está a razão sobre o campo",não documentado (docs 01 e 04)
+npc.bolgra-forja-de-campo,confirmado,Benfeitor da Vazante (tríade) (Orcano),doc 01 parte 2 §3
+npc.bolgra-forja-de-campo,desconhecido,"Origem, idade e em que consiste o benefício ao acampamento",não documentado (docs 01 e 04)
+npc.bruga-colheita-salva,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.bruga-colheita-salva,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.jessik-trato-primeiro,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.jessik-trato-primeiro,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.nokk-peso-alheio,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.nokk-peso-alheio,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.urrek-bando-parado,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.urrek-bando-parado,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.hukk-pedra-de-divisa,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.hukk-pedra-de-divisa,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
+npc.zzirr-favo-dividido,confirmado,A lenda existe (versão do povo do lugar),doc 01 parte 2 §3.1
+npc.zzirr-favo-dividido,desconhecido,O que de fato aconteceu; a lenda não é fato,doc 01 parte 2 §3.1
