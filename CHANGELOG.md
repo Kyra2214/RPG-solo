@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-08 — política de equivalência dos efeitos do catálogo
+
+- Aplicada a política A: efeitos com `effectId` distinto acumulam; somente a mesma declaração é deduplicada. Não se infere equivalência entre catálogo e `TraitBonus` por escopo/valor.
+- `selectedCatalogBonuses` deixou de comprimir efeitos do catálogo pelo maior valor e passou a preservar declarações distintas.
+- Adicionados testes de acumulação e deduplicação; `./gradlew :rules:test` continua verde, e a validação do módulo `app` aguarda Android SDK/CI.
+
 ## 2026-11-08 — competências e traços do catálogo
 
 - Preenchidas as 50 classes e 104 profissões com exatamente 2 `competencies` e 2 `traits` originais por entrada, totalizando 616 frases únicas.

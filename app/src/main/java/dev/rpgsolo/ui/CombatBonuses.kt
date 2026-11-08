@@ -209,11 +209,9 @@ class CombatBonuses(
         scope: String,
     ): Int = externalSkillAndCurseBonuses(entityId, setOf(scope)).sumOf { it.bonus }
 
-    /** Bônus equivalentes do catálogo de raça/classe/profissão não acumulam: prevalece o maior efeito por escopo. */
+    /** Efeitos do catálogo acumulam quando têm IDs distintos; a mesma declaração só é aplicada uma vez. */
     fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> =
-        catalogBonuses(pkg).groupBy { it.scope to (it.bonus > 0) }.mapNotNull { (_, effects) ->
-            effects.maxWithOrNull(compareBy<dev.rpgsolo.rules.ExternalBonus>({ kotlin.math.abs(it.bonus) }, { it.bonus }))
-        }
+        selectCatalogBonuses(catalogBonuses(pkg))
 
     fun approvedRuleBonus(scope: String): Int =
         session().state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
@@ -297,3 +295,8 @@ class CombatBonuses(
         return " Efeitos de personagem: $details."
     }
 }
+
+/** Mantém efeitos do catálogo com IDs distintos e remove somente a repetição da mesma declaração. */
+internal fun selectCatalogBonuses(
+    bonuses: Collection<dev.rpgsolo.rules.ExternalBonus>,
+): List<dev.rpgsolo.rules.ExternalBonus> = dev.rpgsolo.rules.distinctExternalBonuses(bonuses)

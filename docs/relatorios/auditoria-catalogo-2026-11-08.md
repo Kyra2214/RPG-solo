@@ -42,3 +42,7 @@ A auditoria de modelos, dados, carregador, validador e telas foi concluída. Foi
 - Contagens reproduzidas com Python 3 e comparação de IDs/referências.
 - `./gradlew :rules:test` passou com JDK 17 em 8 segundos.
 - A suíte Android completa continua dependente do Android SDK/CI, conforme `docs/VALIDACAO_CI.md`.
+
+## Política A — equivalência e acumulação
+
+Foi aprovada a política A: IDs distintos acumulam; somente a mesma declaração, identificada pelo mesmo `effectId`, é deduplicada. O resolvedor `selectedCatalogBonuses` deixou de escolher o maior efeito por escopo e passou a usar a deduplicação por identidade. Foram adicionados testes para acumulação de IDs distintos e remoção de duplicata com o mesmo ID.

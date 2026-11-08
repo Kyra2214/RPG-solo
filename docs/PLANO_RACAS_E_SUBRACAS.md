@@ -12,6 +12,10 @@ A auditoria inicial de modelos, carregador, validador, persistência e telas foi
 
 Na etapa seguinte, as 50 classes e 104 profissões receberam exatamente 2 `competencies` e 2 `traits` originais por entrada. Esses campos são descritivos e não concedem bônus; o JSON já declara efeitos mecânicos separados, que ainda precisam de revisão de validade e intenção. O relatório completo está em `docs/relatorios/auditoria-catalogo-2026-11-08.md`.
 
+### Política de equivalência de efeitos — 2026-11-08
+
+Efeitos com IDs de declaração distintos acumulam, mesmo quando compartilham escopo e valor. A mesma declaração identificada pelo mesmo `effectId` é aplicada uma vez. Não se infere equivalência entre um efeito do catálogo e um `TraitBonus` canônico apenas por coincidência de escopo ou valor; uma equivalência futura precisa ser registrada explicitamente.
+
 ## 1. Objetivo
 
 A criação de personagem combina escolhas independentes: **raça**, **sub-raça** (quando existir), **classe**, **profissão** e, quando fizer sentido, **especialização profissional**. São três pilares distintos — raça, classe e profissão — e o jogador pode escolher cada um separadamente. Não deve ser obrigado a selecionar uma profissão relacionada à classe, nem uma classe relacionada à raça. Cada escolha tem identidade, lore/descrição e traços próprios. Os efeitos mecânicos válidos são acumulados pela ficha e resolvidos pelo motor.
