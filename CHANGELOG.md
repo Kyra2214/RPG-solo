@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-08 — validação da Mecânica de dados (M-06.6)
+
+- A suíte JVM dos módulos `engine`, `ai` e `rules` passou com JDK 17: `./gradlew :engine:test :ai:test :rules:test` terminou com `BUILD SUCCESSFUL` em 1min25s.
+- A suíte completa `./gradlew test` não pôde iniciar os testes de `app` porque este sandbox não possui Android SDK (`ANDROID_HOME`/`sdk.dir`). Nenhuma falha de código foi identificada nesta etapa; a validação Android continua reservada ao CI.
+- Documentação atualizada em `PLANO_RPG_SOLO.md` e `docs/VALIDACAO_CI.md`.
+
 ## 2026-11-08 — world: testes de conformidade Kotlin × Python e lote de 20 sementes (MI-08, validação parcial)
 
 - `world/src/test/kotlin`: `Conformidade` (apoio) e `RngJsonConformidadeTest`, `EstadoConformidadeTest`, `MotoresConformidadeTest`, `SimuladorConformidadeTest` (500 anos × 3 sementes e retomada por snapshot), `ValidadorConformidadeTest` (0 erro, 20 avisos, relatório idêntico) e `LoteConformidadeTest` (sementes 1 a 20 × 500 anos, hashes e métricas da seção 14). `world/build.gradle.kts`: recursos do molde de `rules` no classpath de teste e heap de 1 GB.

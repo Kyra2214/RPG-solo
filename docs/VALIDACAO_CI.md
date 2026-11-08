@@ -1,5 +1,16 @@
 # Validação CI — RPG Solo
 
+## Mecânica de dados — validação local (2026-11-08)
+
+Com JDK 17 (`/usr/lib/jvm/java-17-openjdk-arm64`), os módulos JVM independentes do Android SDK foram compilados e testados:
+
+```text
+./gradlew :engine:test :ai:test :rules:test
+BUILD SUCCESSFUL in 1m 25s
+```
+
+Não foi possível executar a suíte literal `./gradlew test`: o sandbox não possui Android SDK, e o Gradle parou ao resolver `:app:testDebugUnitTest` por ausência de `ANDROID_HOME`/`sdk.dir`. Portanto, os testes JVM acima passam, mas a validação Android e o E2E permanecem dependentes do Android CI.
+
 ## Subfase I-02.3 — memórias por cena (2026-10-21)
 
 O contexto do mestre passou a incluir `GameState.memories` somente para entidades listadas em `sceneNpcIds`. Memórias de NPCs ausentes não são enviadas, evitando vazamento de informação entre cenas. O teste foi adicionado em `AgendaProposalTest.contextoIncluiApenasMemoriasDosNpcsDaCena`.
