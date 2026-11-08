@@ -42,7 +42,8 @@ Foi acrescentado a `CharacterCreationCatalogTest` um teste para garantir que os 
 
 ## Registro das validações sequenciais — 2026-11-08
 
-1. `./gradlew :app:testDebugUnitTest --no-daemon` — **bloqueado** na configuração do projeto, antes de executar os testes: `Could not determine the dependencies of task ':app:testDebugUnitTest'` / `SDK location not found`. O ambiente não tem `ANDROID_HOME`, `ANDROID_SDK_ROOT` ou `local.properties` com `sdk.dir`. Nenhum CI, teste instrumentado ou emulador foi iniciado. A suíte completa e o KtLint global permanecem pendentes de execução sequencial.
+1. `./gradlew :app:testDebugUnitTest --no-daemon` — **bloqueado** na configuração do projeto, antes de executar os testes: `Could not determine the dependencies of task ':app:testDebugUnitTest'` / `SDK location not found`. O ambiente não tem `ANDROID_HOME`, `ANDROID_SDK_ROOT` ou `local.properties` com `sdk.dir`. Nenhum CI, teste instrumentado ou emulador foi iniciado.
+2. `./gradlew test --no-daemon` — **bloqueado** antes da execução da suíte: a tarefa `:ai:test` requer Java toolchain 17, mas só há JDK 21 instalado (`Cannot find a Java installation ... languageVersion=17`). O repositório não configura download automático de toolchains. Nenhum teste instrumentado ou emulador foi iniciado.
 
 ## Estado
 
