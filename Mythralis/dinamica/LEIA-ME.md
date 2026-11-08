@@ -13,6 +13,7 @@ Parâmetros PROPOSTOS de simulação (F4; `PLANO_MOTOR_MYTHRALIS.md`, seção 9)
 | `misterios.txt` | 2 chaves do motor de mistérios (F5.3): chance anual de pista e teto de pistas |
 | `diplomacia.txt` | tratados, rupturas e quebras de contrato entre reinos vizinhos (F7.2) |
 | `guerra.txt` | guerras, baixas, paz e queda de coroa entre reinos vizinhos (F7.3; correção de agentes e calibragem inicial F7.4) |
+| `povos.txt` | laços entre raças e sub-raças por cidade e pactos entre povos (F8.2, D-M15); 17 chaves `povos_*`, todas `PROPOSTO` |
 | `fronteira.txt` | limite de anos do regime selado (F5.4) e tensão entre reinos vizinhos (F7.1) |
 | `invariantes.txt` | 2 faixas dos alertas I-17 e I-18 (F6.2) |
 | `relogios_dinamica.txt` | regra executável por relógio (taxa, pressões, travas, eventos, inação); `revisado=não` até o autor conferir |

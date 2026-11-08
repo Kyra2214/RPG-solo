@@ -1,0 +1,3 @@
+# esquema=1
+id|nome|mundo|tema|estado|capital|calendario|fonte
+kingdom.coroas-de-pedra|Coroas de Pedra|mundo.mythralis|reino das montanhas e cidades subterrâneas|em_composicao|city.pedra-ata|calendario.contagem-das-atas|D-26; D-31; capital = sede do Concílio (ASSUMINDO)

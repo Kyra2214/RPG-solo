@@ -1,0 +1,15 @@
+# esquema=1
+id|reino|de|para|meio|duracao_min|duracao_max|unidade|estado|condicao|fonte
+route.concilio-brasalume-pedra-ata|kingdom.coroas-de-pedra|city.brasalume|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.concilio-altavento-pedra-ata|kingdom.coroas-de-pedra|city.altavento|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.concilio-veiaclara-pedra-ata|kingdom.coroas-de-pedra|city.veiaclara|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.concilio-barcaalta-pedra-ata|kingdom.coroas-de-pedra|city.barcaalta|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.concilio-portao-cinza-pedra-ata|kingdom.coroas-de-pedra|city.portao-cinza|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.concilio-sinuosa-pedra-ata|kingdom.coroas-de-pedra|city.sinuosa|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.concilio-cumieira-pedra-ata|kingdom.coroas-de-pedra|city.cumieira|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.concilio-rodaviva-pedra-ata|kingdom.coroas-de-pedra|city.rodaviva|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.concilio-geodalia-pedra-ata|kingdom.coroas-de-pedra|city.geodalia|city.pedra-ata|?|?|?|dia|desconhecida|delegações ao Pátio das Delegações; duração desconhecida|doc 07 route.concilio-pedra-ata
+route.altavento-pedra-ata|kingdom.coroas-de-pedra|city.altavento|city.pedra-ata|?|?|?|dia|desconhecida|sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.altavento-pedra-ata
+route.barcaalta-portao-cinza|kingdom.coroas-de-pedra|city.barcaalta|city.portao-cinza|?|?|?|dia|desconhecida|sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.barcaalta-portao-cinza
+route.barcaalta-rodaviva|kingdom.coroas-de-pedra|city.barcaalta|city.rodaviva|?|?|?|dia|desconhecida|sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.barcaalta-rodaviva
+route.barcaalta-brasalume|kingdom.coroas-de-pedra|city.barcaalta|city.brasalume|?|?|?|dia|desconhecida|sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.barcaalta-brasalume

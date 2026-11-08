@@ -9,6 +9,7 @@ LIMIAR_NOTIFICACAO = 3
 TIPO_REGISTRO = {
     'incidente_fronteira': 3, 'quebra_de_contrato': 3, 'tratado': 3, 'ruptura': 3, 'cisma': 3, 'fusao': 3,
     'extincao': 3, 'bloqueio_de_rota': 3, 'revolta': 3, 'pista_de_misterio': 3, 'tentativa_de_resolver_misterio': 3,
+    'alianca_de_povos': 3, 'fim_de_alianca_de_povos': 3, 'laco_aliado': 2, 'laco_rompido': 2, 'laco_rival': 2,
     'guerra': 4, 'queda_de_coroa': 4, 'fato_confirmado_alterado': 4,
     'disputa_aberta': 3, 'evento_ocorrido': 3, 'fim_de_cadeia': 3, 'passo_de_cadeia': 2,
     'consequencia_sem_agente': 2, 'rota_reaberta': 2, 'tregua': 2, 'tensao_pos_ruptura': 1, 'boato': 1,

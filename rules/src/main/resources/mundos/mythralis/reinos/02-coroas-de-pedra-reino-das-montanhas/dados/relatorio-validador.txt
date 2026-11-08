@@ -1,0 +1,42 @@
+codigo|severidade|entidade|mensagem|fonte
+V-06|A|assentamento.txt|20 de 20 registros com fonte "proposto" (aguardam o autor)|assentamento.txt
+V-06|A|cidade.txt|10 de 10 registros com fonte "proposto" (aguardam o autor)|cidade.txt
+V-06|A|faccao.txt|14 de 14 registros com fonte "proposto" (aguardam o autor)|faccao.txt
+V-06|A|npc.txt|45 de 45 registros com fonte "proposto" (aguardam o autor)|npc.txt
+V-10|A|event.assento-vazio|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.concilio-pedra-ata|evento.txt
+V-10|A|event.cais-fechado|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.barcaalta-argente|evento.txt
+V-10|A|event.comporta-cede|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.veiaclara-jusante|evento.txt
+V-10|A|event.nevasca-fecha-passos|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.altavento-passos|evento.txt
+V-10|A|event.registro-duplo|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.concilio-pedra-ata|evento.txt
+V-10|A|event.registro-provado|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.veiaclara-jusante|evento.txt
+V-21|A|route.altavento-pedra-ata|[exceção] rota duplicada (mesmo par e meio)|rota.txt
+V-23|A|kingdom.coroas-de-pedra|cidades conexas só contando rotas de duração desconhecida (nenhuma rota documentada com tempo)|rota.txt
+V-26|A|kingdom.coroas-de-pedra|rio, posição de fortaleza e relevo: revisão manual contra M-04 (não verificável por regra)|M-04
+V-27|A|settlement.albergue-de-cima|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.arquivo-velho|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.boca-larga|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.cinzeiro|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.comporta-velha|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.cordoaria|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.corte-fino|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.degrau-pequeno|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.fenda-mercado|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.galeria-alta|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.lago-de-cima|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.ninho-seco|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.oficina-sem-dono|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.pasto-de-cume|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.patio-das-delegacoes|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.poco-alto|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.primeira-rampa|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.rastro-branco|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.roda-menor|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.veio-fundo|acesso com duração desconhecida|assentamento.txt
+V-31|A|mundo|mundo com 1 reino em composição (reinos 3 a 5 e Aeltharyn fora deste conjunto); mínimo 5 só no nível mundo|—
+V-34|A|kingdom.coroas-de-pedra|sem herdeiro; sucessão do presidente do Concílio é lacuna explícita (doc 04 §8)|—
+V-42|A|faction.arquivistas-das-coroas|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.casa-das-comportas|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.conselho-de-sangue|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.coro-das-facetas|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.rede-dos-passos-altos|aliados ou rivais desconhecidos|faccao.txt
+# resumo: 0 erros, 40 avisos, 7 exceções aplicadas

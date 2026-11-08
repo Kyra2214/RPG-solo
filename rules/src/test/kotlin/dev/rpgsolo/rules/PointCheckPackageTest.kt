@@ -37,7 +37,8 @@ class PointCheckPackageTest {
 
     @Test fun pontosDaFichaViramFacesDeSucesso() {
         val p = pacote()
-        assertEquals(listOf(5, 6), winningFaces(p.check("esquiva", mapOf("agilidade" to 2), media(p))))
+        assertEquals(listOf(4, 5, 6), winningFaces(p.check("esquiva", mapOf("agilidade" to 2), media(p))))
+        assertEquals(listOf(5, 6), winningFaces(p.check("esquiva", mapOf("agilidade" to 1), media(p))))
         assertEquals(listOf(6), winningFaces(p.check("esquiva", mapOf("agilidade" to 0), media(p))))
     }
 
@@ -46,7 +47,7 @@ class PointCheckPackageTest {
         val spec = p.check("esquiva", mapOf("agilidade" to 1), media(p))
         val r = p.adjustCheck(spec, emptyList(), listOf("esquivador"), "esquiva")
         assertEquals(3, r.modifier)
-        assertEquals(listOf(4, 5, 6), winningFaces(r))
+        assertEquals(listOf(3, 4, 5, 6), winningFaces(r))
     }
 
     @Test fun testePodeUsarPontosDePericiaEmVezDoAtributo() {
@@ -69,7 +70,7 @@ class PointCheckPackageTest {
         val p = r.get("teste-basico")!!
         val spec = p.check("esquiva", mapOf("agilidade" to 5), media(p), mapOf("furtividade" to 2))
         assertEquals(2, spec.modifier)
-        assertEquals(listOf(5, 6), winningFaces(spec))
+        assertEquals(listOf(4, 5, 6), winningFaces(spec))
     }
 
     @Test fun condicaoMudaPontosENaoOsDados() {
@@ -78,7 +79,7 @@ class PointCheckPackageTest {
         val r = p.adjustCheck(spec, listOf("visao-turva")) // Perda em agilidade
         assertEquals(1, r.diceCount)
         assertEquals(2, r.modifier)
-        assertEquals(listOf(5, 6), winningFaces(r))
+        assertEquals(listOf(4, 5, 6), winningFaces(r))
     }
 
     @Test fun dificuldadeTrocaOTamanhoDoDado() {
@@ -156,10 +157,10 @@ class SistemaProprioDadosTest {
             val spec = p.check("esquiva", stats, dif(p, id))
             return winningFaces(spec).size to spec.diceSides
         }
-        assertEquals(3 to 4, chance("facil")) // 2–4 no d4 (75%)
-        assertEquals(3 to 6, chance("media")) // 4–6 no d6 (50%)
-        assertEquals(3 to 8, chance("dificil")) // 6–8 no d8
-        assertEquals(3 to 10, chance("heroica")) // 8–10 no d10 (30%)
+        assertEquals(3 to 4, chance("facil")) // 2–4 no d4 (75%, já no máximo do dado)
+        assertEquals(4 to 6, chance("media")) // 3–6 no d6 (66,7%)
+        assertEquals(4 to 8, chance("dificil")) // 5–8 no d8 (50%)
+        assertEquals(4 to 10, chance("heroica")) // 7–10 no d10 (40%)
     }
 
     @Test fun nuncaPassaDeLadosMenosUmNemCaiDeUm() {

@@ -1,0 +1,2 @@
+# O hash do molde de Mythralis depende dos bytes exatos (D-I2): nada de conversão de fim de linha.
+rules/src/main/resources/mundos/mythralis/** -text

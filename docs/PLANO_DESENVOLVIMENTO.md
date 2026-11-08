@@ -1,5 +1,7 @@
 # PLANO_DESENVOLVIMENTO.md — RPG Solo com Mestre de IA (Android, sem servidor)
 
+> **Arquivado.** Plano antigo, absorvido por `PLANO_RPG_SOLO.md`; mantido só como histórico e não é mais atualizado.
+
 Princípio: **tudo roda e fica salvo no aparelho.** A única coisa que sai do celular é a chamada à API de IA, com a chave do próprio usuário.
 
 ---

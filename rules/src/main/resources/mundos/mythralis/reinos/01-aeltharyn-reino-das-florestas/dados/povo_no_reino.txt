@@ -1,0 +1,18 @@
+# esquema=1
+povo|reino|relacao|cidades|nota|fonte
+elfo|kingdom.aeltharyn|originário|city.elarion;city.nymvar;city.thalanor;city.vael-tir;city.orvass;city.caladwen;city.brumafunda;city.arven;city.silvaran;city.torvelume|Elfos|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+satiro|kingdom.aeltharyn|originário|city.silvaran|Silvanos Festivos (sátiros)|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+feerico|kingdom.aeltharyn|originário|city.elarion;city.caladwen;city.brumafunda;city.silvaran|Feéricos|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+plantae|kingdom.aeltharyn|originário|city.vael-tir;city.brumafunda|Verdejantes|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+fungal|kingdom.aeltharyn|originário|city.orvass|Micélioides|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+centauro|kingdom.aeltharyn|originário|city.vael-tir;city.arven|Centauros das Florestas|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+tabaxi|kingdom.aeltharyn|originário|city.thalanor;city.vael-tir;city.brumafunda|Felídeos das Selvas|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+orcano|kingdom.aeltharyn|originário|city.nymvar;city.orvass;city.arven;city.torvelume|Orcanos das Matas|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+homem-corvo|kingdom.aeltharyn|originário|city.elarion;city.caladwen;city.brumafunda|Corvários|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+pequenino|kingdom.aeltharyn|originário|city.elarion;city.nymvar;city.thalanor;city.arven;city.silvaran|Pequeninos|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+gnomo|kingdom.aeltharyn|originário|city.elarion;city.caladwen;city.arven;city.torvelume|Gnomos dos Vales|doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3
+tritao|kingdom.aeltharyn|aliado|?|Abissal Costeiro (aliado costeiro, não nativo)|doc 10; M-05 §3 (D-24)
+humano|kingdom.aeltharyn|migrante|city.nymvar;city.thalanor;city.orvass;city.arven|Humano (residente ou viajante; não nativo)|doc 01 §2.4; doc 10 §1; M-05 M5-04 (proposto, F*)
+anao|kingdom.aeltharyn|migrante|city.torvelume|Anão (residente ou viajante; não nativo)|doc 01 §2.4; doc 10 §1; M-05 M5-04 (proposto, F*)
+goblin|kingdom.aeltharyn|migrante|?|Goblin (residente ou viajante; não nativo)|doc 01 §2.4; doc 10 §1; M-05 M5-04 (proposto, F*)
+homem-rato|kingdom.aeltharyn|migrante|?|Ratoide (residente ou viajante; não nativo)|doc 01 §2.4; doc 10 §1; M-05 M5-04 (proposto, F*)

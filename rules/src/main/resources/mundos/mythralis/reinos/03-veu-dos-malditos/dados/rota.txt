@@ -1,0 +1,12 @@
+# esquema=1
+id|reino|de|para|meio|duracao_min|duracao_max|unidade|estado|condicao|fonte
+route.conselho-lamaluz-morroveu|kingdom.veu-dos-malditos|city.lamaluz|city.morroveu|?|?|?|dia|desconhecida|assento no Conselho dos Pactuários; duração desconhecida|doc 07 route.conselho-morroveu
+route.conselho-fozbreu-morroveu|kingdom.veu-dos-malditos|city.fozbreu|city.morroveu|?|?|?|dia|desconhecida|assento no Conselho dos Pactuários; duração desconhecida|doc 07 route.conselho-morroveu
+route.conselho-beira-sal-morroveu|kingdom.veu-dos-malditos|city.beira-sal|city.morroveu|?|?|?|dia|desconhecida|assento no Conselho dos Pactuários; duração desconhecida|doc 07 route.conselho-morroveu
+route.conselho-selovale-morroveu|kingdom.veu-dos-malditos|city.selovale|city.morroveu|?|?|?|dia|desconhecida|assento no Conselho dos Pactuários; duração desconhecida|doc 07 route.conselho-morroveu
+route.conselho-borda-mansa-morroveu|kingdom.veu-dos-malditos|city.borda-mansa|city.morroveu|?|?|?|dia|desconhecida|assento no Conselho dos Pactuários; duração desconhecida|doc 07 route.conselho-morroveu
+route.conselho-fio-longo-morroveu|kingdom.veu-dos-malditos|city.fio-longo|city.morroveu|?|?|?|dia|desconhecida|assento no Conselho dos Pactuários; duração desconhecida|doc 07 route.conselho-morroveu
+route.conselho-candeia-morta-morroveu|kingdom.veu-dos-malditos|city.candeia-morta|city.morroveu|?|?|?|dia|desconhecida|assento no Conselho dos Pactuários; duração desconhecida|doc 07 route.conselho-morroveu
+route.lamaluz-fozbreu|kingdom.veu-dos-malditos|city.lamaluz|city.fozbreu|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.lamaluz-fozbreu
+route.morroveu-selovale|kingdom.veu-dos-malditos|city.morroveu|city.selovale|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.morroveu-selovale
+route.morroveu-fozbreu|kingdom.veu-dos-malditos|city.morroveu|city.fozbreu|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.morroveu-fozbreu

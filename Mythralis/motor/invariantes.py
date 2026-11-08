@@ -31,12 +31,16 @@ IMPLEMENTADOS = {
     'I-23': ('E', 'transições permitidas da relação entre reinos vizinhos'),
     'I-24': ('E', 'guerra válida e queda de coroa irreversível durante guerra'),
     'I-25': ('E', 'mudança de era/regime com gatilho e causa correspondentes'),
+    'I-26': ('E', 'laço entre povos: transições permitidas e aliança só com governante vivo da cidade como agente'),
+    'I-27': ('E', 'pacto entre povos coerente com os laços aliados do par'),
+    'I-28': ('E', 'níveis completos: todo delta de importância 3+ tem nível e cidade ou reino'),
 }
 PENDENTES = {}   # F6.2: nenhum invariante pendente
 TRANSICOES_PAR = {   # relação do par de facções -> destinos permitidos (I-11)
     'aliança': {'rompida'}, 'rompida': {'rivalidade'}, 'rivalidade': {'disputa_aberta', 'tratado'},
     'disputa_aberta': {'rivalidade'}, 'tratado': {'rivalidade'}, 'ambigua': {'rivalidade', 'tratado'},
 }
+TRANSICOES_LACO = {'neutra': {'alianca', 'rivalidade'}, 'alianca': {'neutra'}, 'rivalidade': {'neutra'}}
 PADRAO_DELTA = re.compile(r'^d\d{6}$')
 ORIGENS_NPC = ('nascimento', 'chegada', 'nomeacao')
 MECANICOS = ('campo', 'criacao', 'era')
@@ -120,6 +124,28 @@ def checar_delta(d, estado, ultimo_dia, ids_cronica, world, catalogo, dinamica=N
     if d.get('tipo') == 'campo' and d.get('campo') == 'relacao' and str(d.get('entidade')).startswith('par.'):
         if d.get('estado_novo') not in TRANSICOES_PAR.get(d.get('estado_anterior'), ()):
             v.append(('I-11', 'transição de par não permitida: %s -> %s' % (d.get('estado_anterior'), d.get('estado_novo'))))
+    # I-26 laço entre povos; I-27 pacto entre povos
+    ent_d = str(d.get('entidade'))
+    if d.get('tipo') == 'campo' and d.get('campo') == 'relacao' and ent_d.startswith('laco.'):
+        if d.get('estado_novo') not in TRANSICOES_LACO.get(d.get('estado_anterior'), ()):
+            v.append(('I-26', 'transição de laço não permitida: %s -> %s' % (d.get('estado_anterior'), d.get('estado_novo'))))
+        elif d.get('estado_novo') == 'alianca':
+            cid = (estado.ent.get(ent_d) or {}).get('cidade')
+            gov = [x.strip() for x in str((estado.ent.get(cid) or {}).get('governante', '')).replace(',', ';').split(';')]
+            ags = d.get('agentes') or []
+            if not ags or ags[0] not in gov or not estado.vivo(ags[0]):
+                v.append(('I-26', 'aliança de povos sem governante vivo da cidade como agente: ' + ent_d))
+    if d.get('tipo') in ('alianca_de_povos', 'fim_de_alianca_de_povos') and ent_d in estado.ent and dinamica is not None:
+        pc = estado.ent[ent_d]; minimo = dinamica.povos.get('povos_pacto_min_cidades', 2); por = {}
+        for cid in pc.get('cidades', []):
+            lk = 'laco.%s@%s+%s' % (cid, pc['a'], pc['b'])
+            if lk in estado.ent and estado.ent[lk]['relacao'] == 'alianca':
+                por[estado.ent[cid]['reino']] = por.get(estado.ent[cid]['reino'], 0) + 1
+        n = (max(por.values(), default=0) if estado.mundo.get('regime') == 'selado' else sum(por.values()))
+        if d['tipo'] == 'alianca_de_povos' and (pc['estado'] != 'nenhum' or n < minimo):
+            v.append(('I-27', 'aliança de povos sem laços aliados suficientes (%d < %d): %s' % (n, minimo, ent_d)))
+        if d['tipo'] == 'fim_de_alianca_de_povos' and (pc['estado'] != 'alianca' or n >= minimo):
+            v.append(('I-27', 'fim de aliança de povos com laços aliados ainda suficientes: ' + ent_d))
     # I-14 linhagem
     if d.get('tipo') == 'criacao' and d['entidade'].startswith('npc.'):
         n = d.get('estado_novo') or {}
@@ -279,6 +305,13 @@ def checar_bloco(deltas, estado, dia_fim, parcial, cals, inv, reinos, world, enr
             enraizados.add(d['id'])
         else:
             v.append(('I-20', d['id'], 'causa não remonta ao molde nem a um delta anterior'))
+    # I-28 níveis completos
+    import niveis as NV
+    N = NV.Niveis(world, deltas, estado, reinos)
+    for d in deltas:
+        if d.get('importancia', 0) >= 3 and d['entidade'] != 'mundo':
+            if N.nivel(d) not in (1, 2, 3) or (N.cidade(d) is None and N.reinos(d) == ['—']):
+                v.append(('I-28', d['id'], 'delta importante sem nível ou sem cidade/reino: %s' % d['entidade']))
     # I-17 e I-18 (alertas)
     por_ano = {}
     for d in deltas:

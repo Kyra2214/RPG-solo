@@ -1,0 +1,8 @@
+# esquema=1
+regra|entidade|motivo|fonte
+V-10|event.conselho-vota-em-publico|a rota citada é ligação do doc 07 sem dois locais existentes (grupo de sete ligações (cada lugar ↔ Morrovéu); vive em rota.txt como sete rotas); não vira rota.txt e não ganha duração|doc 07 §2; R3-7.1
+V-10|event.fardos-suspensos|a rota citada é ligação do doc 07 sem dois locais existentes (trecho rio acima, fora do reino); não vira rota.txt e não ganha duração|doc 07 §2; R3-7.1
+V-10|event.acertos-orais-suspensos|a rota citada é ligação do doc 07 sem dois locais existentes (Ermo de Sal, fora do reino); não vira rota.txt e não ganha duração|doc 07 §2; R3-7.1
+V-10|event.tributo-que-nao-basta|a rota citada é ligação do doc 07 sem dois locais existentes (grupo de sete ligações (cada lugar ↔ Morrovéu); vive em rota.txt como sete rotas); não vira rota.txt e não ganha duração|doc 07 §2; R3-7.1
+V-21|route.morroveu-selovale|mesmo par de route.conselho-selovale-morroveu, mas outra natureza (elo por facção ou dependência, não assento no Conselho); meio desconhecido nas duas|doc 07 §2; R3-7.1
+V-21|route.morroveu-fozbreu|mesmo par de route.conselho-fozbreu-morroveu, mas outra natureza (elo por facção ou dependência, não assento no Conselho); meio desconhecido nas duas|doc 07 §2; R3-7.1

@@ -89,10 +89,50 @@ class PointCheckTest {
     }
 
     @Test fun cadaPontoEhUmaFaceContandoDoTopo() {
-        assertEquals(listOf(5, 6), wins(2))
-        assertEquals(listOf(4, 5, 6), wins(3))
-        assertEquals(listOf(3, 4, 5, 6), wins(4))
-        assertEquals(listOf(7, 8), wins(2, 8))
+        // faces = pontos + 1: o primeiro ponto já vale uma face a mais que zero
+        assertEquals(listOf(5, 6), wins(1))
+        assertEquals(listOf(4, 5, 6), wins(2))
+        assertEquals(listOf(3, 4, 5, 6), wins(3))
+        assertEquals(listOf(2, 3, 4, 5, 6), wins(4))
+        assertEquals(listOf(7, 8), wins(1, 8))
+        assertEquals(listOf(6, 7, 8), wins(2, 8))
+    }
+
+    @Test fun tabelaDeFacesDoDocumento() {
+        val esperado =
+            mapOf(
+                4 to listOf(1, 2, 3, 3, 3, 3),
+                6 to listOf(1, 2, 3, 4, 5, 5),
+                8 to listOf(1, 2, 3, 4, 5, 6),
+                10 to listOf(1, 2, 3, 4, 5, 6),
+            )
+        for ((sides, faces) in esperado) {
+            faces.forEachIndexed { points, n ->
+                assertEquals("d$sides com $points ponto(s)", n, pointFaces(points, sides))
+                assertEquals("d$sides com $points ponto(s)", n, wins(points, sides).size)
+            }
+        }
+    }
+
+    @Test fun chanceCalculadaBateComAsFaces() {
+        for (sides in listOf(4, 6, 8, 10)) {
+            for (points in 0..5) {
+                assertEquals(
+                    pointFaces(points, sides).toDouble() / sides,
+                    pool(points, sides).successChance(),
+                    1e-9,
+                )
+            }
+        }
+    }
+
+    @Test fun rotuloAvisaQuandoOsPontosJaEnchemODado() {
+        assertFalse(pointsAtDieMax(1, 4))
+        assertTrue(pointsAtDieMax(2, 4))
+        assertFalse(pointsAtDieMax(3, 6))
+        assertTrue(pointsAtDieMax(4, 6))
+        assertTrue(pool(4).resolvedPool().label.contains("já no máximo neste dado"))
+        assertFalse(pool(3).resolvedPool().label.contains("já no máximo"))
     }
 
     @Test fun nuncaPassaDeLadosMenosUmEntaoSempreFalhaComUm() {
@@ -105,12 +145,12 @@ class PointCheckTest {
     }
 
     @Test fun talentoSomaPontos() {
-        // 1 ponto + talento (+2) = 3 pontos → 4, 5 e 6
-        assertEquals(listOf(4, 5, 6), wins(1 + 2))
+        // 1 ponto + talento (+2) = 3 pontos → 4 faces: 3, 4, 5 e 6
+        assertEquals(listOf(3, 4, 5, 6), wins(1 + 2))
     }
 
     @Test fun cartaoMostraODadoSemModificadorEADificuldadeDaFace() {
-        val r = resolveCheck(pool(2, 8), roll(7, 8))
+        val r = resolveCheck(pool(1, 8), roll(7, 8))
         assertEquals(1, r.spec.diceCount)
         assertEquals(8, r.spec.diceSides)
         assertEquals(0, r.spec.modifier)
@@ -122,7 +162,7 @@ class PointCheckTest {
 
     @Test fun motorRolaSemSomarPontosAoDado() {
         val e = GameEngine(1L)
-        val r = e.check(pool(3, 10))
+        val r = e.check(pool(2, 10))
         assertEquals(0, r.roll.modifier)
         assertEquals(10, r.spec.diceSides)
         assertEquals(r.roll.dice.single(), r.roll.total)

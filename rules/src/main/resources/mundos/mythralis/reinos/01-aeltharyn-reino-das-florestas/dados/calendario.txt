@@ -1,0 +1,3 @@
+# esquema=1
+id|meses|dias_por_mes|dias_de_transicao|estacoes|ano_inicial|estacao_inicial|fonte
+calendario.contagem-das-seivas|12|30|5|Silêncio;Despertar;Plenitude;Queda|742 das Seivas|Silêncio|doc 01 §35 (D-14 a D-16); mundo/M-02 §1. Ordem das estações: o ano começa em Silêncio

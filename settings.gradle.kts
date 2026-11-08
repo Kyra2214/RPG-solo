@@ -6,4 +6,4 @@ dependencyResolutionManagement {
     repositories { google(); mavenCentral() }
 }
 rootProject.name = "RpgSolo"
-include(":app", ":engine", ":data", ":ai", ":rules")
+include(":app", ":engine", ":data", ":ai", ":rules", ":world")

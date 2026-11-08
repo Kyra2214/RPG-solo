@@ -1,5 +1,7 @@
 # NPCs Recorrentes, Humilhações e Consequências Entre Campanhas
 
+> **Anexo do plano único.** Estado, ordem e pendências ficam em `PLANO_RPG_SOLO.md`, seção 9; este arquivo guarda só a especificação e as decisões deste tema.
+
 **Projeto:** RPG Solo\
 **Status:** Proposta de mecânica para avaliação e implementação
 

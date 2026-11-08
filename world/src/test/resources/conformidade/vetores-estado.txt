@@ -1,0 +1,147 @@
+CAL|kingdom.aeltharyn|-366|740,365,Queda,0|740
+CAL|kingdom.aeltharyn|-365|741,1,Silêncio,1|741
+CAL|kingdom.aeltharyn|-1|741,365,Queda,0|741
+CAL|kingdom.aeltharyn|0|742,1,Silêncio,1|742
+CAL|kingdom.aeltharyn|1|742,2,Silêncio,1|742
+CAL|kingdom.aeltharyn|29|742,30,Silêncio,1|742
+CAL|kingdom.aeltharyn|30|742,31,Silêncio,2|742
+CAL|kingdom.aeltharyn|90|742,91,Silêncio,0|742
+CAL|kingdom.aeltharyn|91|742,92,Despertar,4|742
+CAL|kingdom.aeltharyn|92|742,93,Despertar,4|742
+CAL|kingdom.aeltharyn|181|742,182,Despertar,0|742
+CAL|kingdom.aeltharyn|182|742,183,Plenitude,7|742
+CAL|kingdom.aeltharyn|183|742,184,Plenitude,7|742
+CAL|kingdom.aeltharyn|272|742,273,Plenitude,0|742
+CAL|kingdom.aeltharyn|273|742,274,Queda,10|742
+CAL|kingdom.aeltharyn|274|742,275,Queda,10|742
+CAL|kingdom.aeltharyn|363|742,364,Queda,0|742
+CAL|kingdom.aeltharyn|364|742,365,Queda,0|742
+CAL|kingdom.aeltharyn|365|743,1,Silêncio,1|743
+CAL|kingdom.aeltharyn|366|743,2,Silêncio,1|743
+CAL|kingdom.aeltharyn|729|743,365,Queda,0|743
+CAL|kingdom.aeltharyn|730|744,1,Silêncio,1|744
+CAL|kingdom.aeltharyn|36500|842,1,Silêncio,1|842
+CAL|kingdom.aeltharyn|182500|1242,1,Silêncio,1|1242
+CAL|kingdom.azeroth|-366|455,365,Ventania,0|740
+CAL|kingdom.azeroth|-365|456,1,Pousio,1|741
+CAL|kingdom.azeroth|-1|456,365,Ventania,0|741
+CAL|kingdom.azeroth|0|457,1,Pousio,1|742
+CAL|kingdom.azeroth|1|457,2,Pousio,1|742
+CAL|kingdom.azeroth|29|457,30,Pousio,1|742
+CAL|kingdom.azeroth|30|457,31,Pousio,2|742
+CAL|kingdom.azeroth|90|457,91,Pousio,0|742
+CAL|kingdom.azeroth|91|457,92,Sementeira,4|742
+CAL|kingdom.azeroth|92|457,93,Sementeira,4|742
+CAL|kingdom.azeroth|181|457,182,Sementeira,0|742
+CAL|kingdom.azeroth|182|457,183,Ceifa,7|742
+CAL|kingdom.azeroth|183|457,184,Ceifa,7|742
+CAL|kingdom.azeroth|272|457,273,Ceifa,0|742
+CAL|kingdom.azeroth|273|457,274,Ventania,10|742
+CAL|kingdom.azeroth|274|457,275,Ventania,10|742
+CAL|kingdom.azeroth|363|457,364,Ventania,0|742
+CAL|kingdom.azeroth|364|457,365,Ventania,0|742
+CAL|kingdom.azeroth|365|458,1,Pousio,1|743
+CAL|kingdom.azeroth|366|458,2,Pousio,1|743
+CAL|kingdom.azeroth|729|458,365,Ventania,0|743
+CAL|kingdom.azeroth|730|459,1,Pousio,1|744
+CAL|kingdom.azeroth|36500|557,1,Pousio,1|842
+CAL|kingdom.azeroth|182500|957,1,Pousio,1|1242
+CAL|kingdom.coroas-de-pedra|-366|514,365,Antes-da-Neve,0|740
+CAL|kingdom.coroas-de-pedra|-365|515,1,Gelo Fechado,1|741
+CAL|kingdom.coroas-de-pedra|-1|515,365,Antes-da-Neve,0|741
+CAL|kingdom.coroas-de-pedra|0|516,1,Gelo Fechado,1|742
+CAL|kingdom.coroas-de-pedra|1|516,2,Gelo Fechado,1|742
+CAL|kingdom.coroas-de-pedra|29|516,30,Gelo Fechado,1|742
+CAL|kingdom.coroas-de-pedra|30|516,31,Gelo Fechado,2|742
+CAL|kingdom.coroas-de-pedra|90|516,91,Gelo Fechado,0|742
+CAL|kingdom.coroas-de-pedra|91|516,92,Degelo,4|742
+CAL|kingdom.coroas-de-pedra|92|516,93,Degelo,4|742
+CAL|kingdom.coroas-de-pedra|181|516,182,Degelo,0|742
+CAL|kingdom.coroas-de-pedra|182|516,183,Passo Aberto,7|742
+CAL|kingdom.coroas-de-pedra|183|516,184,Passo Aberto,7|742
+CAL|kingdom.coroas-de-pedra|272|516,273,Passo Aberto,0|742
+CAL|kingdom.coroas-de-pedra|273|516,274,Antes-da-Neve,10|742
+CAL|kingdom.coroas-de-pedra|274|516,275,Antes-da-Neve,10|742
+CAL|kingdom.coroas-de-pedra|363|516,364,Antes-da-Neve,0|742
+CAL|kingdom.coroas-de-pedra|364|516,365,Antes-da-Neve,0|742
+CAL|kingdom.coroas-de-pedra|365|517,1,Gelo Fechado,1|743
+CAL|kingdom.coroas-de-pedra|366|517,2,Gelo Fechado,1|743
+CAL|kingdom.coroas-de-pedra|729|517,365,Antes-da-Neve,0|743
+CAL|kingdom.coroas-de-pedra|730|518,1,Gelo Fechado,1|744
+CAL|kingdom.coroas-de-pedra|36500|616,1,Gelo Fechado,1|842
+CAL|kingdom.coroas-de-pedra|182500|1016,1,Gelo Fechado,1|1242
+CAL|kingdom.vale-palancar|-366|609,365,Reunião dos Rebanhos,0|740
+CAL|kingdom.vale-palancar|-365|610,1,Pasto Magro,1|741
+CAL|kingdom.vale-palancar|-1|610,365,Reunião dos Rebanhos,0|741
+CAL|kingdom.vale-palancar|0|611,1,Pasto Magro,1|742
+CAL|kingdom.vale-palancar|1|611,2,Pasto Magro,1|742
+CAL|kingdom.vale-palancar|29|611,30,Pasto Magro,1|742
+CAL|kingdom.vale-palancar|30|611,31,Pasto Magro,2|742
+CAL|kingdom.vale-palancar|90|611,91,Pasto Magro,0|742
+CAL|kingdom.vale-palancar|91|611,92,Rebrota,4|742
+CAL|kingdom.vale-palancar|92|611,93,Rebrota,4|742
+CAL|kingdom.vale-palancar|181|611,182,Rebrota,0|742
+CAL|kingdom.vale-palancar|182|611,183,Pasto Alto,7|742
+CAL|kingdom.vale-palancar|183|611,184,Pasto Alto,7|742
+CAL|kingdom.vale-palancar|272|611,273,Pasto Alto,0|742
+CAL|kingdom.vale-palancar|273|611,274,Reunião dos Rebanhos,10|742
+CAL|kingdom.vale-palancar|274|611,275,Reunião dos Rebanhos,10|742
+CAL|kingdom.vale-palancar|363|611,364,Reunião dos Rebanhos,0|742
+CAL|kingdom.vale-palancar|364|611,365,Reunião dos Rebanhos,0|742
+CAL|kingdom.vale-palancar|365|612,1,Pasto Magro,1|743
+CAL|kingdom.vale-palancar|366|612,2,Pasto Magro,1|743
+CAL|kingdom.vale-palancar|729|612,365,Reunião dos Rebanhos,0|743
+CAL|kingdom.vale-palancar|730|613,1,Pasto Magro,1|744
+CAL|kingdom.vale-palancar|36500|711,1,Pasto Magro,1|842
+CAL|kingdom.vale-palancar|182500|1111,1,Pasto Magro,1|1242
+CAL|kingdom.veu-dos-malditos|-366|387,365,Névoa Voltando,0|740
+CAL|kingdom.veu-dos-malditos|-365|388,1,Névoa Fechada,1|741
+CAL|kingdom.veu-dos-malditos|-1|388,365,Névoa Voltando,0|741
+CAL|kingdom.veu-dos-malditos|0|389,1,Névoa Fechada,1|742
+CAL|kingdom.veu-dos-malditos|1|389,2,Névoa Fechada,1|742
+CAL|kingdom.veu-dos-malditos|29|389,30,Névoa Fechada,1|742
+CAL|kingdom.veu-dos-malditos|30|389,31,Névoa Fechada,2|742
+CAL|kingdom.veu-dos-malditos|90|389,91,Névoa Fechada,0|742
+CAL|kingdom.veu-dos-malditos|91|389,92,Névoa Solta,4|742
+CAL|kingdom.veu-dos-malditos|92|389,93,Névoa Solta,4|742
+CAL|kingdom.veu-dos-malditos|181|389,182,Névoa Solta,0|742
+CAL|kingdom.veu-dos-malditos|182|389,183,Charco Aberto,7|742
+CAL|kingdom.veu-dos-malditos|183|389,184,Charco Aberto,7|742
+CAL|kingdom.veu-dos-malditos|272|389,273,Charco Aberto,0|742
+CAL|kingdom.veu-dos-malditos|273|389,274,Névoa Voltando,10|742
+CAL|kingdom.veu-dos-malditos|274|389,275,Névoa Voltando,10|742
+CAL|kingdom.veu-dos-malditos|363|389,364,Névoa Voltando,0|742
+CAL|kingdom.veu-dos-malditos|364|389,365,Névoa Voltando,0|742
+CAL|kingdom.veu-dos-malditos|365|390,1,Névoa Fechada,1|743
+CAL|kingdom.veu-dos-malditos|366|390,2,Névoa Fechada,1|743
+CAL|kingdom.veu-dos-malditos|729|390,365,Névoa Voltando,0|743
+CAL|kingdom.veu-dos-malditos|730|391,1,Névoa Fechada,1|744
+CAL|kingdom.veu-dos-malditos|36500|489,1,Névoa Fechada,1|842
+CAL|kingdom.veu-dos-malditos|182500|889,1,Névoa Fechada,1|1242
+ESTADO|sem_dinamica|618947c2cdb41fa437da4826fa28c1cf8f2de9724457370002a959335e6426e1|619
+ESTADO|com_dinamica|815f9ff65047d0c4d5a77eb5364eca1d8bcca171236202577bab390452ab460a|1893
+DELTA|{"id": "d000001", "dia_mundo": 0, "era": null, "tipo": "era", "entidade": "mundo", "campo": null, "estado_anterior": {"era": null, "regime": null}, "estado_novo": {"era": "era.001", "nome": "Fronteiras Seladas", "regime": "selado"}, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|4|d622fc577258442e972d21dbec4391219181539c0eeb3d9e0793bdfbdd994762|619|0
+DELTA|{"id": "d000002", "dia_mundo": 10, "era": "era.001", "tipo": "campo", "entidade": "npc.aerendyl-vaelorian", "campo": "saude", "estado_anterior": "sao", "estado_novo": "doente", "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|2|0b4183d7cf43ae563cc362cbf15cbbf8f487898b78a58cfd0a5ad1a74df7d2b3|619|0
+DELTA|{"id": "d000003", "dia_mundo": 20, "era": "era.001", "tipo": "campo", "entidade": "npc.astrel-noite-clara", "campo": "saude", "estado_anterior": "sao", "estado_novo": "doente", "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|4252910dc334c3d8e96dd4e8c5ff4ee2afdb58828cd1f5bd0bfb6959a3e4eb32|620|1
+DELTA|{"id": "d000004", "dia_mundo": 30, "era": "era.001", "tipo": "campo", "entidade": "npc.aerendyl-vaelorian", "campo": "vivo", "estado_anterior": true, "estado_novo": false, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|4|a116cc15cb0ae89cc7167acaf777c3a5ef9f5529d67bb595bc9262c3e74e981d|621|2
+DELTA|{"id": "d000005", "dia_mundo": 40, "era": "era.001", "tipo": "campo", "entidade": "npc.astrel-noite-clara", "campo": "vivo", "estado_anterior": true, "estado_novo": false, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|9b448ef906e9ad41c9e6288a0e1677dc8801fbaacf99ef741738750ac379e6c8|622|3
+DELTA|{"id": "d000006", "dia_mundo": 50, "era": "era.001", "tipo": "campo", "entidade": "npc.aerendyl-vaelorian", "campo": "vivo", "estado_anterior": false, "estado_novo": false, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|4|80516d7696dba0586391de87b88d6eaa2d1d50afc2fb475c0f585389ed377929|623|4
+DELTA|{"id": "d000007", "dia_mundo": 60, "era": "era.001", "tipo": "criacao", "entidade": "npc.sim.0001", "campo": null, "estado_anterior": null, "estado_novo": {"vivo": true, "reino": "kingdom.aeltharyn", "cidade": "city.elarion", "papeis": "governante", "principal": false, "nome": "Novo"}, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|64cd7d175e64f40e584d3c909a6fac6aa31e78716084b2089c1fc97c75d7d986|625|5
+DELTA|{"id": "d000008", "dia_mundo": 61, "era": "era.001", "tipo": "criacao", "entidade": "npc.sim.0002", "campo": null, "estado_anterior": null, "estado_novo": {"vivo": true, "reino": "kingdom.aeltharyn", "papeis": "cidadao", "cargo": "ferreiro"}, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|1|29308d40a75be2eb823fb7ba28f722676d66f4559231158a291add545ac848d1|626|5
+DELTA|{"id": "d000009", "dia_mundo": 70, "era": "era.001", "tipo": "campo", "entidade": "clock.acertos-orais", "campo": "progresso", "estado_anterior": 2, "estado_novo": 5, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|dd73f12457bed1d18f3178c7fde71b55b8912d59fddfcf4e2ed8fdf0805e7575|627|6
+DELTA|{"id": "d000010", "dia_mundo": 71, "era": "era.001", "tipo": "campo", "entidade": "clock.acertos-orais", "campo": "progresso", "estado_anterior": 5, "estado_novo": 1, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|1|bfe05ac7cef9ab3df422ea632e1cc1d5762c217b949a3d2238fbe666a490c1e4|627|6
+DELTA|{"id": "d000011", "dia_mundo": 72, "era": "era.001", "tipo": "campo", "entidade": "clock.acertos-orais", "campo": "estourado", "estado_anterior": false, "estado_novo": true, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|b887f757a1833e2db0266baca0a9e0d19e4458a9cac0d25c359edba41e7505c8|628|7
+DELTA|{"id": "d000012", "dia_mundo": 80, "era": "era.001", "tipo": "campo", "entidade": "par.faction.albergue-dos-chegados+faction.casa-dos-barqueiros", "campo": "relacao", "estado_anterior": "alian\u00e7a", "estado_novo": "rivalidade", "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|4dc78176f9a4017701c73bb78abad15dd9170ee0d16c8ce5621ab2464d850ed0|629|8
+DELTA|{"id": "d000013", "dia_mundo": 81, "era": "era.001", "tipo": "campo", "entidade": "par.faction.albergue-dos-chegados+faction.casa-dos-barqueiros", "campo": "tensao", "estado_anterior": 20, "estado_novo": 77, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|1|787e7e5c75f1090325094738930b53aa5cded9247b261c1822f3526d5461278a|629|8
+DELTA|{"id": "d000014", "dia_mundo": 90, "era": "era.001", "tipo": "campo", "entidade": "event.acertos-orais-suspensos", "campo": "estado", "estado_anterior": "latente", "estado_novo": "em_cadeia", "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|7208dda924ae52f2c0f9214dc20ec4b5598ead2ece2d636aaf9b10dbab7ababc|630|9
+DELTA|{"id": "d000015", "dia_mundo": 91, "era": "era.001", "tipo": "campo", "entidade": "event.acertos-orais-suspensos", "campo": "estado", "estado_anterior": "em_cadeia", "estado_novo": "ocorrido", "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|2|3d457702cdec57ef5c1219cbd55c40ba3d64e050777cfe8b5b06cbb6010bdb73|630|9
+DELTA|{"id": "d000016", "dia_mundo": 100, "era": "era.001", "tipo": "campo", "entidade": "city.altavento", "campo": "governante", "estado_anterior": "npc.vireo-vento-rapido", "estado_novo": "npc.sim.0001", "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|1e8dfd4939da61820bce991911be85d4c5250858a948d381b0642556e51e4f92|631|10
+DELTA|{"id": "d000017", "dia_mundo": 101, "era": "era.001", "tipo": "campo", "entidade": "faction.albergue-dos-chegados", "campo": "lideranca", "estado_anterior": "npc.auriven-porta-acesa", "estado_novo": "npc.sim.0001", "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|8bd790af653a42ad32ed39984c284dbdb2e831683dd8af32243d4b4b20f9b7f6|632|11
+DELTA|{"id": "d000018", "dia_mundo": 110, "era": "era.001", "tipo": "guerra", "entidade": "city.altavento", "campo": null, "estado_anterior": null, "estado_novo": null, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|4|834fbf0ee827d19211f4a472d0ab1c0a3e4644ed6aa666cf4ac03736ee454561|633|12
+DELTA|{"id": "d000019", "dia_mundo": 111, "era": "era.001", "tipo": "tratado", "entidade": "faction.albergue-dos-chegados", "campo": null, "estado_anterior": null, "estado_novo": null, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|6d97634422c747eff08ab7d2cfd7a374bba0dd004f0ba5d8b63d293fa37e58af|634|13
+DELTA|{"id": "d000020", "dia_mundo": 112, "era": "era.001", "tipo": "boato", "entidade": "city.altavento", "campo": null, "estado_anterior": null, "estado_novo": null, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|1|6d97634422c747eff08ab7d2cfd7a374bba0dd004f0ba5d8b63d293fa37e58af|634|13
+DELTA|{"id": "d000021", "dia_mundo": 113, "era": "era.001", "tipo": "laco_aliado", "entidade": "faction.albergue-dos-chegados", "campo": null, "estado_anterior": null, "estado_novo": null, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|2|6d97634422c747eff08ab7d2cfd7a374bba0dd004f0ba5d8b63d293fa37e58af|634|13
+DELTA|{"id": "d000022", "dia_mundo": 114, "era": "era.001", "tipo": "pista_de_misterio", "entidade": "city.altavento", "campo": null, "estado_anterior": null, "estado_novo": null, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|f36e714cd0b123e84db0fcc1a75dd4d7504262f70823f9c16acc8ec715062756|635|14
+DELTA|{"id": "d000023", "dia_mundo": 115, "era": "era.001", "tipo": "tipo_desconhecido", "entidade": "city.altavento", "campo": null, "estado_anterior": null, "estado_novo": null, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|2|f36e714cd0b123e84db0fcc1a75dd4d7504262f70823f9c16acc8ec715062756|635|14
+DELTA|{"id": "d000024", "dia_mundo": 116, "era": "era.001", "tipo": "incidente_fronteira", "entidade": "kingdom.aeltharyn", "campo": null, "estado_anterior": null, "estado_novo": null, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|3|f36e714cd0b123e84db0fcc1a75dd4d7504262f70823f9c16acc8ec715062756|635|14
+DELTA|{"id": "d000025", "dia_mundo": 120, "era": "era.001", "tipo": "campo", "entidade": "eco.d000003", "campo": "difusao", "estado_anterior": {"passo": 0, "lugares": ["city.torreclara"], "certeza": "confirmado", "ativo": true}, "estado_novo": {"passo": 0, "lugares": ["city.torreclara"], "certeza": "confirmado", "ativo": false}, "causa": "teste", "agentes": [], "quem_sabe": [], "certeza": "confirmado", "origem": "SIMULADO"}|0|cbed50cba886691e177f5170d06dc60227ef9f5100c70ff2739a89f52b71840b|635|13

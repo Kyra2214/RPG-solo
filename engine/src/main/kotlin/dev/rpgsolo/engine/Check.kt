@@ -20,11 +20,14 @@ enum class Comparison {
 val REAL_DICE = listOf(4, 6, 8, 10, 12, 20)
 const val MIN_POINT_FACES = 1
 
-/** Zero pontos = uma face mínima; cada ponto positivo acrescenta uma face, até lados − 1. */
+/**
+ * Faces de sucesso de um teste de pontos: zero pontos = uma face (a mais alta); cada ponto positivo acrescenta uma face
+ * (faces = pontos + 1), até lados − 1. Pontos negativos valem zero. Ex.: no d6, 0 ponto vence com 6; 1 ponto, com 5–6.
+ */
 fun pointFaces(
     points: Int,
     sides: Int,
-): Int = minOf(maxOf(points.coerceAtLeast(0), MIN_POINT_FACES), maxOf(MIN_POINT_FACES, sides - 1))
+): Int = minOf(maxOf(points, 0) + 1, maxOf(MIN_POINT_FACES, sides - 1))
 
 /** True quando os pontos já enchem o dado (lados − 1 faces): pontos extras não melhoram a chance. */
 fun pointsAtDieMax(

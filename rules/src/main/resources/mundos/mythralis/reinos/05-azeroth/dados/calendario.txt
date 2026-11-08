@@ -1,0 +1,3 @@
+# esquema=1
+id|meses|dias_por_mes|dias_de_transicao|estacoes|ano_inicial|estacao_inicial|fonte
+calendario.contagem-das-chaves|12|30|5|Pousio;Sementeira;Ceifa;Ventania|457 das Chaves (= 742 de Aeltharyn, ASSUMINDO)|Pousio|doc 01 parte 5 (D-156); mundo/M-02 §9

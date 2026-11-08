@@ -1,0 +1,2 @@
+# esquema=1
+regra|entidade|motivo|fonte

@@ -30,6 +30,9 @@ class Reinos:
             return 'kingdom.' + i[6:].split('+')[0]
         if i.startswith('eco.'):
             return self.eco.get(i, '—')
+        if i.startswith('laco.'):
+            self.m[i] = self.w.reino_de(i[5:].split('@')[0]) or '—'
+            return self.m[i]
         if i.startswith(('econ.', 'posto.', 'par.')):
             base = i.split('@')[-1] if i.startswith('econ.') else i.split('.', 1)[1].split('+')[0]
             r = self.de(base, n + 1) if n < 3 else None
@@ -56,6 +59,10 @@ def texto(d):
     if t == 'campo' and d['campo'] == 'vivo': return 'morte de %s' % d['entidade']
     if t == 'campo': return '%s.%s: %s -> %s' % (d['entidade'], d['campo'], d['estado_anterior'], n)
     if t == 'criacao': return '%s criada' % d['entidade']
+    if t in ('laco_aliado', 'laco_rompido', 'laco_rival') and isinstance(n, dict):
+        return '%s: %s e %s em %s' % (t, n['a'], n['b'], n['cidade'])
+    if t in ('alianca_de_povos', 'fim_de_alianca_de_povos') and isinstance(n, dict):
+        return '%s: %s e %s%s' % (t, n['a'], n['b'], (' (' + ', '.join(n['cidades']) + ')') if n.get('cidades') else '')
     return '%s: %s' % (t, d['entidade'])
 
 
@@ -115,6 +122,8 @@ def gerar(saida, world, deltas, cab):
         L.append('| %s | ' % r + ' | '.join(str(sum(v[c] for (a, rr), v in anual.items() if rr == r)) for c in COLUNAS) + ' |')
     with open(os.path.join(saida, 'relatorio.md'), 'w', encoding='utf-8', newline='\n') as f:
         f.write('\n'.join(L) + '\n')
+    import niveis
+    niveis.gerar_niveis(saida, world, deltas, cab)
 
 
 def main(argv=None):

@@ -1,3 +1,96 @@
+# Changelog
+
+## 2026-11-08 — world: testes de conformidade Kotlin × Python e lote de 20 sementes (MI-08, validação parcial)
+
+- `world/src/test/kotlin`: `Conformidade` (apoio) e `RngJsonConformidadeTest`, `EstadoConformidadeTest`, `MotoresConformidadeTest`, `SimuladorConformidadeTest` (500 anos × 3 sementes e retomada por snapshot), `ValidadorConformidadeTest` (0 erro, 20 avisos, relatório idêntico) e `LoteConformidadeTest` (sementes 1 a 20 × 500 anos, hashes e métricas da seção 14). `world/build.gradle.kts`: recursos do molde de `rules` no classpath de teste e heap de 1 GB.
+- `Mythralis/motor/exportar_vetores.py --lote` gera `vetores-lote.txt` (Python; ≈ 2 min por semente). `vetores-lote.txt` gerado (HDR + 20 linhas `LOTE`); `LOTE_CACHE` permite retomar a geração.
+- **Validação Python local:** `python3 -m unittest discover -s Mythralis/motor/testes -v` passou: 62 testes em 97,743 s; houve dois `ResourceWarning` de arquivos não fechados em `test_f8.py`.
+- **Validação Kotlin/Gradle:** `./gradlew --no-daemon test` não chegou aos testes do app por ausência do Android SDK (`ANDROID_HOME`/`sdk.dir`). Com JDK 17, `./gradlew --no-daemon :world:test` falhou ao compilar em `world/src/main/kotlin/dev/rpgsolo/world/Dinamica.kt:98` (comentário não fechado), com referências não resolvidas subsequentes em `Invariantes.kt`, `MotoresMundo.kt` e `MotoresPessoas.kt`.
+- **Lint/CI:** `./gradlew --no-daemon ktlintCheck :world:test` parou no `ktlintCheck` por erros de indentação já existentes em `engine/AeltharynWorld.kt`; por isso, esse comando não executou `:world:test`. Nenhum CI GitHub foi executado. MI-08 e a aceitação da Fase 21 permanecem parciais até corrigir a compilação e validar o módulo.
+- Documentação: resultados e pendências de MI-08 registrados em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, item 7 da seção 9 de `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — world: simulador em blocos, invariantes, níveis e retomada (MI-07, não compilado)
+
+
+- `world`: `Invariantes` (I-01 a I-28 por delta, estado e bloco), `Niveis`/`ReinosMapa`, `Simulador` com blocos, check de saúde (`BlocoSaude`), `relatorioInvariantes()` e retomada por `Snapshot` (`Estado.doSnapshot`, `Cronica.continuar`).
+- `Mythralis/motor/exportar_vetores.py --simulador` gera `vetores-simulador.txt` (3 sementes × 500 anos: saúde por bloco, pontos a cada 50 anos, hash de `invariantes.txt`). Saída determinística.
+- **Validação:** só o gerador de vetores foi executado (Python). Nenhum Kotlin compilado nem testado; comparação com o Python no MI-08.
+- Documentação: MI-07 ✅ em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, item 7 da seção 9 de `PLANO_RPG_SOLO.md`, `README.md`.
+
+## 2026-11-08 — world: motores de mundo (MI-06, não compilado)
+
+- `world`: `MotoresMundo.kt` com `Politica`, `Economia`, `Ecos`, `Misterios`, `Diplomacia`, `Fronteira`, `Guerra` e `Povos` (portas literais dos motores Python) e `Motores.pessoas`/`Motores.todos` (12 motores).
+- `Mythralis/motor/exportar_vetores.py` gera `vetores-motores-mundo.txt` (3 sementes × 100 anos, ponto a cada 10 anos com hash da crônica e do estado). Saída determinística; demais vetores inalterados.
+- **Validação:** só o gerador de vetores foi executado (Python). Nenhum Kotlin compilado nem testado; comparação com o Python no MI-08.
+- Documentação: MI-06 ✅ em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, item 7 da seção 9 de `PLANO_RPG_SOLO.md`, `README.md`.
+
+## 2026-11-08 — world: dinâmica e motores de pessoas (MI-05, não compilado)
+
+- `world`: `Dinamica` (+ `Dinamica.hash`), `Motor`/`Ctx`/`DeltaRascunho`, `Nomes`, `Demografia`, `Sucessao`, `Relogios`, `Eventos` e `Simulador` (núcleo: laço por dia, semente por motor, emissão, notificações por contador).
+- `Mythralis/motor/exportar_vetores.py` gera `vetores-motores-pessoas.txt` (3 sementes × 10 anos, ponto por ano com hash da crônica e do estado). Saída determinística.
+- **Validação:** só o gerador de vetores foi executado (Python). Nenhum Kotlin compilado nem testado; comparação com o Python no MI-08.
+- Documentação: MI-05 ✅ em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, item 7 da seção 9 de `PLANO_RPG_SOLO.md`, `README.md`.
+
+## 2026-11-08 — world: calendário, estado, crônica e importância (MI-04, não compilado)
+
+- `world`: `CalendarioReino` com datas, luas e estações; `Importancia`; `Estado` (do molde, aplicar deltas, Ecos, hash); `Cronica` com hash encadeado em fluxo; `Valores` (igualdade, cópia e leitura de JSON). `DinamicaEstado` é a interface que o MI-05 implementa.
+- `Mythralis/motor/exportar_vetores.py` gera também `vetores-estado.txt` (147 vetores do Python: datas, hash do estado inicial com e sem dinâmica, 24 deltas com importância e hash). Saída determinística.
+- **Validação:** só o gerador de vetores foi executado (Python). Nenhum Kotlin compilado nem testado (testes só ao fim da Fase 21). Hash com dinâmica e de 1 ano ficam para o MI-05.
+- Documentação: MI-04 ✅ em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, item 7 da seção 9 de `PLANO_RPG_SOLO.md`, `README.md`.
+
+## 2026-11-08 — world: RNG idêntico ao Python e JSON canônico com sha256 (MI-03, não compilado)
+
+- `world` (`dev.rpgsolo.world`): `PythonRandom` (MT19937 com semeadura `init_by_array` do CPython 3.12; `random`, `getrandbits`, `randrange`, `randint`, `choice`; semente do dia do simulador), `Hash` (`sha256`, `encadear`) e `JsonCanonico` (mesmo texto de `json.dumps` com `sort_keys`, `ensure_ascii=False` e separadores compactos).
+- `Mythralis/motor/exportar_vetores.py` (novo): gera `world/src/test/resources/conformidade/vetores-rng-json.txt` (276 vetores do Python; saída determinística). A comparação automática com o Kotlin é a MI-08.
+- **Validação:** só o gerador de vetores foi executado (Python). Nada de Kotlin compilado nem testado (sem Gradle neste ambiente; testes só ao fim da Fase 21).
+- Documentação: MI-03 ✅ em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, item 7 da seção 9 de `PLANO_RPG_SOLO.md`, `README.md`.
+
+## 2026-11-08 — world: carregador e validador do molde em Kotlin (MI-02, não compilado)
+
+- `world` (novo código, pacote `dev.rpgsolo.world`): `TabelaMolde`, `CarregadorMolde`, `MundoMolde`/`CatalogoPersonagem`, `CalendarioReino` (validade), `DinamicaMinima`, `MoldeFonte` (classpath e mapa) e `ValidadorMundo` com W-00 a W-09, portados de `carregador.py`, `validador.py`, `calendario.py` e `validar_mundo.py` (mesmas regras, textos e ordem). O carregador confere o sha256 do molde contra o manifesto. `world/build.gradle.kts` ganhou `kotlinx-serialization-json`.
+- `Mythralis/motor/exportar_molde.py`: grava `derivados/subracas-em-prosa.txt` (sub-raças citadas na prosa dos reinos, que não vai no app) e o lista no manifesto (tipo `derivado`, `arquivos_derivados=1`); `--verificar` confere o arquivo contra a prosa de origem. Hash do molde inalterado (`f11f1c120acc99b1`). `MoldeManifesto` aceita o tipo `derivado`.
+- `Mythralis/plano/DECISOES.md`: D-183 (autor mantém o nome "Azeroth").
+- **Validação:** só o exportador foi executado (Python, conferido). Nenhum Kotlin foi compilado nem testado (sem Gradle neste ambiente; testes só ao fim da Fase 21, MI-08). Faltam compilar, ktlint e comparar o relatório do Kotlin com `saidas/validacao-mundo.txt` (0 erros, 20 avisos).
+- Documentação: MI-02 ✅ em `docs/PLANO_INTEGRACAO_MYTHRALIS.md` (com as mudanças e as suposições), item 7 da seção 9 de `PLANO_RPG_SOLO.md`, `README.md`.
+
+## 2026-11-08 — world/Mythralis: módulo `world` e exportação do molde (MI-01, Kotlin não compilado)
+
+- `Mythralis/motor/exportar_molde.py` (novo): exporta o molde (120 arquivos) e a dinâmica (13) para `rules/src/main/resources/mundos/mythralis/`, byte a byte e com os mesmos caminhos relativos de `Mythralis/`; gera `manifesto.txt` determinístico (hash do molde, hash da dinâmica, contagens, sha256 por arquivo na ordem do hash). `--verificar` confere destino, manifesto, carregador Python e `saidas/validacao-mundo.txt`.
+- Resultado da execução: hash do molde `f11f1c120acc99b1`, igual ao `validacao-mundo.txt`; segunda execução gera manifesto idêntico; adulteração de um arquivo é detectada.
+- `world/` (novo módulo Gradle, Kotlin puro, JVM 17) com `MoldeManifesto` e `ArquivoMolde` (leitura do manifesto, com validação de formato e contagens); `settings.gradle.kts` inclui `:world`.
+- `.gitattributes` (novo): `-text` na pasta exportada, porque o hash depende dos bytes exatos (D-I2).
+- Correção de documentação: o MI-02 dizia "19 avisos"; o `validacao-mundo.txt` registra 20 (0 erros).
+- **Validação:** só o exportador foi executado (Python). Nada de Kotlin foi compilado nem testado (sem Gradle neste ambiente; regra do projeto: testes só ao fim da Fase 21). Falta rodar o CI (ktlint inclusive no novo módulo).
+- Documentação: MI-01 ✅ e nota de andamento em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`; item 7 da seção 9 de `PLANO_RPG_SOLO.md`; `README.md`.
+
+## 2026-11-08 — engine/rules: regra de pontos dos testes alinhada ao documento (M-06.6, não compilado)
+
+- Decisão do autor: cada ponto soma uma face, contando o zero (1 ponto no d6 vence com 5–6, 33%). `pointFaces` (`engine/.../Check.kt`) usava `max(pontos, 1)` e agora usa `min(max(pontos, 0) + 1, lados − 1)`, como `docs/MECANICA_DADOS.md` e `tools/simulate_checks.py` já descreviam. O ataque por `POINTS` no `GameEngine` usa a mesma função; o rótulo "já no máximo neste dado" passa a valer com 2 pontos no d4 e 4 no d6.
+- Testes: `PointCheckTest` (engine) e `PointCheckPackageTest` (rules) ajustados aos novos valores; três testes novos em `PointCheckTest` (tabela de faces do documento, chance calculada igual a faces ÷ lados, rótulo no máximo do dado). O simulador reproduz a tabela do documento (100 mil por célula).
+- ASSUMINDO: nenhum outro teste depende da regra antiga (conferência estática por busca). **Validação:** nada compilado nem executado (sem Gradle neste ambiente); falta rodar o CI.
+- Documentação: M-06.6 em `PLANO_RPG_SOLO.md`; item 1 da seção 9 concluído; item 4 e `README.md` corrigidos (N-25, companheiro e Tatuador já constam em código); tabela 14.2 do anexo de refinamentos atualizada.
+
+## 2026-11-08 — plano único: planos restantes em ordem de complexidade (só documentação)
+
+- `PLANO_RPG_SOLO.md`: nova seção 9 com os sete planos restantes do app, do mais simples ao mais complexo (dados, raças, árvores de habilidades, refinamentos N-01 a N-28, NPCs recorrentes, mundo pré-configurado, integração de Mythralis), com estado, pendências e dependências. Os planos da pasta `Mythralis/plano/` ficam fora.
+- Os documentos `docs/PLANO_RACAS_E_SUBRACAS.md`, `PLANO_ARVORE_HABILIDADES.md`, `REFINAMENTOS_ATRIBUTOS_COMBATE.md`, `NPCS_RECORRENTES_MEMORIA_ENTRE_CAMPANHAS.md`, `MUNDO_PRECONFIGURADO.md` e `PLANO_INTEGRACAO_MYTHRALIS.md` ganharam aviso de anexo; `PLANO_DESENVOLVIMENTO.md` foi marcado como arquivado. Nada foi apagado. Nenhum código alterado; nada compilado.
+
+## 2026-11-08 — sincronização da documentação (só documentação)
+
+- `README.md`: estado de validação atualizado para o Android CI #40163269121 (25/10/2026, `036d445`: 894 testes JVM, 9 E2E, 6 instrumentados de `data`, APK de debug); lacunas conhecidas corrigidas (o sistema de atributos/combate/ofícios já foi compilado e testado nesse CI); nova seção sobre Mythralis e o plano de integração (Fases 21 a 25).
+- `PLANO_RPG_SOLO.md`: nota de estado de validação no topo, texto da seção 3.11 sem repetições e esclarecimento sobre `docs/PLANO_DESENVOLVIMENTO.md`, que continua no repositório como histórico.
+- `Mythralis/README.md`, `Mythralis/plano/PLANO_MOTOR_MYTHRALIS.md` e `Mythralis/CHANGELOG.md`: estado do motor corrigido (F0 a F9 concluídas, D-180 a D-182; não está mais "aguardando aprovação das decisões D-M") e ponteiro para o plano de integração.
+- `docs/PLANO_INTEGRACAO_MYTHRALIS.md`: frase repetida em D-I2 removida.
+- Este `CHANGELOG.md`: as duas entradas de 08/11 estavam no meio do arquivo (após 21/10) e foram movidas para o topo. Nenhum código, teste ou CI alterado; nada foi compilado nesta etapa.
+
+## 2026-11-08 — decisões do plano de integração fechadas
+
+- Autor decidiu: D-I2 resultado idêntico ao Python; D-I5 herói envelhece e pode morrer (MI-26 e MI-27 novos); D-I6 teto de 120 anos para "1 era"; D-I7 1x = 1 ano de mundo por segundo; botão no painel "Passar o tempo" da aba Jogar. `docs/PLANO_INTEGRACAO_MYTHRALIS.md` e `PLANO_RPG_SOLO.md` atualizados; só documentação.
+
+## 2026-11-08 — plano de integração do motor de Mythralis
+
+- Novo `docs/PLANO_INTEGRACAO_MYTHRALIS.md`: Fases 21 a 25 (MI-01 a MI-27; D-I2 idêntico ao Python e D-I5 herói envelhece e morre, decididas pelo autor), tela Simulação de tempo (1 dia a 1 era, 1x/5x/10x), decisões D-I1 a D-I8 e riscos. `PLANO_RPG_SOLO.md` ganhou a seção 3.11. Só documentação; nada compilado.
+
 ## 2026-10-25 — instalação de NPCs vivos de Aeltharyn
 
 - A instalação do reino agora cria as 10 cidades, rotas, sete relógios, 37 entidades NPC vivas e seus dossiês privados no log de eventos da campanha.
@@ -1090,8 +1183,6 @@
 - `rules/.../maldicoes-lancadas.txt`: catálogo de maldições lançadas ampliado de 20 para 100 registros, separado dos conceitos/vertentes da Classe de Malditos. Cada registro declara efeitos positivos e negativos, resistência, duração e remoção.
 - `engine/SkillTrees.kt` e `app/CombatBonuses.kt`: regra mecânica para penalidade social crescente de classes híbridas, com teste unitário.
 - **Estado de validação:** alterações e testes foram escritos na branch `feature/arvores-habilidades`, mas ainda não há confirmação de que a suíte final, o build Android e a CI passaram para o conjunto mais recente. Nenhum resultado verde é declarado aqui. A auditoria de integração de efeitos, persistência e fluxo real das maldições continua pendente.
-
-# Changelog
 
 ## 2026-10-21 — I-02.3: memórias narrativas por cena
 

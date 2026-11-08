@@ -1,0 +1,138 @@
+codigo|severidade|entidade|mensagem|fonte
+V-06|A|assentamento.txt|20 de 20 registros com fonte "proposto" (aguardam o autor)|assentamento.txt
+V-06|A|cidade.txt|10 de 10 registros com fonte "proposto" (aguardam o autor)|cidade.txt
+V-06|A|npc.txt|95 de 95 registros com fonte "proposto" (aguardam o autor)|npc.txt
+V-12|A|npc.aerendyl-vaelorian|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.anelra-copa-aberta|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.arieth-tres-mudas|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.arieth-tres-mudas|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.asha-nove-pergaminhos|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.avariel-thorne|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.bento-sete-sementes|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.beren-tres-canais|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.calar-passo-curvo|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.calar-passo-curvo|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.dalen-porta-aberta|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.dalen-porta-aberta|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.dara-guarda-da-rota|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.doria-tres-sulcos|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.doria-tres-sulcos|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.edris-do-sul|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.elsin-varzea-clara|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.elyon-prisma-claro|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.iria-dos-ecos|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.ivara-polen-de-lume|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.iven-folhas-brancas|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.iven-marca-de-som|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.kheva-ouvido-nevoa|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.korga-ponta-junco|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.lethariel-nascente-clara|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.luma-folha-prata|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.lyris-melodia-clara|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.maelor-venn|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.maereth-vaelorian|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.marel-tinta-firme|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.marel-tinta-firme|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.meda-martelo-calmo|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.milo-passo-bruma|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.mira-ouve-chuva|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.mira-ouve-chuva|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.mira-sal-prata|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.mirel-caule-vivo|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.nara-tres-fios|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.nara-tres-fios|[exceção] profissão fora do catálogo: mensageiro;restaurador|npc.txt
+V-12|A|npc.naren-mare-reversa|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.nilo-recado-certo|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.nima-barro-manso|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.nima-barro-manso|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.nima-rede-micelio|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.nimeth-vela-chuva|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.nivara-folha-de-orvalho|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.nivara-folha-de-orvalho|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.orelia-ceu-de-cinza|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.orelia-ceu-de-cinza|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.oru-rede-chuva|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.othalen-vira-pedra|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.othalen-vira-pedra|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.rovan-cinza-de-ferro|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.rovan-cinza-de-ferro|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.ruma-coracao-solo|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.sava-broto-novo|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.sava-mao-de-corrente|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.sela-dos-retornos|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.selene-mascara-clara|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.selvaris-noctel|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.sena-polen-dourado|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.sena-polen-dourado|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.talia-cordame-verde|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.tavian-lume-fino|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.tavro-passo-raiz|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.terenna-luz-de-lastro|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.terenna-luz-de-lastro|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.tessa-folhinha|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.vaunor-eir|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.vaunor-eir|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.vela-tres-margens|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.vela-tres-margens|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.vessa-engrenagem-lua|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.vessa-fio-dourado|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.veyra-pavio-silencioso|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.voro-cancao-pedra|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.voz-muitas-raizes|[exceção] classe fora do catálogo: —|npc.txt
+V-12|A|npc.yara-sal-de-mare|[exceção] povo fora do catálogo: ?|npc.txt
+V-12|A|npc.yara-sal-de-mare|[exceção] classe fora do catálogo: —|npc.txt
+V-13|A|event.ponte-cede|[exceção] agente morto: npc.maereth-cartografa-das-copas|evento.txt
+V-13|A|event.ponte-cede|[exceção] agente morto: npc.avarra-sete-pontes|evento.txt
+V-14|A|city.orvass|governante sem NPC (governo coletivo ou lacuna)|cidade.txt
+V-15|A|npc.elarwen-segunda|NPC sem cidade nem facção|npc.txt
+V-15|A|npc.ilyra-tres-rios|NPC sem cidade nem facção|npc.txt
+V-15|A|npc.mirel-caule-vivo|NPC sem cidade nem facção|npc.txt
+V-15|A|npc.tharion-folha-de-ferro|NPC sem cidade nem facção|npc.txt
+V-26|A|kingdom.aeltharyn|rio, posição de fortaleza e relevo: revisão manual contra M-04 (não verificável por regra)|M-04
+V-27|A|settlement.campo-tres-familias|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.copa-funda|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.eco-baixo|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.farol-de-ambar|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.ferro-folha|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.fonte-do-regresso|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.ilhas-junco-negro|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.junco-alto|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.lodo-claro|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.mascara-nova|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.mel-do-poente|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.papel-velho|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.passo-do-veado|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.ponta-da-concha|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.porta-selada|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.raiz-de-prata|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.sete-degraus|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.torre-nevoa-mansa|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.tres-barcas|acesso com duração desconhecida|assentamento.txt
+V-27|A|settlement.vigilia-do-lago|acesso com duração desconhecida|assentamento.txt
+V-31|A|mundo|mundo com 1 reino em composição (reinos 3 a 5 e Aeltharyn fora deste conjunto); mínimo 5 só no nível mundo|—
+V-33|A|kingdom.aeltharyn|menos de 2 NPCs vivos com papel general|—
+V-35|A|npc.avarra-sete-pontes|agenda ou pressão idêntica a outro principal|npc.txt
+V-35|A|npc.maereth-cartografa-das-copas|agenda ou pressão idêntica a outro principal|npc.txt
+V-42|A|faction.arquivistas-seiva|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.circulo-estacoes|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.circulo-micelial|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.companhia-ambar|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.guarda-espinha|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.irmandade-aguas|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.liga-celeiros|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.liga-das-rotas|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.rede-guias|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.vigias-primeiro-verde|aliados ou rivais desconhecidos|faccao.txt
+V-44|A|city.brumafunda|dependências só com papel ?|recurso.txt
+V-44|A|city.caladwen|dependências só com papel ?|recurso.txt
+V-44|A|city.elarion|dependências só com papel ?|recurso.txt
+V-44|A|city.orvass|dependências só com papel ?|recurso.txt
+V-44|A|city.silvaran|dependências só com papel ?|recurso.txt
+V-44|A|city.thalanor|dependências só com papel ?|recurso.txt
+V-44|A|city.torvelume|dependências só com papel ?|recurso.txt
+V-74|A|npc.avarra-sete-pontes|principal sem tom|npc.txt
+V-74|A|npc.maereth-cartografa-das-copas|principal sem tom|npc.txt
+V-74|A|npc.nilo-recado-certo|principal sem tom|npc.txt
+V-74|A|npc.nivara-folha-de-orvalho|principal sem tom|npc.txt
+V-74|A|npc.othalen-vira-pedra|principal sem tom|npc.txt
+# resumo: 0 erros, 136 avisos, 63 exceções aplicadas

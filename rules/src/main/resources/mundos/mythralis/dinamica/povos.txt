@@ -1,0 +1,20 @@
+# esquema=1
+# laços entre raças e sub-raças por cidade e pactos entre povos (F8.2).
+chave|valor|descricao|motor|fonte|etiqueta
+povos_passo_anos|5|a cada quantos anos cada laço é avaliado (escalonado: um quinto dos laços por ano); as taxas abaixo são por avaliação|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_tensao_base|50|tensão-base de um laço entre dois povos numa cidade (0 a 100); todos nascem neutros (o molde não declara alianças entre povos)|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_decaimento|4|pontos por avaliação com que a tensão volta à base|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_deriva|12|amplitude do sorteio da tensão por avaliação (±)|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_pressao_vacancia|1|tensão extra por avaliação se o posto de governante da cidade está vago|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_pressao_escassez|1|tensão extra por avaliação se há escassez 3 na cidade|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_pressao_guerra|2|tensão extra por avaliação se o reino da cidade está em guerra|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_alivio_mediador|1|tensão a menos por avaliação por mediador (herói, guardião ou benfeitor de um dos povos que mora na cidade)|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_alivio_mediador_max|2|máximo de mediadores que contam por laço|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_alivio_pacto|2|tensão a menos por avaliação nos laços de um par que tem pacto entre povos|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_lim_aliar|30|tensão até aqui, num laço neutro, vira aliança local|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_lim_romper|62|tensão a partir daqui, num laço aliado, rompe a aliança|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_lim_rival|80|tensão a partir daqui, num laço neutro, vira rivalidade|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_lim_rival_fim|56|tensão até aqui, num laço rival, volta a neutro|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_pos_alianca|44|tensão do laço logo depois de formar a aliança|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_pos_ruptura|56|tensão do laço logo depois de romper|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO
+povos_pacto_min_cidades|2|laços aliados do mesmo par, em cidades diferentes, para nascer o pacto entre povos|povos|PLANO_MOTOR §7.1 (D-M15)|PROPOSTO

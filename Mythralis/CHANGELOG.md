@@ -1,5 +1,57 @@
 # Changelog
 
+## 2026-11-08 — vetores dos motores de pessoas (MI-05 da integração)
+
+- `motor/exportar_vetores.py` gera também `../world/src/test/resources/conformidade/vetores-motores-pessoas.txt`. Motor Python inalterado.
+
+## 2026-11-08 — vetores de estado e calendário (MI-04 da integração)
+
+- `motor/exportar_vetores.py` gera também `../world/src/test/resources/conformidade/vetores-estado.txt` (147 vetores). Motor Python inalterado.
+
+## 2026-11-08 — vetores de conformidade RNG/JSON (MI-03 da integração)
+
+- `motor/exportar_vetores.py` (novo): gera `../world/src/test/resources/conformidade/vetores-rng-json.txt` (276 vetores do Python para o Kotlin). Motor Python inalterado.
+
+## 2026-11-08 — exportador do molde para o app (MI-01 e MI-02 da integração)
+
+- `motor/exportar_molde.py` (novo): exporta o molde, a dinâmica e `derivados/subracas-em-prosa.txt` para `rules/src/main/resources/mundos/mythralis/` com `manifesto.txt`; o hash do molde (`f11f1c120acc99b1`) não muda. Nenhum dado do molde foi alterado. D-183 em `plano/DECISOES.md`.
+
+## 2026-11-08 — documentação sincronizada
+
+- `README.md` e `plano/PLANO_MOTOR_MYTHRALIS.md`: estado corrigido (motor fechado, F0 a F9, D-180 a D-182) e ponteiro para `../docs/PLANO_INTEGRACAO_MYTHRALIS.md`. Sem mudança de código nem de dados.
+
+## 2026-11-08 — F9 concluída: motor fechado
+
+- D-182: sem carência entre quedas de coroa (segue D-177). Sem mudança de código. Fase F9 concluída (F9.1, F9.2 e D-180 a D-182); sem pendência do autor no motor.
+- Testes completos da fase: 62 passam (executados após a F9.1; F9.2 só adiciona chave desligada). Lote 500 anos × 20 sementes sem falha.
+
+## 2026-11-08 — D-181: alianças de partida seguem neutras
+
+- Decisão do autor: nenhum par de povos nasce aliado; sem mudança de código nem de dados.
+
+## 2026-11-08 — Aceite da F7 e da F8
+
+- Autor aceitou a F7 e a F8 como estão (D-180). `README.md`, `PLANO_MOTOR_MYTHRALIS.md` (§15) e `DECISOES.md` atualizados. Sem mudança de código.
+
+## 2026-11-08 — F9.2 do motor: regra do rei testada e desligada
+
+- `niveis.py`: chave `GOVERNANTE_DE_CIDADE_N1` (governante de toda cidade no nível 1). Testada em 6 sementes × 500 anos (sem falha): nível 1 com mediana 6,5 e máximo 24 a 36 por reino e década, acima da meta de 25. Chave deixada em `False`; comportamento, crônica e hashes iguais à F9.1 (D-179).
+- ASSUMINDO: meta de nível 1 da §14 mantida. Testes completos não reexecutados (mudança só de leitura, desligada por padrão).
+
+## 2026-11-08 — F9.1 do motor: sucessão conta como um evento
+
+- `niveis.py`: `Niveis.evento` agrupa os deltas de uma sucessão (mesmo dia e posto); `niveis.md` (resumo por década) e a métrica `n12_fora` de `lote.py` contam um evento por sucessão. Crônica, hashes, motores e `dinamica/` intactos.
+- ASSUMINDO: meta 3 a 40 mantida; efeito confirmado no lote (executado depois: 62 testes passam; lote 500 anos × 20 sementes sem falha; fora de 3 a 40 em 4% a 8% das décadas, mediana 5,5%; demais métricas iguais ao F8.4). Decisão D-178. Pendentes do autor: aceite F7/F8, carência entre quedas, regra do rei, alianças de partida.
+
+## 2026-11-08 — F8 do motor: níveis de relevância, alianças entre povos e fechamento
+
+- **F8.1 níveis (D-M14, D-175):** `motor/niveis.py` (leitura derivada dos deltas; nada novo na crônica nem nos hashes). Cada rodada gera `niveis.md` (nível 1 por evento, nível 2 resumo por década e reino, nível 3 contagem na virada de era, total por cidade) e `metricas_cidades.csv`. Invariante I-28. `lote.py`: métricas por nível, pactos e cidades sem evento.
+- **F8.2 povos (D-M15, D-176):** `motor/motores/povos.py` e `dinamica/povos.txt` (17 chaves `PROPOSTO`, no gerador). 713 laços locais (46 cidades, raças e sub-raças que convivem) e 131 pares candidatos a pacto entre povos; tudo nasce neutro (lacuna do molde). Invariantes I-26 e I-27. `estado.py`, `dinamica.py`, `importancia.py`, `relatorio.py` e `motores/__init__.py` ajustados; versão do motor `F8.2`.
+- **F8.3 quedas (D-177):** sem recalibragem; 19 de 20 sementes dentro de 0 a 2 quedas, semente 18 documentada (`plano/RELATORIO_F8_3.md`).
+- **F8.4 fechamento:** lote 500 anos × 20 sementes sem falha; metas da §14 reescritas por nível e verificadas (`plano/RELATORIO_F8_4.md`).
+- **62 testes passam** (45 anteriores + 17 em `motor/testes/test_f8.py`). Molde, reinos e documentos canônicos não foram alterados.
+- ASSUMINDO: "rei" = governante ou herdeiro que vive na capital do reino; aliança entre povos começa neutra. Pendências do autor: aceite de F7 e F8; carência opcional entre quedas de coroa; decidir se governantes de cidades que não são capital sobem ao nível 1.
+
 ## 2026-11-07 — F7.3 do motor: guerras, quedas de coroa e regime aberto
 
 - Novos: `motor/motores/guerra.py` (anual) e `dinamica/guerra.txt` (8 chaves `guerra_*` e `queda_*`, geradas por `gerar_dinamica.py`). `motores/__init__.py`: `Guerra` em `criar()`. `dinamica.py`: `Dinamica.guerra`. `estado.py`: entidades `crown.<reino>`. `fronteira.py` e `diplomacia.py`: ignoram par em guerra. `relatorio.py`: `guerra`, `queda_de_coroa` e `crown.*`. `simulador.py`: versão F7.3. `dinamica/LEIA-ME.md`.

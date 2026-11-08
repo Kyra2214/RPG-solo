@@ -1,0 +1,26 @@
+# esquema=1
+# limiares e taxas dos motores da F4.
+chave|valor|descricao|motor|fonte|etiqueta
+doenca_idosa_pm|40|por mil ao ano, de quem passou da faixa idosa|demografia|PLANO_MOTOR §9.2|PROPOSTO
+recuperacao_pm|350|por mil ao ano, de quem está doente|demografia|PLANO_MOTOR §9.2|PROPOSTO
+fator_mortalidade_doente|4|multiplica a morte natural de quem está doente|demografia|PLANO_MOTOR §9.2|PROPOSTO
+prazo_vacancia_anos|3|anos de vacância antes de nascer um NPC simulado para o posto|sucessao|PLANO_MOTOR §9.2|PROPOSTO
+tensao_maxima|100|teto da tensão por par de facções|politica|PLANO_MOTOR §9.2|PROPOSTO
+tensao_base_alianca|20|tensão para a qual um par aliado volta com o tempo|politica|PLANO_MOTOR §9.2|PROPOSTO
+tensao_base_rivalidade|50|idem, rivais|politica|PLANO_MOTOR §9.2|PROPOSTO
+tensao_base_tratado|25|idem, em tratado|politica|PLANO_MOTOR §9.2|PROPOSTO
+tensao_inicial_ambigua|40|par declarado aliado e rival ao mesmo tempo no molde (aviso do gerador)|politica|PLANO_MOTOR §9.2|PROPOSTO
+limiar_romper_alianca|68|aliança com tensão a partir daqui rompe (registro ruptura)|politica|PLANO_MOTOR §9.2|PROPOSTO
+limiar_disputa_aberta|78|rivalidade com tensão a partir daqui vira disputa aberta|politica|PLANO_MOTOR §9.2|PROPOSTO
+limiar_tratado|24|rivalidade com tensão até aqui vira tratado|politica|PLANO_MOTOR §9.2|PROPOSTO
+limiar_tratado_quebra|58|tratado com tensão a partir daqui se rompe e volta a rivalidade|politica|PLANO_MOTOR §9.2|PROPOSTO
+limiar_tregua|50|disputa aberta com tensão até aqui vira trégua (volta a rivalidade)|politica|PLANO_MOTOR §9.2|PROPOSTO
+deriva_anual|9|amplitude do sorteio anual da tensão (±)|politica|PLANO_MOTOR §9.2|PROPOSTO
+decaimento_anual|1|volta à base por ano (homeostase)|politica|PLANO_MOTOR §9.2|PROPOSTO
+pressao_relogio|3|tensão extra por ano se um relógio dos dois lados está a 2 segmentos de estourar|politica|PLANO_MOTOR §9.2|PROPOSTO
+custo_ruptura|25|tensão que se perde ao romper ou entrar em disputa (custo)|politica|PLANO_MOTOR §9.2|PROPOSTO
+relogio_pressao_pm|4|por mil por lua, por pressão ativa|relogios|PLANO_MOTOR §9.2|PROPOSTO
+relogio_trava_pm|4|por mil por lua, por trava ativa (reduz o avanço e aumenta o recuo)|relogios|PLANO_MOTOR §9.2|PROPOSTO
+relogio_recuo_base_pm|12|por mil por lua de recuar 1 segmento (homeostase)|relogios|PLANO_MOTOR §9.2|PROPOSTO
+relogio_max_pm|300|teto do avanço por lua|relogios|PLANO_MOTOR §9.2|PROPOSTO
+atraso_cadeia_luas|2|luas entre dois passos de uma cadeia de evento|eventos|PLANO_MOTOR §9.2|PROPOSTO

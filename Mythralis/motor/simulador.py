@@ -14,7 +14,7 @@ import os, sys, json, glob, random, argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import carregador as C, calendario as CAL, cronica as CR, estado as ES, importancia as IM, invariantes as INV, dinamica as DIN, relatorio as REL
 
-VERSAO = 'F7.4'
+VERSAO = 'F8.2'
 FREQ = ('diaria', 'lunar', 'sazonal', 'anual')
 
 

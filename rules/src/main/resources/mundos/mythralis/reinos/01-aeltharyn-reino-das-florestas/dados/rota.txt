@@ -1,0 +1,19 @@
+# esquema=1
+id|reino|de|para|meio|duracao_min|duracao_max|unidade|estado|condicao|fonte
+route.elarion-nymvar|kingdom.aeltharyn|city.elarion|city.nymvar|misto|1|2|dia|com_ressalva|estrada 2 dias; rio 1–2 dias conforme corrente; usar o intervalo fluvial|doc 07 §2
+route.elarion-vael-tir|kingdom.aeltharyn|city.elarion|city.vael-tir|trilha|3|3|dia|com_ressalva|3 dias; mais com quarentena florestal; sem duração máxima fixada|doc 07 §2
+route.elarion-caladwen|kingdom.aeltharyn|city.elarion|city.caladwen|misto|1.5|2|dia|documentada|estrada 2 dias; trilhas rápidas 1,5 dia (exige trilhas e conhecimento)|doc 07 §2
+route.elarion-arven|kingdom.aeltharyn|city.elarion|city.arven|estrada|1.5|1.5|dia|documentada|sem modificadores de estação definidos|doc 07 §2
+route.nymvar-orvass|kingdom.aeltharyn|city.nymvar|city.orvass|misto|2|6|dia|com_ressalva|barco e passarelas; referência normal 3 dias; 2–6 com desvios, cheia ou canais alterados|doc 07 §2
+route.nymvar-arven|kingdom.aeltharyn|city.nymvar|city.arven|misto|1|4|dia|com_ressalva|caravana 2–4 dias; viajante leve 1 dia (D-12); no Despertar lama e cheias podem duplicar o prazo|doc 07 §2
+route.thalanor-elarion|kingdom.aeltharyn|city.thalanor|city.elarion|rio|3|3|dia|com_ressalva|barco pelo Lúmen, 3 dias; tempo de meio diferente da estrada costeira|doc 07 §2
+route.thalanor-elarion-costeira|kingdom.aeltharyn|city.thalanor|city.elarion|estrada|5|5|dia|com_ressalva|estrada costeira, 5 dias; id novo da conversão para separar do barco (mesmo par, outro meio)|doc 07 §2
+route.thalanor-silvaran|kingdom.aeltharyn|city.thalanor|city.silvaran|estrada|4|4|dia|documentada|pomares e vales; sem alternativa quantificada|doc 07 §2
+route.caladwen-brumafunda|kingdom.aeltharyn|city.caladwen|city.brumafunda|trilha|2|2|dia|com_ressalva|2 dias COM guia; sem guia pode demorar muito mais|doc 07 §2
+route.brumafunda-vael-tir|kingdom.aeltharyn|city.brumafunda|city.vael-tir|trilha|2|4|dia|com_ressalva|depende das trilhas abertas|doc 07 §2
+route.torvelume-elarion|kingdom.aeltharyn|city.torvelume|city.elarion|estrada|4|4|dia|documentada|estrada de fronteira; postos e bloqueios sem duração adicional definida|doc 07 §2
+route.torvelume-vael-tir|kingdom.aeltharyn|city.torvelume|city.vael-tir|estrada|1|2|dia|com_ressalva|trecho da Estrada da Espinha; geada, deslizamento e interdição podem fechar a passagem; sem desvio calculável|doc 07 §2
+route.torvelume-caladwen|kingdom.aeltharyn|city.torvelume|city.caladwen|estrada|3|3|dia|com_ressalva|risco de deslizamento na chuva|doc 07 §2
+route.nymvar-thalanor|kingdom.aeltharyn|city.nymvar|city.thalanor|rio|3|4|dia|com_ressalva|barco de carga do Lúmen em condições comuns; contra a corrente quase o dobro|doc 07 §3
+route.arven-silvaran|kingdom.aeltharyn|city.arven|city.silvaran|estrada|2|4|dia|com_ressalva|Rota dos Celeiros, intervalo do corredor por caravana; no Despertar lama e cheias podem duplicar|doc 07 §3
+route.orvass-brumafunda|kingdom.aeltharyn|city.orvass|city.brumafunda|?|?|?|dia|desconhecida|Rota do Pântano; percurso real, navegabilidade e duração desconhecidos (decisão M2.1: permanece sem duração)|doc 07 §3

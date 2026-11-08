@@ -6,7 +6,7 @@ Tipos mecânicos de delta:
   era      -> troca de era/regime (entidade 'mundo')
 Qualquer outro tipo (incidente_fronteira, tratado, guerra, boato...) é registro: entra na crônica, não muda o estado.
 """
-import json, re
+import json, re, itertools
 from cronica import canon, sha
 from carregador import toks
 
@@ -68,7 +68,40 @@ class Estado:
                                   total=max(1, len([x for x in r['cadeia'].split(' > ') if x.strip()])))
         if din and not din.vazia and din.front.get('front_tensao_limiar'):
             s._fronteiras(world)
+        if din and not din.vazia and din.povos.get('povos_tensao_base') is not None:
+            s._povos(world, din.povos)
         return s
+
+    @staticmethod
+    def povos_por_cidade(world):
+        """Povos (raças e sub-raças) que convivem em cada cidade, derivados do molde: `cidade.povos` e os NPCs que moram nela."""
+        racas = {r['id'] for r in world.catalogo['races']}
+        sub = {x['id']: x['parentRaceId'] for x in world.catalogo['subraces']}
+        tok = {c['id']: {x for x in toks(c['povos']) if x in racas} for c in world.t['cidade']}
+        for n in world.t['npc']:
+            if n['cidade'] in tok:
+                if n['povo'] in racas: tok[n['cidade']].add(n['povo'])
+                if n['subraca'] in sub: tok[n['cidade']].add(n['subraca'])
+        return tok, sub
+
+    def _povos(self, world, P):
+        """F8.2: `laco.<cidade>@<a>+<b>` (um por cidade e par de povos que convivem; neutro, ASSUMINDO: o molde não declara alianças
+        entre povos) e `pacto.<a>+<b>` (par que convive em pelo menos `povos_pacto_min_cidades` cidades). Pares de mesma linhagem ficam de fora."""
+        tok, sub = self.povos_por_cidade(world)
+        pares = {}
+        for cid in sorted(tok):
+            reino = world.reino_de(cid)
+            for a, b in itertools.combinations(sorted(tok[cid]), 2):
+                if sub.get(a, a) == sub.get(b, b):
+                    continue
+                self.ent['laco.%s@%s+%s' % (cid, a, b)] = dict(reino=reino, cidade=cid, a=a, b=b, relacao='neutra',
+                                                              tensao=P['povos_tensao_base'], desde=None)
+                pares.setdefault((a, b), []).append(cid)
+        for (a, b), cs in sorted(pares.items()):
+            if len(cs) >= P.get('povos_pacto_min_cidades', 2):
+                reinos = sorted({world.reino_de(c) for c in cs})
+                self.ent['pacto.%s+%s' % (a, b)] = dict(reino=reinos[0] if len(reinos) == 1 else None, reinos=reinos, cidade=cs[0],
+                                                       a=a, b=b, cidades=cs, estado='nenhum', desde=None)
 
     def _fronteiras(self, world):
         """Um par `front.<a>+<b>` por vizinhança do anel (M-04): tensão em pontos, incidentes, relação (neutra, tratado, ruptura, guerra) e dia do último; e `crown.<reino>` (firme ou caída, F7.3). Derivado do molde."""
@@ -177,7 +210,7 @@ class Estado:
         elif d.get('importancia', 0) >= 3 and d['tipo'] != 'era' and not str(d['entidade']).startswith('eco.'):
             self._nasce_eco(d)
 
-    PUBLICOS = ('revolta', 'bloqueio_de_rota', 'guerra', 'queda_de_coroa', 'tratado', 'ruptura', 'disputa_aberta',
+    PUBLICOS = ('alianca_de_povos', 'fim_de_alianca_de_povos', 'revolta', 'bloqueio_de_rota', 'guerra', 'queda_de_coroa', 'tratado', 'ruptura', 'disputa_aberta',
                 'evento_ocorrido', 'fim_de_cadeia', 'incidente_fronteira', 'quebra_de_contrato')
 
     def _lugar(self, i, n=0):

@@ -1,0 +1,14 @@
+# esquema=1
+povo|reino|relacao|cidades|nota|fonte
+anao|kingdom.coroas-de-pedra|originário|city.brasalume;city.altavento;city.veiaclara;city.barcaalta;city.portao-cinza;city.cumieira;city.rodaviva;city.pedra-ata|Anão|doc 10 §1; M-05 (D-24)
+gnomo|kingdom.coroas-de-pedra|originário|city.veiaclara;city.barcaalta;city.sinuosa;city.rodaviva;city.geodalia|Gnomo (das rochas)|doc 10 §1; M-05 (D-24)
+draconato|kingdom.coroas-de-pedra|originário|city.brasalume;city.portao-cinza;city.pedra-ata|Draconato|doc 10 §1; M-05 (D-24)
+goliath|kingdom.coroas-de-pedra|originário|city.altavento|Altaneiro|doc 10 §1; M-05 (D-24)
+minotauro|kingdom.coroas-de-pedra|originário|city.sinuosa|Labiríntico|doc 10 §1; M-05 (D-24)
+kobold|kingdom.coroas-de-pedra|originário|city.portao-cinza;city.sinuosa;city.geodalia|Escamado Miúdo|doc 10 §1; M-05 (D-24)
+elemental-terra|kingdom.coroas-de-pedra|originário|city.cumieira|Nascido da Rocha|doc 10 §1; M-05 (D-24)
+elemental-fogo|kingdom.coroas-de-pedra|originário|city.brasalume|Nascido da Brasa|doc 10 §1; M-05 (D-24)
+cristalino|kingdom.coroas-de-pedra|originário|city.veiaclara;city.geodalia|Cristalino|doc 10 §1; M-05 (D-24)
+construto|kingdom.coroas-de-pedra|originário|city.barcaalta;city.rodaviva|Construto Desperto|doc 10 §1; M-05 (D-24)
+gigante|kingdom.coroas-de-pedra|originário|city.cumieira|Giganteano|doc 10 §1; M-05 (D-24)
+felino-das-nuvens|kingdom.coroas-de-pedra|originário|city.altavento;city.pedra-ata|Felino das Nuvens|doc 10 §1; M-05 (D-24)

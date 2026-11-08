@@ -1,5 +1,7 @@
 # RPG-solo: refinamentos de atributos, PV e combate
 
+> **Anexo do plano único.** Estado, ordem e pendências ficam em `PLANO_RPG_SOLO.md`, seção 9; este arquivo guarda só a especificação e as decisões deste tema.
+
 Data: 23/10/2026. Origem: conversa de refinamento sobre o cálculo de PV/PM de personagens, NPCs e monstros.
 Este documento reúne o que foi decidido e o que falta definir. **Só o que está marcado como entregue entrou no código** (o N-01 só alterou documentação; o N-02 entregou os sete atributos sem teto e o N-03 as fórmulas de PV/PM/PA, ainda não compilados nem executados). O plano de implementação (fases, módulos e regras de execução) está na seção 14.
 
@@ -377,8 +379,8 @@ Legenda de status: ⬜ não iniciado · 🟡 em andamento · ✅ fechado (docume
 | N-21 | Onda 1a: Forja e armas, Vestuário e couro (12) | 19 | ✅ | escrito, não compilado |
 | N-22 | Onda 1b: Preparos, Cuidados, Furtividade (16) + classes de apoio | 19 | ✅ | escrito, não compilado (cura das classes de apoio no posto 6, 24/10/2026) |
 | N-23 | Onda 2: Exploração, Comércio, Mecanismos (23) | 19 | ✅ | escrito, não compilado (coleta de materiais feita por receitas `col-*` (24/10/2026, não compilada)) |
-| N-24 | Onda 3: Mar, Animais, Artes, Identificação (21) | 19 | ✅ | escrito, não compilado (pesca, mergulho e apresentações feitas por receitas (24/10/2026, não compiladas); inspirar feito (24/10/2026, não compilado); montaria e ave feitas; companheiro e tatuagem pendentes) |
-| N-25 | Joias e Construção (14) | 19 | ⛔ | |
+| N-24 | Onda 3: Mar, Animais, Artes, Identificação (21) | 19 | ✅ | escrito, não compilado (pesca, mergulho e apresentações feitas por receitas (24/10/2026, não compiladas); inspirar feito (24/10/2026, não compilado); montaria e ave feitas; companheiro (N-33) e Tatuador (N-36) feitos depois, ver `CHANGELOG.md` de 24 e 25/10) |
+| N-25 | Joias e Construção (14) | 19 | ✅ em código (Joias com 5 degraus e gemas N-33.4; Construção com 5 degraus, N-35; `CHANGELOG.md` de 24 e 25/10, não compilado nas entradas) | |
 | N-26 | Itens de cura e escala | 20 | ✅ | escrito, não compilado |
 | N-27 | NPCs e monstros | 20 | ✅ | escrito, não compilado |
 | N-28 | Revisão geral e validação | 20 | ✅ | documentação e conferência estática; suíte não executada (sem rede) |

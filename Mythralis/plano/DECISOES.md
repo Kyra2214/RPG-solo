@@ -796,3 +796,47 @@ Seção 13 de `PROTOTIPO_MINIMO.md`: recorte em Estrelado (lugar pequeno, lidera
 ## D-174 — Ata de fechamento 6 de Azeroth (R5-8.2)
 
 Doc 11 do reino 5 (`11-fechamento-de-azeroth.md`): resultado das oito fases, 11 de 11 portas, 12 contradições intencionais, limites explícitos, conferência dos cinco reinos (383 IDs únicos, 0 colisão, anel fechado) e critérios finais de uso. Nenhum lore alterado; 0 fato novo. Não é feita a troca de "Pacto Humano" e "Marcas das Feras" por "Azeroth" e "Vale Palancar" em M-04, M-05 e nos reinos 1 a 4 (decisão do autor). Opções: **A.** aprovar o fechamento 6 (recomendada); **B.** pedir ajuste (diga qual). **Recomendação: A.** **Aguarda o autor** (não aceita pela continuação: é aprovação de fechamento).
+
+
+## D-175 — Níveis de relevância dos eventos do motor (F8.1, D-M14)
+
+Pedido do autor em 08/11/2026: **nível 1** = alianças entre nações, raças e sub-raças, e reis (evento de maior importância, um a um); **nível 2** = heróis e NPCs secundários (resumo a cada 10 anos); **nível 3** = outros eventos (só entra se for necessário para a história; resumo na virada da era). Implementado como leitura **derivada** dos deltas em `motor/niveis.py` (nada novo na crônica nem nos hashes), com `niveis.md` e `metricas_cidades.csv` por rodada, métrica de lote por nível e o invariante I-28. **ASSUMINDO:** "rei" = governante ou herdeiro que vive na capital do reino (o molde não separa rei de governante de cidade); heróis = papéis herói, guardião e benfeitor; "necessário para a história" = a entidade é causa citada de um delta de nível 1 ou 2. **Aberto para o autor:** se governantes de cidades que não são capital devem subir para o nível 1.
+
+## D-176 — Alianças entre raças e sub-raças como mecânica (F8.2, D-M15)
+
+Pedido do autor em 08/11/2026: mecânica nova, em todos os níveis, para todas as cidades do mundo. Motor `motor/motores/povos.py` e `dinamica/povos.txt` (17 chaves `PROPOSTO`): um **laço** por cidade e par de povos que convivem nela (as 46 cidades; raças de `cidade.povos` mais as raças e sub-raças dos NPCs que moram lá; sem pares de mesma linhagem) e um **pacto entre povos** por par que convive em 2 ou mais cidades. Tudo nasce neutro (**lacuna do molde:** nenhuma aliança entre povos é declarada); a simulação decide. Laço: tensão com deriva, pressões (vacância, escassez, guerra) e alívio por mediadores; aliança assinada pelo governante vivo da cidade. Pacto: nasce com laços aliados em 2 cidades e acaba abaixo disso. Invariantes I-26 e I-27. **Limites:** sem efeito econômico nem Eco entre reinos, e o motor só lê os outros motores (não muda fronteira, guerra nem política). Os mediadores morrem e o motor não gera heróis novos, então a mecânica se apoia na deriva e nas pressões, não neles.
+
+
+## D-177 — Quedas de coroa: sem recalibragem (F8.3)
+
+Lote de 500 anos × 20 sementes (1 a 20), motor F8.2: 20 de 20 rodadas sem falha; quedas de coroa por semente: **0 em 11, 1 em 6, 2 em 2, 3 em 1** (semente 18: Véu dos Malditos no ano 73, Azeroth no 82 e Coroas de Pedra no 177). Média de 0,65 queda por semente, compatível com uma distribuição de cauda curta; o desvio é uma semente em vinte. Nenhum reino cai em todas as sementes (Azeroth 5, Coroas de Pedra 4, Aeltharyn 2, Vale Palancar 1, Véu 1). **Decisão:** manter `queda_pm` = 10 e não criar carência entre quedas, para não mascarar a cauda; o desvio da semente 18 fica documentado. **Opção para o autor:** uma carência (por exemplo 100 anos) tornaria impossível uma segunda queda 9 anos depois da primeira, como na semente 18; é uma regra narrativa nova, não uma calibragem. A mecânica de povos não altera as quedas (só lê os outros motores), e os resultados desta rodada para quedas coincidem com os do lote da F7.4.
+
+
+## D-178 — Sucessão conta como um evento (F9.1)
+
+Opção do autor listada em `RELATORIO_F8_4.md` (decidida pela continuação, a pedido de "decida você"). Todos os deltas de uma sucessão (posse, vacância, interino, cargo, papéis e criação de NPC simulado) no mesmo dia e posto contam como **um** evento nas métricas de níveis 1+2 (`Niveis.evento`); o resumo por década de `niveis.md` também. Leitura derivada: crônica, hashes e `dinamica/` intactos. ASSUMINDO: a meta 3 a 40 permanece; o efeito esperado é reduzir o desvio de ~7% das décadas (sobretudo Vale Palancar), confirmado no lote 500 anos × 20 sementes (sem falha): décadas fora de 3 a 40 caíram de 9–14% para 4–8% (mediana 5,5%); quedas, pactos e cobertura das cidades sem mudança (semente 18 segue com 3 quedas). Não decididos: carência entre quedas, regra do rei, alianças de partida.
+
+
+## D-179 — Governante de toda cidade no nível 1: testado e desligado (F9.2)
+
+Opção "rei" do `RELATORIO_F8_4.md`. Com `GOVERNANTE_DE_CIDADE_N1 = True` (6 sementes: 1, 3, 5, 8, 14, 18; 500 anos), o nível 1 por reino e década sobe de mediana 2 para 6,5 e o máximo para 24 a 36, acima da meta de até 25; a história de nível 1 deixa de ser legível. Níveis 1+2 fora de 3 a 40 e cobertura das cidades sem mudança relevante (4% a 8%; 0 cidades sem evento). Decisão: chave mantida em `False` (regra da F8: rei = governante ou herdeiro na capital); quem quiser a outra leitura liga a chave, sem mexer em crônica nem hashes. ASSUMINDO: a meta de nível 1 da §14 vale. Pendentes do autor: aceite F7/F8, carência entre quedas (contrária a D-177) e alianças históricas de partida.
+
+
+## D-180 — Aceite da F7 e da F8 pelo autor
+
+Em 08/11/2026 o autor aceitou a F7 e a F8 como estão (62 testes; lote 500 anos × 20 sementes sem falha; desvios documentados em D-177, D-178 e D-179). Restam abertas: carência entre quedas de coroa (contrária a D-177) e alianças históricas de partida entre povos.
+
+
+## D-181 — Alianças de partida entre povos: todas neutras
+
+Em 08/11/2026 o autor decidiu manter todos os laços entre povos neutros no início (sem alianças históricas no molde). Fecha o item 4 de `RELATORIO_F8_4.md`; D-M15 e `dinamica/povos.txt` ficam como estão. Resta aberta: carência entre quedas de coroa.
+
+
+## D-182 — Carência entre quedas de coroa: não (fecha a F9)
+
+Em 08/11/2026 o autor decidiu manter sem carência, como em D-177. Com D-180, D-181 e D-182 não há pendência do autor no motor: F0 a F9 concluídas; `PLANO_MOTOR_MYTHRALIS.md` sem submódulo aberto.
+
+
+## D-183 — Nome do reino 5: Azeroth fica
+
+Em 08/11/2026, ao integrar o molde no app (MI-01), o autor confirmou que mantém o nome "Azeroth" (D-139): a coincidência com outro mundo é casual e não há relação com ele. Nada muda nos dados nem no hash do molde.

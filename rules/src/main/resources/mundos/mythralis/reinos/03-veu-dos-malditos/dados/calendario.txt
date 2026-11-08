@@ -1,0 +1,3 @@
+# esquema=1
+id|meses|dias_por_mes|dias_de_transicao|estacoes|ano_inicial|estacao_inicial|fonte
+calendario.contagem-das-provacoes|12|30|5|Névoa Fechada;Névoa Solta;Charco Aberto;Névoa Voltando|389 das Provações (= 742 de Aeltharyn, ASSUMINDO)|Névoa Fechada|doc 01 parte 5 (D-82); mundo/M-02 §7

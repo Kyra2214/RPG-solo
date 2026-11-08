@@ -1,0 +1,8 @@
+# esquema=1
+# tradução de jovem/adulta/madura/idosa em intervalo, por fração da vida_max da classe de longevidade.
+faixa|de_pm|ate_pm|fonte|etiqueta
+jovem|160|300|fração da vida_max da classe, em por mil; "?" cobre idade desconhecida|PROPOSTO
+adulta|250|450|fração da vida_max da classe, em por mil; "?" cobre idade desconhecida|PROPOSTO
+madura|400|650|fração da vida_max da classe, em por mil; "?" cobre idade desconhecida|PROPOSTO
+idosa|650|900|fração da vida_max da classe, em por mil; "?" cobre idade desconhecida|PROPOSTO
+?|250|650|fração da vida_max da classe, em por mil; "?" cobre idade desconhecida|PROPOSTO

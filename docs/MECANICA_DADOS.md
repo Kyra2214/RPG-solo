@@ -51,7 +51,7 @@ A tabela acima mostra as probabilidades exatas; as taxas empíricas (tabela M-06
 python3 tools/simulate_checks.py --runs 100000
 ```
 
-Decisão de implementação code-first: zero pontos conserva a chance mínima de uma face; o primeiro ponto acrescenta uma face e, portanto, melhora a chance. Esta regra substitui a versão anterior em que 0 e 1 ponto empatavam.
+Regra confirmada pelo autor em 08/11/2026: zero pontos conserva a chance mínima de uma face; o primeiro ponto acrescenta uma face e, portanto, melhora a chance (faces = pontos + 1, até lados − 1). Esta regra substitui a versão anterior em que 0 e 1 ponto empatavam. Em 08/11/2026 o código (`pointFaces`, em `engine/.../Check.kt`, que também vale para o ataque por pontos em `GameEngine`) e os testes `PointCheckTest` e `PointCheckPackageTest` foram alinhados a ela; **nada foi compilado nem executado depois dessa mudança**.
 
 ### Tabela empírica (M-06.5)
 

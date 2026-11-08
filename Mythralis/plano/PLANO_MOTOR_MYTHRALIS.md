@@ -2,7 +2,7 @@
 
 > *"O mundo não existe para contar a sua história. Sua história acontece dentro dele."*
 
-**Estado (08/11/2026):** plano aguardando aprovação das decisões D-M. **F1 a F6 concluídas**; **F7.1 a F7.3 implementadas e F7.4 implementada/testada** (45 testes passam; lote de 500 anos × 20 sementes sem falhas mecânicas). O aceite global de F7 continua pendente: uma semente excedeu o limite de 0–2 reinos caídos e a contagem de deltas importantes por década superou 40 em todas as sementes. **F8 ainda não iniciada**; resolver a métrica e as metas pendentes antes do fechamento. Ver `plano/RELATORIO_F7_4.md`.
+**Estado (08/11/2026):** motor fechado: F0 a F9 concluídas, sem pendência do autor (D-180 a D-182). **F1 a F6 concluídas; F7.1 a F7.4 e F8.1 a F8.4 implementadas e testadas** (62 testes; lote de 500 anos × 20 sementes: 20/20 sem falha, invariantes I-01 a I-28 ok). Os dois desvios que seguravam a F7 estão tratados: quedas de coroa (19 de 20 sementes dentro de 0 a 2; semente 18 explicada, D-177) e a contagem de deltas 3+ por década (substituída pelos níveis de relevância, D-M14/D-175; níveis 1+2 em 3 a 40 em 86% a 91% das décadas). **F7 e F8 aceitas pelo autor em 08/11/2026 (D-180).** Novidades: níveis de relevância e alianças entre raças e sub-raças nas 46 cidades. Ver `plano/RELATORIO_F7_4.md`, `RELATORIO_F8_3.md` e `RELATORIO_F8_4.md`.
 **Nome:** o projeto e o mundo, antes chamados Orravel, passam a se chamar **Mythralis** (o continente continua **Valdoren**, M-04 G-01; o ID do mundo passa a `mundo.mythralis`).
 **Escopo:** Mythralis é independente do RPG Solo. Primeiro funciona sozinho; a integração com o app é pensada depois (seção 17).
 
@@ -205,8 +205,27 @@ Cada motor tem: **entrada canônica** (o que lê do molde), **regra** (o que cal
 | **Ecos** | `canal`, `reputacao`, `fato` (camada, quem_sabe, caminho), grafo de lugares | cada fato novo parte do lugar de origem e **se espalha por passos** do grafo, mais devagar onde a camada é restrita; vira rumor distorcido a cada passo | quem sabe o quê, rumores, versões exageradas |
 | **Fronteira** | contratos de fronteira, M-04 (anel), M-05 §5 (migrações), M-07/M-09 | decide o que **pode cruzar** conforme a era (seção 8) | fluxos, incidentes, guerra, ruptura |
 | **Mistérios** | `misterio` (hipoteses_abertas, `a_verdade_nao_pode_ser`, evidencia) | o mundo **pode andar em torno** de um mistério, mas só resolve com a evidência listada; sem agente investigador nada se resolve | pistas, não respostas |
+| **Povos** (F8.2) | `cidade.povos`, `npc` (povo, sub-raça, papéis), catálogo (50 raças, 50 sub-raças), `povo_no_reino` | laço local por cidade e par de povos (tensão, aliança, rivalidade); laços aliados em cidades suficientes formam o **pacto entre povos** | laço aliado ou rompido, aliança e fim de aliança entre povos |
 
 **Sobre os mistérios:** sem jogador, quase todo mistério fica aberto por séculos. Isso é o comportamento correto e vira métrica (14).
+
+### 7.1 Povos: alianças entre raças e sub-raças (D-M15, F8.2)
+
+**Escopo:** todas as 46 cidades do mundo (Aeltharyn 10, Coroas de Pedra 10, Azeroth 10, Véu dos Malditos 8, Vale Palancar 8). Nada de lore novo: o motor só deriva do molde quem convive onde e deixa a **simulação** decidir quem se alia.
+
+**Fichas derivadas do molde (nunca editadas):**
+- **Povo** = uma raça do catálogo ou uma sub-raça. Numa cidade convivem as raças de `cidade.povos` e as sub-raças dos NPCs que moram lá. Ficam de fora os pares de mesma linhagem (raça e a própria sub-raça) e os mestiços (D-64 não os aloca).
+- **Laço local** `laco.<cidade>@<a>+<b>`: um por cidade e par de povos que convivem nela; campos `relacao` (`neutra`, `alianca`, `rivalidade`), `tensao` (0 a 100), `desde`, `reino`, `cidade`. Todos nascem `neutra` com tensão-base (**lacuna explícita:** o molde não declara alianças entre povos; ASSUMINDO neutras).
+- **Pacto entre povos** `pacto.<a>+<b>`: um por par que convive em pelo menos `povos_pacto_min_cidades` cidades; campos `estado` (`nenhum`, `alianca`), `desde`, `cidades_aliadas`.
+
+**Regra (anual, `povos`):**
+1. A tensão de cada laço volta à base com o tempo, com sorteio anual, e sobe com pressões da cidade: posto de governante vago, escassez 3 na cidade, guerra do reino. Desce com **mediadores**: herói, guardião ou benfeitor de um dos dois povos morando na cidade, e com o pacto vigente do par.
+2. `neutra` com tensão baixa vira `alianca` (assinada pelo governante vivo da cidade, com os mediadores presentes como agentes); `alianca` com tensão alta rompe; `neutra` com tensão muito alta vira `rivalidade`, que volta a `neutra` quando esfria. Uma transição por laço por ano; tudo com causa.
+3. **Pacto:** quando o par tem laço aliado em `povos_pacto_min_cidades` cidades, nasce a `alianca_de_povos`; quando cai para nenhuma cidade, `fim_de_alianca_de_povos`. No regime **selado** só conta um reino de cada vez (o contrato de fronteira proíbe agente e efeito de outro reino); fora do selado, o pacto pode cruzar reinos e fica registrado com os governantes dos dois lados.
+4. O motor **só lê** os outros motores (vacância, escassez, guerra); não altera fronteira, guerra nem política de facções, para não desmanchar a calibragem existente.
+
+**Limites explícitos:** sem efeito econômico, sem Eco entre reinos (M-07) e sem sub-raças que apareçam só por NPCs simulados depois do início; valores `PROPOSTO` em `dinamica/povos.txt`.
+
 
 ## 8. Eras livres e regimes de fronteira
 
@@ -256,6 +275,18 @@ Todo delta é registrado, mas cada um recebe `importancia` de 0 a 4 por regra. *
 Contam como importantes: morte, doença grave ou sucessão de NPC principal e vacância de cargo; relógio que estoura; tratado, ruptura, cisma, fusão ou extinção de facção; rota bloqueada ou escassez que gera revolta; pista de mistério; incidente de fronteira e quebra de contrato; mudança de regime ou de era; guerra, queda de coroa e fato `confirmado` alterado; NPC simulado em cargo de poder.
 **Padrão (D-M11):** só registrar e continuar; `--interativo` (pausar a cada notificação) fica opcional para rodadas únicas.
 
+### 10.2 Níveis de relevância (D-M14, F8.1)
+Separação **derivada** dos deltas (nunca grava nada na crônica; só o relatório e a métrica). Vale para todas as cidades; cada delta é atribuído à cidade e ao reino por `niveis.py`.
+
+| Nível | O que é | Como aparece |
+|---|---|---|
+| **1** | alianças e rupturas entre nações, raças e sub-raças (pactos de povos, tratados, guerras, quedas de coroa, eras) e **reis** (governantes, herdeiros e a sucessão da capital) | evento individual em `relatorio.md`; é o que conta na meta de "eventos por década" |
+| **2** | heróis, guardiões, benfeitores, generais, líderes de facção, governantes de cidades que não são capital e laços de povos com mediador | **um resumo por década** por reino, citando as cidades |
+| **3** | todo o resto (bloqueios de rota, vacâncias, pistas, relógios, laços sem mediador) | só entra na história **se for causa citada** de um evento de nível 1 ou 2; senão vira contagem no **resumo da virada de era** |
+
+A importância (0 a 4) e as notificações continuam como estão; o nível é uma segunda leitura, para a história e para a métrica.
+
+
 ## 11. Simulador
 
 ```
@@ -296,6 +327,9 @@ Gravidade: **E** = falha (a rodada é inválida), **A** = alerta (revisão do au
 | I-20 | **Legibilidade:** para cada evento, a cadeia causal remonta até o molde ou um evento anterior | E |
 | I-21 | **Notificação completa:** todo delta de importância 3 ou mais tem notificação | E |
 | I-22 | **Passo neutro:** rodar com `--passo 1`, `--passo 10` ou `--passo 50` dá a mesma crônica (hash) | E |
+| I-26 | **Laço válido:** transições `neutra` ↔ `alianca`, `neutra` ↔ `rivalidade`; aliança só com governante vivo da cidade como agente | E |
+| I-27 | **Pacto coerente:** `alianca_de_povos` só com laços aliados suficientes; `fim_de_alianca_de_povos` só quando faltam | E |
+| I-28 | **Níveis completos:** todo delta de importância 3+ recebe exatamente um nível (1, 2 ou 3) e uma cidade ou reino | E |
 
 **Teste de continuidade em anos:** o item que o autor pediu. Roda-se 100, 250 e 500 anos (ou o tempo que o autor quiser); I-01 a I-20 precisam passar em todas as sementes do lote, e o relatório lista, por reino, "quem governava no ano 50, 100, 200..." e por quê.
 
@@ -327,7 +361,10 @@ Metas **iniciais** para uma rodada de 500 anos, revisadas depois da primeira exe
 | Primeira guerra entre reinos | entre os anos 40 e 250 em maioria das sementes |
 | Reinos caídos em 500 anos | 0 a 2, e **nunca o mesmo em todas as sementes** (senão há desequilíbrio) |
 | Mistérios resolvidos sem agente | 0 |
-| Eventos por reino por década | entre 3 e 40 |
+| Eventos de **nível 1** por reino por década (D-M14) | mediana ao menos 1 e máximo até 25; décadas vazias aceitas, mas contadas (medido: mediana 2, máximo 8 a 12, 28% a 36% vazias) |
+| Eventos de níveis **1+2** por reino por década (história legível; antes: todos os deltas 3+ entre 3 e 40) | entre 3 e 40 em ao menos 85% das décadas de reino (medido: 86% a 91%; o desvio é sobretudo acima de 40) |
+| Alianças entre povos | ao menos um pacto formado em 80% das sementes em 500 anos; nenhum par de povos com aliança em todas as sementes |
+| Cobertura das cidades | toda cidade com ao menos um evento de nível 1 ou 2 em 500 anos (medido: 46 de 46 em 20 de 20 sementes) |
 
 ## 15. Fases e critério de aceite
 
@@ -340,8 +377,14 @@ Metas **iniciais** para uma rodada de 500 anos, revisadas depois da primeira exe
 | **F4 ✔** | dinâmica v0 (gerada) + demografia, sucessão, relógios, eventos, política | rodar 100 anos **só dentro dos reinos** (Era I) sem erro (feito: 100 anos × 3 sementes, 10 blocos OK; `motor/testes/test_f4.py`, 28 testes no total) |
 | **F5 ✔** | economia, rotas, Ecos, mistérios, contratos de fronteira (submódulos, ASSUMINDO: **F5.1 ✔** economia e rotas; **F5.2 ✔** Ecos; **F5.3 ✔** mistérios; **F5.4 ✔** contratos de fronteira) | I-01 a I-14 passam em 100 anos (feito: 100 anos × 3 sementes, 10 blocos OK; `motor/testes/test_f5.py`, 37 testes no total) |
 | **F6 ✔** | simulador completo, lote, relatório, retomada (submódulos, ASSUMINDO: **F6.1 ✔** relatório e métricas; **F6.2 ✔** invariantes I-12, I-16 a I-18, I-20 e consultas obrigatórias; **F6.3 ✔** modo lote; **F6.4 ✔** retomada `+anos` e CLI) | I-01 a I-20 passam; relatório por era |
-| **F7 (aceite pendente)** | regimes poroso e aberto: tratados, rupturas, guerras e tramas. **F7.1 ✔**, **F7.2 ✔**, **F7.3 ✔**; **F7.4 implementada** (I-23 a I-25, correção de agente morto, tramas existentes, 45 testes; lote 500 anos × 20 sementes) | 20/20 sementes sem falha mecânica; porém a semente 18 teve 3 reinos caídos (meta 0–2) e os máximos de deltas importantes por década foram 82–97 (meta até 40). Reconciliar/calibrar esses alvos em F8 antes de marcar F7 aceita; ver `plano/RELATORIO_F7_4.md` |
-| **F8** | calibragem final e fechamento: definir a métrica de evento por década, tratar os desvios quantitativos de F7.4 e repetir o lote | metas da seção 14 verificadas; relatório final ao autor; `DECISOES.md` atualizado |
+| **F7 ✔ (aceita pelo autor em 08/11/2026, D-180)** | regimes poroso e aberto: tratados, rupturas, guerras e tramas. **F7.1 ✔**, **F7.2 ✔**, **F7.3 ✔**; **F7.4 implementada** (I-23 a I-25, correção de agente morto, tramas existentes, 45 testes; lote 500 anos × 20 sementes) | 20/20 sementes sem falha mecânica; porém a semente 18 teve 3 reinos caídos (meta 0–2) e os máximos de deltas importantes por década foram 82–97 (meta até 40). Reconciliar/calibrar esses alvos em F8 antes de marcar F7 aceita; ver `plano/RELATORIO_F7_4.md` |
+| **F8.1 ✔** | níveis de relevância (`niveis.py`), relatório por nível e por cidade, métrica de lote por nível 1 | D-M14; I-28; lote mede nível 1 por reino e década |
+| **F8.2 ✔** | motor `povos`: laços por cidade e pactos entre raças e sub-raças (46 cidades) | D-M15; `dinamica/povos.txt`; I-26 e I-27; testes |
+| **F8.3 ✔** | quedas de coroa: 19 de 20 sementes dentro de 0 a 2 (11 com 0, 6 com 1, 2 com 2); só a semente 18 tem 3 (anos 73, 82 e 177). **Decisão D-177:** `queda_pm` e as demais chaves ficam como estão; desvio explicado como cauda da distribuição, sem carência artificial | 19/20 dentro da meta, desvio documentado em `RELATORIO_F8_3.md` |
+| **F8.4 ✔** | lote 500 anos × 20 sementes e fechamento: relatório final ao autor (`RELATORIO_F8_4.md`) | metas da seção 14 verificadas (ver relatório); F7 e F8 **prontas para o aceite do autor**; `DECISOES.md` atualizado |
+| **F9.1 ✔** | sucessão contada como um evento nas métricas de níveis 1+2 (`Niveis.evento`, `niveis.md`, `lote.py`); sem mudança na crônica, nos hashes nem nas chaves `PROPOSTO` | D-178; validado: 62 testes passam e lote 500 anos × 20 sementes sem falha; níveis 1+2 fora de 3 a 40 em 4% a 8% das décadas de reino (mediana 5,5%; antes 9% a 14%), ou seja 92% a 96% dentro da meta; demais métricas iguais ao F8.4 |
+| **F9.2 ✔** | "rei" = governante de toda cidade no nível 1 (`GOVERNANTE_DE_CIDADE_N1` em `niveis.py`); testada em 6 sementes e **mantida desligada** | D-179; com a regra: nível 1 por reino e década com mediana 6,5 e máximo 24 a 36 (meta: máximo até 25), décadas vazias 5% a 9%; sem falha mecânica |
+| **F9 ✔** | fecha o motor: F9.1 (sucessão = 1 evento), F9.2 (regra do rei testada e desligada), decisões do autor D-180 (aceite F7/F8), D-181 (alianças de partida neutras) e D-182 (sem carência entre quedas) | sem pendência do autor; roadmap do motor 100% |
 
 **Regra de trabalho:** cada fase termina com testes rodando e com o relatório de invariantes anexado; só abre a próxima depois de revisada (mesma disciplina dos reinos).
 
@@ -362,6 +405,8 @@ Metas **iniciais** para uma rodada de 500 anos, revisadas depois da primeira exe
 | **D-M11** | O que o simulador faz numa notificação | só registrar e continuar (`--interativo` opcional) |
 | **D-M12** | Passo do simulador e do RPG | simulador em blocos de 10 anos com check de saúde; RPG literário por dia |
 | **D-M13** | Número e duração das eras | **livres**: sem 3 eras nem 100 anos; regime por gatilho |
+| **D-M14** | Níveis de relevância dos eventos (1 nações, povos e reis; 2 heróis e NPCs secundários; 3 o resto) | **pedido do autor em 08/11/2026**; níveis derivados, nível 1 conta na meta |
+| **D-M15** | Alianças entre raças e sub-raças como mecânica do motor, em todas as cidades | **pedido do autor em 08/11/2026**; começam neutras (lacuna do molde); valores `PROPOSTO` |
 
 ## 17. Integração futura com o RPG Solo (só direção)
 

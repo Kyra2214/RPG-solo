@@ -10,7 +10,9 @@ import carregador as C, calendario as CAL, cronica as CR, relatorio as REL
 
 INCIDENTES = ('incidente_fronteira',)
 COLS = ('semente', 'resultado', 'deltas', 'fim_era_1', 'primeiro_incidente', 'primeira_guerra', 'reinos_caidos',
-        'misterios_resolvidos', 'relogios_estourados', 'relogios_1o_seculo', 'min_importantes_decada', 'max_importantes_decada')
+        'misterios_resolvidos', 'relogios_estourados', 'relogios_1o_seculo', 'min_importantes_decada', 'max_importantes_decada',
+        'n1_mediana_decada', 'n1_max_decada', 'n1_decadas_vazias_pct', 'n12_fora_3_40_pct', 'pactos_formados', 'pactos_encerrados',
+        'cidades_sem_n1_n2')
 
 
 def _ano(d, ano0):
@@ -40,11 +42,30 @@ def estatisticas(world, deltas, cab):
                 k = (r, (CAL.ano_base(d['dia_mundo']) - ano0) // 10); por_dec[k] = por_dec.get(k, 0) + 1
     reinos = sorted({c['reino'] for c in world.t['cidade']})
     decs = [k for k in range((anoN - ano0 + 1) // 10)]
+    import niveis as NV
+    N = NV.Niveis(world, deltas); n1, n12, cid12 = {}, {}, set(); vistos = set()
+    for d in deltas:
+        if d['entidade'] == 'mundo': continue
+        nv, imp = N.nivel(d), d.get('importancia', 0)
+        for r in N.reinos(d):
+            if r in world.reinos:
+                k = (r, (CAL.ano_base(d['dia_mundo']) - ano0) // 10)
+                if nv == 1 and imp >= 3: n1[k] = n1.get(k, 0) + 1
+                if nv <= 2 and imp >= 2 and (r, N.evento(d)) not in vistos:
+                    vistos.add((r, N.evento(d))); n12[k] = n12.get(k, 0) + 1
+        if nv <= 2 and imp >= 2 and N.cidade(d): cid12.add(N.cidade(d))
+    v1 = [n1.get((r, k), 0) for r in reinos for k in decs]; v12 = [n12.get((r, k), 0) for r in reinos for k in decs]
+    pct = lambda n, t: round(100 * n / t) if t else 0
     vals = [por_dec.get((r, k), 0) for r in reinos for k in decs]
     return dict(fim_era_1=_ano(era2, ano0), primeiro_incidente=_ano(inc, ano0), primeira_guerra=_ano(gue, ano0), reinos_caidos=caidos,
                 misterios_resolvidos=resolvidos, estourados=est,
                 relogios_1o_seculo=sum(1 for a in est.values() if a < ano0 + 100),
-                min_dec=min(vals) if vals else '', max_dec=max(vals) if vals else '', deltas=len(deltas))
+                min_dec=min(vals) if vals else '', max_dec=max(vals) if vals else '', deltas=len(deltas),
+                n1_med=statistics.median(v1) if v1 else '', n1_max=max(v1) if v1 else '', n1_vazias=pct(v1.count(0), len(v1)),
+                n12_fora=pct(sum(1 for x in v12 if not 3 <= x <= 40), len(v12)),
+                pactos_formados=sum(1 for d in deltas if d['tipo'] == 'alianca_de_povos'),
+                pactos_encerrados=sum(1 for d in deltas if d['tipo'] == 'fim_de_alianca_de_povos'),
+                cidades_sem=sorted(c['id'] for c in world.t['cidade'] if c['id'] not in cid12))
 
 
 def _resumo(v):
@@ -58,7 +79,8 @@ def gerar(pasta, world, linhas, total_relogios):
         for L in linhas:
             f.write('|'.join(str(x) for x in (L['semente'], L['resultado'], L['deltas'], L['fim_era_1'], L['primeiro_incidente'],
                     L['primeira_guerra'], ','.join(L['reinos_caidos']) or '—', L['misterios_resolvidos'], len(L['estourados']),
-                    L['relogios_1o_seculo'], L['min_dec'], L['max_dec'])) + '\n')
+                    L['relogios_1o_seculo'], L['min_dec'], L['max_dec'], L['n1_med'], L['n1_max'], L['n1_vazias'], L['n12_fora'],
+                    L['pactos_formados'], L['pactos_encerrados'], len(L['cidades_sem']))) + '\n')
     n = len(linhas); ok = [L for L in linhas if L['resultado'] != 'FALHA']
     M = ['# Relatório do lote', '', '%d sementes (%s); %d sem FALHA. Derivado dos deltas de cada rodada.' % (
         n, ', '.join(str(L['semente']) for L in linhas), len(ok)), '',
@@ -69,7 +91,14 @@ def gerar(pasta, world, linhas, total_relogios):
         '| mistérios resolvidos | total %d |' % sum(L['misterios_resolvidos'] for L in ok),
         '| relógios estourados no 1º século | %s de %d |' % (_resumo([L['relogios_1o_seculo'] for L in ok]), total_relogios),
         '| menos deltas 3+ de um reino em uma década (mundo morto) | %s |' % _resumo([L['min_dec'] for L in ok]),
-        '| mais deltas 3+ de um reino em uma década (caos) | %s |' % _resumo([L['max_dec'] for L in ok]), '',
+        '| mais deltas 3+ de um reino em uma década (caos) | %s |' % _resumo([L['max_dec'] for L in ok]),
+        '| nível 1 por reino e década: mediana | %s |' % _resumo([L['n1_med'] for L in ok]),
+        '| nível 1 por reino e década: máximo | %s |' % _resumo([L['n1_max'] for L in ok]),
+        '| nível 1: décadas de reino vazias (%%) | %s |' % _resumo([L['n1_vazias'] for L in ok]),
+        '| níveis 1+2 fora de 3 a 40 por reino e década (%%) | %s |' % _resumo([L['n12_fora'] for L in ok]),
+        '| pactos entre povos formados | %s |' % _resumo([L['pactos_formados'] for L in ok]),
+        '| pactos entre povos encerrados | %s |' % _resumo([L['pactos_encerrados'] for L in ok]),
+        '| cidades sem evento de nível 1 ou 2 | %s |' % _resumo([len(L['cidades_sem']) for L in ok]), '',
         '## Reinos caídos por semente', '']
     cont = {}
     for L in ok:

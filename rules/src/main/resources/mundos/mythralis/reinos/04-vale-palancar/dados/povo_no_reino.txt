@@ -1,0 +1,14 @@
+# esquema=1
+povo|reino|relacao|cidades|nota|fonte
+orcano|kingdom.vale-palancar|originário|city.terreiro-maior;city.vazante;city.gramal|Orcano|doc 10 §1; M-05 (D-24)
+tabaxi|kingdom.vale-palancar|originário|city.vazante;city.encosta-aberta|Felídeo Errante|doc 10 §1; M-05 (D-24)
+centauro|kingdom.vale-palancar|originário|city.terreiro-maior;city.vazante;city.encosta-aberta|Centauro|doc 10 §1; M-05 (D-24)
+goblin|kingdom.vale-palancar|originário|city.rasovau;city.praia-pardo;city.alvasal|Goblin|doc 10 §1; M-05 (D-24)
+hobgoblin|kingdom.vale-palancar|originário|city.alvasal;city.vazante|Goblin de Legião|doc 10 §1; M-05 (D-24)
+homem-raposa|kingdom.vale-palancar|originário|city.rasovau|Vulpino|doc 10 §1; M-05 (D-24)
+homem-coelho|kingdom.vale-palancar|originário|city.rasovau;city.gramal|Leporino|doc 10 §1; M-05 (D-24)
+homem-urso|kingdom.vale-palancar|originário|city.tabuleiro-velho;city.gramal|Ursino|doc 10 §1; M-05 (D-24)
+homem-lobo|kingdom.vale-palancar|originário|city.alvasal;city.terreiro-maior;city.vazante|Lupino|doc 10 §1; M-05 (D-24)
+homem-javali|kingdom.vale-palancar|originário|city.tabuleiro-velho;city.gramal|Porcino|doc 10 §1; M-05 (D-24)
+homem-cervo|kingdom.vale-palancar|originário|city.tabuleiro-velho;city.terreiro-maior;city.encosta-aberta|Cervino|doc 10 §1; M-05 (D-24)
+insetoide|kingdom.vale-palancar|originário|city.praia-pardo;city.gramal|Insetoide|doc 10 §1; M-05 (D-24)

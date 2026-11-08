@@ -111,6 +111,26 @@ GUERRA = [
     ('queda_pm', 10, 'por mil por ano de guerra, em cada reino, de a coroa cair (marco da era; a guerra termina)', 'guerra'),
 ]
 
+POVOS = [
+    ('povos_passo_anos', 5, 'a cada quantos anos cada laço é avaliado (escalonado: um quinto dos laços por ano); as taxas abaixo são por avaliação', 'povos'),
+    ('povos_tensao_base', 50, 'tensão-base de um laço entre dois povos numa cidade (0 a 100); todos nascem neutros (o molde não declara alianças entre povos)', 'povos'),
+    ('povos_decaimento', 4, 'pontos por avaliação com que a tensão volta à base', 'povos'),
+    ('povos_deriva', 12, 'amplitude do sorteio da tensão por avaliação (±)', 'povos'),
+    ('povos_pressao_vacancia', 1, 'tensão extra por avaliação se o posto de governante da cidade está vago', 'povos'),
+    ('povos_pressao_escassez', 1, 'tensão extra por avaliação se há escassez 3 na cidade', 'povos'),
+    ('povos_pressao_guerra', 2, 'tensão extra por avaliação se o reino da cidade está em guerra', 'povos'),
+    ('povos_alivio_mediador', 1, 'tensão a menos por avaliação por mediador (herói, guardião ou benfeitor de um dos povos que mora na cidade)', 'povos'),
+    ('povos_alivio_mediador_max', 2, 'máximo de mediadores que contam por laço', 'povos'),
+    ('povos_alivio_pacto', 2, 'tensão a menos por avaliação nos laços de um par que tem pacto entre povos', 'povos'),
+    ('povos_lim_aliar', 30, 'tensão até aqui, num laço neutro, vira aliança local', 'povos'),
+    ('povos_lim_romper', 62, 'tensão a partir daqui, num laço aliado, rompe a aliança', 'povos'),
+    ('povos_lim_rival', 80, 'tensão a partir daqui, num laço neutro, vira rivalidade', 'povos'),
+    ('povos_lim_rival_fim', 56, 'tensão até aqui, num laço rival, volta a neutro', 'povos'),
+    ('povos_pos_alianca', 44, 'tensão do laço logo depois de formar a aliança', 'povos'),
+    ('povos_pos_ruptura', 56, 'tensão do laço logo depois de romper', 'povos'),
+    ('povos_pacto_min_cidades', 2, 'laços aliados do mesmo par, em cidades diferentes, para nascer o pacto entre povos', 'povos'),
+]
+
 INVARIANTES = [
     ('inv_min_importantes_decada', 3, 'I-17: mínimo de deltas de importância 3+ por reino a cada 10 anos (proporcional ao bloco)', 'invariantes'),
     ('inv_max_importantes_ano', 60, 'I-18: máximo de deltas de importância 3+ por reino em um ano', 'invariantes'),
@@ -157,6 +177,8 @@ def main():
           [(a, b, c, d, 'PLANO_MOTOR §7 e §8', PROP) for a, b, c, d in DIPLOMACIA], 'tratados, rupturas e quebras de contrato entre reinos vizinhos (F7.2).')
     w_tab('guerra.txt', ['chave', 'valor', 'descricao', 'motor', 'fonte', 'etiqueta'],
           [(a, b, c, d, 'PLANO_MOTOR §7 e §8', PROP) for a, b, c, d in GUERRA], 'guerras, baixas, paz e queda de coroa entre reinos vizinhos (F7.4).')
+    w_tab('povos.txt', ['chave', 'valor', 'descricao', 'motor', 'fonte', 'etiqueta'],
+          [(a, b, c, d, 'PLANO_MOTOR §7.1 (D-M15)', PROP) for a, b, c, d in POVOS], 'laços entre raças e sub-raças por cidade e pactos entre povos (F8.2).')
     w_tab('invariantes.txt', ['chave', 'valor', 'descricao', 'motor', 'fonte', 'etiqueta'],
           [(a, b, c, d, 'PLANO_MOTOR §12 e §14', PROP) for a, b, c, d in INVARIANTES], 'faixas dos invariantes de alerta I-17 e I-18 (F6.2).')
     # relógios: regra executável gerada de `entidades`; revisada à mão depois (revisado=não até lá)

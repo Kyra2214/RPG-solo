@@ -1,6 +1,6 @@
 # Integração futura com o RPG Solo
 
-**Status:** adiada de propósito. O mundo é escrito aqui primeiro; a implementação no RPG Solo vem depois, quando os reinos estiverem revisados. Nada neste projeto altera o repositório do jogo.
+**Status (08/11/2026):** o plano da integração agora está em `docs/PLANO_INTEGRACAO_MYTHRALIS.md` (MI-01 a MI-25); este arquivo fica como referência. Antes: adiada de propósito. O mundo é escrito aqui primeiro; a implementação no RPG Solo vem depois, quando os reinos estiverem revisados. Nada neste projeto altera o repositório do jogo.
 
 ## 1. Decisões já tomadas (vindas do plano do RPG Solo)
 

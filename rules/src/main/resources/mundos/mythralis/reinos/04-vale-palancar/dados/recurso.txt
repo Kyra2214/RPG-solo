@@ -1,0 +1,66 @@
+# esquema=1
+recurso|localidade|papel|producao|reserva|demanda|estado_evidencia|nota|fonte
+grão e carne seca guardados|city.tabuleiro-velho|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.1; doc 05 §2
+couro e lã|city.tabuleiro-velho|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.1; doc 05 §2
+guarda dos marcos dos pastos|city.tabuleiro-velho|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.1; doc 05 §2
+dependência: de os clãs entregarem o que juntam|city.tabuleiro-velho|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.1; doc 05 §2
+dependência: do ano de pasto|city.tabuleiro-velho|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.1; doc 05 §2
+dependência: da cisterna alta|city.tabuleiro-velho|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.1; doc 05 §2
+falta: guarda quando os clãs partem em marcha|city.tabuleiro-velho|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.1; doc 05 §2
+falta: água (uma só cisterna alta)|city.tabuleiro-velho|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.1; doc 05 §2
+troca de gado, couro e sal entre clãs|city.rasovau|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.2; doc 05 §2
+recados e acertos de passagem|city.rasovau|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.2; doc 05 §2
+dependência: do vau seguir transitável|city.rasovau|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.2; doc 05 §2
+dependência: de quem atravessa respeitar o Trato|city.rasovau|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.2; doc 05 §2
+falta: defesa (sem muro nem guarnição)|city.rasovau|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.2; doc 05 §2
+recepção, guarda e acerto da carga que chega pelo rio|city.praia-pardo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.3; doc 05 §2
+pouso|city.praia-pardo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.3; doc 05 §2
+dependência: do que chega pelo rio, que o pouso não controla|city.praia-pardo|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.3; doc 05 §2
+dependência: dos clãs vizinhos para a proteção|city.praia-pardo|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.3; doc 05 §2
+falta: defesa própria (pouca)|city.praia-pardo|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.3; doc 05 §2
+sal|city.alvasal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.4; doc 05 §2
+água|city.alvasal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.4; doc 05 §2
+carga|city.alvasal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.4; doc 05 §2
+acerto de quem se prepara para o Ermo|city.alvasal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.4; doc 05 §2
+dependência: da cisterna|city.alvasal|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.4; doc 05 §2
+falta: água para todas as caravanas ao mesmo tempo (uma só cisterna)|city.alvasal|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.4; doc 05 §2
+hospedagem de clãs|city.terreiro-maior|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.5; doc 03 §1; doc 05 §2
+fogo e forragem|city.terreiro-maior|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.5; doc 03 §1; doc 05 §2
+mediação de pactos|city.terreiro-maior|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.5; doc 03 §1; doc 05 §2
+contas entre clãs|city.terreiro-maior|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.5; doc 03 §1; doc 05 §2
+dependência: de a Assembleia escolher campo ao alcance dos clãs|city.terreiro-maior|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.5; doc 03 §1; doc 05 §2
+dependência: dos hospedeiros da Ramada|city.terreiro-maior|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.5; doc 03 §1; doc 05 §2
+dependência: da reserva do Tabuleiro-Velho (lugar-mãe)|city.terreiro-maior|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.5; doc 03 §1; doc 05 §2
+falta: defesa própria (nenhuma)|city.terreiro-maior|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.5; doc 03 §1; doc 05 §2
+falta: fica frágil se o Capitão estiver longe|city.terreiro-maior|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.5; doc 03 §1; doc 05 §2
+a própria marcha: carroças, rebanhos, forja de campo, caça|city.vazante|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.6; doc 03 §1; doc 05 §2
+dependência: de pasto e caça|city.vazante|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.6; doc 03 §1; doc 05 §2
+dependência: da reserva do Tabuleiro-Velho (lugar-mãe)|city.vazante|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.6; doc 03 §1; doc 05 §2
+falta: pasto para os dois campos possíveis (cada escolha deixa um clã sem pasto)|city.vazante|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.6; doc 03 §1; doc 05 §2
+pouso|city.encosta-aberta|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.7; doc 03 §1; doc 05 §2
+pastagem de espera|city.encosta-aberta|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.7; doc 03 §1; doc 05 §2
+guia de quem sobe|city.encosta-aberta|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.7; doc 03 §1; doc 05 §2
+dependência: dos clãs vigias|city.encosta-aberta|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.7; doc 03 §1; doc 05 §2
+dependência: de Rasovau (lugar-mãe)|city.encosta-aberta|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.7; doc 03 §1; doc 05 §2
+falta: visão do que está do outro lado das elevações|city.encosta-aberta|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.7; doc 03 §1; doc 05 §2
+gado|city.gramal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.8; doc 03 §1; doc 05 §2
+couro|city.gramal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.8; doc 03 §1; doc 05 §2
+caça|city.gramal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.8; doc 03 §1; doc 05 §2
+marca dos rebanhos e divisão do pasto|city.gramal|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.8; doc 03 §1; doc 05 §2
+dependência: de pasto bom na estação|city.gramal|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.8; doc 03 §1; doc 05 §2
+dependência: de a disputa entre gado e caça não virar guerra|city.gramal|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.8; doc 03 §1; doc 05 §2
+dependência: da reserva do Tabuleiro-Velho (lugar-mãe)|city.gramal|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.8; doc 03 §1; doc 05 §2
+falta: defesa fixa (nenhuma)|city.gramal|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.8; doc 03 §1; doc 05 §2
+falta: pasto em ano fraco|city.gramal|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.8; doc 03 §1; doc 05 §2
+Descida do Argente|city.praia-pardo|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5; M-05 §5
+Rota do Sal|city.alvasal|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5; M-05 §5
+Corredores Largos|city.encosta-aberta|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5; M-05 §5
+reserva|city.tabuleiro-velho|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+vau transitável|city.rasovau|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+recepção|city.praia-pardo|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+guarda de carga|city.praia-pardo|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+acerto de caravana|city.alvasal|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+marcha|city.terreiro-maior|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+pasto|city.vazante|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+forragem|city.terreiro-maior|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+muro|city.tabuleiro-velho|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv

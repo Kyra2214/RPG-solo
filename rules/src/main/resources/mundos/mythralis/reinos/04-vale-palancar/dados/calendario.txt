@@ -1,0 +1,3 @@
+# esquema=1
+id|meses|dias_por_mes|dias_de_transicao|estacoes|ano_inicial|estacao_inicial|fonte
+calendario.contagem-dos-marcos|12|30|5|Pasto Magro;Rebrota;Pasto Alto;Reunião dos Rebanhos|611 dos Marcos (= 742 de Aeltharyn, ASSUMINDO)|Pasto Magro|doc 01 parte 5 (D-119); mundo/M-02 §8

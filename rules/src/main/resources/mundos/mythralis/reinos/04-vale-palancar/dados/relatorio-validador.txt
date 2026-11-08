@@ -1,0 +1,13 @@
+codigo|severidade|entidade|mensagem|fonte
+V-06|A|cidade.txt|8 de 8 registros com fonte "proposto" (aguardam o autor)|cidade.txt
+V-06|A|faccao.txt|14 de 14 registros com fonte "proposto" (aguardam o autor)|faccao.txt
+V-06|A|npc.txt|25 de 25 registros com fonte "proposto" (aguardam o autor)|npc.txt
+V-23|A|kingdom.vale-palancar|[exceção] cidades não formam grafo conexo nem contando rotas desconhecidas|—
+V-26|A|kingdom.vale-palancar|rio, posição de fortaleza e relevo: revisão manual contra M-04 (não verificável por regra)|M-04
+V-30|A|kingdom.vale-palancar|menos de 10 cidades|—
+V-31|A|mundo|mundo com 1 reino em composição (reinos 3 a 5 e Aeltharyn fora deste conjunto); mínimo 5 só no nível mundo|—
+V-34|A|kingdom.vale-palancar|sem herdeiro; reino sem rei: o Capitão de Marcha é escolhido por prova ou aclamação e o desfecho da sucessão é desconhecido (doc 04 §5)|—
+V-42|A|faction.guardas-da-marcha|aliados ou rivais desconhecidos|faccao.txt
+V-42|A|faction.vigias-da-cisterna|aliados ou rivais desconhecidos|faccao.txt
+V-44|A|city.alvasal|[exceção] cidade isolada: sem rota|rota.txt
+# resumo: 0 erros, 11 avisos, 2 exceções aplicadas

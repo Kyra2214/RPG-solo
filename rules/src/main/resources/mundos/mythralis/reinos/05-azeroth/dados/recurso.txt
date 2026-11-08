@@ -1,0 +1,91 @@
+# esquema=1
+recurso|localidade|papel|producao|reserva|demanda|estado_evidencia|nota|fonte
+grão, farinha, gado de planície, tecido|city.campoalvo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.1; doc 05 §2
+celeiros comuns|city.campoalvo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.1; doc 05 §2
+preço do pão|city.campoalvo|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.1; doc 05 §2
+dependência: de colheita e do rio|city.campoalvo|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.1; doc 05 §2
+dependência: de comprador para o excedente|city.campoalvo|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.1; doc 05 §2
+falta: defesa (muralha baixa)|city.campoalvo|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.1; doc 05 §2
+falta: resistência a cheia e a praga de campo|city.campoalvo|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.1; doc 05 §2
+troca de grão por peixe, sal e tecido|city.vaudouro|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.2; doc 03 §1; doc 05 §2
+docas, depósitos, aluguel de canal|city.vaudouro|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.2; doc 03 §1; doc 05 §2
+dependência: de as comportas seguirem abertas|city.vaudouro|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.2; doc 03 §1; doc 05 §2
+dependência: de duas coroas que taxam|city.vaudouro|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.2; doc 03 §1; doc 05 §2
+dependência: de Campoalvo (lugar-mãe)|city.vaudouro|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.2; doc 03 §1; doc 05 §2
+falta: defesa (sem muralha, só comportas e vigias)|city.vaudouro|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.2; doc 03 §1; doc 05 §2
+guarnição|city.torrefronte|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.3; doc 03 §1; doc 05 §2
+registro de chegados e de quem parte|city.torrefronte|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.3; doc 03 §1; doc 05 §2
+dependência: do suprimento de dentro do reino|city.torrefronte|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.3; doc 03 §1; doc 05 §2
+dependência: do entendimento entre guarnição e vigia|city.torrefronte|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.3; doc 03 §1; doc 05 §2
+dependência: de Campoalvo (lugar-mãe)|city.torrefronte|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.3; doc 03 §1; doc 05 §2
+falta: mercado próprio (é um posto)|city.torrefronte|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.3; doc 03 §1; doc 05 §2
+falta: sal e ferramenta só chegam de dentro|city.torrefronte|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.3; doc 03 §1; doc 05 §2
+comércio marítimo, estaleiros, sal, pescado, carga|city.alvamar|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.4; doc 05 §2
+taxa do porto|city.alvamar|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.4; doc 05 §2
+dependência: de rota e de maré|city.alvamar|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.4; doc 05 §2
+dependência: do grão do interior|city.alvamar|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.4; doc 05 §2
+dependência: da corrente|city.alvamar|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.4; doc 05 §2
+falta: — (a vulnerabilidade é de rota e maré, ver "Depende de")|city.alvamar|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.4; doc 05 §2
+carga, água, conserto e notícia de mar para a rota das Costas|city.enseada-vigia|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.5; doc 03 §1; doc 05 §2
+luz e barra|city.enseada-vigia|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.5; doc 03 §1; doc 05 §2
+dependência: de faroleiros e do tempo|city.enseada-vigia|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.5; doc 03 §1; doc 05 §2
+dependência: da barra|city.enseada-vigia|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.5; doc 03 §1; doc 05 §2
+dependência: de Alvamar (lugar-mãe)|city.enseada-vigia|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.5; doc 03 §1; doc 05 §2
+falta: luz sem os faroleiros (uma noite sem luz é perigo)|city.enseada-vigia|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.5; doc 03 §1; doc 05 §2
+casco, vela, corda, conserto|city.concharia|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.6; doc 03 §1; doc 05 §2
+coral e concha cultivados|city.concharia|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.6; doc 03 §1; doc 05 §2
+dependência: de madeira de fora|city.concharia|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.6; doc 03 §1; doc 05 §2
+dependência: do respeito ao santuário|city.concharia|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.6; doc 03 §1; doc 05 §2
+dependência: de Alvamar (lugar-mãe)|city.concharia|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.6; doc 03 §1; doc 05 §2
+falta: madeira própria (chega de fora|city.concharia|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.6; doc 03 §1; doc 05 §2
+falta: origem `desconhecida`|city.concharia|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.6; doc 03 §1; doc 05 §2
+falta: ASSUMINDO a leitura de dependência como falta)|city.concharia|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.6; doc 03 §1; doc 05 §2
+sinais, aviso, mapa, relógio de estrelas|city.torreclara|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.7; doc 05 §2
+hora e previsão vendidas|city.torreclara|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.7; doc 05 §2
+dependência: de vista longa|city.torreclara|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.7; doc 05 §2
+dependência: de comprar grão e madeira de fora|city.torreclara|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.7; doc 05 §2
+falta: força própria além dos sinais|city.torreclara|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.7; doc 05 §2
+falta: grão e madeira (compra de fora|city.torreclara|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.7; doc 05 §2
+falta: origem `desconhecida`)|city.torreclara|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.7; doc 05 §2
+mapas celestes, calendário de viagem, ensino de orientação, festivais de rota|city.estrelado|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.8; doc 03 §1; doc 05 §2
+dependência: de doações de quem navega e planta|city.estrelado|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.8; doc 03 §1; doc 05 §2
+dependência: de a Coroa do Vento continuar a pagar|city.estrelado|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.8; doc 03 §1; doc 05 §2
+dependência: de Torreclara (lugar-mãe)|city.estrelado|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.8; doc 03 §1; doc 05 §2
+falta: defesa própria (nenhuma)|city.estrelado|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.8; doc 03 §1; doc 05 §2
+sinal, pouso, comida de viagem, conserto de pipa e de torre|city.pouso-das-brisas|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.9; doc 03 §1; doc 05 §2
+dependência: de vento bom|city.pouso-das-brisas|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.9; doc 03 §1; doc 05 §2
+dependência: da linha de torres inteira|city.pouso-das-brisas|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.9; doc 03 §1; doc 05 §2
+dependência: de Torreclara (lugar-mãe)|city.pouso-das-brisas|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.9; doc 03 §1; doc 05 §2
+falta: — (a vulnerabilidade é a linha de torres, ver "Depende de")|city.pouso-das-brisas|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.9; doc 03 §1; doc 05 §2
+hospedagem, tabelionato, câmbio, arbitragem, feira|city.meiovau|produtor|?|?|?|documentado|rica em (qualitativo, sem quantidade)|doc 01 §2.10; doc 05 §2
+dependência: de ser útil às três coroas|city.meiovau|consumidor|?|?|?|documentado|depende de (qualitativo, sem prazo)|doc 01 §2.10; doc 05 §2
+falta: defesa (sem muralha)|city.meiovau|?|?|?|?|documentado|pobre em (só onde o doc 01 registra falta)|doc 01 §2.10; doc 05 §2
+Grão e mar|city.vaudouro|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5
+As Costas|city.enseada-vigia|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5
+As Fugas do Véu|city.meiovau|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5
+Aviso e hora|city.torreclara|transportador|?|?|?|documentado|fluxo qualitativo (doc 08 §5)|doc 08 §5
+grão e canais|city.campoalvo|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+celeiro comum|city.campoalvo|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+medida|city.campoalvo|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+comportas|city.vaudouro|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+passagem entre os rios|city.vaudouro|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+suprimento de dentro do reino|city.torrefronte|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+molhe|city.alvamar|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+corrente|city.alvamar|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+rota e maré|city.alvamar|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+farol|city.enseada-vigia|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+barra|city.enseada-vigia|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+casco e vela|city.concharia|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+madeira de fora|city.concharia|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+canal|city.concharia|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+santuário e recifes|city.concharia|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+aviso e hora certa|city.torreclara|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+códigos de torre|city.torreclara|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+linha de torres|city.torreclara|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+arquivo celeste|city.estrelado|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+calendário de rota|city.estrelado|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+previsão|city.estrelado|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+sinal e pouso|city.pouso-das-brisas|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+acolhida|city.meiovau|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+doação|city.meiovau|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv
+as três chaves|city.meiovau|?|?|?|?|documentado|termo de recurso citado em 12-eventos.csv; sem quantidade (D-63); localidade = primeiro lugar do evento (ASSUMINDO)|12-eventos.csv

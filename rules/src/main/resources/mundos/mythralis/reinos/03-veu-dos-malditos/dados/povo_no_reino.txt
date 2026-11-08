@@ -1,0 +1,13 @@
+# esquema=1
+povo|reino|relacao|cidades|nota|fonte
+tiefling|kingdom.veu-dos-malditos|originário|city.morroveu;city.selovale;city.candeia-morta|Nascido do Crepúsculo|doc 10 §1; M-05 (D-24)
+kenku|kingdom.veu-dos-malditos|originário|city.fozbreu;city.borda-mansa;city.fio-longo|Corvídeo|doc 10 §1; M-05 (D-24)
+bugbear|kingdom.veu-dos-malditos|originário|city.morroveu;city.selovale|Ursino Sombrio|doc 10 §1; M-05 (D-24)
+lizardino|kingdom.veu-dos-malditos|originário|city.lamaluz;city.fozbreu|Escamado|doc 10 §1; M-05 (D-24)
+homem-rato|kingdom.veu-dos-malditos|originário|city.lamaluz;city.fozbreu;city.beira-sal|Ratoide|doc 10 §1; M-05 (D-24)
+sombrio|kingdom.veu-dos-malditos|originário|city.morroveu;city.borda-mansa;city.candeia-morta|Umbral|doc 10 §1; M-05 (D-24)
+onirico|kingdom.veu-dos-malditos|originário|city.fio-longo|Onírico|doc 10 §1; M-05 (D-24)
+vampirico|kingdom.veu-dos-malditos|originário|city.candeia-morta|Noctívago|doc 10 §1; M-05 (D-24)
+licantropo|kingdom.veu-dos-malditos|originário|city.beira-sal|Metamorfo Lupino|doc 10 §1; M-05 (D-24)
+metamorfo|kingdom.veu-dos-malditos|originário|city.lamaluz;city.selovale;city.fio-longo|Moldável|doc 10 §1; M-05 (D-24)
+aracnideo|kingdom.veu-dos-malditos|originário|city.beira-sal;city.borda-mansa|Aracnídeo|doc 10 §1; M-05 (D-24)

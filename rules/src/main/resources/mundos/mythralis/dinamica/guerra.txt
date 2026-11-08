@@ -1,0 +1,11 @@
+# esquema=1
+# guerras, baixas, paz e queda de coroa entre reinos vizinhos (F7.4).
+chave|valor|descricao|motor|fonte|etiqueta
+guerra_tensao_min|240|tensão mínima de um par em ruptura para poder entrar em guerra|guerra|PLANO_MOTOR §7 e §8|PROPOSTO
+guerra_pm|80|por mil por ano de um par em ruptura, com a tensão mínima e as duas coroas firmes, entrar em guerra|guerra|PLANO_MOTOR §7 e §8|PROPOSTO
+guerra_anos|6|duração de uma guerra, em anos, até a paz (tratado de paz)|guerra|PLANO_MOTOR §7 e §8|PROPOSTO
+guerra_pos_tensao|150|tensão do par depois da paz ou da queda de uma coroa|guerra|PLANO_MOTOR §7 e §8|PROPOSTO
+guerra_baixa_pm|150|por mil por ano, em cada reino em guerra, de morrer um NPC principal ou general (homeostase: só com vivos suficientes)|guerra|PLANO_MOTOR §7 e §8|PROPOSTO
+guerra_baixa_min_vivos|4|mínimo de principais e generais vivos de um reino para que a guerra cause baixa|guerra|PLANO_MOTOR §7 e §8|PROPOSTO
+queda_min_anos|3|anos de guerra antes de uma coroa poder cair|guerra|PLANO_MOTOR §7 e §8|PROPOSTO
+queda_pm|10|por mil por ano de guerra, em cada reino, de a coroa cair (marco da era; a guerra termina)|guerra|PLANO_MOTOR §7 e §8|PROPOSTO

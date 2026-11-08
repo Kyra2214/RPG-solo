@@ -1,5 +1,7 @@
 # Mundo Pré-configurado do RPG Solo
 
+> **Anexo do plano único.** Estado, ordem e pendências ficam em `PLANO_RPG_SOLO.md`, seção 9; este arquivo guarda só a especificação e as decisões deste tema.
+
 **Status:** Proposta funcional para auditoria e implementação (texto do autor, guardado como referência; o plano de implementação está no bloco WD de `PLANO_RPG_SOLO.md`).
 
 ## 1. Objetivo

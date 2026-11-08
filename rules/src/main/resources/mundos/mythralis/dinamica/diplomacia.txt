@@ -1,0 +1,13 @@
+# esquema=1
+# tratados, rupturas e quebras de contrato entre reinos vizinhos (F7.2).
+chave|valor|descricao|motor|fonte|etiqueta
+dipl_janela_anos|5|anos em que um incidente de fronteira espera resposta (tratado ou ruptura) antes de esfriar sem resposta|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_tratado_pm|350|por mil por ano de um incidente pendente virar tratado entre os dois reinos|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_ruptura_pm|200|por mil por ano de um incidente pendente virar ruptura (somado ao de tratado; o resto é espera)|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_tratado_reduz|120|pontos de tensão que um tratado tira do par|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_tratado_anos|30|duração de um tratado, em anos|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_tratado_fator_pm|500|fator por mil do crescimento anual da tensão com tratado vigente|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_quebra_pm|25|por mil por ano de um tratado vigente ser quebrado (quebra de contrato e ruptura)|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_ruptura_soma|60|pontos de tensão que uma ruptura soma ao par|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_ruptura_anos|12|duração da ruptura, em anos, até o par voltar a neutra|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO
+dipl_ruptura_fator_pm|1500|fator por mil do crescimento anual da tensão durante a ruptura|diplomacia|PLANO_MOTOR §7 e §8|PROPOSTO

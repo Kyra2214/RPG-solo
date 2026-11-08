@@ -25,6 +25,7 @@ class Dinamica:
         self.front = {r['chave']: int(r['valor']) for r in _tab(raiz, 'fronteira.txt')}
         self.dipl = {r['chave']: int(r['valor']) for r in _tab(raiz, 'diplomacia.txt')}
         self.guerra = {r['chave']: int(r['valor']) for r in _tab(raiz, 'guerra.txt')}
+        self.povos = {r['chave']: int(r['valor']) for r in _tab(raiz, 'povos.txt')}
         self.inv = {r['chave']: int(r['valor']) for r in _tab(raiz, 'invariantes.txt')}
         self.relogios = {}
         for r in _tab(raiz, 'relogios_dinamica.txt'):

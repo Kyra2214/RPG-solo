@@ -1,0 +1,11 @@
+# esquema=1
+povo|reino|relacao|cidades|nota|fonte
+humano|kingdom.azeroth|originário|city.campoalvo;city.vaudouro;city.torrefronte;city.alvamar;city.enseada-vigia;city.concharia;city.torreclara;city.estrelado;city.pouso-das-brisas;city.meiovau|Humano|doc 10 §1; M-05 (D-24)
+pequenino|kingdom.azeroth|originário|city.campoalvo;city.vaudouro;city.pouso-das-brisas;city.meiovau|Pequenino|doc 10 §1; M-05 (D-24)
+aasimar|kingdom.azeroth|originário|city.campoalvo;city.torrefronte;city.torreclara;city.estrelado;city.meiovau|Luminar|doc 10 §1; M-05 (D-24)
+tortle|kingdom.azeroth|originário|city.alvamar;city.enseada-vigia;city.concharia|Tartarino|doc 10 §1; M-05 (D-24)
+tritao|kingdom.azeroth|originário|city.alvamar;city.enseada-vigia|Abissal Costeiro|doc 10 §1; M-05 (D-24)
+elemental-agua|kingdom.azeroth|originário|city.vaudouro;city.alvamar;city.concharia;city.meiovau|Nascido da Maré|doc 10 §1; M-05 (D-24)
+elemental-ar|kingdom.azeroth|originário|city.torreclara;city.estrelado;city.pouso-das-brisas;city.meiovau|Nascido do Vento|doc 10 §1; M-05 (D-24)
+sereiano|kingdom.azeroth|originário|city.alvamar;city.enseada-vigia;city.concharia|Sereiano|doc 10 §1; M-05 (D-24)
+ancestral-estelar|kingdom.azeroth|originário|city.torreclara;city.estrelado|Estelar|doc 10 §1; M-05 (D-24)

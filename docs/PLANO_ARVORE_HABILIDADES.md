@@ -1,5 +1,7 @@
 # Plano de implementação — Árvores de habilidades, afinidades e maldições
 
+> **Anexo do plano único.** Estado, ordem e pendências ficam em `PLANO_RPG_SOLO.md`, seção 9; este arquivo guarda só a especificação e as decisões deste tema.
+
 **Versão:** 1.2  
 **Status:** plano aprovado para implementação code-first.  
 **Escopo:** sistema próprio do RPG Solo.  

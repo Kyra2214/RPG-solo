@@ -1,5 +1,7 @@
 # Plano de implementação — Raças, sub-raças, classes e profissões do RPG Solo
 
+> **Anexo do plano único.** Estado, ordem e pendências ficam em `PLANO_RPG_SOLO.md`, seção 9; este arquivo guarda só a especificação e as decisões deste tema.
+
 **Estado atual (20/10/2026):** catálogo editorial, seletores e validação estão implementados parcialmente; as escolhas têm campo canônico `Ficha.editorialChoicesJson`. Ao restaurar fichas, o app migra o JSON legado para o campo canônico, preservando fichas ativas e arquivadas; SharedPreferences permanece como fallback/espelho. Duplicação e importação/exportação individual transportam as escolhas. Backups incluem fichas ativas e arquivadas, registram o estado de arquivamento, remapeiam colisões de IDs e restauram campanha/metadados/fichas em transação. A gravação canônica ocorre antes do espelho legado, e a atualização/inserção da ficha é atômica sem perder seu estado arquivado. Ainda falta validação em execução e cobertura para falhas parciais. Efeitos mecânicos completos do catálogo, história e retrato por IA continuam pendentes. Build/testes/CI não executados.  
 **Branch:** `feature/racas-subracas`  
 **Originalidade:** todo o conteúdo é de criação própria (lore, regras e ilustrações). O RPG Solo tem conteúdo original e motor próprio.

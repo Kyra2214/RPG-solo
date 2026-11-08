@@ -1,0 +1,8 @@
+# esquema=1
+id|reino|de|para|meio|duracao_min|duracao_max|unidade|estado|condicao|fonte
+route.praia-pardo-rasovau|kingdom.vale-palancar|city.praia-pardo|city.rasovau|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.praia-pardo-rasovau
+route.tabuleiro-terreiro-maior|kingdom.vale-palancar|city.tabuleiro-velho|city.terreiro-maior|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.tabuleiro-terreiro-maior
+route.tabuleiro-vazante|kingdom.vale-palancar|city.tabuleiro-velho|city.vazante|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.tabuleiro-vazante
+route.tabuleiro-gramal|kingdom.vale-palancar|city.tabuleiro-velho|city.gramal|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.tabuleiro-gramal
+route.rasovau-encosta-aberta|kingdom.vale-palancar|city.rasovau|city.encosta-aberta|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.rasovau-encosta-aberta
+route.terreiro-vazante|kingdom.vale-palancar|city.terreiro-maior|city.vazante|?|?|?|dia|desconhecida|documentada ou sugerida por dependência; sem percurso descrito; duração desconhecida|doc 07 route.terreiro-vazante

@@ -1,0 +1,16 @@
+# esquema=1
+# escalas ordinais 0 a 5 e taxas do motor de economia e rotas (F5.1).
+chave|valor|descricao|motor|fonte|etiqueta
+econ_producao_padrao|2|produção ordinal (0 a 5) quando o molde traz "?" (ASSUMINDO)|economia|PLANO_MOTOR §9.2|PROPOSTO
+econ_demanda_padrao_consumidor|2|demanda ordinal quando o molde traz "?" e o papel é consumidor (ASSUMINDO)|economia|PLANO_MOTOR §9.2|PROPOSTO
+econ_demanda_padrao_produtor|0|demanda ordinal quando o molde traz "?" e o papel é produtor/transportador (ASSUMINDO)|economia|PLANO_MOTOR §9.2|PROPOSTO
+econ_alcance_passos|3|passos máximos de rota aberta para um produtor abastecer outro lugar|economia|PLANO_MOTOR §9.2|PROPOSTO
+econ_import_max|2|teto de oferta ordinal que um lugar recebe por rotas|economia|PLANO_MOTOR §9.2|PROPOSTO
+econ_escassez_max|3|teto do nível de escassez (0 a 3)|economia|PLANO_MOTOR §9.2|PROPOSTO
+econ_quebra_safra_pm|80|por mil por estação de um produtor perder 1 de produção|economia|PLANO_MOTOR §9.2|PROPOSTO
+econ_recuperacao_pm|500|por mil por estação de um produtor recuperar 1 de produção|economia|PLANO_MOTOR §9.2|PROPOSTO
+econ_revolta_estacoes|4|estações seguidas em escassez máxima que viram revolta (homeostase: zera depois)|economia|PLANO_MOTOR §9.2|PROPOSTO
+rota_bloqueio_pm|40|por mil por estação (fora do inverno) de uma rota aberta bloquear|economia|PLANO_MOTOR §9.2|PROPOSTO
+rota_bloqueio_inverno_pm|150|idem, no inverno|economia|PLANO_MOTOR §9.2|PROPOSTO
+rota_bloqueio_incerta_pm|30|extra por mil se a rota é com_ressalva ou desconhecida|economia|PLANO_MOTOR §9.2|PROPOSTO
+rota_reabertura_pm|450|por mil por estação de uma rota bloqueada reabrir|economia|PLANO_MOTOR §9.2|PROPOSTO

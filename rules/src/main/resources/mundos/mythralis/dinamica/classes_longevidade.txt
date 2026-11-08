@@ -1,0 +1,9 @@
+# esquema=1
+# anos; pm = por mil ao ano; sem_idade não morre de velhice. Revisão do autor pendente (D-M6).
+classe|maturidade|madura_ini|idosa_ini|vida_max|mortalidade_base_pm|mortalidade_idosa_pm|fonte|etiqueta
+efemera|2|6|12|20|20|150|PLANO_MOTOR §9.2 (D-M6)|PROPOSTO
+curta|8|20|40|60|4|60|PLANO_MOTOR §9.2 (D-M6)|PROPOSTO
+humana|16|40|65|100|2|30|PLANO_MOTOR §9.2 (D-M6)|PROPOSTO
+longa|40|120|250|400|1|20|PLANO_MOTOR §9.2 (D-M6)|PROPOSTO
+milenar|100|300|700|1100|1|15|PLANO_MOTOR §9.2 (D-M6)|PROPOSTO
+sem_idade|0|0|0|0|0|0|PLANO_MOTOR §9.2 (D-M6)|PROPOSTO

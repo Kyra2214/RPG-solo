@@ -1,0 +1,3 @@
+# esquema=1
+id|nome|mundo|tema|estado|capital|calendario|fonte
+kingdom.aeltharyn|Aeltharyn|mundo.mythralis|Reino das Florestas, governado pela Coroa Élfica e por pactos com povos aliados|em_composicao|city.elarion|calendario.contagem-das-seivas|doc 01 §1-2; doc 10 §1 (Aeltharyn é reino, não cidade); doc 11 (fechado editorialmente; em refinamento)

@@ -25,11 +25,12 @@ from .misterios import Misterios
 from .diplomacia import Diplomacia
 from .fronteira import Fronteira
 from .guerra import Guerra
+from .povos import Povos
 
 
 def criar(raiz=C.RAIZ):
     din = D.Dinamica(raiz)
-    return [Demografia(din), Sucessao(din), Relogios(din), Eventos(din), Politica(din), Economia(din), Ecos(din), Misterios(din), Diplomacia(din), Fronteira(din), Guerra(din)]
+    return [Demografia(din), Sucessao(din), Relogios(din), Eventos(din), Politica(din), Economia(din), Ecos(din), Misterios(din), Diplomacia(din), Fronteira(din), Guerra(din), Povos(din)]
 
 
 MOTORES = criar()
