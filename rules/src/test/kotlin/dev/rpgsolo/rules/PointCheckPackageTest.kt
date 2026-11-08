@@ -50,6 +50,24 @@ class PointCheckPackageTest {
         assertEquals(listOf(3, 4, 5, 6), winningFaces(r))
     }
 
+    @Test fun seisFontesDeBonusAcumulamMasD6MantemFalhaMinima() {
+        val p = pacote()
+        val base = p.check("esquiva", mapOf("agilidade" to 0), media(p), mapOf("conhecimento" to 0))
+        val bonuses =
+            (1..6).map { index ->
+                ExternalBonus(
+                    scope = "conhecimento",
+                    bonus = 1,
+                    source = "escolha-$index",
+                    effectId = "catalogo:$index",
+                )
+            }
+        val adjusted = p.adjustCheck(base, emptyList(), skill = "conhecimento", additionalBonuses = bonuses)
+
+        assertEquals(6, adjusted.modifier)
+        assertEquals(listOf(2, 3, 4, 5, 6), winningFaces(adjusted))
+    }
+
     @Test fun testePodeUsarPontosDePericiaEmVezDoAtributo() {
         val f = files().toMutableMap()
         f["testes.txt"] =

@@ -29,17 +29,21 @@ A revisão confirmou que os efeitos restantes usam escopos existentes. A auditor
 
 Nas raças, sub-raças, híbridos e classes não foi demonstrado erro individual de escopo ou valor que justificasse alteração de dados. Também não foi recomendado redistribuir os demais efeitos profissionais: sem benchmarks de frequência, teto ou probabilidade-alvo, uma mudança numérica seria especulativa.
 
-**Risco sistêmico a decidir:** seleções de fontes distintas podem acumular bônus no mesmo escopo (raça ou híbrido, até quatro classes e profissão, conforme a validação atual). Como cada ponto de perícia acrescenta uma face de sucesso, combinações podem elevar significativamente um teste. Os documentos do pacote não estabelecem limite específico de empilhamento por perícia ou um objetivo quantitativo de equilíbrio. Esta revisão registra o risco, mas não altera a política de acumulação previamente aprovada nem inventa um teto. A decisão deve preceder qualquer rebalanceamento amplo.
+**Decisão sobre empilhamento (08/11/2026):** manter o acúmulo por identidade já aprovado e não acrescentar um teto global de bônus do catálogo. A fórmula existente de `POINTS` já limita o resultado efetivo por dado: `min(max(pontos, 0) + 1, lados − 1)`. Assim, a face 1 sempre falha, e bônus além da saturação do dado não aumentam a probabilidade daquele teste. Um teto global independente do dado achataria parte da escala de dificuldade sem uma meta de probabilidade que o justifique.
+
+Uma enumeração das escolhas válidas atuais (uma raça com sub-raça compatível ou um híbrido, até quatro classes distintas e uma profissão) encontrou máximo de **+6** de efeitos do catálogo no mesmo escopo. Um exemplo é `humano` + `humano-das-cidades`, classes `mago`, `cronista`, `cartografo` e `guardiao-de-reliquias`, e profissão `arquiteto` em `conhecimento`. No pacote ativo, `pericia` e `esquiva` usam `POINTS`: o teste padrão é d6; conforme a dificuldade, os dados são d4/d6/d8/d10. O máximo do motor por dado é, respectivamente, 3/4, 5/6, 7/8 e 9/10 faces de sucesso (75%, 83,3%, 87,5% e 90%), sempre preservando uma falha. O +6 do catálogo, sozinho e partindo de zero pontos, atinge o teto de d4/d6/d8; no d10 dá 7/10 faces, e pontos próprios da ficha podem levá-lo ao teto. Se futuramente houver uma meta de chance mais baixa, deve-se ajustar a dificuldade ou a regra de bônus com um objetivo declarado, não criar um limite arbitrário por origem.
 
 ## Teste de regressão e validação
 
-Foi acrescentado a `CharacterCreationCatalogTest` um teste para garantir que os dois escopos profissionais incompatíveis permaneçam removidos e que o híbrido Sangue Lunar continue com `atletismo +1` e texto coerente.
+Foi acrescentado a `CharacterCreationCatalogTest` um teste para garantir que os dois escopos profissionais incompatíveis permaneçam removidos e que o híbrido Sangue Lunar continue com `atletismo +1` e texto coerente. Em `PointCheckPackageTest`, um teste confirma que seis bônus externos com IDs distintos continuam somando `+6`, enquanto o d6 por pontos mantém só as faces 2–6 como sucesso.
 
 - Verificação estática: JSON válido; 274 entradas auditadas; 272 efeitos declarados após as duas remoções; asserts das três correções passaram.
 - `./gradlew :rules:test` — **passou** com JDK 17.
+- `:app:ktlintMainSourceSetCheck`, `:app:ktlintTestSourceSetCheck` e `:rules:ktlintTestSourceSetCheck` — **passaram** nos arquivos afetados.
+- `./gradlew ktlintCheck` — **bloqueado por violações preexistentes** de indentação em `engine/src/main/kotlin/dev/rpgsolo/engine/AeltharynWorld.kt`; o plano principal já registra esse problema, que é alheio às alterações desta rodada.
 - `./gradlew :app:testDebugUnitTest` — **não iniciou**: Android SDK ausente (`ANDROID_HOME`/`sdk.dir` não configurado). O teste de regressão do app foi escrito, mas depende da execução no CI ou em ambiente com Android SDK.
 - `git diff --check` — sem erros de whitespace após correção.
 
 ## Estado
 
-A lacuna de revisão de intenção e balanceamento foi concluída para as cinco categorias acima. Continuam separadas como decisões ou etapas futuras: política/teto de empilhamento, revisão de lore e retratos, cobertura de falhas parciais de backup e validação Android/em aparelho. Não houve alteração das cópias históricas do catálogo usadas como referência de mundo.
+A revisão de intenção, balanceamento e política de empilhamento foi concluída para as cinco categorias acima, sem adicionar teto global além da saturação por dado já existente no motor. Continuam pendentes a revisão de lore e retratos, a cobertura de falhas parciais de backup e a validação Android/em aparelho. Não houve alteração das cópias históricas do catálogo usadas como referência de mundo.

@@ -24,7 +24,9 @@ Os 17 escopos usados pelos `mechanicalEffects` foram comparados com as perícias
 
 Foram revisadas 274 entradas e 274 efeitos antes das correções: 50 raças, 50 sub-raças, 20 híbridos, 50 classes e 104 profissões. Dois bônus profissionais sem aderência ao escopo descrito foram removidos (`mergulhador`/`pilotagem` e `tratador-de-aves-mensageiras`/`montaria`); o resumo e a lore de `humano-licantropo` foram alinhados ao efeito `atletismo +1`. Restam 272 efeitos declarados em 274 entradas.
 
-Não houve evidência suficiente para alterar individualmente os demais bônus `+1`. Como declarações com `effectId` distintos acumulam e cada ponto de perícia acrescenta uma face de sucesso, combinações de raça ou híbrido, classes adicionais e profissão podem concentrar bônus no mesmo escopo. O teto/critério de balanceamento continua sendo uma decisão sistêmica em aberto; esta rodada não mudou a política de acumulação. Detalhes, justificativas e validação estão no [relatório da revisão](relatorios/revisao-balanceamento-catalogo-2026-11-08.md).
+Uma enumeração das escolhas válidas (raça e sub-raça compatível ou um híbrido, até quatro classes distintas e uma profissão) encontrou máximo de +6 no mesmo escopo. Exemplo em `conhecimento`: `humano` + `humano-das-cidades`, `mago`, `cronista`, `cartografo`, `guardiao-de-reliquias` e `arquiteto`.
+
+**Decisão de acúmulo:** manter a soma por IDs distintos, sem adicionar teto global de bônus do catálogo. A fórmula existente de `POINTS` limita faces a `lados − 1`, mantendo pelo menos uma face de falha: máximo 3/4 (75%) em d4, 5/6 (83,3%) em d6, 7/8 (87,5%) em d8 e 9/10 (90%) em d10. O teste de perícia padrão é d6; a dificuldade seleciona d4/d6/d8/d10. Um teste novo confirma que seis fontes externas ainda somam +6, enquanto no d6 apenas as faces 2–6 vencem. Assim, a chance satura por dado sem apagar os efeitos adicionais nas dificuldades maiores; sem uma probabilidade-alvo, um teto fixo adicional seria arbitrário. Ver o [relatório detalhado](relatorios/revisao-balanceamento-catalogo-2026-11-08.md).
 
 ## 1. Objetivo
 
@@ -323,7 +325,7 @@ Este lote é conteúdo versionado e conectado ao runtime editorial da criação.
 
 **Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` é o campo canônico. A restauração migra escolhas antigas para fichas ativas e arquivadas; a escrita canônica precede o espelho SharedPreferences. A gravação de uma ficha atualiza ou insere atomicamente sem apagar o estado de arquivamento. Os backups agora incluem fichas ativas e arquivadas, transportam os IDs arquivados em metadado opcional e mantêm compatibilidade com backups antigos. A importação valida fichas e IDs, consulta colisões no banco, remapeia IDs, evita vínculo acidental a ficha local ausente do backup e restaura campanha/metadados/fichas na mesma transação. IDs de cópias e fichas novas usam UUID. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
 
-**Próxima ação:** definir critério/teto para o empilhamento de bônus de escopos coincidentes antes de qualquer rebalanceamento numérico; decidir equivalência com `TraitBonus` canônico e revisar conteúdo/lore restantes. A validação do app, a persistência/backup em execução, história/retrato com IA e falhas parciais de backup continuam pendentes. Não inferir nem ativar bônus por texto de lore.
+**Próxima ação:** executar `:app:testDebugUnitTest` no CI ou em ambiente com Android SDK e validar em aparelho. Depois, revisar equivalência com `TraitBonus` canônico, conteúdo/lore, história e retrato por IA e cobrir falhas parciais de backup. A política de acúmulo está decidida: fontes com IDs distintos somam, e testes `POINTS` limitam dinamicamente a chance pelo dado sem permitir sucesso garantido. Não inferir nem ativar bônus por texto de lore.
 
 ## 10. Maldições, benefícios e custos narrativos
 
