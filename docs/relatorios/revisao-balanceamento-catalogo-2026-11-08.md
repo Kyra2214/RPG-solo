@@ -44,6 +44,7 @@ Foi acrescentado a `CharacterCreationCatalogTest` um teste para garantir que os 
 
 1. `./gradlew :app:testDebugUnitTest --no-daemon` — **bloqueado** na configuração do projeto, antes de executar os testes: `Could not determine the dependencies of task ':app:testDebugUnitTest'` / `SDK location not found`. O ambiente não tem `ANDROID_HOME`, `ANDROID_SDK_ROOT` ou `local.properties` com `sdk.dir`. Nenhum CI, teste instrumentado ou emulador foi iniciado.
 2. `./gradlew test --no-daemon` — **bloqueado** antes da execução da suíte: a tarefa `:ai:test` requer Java toolchain 17, mas só há JDK 21 instalado (`Cannot find a Java installation ... languageVersion=17`). O repositório não configura download automático de toolchains. Nenhum teste instrumentado ou emulador foi iniciado.
+3. `./gradlew ktlintCheck --no-daemon` — **falhou**; a execução padrão parou no primeiro módulo (`app`). A mesma validação foi repetida com `--continue` para coletar todos os resultados e encontrou quatro falhas de tarefas: `app` (`CombatBonuses.kt`, formatação em 213 e 301–302), `engine` (`AeltharynWorld.kt`, indentação inesperada entre as linhas 353 e 1049), `world` principal (`Dinamica.kt:98`, comentário não fechado) e testes de `world` (`Conformidade.kt`, `LoteConformidadeTest.kt`, `MotoresConformidadeTest.kt`, `RngJsonConformidadeTest.kt` e `SimuladorConformidadeTest.kt`, regras de formatação). Nenhum arquivo de código foi alterado nesta etapa.
 
 ## Estado
 
