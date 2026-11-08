@@ -42,8 +42,9 @@ Foi acrescentado a `CharacterCreationCatalogTest` um teste para garantir que os 
 - `:app:ktlintMainSourceSetCheck`, `:app:ktlintTestSourceSetCheck` e `:rules:ktlintTestSourceSetCheck` — **passaram** nos arquivos afetados.
 - `./gradlew ktlintCheck` — **bloqueado por violações preexistentes** de indentação em `engine/src/main/kotlin/dev/rpgsolo/engine/AeltharynWorld.kt`; o plano principal já registra esse problema, que é alheio às alterações desta rodada.
 - `./gradlew :app:testDebugUnitTest` — **não iniciou**: Android SDK ausente (`ANDROID_HOME`/`sdk.dir` não configurado). O teste de regressão do app foi escrito, mas depende da execução no CI ou em ambiente com Android SDK.
+- Testes em aparelho/emulador — **pulados a pedido**; não foram considerados aprovados. O push foi feito em branch fora dos gatilhos do workflow e nenhuma execução de CI/E2E foi iniciada.
 - `git diff --check` — sem erros de whitespace após correção.
 
 ## Estado
 
-A revisão de intenção, balanceamento e política de empilhamento foi concluída para as cinco categorias acima, sem adicionar teto global além da saturação por dado já existente no motor. Continuam pendentes a revisão de lore e retratos, a cobertura de falhas parciais de backup e a validação Android/em aparelho. Não houve alteração das cópias históricas do catálogo usadas como referência de mundo.
+A revisão de intenção, balanceamento e política de empilhamento foi concluída para as cinco categorias acima, sem adicionar teto global além da saturação por dado já existente no motor. Continuam pendentes o teste unitário do app (SDK ausente), a revisão de lore e retratos e a cobertura de falhas parciais de backup. Testes em aparelho/emulador foram pulados a pedido e não contam como validação. Não houve alteração das cópias históricas do catálogo usadas como referência de mundo.
