@@ -37,8 +37,12 @@ Foi acrescentado a `CharacterCreationCatalogTest` um teste para garantir que os 
 
 - Verificação estática: JSON válido; 274 entradas auditadas; 272 efeitos declarados após as duas remoções; asserts das três correções passaram.
 - `./gradlew :rules:test` — **passou** com JDK 17.
-- `./gradlew :app:testDebugUnitTest` — **não iniciou**: Android SDK ausente (`ANDROID_HOME`/`sdk.dir` não configurado). O teste de regressão do app foi escrito, mas depende da execução no CI ou em ambiente com Android SDK.
+- `./gradlew :app:testDebugUnitTest` — **bloqueado antes da execução dos testes** neste Sandbox: Android SDK ausente (`ANDROID_HOME`/`sdk.dir` não configurado). A tentativa foi repetida em 2026-11-08 e o Gradle reportou `SDK location not found`; nenhum teste instrumentado ou emulador foi iniciado. O teste de regressão do app continua pendente em ambiente com Android SDK.
 - `git diff --check` — sem erros de whitespace após correção.
+
+## Registro das validações sequenciais — 2026-11-08
+
+1. `./gradlew :app:testDebugUnitTest --no-daemon` — **bloqueado** na configuração do projeto, antes de executar os testes: `Could not determine the dependencies of task ':app:testDebugUnitTest'` / `SDK location not found`. O ambiente não tem `ANDROID_HOME`, `ANDROID_SDK_ROOT` ou `local.properties` com `sdk.dir`. Nenhum CI, teste instrumentado ou emulador foi iniciado. A suíte completa e o KtLint global permanecem pendentes de execução sequencial.
 
 ## Estado
 
