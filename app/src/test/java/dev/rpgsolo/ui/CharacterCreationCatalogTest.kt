@@ -18,6 +18,20 @@ class CharacterCreationCatalogTest {
     }
 
     @Test
+    fun revisaoDeBalanceamentoRemoveEscoposIncompativeisEAlinhaHibrido() {
+        val mergulhador = CharacterCreationCatalog.professions.first { it.id == "mergulhador" }
+        assertTrue(mergulhador.mechanicalEffects.none { it.scope == "pilotagem" })
+
+        val tratador = CharacterCreationCatalog.professions.first { it.id == "tratador-de-aves-mensageiras" }
+        assertTrue(tratador.mechanicalEffects.none { it.scope == "montaria" })
+
+        val sangueLunar = CharacterCreationCatalog.hybrids.first { it.id == "humano-licantropo" }
+        assertTrue(sangueLunar.mechanicalEffects.any { it.scope == "atletismo" && it.bonus == 1 })
+        assertTrue(sangueLunar.summary.contains("transformação automática"))
+        assertTrue(sangueLunar.summary.contains("+1 em Atletismo"))
+    }
+
+    @Test
     fun efeitosMecanicosDeTodasAsCategoriasUsamEscoposDoPacote() {
         val pkg = BundledContent.load().registry.get("sistema-proprio")
         assertNotNull("O pacote próprio deve estar instalado para validar escopos", pkg)

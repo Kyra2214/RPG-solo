@@ -18,7 +18,7 @@
       "disadvantageIds",
       "hybridId"
     ],
-    "effectsPolicy": "mechanicalEffects só são preenchidos quando definidos e suportados pelo motor (M-02: as 50 raças, 50 sub-raças, 50 classes e 103 profissões e 20 híbridos; maldições só com benefício numérico incondicional em perícia com +1 em uma perícia; demais entradas ainda vazias); lore e resumo nunca concedem bônus.",
+    "effectsPolicy": "Somente efeitos tipados e suportados pelo motor são aplicados. O catálogo registra 50 raças, 50 sub-raças, 50 classes, 104 profissões e 20 híbridos; a revisão de 08/11/2026 removeu bônus profissionais sem escopo compatível. Benefícios de maldições só se aplicam quando declarados em mechanicalEffects e suportados; lore e resumo nunca concedem bônus.",
     "subracePolicy": "sub-raça referencia uma raça-base por parentRaceId; herança e substituições devem ser validadas pelo carregador.",
     "aiPolicy": "IA pode usar lore e escolhas confirmadas para narrativa e retrato, mas não pode criar ou alterar regras, vantagens, desvantagens, atributos ou equipamentos.",
     "equipmentAndBuffs": "equipamentos, buffs, debuffs e outros modificadores pertencem a camadas separadas e são calculados pelo motor.",
@@ -5565,12 +5565,7 @@
         "Reconhece passagens submersas por referências do relevo",
         "Identifica sinais de desgaste em vedações"
       ],
-      "mechanicalEffects": [
-        {
-          "scope": "pilotagem",
-          "bonus": 1
-        }
-      ],
+      "mechanicalEffects": [],
       "tags": [
         "profissao",
         "original"
@@ -6090,12 +6085,7 @@
         "Reconhece alterações de apetite e plumagem",
         "Redige recados concisos sem ambiguidades"
       ],
-      "mechanicalEffects": [
-        {
-          "scope": "montaria",
-          "bonus": 1
-        }
-      ],
+      "mechanicalEffects": [],
       "tags": [
         "profissao",
         "original"
@@ -6636,8 +6626,8 @@
     {
       "id": "humano-licantropo",
       "name": "Sangue Lunar",
-      "summary": "Descende de humanos e linhagens licantrópicas; a ascendência por si só não concede transformação nem bônus.",
-      "lore": "Descende de humanos e linhagens licantrópicas; a ascendência por si só não concede transformação nem bônus.",
+      "summary": "Descende de humanos e linhagens licantrópicas; não provoca transformação automática e concede +1 em Atletismo.",
+      "lore": "Descende de humanos e linhagens licantrópicas; não provoca transformação automática e concede +1 em Atletismo.",
       "raceIds": [
         "humano",
         "licantropo"

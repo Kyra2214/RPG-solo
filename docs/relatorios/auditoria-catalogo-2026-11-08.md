@@ -52,3 +52,9 @@ Foi aprovada a política A: IDs distintos acumulam; somente a mesma declaração
 Os `mechanicalEffects` usam 17 escopos: `adestramento`, `atletismo`, `conhecimento`, `cuidados`, `furtividade`, `intimidacao`, `lideranca`, `montaria`, `ocultismo`, `oficios`, `olhar-atento`, `percepcao`, `persuasao`, `pilotagem`, `pontaria`, `sistemas` e `sobrevivencia`. Todos existem como perícia ou escopo de combate no pacote próprio; a auditoria encontrou 0 inválidos.
 
 Foi adicionado teste automático em `CharacterCreationCatalogTest` para validar os efeitos de todas as categorias. `:app:testDebugUnitTest` não pôde iniciar neste sandbox porque o Android SDK não está configurado (`ANDROID_HOME`/`sdk.dir` ausente). O bloqueio é ambiental e está registrado, não uma falha do teste.
+
+## Lacuna seguinte concluída: intenção e balanceamento — 2026-11-08
+
+Foram revisadas 274 entradas e seus 274 efeitos declarados nas categorias de raças, sub-raças, híbridos, classes e profissões. Duas declarações profissionais sem aderência ao escopo descrito foram removidas; a descrição de `humano-licantropo` foi corrigida para corresponder ao `atletismo +1` mantido. O catálogo ativo passa a ter 272 efeitos em 274 entradas. A auditoria não sustentou alterações nos demais bônus; o empilhamento entre escolhas distintas ficou registrado como decisão sistêmica sem teto/critério definido.
+
+O relatório detalhado, com justificativas e validações, está em [`revisao-balanceamento-catalogo-2026-11-08.md`](revisao-balanceamento-catalogo-2026-11-08.md). `:rules:test` passou com JDK 17; `:app:testDebugUnitTest` não iniciou por ausência de Android SDK e segue pendente para CI/ambiente Android.

@@ -2,7 +2,7 @@
 
 > **Anexo do plano único.** Estado, ordem e pendências ficam em `PLANO_RPG_SOLO.md`, seção 9; este arquivo guarda só a especificação e as decisões deste tema.
 
-**Estado atual (20/10/2026):** catálogo editorial, seletores e validação estão implementados parcialmente; as escolhas têm campo canônico `Ficha.editorialChoicesJson`. Ao restaurar fichas, o app migra o JSON legado para o campo canônico, preservando fichas ativas e arquivadas; SharedPreferences permanece como fallback/espelho. Duplicação e importação/exportação individual transportam as escolhas. Backups incluem fichas ativas e arquivadas, registram o estado de arquivamento, remapeiam colisões de IDs e restauram campanha/metadados/fichas em transação. A gravação canônica ocorre antes do espelho legado, e a atualização/inserção da ficha é atômica sem perder seu estado arquivado. Ainda falta validação em execução e cobertura para falhas parciais. Efeitos mecânicos completos do catálogo, história e retrato por IA continuam pendentes. Build/testes/CI não executados.  
+**Estado registrado em 20/10/2026 (histórico):** catálogo editorial, seletores e validação estavam implementados parcialmente; as escolhas tinham campo canônico `Ficha.editorialChoicesJson`. Ao restaurar fichas, o app migrava o JSON legado para o campo canônico, preservando fichas ativas e arquivadas; SharedPreferences permanecia como fallback/espelho. Duplicação e importação/exportação individual transportavam as escolhas. Backups incluíam fichas ativas e arquivadas, registravam o estado de arquivamento, remapeavam colisões de IDs e restauravam campanha/metadados/fichas em transação. A gravação canônica ocorria antes do espelho legado, e a atualização/inserção da ficha era atômica sem perder seu estado arquivado. Ainda faltava validação em execução e cobertura para falhas parciais; os efeitos, história e retrato por IA estavam pendentes naquela data. Build/testes/CI não executados naquela revisão. Para o estado atual, ver as auditorias de 08/11/2026 abaixo.
 **Branch:** `feature/racas-subracas`  
 **Originalidade:** todo o conteúdo é de criação própria (lore, regras e ilustrações). O RPG Solo tem conteúdo original e motor próprio.
 
@@ -10,7 +10,7 @@
 
 A auditoria inicial de modelos, carregador, validador, persistência e telas foi concluída. O catálogo canônico tem 50 raças, 50 sub-raças, 20 híbridos, 50 classes e 104 profissões, com IDs únicos, resumos e lore preenchidos e referências de `parentRaceId` válidas. As escolhas são persistidas em `Ficha.editorialChoicesJson` e a interface mantém profissão independente da classe e da raça.
 
-Na etapa seguinte, as 50 classes e 104 profissões receberam exatamente 2 `competencies` e 2 `traits` originais por entrada. Esses campos são descritivos e não concedem bônus; o JSON já declara efeitos mecânicos separados, que ainda precisam de revisão de validade e intenção. O relatório completo está em `docs/relatorios/auditoria-catalogo-2026-11-08.md`.
+Na etapa seguinte, as 50 classes e 104 profissões receberam exatamente 2 `competencies` e 2 `traits` originais por entrada. Esses campos são descritivos e não concedem bônus; os efeitos mecânicos separados foram auditados quanto a escopo, intenção e balanceamento em 08/11/2026. O relatório de auditoria estrutural está em `docs/relatorios/auditoria-catalogo-2026-11-08.md`; a revisão de balanceamento está em `docs/relatorios/revisao-balanceamento-catalogo-2026-11-08.md`.
 
 ### Política de equivalência de efeitos — 2026-11-08
 
@@ -19,6 +19,12 @@ Efeitos com IDs de declaração distintos acumulam, mesmo quando compartilham es
 ### Auditoria de escopos mecânicos — 2026-11-08
 
 Os 17 escopos usados pelos `mechanicalEffects` foram comparados com as perícias e os escopos de combate do pacote próprio: 0 escopos inválidos. Foi criado teste automático cobrindo todas as raças, sub-raças, híbridos, classes e profissões. A execução do módulo `app` permanece aguardando Android SDK/CI.
+
+### Revisão de intenção e balanceamento — 2026-11-08
+
+Foram revisadas 274 entradas e 274 efeitos antes das correções: 50 raças, 50 sub-raças, 20 híbridos, 50 classes e 104 profissões. Dois bônus profissionais sem aderência ao escopo descrito foram removidos (`mergulhador`/`pilotagem` e `tratador-de-aves-mensageiras`/`montaria`); o resumo e a lore de `humano-licantropo` foram alinhados ao efeito `atletismo +1`. Restam 272 efeitos declarados em 274 entradas.
+
+Não houve evidência suficiente para alterar individualmente os demais bônus `+1`. Como declarações com `effectId` distintos acumulam e cada ponto de perícia acrescenta uma face de sucesso, combinações de raça ou híbrido, classes adicionais e profissão podem concentrar bônus no mesmo escopo. O teto/critério de balanceamento continua sendo uma decisão sistêmica em aberto; esta rodada não mudou a política de acumulação. Detalhes, justificativas e validação estão no [relatório da revisão](relatorios/revisao-balanceamento-catalogo-2026-11-08.md).
 
 ## 1. Objetivo
 
@@ -200,13 +206,12 @@ Não embutir textos de lore, ilustrações, tabelas ou blocos de regras de terce
 - [x] Documentar a política atual de identidade: uma mesma declaração externa com `effectId` repetido é aplicada uma vez; efeitos com IDs distintos acumulam mesmo que tenham o mesmo escopo e valor. Efeitos sem ID explícito não são deduplicados por semelhança numérica.
 - [ ] Definir se efeitos externos equivalentes a um `TraitBonus` canônico devem ser bloqueados, substituídos ou acumulados, sem alterar silenciosamente o comportamento atual.
 - [x] M-02.4: as 50 classes declaram +1 em uma perícia (sem escopos de combate).
-- [x] M-02.5: as 103 profissões declaram +1 em uma perícia (sem escopos de combate).
+- [x] M-02.5: as 104 profissões foram revisadas; dois efeitos sem aderência contextual foram removidos em 08/11/2026.
 - [x] M-02.6: os 20 híbridos declaram +1 na perícia da segunda raça.
 - [x] M-02.7: 4 maldições (`+1 em Intimidação`) declaram efeito; demais benefícios seguem narrativos.
 - [x] M-02.3: as 50 sub-raças declaram +1 em uma perícia, somado ao da raça escolhida.
-- [x] M-02.2: as 45 raças restantes também declaram +1 em uma perícia (50 de 50).
-- [x] M-02.1: 5 raças base (`humano`, `elfo`, `anao`, `orcano`, `pequenino`) declaram +1 em uma perícia; as demais entradas seguem vazias.
-- [x] Confirmar no catálogo versionado que `mechanicalEffects` está vazio nas entradas atuais: não há bônus de raça/classe/profissão/maldição efetivamente declarados para duplicar neste momento.
+- [x] M-02.1/M-02.2: as 50 raças declaram +1 em uma perícia; os escopos foram auditados em 08/11/2026.
+- [x] Revisar intenção e balanceamento: 274 efeitos auditados; duas declarações profissionais foram removidas e uma descrição de híbrido foi corrigida. Nenhum outro ajuste individual foi sustentado por evidência suficiente; ver relatório de 08/11/2026.
 - [x] Auditar o alcance das adaptações aprovadas: `Adaptation.kt` aplica os efeitos à ficha (`Ficha`) e o estado as descreve como adaptações aprovadas; `GameLoop` agora limita esses bônus aos testes da entidade `PLAYER`.
 - [x] Remover a aplicação de adaptações aprovadas aos bônus de ataque/dano de NPCs e à defesa/resistência de NPCs em combate direto; manter os efeitos nos cálculos do jogador.
 - [x] Auditar o modelo e a persistência das adaptações: `RegraAdicional` contém ID, nome, descrição, efeitos, limite, origem e aprovação, mas não contém alvo/escopo de aplicação (jogador, NPC ou global). `AdditionalRuleProposed/Approved/Rejected` entram no log event-sourced e o estado é reconstruído a partir dos eventos.
@@ -216,18 +221,18 @@ Não embutir textos de lore, ilustrações, tabelas ou blocos de regras de terce
 - [ ] Definir tratamento de efeitos contextuais (arma, gatilho, duração, condição) antes de habilitar qualquer efeito desse tipo.
 - [ ] Adicionar testes de integração depois da conclusão do código, em etapa separada de validação.
 
-**Limite atual:** as escolhas editoriais continuam separadas de `Ficha.traits`. Cada efeito explícito recebe um ID estável baseado no caminho do JSON; a mesma declaração externa não se aplica duas vezes, mas declarações diferentes continuam acumulando. As entradas atuais têm `mechanicalEffects` vazios, então não concedem bônus novos. A equivalência entre efeitos externos e `TraitBonus` canônicos segue pendente: não deduplicamos por coincidência de escopo/valor e não inferimos equivalência a partir de lore.
+**Limite atual:** as escolhas editoriais continuam separadas de `Ficha.traits`. Cada efeito explícito recebe um ID estável baseado no caminho do JSON; a mesma declaração externa não se aplica duas vezes, mas declarações diferentes continuam acumulando. O catálogo revisado mantém 272 efeitos em 274 entradas, com origem e escopo explícitos. A equivalência entre efeitos externos e `TraitBonus` canônicos segue pendente: não deduplicamos por coincidência de escopo/valor e não inferimos equivalência a partir de lore. O critério/teto para empilhamento também continua sem decisão.
 
 ### R2 — Esquema de dados e catálogo
 - [x] Criar primeiro catálogo editorial versionado em `rules/src/main/resources/packages/sistema-proprio/personagem-catalogo.json`.
-- [x] Cadastrar 50 raças, 50 sub-raças/variantes, 50 classes e 103 profissões com IDs estáveis, resumo e lore/descrição originais.
+- [x] Cadastrar 50 raças, 50 sub-raças/variantes, 50 classes e 104 profissões com IDs estáveis, resumo e lore/descrição originais.
 - [x] Referenciar cada sub-raça à sua raça-base por `parentRaceId`.
-- [x] Deixar `mechanicalEffects` vazio em todas as opções; nenhum bônus foi inventado ou concedido por lore.
+- [x] Declarar efeitos tipados suportados em `mechanicalEffects`; resumo e lore não concedem bônus por inferência.
 - [x] Implementar carregador e validação estrutural de IDs, referências e esquema; falhas do catálogo são exibidas na interface.
 - [x] Carregar o catálogo versionado na criação, persistir escolhas editoriais por ID da ficha e encaminhar efeitos tipados explícitos aos caminhos mecânicos cobertos, sem copiá-los para `Ficha.traits`.
 - [ ] Completar campos editoriais de competências e traços depois da auditoria das mecânicas existentes.
 
-Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime editorial da criação. As entradas não concedem efeitos mecânicos até que regras válidas sejam explicitamente definidas e suportadas pelo motor.
+Este lote é conteúdo versionado e conectado ao runtime editorial da criação. Efeitos explícitos são encaminhados aos cálculos cobertos; dois bônus profissionais foram removidos por falta de aderência ao escopo. Mudanças narrativas não concedem efeitos por inferência.
 
 ### R3 — Efeitos combinados
 - Formalizar os efeitos tipados que o motor realmente consegue executar.
@@ -314,11 +319,11 @@ Este primeiro lote é conteúdo versionado e conectado parcialmente ao runtime e
 - [ ] Implementar geração opcional de lore e retrato com IA, com limites rígidos contra alterações mecânicas.
 - [ ] Expandir e balancear o catálogo.
 
-**Estado atual:** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 103 profissões, 100 maldições e 20 híbridos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador; raças, sub-raças, classes e profissões declaram +1 em uma perícia; híbridos declaram +1 em uma perícia; 4 maldições declaram `intimidacao` +1 e as demais seguem narrativas. Build, testes e CI não foram executados.
+**Estado atual (08/11/2026):** catálogo editorial versionado com 50 raças, 50 sub-raças/variantes, 50 classes, 104 profissões, 20 híbridos e 100 conceitos de Classe de Malditos. A UI lê o catálogo, permite seleção/validação e persiste escolhas; importação/exportação e backups preservam os metadados. Efeitos tipados explícitos são encaminhados aos testes comuns/avançados, fuga e combate do jogador. Foram revisadas 274 entradas e efeitos; dois bônus profissionais sem aderência contextual foram removidos, um texto de híbrido foi alinhado ao efeito mantido e restam 272 efeitos declarados. O teste Android do catálogo ainda requer SDK/CI neste ambiente. Detalhes: `docs/relatorios/revisao-balanceamento-catalogo-2026-11-08.md`.
 
 **Auditoria/implementação desta rodada:** `Ficha.editorialChoicesJson` é o campo canônico. A restauração migra escolhas antigas para fichas ativas e arquivadas; a escrita canônica precede o espelho SharedPreferences. A gravação de uma ficha atualiza ou insere atomicamente sem apagar o estado de arquivamento. Os backups agora incluem fichas ativas e arquivadas, transportam os IDs arquivados em metadado opcional e mantêm compatibilidade com backups antigos. A importação valida fichas e IDs, consulta colisões no banco, remapeia IDs, evita vínculo acidental a ficha local ausente do backup e restaura campanha/metadados/fichas na mesma transação. IDs de cópias e fichas novas usam UUID. `RegraAdicional` continua sem alvo individual/global; a semântica de campanhas antigas não foi alterada.
 
-**Próxima ação:** revisar os efeitos contextuais (arma, gatilho, duração e condição) e a equivalência com `TraitBonus` canônico antes de preencher `mechanicalEffects`; validar a persistência/backup em execução somente quando autorizado. Não inventar nem ativar bônus por texto de lore.
+**Próxima ação:** definir critério/teto para o empilhamento de bônus de escopos coincidentes antes de qualquer rebalanceamento numérico; decidir equivalência com `TraitBonus` canônico e revisar conteúdo/lore restantes. A validação do app, a persistência/backup em execução, história/retrato com IA e falhas parciais de backup continuam pendentes. Não inferir nem ativar bônus por texto de lore.
 
 ## 10. Maldições, benefícios e custos narrativos
 
@@ -482,14 +487,14 @@ Build, testes e CI continuam sem execução nesta sequência.
 - [x] Validar efeitos declarados como objetos com escopo sintaticamente válido e bônus inteiro entre -100 e 100; detectar escopos repetidos na mesma lista.
 - [x] Validar os escopos dos efeitos selecionados contra os atributos, testes, traços e escopos de combate suportados pelo pacote ativo; isso bloqueia escolhas incompatíveis sem executar os efeitos.
 - [x] Validar a estrutura de efeitos tanto na entrada principal quanto em descrições de benefícios/custos quando a propriedade existe.
-- [x] Preservar a origem do efeito tipado (entrada principal, benefício ou custo) e mostrá-la na interface, identificando explicitamente que ainda não é aplicado pelo motor.
+- [x] Preservar a origem do efeito tipado (entrada principal, benefício ou custo) e mostrá-la na interface; efeitos explícitos são aplicados nos caminhos integrados do jogador.
 - [x] Integrar efeitos explícitos ao motor sem copiá-los para `Ficha.traits`, preservando origem e escopo rastreáveis nos testes e combates cobertos.
-- [ ] Decidir a política de equivalência/duplicação com `TraitBonus` canônico antes de habilitar entradas com efeitos mecânicos não vazios.
+- [ ] Decidir a política de equivalência entre efeitos externos e `TraitBonus` canônico antes de alterar a identidade ou a deduplicação das declarações atuais.
 - [ ] Definir catálogo de escopos por pacote/sistema e validação semântica contra atributos, perícias e testes realmente existentes.
 - [x] Habilitar a resolução de efeitos explicitamente declarados apenas nos caminhos integrados, mantendo o catálogo atual sem bônus inventados.
-- [ ] Executar testes de compatibilidade antes de preencher `mechanicalEffects` com efeitos não vazios.
+- [ ] Executar os testes de compatibilidade do app após as correções do catálogo e no CI; `:app:testDebugUnitTest` não iniciou neste sandbox por falta do Android SDK.
 
-A integração consulta efeitos explícitos no teste de fuga, nos testes normais/avançados e nos cálculos de combate do jogador. O catálogo atual ainda declara listas de efeitos vazias; portanto, esta integração não concede bônus novos por si só. As origens são exibidas nos rótulos dos testes e nos resumos de combate, inclusive quando efeitos externos se anulam no total. Build, testes e CI não foram executados.
+A integração consulta efeitos explícitos no teste de fuga, nos testes normais/avançados e nos cálculos de combate do jogador. O catálogo canônico mantém 272 efeitos declarados depois da revisão de 08/11/2026; as duas profissões corrigidas permanecem sem bônus até existir escopo compatível. As origens são exibidas nos rótulos dos testes e nos resumos de combate, inclusive quando efeitos externos se anulam no total. A execução Android continua pendente por ausência de SDK neste ambiente; ver `docs/VALIDACAO_CI.md` e o relatório da revisão.
 
 ### Validação estrutural do catálogo (20/10/2026)
 
