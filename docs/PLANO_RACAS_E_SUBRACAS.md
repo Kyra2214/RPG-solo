@@ -10,7 +10,7 @@
 
 A auditoria inicial de modelos, carregador, validador, persistência e telas foi concluída. O catálogo canônico tem 50 raças, 50 sub-raças, 20 híbridos, 50 classes e 104 profissões, com IDs únicos, resumos e lore preenchidos e referências de `parentRaceId` válidas. As escolhas são persistidas em `Ficha.editorialChoicesJson` e a interface mantém profissão independente da classe e da raça.
 
-As 50 classes e 104 profissões ainda têm `competencies` e `traits` vazios. O JSON já declara efeitos mecânicos, portanto a próxima revisão deve definir o contrato de competências/traços e conferir se cada efeito é válido e desejado antes de adicionar conteúdo novo. O relatório completo está em `docs/relatorios/auditoria-catalogo-2026-11-08.md`.
+Na etapa seguinte, as 50 classes e 104 profissões receberam exatamente 2 `competencies` e 2 `traits` originais por entrada. Esses campos são descritivos e não concedem bônus; o JSON já declara efeitos mecânicos separados, que ainda precisam de revisão de validade e intenção. O relatório completo está em `docs/relatorios/auditoria-catalogo-2026-11-08.md`.
 
 ## 1. Objetivo
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-08 — competências e traços do catálogo
+
+- Preenchidas as 50 classes e 104 profissões com exatamente 2 `competencies` e 2 `traits` originais por entrada, totalizando 616 frases únicas.
+- Os campos são descritivos e não concedem bônus automaticamente; `mechanicalEffects` permaneceu separado e semanticamente intacto.
+- Validação: `./gradlew :rules:test` passou com JDK 17 em 8s.
+- A decisão e a auditoria estão registradas em `docs/relatorios/auditoria-catalogo-2026-11-08.md`.
+
 ## 2026-11-08 — auditoria inicial do catálogo de personagem
 
 - Auditoria estática concluída em modelos, carregador, validador, persistência e telas de raça, sub-raça, classe e profissão.

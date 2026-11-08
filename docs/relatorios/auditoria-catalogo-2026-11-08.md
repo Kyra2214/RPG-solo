@@ -32,12 +32,13 @@ Todas as sub-raças auditadas têm `parentRaceId` válido. Não foram encontrado
 3. A documentação do anexo ainda descreve parte dos efeitos mecânicos como pendente, mas o JSON atual já declara um efeito por entrada. Essa divergência precisa ser resolvida por uma revisão posterior de conteúdo e escopo, não por inferência automática.
 4. A auditoria foi estática; a execução Android, a edição de escolhas de fichas já criadas e a cobertura de falhas parciais de backup continuam sem validação nesta etapa.
 
-## Decisão desta etapa
+## Decisão e execução da etapa seguinte
 
-A auditoria de modelos, dados, carregador, validador e telas foi concluída. A próxima pendência deve ser uma revisão de conteúdo/contrato das competências e traços de classes e profissões, começando por definir quais campos são obrigatórios e quais efeitos já existentes são válidos no motor. Nenhum bônus novo deve ser adicionado antes dessa definição.
+A auditoria de modelos, dados, carregador, validador e telas foi concluída. Foi aprovada a regra de que `competencies` registra capacidades práticas/narrativas e `traits` registra características próprias, sem conceder bônus automaticamente. O JSON foi preenchido para as 50 classes e 104 profissões: exatamente 2 competências e 2 traços originais por entrada, 616 frases no total, todas únicas. Nenhum bônus novo foi adicionado e os efeitos mecânicos continuam em campo separado.
 
 ## Validação
 
 - Inspeção estática do código Kotlin e do JSON canônico.
 - Contagens reproduzidas com Python 3 e comparação de IDs/referências.
-- Nenhum build ou teste foi executado nesta etapa; a validação JVM anterior está registrada em `docs/VALIDACAO_CI.md`.
+- `./gradlew :rules:test` passou com JDK 17 em 8 segundos.
+- A suíte Android completa continua dependente do Android SDK/CI, conforme `docs/VALIDACAO_CI.md`.

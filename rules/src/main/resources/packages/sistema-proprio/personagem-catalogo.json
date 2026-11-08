@@ -2189,7 +2189,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Acompanha deslocamentos de alvos entre obstáculos",
+        "Identifica linhas de tiro em terrenos irregulares"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pontaria",
@@ -2201,6 +2204,10 @@
       "weaponTypes": [
         "arco",
         "adaga"
+      ],
+      "traits": [
+        "Paciência para aguardar a abertura certa",
+        "Atenção constante às distâncias e ao vento"
       ]
     },
     {
@@ -2212,7 +2219,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Reconhece padrões de ataque pela postura adversária",
+        "Adapta sua movimentação a espaços de confronto"
+      ],
       "mechanicalEffects": [
         {
           "scope": "atletismo",
@@ -2226,6 +2236,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Disciplina cultivada em treinos exigentes",
+        "Pragmatismo diante da confusão do combate"
       ]
     },
     {
@@ -2237,7 +2251,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Organiza retiradas por passagens menos expostas",
+        "Identifica pontos vulneráveis em acessos vigiados"
+      ],
       "mechanicalEffects": [
         {
           "scope": "cuidados",
@@ -2251,6 +2268,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Vigilância centrada nas necessidades dos protegidos",
+        "Firmeza ao assumir responsabilidades difíceis"
       ]
     },
     {
@@ -2262,7 +2283,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Descreve percursos usando marcos naturais reconhecíveis",
+        "Identifica travessias possíveis em paisagens desconhecidas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -2276,6 +2300,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Curiosidade por horizontes ainda pouco conhecidos",
+        "Método cuidadoso ao registrar descobertas"
       ]
     },
     {
@@ -2287,7 +2315,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Reconhece brechas nas rotinas de vigilância",
+        "Disfarça intenções durante conversas delicadas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "furtividade",
@@ -2299,6 +2330,10 @@
       "weaponTypes": [
         "adaga",
         "espada"
+      ],
+      "traits": [
+        "Preferência por soluções pouco ostensivas",
+        "Inventividade diante de portas aparentemente fechadas"
       ]
     },
     {
@@ -2310,7 +2345,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Compara inscrições arcanas de tradições distintas",
+        "Documenta manifestações incomuns com vocabulário preciso"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -2322,6 +2360,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Rigor na organização de conhecimentos",
+        "Cautela diante de interpretações apressadas"
       ]
     },
     {
@@ -2333,7 +2375,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Descreve manifestações sobrenaturais através de sensações pessoais",
+        "Reconhece padrões nas próprias experiências inexplicáveis"
+      ],
       "mechanicalEffects": [
         {
           "scope": "ocultismo",
@@ -2345,6 +2390,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Expressividade marcada por vivências incomuns",
+        "Confiança na percepção antes da teoria"
       ]
     },
     {
@@ -2356,7 +2405,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Conduz apresentações cerimoniais diante de presenças convocadas",
+        "Negocia compromissos considerando interesses de entidades"
+      ],
       "mechanicalEffects": [
         {
           "scope": "ocultismo",
@@ -2368,6 +2420,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Formalidade no trato com interlocutores sobrenaturais",
+        "Zelo pela palavra empenhada em pactos"
       ]
     },
     {
@@ -2379,7 +2435,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Limpa ferimentos com cuidado e precisão",
+        "Reconhece sinais de adoecimento em relatos e aparência"
+      ],
       "mechanicalEffects": [
         {
           "scope": "cuidados",
@@ -2391,6 +2450,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Serenidade diante da dor alheia",
+        "Escuta atenta às queixas dos enfermos"
       ]
     },
     {
@@ -2402,7 +2465,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Conduz cerimônias de passagem conforme sua tradição",
+        "Orienta fiéis em conflitos de consciência"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -2414,6 +2480,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Devoção expressa em serviço cotidiano",
+        "Respeito pela memória espiritual da comunidade"
       ]
     },
     {
@@ -2425,7 +2495,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Interpreta mudanças sazonais na vegetação local",
+        "Orienta comunidades sobre convivência com habitats sensíveis"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -2437,6 +2510,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Respeito pelos ritmos de renovação natural",
+        "Postura conciliadora entre necessidades humanas e ambientais"
       ]
     },
     {
@@ -2448,7 +2525,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Observa movimentações recentes em trilhas e acampamentos",
+        "Relata obstáculos adiante com referências claras"
+      ],
       "mechanicalEffects": [
         {
           "scope": "percepcao",
@@ -2462,6 +2542,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Discrição ao percorrer áreas desconhecidas",
+        "Objetividade ao transmitir informações ao grupo"
       ]
     },
     {
@@ -2473,7 +2557,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Reconhece intenções pela postura do adversário",
+        "Conduz desafios formais conforme costumes locais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "olhar-atento",
@@ -2487,6 +2574,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Elegância contida diante de provocações",
+        "Atenção minuciosa aos gestos rivais"
       ]
     },
     {
@@ -2498,7 +2589,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Executa sequências corporais com precisão consciente",
+        "Orienta exercícios de respiração e concentração"
+      ],
       "mechanicalEffects": [
         {
           "scope": "atletismo",
@@ -2512,6 +2606,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Rotina guiada por preceitos da escola",
+        "Autocrítica serena no aperfeiçoamento pessoal"
       ]
     },
     {
@@ -2523,7 +2621,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Expressa tensão emocional por gestos de combate",
+        "Reconhece os próprios sinais de exaltação"
+      ],
       "mechanicalEffects": [
         {
           "scope": "intimidacao",
@@ -2537,6 +2638,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Entrega visceral aos confrontos",
+        "Franqueza áspera ao expressar sentimentos"
       ]
     },
     {
@@ -2548,7 +2653,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Interpreta dilemas à luz do próprio juramento",
+        "Apresenta compromissos em cerimônias públicas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "lideranca",
@@ -2562,6 +2670,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Responsabilidade assumida diante de testemunhas",
+        "Coerência buscada mesmo sob pressão"
       ]
     },
     {
@@ -2573,7 +2685,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Transforma relatos locais em canções memoráveis",
+        "Adapta narrativas aos costumes da audiência"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -2585,6 +2700,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Curiosidade pelas vozes pouco ouvidas",
+        "Sociabilidade temperada por escuta atenta"
       ]
     },
     {
@@ -2596,7 +2715,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Identifica alterações de cor, textura e odor",
+        "Documenta procedimentos de mistura e separação"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -2608,6 +2730,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Cautela diante de substâncias desconhecidas",
+        "Curiosidade metódica por resultados inesperados"
       ]
     },
     {
@@ -2619,7 +2745,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Distingue vestígios de criaturas em ambientes variados",
+        "Cruza relatos para mapear hábitos predatórios"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -2633,6 +2762,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Desconfiança criteriosa de rumores alarmistas",
+        "Preparação paciente antes de qualquer confronto"
       ]
     },
     {
@@ -2644,7 +2777,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Interpreta sinais corporais de animais",
+        "Ensina comportamentos por familiarização gradual"
+      ],
       "mechanicalEffects": [
         {
           "scope": "montaria",
@@ -2658,6 +2794,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Respeito pelos limites de cada criatura",
+        "Constância afetuosa no cuidado cotidiano"
       ]
     },
     {
@@ -2669,7 +2809,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Diagnostica falhas em mecanismos e estruturas",
+        "Desenha soluções técnicas com materiais disponíveis"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -2683,6 +2826,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Inventividade voltada a problemas concretos",
+        "Zelo pelo acabamento e pela manutenção"
       ]
     },
     {
@@ -2694,7 +2841,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Organiza responsabilidades conforme capacidades da equipe",
+        "Interpreta terreno e rotas para planejar operações"
+      ],
       "mechanicalEffects": [
         {
           "scope": "lideranca",
@@ -2706,6 +2856,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Visão coletiva acima do protagonismo pessoal",
+        "Flexibilidade diante de informações novas"
       ]
     },
     {
@@ -2717,7 +2871,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Conduz montarias por terrenos variados",
+        "Organiza escoltas conforme caminhos e necessidades"
+      ],
       "mechanicalEffects": [
         {
           "scope": "montaria",
@@ -2731,6 +2888,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Cuidado atento com a montaria",
+        "Serviço orientado pela proteção dos confiados"
       ]
     },
     {
@@ -2742,7 +2903,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Encena entradas marcantes para públicos diversos",
+        "Reconhece estilos de luta pela movimentação"
+      ],
       "mechanicalEffects": [
         {
           "scope": "intimidacao",
@@ -2756,6 +2920,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Consciência constante da própria imagem pública",
+        "Orgulho artesanal na apresentação do combate"
       ]
     },
     {
@@ -2767,7 +2935,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Estuda hábitos do alvo para escolher aproximações discretas",
+        "Reconhece acessos reservados e caminhos de retirada"
+      ],
       "mechanicalEffects": [
         {
           "scope": "furtividade",
@@ -2779,6 +2950,10 @@
       "weaponTypes": [
         "adaga",
         "espada"
+      ],
+      "traits": [
+        "Frieza diante de decisões irreversíveis",
+        "Identidade resguardada até entre colaboradores"
       ]
     },
     {
@@ -2790,7 +2965,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Adapta sotaques e gestos a identidades de cobertura",
+        "Percorre passagens estreitas sem chamar atenção"
+      ],
       "mechanicalEffects": [
         {
           "scope": "furtividade",
@@ -2802,6 +2980,10 @@
       "weaponTypes": [
         "adaga",
         "espada"
+      ],
+      "traits": [
+        "Lealdades mantidas fora de vista",
+        "Improvisação cuidadosa diante de suspeitas"
       ]
     },
     {
@@ -2813,7 +2995,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Executa movimentos de lâmina com precisão cerimonial",
+        "Reconhece violações de juramentos em disputas públicas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "lideranca",
@@ -2827,6 +3012,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Honra entendida como responsabilidade cotidiana",
+        "Conduta austera mesmo sem testemunhas"
       ]
     },
     {
@@ -2838,7 +3027,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Coordena abordagens entre convés e embarcações vizinhas",
+        "Negocia divisões de saque entre tripulantes rivais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pilotagem",
@@ -2852,6 +3044,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Desconfiança das autoridades portuárias",
+        "Prestígio conquistado pela ousadia compartilhada"
       ]
     },
     {
@@ -2863,7 +3059,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Ajusta velas conforme vento e ondulação",
+        "Identifica desgaste em cordames durante inspeções de bordo"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pilotagem",
@@ -2877,6 +3076,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Atenção constante aos ritmos do mar",
+        "Solidariedade moldada pelo trabalho coletivo"
       ]
     },
     {
@@ -2888,7 +3091,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Maneja armas de disparo com gestos controlados",
+        "Identifica falhas de funcionamento pela inspeção cuidadosa"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pontaria",
@@ -2900,6 +3106,10 @@
       "weaponTypes": [
         "arco",
         "adaga"
+      ],
+      "traits": [
+        "Sobriedade diante de provocações armadas",
+        "Disciplina no trato com armamentos"
       ]
     },
     {
@@ -2911,7 +3121,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Analisa obstáculos entre posição de observação e alvo",
+        "Observa padrões de movimento antes de escolher enquadramentos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pontaria",
@@ -2922,6 +3135,10 @@
       "armorWeight": "medio",
       "weaponTypes": [
         "arco"
+      ],
+      "traits": [
+        "Paciência diante de oportunidades incertas",
+        "Cautela com a presença de terceiros"
       ]
     },
     {
@@ -2933,7 +3150,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Reconhece ferimentos que exigem atenção imediata",
+        "Orienta ajudantes na preparação de espaços de atendimento"
+      ],
       "mechanicalEffects": [
         {
           "scope": "cuidados",
@@ -2945,6 +3165,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Compaixão expressa por decisões práticas",
+        "Serenidade diante do sofrimento alheio"
       ]
     },
     {
@@ -2956,7 +3180,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Cruza relatos para localizar lacunas e versões incompatíveis",
+        "Documenta vestígios preservando seu contexto de descoberta"
+      ],
       "mechanicalEffects": [
         {
           "scope": "olhar-atento",
@@ -2968,6 +3195,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Ceticismo diante de explicações convenientes",
+        "Persistência guiada por perguntas precisas"
       ]
     },
     {
@@ -2979,7 +3210,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Traduz interesses divergentes em propostas compreensíveis",
+        "Reconhece protocolos de cortesia entre comunidades distintas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -2991,6 +3225,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Respeito por diferenças sem apagar conflitos",
+        "Discrição no tratamento de confidências"
       ]
     },
     {
@@ -3002,7 +3240,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Converte objetivos gerais em orientações compreensíveis",
+        "Identifica desencontros entre responsabilidades de diferentes equipes"
+      ],
       "mechanicalEffects": [
         {
           "scope": "lideranca",
@@ -3016,6 +3257,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Responsabilidade assumida pelas próprias decisões",
+        "Autoridade exercida com escuta firme"
       ]
     },
     {
@@ -3027,7 +3272,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Relaciona símbolos recorrentes a tradições de interpretação",
+        "Conduz consultas por perguntas e leituras simbólicas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "ocultismo",
@@ -3039,6 +3287,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Reverência diante do que permanece inexplicado",
+        "Prudência ao comunicar presságios ambíguos"
       ]
     },
     {
@@ -3050,7 +3302,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Conduz cerimônias ligadas à memória dos ancestrais",
+        "Interpreta presságios conforme os costumes da comunidade"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -3062,6 +3317,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Escuta os mais velhos com reverência",
+        "Trata lugares sagrados como vínculos vivos"
       ]
     },
     {
@@ -3073,7 +3332,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Encena distrações com gestos e objetos cotidianos",
+        "Compõe disfarces atentos às expectativas do público"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -3085,6 +3347,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Cultiva uma presença deliberadamente ambígua",
+        "Prefere sugestões sutis a explicações abertas"
       ]
     },
     {
@@ -3096,7 +3362,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Confronta depoimentos para distinguir lembranças de contradições",
+        "Organiza acontecimentos em relatos com fontes identificáveis"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3108,6 +3377,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Expõe lacunas sem preenchê-las com certezas",
+        "Preserva vozes divergentes no mesmo registro"
       ]
     },
     {
@@ -3119,7 +3392,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Representa acidentes geográficos por referências reconhecíveis",
+        "Revisa trajetos conforme relatos de viajantes"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3131,6 +3407,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Distingue observação direta de informação recebida",
+        "Considera cada mapa uma interpretação revisável"
       ]
     },
     {
@@ -3142,7 +3422,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Conduz embarcações por enseadas pouco frequentadas",
+        "Negocia cargas clandestinas entre contatos portuários"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pilotagem",
@@ -3156,6 +3439,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Cultiva camaradagem áspera entre tripulações",
+        "Mantém discrição sobre acordos de cais"
       ]
     },
     {
@@ -3167,7 +3454,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Compara inscrições para reconhecer variantes regionais",
+        "Documenta contextos de uso de símbolos antigos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "ocultismo",
@@ -3181,6 +3471,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Desconfia de traduções sem procedência",
+        "Prefere preservar inscrições a demonstrar seu poder"
       ]
     },
     {
@@ -3192,7 +3486,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Descreve impressões mentais distinguindo sensação de interpretação",
+        "Conduz exercícios de atenção e expressão não verbal"
+      ],
       "mechanicalEffects": [
         {
           "scope": "percepcao",
@@ -3204,6 +3501,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Respeita a intimidade dos relatos alheios",
+        "Investiga experiências incomuns sem conclusões apressadas"
       ]
     },
     {
@@ -3215,7 +3516,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Entrelaça imagens oníricas em histórias compartilhadas",
+        "Reconhece motivos recorrentes em relatos de sonhos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "ocultismo",
@@ -3227,6 +3531,10 @@
       "weaponTypes": [
         "cajado",
         "adaga"
+      ],
+      "traits": [
+        "Acolhe contradições como parte da linguagem onírica",
+        "Cultiva curiosidade pelas associações íntimas de cada sonhador"
       ]
     },
     {
@@ -3238,7 +3546,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Reconhece alterações nas rotinas de passagem",
+        "Descreve movimentações com clareza aos responsáveis locais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "percepcao",
@@ -3252,6 +3563,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Mantém postura reservada diante de desconhecidos",
+        "Conhece os hábitos de quem protege"
       ]
     },
     {
@@ -3263,7 +3578,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Demonstra sequências de cortes próprias de sua escola",
+        "Reconhece estilos de lâmina pela postura"
+      ],
       "mechanicalEffects": [
         {
           "scope": "atletismo",
@@ -3277,6 +3595,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Refina gestos pela repetição consciente",
+        "Valoriza a linhagem de seus ensinamentos"
       ]
     },
     {
@@ -3288,7 +3610,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Coordena movimentos de lanças em formação",
+        "Demonstra manejo de hastes em espaços variados"
+      ],
       "mechanicalEffects": [
         {
           "scope": "atletismo",
@@ -3302,6 +3627,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Prioriza coesão sobre exibição individual",
+        "Cultiva precisão no posicionamento coletivo"
       ]
     },
     {
@@ -3313,7 +3642,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Demonstra transições entre bases e movimentos corporais",
+        "Ensina técnicas relacionando gesto e princípio filosófico"
+      ],
       "mechanicalEffects": [
         {
           "scope": "atletismo",
@@ -3327,6 +3659,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Enxerga o treino como investigação pessoal",
+        "Equilibra rigor técnico com humildade"
       ]
     },
     {
@@ -3338,7 +3674,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Identifica fontes de alimento em paisagens devastadas",
+        "Improvisa abrigos com materiais encontrados entre destroços"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -3352,6 +3691,10 @@
         "adaga",
         "lanca",
         "arco"
+      ],
+      "traits": [
+        "Prudente diante de reservas aparentemente abundantes",
+        "Persistente mesmo quando precisa caminhar sozinho"
       ]
     },
     {
@@ -3363,7 +3706,10 @@
         "classe",
         "original"
       ],
-      "competencies": [],
+      "competencies": [
+        "Reconstrói a procedência de artefatos por inscrições e registros",
+        "Reconhece sinais de adulteração em peças históricas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3377,6 +3723,10 @@
         "machado",
         "clava",
         "lanca"
+      ],
+      "traits": [
+        "Meticuloso com detalhes que outros consideram irrelevantes",
+        "Relutante em separar objetos de seu contexto cultural"
       ]
     }
   ],
@@ -3386,7 +3736,10 @@
       "name": "Perito em Arcos",
       "summary": "Estuda madeira, fibras, geometria e manutenção de arcos e bestas.",
       "lore": "Estuda madeira, fibras, geometria e manutenção de arcos e bestas.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece empenamentos pela curvatura das lâminas",
+        "Ajusta cordas e encaixes de arcos e bestas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3397,14 +3750,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Olhar atento ao sentido das fibras",
+        "Paciência meticulosa com peças sob tensão"
+      ]
     },
     {
       "id": "especialista-em-joias",
       "name": "Especialista em Joias",
       "summary": "Avalia gemas e metais preciosos, domina lapidação e montagem e conhece a procedência de peças.",
       "lore": "Avalia gemas e metais preciosos, domina lapidação e montagem e conhece a procedência de peças.",
-      "competencies": [],
+      "competencies": [
+        "Distingue inclusões naturais de alterações artificiais em gemas",
+        "Relaciona marcas de ourives à origem das peças"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3415,14 +3775,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Discrição diante de acervos valiosos",
+        "Apreço por acabamentos que respeitam a pedra"
+      ]
     },
     {
       "id": "ferreiro",
       "name": "Ferreiro",
       "summary": "Trabalha metais, calor e ferramentas para produzir e reparar objetos conforme os recursos disponíveis.",
       "lore": "Trabalha metais, calor e ferramentas para produzir e reparar objetos conforme os recursos disponíveis.",
-      "competencies": [],
+      "competencies": [
+        "Interpreta cores do metal durante o aquecimento",
+        "Reconstitui peças gastas com remendos e soldas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3433,14 +3800,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Pragmatismo diante de matéria reaproveitada",
+        "Atenção constante ao ritmo da forja"
+      ]
     },
     {
       "id": "armeiro",
       "name": "Armeiro",
       "summary": "Conhece construção, ajuste, conservação e identificação de armas de diferentes tradições.",
       "lore": "Conhece construção, ajuste, conservação e identificação de armas de diferentes tradições.",
-      "competencies": [],
+      "competencies": [
+        "Identifica escolas de fabricação por encaixes e acabamento",
+        "Corrige folgas entre cabos e partes metálicas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3451,14 +3825,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Respeito pelas particularidades de cada tradição",
+        "Rigor na inspeção de peças desgastadas"
+      ]
     },
     {
       "id": "armeiro-de-armaduras",
       "name": "Armeiro de Armaduras",
       "summary": "Mede, ajusta e repara proteções, entendendo articulações e limitações de cada modelo.",
       "lore": "Mede, ajusta e repara proteções, entendendo articulações e limitações de cada modelo.",
-      "competencies": [],
+      "competencies": [
+        "Adapta placas ao contorno e movimento do corpo",
+        "Substitui rebites e recompõe elos deformados"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3469,14 +3850,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Escuta cuidadosa das queixas de quem veste",
+        "Preferência por encaixes sem atrito"
+      ]
     },
     {
       "id": "alquimista-de-oficina",
       "name": "Alquimista de Oficina",
       "summary": "Prepara misturas e documenta reações com protocolos adequados ao cenário.",
       "lore": "Prepara misturas e documenta reações com protocolos adequados ao cenário.",
-      "competencies": [],
+      "competencies": [
+        "Separa resíduos por filtragem e decantação",
+        "Descreve mudanças de cor, odor e consistência"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3487,14 +3875,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Ceticismo diante de receitas sem registro",
+        "Organização criteriosa de amostras e anotações"
+      ]
     },
     {
       "id": "herbalista",
       "name": "Herbalista",
       "summary": "Identifica plantas, épocas de colheita, usos tradicionais e riscos de espécies locais.",
       "lore": "Identifica plantas, épocas de colheita, usos tradicionais e riscos de espécies locais.",
-      "competencies": [],
+      "competencies": [
+        "Distingue espécies semelhantes por folhas, raízes e aromas",
+        "Seleciona partes vegetais conforme práticas tradicionais de preparo"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -3505,14 +3900,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cautela com plantas de identificação duvidosa",
+        "Respeito pelo saber de coletores locais"
+      ]
     },
     {
       "id": "cozinheiro",
       "name": "Cozinheiro",
       "summary": "Transforma ingredientes em refeições, organiza provisões e preserva técnicas culinárias regionais.",
       "lore": "Transforma ingredientes em refeições, organiza provisões e preserva técnicas culinárias regionais.",
-      "competencies": [],
+      "competencies": [
+        "Equilibra sabores com ingredientes disponíveis na despensa",
+        "Reconhece deterioração pelo aspecto e cheiro dos alimentos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3523,14 +3925,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Hospitalidade expressa no cuidado ao servir",
+        "Criatividade enraizada nos sabores da região"
+      ]
     },
     {
       "id": "padeiro",
       "name": "Padeiro",
       "summary": "Trabalha massas, fermentação e fornos, mantendo receitas e métodos de conservação.",
       "lore": "Trabalha massas, fermentação e fornos, mantendo receitas e métodos de conservação.",
-      "competencies": [],
+      "competencies": [
+        "Avalia o desenvolvimento da massa pelo toque",
+        "Reconhece pontos de assamento pela crosta e pelo aroma"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3541,14 +3950,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Sensibilidade às mudanças de umidade da farinha",
+        "Zelo pela continuidade das receitas de família"
+      ]
     },
     {
       "id": "cervejeiro",
       "name": "Cervejeiro",
       "summary": "Produz bebidas fermentadas e registra leveduras, ingredientes e práticas locais.",
       "lore": "Produz bebidas fermentadas e registra leveduras, ingredientes e práticas locais.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece desvios de fermentação pelo aroma da bebida",
+        "Seleciona grãos e ervas por seus perfis sensoriais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3559,14 +3975,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Zelo pela limpeza de recipientes e utensílios",
+        "Curiosidade pelas fermentações típicas de cada lugar"
+      ]
     },
     {
       "id": "agricultor",
       "name": "Agricultor",
       "summary": "Conhece ciclos de cultivo, solo, sementes e formas de manter uma produção estável.",
       "lore": "Conhece ciclos de cultivo, solo, sementes e formas de manter uma produção estável.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece desgaste do solo pela vegetação espontânea",
+        "Seleciona sementes a partir de plantas bem desenvolvidas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -3577,14 +4000,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Observação paciente das mudanças na lavoura",
+        "Apego ao cuidado contínuo da terra"
+      ]
     },
     {
       "id": "criador-de-animais",
       "name": "Criador de Animais",
       "summary": "Cuida de rebanhos, reconhece sinais de doença e organiza reprodução e alimentação.",
       "lore": "Cuida de rebanhos, reconhece sinais de doença e organiza reprodução e alimentação.",
-      "competencies": [],
+      "competencies": [
+        "Percebe alterações de apetite e comportamento no rebanho",
+        "Conduz animais com gestos familiares e voz calma"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -3595,14 +4025,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Familiaridade com os temperamentos de cada animal",
+        "Firmeza tranquila no manejo cotidiano"
+      ]
     },
     {
       "id": "tratador-de-montarias",
       "name": "Tratador de Montarias",
       "summary": "Cuida da saúde, do equipamento e do treinamento básico de animais de transporte.",
       "lore": "Cuida da saúde, do equipamento e do treinamento básico de animais de transporte.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece desconforto pela marcha e pelo comportamento dos animais",
+        "Habitua animais ao cabresto com aproximações calmas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "montaria",
@@ -3613,14 +4050,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente diante de animais ariscos",
+        "Atento ao desgaste de arreios"
+      ]
     },
     {
       "id": "carpinteiro",
       "name": "Carpinteiro",
       "summary": "Seleciona madeiras, constrói estruturas e repara objetos de uso cotidiano.",
       "lore": "Seleciona madeiras, constrói estruturas e repara objetos de uso cotidiano.",
-      "competencies": [],
+      "competencies": [
+        "Orienta cortes conforme veios e defeitos da madeira",
+        "Substitui vigas comprometidas preservando a estrutura existente"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3631,14 +4075,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Pragmático diante de reparos improvisados",
+        "Criterioso na escolha de peças estruturais"
+      ]
     },
     {
       "id": "marceneiro",
       "name": "Marceneiro",
       "summary": "Produz móveis e peças detalhadas com encaixes, acabamento e técnicas de conservação.",
       "lore": "Produz móveis e peças detalhadas com encaixes, acabamento e técnicas de conservação.",
-      "competencies": [],
+      "competencies": [
+        "Ajusta gavetas e portas para deslizamento sem atrito",
+        "Compõe encaixes discretos respeitando o desenho da peça"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3649,14 +4100,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Minucioso com superfícies e bordas",
+        "Valoriza proporções harmoniosas nos móveis"
+      ]
     },
     {
       "id": "pedreiro",
       "name": "Pedreiro",
       "summary": "Constrói e repara paredes, fundações e estruturas usando materiais adequados à região.",
       "lore": "Constrói e repara paredes, fundações e estruturas usando materiais adequados à região.",
-      "competencies": [],
+      "competencies": [
+        "Assenta blocos mantendo alinhamento e juntas regulares",
+        "Identifica infiltrações pelo aspecto das paredes"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3667,14 +4125,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Metódico na preparação da alvenaria",
+        "Familiarizado com materiais de construção locais"
+      ]
     },
     {
       "id": "arquiteto",
       "name": "Arquiteto",
       "summary": "Planeja espaços, circulação e estruturas considerando uso, clima e segurança.",
       "lore": "Planeja espaços, circulação e estruturas considerando uso, clima e segurança.",
-      "competencies": [],
+      "competencies": [
+        "Desenha ambientes aproveitando ventilação e iluminação naturais",
+        "Organiza acessos conforme hábitos dos ocupantes"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3685,14 +4150,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Sensível à relação entre espaço e convivência",
+        "Conciliador entre intenção estética e uso cotidiano"
+      ]
     },
     {
       "id": "minerador",
       "name": "Minerador",
       "summary": "Reconhece formações geológicas, planeja escavações e trabalha com segurança em minas.",
       "lore": "Reconhece formações geológicas, planeja escavações e trabalha com segurança em minas.",
-      "competencies": [],
+      "competencies": [
+        "Distingue veios minerais pelas marcas na rocha",
+        "Reconhece sinais de instabilidade em galerias subterrâneas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -3703,14 +4175,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cauteloso diante de ruídos subterrâneos",
+        "Persistente ao acompanhar veios estreitos"
+      ]
     },
     {
       "id": "lapidador",
       "name": "Lapidador",
       "summary": "Dá forma a pedras e cristais, valorizando suas características e evitando perdas de material.",
       "lore": "Dá forma a pedras e cristais, valorizando suas características e evitando perdas de material.",
-      "competencies": [],
+      "competencies": [
+        "Orienta facetas conforme transparência e fraturas internas",
+        "Remove irregularidades preservando o caráter natural da pedra"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3721,14 +4200,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente diante de inclusões delicadas",
+        "Contido nas intervenções sobre cristais raros"
+      ]
     },
     {
       "id": "ourives",
       "name": "Ourives",
       "summary": "Cria e repara objetos finos de metal, fechos, anéis e peças ornamentais.",
       "lore": "Cria e repara objetos finos de metal, fechos, anéis e peças ornamentais.",
-      "competencies": [],
+      "competencies": [
+        "Solda detalhes metálicos sem deformar ornamentos vizinhos",
+        "Reconstrói fechos delicados acompanhando o desenho original"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3739,14 +4225,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Rigoroso com simetria e proporção",
+        "Discreto ao manusear encomendas pessoais"
+      ]
     },
     {
       "id": "alfaiate",
       "name": "Alfaiate",
       "summary": "Corta, ajusta e costura roupas para diferentes necessidades e costumes.",
       "lore": "Corta, ajusta e costura roupas para diferentes necessidades e costumes.",
-      "competencies": [],
+      "competencies": [
+        "Modela peças observando postura e movimento do cliente",
+        "Corrige caimentos sem descaracterizar o corte da roupa"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3757,14 +4250,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Tato ao conversar sobre medidas corporais",
+        "Respeitoso com convenções locais de vestimenta"
+      ]
     },
     {
       "id": "tecelao",
       "name": "Tecelão",
       "summary": "Produz tecidos a partir de fibras, tinturas e padrões transmitidos por sua comunidade.",
       "lore": "Produz tecidos a partir de fibras, tinturas e padrões transmitidos por sua comunidade.",
-      "competencies": [],
+      "competencies": [
+        "Regula a tensão dos fios durante a trama",
+        "Reproduz motivos comunitários combinando cores e entrelaçamentos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3775,14 +4275,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Ritmo paciente no trabalho ao tear",
+        "Zeloso pela memória dos padrões familiares"
+      ]
     },
     {
       "id": "curtidor",
       "name": "Curtidor",
       "summary": "Prepara couro e peles por métodos de conservação e acabamento próprios.",
       "lore": "Prepara couro e peles por métodos de conservação e acabamento próprios.",
-      "competencies": [],
+      "competencies": [
+        "Remove resíduos das peles sem rasgar suas fibras",
+        "Avalia a preparação do couro pela textura e flexibilidade"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3793,14 +4300,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Disciplinado na separação das etapas de preparo",
+        "Atento às mudanças de cheiro e textura"
+      ]
     },
     {
       "id": "sapateiro",
       "name": "Sapateiro",
       "summary": "Fabrica e conserta calçados, adaptando materiais a terrenos e rotinas de uso.",
       "lore": "Fabrica e conserta calçados, adaptando materiais a terrenos e rotinas de uso.",
-      "competencies": [],
+      "competencies": [
+        "Recompõe solados acompanhando o desgaste de cada passada",
+        "Molda cabedais respeitando o formato dos pés"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -3811,14 +4325,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Observador dos hábitos de caminhada",
+        "Prático na escolha de acabamentos resistentes"
+      ]
     },
     {
       "id": "pescador",
       "name": "Pescador",
       "summary": "Conhece correntes, ciclos de espécies, redes e métodos sustentáveis de pesca local.",
       "lore": "Conhece correntes, ciclos de espécies, redes e métodos sustentáveis de pesca local.",
-      "competencies": [],
+      "competencies": [
+        "Identifica cardumes pela movimentação da superfície",
+        "Repara malhas danificadas sem alterar sua abertura"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pilotagem",
@@ -3829,14 +4350,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente diante das mudanças da maré",
+        "Avesso à captura de peixes imaturos"
+      ]
     },
     {
       "id": "marinheiro-de-carga",
       "name": "Marinheiro de Carga",
       "summary": "Organiza carregamento, amarração e conservação de mercadorias em viagem.",
       "lore": "Organiza carregamento, amarração e conservação de mercadorias em viagem.",
-      "competencies": [],
+      "competencies": [
+        "Distribui volumes conforme fragilidade e acesso ao porão",
+        "Reconhece sinais de umidade em fardos armazenados"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pilotagem",
@@ -3847,14 +4375,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Meticuloso com nós e pontos de fixação",
+        "Prudente ao acomodar cargas incompatíveis"
+      ]
     },
     {
       "id": "navegador",
       "name": "Navegador",
       "summary": "Interpreta mapas, estrelas, ventos e sinais costeiros para planejar rotas.",
       "lore": "Interpreta mapas, estrelas, ventos e sinais costeiros para planejar rotas.",
-      "competencies": [],
+      "competencies": [
+        "Estima posição comparando astros e contornos do litoral",
+        "Escolhe passagens abrigadas conforme o comportamento dos ventos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pilotagem",
@@ -3865,14 +4400,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Desconfiado de referências costeiras isoladas",
+        "Atento às divergências entre carta e horizonte"
+      ]
     },
     {
       "id": "cartografo-de-campo",
       "name": "Cartógrafo de Campo",
       "summary": "Registra trilhas, marcos e alterações no terreno durante expedições.",
       "lore": "Registra trilhas, marcos e alterações no terreno durante expedições.",
-      "competencies": [],
+      "competencies": [
+        "Esboça acidentes geográficos a partir de observação direta",
+        "Confronta relatos de viajantes com vestígios do terreno"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -3883,14 +4425,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Rigoroso ao distinguir observação de suposição",
+        "Curioso sobre caminhos ausentes dos mapas"
+      ]
     },
     {
       "id": "mensageiro",
       "name": "Mensageiro",
       "summary": "Planeja entregas, memoriza rotas e protege correspondências durante deslocamentos.",
       "lore": "Planeja entregas, memoriza rotas e protege correspondências durante deslocamentos.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece destinatários por referências e descrições locais",
+        "Escolhe desvios quando encontra passagens interrompidas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "furtividade",
@@ -3901,14 +4450,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Discreto sobre remetentes e assuntos transportados",
+        "Persistente diante de endereços imprecisos"
+      ]
     },
     {
       "id": "escriba",
       "name": "Escriba",
       "summary": "Copia documentos, mantém registros e adapta escrita a convenções administrativas.",
       "lore": "Copia documentos, mantém registros e adapta escrita a convenções administrativas.",
-      "competencies": [],
+      "competencies": [
+        "Reproduz grafias antigas preservando distinções entre palavras",
+        "Ordena atas conforme assuntos e responsáveis"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3919,14 +4475,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Criterioso com rasuras e anotações marginais",
+        "Fiel à formulação dos depoimentos recebidos"
+      ]
     },
     {
       "id": "bibliotecario",
       "name": "Bibliotecário",
       "summary": "Organiza coleções, cataloga fontes e ajuda a localizar informações preservadas.",
       "lore": "Organiza coleções, cataloga fontes e ajuda a localizar informações preservadas.",
-      "competencies": [],
+      "competencies": [
+        "Relaciona manuscritos por assunto, autoria e procedência",
+        "Orienta consultas entre referências dispersas na coleção"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3937,14 +4500,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Zeloso com a integridade dos acervos",
+        "Acolhedor diante de perguntas pouco formuladas"
+      ]
     },
     {
       "id": "tradutor",
       "name": "Tradutor",
       "summary": "Interpreta idiomas e costumes, registrando ambiguidades que podem mudar o sentido de um acordo.",
       "lore": "Interpreta idiomas e costumes, registrando ambiguidades que podem mudar o sentido de um acordo.",
-      "competencies": [],
+      "competencies": [
+        "Distingue expressões figuradas de declarações literais",
+        "Explica diferenças de tratamento entre comunidades linguísticas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3955,14 +4525,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cauteloso diante de equivalências aparentemente perfeitas",
+        "Transparente sobre sentidos que permanecem incertos"
+      ]
     },
     {
       "id": "professor",
       "name": "Professor",
       "summary": "Ensina conhecimentos e métodos de estudo a aprendizes de diferentes níveis.",
       "lore": "Ensina conhecimentos e métodos de estudo a aprendizes de diferentes níveis.",
-      "competencies": [],
+      "competencies": [
+        "Transforma conceitos abstratos em exemplos cotidianos",
+        "Reconhece dificuldades pela maneira como aprendizes explicam ideias"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3973,14 +4550,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente com perguntas repetidas por insegurança",
+        "Aberto a diferentes caminhos de aprendizagem"
+      ]
     },
     {
       "id": "advogado",
       "name": "Advogado",
       "summary": "Estuda leis, precedentes e procedimentos de disputa da sociedade em que atua.",
       "lore": "Estuda leis, precedentes e procedimentos de disputa da sociedade em que atua.",
-      "competencies": [],
+      "competencies": [
+        "Organiza argumentos a partir de documentos e depoimentos",
+        "Distingue costumes locais de obrigações formalmente reconhecidas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -3991,14 +4575,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cuidadoso com palavras que implicam compromisso",
+        "Firme ao questionar acusações mal fundamentadas"
+      ]
     },
     {
       "id": "contador",
       "name": "Contador",
       "summary": "Mantém livros de contas, calcula custos e identifica inconsistências financeiras.",
       "lore": "Mantém livros de contas, calcula custos e identifica inconsistências financeiras.",
-      "competencies": [],
+      "competencies": [
+        "Concilia recibos com lançamentos em livros comerciais",
+        "Reconstrói movimentações financeiras a partir de registros incompletos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4009,14 +4600,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Metódico ao documentar a origem dos lançamentos",
+        "Reservado sobre a situação financeira alheia"
+      ]
     },
     {
       "id": "comerciante",
       "name": "Comerciante",
       "summary": "Negocia mercadorias, acompanha preços locais e mantém relações com fornecedores.",
       "lore": "Negocia mercadorias, acompanha preços locais e mantém relações com fornecedores.",
-      "competencies": [],
+      "competencies": [
+        "Avalia mercadorias por acabamento, procedência e procura",
+        "Conduz negociações considerando interesses de compradores e fornecedores"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4027,14 +4625,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Atento às preferências de fregueses habituais",
+        "Cuidadoso com a reputação construída nas trocas"
+      ]
     },
     {
       "id": "avaliador-de-antiguidades",
       "name": "Avaliador de Antiguidades",
       "summary": "Examina procedência, materiais e sinais de falsificação em objetos antigos.",
       "lore": "Examina procedência, materiais e sinais de falsificação em objetos antigos.",
-      "competencies": [],
+      "competencies": [
+        "Compara marcas de fabricação com registros históricos",
+        "Distingue envelhecimento natural de alterações artificiais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4045,14 +4650,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cauteloso diante de histórias de origem extraordinárias",
+        "Minucioso na descrição de detalhes discretos"
+      ]
     },
     {
       "id": "joalheiro-de-campo",
       "name": "Joalheiro de Campo",
       "summary": "Faz pequenos reparos e avaliações de joias usando ferramentas portáteis.",
       "lore": "Faz pequenos reparos e avaliações de joias usando ferramentas portáteis.",
-      "competencies": [],
+      "competencies": [
+        "Reajusta fechos e assentamentos de pedras",
+        "Reconhece ligas e lapidações por inspeção cuidadosa"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4063,14 +4675,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Adaptável a bancadas improvisadas",
+        "Transparente sobre limites de reparos provisórios"
+      ]
     },
     {
       "id": "relojoeiro",
       "name": "Relojoeiro",
       "summary": "Constrói e repara mecanismos delicados, registrando tolerâncias e desgaste.",
       "lore": "Constrói e repara mecanismos delicados, registrando tolerâncias e desgaste.",
-      "competencies": [],
+      "competencies": [
+        "Alinha engrenagens e regula movimentos internos",
+        "Identifica atrito anormal em peças diminutas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4081,14 +4700,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente com ajustes quase imperceptíveis",
+        "Metódico na organização de peças desmontadas"
+      ]
     },
     {
       "id": "inventor",
       "name": "Inventor",
       "summary": "Projeta protótipos, documenta falhas e adapta componentes para resolver problemas concretos.",
       "lore": "Projeta protótipos, documenta falhas e adapta componentes para resolver problemas concretos.",
-      "competencies": [],
+      "competencies": [
+        "Transforma necessidades cotidianas em desenhos funcionais",
+        "Investiga falhas de protótipos e reformula soluções"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4099,14 +4725,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Curioso sobre usos inesperados de materiais",
+        "Receptivo a críticas de usuários"
+      ]
     },
     {
       "id": "mecanico",
       "name": "Mecânico",
       "summary": "Diagnostica falhas e mantém máquinas, veículos ou mecanismos existentes no cenário.",
       "lore": "Diagnostica falhas e mantém máquinas, veículos ou mecanismos existentes no cenário.",
-      "competencies": [],
+      "competencies": [
+        "Localiza defeitos por ruídos e vibrações",
+        "Desmonta conjuntos e substitui componentes danificados"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4117,14 +4750,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Pragmático diante de soluções excessivamente complicadas",
+        "Cuidadoso com o histórico de manutenção"
+      ]
     },
     {
       "id": "curandeiro-comunitario",
       "name": "Curandeiro Comunitário",
       "summary": "Conhece práticas locais de cuidado, higiene e apoio a pessoas enfermas.",
       "lore": "Conhece práticas locais de cuidado, higiene e apoio a pessoas enfermas.",
-      "competencies": [],
+      "competencies": [
+        "Orienta famílias sobre limpeza de espaços de cuidado",
+        "Articula redes de vizinhos para acompanhar enfermos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "cuidados",
@@ -4135,14 +4775,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Enraizado nos costumes de sua comunidade",
+        "Acolhedor sem prometer curas certas"
+      ]
     },
     {
       "id": "enfermeiro",
       "name": "Enfermeiro",
       "summary": "Organiza cuidados continuados, observa sintomas e acompanha a recuperação de pacientes.",
       "lore": "Organiza cuidados continuados, observa sintomas e acompanha a recuperação de pacientes.",
-      "competencies": [],
+      "competencies": [
+        "Registra mudanças no estado de pacientes",
+        "Realiza curativos e orienta cuidados cotidianos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "cuidados",
@@ -4153,14 +4800,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Atento a desconfortos pouco verbalizados",
+        "Organizado na passagem de informações clínicas"
+      ]
     },
     {
       "id": "cirurgiao",
       "name": "Cirurgião",
       "summary": "Estuda procedimentos invasivos e instrumentos, exigindo condições e recursos apropriados.",
       "lore": "Estuda procedimentos invasivos e instrumentos, exigindo condições e recursos apropriados.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece estruturas anatômicas durante intervenções",
+        "Executa incisões e suturas com precisão"
+      ],
       "mechanicalEffects": [
         {
           "scope": "cuidados",
@@ -4171,14 +4825,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Rigoroso com assepsia e preparação operatória",
+        "Franco ao explicar limites de intervenções"
+      ]
     },
     {
       "id": "detetive",
       "name": "Detetive",
       "summary": "Reúne depoimentos e evidências para esclarecer incidentes sem presumir culpa antecipada.",
       "lore": "Reúne depoimentos e evidências para esclarecer incidentes sem presumir culpa antecipada.",
-      "competencies": [],
+      "competencies": [
+        "Cruza versões de testemunhas com vestígios materiais",
+        "Reconstrói sequências de acontecimentos a partir de indícios"
+      ],
       "mechanicalEffects": [
         {
           "scope": "percepcao",
@@ -4189,14 +4850,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Reservado ao tratar informações sensíveis",
+        "Disposto a abandonar hipóteses contraditas pelos fatos"
+      ]
     },
     {
       "id": "guia-de-montanha",
       "name": "Guia de Montanha",
       "summary": "Conhece passagens, clima e técnicas de deslocamento em regiões elevadas.",
       "lore": "Conhece passagens, clima e técnicas de deslocamento em regiões elevadas.",
-      "competencies": [],
+      "competencies": [
+        "Escolhe travessias conforme relevo e condições atmosféricas",
+        "Orienta passos em encostas e passagens expostas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -4207,14 +4875,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Prudente diante de mudanças repentinas do tempo",
+        "Atento ao cansaço de cada viajante"
+      ]
     },
     {
       "id": "guia-de-floresta",
       "name": "Guia de Floresta",
       "summary": "Reconhece trilhas, fontes e riscos ambientais em matas locais.",
       "lore": "Reconhece trilhas, fontes e riscos ambientais em matas locais.",
-      "competencies": [],
+      "competencies": [
+        "Identifica caminhos encobertos por vegetação recente",
+        "Distingue sinais de animais junto às trilhas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -4225,14 +4900,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Discreto ao atravessar habitats sensíveis",
+        "Familiarizado com ciclos sazonais da mata"
+      ]
     },
     {
       "id": "guia-de-deserto",
       "name": "Guia de Deserto",
       "summary": "Planeja água, abrigo e deslocamento em terrenos áridos e de orientação difícil.",
       "lore": "Planeja água, abrigo e deslocamento em terrenos áridos e de orientação difícil.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece referências de orientação entre dunas móveis",
+        "Organiza percursos entre fontes e áreas sombreadas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -4243,14 +4925,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Conservador ao estimar provisões de viagem",
+        "Vigilante diante de horizontes visualmente enganosos"
+      ]
     },
     {
       "id": "cacador",
       "name": "Caçador",
       "summary": "Interpreta rastros e hábitos animais e conhece regras locais de caça.",
       "lore": "Interpreta rastros e hábitos animais e conhece regras locais de caça.",
-      "competencies": [],
+      "competencies": [
+        "Distingue pegadas recentes de marcas antigas",
+        "Reconhece áreas de reprodução protegidas pelas comunidades"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -4261,14 +4950,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente diante de movimentos discretos",
+        "Respeitoso dos acordos de caça locais"
+      ]
     },
     {
       "id": "preparador-de-peles",
       "name": "Preparador de Peles",
       "summary": "Conserva peles, ossos e outros materiais animais para usos permitidos pelo cenário.",
       "lore": "Conserva peles, ossos e outros materiais animais para usos permitidos pelo cenário.",
-      "competencies": [],
+      "competencies": [
+        "Remove tecidos aderidos sem rasgar a pele",
+        "Reconhece sinais de deterioração em materiais animais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -4279,14 +4975,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Minucioso no acabamento das superfícies",
+        "Cuidadoso com o aproveitamento responsável dos materiais"
+      ]
     },
     {
       "id": "apicultor",
       "name": "Apicultor",
       "summary": "Cuida de colmeias e compreende ciclos de polinização, produção e segurança.",
       "lore": "Cuida de colmeias e compreende ciclos de polinização, produção e segurança.",
-      "competencies": [],
+      "competencies": [
+        "Identifica alterações no comportamento das abelhas",
+        "Seleciona locais próximos de floradas variadas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -4297,14 +5000,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Gestos tranquilos ao lidar com enxames",
+        "Atento às mudanças sazonais da paisagem"
+      ]
     },
     {
       "id": "jardineiro",
       "name": "Jardineiro",
       "summary": "Planeja jardins, identifica espécies e mantém plantas ornamentais ou úteis.",
       "lore": "Planeja jardins, identifica espécies e mantém plantas ornamentais ou úteis.",
-      "competencies": [],
+      "competencies": [
+        "Combina espécies conforme luz e umidade",
+        "Realiza podas preservando o desenho dos canteiros"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -4315,14 +5025,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Senso de composição entre cores e folhagens",
+        "Constância no cuidado cotidiano das plantas"
+      ]
     },
     {
       "id": "botanico",
       "name": "Botânico",
       "summary": "Classifica plantas, compara espécimes e documenta ambientes e relações ecológicas.",
       "lore": "Classifica plantas, compara espécimes e documenta ambientes e relações ecológicas.",
-      "competencies": [],
+      "competencies": [
+        "Diferencia espécies pela estrutura de flores e folhas",
+        "Registra associações entre vegetação e condições do ambiente"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4333,14 +5050,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Rigor na descrição de diferenças sutis",
+        "Curiosidade por exemplares fora do padrão"
+      ]
     },
     {
       "id": "astronomo",
       "name": "Astrônomo",
       "summary": "Observa corpos celestes e mantém registros de fenômenos e calendários.",
       "lore": "Observa corpos celestes e mantém registros de fenômenos e calendários.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece padrões sazonais no céu noturno",
+        "Organiza registros comparáveis de eclipses e conjunções"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4351,14 +5075,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Disciplina durante observações prolongadas e silenciosas",
+        "Cautela ao interpretar fenômenos pouco conhecidos"
+      ]
     },
     {
       "id": "geologo",
       "name": "Geólogo",
       "summary": "Analisa rochas, minerais e sinais de mudança no terreno.",
       "lore": "Analisa rochas, minerais e sinais de mudança no terreno.",
-      "competencies": [],
+      "competencies": [
+        "Distingue minerais pela textura e aparência",
+        "Relaciona camadas expostas à formação da paisagem"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4369,14 +5100,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Atenção às irregularidades do relevo",
+        "Interesse por transformações lentas da terra"
+      ]
     },
     {
       "id": "arqueologo",
       "name": "Arqueólogo",
       "summary": "Estuda vestígios materiais e documenta contextos sem confundir hipótese com certeza.",
       "lore": "Estuda vestígios materiais e documenta contextos sem confundir hipótese com certeza.",
-      "competencies": [],
+      "competencies": [
+        "Documenta a posição original de fragmentos encontrados",
+        "Compara marcas de fabricação entre objetos antigos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4387,14 +5125,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Prudência ao atribuir significado aos achados",
+        "Respeito pelas comunidades ligadas aos vestígios"
+      ]
     },
     {
       "id": "restaurador",
       "name": "Restaurador",
       "summary": "Conserva artefatos e edifícios históricos com métodos que respeitam seus materiais.",
       "lore": "Conserva artefatos e edifícios históricos com métodos que respeitam seus materiais.",
-      "competencies": [],
+      "competencies": [
+        "Distingue alterações recentes de características originais",
+        "Seleciona técnicas de limpeza compatíveis com superfícies antigas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4405,14 +5150,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Preferência por intervenções discretas e documentadas",
+        "Respeito às marcas históricas do uso"
+      ]
     },
     {
       "id": "artista",
       "name": "Artista",
       "summary": "Produz obras visuais e desenvolve linguagem própria para retratar pessoas, lugares ou ideias.",
       "lore": "Produz obras visuais e desenvolve linguagem própria para retratar pessoas, lugares ou ideias.",
-      "competencies": [],
+      "competencies": [
+        "Traduz ideias abstratas em composições visuais",
+        "Estuda gestos e paisagens por meio de esboços"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4423,14 +5175,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Olhar sensível às tensões entre formas",
+        "Disposição para experimentar linguagens visuais próprias"
+      ]
     },
     {
       "id": "musico",
       "name": "Músico",
       "summary": "Toca instrumentos, compõe e preserva repertórios de diferentes comunidades.",
       "lore": "Toca instrumentos, compõe e preserva repertórios de diferentes comunidades.",
-      "competencies": [],
+      "competencies": [
+        "Adapta melodias às características de diferentes instrumentos",
+        "Transcreve cantigas transmitidas pela tradição oral"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4441,14 +5200,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Escuta atenta às nuances dos parceiros",
+        "Respeito pelas origens culturais do repertório"
+      ]
     },
     {
       "id": "ator",
       "name": "Ator",
       "summary": "Interpreta personagens e domina técnicas de presença, voz e expressão.",
       "lore": "Interpreta personagens e domina técnicas de presença, voz e expressão.",
-      "competencies": [],
+      "competencies": [
+        "Constrói gestos coerentes com trajetórias fictícias",
+        "Modula a voz para expressar intenções contrastantes"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4459,14 +5225,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Disponibilidade para explorar perspectivas alheias",
+        "Disciplina na preparação da presença cênica"
+      ]
     },
     {
       "id": "dancarino",
       "name": "Dançarino",
       "summary": "Pratica formas de dança como arte, tradição comunitária ou expressão cerimonial.",
       "lore": "Pratica formas de dança como arte, tradição comunitária ou expressão cerimonial.",
-      "competencies": [],
+      "competencies": [
+        "Compõe sequências de movimentos para narrar histórias",
+        "Conduz danças coletivas respeitando gestos cerimoniais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4477,14 +5250,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Expressivo no gesto e na presença",
+        "Atento à memória corporal da comunidade"
+      ]
     },
     {
       "id": "tatuador",
       "name": "Tatuador",
       "summary": "Cria desenhos permanentes e conhece significados culturais, higiene e técnicas de aplicação.",
       "lore": "Cria desenhos permanentes e conhece significados culturais, higiene e técnicas de aplicação.",
-      "competencies": [],
+      "competencies": [
+        "Adapta desenhos aos contornos da pele",
+        "Prepara superfícies de trabalho com cuidados sanitários"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4495,14 +5275,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Meticuloso no traço e na limpeza",
+        "Respeitoso com símbolos de pertencimento cultural"
+      ]
     },
     {
       "id": "barbeiro",
       "name": "Barbeiro",
       "summary": "Cuida de cabelo e barba e conhece estilos associados a grupos e regiões.",
       "lore": "Cuida de cabelo e barba e conhece estilos associados a grupos e regiões.",
-      "competencies": [],
+      "competencies": [
+        "Modela cortes conforme textura e crescimento dos fios",
+        "Identifica penteados característicos de diferentes comunidades"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4513,14 +5300,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cuidadoso com preferências de apresentação pessoal",
+        "Discreto diante de conversas na cadeira"
+      ]
     },
     {
       "id": "lavadeiro",
       "name": "Lavadeiro",
       "summary": "Limpa, trata e conserva tecidos com técnicas adaptadas aos materiais disponíveis.",
       "lore": "Limpa, trata e conserva tecidos com técnicas adaptadas aos materiais disponíveis.",
-      "competencies": [],
+      "competencies": [
+        "Identifica manchas e escolhe tratamentos compatíveis",
+        "Seca peças delicadas preservando forma e textura"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4531,14 +5325,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente com sujeiras entranhadas nas fibras",
+        "Atento ao desgaste de cada peça"
+      ]
     },
     {
       "id": "estalajadeiro",
       "name": "Estalajadeiro",
       "summary": "Administra hospedagem, provisões e informações de viajantes de passagem.",
       "lore": "Administra hospedagem, provisões e informações de viajantes de passagem.",
-      "competencies": [],
+      "competencies": [
+        "Organiza acomodações conforme necessidades dos hóspedes",
+        "Orienta viajantes sobre caminhos e serviços locais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4549,14 +5350,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Hospitaleiro sem invadir assuntos dos hóspedes",
+        "Previdente diante de chegadas inesperadas"
+      ]
     },
     {
       "id": "taverneiro",
       "name": "Taverneiro",
       "summary": "Gerencia salão e bebidas, reconhecendo rumores sem tratar boatos como fatos.",
       "lore": "Gerencia salão e bebidas, reconhecendo rumores sem tratar boatos como fatos.",
-      "competencies": [],
+      "competencies": [
+        "Organiza o atendimento entre mesas e balcão",
+        "Distingue testemunhos diretos de histórias retransmitidas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4567,14 +5375,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Sociável sem endossar toda conversa ouvida",
+        "Firme diante de disputas no salão"
+      ]
     },
     {
       "id": "organizador-de-eventos",
       "name": "Organizador de Eventos",
       "summary": "Coordena cerimônias, calendários, fornecedores e necessidades de convidados.",
       "lore": "Coordena cerimônias, calendários, fornecedores e necessidades de convidados.",
-      "competencies": [],
+      "competencies": [
+        "Articula entregas e preparativos entre diferentes fornecedores",
+        "Adapta recepções às necessidades dos convidados"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4585,14 +5400,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Antecipador de desencontros nos bastidores",
+        "Sensível ao significado de cada celebração"
+      ]
     },
     {
       "id": "diplomata-de-corte",
       "name": "Diplomata de Corte",
       "summary": "Conhece protocolo, títulos e práticas de negociação entre autoridades.",
       "lore": "Conhece protocolo, títulos e práticas de negociação entre autoridades.",
-      "competencies": [],
+      "competencies": [
+        "Redige mensagens adequadas à hierarquia dos destinatários",
+        "Formula propostas conciliando interesses de autoridades rivais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4603,14 +5425,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Comedido diante de provocações públicas",
+        "Atento às sutilezas de precedência cerimonial"
+      ]
     },
     {
       "id": "escolta-profissional",
       "name": "Escolta Profissional",
       "summary": "Planeja deslocamentos seguros e coordena a proteção de pessoas e cargas.",
       "lore": "Planeja deslocamentos seguros e coordena a proteção de pessoas e cargas.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece trechos expostos ao longo de uma rota",
+        "Organiza embarques preservando a proximidade do grupo"
+      ],
       "mechanicalEffects": [
         {
           "scope": "lideranca",
@@ -4621,14 +5450,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Vigilante sem alarmar os acompanhantes",
+        "Prudente diante de mudanças no trajeto"
+      ]
     },
     {
       "id": "carcereiro",
       "name": "Carcereiro",
       "summary": "Administra custódia, registros e rotinas de instalações de detenção.",
       "lore": "Administra custódia, registros e rotinas de instalações de detenção.",
-      "competencies": [],
+      "competencies": [
+        "Confere registros de entrada e transferência de detidos",
+        "Inspeciona alojamentos e organiza rotinas de custódia"
+      ],
       "mechanicalEffects": [
         {
           "scope": "percepcao",
@@ -4639,14 +5475,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Rigoroso na documentação de ocorrências",
+        "Contido no exercício da autoridade"
+      ]
     },
     {
       "id": "investigador-de-incendios",
       "name": "Investigador de Incêndios",
       "summary": "Examina padrões de dano e relatos para reconstruir possíveis causas de incêndio.",
       "lore": "Examina padrões de dano e relatos para reconstruir possíveis causas de incêndio.",
-      "competencies": [],
+      "competencies": [
+        "Mapeia marcas de calor entre ambientes atingidos",
+        "Confronta depoimentos com vestígios de propagação das chamas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4657,14 +5500,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cauteloso ao atribuir origem ao fogo",
+        "Metódico diante de evidências fragmentadas"
+      ]
     },
     {
       "id": "mecanico-de-artefatos",
       "name": "Mecânico de Artefatos",
       "summary": "Mantém mecanismos raros e registra cuidadosamente comportamentos que não compreende.",
       "lore": "Mantém mecanismos raros e registra cuidadosamente comportamentos que não compreende.",
-      "competencies": [],
+      "competencies": [
+        "Localiza desgaste em articulações de mecanismos incomuns",
+        "Documenta respostas inesperadas durante desmontagens cuidadosas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4675,14 +5525,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Curioso sem presumir compreender cada peça",
+        "Paciente diante de funcionamento pouco familiar"
+      ]
     },
     {
       "id": "pescador-de-profundidade",
       "name": "Pescador de Profundidade",
       "summary": "Conhece equipamentos, correntes e riscos de pesca em águas profundas.",
       "lore": "Conhece equipamentos, correntes e riscos de pesca em águas profundas.",
-      "competencies": [],
+      "competencies": [
+        "Localiza cardumes profundos pelos movimentos das águas",
+        "Desembaraça linhas longas sem danificar a captura"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pilotagem",
@@ -4693,14 +5550,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente diante de recolhimentos demorados",
+        "Prudente com mudanças repentinas do mar"
+      ]
     },
     {
       "id": "mergulhador",
       "name": "Mergulhador",
       "summary": "Explora ambientes submersos com atenção a pressão, orientação e retorno seguro.",
       "lore": "Explora ambientes submersos com atenção a pressão, orientação e retorno seguro.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece passagens submersas por referências do relevo",
+        "Identifica sinais de desgaste em vedações"
+      ],
       "mechanicalEffects": [
         {
           "scope": "pilotagem",
@@ -4711,14 +5575,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Metódico ao planejar caminhos de saída",
+        "Sereno diante da visibilidade reduzida"
+      ]
     },
     {
       "id": "construtor-de-barcos",
       "name": "Construtor de Barcos",
       "summary": "Projeta e repara embarcações conforme águas, carga e materiais locais.",
       "lore": "Projeta e repara embarcações conforme águas, carga e materiais locais.",
-      "competencies": [],
+      "competencies": [
+        "Ajusta o formato do casco à navegação pretendida",
+        "Localiza infiltrações e recompõe juntas de madeira"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4729,14 +5600,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Atento ao comportamento de cada madeira",
+        "Valoriza reparos acessíveis aos próprios tripulantes"
+      ]
     },
     {
       "id": "montador-de-gemas",
       "name": "Montador de Gemas",
       "summary": "Integra gemas e metais em peças decorativas ou funcionais conforme projetos aprovados.",
       "lore": "Integra gemas e metais em peças decorativas ou funcionais conforme projetos aprovados.",
-      "competencies": [],
+      "competencies": [
+        "Acomoda pedras em engastes sem ocultar suas facetas",
+        "Interpreta desenhos para distribuir detalhes de uma peça"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4747,14 +5625,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Minucioso no alinhamento dos pequenos componentes",
+        "Respeitoso com a intenção estética do projeto"
+      ]
     },
     {
       "id": "fabricante-de-arcos",
       "name": "Fabricante de Arcos",
       "summary": "Seleciona madeira, molda lâminas e testa tensão de arcos conforme técnicas conhecidas.",
       "lore": "Seleciona madeira, molda lâminas e testa tensão de arcos conforme técnicas conhecidas.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece veios apropriados para membros flexíveis",
+        "Corrige assimetrias na curvatura da madeira"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4765,14 +5650,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Paciente com o assentamento das fibras",
+        "Criterioso diante de nós e fissuras"
+      ]
     },
     {
       "id": "fabricante-de-flechas",
       "name": "Fabricante de Flechas",
       "summary": "Produz hastes, pontas e penas e verifica equilíbrio e acabamento.",
       "lore": "Produz hastes, pontas e penas e verifica equilíbrio e acabamento.",
-      "competencies": [],
+      "competencies": [
+        "Endireita hastes preservando a integridade das fibras",
+        "Alinha penas e pontas ao eixo da haste"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4783,14 +5675,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Constante no acabamento de cada lote",
+        "Atento às pequenas diferenças entre materiais"
+      ]
     },
     {
       "id": "cordoeiro",
       "name": "Cordoeiro",
       "summary": "Trança fibras e cria cordas de resistência e flexibilidade adequadas a cada uso.",
       "lore": "Trança fibras e cria cordas de resistência e flexibilidade adequadas a cada uso.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece fibras desgastadas antes de incorporá-las às cordas",
+        "Emenda trechos mantendo a continuidade da trama"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4801,14 +5700,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Ritmo paciente no trabalho de torção",
+        "Cuidado constante com umidade e armazenamento"
+      ]
     },
     {
       "id": "oleiro",
       "name": "Oleiro",
       "summary": "Modela argila, prepara esmaltes e controla a queima para produzir recipientes e peças.",
       "lore": "Modela argila, prepara esmaltes e controla a queima para produzir recipientes e peças.",
-      "competencies": [],
+      "competencies": [
+        "Centraliza barro e ergue paredes uniformes",
+        "Reconhece falhas de secagem nas peças cruas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4819,14 +5725,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Sensível à textura de cada argila",
+        "Observador das marcas deixadas pelo fogo"
+      ]
     },
     {
       "id": "vidreiro",
       "name": "Vidreiro",
       "summary": "Trabalha vidro quente e frio para criar recipientes, lentes e ornamentos.",
       "lore": "Trabalha vidro quente e frio para criar recipientes, lentes e ornamentos.",
-      "competencies": [],
+      "competencies": [
+        "Sopra volumes de vidro com contornos definidos",
+        "Lapida bordas e superfícies para acabamento preciso"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4837,14 +5750,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Gestos contidos junto ao vidro aquecido",
+        "Olhar exigente para transparência e distorções"
+      ]
     },
     {
       "id": "saboeiro",
       "name": "Saboeiro",
       "summary": "Produz sabões e produtos de limpeza, controlando ingredientes e processos.",
       "lore": "Produz sabões e produtos de limpeza, controlando ingredientes e processos.",
-      "competencies": [],
+      "competencies": [
+        "Distingue matérias-primas deterioradas pelo aspecto e odor",
+        "Reconhece irregularidades de textura nos lotes"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4855,14 +5775,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Rigoroso com a limpeza do espaço",
+        "Organizado no registro das receitas artesanais"
+      ]
     },
     {
       "id": "perfumista",
       "name": "Perfumista",
       "summary": "Combina essências e documenta fórmulas olfativas usadas em perfumes e ritos.",
       "lore": "Combina essências e documenta fórmulas olfativas usadas em perfumes e ritos.",
-      "competencies": [],
+      "competencies": [
+        "Identifica notas aromáticas em misturas complexas",
+        "Traduz intenções cerimoniais em composições de fragrâncias"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -4873,14 +5800,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Memória olfativa associada a lugares e ocasiões",
+        "Delicado ao equilibrar aromas contrastantes"
+      ]
     },
     {
       "id": "especialista-em-toxinas",
       "name": "Especialista em Toxinas",
       "summary": "Estuda substâncias tóxicas para reconhecer riscos e apoiar práticas seguras de prevenção.",
       "lore": "Estuda substâncias tóxicas para reconhecer riscos e apoiar práticas seguras de prevenção.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece situações de possível exposição a substâncias tóxicas",
+        "Comunica cuidados preventivos em linguagem acessível"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4891,14 +5825,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cauteloso diante de materiais sem identificação",
+        "Transparente sobre incertezas na identificação de riscos"
+      ]
     },
     {
       "id": "heraldista",
       "name": "Heraldista",
       "summary": "Estuda brasões, bandeiras e símbolos de casas, guildas e instituições.",
       "lore": "Estuda brasões, bandeiras e símbolos de casas, guildas e instituições.",
-      "competencies": [],
+      "competencies": [
+        "Distingue linhagens pelas variações de seus emblemas",
+        "Descreve composições heráldicas com vocabulário preciso"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4909,14 +5850,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Olhar atento às diferenças sutis",
+        "Respeito pelas convenções de representação"
+      ]
     },
     {
       "id": "genealogista",
       "name": "Genealogista",
       "summary": "Reconstrói vínculos familiares a partir de registros, testemunhos e tradições.",
       "lore": "Reconstrói vínculos familiares a partir de registros, testemunhos e tradições.",
-      "competencies": [],
+      "competencies": [
+        "Cruza registros matrimoniais com relatos de descendentes",
+        "Identifica homônimos em documentos de épocas distintas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4927,14 +5875,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cautela diante de parentescos alegados",
+        "Paciência com lacunas documentais"
+      ]
     },
     {
       "id": "cacador-de-recompensas",
       "name": "Caçador de Recompensas",
       "summary": "Localiza pessoas procuradas e interpreta contratos, jurisdições e pistas.",
       "lore": "Localiza pessoas procuradas e interpreta contratos, jurisdições e pistas.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece hábitos de deslocamento em relatos dispersos",
+        "Distingue cláusulas contratuais de promessas informais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "percepcao",
@@ -4945,14 +5900,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Persistência diante de pistas contraditórias",
+        "Prudência nas fronteiras entre jurisdições"
+      ]
     },
     {
       "id": "mediador",
       "name": "Mediador",
       "summary": "Facilita acordos em disputas, esclarecendo interesses e limites de cada parte.",
       "lore": "Facilita acordos em disputas, esclarecendo interesses e limites de cada parte.",
-      "competencies": [],
+      "competencies": [
+        "Reformula acusações como questões negociáveis",
+        "Distingue concessões possíveis de limites inegociáveis"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -4963,14 +5925,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Escuta sem tomar partido",
+        "Firmeza serena diante de provocações"
+      ]
     },
     {
       "id": "espiao",
       "name": "Espião",
       "summary": "Reúne informações discretamente e avalia riscos de identidade, confiança e exposição.",
       "lore": "Reúne informações discretamente e avalia riscos de identidade, confiança e exposição.",
-      "competencies": [],
+      "competencies": [
+        "Sustenta histórias de cobertura em conversas cotidianas",
+        "Identifica contradições nos relatos de informantes"
+      ],
       "mechanicalEffects": [
         {
           "scope": "furtividade",
@@ -4981,14 +5950,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Reserva sobre intenções pessoais",
+        "Desconfiança de familiaridade repentina"
+      ]
     },
     {
       "id": "criptoanalista",
       "name": "Criptoanalista",
       "summary": "Estuda cifras, padrões e mensagens codificadas sem presumir que toda sequência é um código.",
       "lore": "Estuda cifras, padrões e mensagens codificadas sem presumir que toda sequência é um código.",
-      "competencies": [],
+      "competencies": [
+        "Compara repetições entre trechos de mensagens cifradas",
+        "Separa padrões linguísticos de coincidências gráficas"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -4999,14 +5975,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Rigor ao formular hipóteses",
+        "Tolerância a resultados inconclusivos"
+      ]
     },
     {
       "id": "reparador-de-reliquias",
       "name": "Reparador de Relíquias",
       "summary": "Documenta danos e executa reparos conservadores em objetos históricos ou incomuns.",
       "lore": "Documenta danos e executa reparos conservadores em objetos históricos ou incomuns.",
-      "competencies": [],
+      "competencies": [
+        "Distingue desgaste antigo de fraturas recentes",
+        "Recompõe encaixes preservando marcas de fabricação"
+      ],
       "mechanicalEffects": [
         {
           "scope": "oficios",
@@ -5017,14 +6000,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Preferência por intervenções discretas",
+        "Cuidado com a integridade histórica"
+      ]
     },
     {
       "id": "guarda-florestal",
       "name": "Guarda-Florestal",
       "summary": "Cuida de limites de áreas naturais, registra mudanças e orienta visitantes.",
       "lore": "Cuida de limites de áreas naturais, registra mudanças e orienta visitantes.",
-      "competencies": [],
+      "competencies": [
+        "Identifica sinais de passagem fora das trilhas",
+        "Explica limites de visitação conforme a paisagem"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -5035,14 +6025,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Vigilância paciente sobre mudanças locais",
+        "Postura acolhedora com visitantes desorientados"
+      ]
     },
     {
       "id": "paleontologo",
       "name": "Paleontólogo",
       "summary": "Estuda fósseis e vestígios de vida antiga para reconstruir ecossistemas passados.",
       "lore": "Estuda fósseis e vestígios de vida antiga para reconstruir ecossistemas passados.",
-      "competencies": [],
+      "competencies": [
+        "Diferencia marcas fósseis de fraturas minerais",
+        "Relaciona vestígios alimentares a ambientes desaparecidos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -5053,14 +6050,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Humildade diante de evidências fragmentárias",
+        "Atenção ao contexto de deposição"
+      ]
     },
     {
       "id": "observador-do-clima",
       "name": "Observador do Clima",
       "summary": "Registra nuvens, ventos e padrões sazonais para antecipar mudanças do tempo.",
       "lore": "Registra nuvens, ventos e padrões sazonais para antecipar mudanças do tempo.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece sinais de tempestade no horizonte",
+        "Compara observações atuais com anotações sazonais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "sobrevivencia",
@@ -5071,14 +6075,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Constância no registro cotidiano",
+        "Cautela diante de previsões categóricas"
+      ]
     },
     {
       "id": "tratador-de-aves-mensageiras",
       "name": "Tratador de Aves Mensageiras",
       "summary": "Cuida de aves treinadas e organiza rotas e mensagens curtas.",
       "lore": "Cuida de aves treinadas e organiza rotas e mensagens curtas.",
-      "competencies": [],
+      "competencies": [
+        "Reconhece alterações de apetite e plumagem",
+        "Redige recados concisos sem ambiguidades"
+      ],
       "mechanicalEffects": [
         {
           "scope": "montaria",
@@ -5089,14 +6100,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Delicadeza no manejo das aves",
+        "Organização meticulosa dos destinos"
+      ]
     },
     {
       "id": "mestre-de-cerimonias",
       "name": "Mestre de Cerimônias",
       "summary": "Conduz ritos e eventos públicos, conhecendo seus protocolos e simbolismos.",
       "lore": "Conduz ritos e eventos públicos, conhecendo seus protocolos e simbolismos.",
-      "competencies": [],
+      "competencies": [
+        "Apresenta participantes conforme precedências locais",
+        "Adapta falas cerimoniais ao contexto da ocasião"
+      ],
       "mechanicalEffects": [
         {
           "scope": "persuasao",
@@ -5107,14 +6125,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Compostura diante de imprevistos públicos",
+        "Sensibilidade às tradições dos convidados"
+      ]
     },
     {
       "id": "treinador",
       "name": "Treinador",
       "summary": "Ensina técnicas e hábitos por prática progressiva, observação e feedback.",
       "lore": "Ensina técnicas e hábitos por prática progressiva, observação e feedback.",
-      "competencies": [],
+      "competencies": [
+        "Identifica vícios de execução durante exercícios dirigidos",
+        "Adapta demonstrações às dificuldades de cada aprendiz"
+      ],
       "mechanicalEffects": [
         {
           "scope": "lideranca",
@@ -5125,14 +6150,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Exigente sem recorrer à humilhação",
+        "Atento às pequenas conquistas cotidianas"
+      ]
     },
     {
       "id": "adestrador",
       "name": "Adestrador",
       "summary": "Ensina animais a obedecer, dos pequenos aos colossais, com paciência, comando e confiança.",
       "lore": "Ensina animais a obedecer, dos pequenos aos colossais, com paciência, comando e confiança.",
-      "competencies": [],
+      "competencies": [
+        "Interpreta sinais corporais de tensão animal",
+        "Conduz familiarização gradual com vozes e gestos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "adestramento",
@@ -5143,14 +6175,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Firme sem intimidar os animais",
+        "Respeitoso com temperamentos e limites individuais"
+      ]
     },
     {
       "id": "escrivao-judicial",
       "name": "Escrivão Judicial",
       "summary": "Registra processos, decisões e depoimentos conforme normas locais.",
       "lore": "Registra processos, decisões e depoimentos conforme normas locais.",
-      "competencies": [],
+      "competencies": [
+        "Redige atas fiéis às falas dos depoentes",
+        "Organiza autos para consulta das autoridades"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -5161,14 +6200,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Discreto diante de informações sensíveis",
+        "Rigoroso na distinção entre relato e interpretação"
+      ]
     },
     {
       "id": "avaliador-de-materiais",
       "name": "Avaliador de Materiais",
       "summary": "Identifica composição, qualidade aparente e usos possíveis de materiais comuns.",
       "lore": "Identifica composição, qualidade aparente e usos possíveis de materiais comuns.",
-      "competencies": [],
+      "competencies": [
+        "Distingue ligas e fibras pela aparência e textura",
+        "Reconhece desgaste e adulteração em amostras"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -5179,14 +6225,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Cauteloso ao emitir pareceres sem procedência",
+        "Curioso sobre técnicas locais de fabricação"
+      ]
     },
     {
       "id": "perito-em-armadilhas",
       "name": "Perito em Armadilhas",
       "summary": "Reconhece mecanismos de disparo e documenta formas de neutralização segura.",
       "lore": "Reconhece mecanismos de disparo e documenta formas de neutralização segura.",
-      "competencies": [],
+      "competencies": [
+        "Rastreia conexões entre gatilhos e mecanismos ocultos",
+        "Desenha esquemas de desmontagem para consulta técnica"
+      ],
       "mechanicalEffects": [
         {
           "scope": "percepcao",
@@ -5197,14 +6250,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Metódico diante de dispositivos desconhecidos",
+        "Avesso a conclusões baseadas em aparências"
+      ]
     },
     {
       "id": "construtor-de-fortificacoes",
       "name": "Construtor de Fortificações",
       "summary": "Planeja defesas, barreiras e rotas de abastecimento para estruturas protegidas.",
       "lore": "Planeja defesas, barreiras e rotas de abastecimento para estruturas protegidas.",
-      "competencies": [],
+      "competencies": [
+        "Distribui acessos protegidos conforme o relevo",
+        "Planeja circulação de provisões dentro de recintos defensivos"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -5215,14 +6275,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Pragmático diante das limitações do terreno",
+        "Atento à manutenção durante o planejamento"
+      ]
     },
     {
       "id": "engenheiro-de-pontes",
       "name": "Engenheiro de Pontes",
       "summary": "Calcula e mantém travessias, avaliando materiais, terreno e carga.",
       "lore": "Calcula e mantém travessias, avaliando materiais, terreno e carga.",
-      "competencies": [],
+      "competencies": [
+        "Dimensiona apoios conforme margens e leitos",
+        "Inspeciona juntas e identifica deformações estruturais"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -5233,14 +6300,21 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Conservador ao julgar estruturas deterioradas",
+        "Atento às mudanças sazonais dos cursos de água"
+      ]
     },
     {
       "id": "arquivista",
       "name": "Arquivista",
       "summary": "Preserva documentos, estabelece índices e controla versões de registros importantes.",
       "lore": "Preserva documentos, estabelece índices e controla versões de registros importantes.",
-      "competencies": [],
+      "competencies": [
+        "Relaciona documentos por origem, assunto e autoria",
+        "Reconhece alterações entre cópias de um registro"
+      ],
       "mechanicalEffects": [
         {
           "scope": "conhecimento",
@@ -5251,7 +6325,11 @@
         "profissao",
         "original"
       ],
-      "contentVersion": 1
+      "contentVersion": 1,
+      "traits": [
+        "Zeloso com a memória institucional",
+        "Consistente na descrição de acervos heterogêneos"
+      ]
     }
   ],
   "curses": [],
