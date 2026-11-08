@@ -105,7 +105,7 @@ class TestCemAnos(Base):
         self.assertTrue(all(x['estado_novo']['povo'] in racas and x['estado_novo']['origem_npc'] == 'nomeacao' for x in novos))
 
     def test_misterio_nao_se_resolve(self):
-        self.assertFalse([x for x in self.D if x['tipo'] in ('tentativa_de_resolver_misterio', 'quebra_de_contrato')])
+        self.assertFalse([x for x in self.D if x['tipo'] == 'tentativa_de_resolver_misterio'])
 
     def test_morto_nao_ocupa_posto(self):
         e = self.sim.estado

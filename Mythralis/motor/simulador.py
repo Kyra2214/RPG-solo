@@ -14,7 +14,7 @@ import os, sys, json, glob, random, argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import carregador as C, calendario as CAL, cronica as CR, estado as ES, importancia as IM, invariantes as INV, dinamica as DIN, relatorio as REL
 
-VERSAO = 'F7.3'
+VERSAO = 'F7.4'
 FREQ = ('diaria', 'lunar', 'sazonal', 'anual')
 
 
@@ -127,7 +127,7 @@ class Simulador:
                  quem_sabe=list(dr.get('quem_sabe') or []), certeza=dr.get('certeza', 'confirmado'),
                  origem=dr.get('origem', 'SIMULADO'))
         ultimo = self.crono.deltas[-1]['dia_mundo'] if self.crono.deltas else 0
-        viol = INV.checar_delta(d, e, ultimo, self.ids_delta, self.world, self.world.catalogo)
+        viol = INV.checar_delta(d, e, ultimo, self.ids_delta, self.world, self.world.catalogo, self.din)
         d['importancia'] = IM.calcular(d, e) if d['tipo'] and d['entidade'] else 0
         try:
             e.aplicar(d)

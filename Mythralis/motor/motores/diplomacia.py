@@ -12,10 +12,11 @@ class Diplomacia:
         self.din = din
 
     @staticmethod
-    def _agente(e, reino):
+    def _agente(e, reino, excluir=None):
+        excluir = set(excluir or ())
         for k in sorted(k for k in e.ent if k.startswith('city.') and e.ent[k].get('reino') == reino):
             for g in str(e.ent[k].get('governante', '')).replace(',', ';').split(';'):
-                if g.strip() in e.ent and e.vivo(g.strip()):
+                if g.strip() not in excluir and g.strip() in e.ent and e.vivo(g.strip()):
                     return g.strip()
         return None
 

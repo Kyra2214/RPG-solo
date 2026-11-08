@@ -108,7 +108,7 @@ GUERRA = [
     ('guerra_baixa_pm', 150, 'por mil por ano, em cada reino em guerra, de morrer um NPC principal ou general (homeostase: só com vivos suficientes)', 'guerra'),
     ('guerra_baixa_min_vivos', 4, 'mínimo de principais e generais vivos de um reino para que a guerra cause baixa', 'guerra'),
     ('queda_min_anos', 3, 'anos de guerra antes de uma coroa poder cair', 'guerra'),
-    ('queda_pm', 20, 'por mil por ano de guerra, em cada reino, de a coroa cair (marco da era; a guerra termina)', 'guerra'),
+    ('queda_pm', 10, 'por mil por ano de guerra, em cada reino, de a coroa cair (marco da era; a guerra termina)', 'guerra'),
 ]
 
 INVARIANTES = [
@@ -156,7 +156,7 @@ def main():
     w_tab('diplomacia.txt', ['chave', 'valor', 'descricao', 'motor', 'fonte', 'etiqueta'],
           [(a, b, c, d, 'PLANO_MOTOR §7 e §8', PROP) for a, b, c, d in DIPLOMACIA], 'tratados, rupturas e quebras de contrato entre reinos vizinhos (F7.2).')
     w_tab('guerra.txt', ['chave', 'valor', 'descricao', 'motor', 'fonte', 'etiqueta'],
-          [(a, b, c, d, 'PLANO_MOTOR §7 e §8', PROP) for a, b, c, d in GUERRA], 'guerras, baixas, paz e queda de coroa entre reinos vizinhos (F7.3).')
+          [(a, b, c, d, 'PLANO_MOTOR §7 e §8', PROP) for a, b, c, d in GUERRA], 'guerras, baixas, paz e queda de coroa entre reinos vizinhos (F7.4).')
     w_tab('invariantes.txt', ['chave', 'valor', 'descricao', 'motor', 'fonte', 'etiqueta'],
           [(a, b, c, d, 'PLANO_MOTOR §12 e §14', PROP) for a, b, c, d in INVARIANTES], 'faixas dos invariantes de alerta I-17 e I-18 (F6.2).')
     # relógios: regra executável gerada de `entidades`; revisada à mão depois (revisado=não até lá)

@@ -2,9 +2,10 @@
 
 > *"O mundo não existe para contar a sua história. Sua história acontece dentro dele."*
 >
-> **Mythralis** (antes Orravel) é o mundo vivo. **Crônicas de Mythralis:** o registro da história mundial. **Eras de Mythralis:** os períodos históricos. **Ecos de Mythralis:** acontecimentos e rumores. Plano do motor e do simulador (blocos de 10 anos, eras livres, notificações): `plano/PLANO_MOTOR_MYTHRALIS.md` (aguardando aprovação das decisões D-M). **F1 a F5 feitas; F6.1 (relatório e métricas), F6.2 (invariantes e consultas) e F6.3 (modo lote, `motor/lote.py`) e F6.4 (retomada `+anos`, `--ate-ano`) feitas; F6 concluída; F7.1 (tensão e incidentes de fronteira) e F7.2 (tratados, rupturas e quebras de contrato) e F7.3 (guerras, quedas de coroa e regime aberto) feitas** (F5: economia e rotas, Ecos, mistérios e fronteira) (`motor/`: estado, crônica, simulador em blocos de 10 anos, notificações, dinâmica v0 em `dinamica/` e motores de demografia, sucessão, relógios, eventos e política; testes em `motor/testes/`).
+> **Mythralis** (antes Orravel) é o mundo vivo. **Crônicas de Mythralis:** o registro da história mundial. **Eras de Mythralis:** os períodos históricos. **Ecos de Mythralis:** acontecimentos e rumores. Plano do motor e do simulador (blocos de 10 anos, eras livres, notificações): `plano/PLANO_MOTOR_MYTHRALIS.md` (aguardando aprovação das decisões D-M). **F1 a F6 concluídas; F7.1 a F7.3 implementadas; F7.4 (invariantes I-23 a I-25, tramas existentes e calibragem inicial) implementada, com 45 testes e lote 500 anos × 20 sementes sem falhas mecânicas. O aceite global de F7 permanece pendente: uma semente teve 3 quedas de reinos e o máximo de deltas importantes por década excedeu 40; ver `plano/RELATORIO_F7_4.md`.** (`motor/`: estado, crônica, simulador em blocos de 10 anos, notificações, dinâmica v0 em `dinamica/` e motores de demografia, sucessão, relógios, eventos e política; testes em `motor/testes/`).
 
 Projeto **independente** do código do RPG Solo, só para escrever o mundo: reinos, povos, cidades, NPCs, facções e a camada de mundo. Quando os reinos estiverem prontos e revisados, o conteúdo é implementado no RPG Solo.
+
 
 ## O que há aqui
 

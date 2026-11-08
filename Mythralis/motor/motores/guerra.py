@@ -17,6 +17,7 @@ class Guerra:
         if self.din.vazia or not G or e.mundo['regime'] == 'selado':
             return []
         dia, regime, n_era = ctx.dia_mundo, e.mundo['regime'], len(e.eras)
+        mortos_agendados = set()
 
         def era(nome, regime_novo, causa):
             nonlocal n_era
@@ -38,10 +39,13 @@ class Guerra:
                 return r
             if f['relacao'] == 'guerra':
                 for q in qs:
-                    cands = sorted(i for i, v in e.ent.items() if i.startswith('npc.') and v.get('reino') == q and v.get('vivo') is True
+                    cands = sorted(i for i, v in e.ent.items() if i.startswith('npc.') and i not in mortos_agendados
+                                   and v.get('reino') == q and v.get('vivo') is True
                                    and (v.get('principal') or 'general' in str(v.get('papeis', '')).split(';')))
                     if len(cands) >= G.get('guerra_baixa_min_vivos', 4) and ctx.rng.randrange(1000) < G.get('guerra_baixa_pm', 150):
-                        out.append(dict(tipo='campo', entidade=cands[ctx.rng.randrange(len(cands))], campo='vivo', estado_novo=False,
+                        vitima = cands[ctx.rng.randrange(len(cands))]
+                        mortos_agendados.add(vitima)
+                        out.append(dict(tipo='campo', entidade=vitima, campo='vivo', estado_novo=False,
                                         quem_sabe=[q], causa=dict(cz, regra='morte-em-guerra')))
                 caiu = None
                 if dia >= f['relacao_dia'] + G.get('queda_min_anos', 3) * 365:
@@ -56,7 +60,7 @@ class Guerra:
                     out += campos('neutra', G.get('guerra_pos_tensao', 150))
                     out.append(era('Queda da Coroa de %s' % ctx.mundo.reinos[q]['row']['nome'], regime, cc))
                 elif dia >= f['relacao_dia'] + G.get('guerra_anos', 6) * 365:
-                    ags = [a for a in (Diplomacia._agente(e, q) for q in qs) if a]
+                    ags = [a for a in (Diplomacia._agente(e, q, mortos_agendados) for q in qs) if a]
                     out.append(dict(tipo='tratado', entidade=k, quem_sabe=qs, agentes=ags, causa=dict(cz, regra='paz-apos-guerra'),
                                     estado_novo=dict(paz=True, duracao_anos=D.get('dipl_tratado_anos', 30))))
                     out += campos('tratado', G.get('guerra_pos_tensao', 150))

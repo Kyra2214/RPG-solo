@@ -28,6 +28,9 @@ IMPLEMENTADOS = {
     'I-19': ('E', 'retomada coerente'),
     'I-21': ('E', 'notificação completa (importância 3+)'),
     'I-22': ('E', 'passo neutro'),
+    'I-23': ('E', 'transições permitidas da relação entre reinos vizinhos'),
+    'I-24': ('E', 'guerra válida e queda de coroa irreversível durante guerra'),
+    'I-25': ('E', 'mudança de era/regime com gatilho e causa correspondentes'),
 }
 PENDENTES = {}   # F6.2: nenhum invariante pendente
 TRANSICOES_PAR = {   # relação do par de facções -> destinos permitidos (I-11)
@@ -39,7 +42,7 @@ ORIGENS_NPC = ('nascimento', 'chegada', 'nomeacao')
 MECANICOS = ('campo', 'criacao', 'era')
 
 
-def checar_delta(d, estado, ultimo_dia, ids_cronica, world, catalogo):
+def checar_delta(d, estado, ultimo_dia, ids_cronica, world, catalogo, dinamica=None):
     """Devolve lista de (invariante, mensagem). `estado` é o estado ANTES de aplicar o delta."""
     v = []
     for k in ('tipo', 'entidade'):
@@ -129,6 +132,77 @@ def checar_delta(d, estado, ultimo_dia, ids_cronica, world, catalogo):
         s = n.get('subraca', '—')
         if s != '—' and sub.get(s) != n.get('povo'):
             v.append(('I-14', 'sub-raça inválida para o povo: %r' % s))
+    # I-23: relações de fronteira seguem apenas transições produzidas pelos motores F7.
+    eid = d.get('entidade', '')
+    if d.get('tipo') == 'campo' and d.get('campo') == 'relacao' and eid.startswith('front.'):
+        permitidas = {
+            'neutra': {'neutra', 'tratado', 'ruptura'},
+            'tratado': {'tratado', 'neutra', 'ruptura'},
+            'ruptura': {'ruptura', 'neutra', 'tratado', 'guerra'},
+            'guerra': {'guerra', 'neutra', 'tratado'},
+        }
+        if d.get('estado_novo') not in permitidas.get(d.get('estado_anterior'), set()):
+            v.append(('I-23', 'transição de fronteira não permitida: %s -> %s' % (
+                d.get('estado_anterior'), d.get('estado_novo'))))
+
+    def guerra_valida(par_id):
+        par = estado.ent.get(par_id) or {}
+        reinos_par = par.get('reinos') or []
+        coroas = ['crown.' + r[8:] for r in reinos_par if str(r).startswith('kingdom.')]
+        minimo = dinamica.guerra.get('guerra_tensao_min', 0) if dinamica else 0
+        return (len(coroas) == 2 and par.get('relacao') == 'ruptura'
+                and par.get('tensao', -1) >= minimo
+                and estado.mundo.get('regime') != 'selado'
+                and all(c in estado.ent and estado.ent[c].get('estado') == 'firme' for c in coroas))
+
+    # I-24: uma guerra começa só a partir de ruptura elegível; coroa só cai numa guerra em curso.
+    e_guerra = eid.startswith('front.') and guerra_valida(eid)
+    if d.get('tipo') == 'guerra' or (d.get('tipo') == 'campo' and d.get('campo') == 'relacao'
+                                      and d.get('estado_novo') == 'guerra' and eid.startswith('front.')):
+        if not e_guerra or c.get('regra') != 'guerra-de-fronteira':
+            v.append(('I-24', 'guerra sem ruptura elegível, coroas firmes ou causa de fronteira'))
+    queda = d.get('tipo') == 'queda_de_coroa' or (d.get('tipo') == 'campo' and eid.startswith('crown.')
+                                                   and d.get('campo') == 'estado' and d.get('estado_novo') == 'caida')
+    if queda:
+        coroa = estado.ent.get(eid) or {}
+        reino = coroa.get('reino')
+        pares_em_guerra = [k for k, p in estado.ent.items() if k.startswith('front.')
+                           and p.get('relacao') == 'guerra' and reino in p.get('reinos', [])]
+        if (not eid.startswith('crown.') or coroa.get('estado') != 'firme' or not pares_em_guerra
+                or c.get('regra') != 'queda-de-coroa-em-guerra'
+                or not any(k in (c.get('ids') or []) for k in pares_em_guerra)):
+            v.append(('I-24', 'queda de coroa sem guerra ativa e causa correspondente'))
+    if d.get('tipo') == 'campo' and eid.startswith('crown.') and d.get('campo') == 'estado' \
+            and estado.ent.get(eid, {}).get('estado') == 'caida' and d.get('estado_novo') != 'caida':
+        v.append(('I-24', 'coroa caída não pode ser restaurada pela simulação'))
+
+    # I-25: toda era posterior à inicial corresponde a gatilho F7 já refletido no estado.
+    if d.get('tipo') == 'era':
+        novo = d.get('estado_novo') or {}
+        causa = d.get('causa') or {}
+        regra = causa.get('regra')
+        antigo = estado.mundo.get('regime')
+        proxima = 'era.%03d' % (len(estado.eras) + 1)
+        ok = novo.get('era') == proxima
+        if antigo is None:
+            ok = ok and novo.get('regime') == 'selado' and regra == 'inicio-da-rodada'
+        elif antigo == 'selado' and novo.get('regime') == 'poroso':
+            ok = ok and regra in ('primeiro-incidente-de-fronteira', 'limite-de-anos-sem-gatilho')
+            if regra == 'primeiro-incidente-de-fronteira':
+                ok = ok and any(str(x).startswith('front.') for x in (causa.get('ids') or []))
+        elif antigo == 'poroso' and novo.get('regime') == 'aberto':
+            ok = ok and regra == 'primeira-guerra' and any(
+                str(x).startswith('front.') and (estado.ent.get(x) or {}).get('relacao') == 'guerra'
+                for x in (causa.get('ids') or []))
+        elif antigo == 'aberto' and novo.get('regime') == 'aberto':
+            ok = ok and regra == 'queda-de-coroa-em-guerra' and any(
+                str(x).startswith('crown.') and (estado.ent.get(x) or {}).get('estado') == 'caida'
+                for x in (causa.get('ids') or []))
+        else:
+            ok = False
+        if not ok:
+            v.append(('I-25', 'mudança de era/regime sem gatilho F7 válido: %r -> %r (%s)' % (
+                antigo, novo.get('regime'), regra)))
     return v
 
 
