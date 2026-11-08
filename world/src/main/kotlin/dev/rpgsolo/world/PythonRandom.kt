@@ -115,13 +115,19 @@ class PythonRandom(semente: BigInteger) {
     }
 
     /** `randrange(start, stop)`. */
-    fun randrange(start: Int, stop: Int): Int {
+    fun randrange(
+        start: Int,
+        stop: Int,
+    ): Int {
         require(stop > start) { "empty range in randrange($start, $stop)" }
         return start + randbelow((stop - start).toLong()).toInt()
     }
 
     /** `randint(a, b)`, com `b` incluído. */
-    fun randint(a: Int, b: Int): Int = randrange(a, b + 1)
+    fun randint(
+        a: Int,
+        b: Int,
+    ): Int = randrange(a, b + 1)
 
     /** `choice(seq)`. */
     fun <T> choice(seq: List<T>): T {
@@ -137,9 +143,16 @@ class PythonRandom(semente: BigInteger) {
         private const val LOWER = 0x7fffffff
 
         /** Semente do simulador: `int(sha256("semente|motor|dia")[:16], 16)`. */
-        fun sementeDoDia(semente: String, motor: String, dia: Int): BigInteger =
-            BigInteger(Hash.sha256("$semente|$motor|$dia").substring(0, 16), 16)
+        fun sementeDoDia(
+            semente: String,
+            motor: String,
+            dia: Int,
+        ): BigInteger = BigInteger(Hash.sha256("$semente|$motor|$dia").substring(0, 16), 16)
 
-        fun doDia(semente: String, motor: String, dia: Int): PythonRandom = PythonRandom(sementeDoDia(semente, motor, dia))
+        fun doDia(
+            semente: String,
+            motor: String,
+            dia: Int,
+        ): PythonRandom = PythonRandom(sementeDoDia(semente, motor, dia))
     }
 }

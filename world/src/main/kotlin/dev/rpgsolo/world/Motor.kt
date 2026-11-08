@@ -32,4 +32,7 @@ interface Motor {
 }
 
 /** `dict(ids=[...], regra='...')` dos motores. */
-fun causa(ids: List<String>, regra: String): Map<String, Any?> = linkedMapOf("ids" to ids.toMutableList(), "regra" to regra)
+fun causa(
+    ids: List<String>,
+    regra: String,
+): Map<String, Any?> = linkedMapOf("ids" to ids.toMutableList(), "regra" to regra)

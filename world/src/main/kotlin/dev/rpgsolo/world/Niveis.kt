@@ -18,7 +18,10 @@ class ReinosMapa(private val w: MundoMolde, deltas: List<Map<String, Any?>>) {
         }
     }
 
-    fun de(i: String, n: Int = 0): String {
+    fun de(
+        i: String,
+        n: Int = 0,
+    ): String {
         m[i]?.let { return it }
         if (i.startsWith("crown.")) return "kingdom." + i.substring(6)
         if (i.startsWith("front.")) return "kingdom." + i.substring(6).split('+')[0]
@@ -27,19 +30,25 @@ class ReinosMapa(private val w: MundoMolde, deltas: List<Map<String, Any?>>) {
             m[i] = w.reinoDe(i.substring(5).split('@')[0]) ?: "—"
             return m.getValue(i)
         }
-        val r: String? = if (i.startsWith("econ.") || i.startsWith("posto.") || i.startsWith("par.")) {
-            val base = if (i.startsWith("econ.")) i.split('@').last() else i.split('.', limit = 2)[1].split('+')[0]
-            if (n < 3) de(base, n + 1) else null
-        } else {
-            w.reinoDe(i)
-        }
+        val r: String? =
+            if (i.startsWith("econ.") || i.startsWith("posto.") || i.startsWith("par.")) {
+                val base = if (i.startsWith("econ.")) i.split('@').last() else i.split('.', limit = 2)[1].split('+')[0]
+                if (n < 3) de(base, n + 1) else null
+            } else {
+                w.reinoDe(i)
+            }
         m[i] = if (r.isNullOrEmpty()) "—" else r
         return m.getValue(i)
     }
 }
 
 /** Níveis de relevância (porta de `niveis.py`, D-M14): leitura derivada dos deltas, nada vai para a crônica nem para os hashes. */
-class Niveis(private val w: MundoMolde, deltas: List<Map<String, Any?>> = emptyList(), private val estado: Estado? = null, reinos: ReinosMapa? = null) {
+class Niveis(
+    private val w: MundoMolde,
+    deltas: List<Map<String, Any?>> = emptyList(),
+    private val estado: Estado? = null,
+    reinos: ReinosMapa? = null,
+) {
     private val r: ReinosMapa = reinos ?: ReinosMapa(w, deltas)
     private val capitais: Set<String> = w.t.getValue("reino").map { it.getValue("capital") }.toSet()
     private val papeis = HashMap<String, Set<String>>()

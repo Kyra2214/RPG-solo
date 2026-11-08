@@ -22,6 +22,9 @@ class CharacterCreationCatalogTest {
         val mergulhador = CharacterCreationCatalog.professions.first { it.id == "mergulhador" }
         assertTrue(mergulhador.mechanicalEffects.none { it.scope == "pilotagem" })
 
+        val adestrador = CharacterCreationCatalog.professions.first { it.id == "adestrador" }
+        assertTrue("Adestrador não deve declarar bônus em escopo sem suporte", adestrador.mechanicalEffects.isEmpty())
+
         val tratador = CharacterCreationCatalog.professions.first { it.id == "tratador-de-aves-mensageiras" }
         assertTrue(tratador.mechanicalEffects.none { it.scope == "montaria" })
 

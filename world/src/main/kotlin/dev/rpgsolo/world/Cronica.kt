@@ -34,14 +34,24 @@ class Cronica private constructor(
 
     companion object {
         /** Cria uma crônica nova e escreve a linha do cabeçalho na saída. */
-        fun criar(cabecalho: Map<String, Any?>, saida: CronicaSaida? = null, guardar: Boolean = true): Cronica {
+        fun criar(
+            cabecalho: Map<String, Any?>,
+            saida: CronicaSaida? = null,
+            guardar: Boolean = true,
+        ): Cronica {
             val c = Cronica(LinkedHashMap(cabecalho), saida, guardar)
             saida?.linha(JsonCanonico.canon(mapOf("cabecalho" to c.cabecalho)))
             return c
         }
 
         /** Continua uma crônica já conferida (retomada por snapshot): hash e contagem vêm do snapshot; não escreve o cabeçalho de novo. */
-        fun continuar(cabecalho: Map<String, Any?>, hash: String, total: Int, saida: CronicaSaida? = null, guardar: Boolean = true): Cronica {
+        fun continuar(
+            cabecalho: Map<String, Any?>,
+            hash: String,
+            total: Int,
+            saida: CronicaSaida? = null,
+            guardar: Boolean = true,
+        ): Cronica {
             val c = Cronica(LinkedHashMap(cabecalho), saida, guardar)
             c.hash = hash
             c.total = total
@@ -49,7 +59,11 @@ class Cronica private constructor(
         }
 
         /** Reabre a partir do texto jsonl, conferindo a cadeia inteira (como `Cronica.abrir` do Python). */
-        fun abrir(texto: String, saida: CronicaSaida? = null, guardar: Boolean = true): Cronica {
+        fun abrir(
+            texto: String,
+            saida: CronicaSaida? = null,
+            guardar: Boolean = true,
+        ): Cronica {
             val linhas = texto.split('\n').toMutableList()
             if (linhas.isNotEmpty() && linhas.last().isEmpty()) linhas.removeAt(linhas.size - 1)
             if (linhas.isEmpty()) throw ErroCronica("crônica vazia")

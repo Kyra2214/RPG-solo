@@ -4,21 +4,25 @@ package dev.rpgsolo.world
 object Importancia {
     const val LIMIAR_NOTIFICACAO = 3
 
-    private val TIPO_REGISTRO: Map<String, Int> = mapOf(
-        "incidente_fronteira" to 3, "quebra_de_contrato" to 3, "tratado" to 3, "ruptura" to 3, "cisma" to 3, "fusao" to 3,
-        "extincao" to 3, "bloqueio_de_rota" to 3, "revolta" to 3, "pista_de_misterio" to 3, "tentativa_de_resolver_misterio" to 3,
-        "alianca_de_povos" to 3, "fim_de_alianca_de_povos" to 3, "laco_aliado" to 2, "laco_rompido" to 2, "laco_rival" to 2,
-        "guerra" to 4, "queda_de_coroa" to 4, "fato_confirmado_alterado" to 4,
-        "disputa_aberta" to 3, "evento_ocorrido" to 3, "fim_de_cadeia" to 3, "passo_de_cadeia" to 2,
-        "consequencia_sem_agente" to 2, "rota_reaberta" to 2, "tregua" to 2, "tensao_pos_ruptura" to 1, "boato" to 1,
-    )
+    private val TIPO_REGISTRO: Map<String, Int> =
+        mapOf(
+            "incidente_fronteira" to 3, "quebra_de_contrato" to 3, "tratado" to 3, "ruptura" to 3, "cisma" to 3, "fusao" to 3,
+            "extincao" to 3, "bloqueio_de_rota" to 3, "revolta" to 3, "pista_de_misterio" to 3, "tentativa_de_resolver_misterio" to 3,
+            "alianca_de_povos" to 3, "fim_de_alianca_de_povos" to 3, "laco_aliado" to 2, "laco_rompido" to 2, "laco_rival" to 2,
+            "guerra" to 4, "queda_de_coroa" to 4, "fato_confirmado_alterado" to 4,
+            "disputa_aberta" to 3, "evento_ocorrido" to 3, "fim_de_cadeia" to 3, "passo_de_cadeia" to 2,
+            "consequencia_sem_agente" to 2, "rota_reaberta" to 2, "tregua" to 2, "tensao_pos_ruptura" to 1, "boato" to 1,
+        )
     private val CAMPOS_DE_CARGO = setOf("governante", "lideranca", "titular")
     private val CARGOS_DE_PODER = setOf("governante", "general", "herdeiro")
 
     private fun papeis(e: Map<String, Any?>): List<String> = (e["papeis"]?.toString() ?: "").split(';')
 
     /** `d`: delta ainda sem importância; `estado`: Estado antes de aplicar o delta. */
-    fun calcular(d: Map<String, Any?>, estado: Estado): Int {
+    fun calcular(
+        d: Map<String, Any?>,
+        estado: Estado,
+    ): Int {
         val t = d["tipo"] as String
         if (t == "era") return 4
         if (t == "criacao") {

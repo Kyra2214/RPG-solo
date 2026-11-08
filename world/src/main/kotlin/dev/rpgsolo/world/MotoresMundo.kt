@@ -97,7 +97,19 @@ class Politica(private val din: Dinamica) : Motor {
             }
             if (novaRel != null && tipoReg != null) {
                 val cz = causa(listOf(k, a, b), "limiar-de-" + tipoReg.replace('_', '-'))
-                out.add(dr(tipoReg, k, causa = cz, quemSabe = q, agentes = rep.filter { e.vivo(it) }, novo = mapa("de" to rel, "para" to novaRel, "tensao" to novoT)))
+                out.add(
+                    dr(
+                        tipoReg,
+                        k,
+                        causa = cz,
+                        quemSabe = q,
+                        agentes =
+                            rep.filter {
+                                e.vivo(it)
+                            },
+                        novo = mapa("de" to rel, "para" to novaRel, "tensao" to novoT),
+                    ),
+                )
                 out.add(dr("campo", k, "relacao", novaRel, cz, quemSabe = q))
                 if (custo != 0) out.add(dr("campo", k, "tensao", maxOf(0, novoT - (l["custo_ruptura"] ?: 25)), cz, quemSabe = q))
             }
@@ -130,11 +142,27 @@ class Economia(private val din: Dinamica) : Motor {
                 if (r["evidencia"] != "documentada") pm += ec["rota_bloqueio_incerta_pm"] ?: 30
                 if (x < pm) {
                     novo = "bloqueada"
-                    out.add(dr("bloqueio_de_rota", k, novo = mapa("de" to atual, "para" to novo), quemSabe = q, causa = causa(cz, "estacao-bloqueio-rota")))
+                    out.add(
+                        dr(
+                            "bloqueio_de_rota",
+                            k,
+                            novo = mapa("de" to atual, "para" to novo),
+                            quemSabe = q,
+                            causa = causa(cz, "estacao-bloqueio-rota"),
+                        ),
+                    )
                 }
             } else if (x < (ec["rota_reabertura_pm"] ?: 450)) {
                 novo = "aberta"
-                out.add(dr("rota_reaberta", k, novo = mapa("de" to atual, "para" to novo), quemSabe = q, causa = causa(cz, "estacao-reabertura-rota")))
+                out.add(
+                    dr(
+                        "rota_reaberta",
+                        k,
+                        novo = mapa("de" to atual, "para" to novo),
+                        quemSabe = q,
+                        causa = causa(cz, "estacao-reabertura-rota"),
+                    ),
+                )
             }
             if (novo != atual) out.add(dr("campo", k, "estado", novo, causa(cz, "estacao-rota"), quemSabe = q))
             rotas[k] = r to novo
@@ -172,15 +200,21 @@ class Economia(private val din: Dinamica) : Motor {
         }
         val alcance = ec["econ_alcance_passos"] ?: 3
         val cache = HashMap<Pair<String, Boolean>, Set<String>>()
-        fun alcancados(loc: String, g: Map<String, Set<String>>, aberto: Boolean): Set<String> = cache.getOrPut(loc to aberto) {
-            val vis = hashSetOf(loc)
-            var fila = listOf(loc)
-            repeat(alcance) {
-                fila = fila.flatMap { x -> (g[x] ?: emptySet()).sortedWith(Ordem.CODIGO) }.filter { it !in vis }
-                vis.addAll(fila)
+
+        fun alcancados(
+            loc: String,
+            g: Map<String, Set<String>>,
+            aberto: Boolean,
+        ): Set<String> =
+            cache.getOrPut(loc to aberto) {
+                val vis = hashSetOf(loc)
+                var fila = listOf(loc)
+                repeat(alcance) {
+                    fila = fila.flatMap { x -> (g[x] ?: emptySet()).sortedWith(Ordem.CODIGO) }.filter { it !in vis }
+                    vis.addAll(fila)
+                }
+                vis
             }
-            vis
-        }
         val escMax = ec["econ_escassez_max"] ?: 3
         val impMax = ec["econ_import_max"] ?: 2
         for (k in econ) {
@@ -194,12 +228,13 @@ class Economia(private val din: Dinamica) : Motor {
             val kp = "econ.${c.str("recurso")}@$loc"
             val pcheia = e.ent[kp]?.takeIf { it["papel"] == "produtor" }?.int("producao") ?: 0
             val vz0 = alcancados(loc, adj0, false)
-            val rcheia = minOf(
-                impMax,
-                econ.map { e.ent.getValue(it) }.filter {
-                    it["recurso"] == c["recurso"] && it["reino"] == c["reino"] && it["papel"] == "produtor" && it["localidade"] != loc && it.str("localidade") in vz0
-                }.sumOf { it.int("producao") },
-            )
+            val rcheia =
+                minOf(
+                    impMax,
+                    econ.map { e.ent.getValue(it) }.filter {
+                        it["recurso"] == c["recurso"] && it["reino"] == c["reino"] && it["papel"] == "produtor" && it["localidade"] != loc && it.str("localidade") in vz0
+                    }.sumOf { it.int("producao") },
+                )
             val esc = maxOf(0, minOf(escMax, (pcheia + rcheia) - (propria + recebida)))
             val q = listOf(c.str("reino"))
             val cr = c.int("estacoes_criticas")
@@ -210,8 +245,12 @@ class Economia(private val din: Dinamica) : Motor {
                 val gov = e.ent[loc]?.get("governante")?.toString() ?: ""
                 out.add(
                     dr(
-                        "revolta", loc, quemSabe = q, novo = mapa("recurso" to c["recurso"], "escassez" to esc),
-                        agentes = gov.split(';').filter { it.isNotEmpty() && e.vivo(it) }, causa = causa(ids, "escassez-prolongada"),
+                        "revolta",
+                        loc,
+                        quemSabe = q,
+                        novo = mapa("recurso" to c["recurso"], "escassez" to esc),
+                        agentes = gov.split(';').filter { it.isNotEmpty() && e.vivo(it) },
+                        causa = causa(ids, "escassez-prolongada"),
                     ),
                 )
                 ncr = 0
@@ -235,7 +274,10 @@ class Ecos(private val din: Dinamica) : Motor {
 
         @Suppress("UNCHECKED_CAST")
         fun dif(k: String) = e.ent.getValue(k)["difusao"] as Map<String, Any?>
-        val devidos = e.ecosAtivos.sortedWith(Ordem.CODIGO).filter { ctx.diaMundo == e.ent.getValue(it).int("inicio") + (dif(it).int("passo") + 1) * atraso }
+        val devidos =
+            e.ecosAtivos.sortedWith(Ordem.CODIGO).filter {
+                ctx.diaMundo == e.ent.getValue(it).int("inicio") + (dif(it).int("passo") + 1) * atraso
+            }
         if (devidos.isEmpty()) return emptyList()
         val adj = HashMap<String, MutableList<Pair<String, String>>>()
         for (k in e.chaves("route.")) {
@@ -270,9 +312,13 @@ class Ecos(private val din: Dinamica) : Motor {
             val ativo = p < (ec["eco_max_passos"] ?: 8) && fronteira
             out.add(
                 dr(
-                    "campo", k, "difusao", mapa("passo" to p, "lugares" to todos.toMutableList(), "certeza" to cert, "ativo" to ativo),
+                    "campo",
+                    k,
+                    "difusao",
+                    mapa("passo" to p, "lugares" to todos.toMutableList(), "certeza" to cert, "ativo" to ativo),
                     causa(listOf(k) + listOfNotNull(via) + c.str("origem_delta"), "difusao-de-eco"),
-                    quemSabe = if (novos.isNotEmpty()) novos else listOf(c.str("reino")), certeza = cert,
+                    quemSabe = if (novos.isNotEmpty()) novos else listOf(c.str("reino")),
+                    certeza = cert,
                 ),
             )
         }
@@ -299,14 +345,29 @@ class Misterios(private val din: Dinamica) : Motor {
             val n = m.int("pistas") + 1
             val cz = causa(listOf(k), "pista-sem-agente")
             val q = listOf(m.str("reino"))
-            out.add(dr("pista_de_misterio", k, certeza = "suspeita", quemSabe = q, causa = cz, novo = mapa("pista" to n, "em_torno_de" to (if (hi != null) hip[hi] else "?"))))
+            out.add(
+                dr(
+                    "pista_de_misterio",
+                    k,
+                    certeza = "suspeita",
+                    quemSabe = q,
+                    causa = cz,
+                    novo = mapa("pista" to n, "em_torno_de" to (if (hi != null) hip[hi] else "?")),
+                ),
+            )
             out.add(dr("campo", k, "pistas", n, cz, quemSabe = q))
         }
         return out
     }
 }
 
-private fun trocaRegra(c: Map<String, Any?>?, regra: String): Map<String, Any?> = LinkedHashMap(c ?: emptyMap()).also { it["regra"] = regra }
+private fun trocaRegra(
+    c: Map<String, Any?>?,
+    regra: String,
+): Map<String, Any?> =
+    LinkedHashMap(c ?: emptyMap()).also {
+        it["regra"] = regra
+    }
 
 /** Diplomacia (porta de `diplomacia.py`). Anual; só fora do regime selado. */
 class Diplomacia(private val din: Dinamica) : Motor {
@@ -325,11 +386,16 @@ class Diplomacia(private val din: Dinamica) : Motor {
             val qs = f.lista("reinos")
             val cz = causa(listOf(k), "diplomacia-de-fronteira")
 
-            fun campos(rel: String, tensao: Int, pend: Boolean = false): List<DeltaRascunho> {
-                val r = arrayListOf(
-                    dr("campo", k, "relacao", rel, cz, quemSabe = qs),
-                    dr("campo", k, "relacao_dia", dia, cz, quemSabe = qs),
-                )
+            fun campos(
+                rel: String,
+                tensao: Int,
+                pend: Boolean = false,
+            ): List<DeltaRascunho> {
+                val r =
+                    arrayListOf(
+                        dr("campo", k, "relacao", rel, cz, quemSabe = qs),
+                        dr("campo", k, "relacao_dia", dia, cz, quemSabe = qs),
+                    )
                 if (tensao != f.int("tensao")) r.add(dr("campo", k, "tensao", tensao, cz, quemSabe = qs))
                 if (pend) r.add(dr("campo", k, "pendente", false, cz, quemSabe = qs))
                 return r
@@ -346,7 +412,9 @@ class Diplomacia(private val din: Dinamica) : Motor {
                 continue
             }
             if (rel == "tratado" && ctx.rng.randrange(1000) < (d["dipl_quebra_pm"] ?: 25)) {
-                out.add(dr("quebra_de_contrato", k, quemSabe = qs, causa = trocaRegra(cz, "tratado-quebrado"), novo = mapa("de" to "tratado")))
+                out.add(
+                    dr("quebra_de_contrato", k, quemSabe = qs, causa = trocaRegra(cz, "tratado-quebrado"), novo = mapa("de" to "tratado")),
+                )
                 out.addAll(campos("ruptura", minOf(tmax, f.int("tensao") + (d["dipl_ruptura_soma"] ?: 60))))
                 continue
             }
@@ -359,10 +427,21 @@ class Diplomacia(private val din: Dinamica) : Motor {
             val pt = d["dipl_tratado_pm"] ?: 350
             if (r < pt) {
                 val ags = qs.mapNotNull { agente(e, it) }
-                out.add(dr("tratado", k, quemSabe = qs, agentes = ags, causa = trocaRegra(cz, "tratado-de-fronteira"), novo = mapa("duracao_anos" to (d["dipl_tratado_anos"] ?: 30))))
+                out.add(
+                    dr(
+                        "tratado",
+                        k,
+                        quemSabe = qs,
+                        agentes = ags,
+                        causa = trocaRegra(cz, "tratado-de-fronteira"),
+                        novo = mapa("duracao_anos" to (d["dipl_tratado_anos"] ?: 30)),
+                    ),
+                )
                 out.addAll(campos("tratado", maxOf(0, f.int("tensao") - (d["dipl_tratado_reduz"] ?: 120)), true))
             } else if (r < pt + (d["dipl_ruptura_pm"] ?: 200)) {
-                out.add(dr("ruptura", k, quemSabe = qs, causa = trocaRegra(cz, "ruptura-de-fronteira"), novo = mapa("tensao" to f["tensao"])))
+                out.add(
+                    dr("ruptura", k, quemSabe = qs, causa = trocaRegra(cz, "ruptura-de-fronteira"), novo = mapa("tensao" to f["tensao"])),
+                )
                 out.addAll(campos("ruptura", minOf(tmax, f.int("tensao") + (d["dipl_ruptura_soma"] ?: 60)), true))
             }
         }
@@ -371,7 +450,11 @@ class Diplomacia(private val din: Dinamica) : Motor {
 
     companion object {
         /** Governante vivo de uma cidade do reino (porta de `Diplomacia._agente`). */
-        fun agente(e: Estado, reino: String, excluir: Set<String> = emptySet()): String? {
+        fun agente(
+            e: Estado,
+            reino: String,
+            excluir: Set<String> = emptySet(),
+        ): String? {
             for (k in e.chaves("city.").filter { e.ent.getValue(it)["reino"] == reino }) {
                 for (g0 in (e.ent.getValue(k)["governante"]?.toString() ?: "").replace(',', ';').split(';')) {
                     val g = g0.trim()
@@ -399,17 +482,30 @@ class Fronteira(private val din: Dinamica) : Motor {
             val f = e.ent.getValue(k)
             if (f["relacao"] == "guerra") continue
             val reinos = f.lista("reinos")
-            val ids = reinos.flatMap { r -> e.chaves("clock.").filter { e.ent.getValue(it)["reino"] == r && e.ent.getValue(it)["estourado"] == true } }
+            val ids =
+                reinos.flatMap {
+                        r ->
+                    e.chaves("clock.").filter { e.ent.getValue(it)["reino"] == r && e.ent.getValue(it)["estourado"] == true }
+                }
             val g = (fr["front_tensao_base"] ?: 1) + (fr["front_tensao_por_relogio"] ?: 1) * ids.size + ctx.rng.randrange((fr["front_tensao_jitter"] ?: 3) + 1)
-            val fator = when (f["relacao"]) {
-                "tratado" -> d["dipl_tratado_fator_pm"] ?: 1000
-                "ruptura" -> d["dipl_ruptura_fator_pm"] ?: 1000
-                else -> 1000
-            }
+            val fator =
+                when (f["relacao"]) {
+                    "tratado" -> d["dipl_tratado_fator_pm"] ?: 1000
+                    "ruptura" -> d["dipl_ruptura_fator_pm"] ?: 1000
+                    else -> 1000
+                }
             val t = minOf(f.int("tensao") + Math.floorDiv(g * fator, 1000), fr["front_tensao_max"] ?: 400)
             val cz = causa(listOf(k) + ids.take(3), "tensao-de-fronteira")
             if (t >= (fr["front_tensao_limiar"] ?: 300)) {
-                out.add(dr("incidente_fronteira", k, quemSabe = reinos, causa = cz, novo = mapa("tensao" to t, "relogios_estourados" to ids.size)))
+                out.add(
+                    dr(
+                        "incidente_fronteira",
+                        k,
+                        quemSabe = reinos,
+                        causa = cz,
+                        novo = mapa("tensao" to t, "relogios_estourados" to ids.size),
+                    ),
+                )
                 out.add(dr("campo", k, "tensao", fr["front_tensao_pos_incidente"] ?: 150, cz, quemSabe = reinos))
                 out.add(dr("campo", k, "incidentes", f.int("incidentes") + 1, cz, quemSabe = reinos))
                 out.add(dr("campo", k, "ultimo_dia", ctx.diaMundo, cz, quemSabe = reinos))
@@ -421,16 +517,20 @@ class Fronteira(private val din: Dinamica) : Motor {
         }
         val lim = fr["fronteira_limite_anos"]
         if (e.mundo["regime"] != "selado") return out
-        val cz: Map<String, Any?> = if (primeiro != null) {
-            causa(listOf(primeiro), "primeiro-incidente-de-fronteira")
-        } else if (lim != null && lim != 0 && ctx.diaMundo >= lim * 365) {
-            causa(listOf("mundo.mythralis"), "limite-de-anos-sem-gatilho")
-        } else {
-            return out
-        }
+        val cz: Map<String, Any?> =
+            if (primeiro != null) {
+                causa(listOf(primeiro), "primeiro-incidente-de-fronteira")
+            } else if (lim != null && lim != 0 && ctx.diaMundo >= lim * 365) {
+                causa(listOf("mundo.mythralis"), "limite-de-anos-sem-gatilho")
+            } else {
+                return out
+            }
         out.add(
             dr(
-                "era", "mundo", quemSabe = listOf("mundo.mythralis"), causa = cz,
+                "era",
+                "mundo",
+                quemSabe = listOf("mundo.mythralis"),
+                causa = cz,
                 novo = mapa("era" to "era.002", "nome" to "Fronteiras Porosas", "regime" to "poroso"),
             ),
         )
@@ -454,10 +554,17 @@ class Guerra(private val din: Dinamica) : Motor {
         var nEra = e.eras.size
         val mortos = HashSet<String>()
 
-        fun era(nome: String, regimeNovo: Any?, cz: Map<String, Any?>): DeltaRascunho {
+        fun era(
+            nome: String,
+            regimeNovo: Any?,
+            cz: Map<String, Any?>,
+        ): DeltaRascunho {
             nEra++
             return dr(
-                "era", "mundo", quemSabe = listOf("mundo.mythralis"), causa = cz,
+                "era",
+                "mundo",
+                quemSabe = listOf("mundo.mythralis"),
+                causa = cz,
                 novo = mapa("era" to "era.%03d".format(java.util.Locale.ROOT, nEra), "nome" to nome, "regime" to regimeNovo),
             )
         }
@@ -467,22 +574,28 @@ class Guerra(private val din: Dinamica) : Motor {
             val cz = causa(listOf(k), "guerra-de-fronteira")
             val coroas = qs.map { "crown." + it.substring(8) }
 
-            fun campos(rel: String, tensao: Int, pend: Boolean = false): List<DeltaRascunho> {
-                val r = arrayListOf(
-                    dr("campo", k, "relacao", rel, cz, quemSabe = qs),
-                    dr("campo", k, "relacao_dia", dia, cz, quemSabe = qs),
-                )
+            fun campos(
+                rel: String,
+                tensao: Int,
+                pend: Boolean = false,
+            ): List<DeltaRascunho> {
+                val r =
+                    arrayListOf(
+                        dr("campo", k, "relacao", rel, cz, quemSabe = qs),
+                        dr("campo", k, "relacao_dia", dia, cz, quemSabe = qs),
+                    )
                 if (tensao != f.int("tensao")) r.add(dr("campo", k, "tensao", tensao, cz, quemSabe = qs))
                 if (pend) r.add(dr("campo", k, "pendente", false, cz, quemSabe = qs))
                 return r
             }
             if (f["relacao"] == "guerra") {
                 for (q in qs) {
-                    val cands = e.chaves("npc.").filter {
-                        val v = e.ent.getValue(it)
-                        it !in mortos && v["reino"] == q && v["vivo"] == true &&
-                            (Valores.verdadeiro(v["principal"]) || "general" in (v["papeis"]?.toString() ?: "").split(';'))
-                    }
+                    val cands =
+                        e.chaves("npc.").filter {
+                            val v = e.ent.getValue(it)
+                            it !in mortos && v["reino"] == q && v["vivo"] == true &&
+                                (Valores.verdadeiro(v["principal"]) || "general" in (v["papeis"]?.toString() ?: "").split(';'))
+                        }
                     if (cands.size >= (g["guerra_baixa_min_vivos"] ?: 4) && ctx.rng.randrange(1000) < (g["guerra_baixa_pm"] ?: 150)) {
                         val vitima = cands[ctx.rng.randrange(cands.size)]
                         mortos.add(vitima)
@@ -508,7 +621,16 @@ class Guerra(private val din: Dinamica) : Motor {
                     out.add(era("Queda da Coroa de ${ctx.mundo.reinos.getValue(caiu.first).linha.getValue("nome")}", regime, cc))
                 } else if (dia >= f.int("relacao_dia") + (g["guerra_anos"] ?: 6) * 365) {
                     val ags = qs.mapNotNull { Diplomacia.agente(e, it, mortos) }
-                    out.add(dr("tratado", k, quemSabe = qs, agentes = ags, causa = trocaRegra(cz, "paz-apos-guerra"), novo = mapa("paz" to true, "duracao_anos" to (d["dipl_tratado_anos"] ?: 30))))
+                    out.add(
+                        dr(
+                            "tratado",
+                            k,
+                            quemSabe = qs,
+                            agentes = ags,
+                            causa = trocaRegra(cz, "paz-apos-guerra"),
+                            novo = mapa("paz" to true, "duracao_anos" to (d["dipl_tratado_anos"] ?: 30)),
+                        ),
+                    )
                     out.addAll(campos("tratado", g["guerra_pos_tensao"] ?: 150))
                 }
                 continue
@@ -534,7 +656,10 @@ class Povos(private val din: Dinamica) : Motor {
     override val nome = "povos"
     override val frequencia = Frequencia.ANUAL
 
-    private fun governante(e: Estado, cid: String): String? {
+    private fun governante(
+        e: Estado,
+        cid: String,
+    ): String? {
         for (g0 in (e.ent.getValue(cid)["governante"]?.toString() ?: "").replace(',', ';').split(';')) {
             val g = g0.trim()
             if (g in e.ent && e.vivo(g)) return g
@@ -542,7 +667,10 @@ class Povos(private val din: Dinamica) : Motor {
         return null
     }
 
-    private fun eh(n: Map<String, Any?>, povo: String) = n["povo"] == povo || n["subraca"] == povo
+    private fun eh(
+        n: Map<String, Any?>,
+        povo: String,
+    ) = n["povo"] == povo || n["subraca"] == povo
 
     override fun executar(ctx: Ctx): List<DeltaRascunho> {
         val p = din.povos
@@ -555,12 +683,22 @@ class Povos(private val din: Dinamica) : Motor {
         val passo = maxOf(1, p["povos_passo_anos"] ?: 5)
         val emGuerra = HashSet<String>()
         for ((k, f) in e.ent) if (k.startsWith("front.") && f["relacao"] == "guerra") emGuerra.addAll(f.lista("reinos"))
-        val escassez = e.ent.filter { (k, x) -> k.startsWith("econ.") && x.int("escassez") >= 3 }.values.map { it.str("localidade") }.toSet()
+        val escassez =
+            e.ent.filter {
+                    (k, x) ->
+                k.startsWith("econ.") && x.int("escassez") >= 3
+            }.values.map { it.str("localidade") }.toSet()
         val medP = setOf("heroi", "guardiao", "benfeitor")
         val mediadores = LinkedHashMap<String, MutableList<String>>()
         for (k in e.chaves("npc.")) {
             val n = e.ent.getValue(k)
-            if (n["vivo"] == true && (n["papeis"]?.toString() ?: "").split(';').any { it in medP }) mediadores.getOrPut(n["cidade"].toString()) { ArrayList() }.add(k)
+            if (n["vivo"] == true &&
+                (n["papeis"]?.toString() ?: "").split(';').any {
+                    it in medP
+                }
+            ) {
+                mediadores.getOrPut(n["cidade"].toString()) { ArrayList() }.add(k)
+            }
         }
         val pactos = e.ent.filterKeys { it.startsWith("pacto.") }
         val lacos = e.chaves("laco.")
@@ -610,7 +748,16 @@ class Povos(private val din: Dinamica) : Motor {
                 novo = "neutra"
             }
             if (reg != null) {
-                out.add(dr(reg, k, agentes = ags, quemSabe = qs, causa = cz, novo = mapa("cidade" to cid, "a" to l["a"], "b" to l["b"], "de" to rel, "para" to novo)))
+                out.add(
+                    dr(
+                        reg,
+                        k,
+                        agentes = ags,
+                        quemSabe = qs,
+                        causa = cz,
+                        novo = mapa("cidade" to cid, "a" to l["a"], "b" to l["b"], "de" to rel, "para" to novo),
+                    ),
+                )
             }
             if (novo != rel) {
                 out.add(dr("campo", k, "relacao", novo, cz, agentes = ags, quemSabe = qs))
@@ -634,22 +781,43 @@ class Povos(private val din: Dinamica) : Motor {
             val qs = if (porReino.isNotEmpty()) porReino.keys.toList() else pc.lista("reinos")
             val cz = causa(listOf(pk) + porReino.values.flatten().sortedWith(Ordem.CODIGO).take(6), "pacto-entre-povos")
             if (pc["estado"] == "nenhum" && n >= minCid) {
-                val alvo = if (selado) {
-                    porReino.keys.sortedWith { x, y -> porReino.getValue(y).size.compareTo(porReino.getValue(x).size).let { c -> if (c != 0) c else Ordem.comparar(x, y) } }.take(1)
-                } else {
-                    porReino.keys.toList()
-                }
+                val alvo =
+                    if (selado) {
+                        porReino.keys.sortedWith {
+                                x,
+                                y,
+                            ->
+                            porReino.getValue(y).size.compareTo(porReino.getValue(x).size).let {
+                                    c ->
+                                if (c != 0) c else Ordem.comparar(x, y)
+                            }
+                        }.take(1)
+                    } else {
+                        porReino.keys.toList()
+                    }
                 val cids = alvo.flatMap { porReino.getValue(it) }.sortedWith(Ordem.CODIGO)
                 val ags = ArrayList<String>()
                 for (c in cids) {
                     val g = governante(e, c)
                     if (g != null && g !in ags) ags.add(g)
                     ags.addAll(
-                        (mediadores[c] ?: emptyList<String>()).filter { m -> (eh(e.ent.getValue(m), pc.str("a")) || eh(e.ent.getValue(m), pc.str("b"))) && m !in ags }.take(1),
+                        (mediadores[c] ?: emptyList<String>()).filter {
+                                m ->
+                            (eh(e.ent.getValue(m), pc.str("a")) || eh(e.ent.getValue(m), pc.str("b"))) && m !in ags
+                        }.take(1),
                     )
                 }
                 val ag6 = ags.take(6)
-                out.add(dr("alianca_de_povos", pk, agentes = ag6, quemSabe = alvo, causa = cz, novo = mapa("a" to pc["a"], "b" to pc["b"], "cidades" to cids.toMutableList())))
+                out.add(
+                    dr(
+                        "alianca_de_povos",
+                        pk,
+                        agentes = ag6,
+                        quemSabe = alvo,
+                        causa = cz,
+                        novo = mapa("a" to pc["a"], "b" to pc["b"], "cidades" to cids.toMutableList()),
+                    ),
+                )
                 out.add(dr("campo", pk, "estado", "alianca", cz, agentes = ag6, quemSabe = alvo))
                 out.add(dr("campo", pk, "desde", dia, cz, agentes = ag6, quemSabe = alvo))
             } else if (pc["estado"] == "alianca" && n < minCid) {
@@ -668,7 +836,9 @@ class Povos(private val din: Dinamica) : Motor {
 object Motores {
     fun pessoas(din: Dinamica): List<Motor> = listOf(Demografia(din), Sucessao(din), Relogios(din), Eventos(din))
 
-    fun todos(din: Dinamica): List<Motor> = pessoas(din) + listOf(
-        Politica(din), Economia(din), Ecos(din), Misterios(din), Diplomacia(din), Fronteira(din), Guerra(din), Povos(din),
-    )
+    fun todos(din: Dinamica): List<Motor> =
+        pessoas(din) +
+            listOf(
+                Politica(din), Economia(din), Ecos(din), Misterios(din), Diplomacia(din), Fronteira(din), Guerra(din), Povos(din),
+            )
 }

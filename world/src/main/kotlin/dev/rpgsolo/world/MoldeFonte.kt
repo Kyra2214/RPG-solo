@@ -7,8 +7,7 @@ interface MoldeFonte {
 }
 
 /** Texto UTF-8 do arquivo com fim de linha normalizado para `\n` (como a leitura em modo texto do Python). */
-fun MoldeFonte.texto(caminho: String): String? =
-    bytes(caminho)?.toString(Charsets.UTF_8)?.replace("\r\n", "\n")?.replace('\r', '\n')
+fun MoldeFonte.texto(caminho: String): String? = bytes(caminho)?.toString(Charsets.UTF_8)?.replace("\r\n", "\n")?.replace('\r', '\n')
 
 /** Fonte em memória, para testes e para ferramentas. */
 class MoldeFonteMapa(private val arquivos: Map<String, ByteArray>) : MoldeFonte {

@@ -19,7 +19,13 @@ class RngJsonConformidadeTest {
             val esperado = c[4].split(',')
             val rotulo = "RNG semente=${c[1]} op=$op args=${c[3]}"
             when (op) {
-                "random" -> esperado.forEachIndexed { i, x -> assertEquals("$rotulo #$i", x.toDouble().toRawBits(), r.random().toRawBits()) }
+                "random" ->
+                    esperado.forEachIndexed {
+                            i,
+                            x,
+                        ->
+                        assertEquals("$rotulo #$i", x.toDouble().toRawBits(), r.random().toRawBits())
+                    }
                 "bits" -> assertEquals(rotulo, esperado, List(esperado.size) { r.getrandbits(c[3].toInt()).toString() })
                 "randrange" -> assertEquals(rotulo, esperado, List(esperado.size) { r.randrange(c[3].toInt()).toString() })
                 "randint" -> {

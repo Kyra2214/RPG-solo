@@ -20,13 +20,20 @@ class SimuladorConformidadeTest {
             val pontos = ArrayList<String>()
             var blocos = 0
             lateinit var sim: Simulador
-            sim = Conformidade.simulador(semente, Motores::todos, 10) { _, _ ->
-                blocos++
-                if (blocos % 5 == 0) pontos.add("PONTO|$semente|${blocos * 10}|${Conformidade.ponto(sim)}")
-            }
+            sim =
+                Conformidade.simulador(semente, Motores::todos, 10) { _, _ ->
+                    blocos++
+                    if (blocos % 5 == 0) pontos.add("PONTO|$semente|${blocos * 10}|${Conformidade.ponto(sim)}")
+                }
             val res = sim.rodar(500)
             val doPython = vetores.filter { it[1] == h[1] }
-            assertEquals("BLOCO semente $semente", doPython.filter { it[0] == "BLOCO" }.map { it.joinToString("|") }, sim.saude.map { "BLOCO|$semente|${it.linha()}" })
+            assertEquals(
+                "BLOCO semente $semente",
+                doPython.filter {
+                    it[0] == "BLOCO"
+                }.map { it.joinToString("|") },
+                sim.saude.map { "BLOCO|$semente|${it.linha()}" },
+            )
             assertEquals("PONTO semente $semente", doPython.filter { it[0] == "PONTO" }.map { it.joinToString("|") }, pontos)
             val inv = doPython.single { it[0] == "INV" }
             assertEquals("hash de invariantes.txt, semente $semente", inv[2], Hash.sha256(sim.relatorioInvariantes()))
@@ -45,10 +52,11 @@ class SimuladorConformidadeTest {
 
         var blocos = 0
         var json = ""
-        val primeira = Conformidade.simulador(semente, Motores::todos, 10) { _, snap ->
-            blocos++
-            if (blocos == 5) json = checkNotNull(snap).paraJson()
-        }
+        val primeira =
+            Conformidade.simulador(semente, Motores::todos, 10) { _, snap ->
+                blocos++
+                if (blocos == 5) json = checkNotNull(snap).paraJson()
+            }
         primeira.rodar(50)
         assertTrue("snapshot do bloco 5 não gerado", json.isNotEmpty())
 

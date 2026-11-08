@@ -37,16 +37,16 @@ class CalendarioReino(linha: Linha) {
         fun anoBase(diaMundo: Int): Int = ANO_BASE + Math.floorDiv(diaMundo, DIAS_ANO)
 
         /** 0..3 (inverno, primavera, verão, outono); os dias 364 e 365 ficam no outono (M-02 §3). */
-        fun estacaoIdx(doy: Int): Int = when {
-            doy <= 91 -> 0
-            doy <= 182 -> 1
-            doy <= 273 -> 2
-            else -> 3
-        }
+        fun estacaoIdx(doy: Int): Int =
+            when {
+                doy <= 91 -> 0
+                doy <= 182 -> 1
+                doy <= 273 -> 2
+                else -> 3
+            }
 
         /** Lua 1..12, ou 0 para dia de transição. */
-        fun lua(doy: Int): Int =
-            if (doy in setOf(91, 182, 273, 364, 365)) 0 else ((doy - 1) / 91) * 3 + ((doy - 1) % 91) / 30 + 1
+        fun lua(doy: Int): Int = if (doy in setOf(91, 182, 273, 364, 365)) 0 else ((doy - 1) / 91) * 3 + ((doy - 1) % 91) / 30 + 1
 
         /** Calendário de cada reino do molde (porta de `construir`); `null` se a linha do calendário não existe. */
         fun construir(w: MundoMolde): Map<String, CalendarioReino?> {

@@ -6155,12 +6155,7 @@
         "Interpreta sinais corporais de tensão animal",
         "Conduz familiarização gradual com vozes e gestos"
       ],
-      "mechanicalEffects": [
-        {
-          "scope": "adestramento",
-          "bonus": 1
-        }
-      ],
+      "mechanicalEffects": [],
       "tags": [
         "profissao",
         "original"

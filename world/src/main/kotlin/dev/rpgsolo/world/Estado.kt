@@ -11,9 +11,16 @@ interface DinamicaEstado {
     val front: Map<String, Int>
     val povos: Map<String, Int>
 
-    fun classeDe(povo: String, subraca: String): String
+    fun classeDe(
+        povo: String,
+        subraca: String,
+    ): String
 
-    fun nascDia(npcId: String, idadeTxt: String, classe: String): Int?
+    fun nascDia(
+        npcId: String,
+        idadeTxt: String,
+        classe: String,
+    ): Int?
 }
 
 /**
@@ -75,7 +82,10 @@ class Estado {
         }
     }
 
-    private fun lugar(i: String, n: Int = 0): String? {
+    private fun lugar(
+        i: String,
+        n: Int = 0,
+    ): String? {
         val e = ent[i]
         if (i.startsWith("city.") || i.startsWith("settlement.")) return i
         if (e == null || n > 3) return null
@@ -94,34 +104,47 @@ class Estado {
         val lugar = lugar(entidade) ?: return
         val tipo = d["tipo"].toString()
         val importancia = (d["importancia"] as Number).toInt()
-        val camada = when {
-            tipo == "pista_de_misterio" || tipo == "tentativa_de_resolver_misterio" -> "restrito"
-            importancia >= 4 || tipo in PUBLICOS -> "publico"
-            else -> "local"
-        }
+        val camada =
+            when {
+                tipo == "pista_de_misterio" || tipo == "tentativa_de_resolver_misterio" -> "restrito"
+                importancia >= 4 || tipo in PUBLICOS -> "publico"
+                else -> "local"
+            }
         val k = "eco.${d["id"]}"
+
         fun reinoDe(x: String): Any? = ent[x]?.get("reino")?.takeIf { it != "" }
-        ent[k] = linkedMapOf(
-            "reino" to (reinoDe(entidade) ?: reinoDe(lugar)),
-            "origem_delta" to d["id"],
-            "tipo" to tipo,
-            "entidade" to entidade,
-            "camada" to camada,
-            "inicio" to d["dia_mundo"],
-            "difusao" to linkedMapOf("passo" to 0, "lugares" to mutableListOf<Any?>(lugar), "certeza" to d["certeza"], "ativo" to true),
-        )
+        ent[k] =
+            linkedMapOf(
+                "reino" to (reinoDe(entidade) ?: reinoDe(lugar)),
+                "origem_delta" to d["id"],
+                "tipo" to tipo,
+                "entidade" to entidade,
+                "camada" to camada,
+                "inicio" to d["dia_mundo"],
+                "difusao" to linkedMapOf("passo" to 0, "lugares" to mutableListOf<Any?>(lugar), "certeza" to d["certeza"], "ativo" to true),
+            )
         ecosAtivos.add(k)
     }
 
-    fun estadoAnteriorDe(tipo: String?, entidade: String?, campo: String?): Any? = when (tipo) {
-        "campo" -> ent[entidade]?.get(campo)
-        "era" -> linkedMapOf("era" to mundo["era"], "regime" to mundo["regime"])
-        else -> null
-    }
+    fun estadoAnteriorDe(
+        tipo: String?,
+        entidade: String?,
+        campo: String?,
+    ): Any? =
+        when (tipo) {
+            "campo" -> ent[entidade]?.get(campo)
+            "era" -> linkedMapOf("era" to mundo["era"], "regime" to mundo["regime"])
+            else -> null
+        }
 
-    fun comoMapa(): Map<String, Any?> = linkedMapOf(
-        "proximo_dia" to proximoDia, "mundo" to mundo, "eras" to eras, "n_criados" to nCriados, "ent" to ent,
-    )
+    fun comoMapa(): Map<String, Any?> =
+        linkedMapOf(
+            "proximo_dia" to proximoDia,
+            "mundo" to mundo,
+            "eras" to eras,
+            "n_criados" to nCriados,
+            "ent" to ent,
+        )
 
     /** Hash do estado, sem `proximo_dia` (o dia avança mesmo sem delta; o estado é o que mudou). */
     fun hash(): String = Hash.sha256(JsonCanonico.canon(comoMapa().filterKeys { it != "proximo_dia" }))
@@ -146,30 +169,40 @@ class Estado {
         val ERA_INICIAL = Triple(ERA_INICIAL_ID, "Fronteiras Seladas", "selado")
 
         /** Anel de M-04 (G-02), sentido horário; vizinhos são pares consecutivos. */
-        val ANEL = listOf(
-            "kingdom.coroas-de-pedra", "kingdom.aeltharyn", "kingdom.azeroth", "kingdom.veu-dos-malditos", "kingdom.vale-palancar",
-        )
-        val PUBLICOS = setOf(
-            "alianca_de_povos", "fim_de_alianca_de_povos", "revolta", "bloqueio_de_rota", "guerra", "queda_de_coroa", "tratado",
-            "ruptura", "disputa_aberta", "evento_ocorrido", "fim_de_cadeia", "incidente_fronteira", "quebra_de_contrato",
-        )
+        val ANEL =
+            listOf(
+                "kingdom.coroas-de-pedra",
+                "kingdom.aeltharyn",
+                "kingdom.azeroth",
+                "kingdom.veu-dos-malditos",
+                "kingdom.vale-palancar",
+            )
+        val PUBLICOS =
+            setOf(
+                "alianca_de_povos", "fim_de_alianca_de_povos", "revolta", "bloqueio_de_rota", "guerra", "queda_de_coroa", "tratado",
+                "ruptura", "disputa_aberta", "evento_ocorrido", "fim_de_cadeia", "incidente_fronteira", "quebra_de_contrato",
+            )
 
         private fun sim(v: String) = v.trim().lowercase() == "sim"
 
         private fun lugarValido(x: String) = x.startsWith("city.") || x.startsWith("settlement.")
 
         /** Estado inicial = molde (+ dinâmica, só para a idade dos NPCs vivos). Nada aqui é editado no molde. */
-        fun doMolde(w: MundoMolde, din: DinamicaEstado? = null): Estado {
+        fun doMolde(
+            w: MundoMolde,
+            din: DinamicaEstado? = null,
+        ): Estado {
             val s = Estado()
             val lim = { k: String, d: Int -> din?.lim?.get(k) ?: d }
             val comDin = din != null && !din.vazia
             for (r in w.t.getValue("npc")) {
-                val e = linkedMapOf<String, Any?>(
-                    "vivo" to sim(r.getValue("vivo")), "reino" to r.getValue("reino"), "cidade" to r.getValue("cidade"),
-                    "faccao" to r.getValue("faccao"), "cargo" to r.getValue("cargo"), "papeis" to r.getValue("papeis"),
-                    "principal" to sim(r.getValue("principal")), "povo" to r.getValue("povo"), "subraca" to r.getValue("subraca"),
-                    "nome" to r.getValue("nome"), "saude" to "sao",
-                )
+                val e =
+                    linkedMapOf<String, Any?>(
+                        "vivo" to sim(r.getValue("vivo")), "reino" to r.getValue("reino"), "cidade" to r.getValue("cidade"),
+                        "faccao" to r.getValue("faccao"), "cargo" to r.getValue("cargo"), "papeis" to r.getValue("papeis"),
+                        "principal" to sim(r.getValue("principal")), "povo" to r.getValue("povo"), "subraca" to r.getValue("subraca"),
+                        "nome" to r.getValue("nome"), "saude" to "sao",
+                    )
                 if (din != null && comDin) {
                     val classe = din.classeDe(r.getValue("povo"), r.getValue("subraca"))
                     e["classe"] = classe
@@ -178,13 +211,18 @@ class Estado {
                 s.ent[r.getValue("id")] = e
             }
             for (r in w.t.getValue("relogio")) {
-                s.ent[r.getValue("id")] = linkedMapOf(
-                    "reino" to r.getValue("reino"), "segmentos" to r.getValue("segmentos").trim().toInt(),
-                    "progresso" to r.getValue("progresso").trim().toInt(), "estourado" to false,
-                )
+                s.ent[r.getValue("id")] =
+                    linkedMapOf(
+                        "reino" to r.getValue("reino"), "segmentos" to r.getValue("segmentos").trim().toInt(),
+                        "progresso" to r.getValue("progresso").trim().toInt(), "estourado" to false,
+                    )
             }
-            for (r in w.t.getValue("faccao")) s.ent[r.getValue("id")] = linkedMapOf("reino" to r.getValue("reino"), "lideranca" to r.getValue("lideranca"))
-            for (r in w.t.getValue("cidade")) s.ent[r.getValue("id")] = linkedMapOf("reino" to r.getValue("reino"), "governante" to r.getValue("governante"))
+            for (r in w.t.getValue(
+                "faccao",
+            )) s.ent[r.getValue("id")] = linkedMapOf("reino" to r.getValue("reino"), "lideranca" to r.getValue("lideranca"))
+            for (r in w.t.getValue(
+                "cidade",
+            )) s.ent[r.getValue("id")] = linkedMapOf("reino" to r.getValue("reino"), "governante" to r.getValue("governante"))
             s.postos(w)
             s.pares(w, lim)
             if (din != null && comDin && din.econ.isNotEmpty()) s.economia(w, din.econ)
@@ -198,9 +236,10 @@ class Estado {
             }
             for (r in w.t.getValue("evento")) {
                 val total = maxOf(1, r.getValue("cadeia").split(" > ").count { it.isNotBlank() })
-                s.ent[r.getValue("id")] = linkedMapOf(
-                    "reino" to r.getValue("reino"), "estado" to "latente", "passo" to 0, "inicio_dia" to null, "total" to total,
-                )
+                s.ent[r.getValue("id")] =
+                    linkedMapOf(
+                        "reino" to r.getValue("reino"), "estado" to "latente", "passo" to 0, "inicio_dia" to null, "total" to total,
+                    )
             }
             if (din != null && comDin && (din.front["front_tensao_limiar"] ?: 0) != 0) s.fronteiras(w)
             if (din != null && comDin && din.povos["povos_tensao_base"] != null) s.povos(w, din.povos)
@@ -212,7 +251,9 @@ class Estado {
             val racas = w.catalogo.racas.toSet()
             val sub = w.catalogo.subracas
             val tok = LinkedHashMap<String, MutableSet<String>>()
-            for (c in w.t.getValue("cidade")) tok[c.getValue("id")] = TabelaMolde.toks(c.getValue("povos")).filter { it in racas }.toMutableSet()
+            for (c in w.t.getValue(
+                "cidade",
+            )) tok[c.getValue("id")] = TabelaMolde.toks(c.getValue("povos")).filter { it in racas }.toMutableSet()
             for (n in w.t.getValue("npc")) {
                 val povos = tok[n.getValue("cidade")] ?: continue
                 if (n.getValue("povo") in racas) povos.add(n.getValue("povo"))
@@ -222,7 +263,10 @@ class Estado {
         }
     }
 
-    private fun povos(w: MundoMolde, p: Map<String, Int>) {
+    private fun povos(
+        w: MundoMolde,
+        p: Map<String, Int>,
+    ) {
         val (tok, sub) = povosPorCidade(w)
         val pares = LinkedHashMap<Pair<String, String>, MutableList<String>>()
         for (cid in tok.keys.sortedWith(Ordem.CODIGO)) {
@@ -233,10 +277,11 @@ class Estado {
                     val a = povos[i]
                     val b = povos[j]
                     if ((sub[a] ?: a) == (sub[b] ?: b)) continue
-                    ent["laco.$cid@$a+$b"] = linkedMapOf(
-                        "reino" to reino, "cidade" to cid, "a" to a, "b" to b, "relacao" to "neutra",
-                        "tensao" to p.getValue("povos_tensao_base"), "desde" to null,
-                    )
+                    ent["laco.$cid@$a+$b"] =
+                        linkedMapOf(
+                            "reino" to reino, "cidade" to cid, "a" to a, "b" to b, "relacao" to "neutra",
+                            "tensao" to p.getValue("povos_tensao_base"), "desde" to null,
+                        )
                     pares.getOrPut(a to b) { ArrayList() }.add(cid)
                 }
             }
@@ -245,10 +290,11 @@ class Estado {
         for ((par, cs) in ordem) {
             if (cs.size < (p["povos_pacto_min_cidades"] ?: 2)) continue
             val reinos = cs.mapNotNull { w.reinoDe(it) }.toSet().sortedWith(Ordem.CODIGO)
-            ent["pacto.${par.first}+${par.second}"] = linkedMapOf(
-                "reino" to (if (reinos.size == 1) reinos[0] else null), "reinos" to reinos.toMutableList(), "cidade" to cs[0],
-                "a" to par.first, "b" to par.second, "cidades" to cs.toMutableList(), "estado" to "nenhum", "desde" to null,
-            )
+            ent["pacto.${par.first}+${par.second}"] =
+                linkedMapOf(
+                    "reino" to (if (reinos.size == 1) reinos[0] else null), "reinos" to reinos.toMutableList(), "cidade" to cs[0],
+                    "a" to par.first, "b" to par.second, "cidades" to cs.toMutableList(), "estado" to "nenhum", "desde" to null,
+                )
         }
     }
 
@@ -257,23 +303,31 @@ class Estado {
             val b = ANEL[(i + 1) % ANEL.size]
             if (a in w.reinos && b in w.reinos) {
                 ent["crown." + a.substring(8)] = linkedMapOf("reino" to a, "estado" to "firme", "caida_dia" to null)
-                ent["front.${a.substring(8)}+${b.substring(8)}"] = linkedMapOf(
-                    "reino" to a, "reinos" to mutableListOf<Any?>(a, b), "tensao" to 0, "incidentes" to 0, "ultimo_dia" to null,
-                    "relacao" to "neutra", "relacao_dia" to null, "pendente" to false,
-                )
+                ent["front.${a.substring(8)}+${b.substring(8)}"] =
+                    linkedMapOf(
+                        "reino" to a, "reinos" to mutableListOf<Any?>(a, b), "tensao" to 0, "incidentes" to 0, "ultimo_dia" to null,
+                        "relacao" to "neutra", "relacao_dia" to null, "pendente" to false,
+                    )
             }
         }
     }
 
-    private fun economia(w: MundoMolde, e: Map<String, Int>) {
+    private fun economia(
+        w: MundoMolde,
+        e: Map<String, Int>,
+    ) {
         val digito = Regex("^\\s*(\\d)")
 
-        fun ordinal(txt: String, padrao: Int): Int = digito.find(txt)?.let { minOf(5, it.groupValues[1].toInt()) } ?: padrao
+        fun ordinal(
+            txt: String,
+            padrao: Int,
+        ): Int = digito.find(txt)?.let { minOf(5, it.groupValues[1].toInt()) } ?: padrao
         for (r in w.t.getValue("rota")) {
-            ent[r.getValue("id")] = linkedMapOf(
-                "reino" to r.getValue("reino"), "de" to r.getValue("de"), "para" to r.getValue("para"),
-                "evidencia" to r.getValue("estado"), "estado" to "aberta",
-            )
+            ent[r.getValue("id")] =
+                linkedMapOf(
+                    "reino" to r.getValue("reino"), "de" to r.getValue("de"), "para" to r.getValue("para"),
+                    "evidencia" to r.getValue("estado"), "estado" to "aberta",
+                )
         }
         for (r in w.t.getValue("recurso")) {
             val loc = r.getValue("localidade")
@@ -283,14 +337,16 @@ class Estado {
             if (k in ent || reino == null) continue
             val prod = r.getValue("papel") == "produtor"
             val p0 = if (prod) ordinal(r.getValue("producao"), e["econ_producao_padrao"] ?: 2) else 0
-            val d0 = ordinal(
-                r.getValue("demanda"),
-                if (prod) e["econ_demanda_padrao_produtor"] ?: 0 else e["econ_demanda_padrao_consumidor"] ?: 2,
-            )
-            ent[k] = linkedMapOf(
-                "reino" to reino, "recurso" to r.getValue("recurso"), "localidade" to loc, "papel" to r.getValue("papel"),
-                "producao" to p0, "producao_atual" to p0, "demanda" to d0, "escassez" to 0, "estacoes_criticas" to 0,
-            )
+            val d0 =
+                ordinal(
+                    r.getValue("demanda"),
+                    if (prod) e["econ_demanda_padrao_produtor"] ?: 0 else e["econ_demanda_padrao_consumidor"] ?: 2,
+                )
+            ent[k] =
+                linkedMapOf(
+                    "reino" to reino, "recurso" to r.getValue("recurso"), "localidade" to loc, "papel" to r.getValue("papel"),
+                    "producao" to p0, "producao_atual" to p0, "demanda" to d0, "escassez" to 0, "estacoes_criticas" to 0,
+                )
         }
     }
 
@@ -307,42 +363,58 @@ class Estado {
         )) {
             for (r in w.t.getValue(tab)) {
                 val t = titulares(r.getValue(campo)) ?: continue
-                ent["posto." + r.getValue("id")] = linkedMapOf(
-                    "reino" to r.getValue("reino"), "tipo" to tipo, "alvo" to r.getValue("id"), "papel" to papel,
-                    "titular" to t.joinToString(";"), "vago_desde" to null, "prazo" to null, "interino" to "—", "anterior" to "—",
-                )
+                ent["posto." + r.getValue("id")] =
+                    linkedMapOf(
+                        "reino" to r.getValue("reino"), "tipo" to tipo, "alvo" to r.getValue("id"), "papel" to papel,
+                        "titular" to t.joinToString(";"), "vago_desde" to null, "prazo" to null, "interino" to "—", "anterior" to "—",
+                    )
                 usados.addAll(t)
             }
         }
         for (r in w.t.getValue("npc")) {
             val p = r.getValue("papeis").split(';').toSet()
             if (r.getValue("id") !in usados && ent.getValue(r.getValue("id"))["vivo"] == true && ("governante" in p || "general" in p)) {
-                ent["posto." + r.getValue("id")] = linkedMapOf(
-                    "reino" to r.getValue("reino"), "tipo" to "npc", "alvo" to r.getValue("id"),
-                    "papel" to (if ("governante" in p) "governante" else "general"), "titular" to r.getValue("id"),
-                    "vago_desde" to null, "prazo" to null,
-                )
+                ent["posto." + r.getValue("id")] =
+                    linkedMapOf(
+                        "reino" to r.getValue("reino"), "tipo" to "npc", "alvo" to r.getValue("id"),
+                        "papel" to (if ("governante" in p) "governante" else "general"), "titular" to r.getValue("id"),
+                        "vago_desde" to null, "prazo" to null,
+                    )
             }
         }
     }
 
-    private fun pares(w: MundoMolde, lim: (String, Int) -> Int) {
+    private fun pares(
+        w: MundoMolde,
+        lim: (String, Int) -> Int,
+    ) {
         val al = HashSet<Pair<String, String>>()
         val ri = HashSet<Pair<String, String>>()
 
-        fun par(a: String, b: String) = if (Ordem.comparar(a, b) <= 0) a to b else b to a
+        fun par(
+            a: String,
+            b: String,
+        ) = if (Ordem.comparar(a, b) <= 0) a to b else b to a
         for (f in w.t.getValue("faccao")) {
             for (x in TabelaMolde.toks(f.getValue("aliados"))) if (x in ent && x != f.getValue("id")) al.add(par(f.getValue("id"), x))
             for (x in TabelaMolde.toks(f.getValue("rivais"))) if (x in ent && x != f.getValue("id")) ri.add(par(f.getValue("id"), x))
         }
         val todos = (al + ri).sortedWith(Ordem.PARES)
         for ((a, b) in todos) {
-            val rel = if ((a to b) in al && (a to b) in ri) "ambigua" else if ((a to b) in al) "aliança" else "rivalidade"
-            val t0 = when (rel) {
-                "aliança" -> lim("tensao_base_alianca", 20)
-                "rivalidade" -> lim("tensao_base_rivalidade", 50)
-                else -> lim("tensao_inicial_ambigua", 40)
-            }
+            val rel =
+                if ((a to b) in al && (a to b) in ri) {
+                    "ambigua"
+                } else if ((a to b) in al) {
+                    "aliança"
+                } else {
+                    "rivalidade"
+                }
+            val t0 =
+                when (rel) {
+                    "aliança" -> lim("tensao_base_alianca", 20)
+                    "rivalidade" -> lim("tensao_base_rivalidade", 50)
+                    else -> lim("tensao_inicial_ambigua", 40)
+                }
             ent["par.$a+$b"] = linkedMapOf("reino" to ent.getValue(a).getValue("reino"), "a" to a, "b" to b, "relacao" to rel, "tensao" to t0)
         }
     }
@@ -352,9 +424,14 @@ class Estado {
 object Ordem {
     val CODIGO = Comparator<String> { a, b -> JsonCanonico.compararPontosDeCodigo(a, b) }
 
-    fun comparar(a: String, b: String): Int = CODIGO.compare(a, b)
+    fun comparar(
+        a: String,
+        b: String,
+    ): Int = CODIGO.compare(a, b)
 
-    val PARES_INT = Comparator<Pair<String, Int>> { x, y -> comparar(x.first, y.first).let { if (it != 0) it else x.second.compareTo(y.second) } }
+    val PARES_INT =
+        Comparator<Pair<String, Int>> { x, y -> comparar(x.first, y.first).let { if (it != 0) it else x.second.compareTo(y.second) } }
 
-    val PARES = Comparator<Pair<String, String>> { x, y -> comparar(x.first, y.first).let { if (it != 0) it else comparar(x.second, y.second) } }
+    val PARES =
+        Comparator<Pair<String, String>> { x, y -> comparar(x.first, y.first).let { if (it != 0) it else comparar(x.second, y.second) } }
 }

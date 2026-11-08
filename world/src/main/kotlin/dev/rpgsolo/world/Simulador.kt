@@ -17,10 +17,11 @@ class BlocoSaude(
     val falhas: List<VBloco>,
     val hashCronica: String,
 ) {
-    fun linha(): String = listOf(
-        numero, anoIni, anoFim, diaIni, diaFim, if (parcial) "sim" else "não", resultado, deltas, notificacoes, alertas.size, falhas.size,
-        hashCronica.take(16),
-    ).joinToString("|")
+    fun linha(): String =
+        listOf(
+            numero, anoIni, anoFim, diaIni, diaFim, if (parcial) "sim" else "não", resultado, deltas, notificacoes, alertas.size, falhas.size,
+            hashCronica.take(16),
+        ).joinToString("|")
 }
 
 /**
@@ -36,20 +37,30 @@ class Snapshot(
     val hashEstado: String,
     val estado: Map<String, Any?>,
 ) {
-    fun paraJson(): String = JsonCanonico.canon(
-        linkedMapOf(
-            "dia" to dia, "hash_cronica" to hashCronica, "deltas" to deltas, "notificacoes" to notificacoes, "ultimo_dia" to ultimoDia,
-            "hash_estado" to hashEstado, "estado" to estado,
-        ),
-    )
+    fun paraJson(): String =
+        JsonCanonico.canon(
+            linkedMapOf(
+                "dia" to dia,
+                "hash_cronica" to hashCronica,
+                "deltas" to deltas,
+                "notificacoes" to notificacoes,
+                "ultimo_dia" to ultimoDia,
+                "hash_estado" to hashEstado,
+                "estado" to estado,
+            ),
+        )
 
     companion object {
         @Suppress("UNCHECKED_CAST")
         fun deJson(texto: String): Snapshot {
             val m = JsonLeitor.objeto(texto)
             return Snapshot(
-                Valores.numero(m["dia"]).toInt(), m["hash_cronica"].toString(), Valores.numero(m["deltas"]).toInt(),
-                Valores.numero(m["notificacoes"]).toInt(), Valores.numero(m["ultimo_dia"]).toInt(), m["hash_estado"].toString(),
+                Valores.numero(m["dia"]).toInt(),
+                m["hash_cronica"].toString(),
+                Valores.numero(m["deltas"]).toInt(),
+                Valores.numero(m["notificacoes"]).toInt(),
+                Valores.numero(m["ultimo_dia"]).toInt(),
+                m["hash_estado"].toString(),
                 m["estado"] as Map<String, Any?>,
             )
         }
@@ -79,18 +90,29 @@ class Simulador(
     val passo: Int = maxOf(1, passo)
     private val motores = motores.sortedWith { a, b -> Ordem.comparar(a.nome, b.nome) }
     private val nomesMotores: Set<String> = this.motores.map { it.nome }.toSet()
-    private val porFreq: Map<Frequencia, List<Motor>> = Frequencia.values().toList().associateWith { f -> this.motores.filter { it.frequencia == f } }
+    private val porFreq: Map<Frequencia, List<Motor>> =
+        Frequencia.values().toList().associateWith {
+                f ->
+            this.motores.filter { it.frequencia == f }
+        }
     private val cals: Map<String, CalendarioReino?> = CalendarioReino.construir(mundo)
     val estado: Estado = if (retomada != null) Estado.doSnapshot(retomada.estado) else Estado.doMolde(mundo, din)
-    private val cabecalho: Map<String, Any?> = linkedMapOf(
-        "versao_motor" to VERSAO, "esquema_cronica" to 1, "mundo" to "mundo.mythralis", "semente" to semente,
-        "hash_molde" to mundo.hashMolde, "hash_dinamica" to hashDinamica, "ano_base" to CalendarioReino.ANO_BASE,
-    )
-    val crono: Cronica = if (retomada != null) {
-        Cronica.continuar(cabecalho, retomada.hashCronica, retomada.deltas, saida, guardarDeltas)
-    } else {
-        Cronica.criar(cabecalho, saida, guardarDeltas)
-    }
+    private val cabecalho: Map<String, Any?> =
+        linkedMapOf(
+            "versao_motor" to VERSAO,
+            "esquema_cronica" to 1,
+            "mundo" to "mundo.mythralis",
+            "semente" to semente,
+            "hash_molde" to mundo.hashMolde,
+            "hash_dinamica" to hashDinamica,
+            "ano_base" to CalendarioReino.ANO_BASE,
+        )
+    val crono: Cronica =
+        if (retomada != null) {
+            Cronica.continuar(cabecalho, retomada.hashCronica, retomada.deltas, saida, guardarDeltas)
+        } else {
+            Cronica.criar(cabecalho, saida, guardarDeltas)
+        }
 
     /** Notificações geradas (o contador define o id `nNNNNNN` gravado no delta). */
     var nNotificacoes = retomada?.notificacoes ?: 0
@@ -130,14 +152,18 @@ class Simulador(
         return num != null && num in 1..nNotificacoes && t == "n%06d".format(Locale.ROOT, num)
     }
 
-    private fun emitir(dia: Int, dr: DeltaRascunho) {
+    private fun emitir(
+        dia: Int,
+        dr: DeltaRascunho,
+    ) {
         val e = estado
-        val d = linkedMapOf<String, Any?>(
-            "id" to "d%06d".format(Locale.ROOT, crono.total + 1), "dia_mundo" to dia, "era" to e.mundo["era"], "tipo" to dr.tipo,
-            "entidade" to dr.entidade, "campo" to dr.campo, "estado_anterior" to e.estadoAnteriorDe(dr.tipo, dr.entidade, dr.campo),
-            "estado_novo" to dr.estadoNovo, "causa" to dr.causa, "agentes" to dr.agentes.toMutableList(),
-            "quem_sabe" to dr.quemSabe.toMutableList(), "certeza" to dr.certeza, "origem" to dr.origem,
-        )
+        val d =
+            linkedMapOf<String, Any?>(
+                "id" to "d%06d".format(Locale.ROOT, crono.total + 1), "dia_mundo" to dia, "era" to e.mundo["era"], "tipo" to dr.tipo,
+                "entidade" to dr.entidade, "campo" to dr.campo, "estado_anterior" to e.estadoAnteriorDe(dr.tipo, dr.entidade, dr.campo),
+                "estado_novo" to dr.estadoNovo, "causa" to dr.causa, "agentes" to dr.agentes.toMutableList(),
+                "quem_sabe" to dr.quemSabe.toMutableList(), "certeza" to dr.certeza, "origem" to dr.origem,
+            )
         val viol = Invariantes.checarDelta(d, e, ultimoDia, crono.total, mundo, din)
         d["importancia"] = if (dr.tipo.isNotEmpty() && dr.entidade.isNotEmpty()) Importancia.calcular(d, e) else 0
         try {
@@ -180,37 +206,60 @@ class Simulador(
         }
         v.addAll(conferirMolde())
         val al = ArrayList<VBloco>()
+
         fun separar(x: VBloco) = if (Invariantes.IMPLEMENTADOS[x.inv]?.first == "E") v.add(x) else al.add(x)
         for (x in Invariantes.checarEstado(estado, diaFim, nomesMotores)) separar(x)
         for (d in bd) {
             reinos.registrar(d)
             val ent = d["entidade"].toString()
-            if (ent.startsWith("eco.") && ent in estado.ent) reinos.eco[ent] = estado.ent.getValue(ent)["reino"]?.toString()?.takeIf { it.isNotEmpty() } ?: "—"
+            if (ent.startsWith("eco.") && ent in estado.ent) {
+                reinos.eco[ent] = estado.ent.getValue(ent)["reino"]?.toString()?.takeIf {
+                    it.isNotEmpty()
+                } ?: "—"
+            }
         }
         val blocoDias = passo * CalendarioReino.DIAS_ANO
         val parcial = blocoIni % blocoDias != 0 || (diaFim + 1) % blocoDias != 0
         for (x in Invariantes.checarBloco(bd, estado, diaFim, parcial, cals, din.inv, reinos, mundo, enraizados)) separar(x)
-        val res = if (v.isNotEmpty()) "FALHA" else if (al.isNotEmpty()) "ALERTA" else "OK"
+        val res =
+            if (v.isNotEmpty()) {
+                "FALHA"
+            } else if (al.isNotEmpty()) {
+                "ALERTA"
+            } else {
+                "OK"
+            }
         blocos++
-        val b = BlocoSaude(
-            blocoIni / blocoDias + 1, CalendarioReino.anoBase(blocoIni), CalendarioReino.anoBase(diaFim), blocoIni, diaFim, parcial, res,
-            bd.size, nNotificacoes - nNotifIni, al, ArrayList(v), crono.hash,
-        )
+        val b =
+            BlocoSaude(
+                blocoIni / blocoDias + 1,
+                CalendarioReino.anoBase(
+                    blocoIni,
+                ),
+                CalendarioReino.anoBase(diaFim), blocoIni, diaFim, parcial, res,
+                bd.size, nNotificacoes - nNotifIni, al, ArrayList(v), crono.hash,
+            )
         saude.add(b)
         violTotal.addAll(v)
         alertTotal.addAll(al)
         resultado = res
         val cb = aoFecharBloco
         if (cb != null) {
-            val snap = if (res != "FALHA") {
-                @Suppress("UNCHECKED_CAST")
-                Snapshot(
-                    estado.proximoDia, crono.hash, crono.total, nNotificacoes, ultimoDia, estado.hash(),
-                    Valores.copiar(estado.comoMapa()) as Map<String, Any?>,
-                )
-            } else {
-                null
-            }
+            val snap =
+                if (res != "FALHA") {
+                    @Suppress("UNCHECKED_CAST")
+                    Snapshot(
+                        estado.proximoDia,
+                        crono.hash,
+                        crono.total,
+                        nNotificacoes,
+                        ultimoDia,
+                        estado.hash(),
+                        Valores.copiar(estado.comoMapa()) as Map<String, Any?>,
+                    )
+                } else {
+                    null
+                }
             cb(b, snap)
         }
         return res
@@ -225,7 +274,14 @@ class Simulador(
             emitir(
                 ini,
                 DeltaRascunho(
-                    "era", "mundo", estadoNovo = linkedMapOf("era" to Estado.ERA_INICIAL.first, "nome" to Estado.ERA_INICIAL.second, "regime" to Estado.ERA_INICIAL.third),
+                    "era",
+                    "mundo",
+                    estadoNovo =
+                        linkedMapOf(
+                            "era" to Estado.ERA_INICIAL.first,
+                            "nome" to Estado.ERA_INICIAL.second,
+                            "regime" to Estado.ERA_INICIAL.third,
+                        ),
                     causa = causa(listOf("mundo.mythralis"), "inicio-da-rodada"),
                 ),
             )

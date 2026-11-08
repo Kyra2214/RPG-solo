@@ -9,64 +9,75 @@ class VBloco(val inv: String, val entidade: String, val msg: String)
 /** Invariantes de continuidade (porta de `invariantes.py`): por delta, por estado ao fim do bloco e por bloco. */
 object Invariantes {
     /** Código → (gravidade `E` erro ou `A` alerta, nome). */
-    val IMPLEMENTADOS: Map<String, Pair<String, String>> = linkedMapOf(
-        "I-01" to ("E" to "molde intacto (hash dos dados/, mundo/ e catálogo; hash da dinâmica)"),
-        "I-02" to ("E" to "determinismo (mesma semente, mesma crônica)"),
-        "I-03" to ("E" to "morto não age"),
-        "I-04" to ("E" to "cargo ocupado ou vacância válida (prazo e interino)"),
-        "I-05" to ("E" to "referências válidas"),
-        "I-06" to ("E" to "toda mudança tem causa"),
-        "I-07" to ("E" to "origem marcada (nada novo é ORIGINAL)"),
-        "I-08" to ("E" to "mistério sem evidência não se resolve (exige agente, evidência listada e verdade não vedada)"),
-        "I-09" to ("E" to "camada respeitada (Eco restrito ou secreto só avança por rota registrada)"),
-        "I-10" to ("E" to "contrato de fronteira na Era I (selado): sem rota nova, sem Mistério D resolvido, sem agente de outro reino, sem troca de dono de Torvelume)"),
-        "I-11" to ("E" to "aliado e rival ao mesmo tempo é proibido (par só muda por transição permitida)"),
-        "I-12" to ("E" to "calendário coerente (a mesma data do mundo dá o mesmo dia do ano em todos os reinos)"),
-        "I-13" to ("E" to "ordem causal"),
-        "I-14" to ("E" to "linhagem de NPC simulado"),
-        "I-15" to ("A" to "NPC simulado vivo sem lugar"),
-        "I-16" to ("A" to "mundo não morre (todo reino mantém NPCs vivos)"),
-        "I-17" to ("A" to "mundo não congela (mínimo de eventos importantes por década e reino)"),
-        "I-18" to ("A" to "sem explosão (teto de eventos importantes por ano e reino)"),
-        "I-19" to ("E" to "retomada coerente"),
-        "I-20" to ("E" to "legibilidade (toda causa remonta ao molde ou a um delta anterior)"),
-        "I-21" to ("E" to "notificação completa (importância 3+)"),
-        "I-22" to ("E" to "passo neutro"),
-        "I-23" to ("E" to "transições permitidas da relação entre reinos vizinhos"),
-        "I-24" to ("E" to "guerra válida e queda de coroa irreversível durante guerra"),
-        "I-25" to ("E" to "mudança de era/regime com gatilho e causa correspondentes"),
-        "I-26" to ("E" to "laço entre povos: transições permitidas e aliança só com governante vivo da cidade como agente"),
-        "I-27" to ("E" to "pacto entre povos coerente com os laços aliados do par"),
-        "I-28" to ("E" to "níveis completos: todo delta de importância 3+ tem nível e cidade ou reino"),
-    )
+    val IMPLEMENTADOS: Map<String, Pair<String, String>> =
+        linkedMapOf(
+            "I-01" to ("E" to "molde intacto (hash dos dados/, mundo/ e catálogo; hash da dinâmica)"),
+            "I-02" to ("E" to "determinismo (mesma semente, mesma crônica)"),
+            "I-03" to ("E" to "morto não age"),
+            "I-04" to ("E" to "cargo ocupado ou vacância válida (prazo e interino)"),
+            "I-05" to ("E" to "referências válidas"),
+            "I-06" to ("E" to "toda mudança tem causa"),
+            "I-07" to ("E" to "origem marcada (nada novo é ORIGINAL)"),
+            "I-08" to ("E" to "mistério sem evidência não se resolve (exige agente, evidência listada e verdade não vedada)"),
+            "I-09" to ("E" to "camada respeitada (Eco restrito ou secreto só avança por rota registrada)"),
+            "I-10" to ("E" to "contrato de fronteira na Era I (selado): sem rota nova, sem Mistério D resolvido, sem agente de outro reino, sem troca de dono de Torvelume)"),
+            "I-11" to ("E" to "aliado e rival ao mesmo tempo é proibido (par só muda por transição permitida)"),
+            "I-12" to ("E" to "calendário coerente (a mesma data do mundo dá o mesmo dia do ano em todos os reinos)"),
+            "I-13" to ("E" to "ordem causal"),
+            "I-14" to ("E" to "linhagem de NPC simulado"),
+            "I-15" to ("A" to "NPC simulado vivo sem lugar"),
+            "I-16" to ("A" to "mundo não morre (todo reino mantém NPCs vivos)"),
+            "I-17" to ("A" to "mundo não congela (mínimo de eventos importantes por década e reino)"),
+            "I-18" to ("A" to "sem explosão (teto de eventos importantes por ano e reino)"),
+            "I-19" to ("E" to "retomada coerente"),
+            "I-20" to ("E" to "legibilidade (toda causa remonta ao molde ou a um delta anterior)"),
+            "I-21" to ("E" to "notificação completa (importância 3+)"),
+            "I-22" to ("E" to "passo neutro"),
+            "I-23" to ("E" to "transições permitidas da relação entre reinos vizinhos"),
+            "I-24" to ("E" to "guerra válida e queda de coroa irreversível durante guerra"),
+            "I-25" to ("E" to "mudança de era/regime com gatilho e causa correspondentes"),
+            "I-26" to ("E" to "laço entre povos: transições permitidas e aliança só com governante vivo da cidade como agente"),
+            "I-27" to ("E" to "pacto entre povos coerente com os laços aliados do par"),
+            "I-28" to ("E" to "níveis completos: todo delta de importância 3+ tem nível e cidade ou reino"),
+        )
 
     /** Invariantes que só se comparam entre rodadas (não rodam dentro de uma). */
     val ENTRE_RODADAS = setOf("I-02", "I-19", "I-22")
 
     val CERTEZAS = setOf("confirmado", "alegado", "suspeita", "rumor", "inferência", "desconhecido")
 
-    private val TRANSICOES_PAR: Map<String, Set<String>> = mapOf(
-        "aliança" to setOf("rompida"), "rompida" to setOf("rivalidade"), "rivalidade" to setOf("disputa_aberta", "tratado"),
-        "disputa_aberta" to setOf("rivalidade"), "tratado" to setOf("rivalidade"), "ambigua" to setOf("rivalidade", "tratado"),
-    )
-    private val TRANSICOES_LACO: Map<String, Set<String>> = mapOf(
-        "neutra" to setOf("alianca", "rivalidade"), "alianca" to setOf("neutra"), "rivalidade" to setOf("neutra"),
-    )
-    private val TRANSICOES_FRONT: Map<String, Set<String>> = mapOf(
-        "neutra" to setOf("neutra", "tratado", "ruptura"),
-        "tratado" to setOf("tratado", "neutra", "ruptura"),
-        "ruptura" to setOf("ruptura", "neutra", "tratado", "guerra"),
-        "guerra" to setOf("guerra", "neutra", "tratado"),
-    )
+    private val TRANSICOES_PAR: Map<String, Set<String>> =
+        mapOf(
+            "aliança" to setOf("rompida"),
+            "rompida" to setOf("rivalidade"),
+            "rivalidade" to setOf("disputa_aberta", "tratado"),
+            "disputa_aberta" to setOf("rivalidade"),
+            "tratado" to setOf("rivalidade"),
+            "ambigua" to setOf("rivalidade", "tratado"),
+        )
+    private val TRANSICOES_LACO: Map<String, Set<String>> =
+        mapOf(
+            "neutra" to setOf("alianca", "rivalidade"),
+            "alianca" to setOf("neutra"),
+            "rivalidade" to setOf("neutra"),
+        )
+    private val TRANSICOES_FRONT: Map<String, Set<String>> =
+        mapOf(
+            "neutra" to setOf("neutra", "tratado", "ruptura"),
+            "tratado" to setOf("tratado", "neutra", "ruptura"),
+            "ruptura" to setOf("ruptura", "neutra", "tratado", "guerra"),
+            "guerra" to setOf("guerra", "neutra", "tratado"),
+        )
     private val ORIGENS_NPC = setOf("nascimento", "chegada", "nomeacao")
     val PADRAO_DELTA = Regex("^d\\d{6}$")
 
-    private fun s(x: Any?): String = when (x) {
-        null -> "None"
-        true -> "True"
-        false -> "False"
-        else -> x.toString()
-    }
+    private fun s(x: Any?): String =
+        when (x) {
+            null -> "None"
+            true -> "True"
+            false -> "False"
+            else -> x.toString()
+        }
 
     @Suppress("UNCHECKED_CAST")
     private fun mapa(x: Any?): Map<String, Any?>? = x as? Map<String, Any?>
@@ -74,7 +85,10 @@ object Invariantes {
     private fun lista(x: Any?): List<Any?> = (x as? List<Any?>) ?: emptyList()
 
     /** `i` é id de um delta já gravado? A crônica numera de 1 a [total] (`d%06d`). */
-    fun idEmCronica(i: String, total: Int): Boolean {
+    fun idEmCronica(
+        i: String,
+        total: Int,
+    ): Boolean {
         if (!i.startsWith("d") || i.length < 7 || !i.drop(1).all { it in '0'..'9' }) return false
         val n = i.drop(1).toLongOrNull() ?: return false
         return n in 1..total && i == "d%06d".format(java.util.Locale.ROOT, n)
@@ -84,7 +98,14 @@ object Invariantes {
      * Violações de um delta. [estado] é o estado ANTES de aplicar; [total] é o número de deltas já na crônica;
      * [ultimoDia] o dia do último delta gravado.
      */
-    fun checarDelta(d: Map<String, Any?>, estado: Estado, ultimoDia: Int, total: Int, world: MundoMolde, din: Dinamica?): List<Viol> {
+    fun checarDelta(
+        d: Map<String, Any?>,
+        estado: Estado,
+        ultimoDia: Int,
+        total: Int,
+        world: MundoMolde,
+        din: Dinamica?,
+    ): List<Viol> {
         val v = ArrayList<Viol>()
         for (k in listOf("tipo", "entidade")) {
             val x = d[k]
@@ -104,7 +125,11 @@ object Invariantes {
         if (d["origem"] != "SIMULADO") v.add(Viol("I-07", "origem diferente de SIMULADO: ${d["origem"]}"))
         val dia = (d["dia_mundo"] as? Number)?.toInt() ?: 0
         if (dia < ultimoDia) v.add(Viol("I-13", "dia_mundo $dia anterior ao último registrado $ultimoDia"))
-        for (i in idsC) if (PADRAO_DELTA.matches(i) && !idEmCronica(i, total)) v.add(Viol("I-13", "causa aponta para delta que não veio antes: $i"))
+        for (i in idsC) if (PADRAO_DELTA.matches(i) && !idEmCronica(i, total)) {
+            v.add(
+                Viol("I-13", "causa aponta para delta que não veio antes: $i"),
+            )
+        }
 
         fun existe(i: String) = i in estado.ent || i in world.indice || i == "mundo" || i == "mundo.mythralis" || idEmCronica(i, total)
         val entidade = d["entidade"]?.let { s(it) }
@@ -112,8 +137,9 @@ object Invariantes {
         for (i in idsC + agentes) if (!existe(i)) v.add(Viol("I-05", "referência inexistente: $i"))
         val ns = d["estado_novo"]
         val nsMapa = mapa(ns)
-        val resolve = (tipo == "tentativa_de_resolver_misterio" && nsMapa != null && verdadeiro(nsMapa["resolvido"])) ||
-            (tipo == "campo" && campo == "estado" && s(d["entidade"]).startsWith("mist.") && ns != "aberto")
+        val resolve =
+            (tipo == "tentativa_de_resolver_misterio" && nsMapa != null && verdadeiro(nsMapa["resolvido"])) ||
+                (tipo == "campo" && campo == "estado" && s(d["entidade"]).startsWith("mist.") && ns != "aberto")
         if (resolve) {
             val row = world.linha(s(d["entidade"])) ?: emptyMap()
             val ev = nsMapa?.get("evidencia")?.let { s(it) } ?: ""
@@ -143,7 +169,11 @@ object Invariantes {
             if (d["entidade"] == "mist.d-mina-selada" && resolve) v.add(Viol("I-10", "Mistério D resolvido na Era I"))
             for (a in agentes) {
                 val ra = estado.ent[a]?.get("reino")
-                if (rk != null && rk != "" && ra != null && ra != "" && ra != rk) v.add(Viol("I-10", "agente de outro reino ($a) em ${d["entidade"]}"))
+                if (rk != null && rk != "" && ra != null && ra != "" && ra != rk) {
+                    v.add(
+                        Viol("I-10", "agente de outro reino ($a) em ${d["entidade"]}"),
+                    )
+                }
             }
             if (tipo == "campo" && d["entidade"] in setOf("city.torvelume", "posto.city.torvelume") && campo in setOf("governante", "titular")) {
                 for (x in s(ns).split(';')) {
@@ -157,14 +187,22 @@ object Invariantes {
         val nsS = ns as? String
         val entS = s(d["entidade"])
         if (tipo == "campo" && campo == "relacao" && entS.startsWith("par.")) {
-            if (nsS !in (TRANSICOES_PAR[antS] ?: emptySet<String>())) v.add(Viol("I-11", "transição de par não permitida: ${s(ant)} -> ${s(ns)}"))
+            if (nsS !in (TRANSICOES_PAR[antS] ?: emptySet<String>())) {
+                v.add(
+                    Viol("I-11", "transição de par não permitida: ${s(ant)} -> ${s(ns)}"),
+                )
+            }
         }
         if (tipo == "campo" && campo == "relacao" && entS.startsWith("laco.")) {
             if (nsS !in (TRANSICOES_LACO[antS] ?: emptySet<String>())) {
                 v.add(Viol("I-26", "transição de laço não permitida: ${s(ant)} -> ${s(ns)}"))
             } else if (ns == "alianca") {
                 val cid = estado.ent[entS]?.get("cidade")
-                val gov = (estado.ent[cid?.toString() ?: ""]?.get("governante")?.toString() ?: "").replace(',', ';').split(';').map { it.trim() }
+                val gov =
+                    (estado.ent[cid?.toString() ?: ""]?.get("governante")?.toString() ?: "").replace(
+                        ',',
+                        ';',
+                    ).split(';').map { it.trim() }
                 if (agentes.isEmpty() || agentes[0] !in gov || !estado.vivo(agentes[0])) {
                     v.add(Viol("I-26", "aliança de povos sem governante vivo da cidade como agente: $entS"))
                 }
@@ -198,8 +236,13 @@ object Invariantes {
             if (sub != "—" && cat.subracas[s(sub)] != n["povo"]) v.add(Viol("I-14", "sub-raça inválida para o povo: ${pyRepr(sub)}"))
         }
         if (tipo == "campo" && campo == "relacao" && entS.startsWith("front.")) {
-            if (nsS !in (TRANSICOES_FRONT[antS] ?: emptySet<String>())) v.add(Viol("I-23", "transição de fronteira não permitida: ${s(ant)} -> ${s(ns)}"))
+            if (nsS !in (TRANSICOES_FRONT[antS] ?: emptySet<String>())) {
+                v.add(
+                    Viol("I-23", "transição de fronteira não permitida: ${s(ant)} -> ${s(ns)}"),
+                )
+            }
         }
+
         fun guerraValida(parId: String): Boolean {
             val par = estado.ent[parId] ?: emptyMap()
             val coroas = lista(par["reinos"]).map { s(it) }.filter { it.startsWith("kingdom.") }.map { "crown." + it.substring(8) }
@@ -211,14 +254,26 @@ object Invariantes {
         val regra = c["regra"]
         val eGuerra = entS.startsWith("front.") && guerraValida(entS)
         if (tipo == "guerra" || (tipo == "campo" && campo == "relacao" && ns == "guerra" && entS.startsWith("front."))) {
-            if (!eGuerra || regra != "guerra-de-fronteira") v.add(Viol("I-24", "guerra sem ruptura elegível, coroas firmes ou causa de fronteira"))
+            if (!eGuerra || regra != "guerra-de-fronteira") {
+                v.add(
+                    Viol("I-24", "guerra sem ruptura elegível, coroas firmes ou causa de fronteira"),
+                )
+            }
         }
         val queda = tipo == "queda_de_coroa" || (tipo == "campo" && entS.startsWith("crown.") && campo == "estado" && ns == "caida")
         if (queda) {
             val coroa = estado.ent[entS] ?: emptyMap()
             val reino = coroa["reino"]
-            val pares = estado.ent.filter { (k, p) -> k.startsWith("front.") && p["relacao"] == "guerra" && lista(p["reinos"]).contains(reino) }.keys
-            if (!entS.startsWith("crown.") || coroa["estado"] != "firme" || pares.isEmpty() || regra != "queda-de-coroa-em-guerra" || pares.none { it in idsC }) {
+            val pares =
+                estado.ent.filter {
+                        (k, p) ->
+                    k.startsWith("front.") && p["relacao"] == "guerra" && lista(p["reinos"]).contains(reino)
+                }.keys
+            if (!entS.startsWith("crown.") || coroa["estado"] != "firme" || pares.isEmpty() || regra != "queda-de-coroa-em-guerra" ||
+                pares.none {
+                    it in idsC
+                }
+            ) {
                 v.add(Viol("I-24", "queda de coroa sem guerra ativa e causa correspondente"))
             }
         }
@@ -249,15 +304,20 @@ object Invariantes {
     }
 
     /** `repr` do Python para os valores que aparecem nas mensagens. */
-    private fun pyRepr(x: Any?): String = when (x) {
-        null -> "None"
-        is String -> "'$x'"
-        is Boolean -> if (x) "True" else "False"
-        else -> x.toString()
-    }
+    private fun pyRepr(x: Any?): String =
+        when (x) {
+            null -> "None"
+            is String -> "'$x'"
+            is Boolean -> if (x) "True" else "False"
+            else -> x.toString()
+        }
 
     /** Conferência do estado ao fim de um bloco (I-04 só com o motor de sucessão na rodada; I-15). */
-    fun checarEstado(estado: Estado, dia: Int, motores: Set<String>): List<VBloco> {
+    fun checarEstado(
+        estado: Estado,
+        dia: Int,
+        motores: Set<String>,
+    ): List<VBloco> {
         val v = ArrayList<VBloco>()
         for (k in estado.ent.keys.sortedWith(Ordem.CODIGO)) {
             val e = estado.ent.getValue(k)
@@ -295,9 +355,27 @@ object Invariantes {
         val v = ArrayList<VBloco>()
         val doys = LinkedHashMap<String, Int>()
         for ((r, c) in cals) if (c != null && c.valido()) doys[r] = c.data(diaFim).diaDoAno
-        if (doys.values.toSet().size > 1) v.add(VBloco("I-12", "mundo", "dia do ano diferente entre reinos no dia $diaFim: ${doys.entries.joinToString(", ", "{", "}") { "'${it.key}': ${it.value}" }}"))
+        if (doys.values.toSet().size > 1) {
+            v.add(
+                VBloco(
+                    "I-12",
+                    "mundo",
+                    "dia do ano diferente entre reinos no dia $diaFim: ${doys.entries.joinToString(
+                        ", ",
+                        "{",
+                        "}",
+                    ) { "'${it.key}': ${it.value}" }}",
+                ),
+            )
+        }
         for (r in world.reinos.keys.sortedWith(Ordem.CODIGO)) {
-            if (estado.ent.none { (k, e) -> k.startsWith("npc.") && e["vivo"] == true && e["reino"] == r }) v.add(VBloco("I-16", r, "reino sem NPC vivo"))
+            if (estado.ent.none {
+                        (k, e) ->
+                    k.startsWith("npc.") && e["vivo"] == true && e["reino"] == r
+                }
+            ) {
+                v.add(VBloco("I-16", r, "reino sem NPC vivo"))
+            }
         }
         val ids = HashMap<String, Map<String, Any?>>()
         for (d in deltas) ids[s(d["id"])] = d
@@ -352,7 +430,11 @@ object Invariantes {
         }
         val minimo = inv["inv_min_importantes_decada"]
         if (minimo != null && minimo != 0 && !parcial && deltas.isNotEmpty()) {
-            val anos = maxOf(1, Math.floorDiv((deltas.last()["dia_mundo"] as Number).toInt() - (deltas.first()["dia_mundo"] as Number).toInt(), 365) + 1)
+            val anos =
+                maxOf(
+                    1,
+                    Math.floorDiv((deltas.last()["dia_mundo"] as Number).toInt() - (deltas.first()["dia_mundo"] as Number).toInt(), 365) + 1,
+                )
             for (r in world.reinos.keys.sortedWith(Ordem.CODIGO)) {
                 val c = porAno.filter { it.key.first == r }.values.sum()
                 if (c * 10 < minimo * anos) v.add(VBloco("I-17", r, "só $c eventos importantes em $anos anos (mínimo $minimo por década)"))
@@ -361,7 +443,8 @@ object Invariantes {
         return v
     }
 
-    private fun verdadeiro(x: Any?): Boolean = !(x == null || x == false || x == "" || (x is Number && x.toLong() == 0L) || (x is Collection<*> && x.isEmpty()) || (x is Map<*, *> && x.isEmpty()))
+    private fun verdadeiro(x: Any?): Boolean =
+        !(x == null || x == false || x == "" || (x is Number && x.toLong() == 0L) || (x is Collection<*> && x.isEmpty()) || (x is Map<*, *> && x.isEmpty()))
 
     private fun imp(d: Map<String, Any?>): Int = (d["importancia"] as? Number)?.toInt() ?: 0
 }

@@ -210,8 +210,7 @@ class CombatBonuses(
     ): Int = externalSkillAndCurseBonuses(entityId, setOf(scope)).sumOf { it.bonus }
 
     /** Efeitos do catálogo acumulam quando têm IDs distintos; a mesma declaração só é aplicada uma vez. */
-    fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> =
-        selectCatalogBonuses(catalogBonuses(pkg))
+    fun selectedCatalogBonuses(pkg: RulePackage): List<dev.rpgsolo.rules.ExternalBonus> = selectCatalogBonuses(catalogBonuses(pkg))
 
     fun approvedRuleBonus(scope: String): Int =
         session().state.additionalRules.values.filter { it.approved }.sumOf { it.effects[scope] ?: 0 }
@@ -297,6 +296,5 @@ class CombatBonuses(
 }
 
 /** Mantém efeitos do catálogo com IDs distintos e remove somente a repetição da mesma declaração. */
-internal fun selectCatalogBonuses(
-    bonuses: Collection<dev.rpgsolo.rules.ExternalBonus>,
-): List<dev.rpgsolo.rules.ExternalBonus> = dev.rpgsolo.rules.distinctExternalBonuses(bonuses)
+internal fun selectCatalogBonuses(bonuses: Collection<dev.rpgsolo.rules.ExternalBonus>): List<dev.rpgsolo.rules.ExternalBonus> =
+    dev.rpgsolo.rules.distinctExternalBonuses(bonuses)

@@ -56,12 +56,13 @@ data class MoldeManifesto(
             }
             require(cabecalhoVisto) { "manifesto sem cabeçalho" }
             require(meta["esquema"] == ESQUEMA.toString()) { "esquema do manifesto não suportado: ${meta["esquema"]}" }
-            val manifesto = MoldeManifesto(
-                esquema = ESQUEMA,
-                moldeSha256 = requireNotNull(meta["molde_sha256"]) { "manifesto sem molde_sha256" },
-                dinamicaSha256 = requireNotNull(meta["dinamica_sha256"]) { "manifesto sem dinamica_sha256" },
-                arquivos = arquivos,
-            )
+            val manifesto =
+                MoldeManifesto(
+                    esquema = ESQUEMA,
+                    moldeSha256 = requireNotNull(meta["molde_sha256"]) { "manifesto sem molde_sha256" },
+                    dinamicaSha256 = requireNotNull(meta["dinamica_sha256"]) { "manifesto sem dinamica_sha256" },
+                    arquivos = arquivos,
+                )
             require(meta["arquivos_molde"] == manifesto.molde.size.toString()) { "contagem de arquivos do molde não confere" }
             require(meta["arquivos_dinamica"] == manifesto.dinamica.size.toString()) { "contagem de arquivos da dinâmica não confere" }
             require(meta["arquivos_derivados"] == manifesto.derivados.size.toString()) { "contagem de arquivos derivados não confere" }

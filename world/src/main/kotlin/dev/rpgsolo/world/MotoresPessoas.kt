@@ -27,8 +27,12 @@ class Demografia(private val din: Dinamica) : Motor {
             if (ctx.rng.randrange(1000) < p) {
                 out.add(
                     DeltaRascunho(
-                        "campo", i, "vivo", false,
-                        causa(listOf(i), "morte-natural" + (if (doente) "-doente" else "")), quemSabe = q,
+                        "campo",
+                        i,
+                        "vivo",
+                        false,
+                        causa(listOf(i), "morte-natural" + (if (doente) "-doente" else "")),
+                        quemSabe = q,
                     ),
                 )
                 continue
@@ -50,7 +54,10 @@ class Relogios(private val din: Dinamica) : Motor {
     override val nome = "relogios"
     override val frequencia = Frequencia.LUNAR
 
-    private fun ativa(ctx: Ctx, i: String): Boolean {
+    private fun ativa(
+        ctx: Ctx,
+        i: String,
+    ): Boolean {
         val e = ctx.estado
         if (i.startsWith("npc.")) return e.vivo(i)
         if (i.startsWith("faction.")) {
@@ -100,15 +107,16 @@ class Eventos(private val din: Dinamica) : Motor {
 
     private var idx: Pair<Map<String, Linha>, Map<String, List<Linha>>>? = null
 
-    private fun prep(w: MundoMolde): Pair<Map<String, Linha>, Map<String, List<Linha>>> = idx ?: run {
-        val ev = LinkedHashMap<String, Linha>()
-        for (r in w.t.getValue("evento")) ev[r.getValue("id")] = r
-        val sem = LinkedHashMap<String, MutableList<Linha>>()
-        for (s in w.t.getValue("semente")) {
-            for (x in TabelaMolde.toks(s.getValue("relogio_evento"))) if (x.startsWith("event.")) sem.getOrPut(x) { ArrayList() }.add(s)
+    private fun prep(w: MundoMolde): Pair<Map<String, Linha>, Map<String, List<Linha>>> =
+        idx ?: run {
+            val ev = LinkedHashMap<String, Linha>()
+            for (r in w.t.getValue("evento")) ev[r.getValue("id")] = r
+            val sem = LinkedHashMap<String, MutableList<Linha>>()
+            for (s in w.t.getValue("semente")) {
+                for (x in TabelaMolde.toks(s.getValue("relogio_evento"))) if (x.startsWith("event.")) sem.getOrPut(x) { ArrayList() }.add(s)
+            }
+            (ev to sem).also { idx = it }
         }
-        (ev to sem).also { idx = it }
-    }
 
     override fun executar(ctx: Ctx): List<DeltaRascunho> {
         if (din.vazia) return emptyList()
@@ -124,7 +132,15 @@ class Eventos(private val din: Dinamica) : Motor {
                 val rel = r.getValue("relogio")
                 if (e.ent[rel]?.get("estourado") == true) {
                     val cz = causa(listOf(rel, i), "estouro-de-relogio")
-                    out.add(DeltaRascunho("evento_ocorrido", i, causa = cz, quemSabe = q, estadoNovo = linkedMapOf("relogio" to rel, "nome" to r.getValue("nome"))))
+                    out.add(
+                        DeltaRascunho(
+                            "evento_ocorrido",
+                            i,
+                            causa = cz,
+                            quemSabe = q,
+                            estadoNovo = linkedMapOf("relogio" to rel, "nome" to r.getValue("nome")),
+                        ),
+                    )
                     out.add(DeltaRascunho("campo", i, "estado", "em_cadeia", cz, quemSabe = q))
                     out.add(DeltaRascunho("campo", i, "inicio_dia", ctx.diaMundo, cz, quemSabe = q))
                 }
@@ -135,19 +151,28 @@ class Eventos(private val din: Dinamica) : Motor {
                 val cz = causa(listOf(i), "cadeia-do-evento")
                 out.add(
                     DeltaRascunho(
-                        "passo_de_cadeia", i, causa = cz, quemSabe = q, agentes = ags,
+                        "passo_de_cadeia",
+                        i,
+                        causa = cz,
+                        quemSabe = q,
+                        agentes = ags,
                         estadoNovo = linkedMapOf("passo" to n + 1, "de" to passos.size, "texto" to passos[minOf(n, passos.size - 1)]),
                     ),
                 )
                 out.add(DeltaRascunho("campo", i, "passo", n + 1, cz, quemSabe = q))
                 if (n + 1 >= s.int("total")) {
                     out.add(DeltaRascunho("campo", i, "estado", "concluido", cz, quemSabe = q))
-                    out.add(DeltaRascunho("fim_de_cadeia", i, causa = cz, quemSabe = q, estadoNovo = linkedMapOf("nome" to r.getValue("nome"))))
+                    out.add(
+                        DeltaRascunho("fim_de_cadeia", i, causa = cz, quemSabe = q, estadoNovo = linkedMapOf("nome" to r.getValue("nome"))),
+                    )
                     for (sd in sem[i] ?: emptyList()) {
                         out.add(
                             DeltaRascunho(
-                                "consequencia_sem_agente", sd.getValue("id"), quemSabe = q,
-                                causa = causa(listOf(i, sd.getValue("id")), "se-ninguem-age"), certeza = "alegado",
+                                "consequencia_sem_agente",
+                                sd.getValue("id"),
+                                quemSabe = q,
+                                causa = causa(listOf(i, sd.getValue("id")), "se-ninguem-age"),
+                                certeza = "alegado",
                                 estadoNovo = linkedMapOf("texto" to sd.getValue("se_ninguem_age")),
                             ),
                         )
@@ -170,9 +195,10 @@ class Sucessao(private val din: Dinamica) : Motor {
     private var rel: List<Pair<String, String>>? = null
     private var novos = LinkedHashMap<String, MutableMap<String, Any?>>()
 
-    private fun vinculos(w: MundoMolde): List<Pair<String, String>> = rel ?: w.t.getValue("relacao")
-        .filter { it.getValue("tipo") == "vínculo de cargo" && it.getValue("destino").startsWith("npc.") }
-        .map { it.getValue("origem") to it.getValue("destino") }.also { rel = it }
+    private fun vinculos(w: MundoMolde): List<Pair<String, String>> =
+        rel ?: w.t.getValue("relacao")
+            .filter { it.getValue("tipo") == "vínculo de cargo" && it.getValue("destino").startsWith("npc.") }
+            .map { it.getValue("origem") to it.getValue("destino") }.also { rel = it }
 
     private fun titulares(p: Map<String, Any?>): List<String> = p.str("titular").split(';').filter { it.startsWith("npc.") }
 
@@ -193,7 +219,14 @@ class Sucessao(private val din: Dinamica) : Motor {
                 continue
             }
             val morto: String? = if (tit.isNotEmpty()) tit.last() else p["anterior"]?.toString()?.takeIf { it != "—" }
-            val ref: Map<String, Any?> = if (morto != null) LinkedHashMap(e.ent[morto] ?: emptyMap()).also { it["_id"] = morto } else emptyMap()
+            val ref: Map<String, Any?> =
+                if (morto != null) {
+                    LinkedHashMap(
+                        e.ent[morto] ?: emptyMap(),
+                    ).also { it["_id"] = morto }
+                } else {
+                    emptyMap()
+                }
             var (novo, regra) = escolher(ctx, p, morto, ref, titulares)
             if (novo == null && p["vago_desde"] != null && ctx.diaMundo >= p.int("prazo")) {
                 novo = criar(ctx, p, ref, out)
@@ -204,12 +237,28 @@ class Sucessao(private val din: Dinamica) : Motor {
                 titulares.add(novo)
             } else if (p["vago_desde"] != null) {
                 if (!e.vivo(p.str("interino"))) {
-                    out.add(DeltaRascunho("campo", k, "interino", interino(ctx, p, titulares), causa(listOf(k), "interino-substituido"), quemSabe = listOf(p.str("reino"))))
+                    out.add(
+                        DeltaRascunho(
+                            "campo",
+                            k,
+                            "interino",
+                            interino(ctx, p, titulares),
+                            causa(listOf(k), "interino-substituido"),
+                            quemSabe = listOf(p.str("reino")),
+                        ),
+                    )
                 }
             } else {
                 val inter = interino(ctx, p, titulares)
                 val prazo = ctx.diaMundo + 365 * (din.lim["prazo_vacancia_anos"] ?: 3)
-                val campos = listOf<Pair<String, Any?>>("anterior" to (morto ?: "—"), "titular" to "—", "vago_desde" to ctx.diaMundo, "prazo" to prazo, "interino" to inter)
+                val campos =
+                    listOf<Pair<String, Any?>>(
+                        "anterior" to (morto ?: "—"),
+                        "titular" to "—",
+                        "vago_desde" to ctx.diaMundo,
+                        "prazo" to prazo,
+                        "interino" to inter,
+                    )
                 for ((campo, v) in campos) {
                     out.add(DeltaRascunho("campo", k, campo, v, causa(listOf(morto ?: k), "vacancia"), quemSabe = listOf(p.str("reino"))))
                 }
@@ -218,24 +267,43 @@ class Sucessao(private val din: Dinamica) : Motor {
         return out
     }
 
-    private fun livres(ctx: Ctx, reino: String, titulares: Set<String>): List<String> {
+    private fun livres(
+        ctx: Ctx,
+        reino: String,
+        titulares: Set<String>,
+    ): List<String> {
         val e = ctx.estado
-        return e.ent.keys.sortedWith(Ordem.CODIGO).filter { it.startsWith("npc.") && e.vivo(it) && e.ent.getValue(it)["reino"] == reino && it !in titulares }
+        return e.ent.keys.sortedWith(Ordem.CODIGO).filter {
+            it.startsWith("npc.") && e.vivo(it) && e.ent.getValue(it)["reino"] == reino && it !in titulares
+        }
     }
 
-    private fun ordem(ctx: Ctx, ids: Collection<String>): List<String> {
+    private fun ordem(
+        ctx: Ctx,
+        ids: Collection<String>,
+    ): List<String> {
         val e = ctx.estado
         return ids.sortedWith(compareBy<String>({ if (e.ent.getValue(it)["principal"] == true) 0 else 1 }).thenComparing(Ordem.CODIGO))
     }
 
-    private fun afin(heir: String, morto: String): Int {
+    private fun afin(
+        heir: String,
+        morto: String,
+    ): Int {
         val strip = ".,;()`"
-        val pal = heir.trim().split(Regex("\\s+")).filter { it.isNotEmpty() && it[0].isUpperCase() && it.length > 3 && it != "Coroa" }
-            .map { it.trim { c -> c in strip } }.toSet()
+        val pal =
+            heir.trim().split(Regex("\\s+")).filter { it.isNotEmpty() && it[0].isUpperCase() && it.length > 3 && it != "Coroa" }
+                .map { it.trim { c -> c in strip } }.toSet()
         return pal.count { it in morto }
     }
 
-    private fun escolher(ctx: Ctx, p: Map<String, Any?>, morto: String?, ref: Map<String, Any?>, titulares: Set<String>): Pair<String?, String?> {
+    private fun escolher(
+        ctx: Ctx,
+        p: Map<String, Any?>,
+        morto: String?,
+        ref: Map<String, Any?>,
+        titulares: Set<String>,
+    ): Pair<String?, String?> {
         val e = ctx.estado
         val livres = livres(ctx, p.str("reino"), titulares)
         if (livres.isEmpty()) return null to null
@@ -261,7 +329,12 @@ class Sucessao(private val din: Dinamica) : Motor {
         return null to null
     }
 
-    private fun membros(ctx: Ctx, p: Map<String, Any?>, ref: Map<String, Any?>, livres: List<String>): List<String> {
+    private fun membros(
+        ctx: Ctx,
+        p: Map<String, Any?>,
+        ref: Map<String, Any?>,
+        livres: List<String>,
+    ): List<String> {
         val e = ctx.estado
         if (p["tipo"] == "faccao") return livres.filter { e.ent.getValue(it)["faccao"] == p["alvo"] }
         if (p["tipo"] == "cidade") return livres.filter { e.ent.getValue(it)["cidade"] == p["alvo"] }
@@ -271,7 +344,11 @@ class Sucessao(private val din: Dinamica) : Motor {
     }
 
     /** Responsável interino: membro livre, senão qualquer livre do reino ou vivo do reino, senão vivo do mundo; "—" se ninguém. */
-    private fun interino(ctx: Ctx, p: Map<String, Any?>, titulares: Set<String>): String {
+    private fun interino(
+        ctx: Ctx,
+        p: Map<String, Any?>,
+        titulares: Set<String>,
+    ): String {
         val e = ctx.estado
         val livres = livres(ctx, p.str("reino"), titulares)
         val c = membros(ctx, p, emptyMap(), livres).ifEmpty { livres }
@@ -282,7 +359,13 @@ class Sucessao(private val din: Dinamica) : Motor {
         return if (vivos.isNotEmpty()) ordem(ctx, vivos)[0] else "—"
     }
 
-    private fun mudarTitular(k: String, p: Map<String, Any?>, novo: String, antigos: List<String>, regra: String): List<DeltaRascunho> {
+    private fun mudarTitular(
+        k: String,
+        p: Map<String, Any?>,
+        novo: String,
+        antigos: List<String>,
+        regra: String,
+    ): List<DeltaRascunho> {
         val q = listOf(p.str("reino"))
         val out = arrayListOf(DeltaRascunho("campo", k, "titular", novo, causa(listOf(antigos.last()), regra), quemSabe = q))
         when (p["tipo"]) {
@@ -292,7 +375,15 @@ class Sucessao(private val din: Dinamica) : Motor {
         return out
     }
 
-    private fun posse(ctx: Ctx, k: String, p: Map<String, Any?>, novo: String, antigos: List<String>, ref: Map<String, Any?>, regra: String): List<DeltaRascunho> {
+    private fun posse(
+        ctx: Ctx,
+        k: String,
+        p: Map<String, Any?>,
+        novo: String,
+        antigos: List<String>,
+        ref: Map<String, Any?>,
+        regra: String,
+    ): List<DeltaRascunho> {
         val q = listOf(p.str("reino"))
         val out = ArrayList<DeltaRascunho>()
         if (p["vago_desde"] != null) {
@@ -301,12 +392,18 @@ class Sucessao(private val din: Dinamica) : Motor {
             }
         }
         out.addAll(mudarTitular(k, p, novo, antigos.ifEmpty { listOf(ref["_id"]?.toString() ?: k) }, regra))
-        val comAgente = out.map {
-            DeltaRascunho(
-                it.tipo, it.entidade, it.campo, it.estadoNovo, it.causa,
-                agentes = if (it.campo in listOf("titular", "governante", "lideranca")) listOf(novo) else emptyList(), quemSabe = it.quemSabe,
-            )
-        }.toMutableList()
+        val comAgente =
+            out.map {
+                DeltaRascunho(
+                    it.tipo,
+                    it.entidade,
+                    it.campo,
+                    it.estadoNovo,
+                    it.causa,
+                    agentes = if (it.campo in listOf("titular", "governante", "lideranca")) listOf(novo) else emptyList(),
+                    quemSabe = it.quemSabe,
+                )
+            }.toMutableList()
         val n: Map<String, Any?> = ctx.estado.ent[novo] ?: novos.getValue(novo)
         val base = n.str("papeis").split(';').toSet() - setOf("—", "?", "")
         val add = (ref["papeis"]?.toString() ?: "").split(';').toSet() intersect setOf("governante", "general")
@@ -325,13 +422,19 @@ class Sucessao(private val din: Dinamica) : Motor {
     }
 
     /** NPC simulado (D-M5): só quando o prazo da vacância acaba e ninguém serve. Nome por M-10 (`Nomes`). */
-    private fun criar(ctx: Ctx, p: Map<String, Any?>, ref: Map<String, Any?>, out: MutableList<DeltaRascunho>): String {
+    private fun criar(
+        ctx: Ctx,
+        p: Map<String, Any?>,
+        ref: Map<String, Any?>,
+        out: MutableList<DeltaRascunho>,
+    ): String {
         val e = ctx.estado
         val rng = ctx.rng
         val w = ctx.mundo
         val racas = w.catalogo.racas.toSet()
-        val povos = (w.t.getValue("povo_no_reino").filter { it.getValue("reino") == p["reino"] }.map { it.getValue("povo") }.toSet() intersect racas)
-            .sortedWith(Ordem.CODIGO)
+        val povos =
+            (w.t.getValue("povo_no_reino").filter { it.getValue("reino") == p["reino"] }.map { it.getValue("povo") }.toSet() intersect racas)
+                .sortedWith(Ordem.CODIGO)
         val povo = if (povos.isNotEmpty()) rng.choice(povos) else "humano"
         val subs = w.catalogo.subracas.filter { it.value == povo }.keys.sortedWith(Ordem.CODIGO)
         val sub = if (subs.isNotEmpty()) rng.choice(subs) else "—"
@@ -347,18 +450,23 @@ class Sucessao(private val din: Dinamica) : Motor {
         val nasc: Int? = if (k.max != 0) ctx.diaMundo - 365 * idade else null
         val nid = "npc.sim-%05d".format(Locale.ROOT, e.nCriados + novos.size + 1)
         val cargo = ref["cargo"]?.toString()?.takeIf { it.isNotEmpty() } ?: "—"
-        val papeis = ((ref["papeis"]?.toString() ?: "").split(';').toSet() intersect setOf("governante", "general")).sortedWith(Ordem.CODIGO)
-            .joinToString(";").ifEmpty { "—" }
-        val novo = linkedMapOf<String, Any?>(
-            "vivo" to true, "reino" to p["reino"], "cidade" to cidade, "faccao" to (if (p["tipo"] == "faccao") p["alvo"] else "—"),
-            "cargo" to cargo, "papeis" to papeis, "principal" to false, "povo" to povo, "subraca" to sub,
-            "nome" to Nomes.gerar(rng, e, novos.values.map { it.str("nome") }),
-            "saude" to "sao", "classe" to classe, "nasc_dia" to nasc, "origem_npc" to "nomeacao",
-        )
+        val papeis =
+            ((ref["papeis"]?.toString() ?: "").split(';').toSet() intersect setOf("governante", "general")).sortedWith(Ordem.CODIGO)
+                .joinToString(";").ifEmpty { "—" }
+        val novo =
+            linkedMapOf<String, Any?>(
+                "vivo" to true, "reino" to p["reino"], "cidade" to cidade, "faccao" to (if (p["tipo"] == "faccao") p["alvo"] else "—"),
+                "cargo" to cargo, "papeis" to papeis, "principal" to false, "povo" to povo, "subraca" to sub,
+                "nome" to Nomes.gerar(rng, e, novos.values.map { it.str("nome") }),
+                "saude" to "sao", "classe" to classe, "nasc_dia" to nasc, "origem_npc" to "nomeacao",
+            )
         novos[nid] = novo
         out.add(
             DeltaRascunho(
-                "criacao", nid, causa = causa(listOf(p.str("alvo")), "nomeacao-sem-candidato"), quemSabe = listOf(p.str("reino")),
+                "criacao",
+                nid,
+                causa = causa(listOf(p.str("alvo")), "nomeacao-sem-candidato"),
+                quemSabe = listOf(p.str("reino")),
                 estadoNovo = LinkedHashMap(novo),
             ),
         )

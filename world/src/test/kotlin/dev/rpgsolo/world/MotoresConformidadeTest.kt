@@ -38,9 +38,10 @@ class MotoresConformidadeTest {
             assertEquals("hash da dinâmica", h[4], Conformidade.hashDinamica)
             val obtido = ArrayList<String>()
             lateinit var sim: Simulador
-            sim = Conformidade.simulador(semente, Motores::todos, 10) { _, _ ->
-                obtido.add("ANO|$semente|${obtido.size * 10 + 10}|${Conformidade.ponto(sim)}|${sim.estado.mundo["regime"]}|${sim.estado.eras.size}")
-            }
+            sim =
+                Conformidade.simulador(semente, Motores::todos, 10) { _, _ ->
+                    obtido.add("ANO|$semente|${obtido.size * 10 + 10}|${Conformidade.ponto(sim)}|${sim.estado.mundo["regime"]}|${sim.estado.eras.size}")
+                }
             sim.rodar(100)
             val esperado = vetores.filter { it[0] == "ANO" && it[1] == h[1] }.map { it.joinToString("|") }
             assertTrue("sem pontos para a semente $semente", esperado.isNotEmpty())

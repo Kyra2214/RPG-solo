@@ -12,10 +12,18 @@ object ValidadorMundo {
     private val REFERENCIA = Regex("^(?:npc|city|faction|settlement|clock|event|route|kingdom)\\.[a-z0-9.-]+$")
     private val REFERENCIA_RELACAO = Regex("^(?:npc|city|faction|settlement)\\.")
 
-    fun validar(w: MundoMolde, din: DinamicaMinima? = null): List<Achado> {
+    fun validar(
+        w: MundoMolde,
+        din: DinamicaMinima? = null,
+    ): List<Achado> {
         val f = ArrayList<Achado>()
 
-        fun achar(codigo: String, gravidade: String, entidade: String, mensagem: String) {
+        fun achar(
+            codigo: String,
+            gravidade: String,
+            entidade: String,
+            mensagem: String,
+        ) {
             f.add(Achado(codigo, gravidade, entidade, mensagem))
         }
 
@@ -104,7 +112,11 @@ object ValidadorMundo {
         // W-06 referências no mundo todo (cruzar reinos é permitido; ID inexistente não)
         val ids = w.indice.keys
 
-        fun refs(campo: String, entidade: String, valor: String) {
+        fun refs(
+            campo: String,
+            entidade: String,
+            valor: String,
+        ) {
             for (t in TabelaMolde.toks(valor)) {
                 if (REFERENCIA.matches(t) && t !in ids) {
                     achar("W-06", if (("V-10" to entidade) in excecoes) "A" else "E", entidade, "$campo aponta para ID inexistente: $t")
@@ -126,11 +138,12 @@ object ValidadorMundo {
                 refs("evento.$k", r.getValue("id"), r.getValue(k))
             }
         }
-        val cruzam = w.t.getValue("relacao").count { r ->
-            val de = w.reinoDe(r.getValue("origem"))
-            val para = w.reinoDe(r.getValue("destino"))
-            r.getValue("destino") in ids && de != null && para != null && de != para
-        }
+        val cruzam =
+            w.t.getValue("relacao").count { r ->
+                val de = w.reinoDe(r.getValue("origem"))
+                val para = w.reinoDe(r.getValue("destino"))
+                r.getValue("destino") in ids && de != null && para != null && de != para
+            }
         if (cruzam > 0) achar("W-06", "A", "mundo", "$cruzam relações cruzam reinos (entram só pelos contratos de fronteira na Era I)")
 
         // W-07 pronto para simular
@@ -142,11 +155,19 @@ object ValidadorMundo {
         }
         for (r in w.t.getValue("faccao")) {
             val lider = r.getValue("lideranca")
-            if (lider in npcs && npcs.getValue(lider).getValue("vivo") != "sim") achar("W-07", "E", r.getValue("id"), "liderança morta: $lider")
+            if (lider in npcs && npcs.getValue(lider).getValue("vivo") != "sim") {
+                achar(
+                    "W-07",
+                    "E",
+                    r.getValue("id"),
+                    "liderança morta: $lider",
+                )
+            }
         }
-        val semLugar = w.t.getValue("npc")
-            .filter { it.getValue("vivo") == "sim" && it.getValue("cidade") == "—" && it.getValue("faccao") == "—" }
-            .map { it.getValue("id") }
+        val semLugar =
+            w.t.getValue("npc")
+                .filter { it.getValue("vivo") == "sim" && it.getValue("cidade") == "—" && it.getValue("faccao") == "—" }
+                .map { it.getValue("id") }
         if (semLugar.isNotEmpty()) {
             val lista = semLugar.take(6).joinToString(", ") + if (semLugar.size > 6) "…" else ""
             achar("W-07", "A", "mundo", "${semLugar.size} NPCs vivos sem cidade nem facção (o motor os coloca \"em trânsito\"): $lista")
@@ -163,9 +184,10 @@ object ValidadorMundo {
         for ((reinoId, reino) in w.reinos) {
             val capital = reino.linha.getValue("capital")
             if (capital != "—" && capital != "?" && capital !in ids) achar("W-07", "E", reinoId, "capital inexistente: $capital")
-            val governa = w.t.getValue("npc").any {
-                it.getValue("reino") == reinoId && it.getValue("vivo") == "sim" && "governante" in TabelaMolde.toks(it.getValue("papeis"))
-            }
+            val governa =
+                w.t.getValue("npc").any {
+                    it.getValue("reino") == reinoId && it.getValue("vivo") == "sim" && "governante" in TabelaMolde.toks(it.getValue("papeis"))
+                }
             if (!governa) achar("W-07", "E", reinoId, "reino sem NPC governante vivo")
         }
 
@@ -227,7 +249,10 @@ object ValidadorMundo {
     fun resumo(achados: List<Achado>): Pair<Int, Int> = achados.count { it.gravidade == "E" } to achados.count { it.gravidade == "A" }
 
     /** O texto de `saidas/validacao-mundo.txt`: cabeçalho, uma linha por constatação e a linha de resumo. */
-    fun relatorio(w: MundoMolde, achados: List<Achado>): String {
+    fun relatorio(
+        w: MundoMolde,
+        achados: List<Achado>,
+    ): String {
         val (erros, avisos) = resumo(achados)
         val linhas = ArrayList<String>()
         linhas.add("codigo|gravidade|entidade|mensagem")
@@ -241,6 +266,8 @@ object ValidadorMundo {
     }
 
     /** `id` como palavra inteira em [texto]: sem letra, número, `_` ou `-` colado antes ou depois (como `(?<![\w-])…(?![\w-])`). */
-    private fun palavraEm(id: String, texto: CharSequence): Boolean =
-        Regex("(?<![\\p{L}\\p{N}_-])" + Regex.escape(id) + "(?![\\p{L}\\p{N}_-])").containsMatchIn(texto)
+    private fun palavraEm(
+        id: String,
+        texto: CharSequence,
+    ): Boolean = Regex("(?<![\\p{L}\\p{N}_-])" + Regex.escape(id) + "(?![\\p{L}\\p{N}_-])").containsMatchIn(texto)
 }

@@ -40,22 +40,29 @@ class LoteConformidadeTest {
                 "tentativa_de_resolver_misterio" -> if ((d["estado_novo"] as? Map<String, Any?>)?.get("resolvido") == true) resolvidos++
                 "alianca_de_povos" -> pactosFormados++
                 "fim_de_alianca_de_povos" -> pactosEncerrados++
-                "campo" -> if (d["campo"] == "estourado" && d["estado_novo"] == true && entidade.startsWith("clock.")) estourados.putIfAbsent(entidade, ano)
+                "campo" ->
+                    if (d["campo"] == "estourado" && d["estado_novo"] == true && entidade.startsWith("clock.")) {
+                        estourados.putIfAbsent(
+                            entidade,
+                            ano,
+                        )
+                    }
             }
         }
 
         /** Campos de métrica na ordem de `vetores-lote.txt`. */
-        fun campos(): List<String> = listOf(
-            fimEra1?.toString() ?: "",
-            incidente?.toString() ?: "",
-            guerra?.toString() ?: "",
-            caidos.filter { it != "—" }.sortedWith(Ordem.CODIGO).joinToString(",").ifEmpty { "—" },
-            resolvidos.toString(),
-            estourados.size.toString(),
-            estourados.values.count { it < ano0 + 100 }.toString(),
-            pactosFormados.toString(),
-            pactosEncerrados.toString(),
-        )
+        fun campos(): List<String> =
+            listOf(
+                fimEra1?.toString() ?: "",
+                incidente?.toString() ?: "",
+                guerra?.toString() ?: "",
+                caidos.filter { it != "—" }.sortedWith(Ordem.CODIGO).joinToString(",").ifEmpty { "—" },
+                resolvidos.toString(),
+                estourados.size.toString(),
+                estourados.values.count { it < ano0 + 100 }.toString(),
+                pactosFormados.toString(),
+                pactosEncerrados.toString(),
+            )
     }
 
     @Test

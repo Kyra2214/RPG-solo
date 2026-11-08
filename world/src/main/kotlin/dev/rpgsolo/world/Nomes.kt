@@ -7,12 +7,14 @@ import java.util.Locale
  * Nunca repete nome completo nem primeiro nome do molde (M-10 §2.1).
  */
 object Nomes {
-    private val SILABAS = listOf(
-        "ba", "ce", "da", "ei", "fi", "ga", "ha", "il", "ju", "ka", "le", "ma", "ne", "or", "pa", "re", "sa", "ta", "ul", "ve", "zo",
-    )
+    private val SILABAS =
+        listOf(
+            "ba", "ce", "da", "ei", "fi", "ga", "ha", "il", "ju", "ka", "le", "ma", "ne", "or", "pa", "re", "sa", "ta", "ul", "ve", "zo",
+        )
     private val ESPACOS = Regex("\\s+")
 
-    private fun nomes(estado: Estado): List<String> = estado.ent.values.mapNotNull { (it["nome"] as? String)?.takeIf { n -> n.isNotEmpty() } }
+    private fun nomes(estado: Estado): List<String> =
+        estado.ent.values.mapNotNull { (it["nome"] as? String)?.takeIf { n -> n.isNotEmpty() } }
 
     private fun primeiro(n: String): String = n.trim().split(ESPACOS).first()
 
@@ -21,7 +23,11 @@ object Nomes {
 
     private fun capitalizar(s: String): String = s.take(1).uppercase() + s.drop(1).lowercase()
 
-    fun gerar(rng: PythonRandom, estado: Estado, extras: List<String> = emptyList()): String {
+    fun gerar(
+        rng: PythonRandom,
+        estado: Estado,
+        extras: List<String> = emptyList(),
+    ): String {
         val comp = nomes(estado).toMutableSet().apply { addAll(extras) }
         val prim = (nomes(estado).map { primeiro(it) } + extras.map { primeiro(it) }).toSet()
         val ep = epitetos(estado)

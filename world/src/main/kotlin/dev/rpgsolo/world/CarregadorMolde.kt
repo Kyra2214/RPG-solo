@@ -4,26 +4,31 @@ import java.security.MessageDigest
 
 /** Carregador único do molde de Mythralis (porta de `carregar` de `carregador.py`): lê os reinos num só [MundoMolde]. */
 object CarregadorMolde {
-    val TIPOS = listOf(
-        "reino", "calendario", "cidade", "assentamento", "npc", "faccao", "rota", "relogio", "evento", "semente",
-        "misterio", "fato", "reputacao", "canal", "cena", "resumo", "recurso", "relacao", "povo_no_reino",
-        "excecoes", "ids_aposentados",
-    )
+    val TIPOS =
+        listOf(
+            "reino", "calendario", "cidade", "assentamento", "npc", "faccao", "rota", "relogio", "evento", "semente",
+            "misterio", "fato", "reputacao", "canal", "cena", "resumo", "recurso", "relacao", "povo_no_reino",
+            "excecoes", "ids_aposentados",
+        )
 
     /** Tipos com ID e o prefixo que o ID deve ter, na ordem de `PREFIXO` do Python (a ordem decide o índice de IDs). */
-    val PREFIXO = linkedMapOf(
-        "reino" to "kingdom.", "calendario" to "calendario.", "cidade" to "city.", "assentamento" to "settlement.",
-        "npc" to "npc.", "faccao" to "faction.", "rota" to "route.", "relogio" to "clock.", "evento" to "event.",
-        "semente" to "seed.", "misterio" to "mist.", "fato" to "fact.", "reputacao" to "rep.", "canal" to "canal.",
-        "cena" to "cena.",
-    )
+    val PREFIXO =
+        linkedMapOf(
+            "reino" to "kingdom.", "calendario" to "calendario.", "cidade" to "city.", "assentamento" to "settlement.",
+            "npc" to "npc.", "faccao" to "faction.", "rota" to "route.", "relogio" to "clock.", "evento" to "event.",
+            "semente" to "seed.", "misterio" to "mist.", "fato" to "fact.", "reputacao" to "rep.", "canal" to "canal.",
+            "cena" to "cena.",
+        )
 
     private const val CATALOGO = "referencia/dados-brutos/personagem-catalogo.json"
     private const val DERIVADO_SUBRACAS = "derivados/subracas-em-prosa.txt"
     private val PASTA_DE_REINO = Regex("^reinos/(0[^/]*-[^/]*)/dados/")
 
     /** Carrega o molde descrito por [manifesto] a partir de [fonte]. Erros de formato vão para [MundoMolde.erros]. */
-    fun carregar(fonte: MoldeFonte, manifesto: MoldeManifesto): MundoMolde {
+    fun carregar(
+        fonte: MoldeFonte,
+        manifesto: MoldeManifesto,
+    ): MundoMolde {
         val pastas = manifesto.molde.mapNotNull { PASTA_DE_REINO.find(it.caminho)?.groupValues?.get(1) }.toSortedSet()
         val t = LinkedHashMap<String, MutableList<Linha>>()
         for (tipo in TIPOS) t[tipo] = ArrayList()
@@ -55,11 +60,14 @@ object CarregadorMolde {
         val catalogoTexto = checkNotNull(fonte.texto(CATALOGO)) { "molde sem $CATALOGO" }
         val hash = hashMolde(fonte, manifesto)
         if (hash != manifesto.moldeSha256) {
-            erros.add(ErroCarga("mundo", "hash", "hash do molde (${hash.take(16)}) difere do manifesto (${manifesto.moldeSha256.take(16)})"))
+            erros.add(
+                ErroCarga("mundo", "hash", "hash do molde (${hash.take(16)}) difere do manifesto (${manifesto.moldeSha256.take(16)})"),
+            )
         }
-        val emProsa = fonte.texto(DERIVADO_SUBRACAS)
-            ?.let { TabelaMolde.ler(it).linhas.map { linha -> linha.getValue("subraca") }.toSet() }
-            ?: emptySet()
+        val emProsa =
+            fonte.texto(DERIVADO_SUBRACAS)
+                ?.let { TabelaMolde.ler(it).linhas.map { linha -> linha.getValue("subraca") }.toSet() }
+                ?: emptySet()
         return MundoMolde(reinos, t, cab, erros, indice, CatalogoPersonagem.ler(catalogoTexto), emProsa, hash)
     }
 
@@ -70,7 +78,10 @@ object CarregadorMolde {
     }
 
     /** sha256 encadeado de caminho + bytes de cada arquivo do molde, na ordem do manifesto (igual a `hash_molde` do Python). */
-    fun hashMolde(fonte: MoldeFonte, manifesto: MoldeManifesto): String {
+    fun hashMolde(
+        fonte: MoldeFonte,
+        manifesto: MoldeManifesto,
+    ): String {
         val md = MessageDigest.getInstance("SHA-256")
         for (arquivo in manifesto.molde) {
             md.update(arquivo.caminho.toByteArray(Charsets.UTF_8))

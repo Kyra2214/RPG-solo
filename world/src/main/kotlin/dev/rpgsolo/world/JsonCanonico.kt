@@ -9,7 +9,10 @@ object Hash {
     fun sha256(b: ByteArray): String = MessageDigest.getInstance("SHA-256").digest(b).joinToString("") { "%02x".format(it) }
 
     /** Elo da cadeia: `sha(anterior + canon(delta))`. */
-    fun encadear(anterior: String, delta: Any?): String = sha256(anterior + JsonCanonico.canon(delta))
+    fun encadear(
+        anterior: String,
+        delta: Any?,
+    ): String = sha256(anterior + JsonCanonico.canon(delta))
 }
 
 /**
@@ -20,7 +23,10 @@ object Hash {
 object JsonCanonico {
     fun canon(o: Any?): String = StringBuilder().also { escrever(it, o) }.toString()
 
-    private fun escrever(sb: StringBuilder, o: Any?) {
+    private fun escrever(
+        sb: StringBuilder,
+        o: Any?,
+    ) {
         when (o) {
             null -> sb.append("null")
             is Boolean -> sb.append(if (o) "true" else "false")
@@ -37,7 +43,10 @@ object JsonCanonico {
         }
     }
 
-    private fun lista(sb: StringBuilder, it: Iterable<*>) {
+    private fun lista(
+        sb: StringBuilder,
+        it: Iterable<*>,
+    ) {
         sb.append('[')
         var primeiro = true
         for (e in it) {
@@ -48,7 +57,10 @@ object JsonCanonico {
         sb.append(']')
     }
 
-    private fun mapa(sb: StringBuilder, m: Map<*, *>) {
+    private fun mapa(
+        sb: StringBuilder,
+        m: Map<*, *>,
+    ) {
         val chaves = m.entries.map { chaveTexto(it.key) to it.value }
         val ordenadas = chaves.sortedWith { a, b -> compararPontosDeCodigo(a.first, b.first) }
         for (i in 1 until ordenadas.size) {
@@ -66,13 +78,17 @@ object JsonCanonico {
         sb.append('}')
     }
 
-    private fun chaveTexto(k: Any?): String = when (k) {
-        is String -> k
-        is Int, is Long -> k.toString()
-        else -> throw IllegalArgumentException("chave não suportada: $k")
-    }
+    private fun chaveTexto(k: Any?): String =
+        when (k) {
+            is String -> k
+            is Int, is Long -> k.toString()
+            else -> throw IllegalArgumentException("chave não suportada: $k")
+        }
 
-    private fun texto(sb: StringBuilder, s: String) {
+    private fun texto(
+        sb: StringBuilder,
+        s: String,
+    ) {
         sb.append('"')
         for (c in s) {
             when {
@@ -91,7 +107,10 @@ object JsonCanonico {
     }
 
     /** Ordem por ponto de código Unicode, como `str` do Python (e não por unidade UTF-16). */
-    fun compararPontosDeCodigo(a: String, b: String): Int {
+    fun compararPontosDeCodigo(
+        a: String,
+        b: String,
+    ): Int {
         var i = 0
         var j = 0
         while (i < a.length && j < b.length) {

@@ -12,7 +12,10 @@ object Conformidade {
 
     /** Linhas do arquivo de vetores, cada uma separada em campos por `|`. */
     fun vetores(nome: String): List<List<String>> {
-        val bytes = checkNotNull(Conformidade::class.java.getResourceAsStream("/conformidade/$nome")) { "vetores ausentes: $nome" }.use { it.readBytes() }
+        val bytes =
+            checkNotNull(Conformidade::class.java.getResourceAsStream("/conformidade/$nome")) {
+                "vetores ausentes: $nome"
+            }.use { it.readBytes() }
         return bytes.toString(Charsets.UTF_8).split('\n').filter { it.isNotEmpty() }.map { it.split('|') }
     }
 
