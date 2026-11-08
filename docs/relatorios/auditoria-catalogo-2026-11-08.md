@@ -46,3 +46,9 @@ A auditoria de modelos, dados, carregador, validador e telas foi concluída. Foi
 ## Política A — equivalência e acumulação
 
 Foi aprovada a política A: IDs distintos acumulam; somente a mesma declaração, identificada pelo mesmo `effectId`, é deduplicada. O resolvedor `selectedCatalogBonuses` deixou de escolher o maior efeito por escopo e passou a usar a deduplicação por identidade. Foram adicionados testes para acumulação de IDs distintos e remoção de duplicata com o mesmo ID.
+
+## Auditoria de escopos mecânicos
+
+Os `mechanicalEffects` usam 17 escopos: `adestramento`, `atletismo`, `conhecimento`, `cuidados`, `furtividade`, `intimidacao`, `lideranca`, `montaria`, `ocultismo`, `oficios`, `olhar-atento`, `percepcao`, `persuasao`, `pilotagem`, `pontaria`, `sistemas` e `sobrevivencia`. Todos existem como perícia ou escopo de combate no pacote próprio; a auditoria encontrou 0 inválidos.
+
+Foi adicionado teste automático em `CharacterCreationCatalogTest` para validar os efeitos de todas as categorias. `:app:testDebugUnitTest` não pôde iniciar neste sandbox porque o Android SDK não está configurado (`ANDROID_HOME`/`sdk.dir` ausente). O bloqueio é ambiental e está registrado, não uma falha do teste.

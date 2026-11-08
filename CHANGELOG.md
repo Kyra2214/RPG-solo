@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-08 — auditoria de escopos mecânicos do catálogo
+
+- Os 17 escopos usados pelos `mechanicalEffects` foram comparados com o pacote próprio; nenhum escopo inválido foi encontrado.
+- Adicionado teste automático cobrindo raças, sub-raças, híbridos, classes e profissões.
+- `:app:testDebugUnitTest` foi tentado, mas o sandbox não possui Android SDK configurado; o bloqueio foi documentado.
+
 ## 2026-11-08 — política de equivalência dos efeitos do catálogo
 
 - Aplicada a política A: efeitos com `effectId` distinto acumulam; somente a mesma declaração é deduplicada. Não se infere equivalência entre catálogo e `TraitBonus` por escopo/valor.
