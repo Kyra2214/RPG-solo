@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-08 — auditoria inicial do catálogo de personagem
+
+- Auditoria estática concluída em modelos, carregador, validador, persistência e telas de raça, sub-raça, classe e profissão.
+- O JSON canônico contém 50 raças, 50 sub-raças, 20 híbridos, 50 classes e 104 profissões; não foram encontrados IDs duplicados, campos de resumo/lore ausentes ou `parentRaceId` inválidos.
+- Lacuna registrada: `competencies` e `traits` estão vazios nas classes e profissões. Os efeitos mecânicos já declarados serão revisados antes de qualquer novo bônus; nenhuma regra foi inventada nesta etapa.
+- Relatório: `docs/relatorios/auditoria-catalogo-2026-11-08.md`.
+
 ## 2026-11-08 — validação da Mecânica de dados (M-06.6)
 
 - A suíte JVM dos módulos `engine`, `ai` e `rules` passou com JDK 17: `./gradlew :engine:test :ai:test :rules:test` terminou com `BUILD SUCCESSFUL` em 1min25s.

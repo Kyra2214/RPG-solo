@@ -6,6 +6,12 @@
 **Branch:** `feature/racas-subracas`  
 **Originalidade:** todo o conteúdo é de criação própria (lore, regras e ilustrações). O RPG Solo tem conteúdo original e motor próprio.
 
+## Auditoria estática de 2026-11-08
+
+A auditoria inicial de modelos, carregador, validador, persistência e telas foi concluída. O catálogo canônico tem 50 raças, 50 sub-raças, 20 híbridos, 50 classes e 104 profissões, com IDs únicos, resumos e lore preenchidos e referências de `parentRaceId` válidas. As escolhas são persistidas em `Ficha.editorialChoicesJson` e a interface mantém profissão independente da classe e da raça.
+
+As 50 classes e 104 profissões ainda têm `competencies` e `traits` vazios. O JSON já declara efeitos mecânicos, portanto a próxima revisão deve definir o contrato de competências/traços e conferir se cada efeito é válido e desejado antes de adicionar conteúdo novo. O relatório completo está em `docs/relatorios/auditoria-catalogo-2026-11-08.md`.
+
 ## 1. Objetivo
 
 A criação de personagem combina escolhas independentes: **raça**, **sub-raça** (quando existir), **classe**, **profissão** e, quando fizer sentido, **especialização profissional**. São três pilares distintos — raça, classe e profissão — e o jogador pode escolher cada um separadamente. Não deve ser obrigado a selecionar uma profissão relacionada à classe, nem uma classe relacionada à raça. Cada escolha tem identidade, lore/descrição e traços próprios. Os efeitos mecânicos válidos são acumulados pela ficha e resolvidos pelo motor.
