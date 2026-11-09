@@ -141,14 +141,18 @@ jobs:
             logcat_pid=$!
             ./gradlew :app:connectedDebugAndroidTest --stacktrace
             result=$?
-            # Q-04: migrações Room. Informativo até a primeira execução verde; depois, trocar para falhar o job.
+            # Q-04: migrações Room são gate obrigatório do CI.
             ./gradlew :data:connectedDebugAndroidTest --stacktrace
             data_result=$?
             echo "data:connectedDebugAndroidTest exit=$data_result" > data-androidtest-result.txt
             sleep 2
             kill "$logcat_pid" 2>/dev/null || true
             wait "$logcat_pid" 2>/dev/null || true
-            exit $result
+            if [ "$result" -ne 0 ] || [ "$data_result" -ne 0 ]; then
+              echo "Falha nos testes do emulador: app=$result data=$data_result"
+              exit 1
+            fi
+            exit 0
 
       - name: Diagnósticos do E2E
         if: always()
