@@ -11,7 +11,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-O último CI totalmente verde é o [Android CI #40163269121](https://github.com/Kyra2214/RPG-solo/actions/runs/40163269121), em 25/10/2026, no commit `036d445` (`main`): ktlint, 894 testes JVM (`ai` 212, `engine` 390, `rules` 292), 9 testes E2E no emulador, 6 testes instrumentados de `data` (migrações Room) e build/upload do APK de debug (`app-debug.apk`, 11.656.051 bytes) passaram. Relatório em [`docs/relatorios/ci-android-2026-10-25-n54.md`](docs/relatorios/ci-android-2026-10-25-n54.md); histórico e pendências em [`docs/VALIDACAO_CI.md`](docs/VALIDACAO_CI.md). O APK é de **debug**, não uma versão release. A validação anterior (#40097446606, `40c38b1`, 24/10/2026, 650 testes JVM) está em [`docs/relatorios/ci-android-2026-10-24.md`](docs/relatorios/ci-android-2026-10-24.md). Em 08/11, a suíte Python MI-08 passou (62 testes); a compilação Kotlin de `:world:test` falhou em `Dinamica.kt:98` (comentário não fechado), `./gradlew test` não encontrou Android SDK e `ktlintCheck` apontou erros de indentação em `engine/AeltharynWorld.kt`. Não há CI verde após `036d445`; detalhes em [`docs/PLANO_INTEGRACAO_MYTHRALIS.md`](docs/PLANO_INTEGRACAO_MYTHRALIS.md) e [`CHANGELOG.md`](CHANGELOG.md).
+O último CI totalmente verde é o [Android CI #40163269121](https://github.com/Kyra2214/RPG-solo/actions/runs/40163269121), em 25/10/2026, no commit `036d445` (`main`): ktlint, 894 testes JVM (`ai` 212, `engine` 390, `rules` 292), 9 testes E2E no emulador, 6 testes instrumentados de `data` (migrações Room) e build/upload do APK de debug (`app-debug.apk`, 11.656.051 bytes) passaram. Relatório em [`docs/relatorios/ci-android-2026-10-25-n54.md`](docs/relatorios/ci-android-2026-10-25-n54.md); histórico e pendências em [`docs/VALIDACAO_CI.md`](docs/VALIDACAO_CI.md). O APK é de **debug**, não uma versão release. A validação anterior (#40097446606, `40c38b1`, 24/10/2026, 650 testes JVM) está em [`docs/relatorios/ci-android-2026-10-24.md`](docs/relatorios/ci-android-2026-10-24.md). Em 08/11/2026, a suíte Python do motor passou (62 testes, reexecutada em 136,9 s). A falha de compilação de `:world:test` em `Dinamica.kt:98` (comentário não fechado), registrada antes, está corrigida no código atual (verificação estática: nenhum comentário de bloco desbalanceado em `world/`). A execução Gradle de `:world:test` e do `ktlintCheck` depois da correção ainda não tem registro neste repositório, e `./gradlew test` completo depende de Android SDK. Não há CI verde após `036d445`; detalhes em [`docs/PLANO_INTEGRACAO_MYTHRALIS.md`](docs/PLANO_INTEGRACAO_MYTHRALIS.md) e [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Funcionalidades implementadas no código
 
@@ -36,6 +36,7 @@ O último CI totalmente verde é o [Android CI #40163269121](https://github.com/
 - `app` — telas Compose, navegação, configuração e integração do aplicativo.
 - `engine` — estado canônico, comandos/eventos, dados, capítulos, diário e backup.
 - `rules` — catálogo, pacotes de regras, validação de fichas e criação de campanha.
+- `world` — porte Kotlin do motor de simulação do Mythralis, com testes de conformidade contra o Python; ligado ao `app` só pela escolha do mundo na nova campanha (MI-09; ver a seção Mythralis).
 - `ai` — provedores, loop de jogo, contexto e parsing das propostas.
 - `data` — banco Room, adaptador de eventos e armazenamento privado dos documentos-fonte.
 
@@ -61,11 +62,51 @@ python3 tools/simulate_checks.py --runs 100000
 
 Abra a pasta do repositório no Android Studio para executar o app em emulador ou dispositivo.
 
-## Mythralis (mundo e integração planejada)
+## Mythralis (mundo, motor e integração em andamento)
 
-A pasta [`Mythralis/`](Mythralis/README.md) guarda o mundo vivo do jogo (5 reinos, 46 cidades, povos, NPCs, facções) e o motor de simulação em Python (`Mythralis/motor/`, fases F0 a F9 concluídas, 62 testes, lote de 500 anos × 20 sementes sem falha). Ela é independente do código do app e **ainda não está integrada**.
+A pasta [`Mythralis/`](Mythralis/README.md) guarda o mundo vivo do jogo (5 reinos, 46 cidades, povos, NPCs, facções) e o motor de simulação de referência em Python (`Mythralis/motor/`, fases F0 a F9 concluídas, 62 testes, lote de 500 anos × 20 sementes sem falha). A pasta é independente do código do app; a integração com o app **está em andamento, mas incompleta**.
 
-A integração está em andamento: MI-01 a MI-07 concluídos; MI-08 parcial (8 marcos escritos de 27). O módulo `world` contém o exportador do molde, carregador/validador, RNG/JSON canônico/sha256, calendário, estado, crônica, dinâmica, motores de pessoas e de mundo, simulador em blocos, invariantes, níveis, retomada e testes de conformidade Kotlin × Python. A suíte Python local passou (62 testes); `:world:test` não compila por comentário não fechado em `world/src/main/kotlin/dev/rpgsolo/world/Dinamica.kt:98`; `./gradlew test` foi bloqueado pela ausência do Android SDK e o lint por indentação em `engine/AeltharynWorld.kt`. A Fase 21 não está aceita; corrigir e validar no CI antes de MI-09. Plano: [`docs/PLANO_INTEGRACAO_MYTHRALIS.md`](docs/PLANO_INTEGRACAO_MYTHRALIS.md), Fases 21 a 25 / MI-01 a MI-27: resultado Kotlin igual ao Python (D-I2), persistência Room v11, tela **Simulação de tempo** (1 dia a 1 era, teto 120 anos, velocidades 1x/5x/10x) e envelhecimento/morte do herói (D-I5). O módulo `world` e os recursos já estão no repositório, mas ainda não há ligação com a campanha, tela ou persistência do app.
+**O que já existe no repositório:**
+
+- Módulo Gradle `:world` (Kotlin puro, JVM 17, pacote `dev.rpgsolo.world`, incluído em `settings.gradle.kts` e usado por `rules` e `app`): carregador e validador do molde, RNG idêntico ao do Python, JSON canônico e sha256, calendário, estado, crônica, dinâmica, motores de pessoas e de mundo, simulador em blocos, invariantes, níveis e retomada por snapshot (MI-01 a MI-07).
+- Molde, dinâmica e `subracas-em-prosa.txt` exportados para `rules/src/main/resources/mundos/mythralis/`.
+- Testes de conformidade Kotlin × Python (MI-08), alimentados por vetores gerados pelo Python em `world/src/test/resources/conformidade/`, incluindo o lote de 20 sementes × 500 anos.
+
+**Ligação com o app (MI-09 a MI-22, MI-26 e MI-27, escritas e ainda não compiladas):** o Room v11 (migração 10 → 11) tem as tabelas de mundo, snapshots, crônica filtrada e vínculo campanha → mundo, e a campanha criada com Mythralis ganha seu mundo no banco. Antes, no MI-09: `app` e `rules` declaram `project(":world")`; a nova campanha oferece a lista "Mundo da campanha" (mundo próprio, Aeltharyn, **Mythralis** e "mundo anterior", este indisponível por enquanto) e a campanha criada com Mythralis grava o vínculo com o molde (`mundo.molde_hash`).
+
+**Retomada e limpeza (MI-11, escrita):** `RetomadaMundo` continua do último snapshot e `RetencaoMundo` aplica a janela de retenção (último século de crônica e 5 snapshots) e mede o espaço em disco; ainda não chamadas pela interface (MI-13 e MI-15).
+
+**Ramificação (MI-12, escrita):** `RamificacaoMundo` oferece cânone compartilhado, linha do tempo alternativa e cópia independente; ainda não ligada à tela de nova campanha.
+
+**Controlador (MI-13, escrito):** `TimeSimulationController` roda a simulação por blocos fora da thread principal, com pausa, retomada, cancelamento e parada em marco; ainda sem tela.
+
+**Velocidade (MI-14, escrita):** `ExibicaoSimulacao` mostra o período em 1x, 5x ou 10x sem tocar no cálculo; ainda sem tela.
+
+**Tela (MI-15, escrita):** botão "Passar o tempo" na aba Jogar abre a tela cheia com período, velocidade, progresso, pausa, cancelamento e erros; sem feed de eventos (MI-16) nem "Aplicar à campanha" (MI-17).
+
+**Feed e resumo (MI-16, escrito):** a tela mostra marcos de nível 1 ao vivo, resumo por década e, ao concluir, o resumo do período; `ResumoNiveis.gerar` porta o `niveis.md` do Python.
+
+**Aplicar (MI-17, escrito):** o período simulado só entra na campanha ao tocar em "Aplicar à campanha" (avança o dia e grava fatos num lote), e "Desfazer" reverte campanha e mundo juntos.
+
+**Instanciação (MI-18, escrita):** `AppModel.instantiateCity` leva à campanha só o necessário de uma cidade do mundo (local, até 5 NPCs vivos e até 3 facções), sem repetir o que já existe; ainda sem gatilho na cena.
+
+**Rumores (MI-19, escrito):** os Ecos do mundo viram fatos `mundo.rumor.*` na cidade que a cena toca, com versão exata, exagerada ou falsa; o reconhecimento do herói fica para o MI-26.
+
+**Contexto do mestre (MI-20, escrito):** a IA recebe, só da cidade em que a cena está, o resumo do molde, os presentes vivos, os rumores e as facções, dentro de 600 tokens e cortável pelo orçamento da jogada; resumos secretos não entram.
+
+**Cânone (MI-21, escrito):** vida/morte de NPCs e governante da cidade viram fatos de cânone ligados aos deltas e gravados como `CanonFact` ORIGINAL; a IA não pode contradizê-los nem gravar chaves `canon.*`/`mundo.*` (a proposta é recusada e ela corrige).
+
+**Vida fora de cena (MI-22, escrito):** o NPC que já está na campanha e morreu na simulação aparece morto ao aplicar o período ou ao tocar a cidade (comando `MarkNpcDead`).
+
+**Idade do herói (MI-26, escrito):** o herói tem nascimento no dia do mundo e envelhece, adoece e morre de velhice ao aplicar um período, por motor próprio que não altera os hashes do mundo. A faixa de idade (jovem, adulto, veterano) é escolhida na criação da ficha e vale uma porcentagem da longevidade do povo.
+
+**Pendências da integração (Fase 25):** MI-23 (medir desempenho em aparelho) e MI-24 (suíte completa, E2E e CI) estão pendentes e não foram executados; nada da integração Mythralis foi compilado ou testado.
+
+**Morte do herói na simulação (MI-27, escrito):** se o herói morre de velhice dentro do período, a simulação para no dia da morte, o resumo mostra idade e causa e a tela oferece as opções do M-04 (renascer com item, assumir NPC, encerrar a campanha); desfazer volta ao ponto anterior enquanto nenhuma opção foi escolhida. Recuperar itens do corpo (LG-04) ainda não existe.
+
+**O que ainda não existe:** estado do mundo na campanha (cidades, NPCs e facções só entram na MI-18), tela **Simulação de tempo** (1 dia a 1 era, teto de 120 anos, velocidades 1x/5x/10x), ligação com a campanha e envelhecimento/morte do herói (D-I5) são as Fases 22 a 25 (MI-09 a MI-27).
+
+**Validação:** a suíte Python passa (62 testes). A Fase 21 só será aceita quando `:world:test` passar no CI do GitHub; o `ktlintCheck` também precisa passar (houve erros de indentação em `engine/AeltharynWorld.kt`). O MI-09 foi escrito antes dessa validação, por decisão do autor (testes só no fim da fase); compilação e testes pendentes. Plano: [`docs/PLANO_INTEGRACAO_MYTHRALIS.md`](docs/PLANO_INTEGRACAO_MYTHRALIS.md) (resultado Kotlin igual ao Python, D-I2).
 
 ## Lacunas conhecidas
 

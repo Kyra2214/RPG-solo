@@ -65,6 +65,7 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":ai"))
     implementation(project(":rules"))
+    implementation(project(":world"))
     implementation(libs.room.runtime)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

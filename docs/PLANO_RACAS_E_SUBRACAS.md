@@ -511,3 +511,5 @@ A validação é estrutural: não interpreta descrições como regras, não exec
 
 - [x] Ao selecionar uma opção do catálogo, exibir resumo, lore e todas as descrições de benefícios/custos disponíveis.
 - [x] Rotular explicitamente benefícios e custos como descrições editoriais, sem aplicação mecânica automática.
+
+**Decisão de 09/11/2026:** o critério de empilhamento é um teto de +3 por escopo, somando só raça, híbrido, classe extra e profissão; traços, vantagens e equipamento ficam fora. Falta aplicar no catálogo (nada implementado nem compilado).

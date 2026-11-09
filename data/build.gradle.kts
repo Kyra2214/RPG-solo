@@ -22,6 +22,8 @@ android {
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 dependencies {
     implementation(project(":engine"))
+    // MI-10: a persistência do mundo implementa o `MundoStore` e guarda o `Snapshot` do módulo `world`.
+    implementation(project(":world"))
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)

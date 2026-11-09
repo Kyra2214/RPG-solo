@@ -31,11 +31,24 @@ sealed interface TurnOutcome {
  * Fases 6.2.5 e 6.3: pede a jogada à IA, valida o formato, passa as propostas pelo motor (lote atômico) e,
  * se algo falhar, devolve o erro à IA para UMA nova tentativa. Em qualquer falha final o estado fica como estava.
  */
+
+/** MI-21: recusa propostas da IA que contradizem o cânone do mundo; devolve o motivo ou `null` se a gravação é permitida. */
+interface CanonGuard {
+    fun recusaFato(
+        chave: String,
+        valor: String,
+    ): String?
+
+    /** Recusa criar um NPC com o [id] se o cânone o dá como morto. */
+    fun recusaNpc(id: String): String?
+}
+
 class TurnRunner(
     private val provider: AiProvider,
     private val maxCorrections: Int = 1,
     /** Permite criar NPCs sem pacote, desde que o app forneça uma edição e marque a ficha como não validada. */
     private val npcCreator: ((NpcProposal) -> NpcResult)? = null,
+    private val canonGuard: CanonGuard? = null,
 ) {
     init {
         require(maxCorrections >= 0) { "maxCorrections deve ser >= 0" }
@@ -358,6 +371,15 @@ class TurnRunner(
                                 }
                                 normalized += command
                             }
+                            is dev.rpgsolo.engine.RecordFact -> {
+                                canonGuard?.recusaFato(command.key, command.value)?.let {
+                                    return Attempt.Retry(
+                                        "fato recusado: $it",
+                                        false,
+                                    )
+                                }
+                                normalized += command
+                            }
                             is dev.rpgsolo.engine.ProposeRuleAddition -> {
                                 val ruleMenu =
                                     menu
@@ -382,6 +404,7 @@ class TurnRunner(
                                 if (proposal.id in session.state.entities || proposal.id == playerEntityId || proposal.id == "player") {
                                     return Attempt.Retry("o id '${proposal.id}' do NPC já está em uso; escolha outro", false)
                                 }
+                                canonGuard?.recusaNpc(proposal.id)?.let { return Attempt.Retry("NPC recusado: $it", false) }
                                 proposal.id
                             }
                         combatNpcId = npcId

@@ -91,6 +91,8 @@ class PlayController(
     private val craftOpportunity: () -> Boolean = { false },
     /** DC-05.1: trechos do documento-fonte para o texto da jogada (ver [SourceContext]). */
     private val sourceContext: (String) -> String? = { null },
+    /** MI-20: contexto do mundo da cena atual (resumos, presentes, rumores), já dentro do orçamento próprio. */
+    private val mundoContext: () -> String? = { null },
 ) {
     /** Uma jogada no chat: onde começa e, se foi ação local que gravou estado, a marca para desfazer. */
     private data class Entry(val start: Int, val localMark: Int? = null, val viaLoop: Boolean = true)
@@ -192,6 +194,7 @@ class PlayController(
                     npcPrivate = npcContext(text),
                     sceneNpcIds = sceneNpcIds(text),
                     sourceContext = sourceContext(text),
+                    mundoContext = mundoContext(),
                     worldContext = worldContext(),
                     resumeBriefing = resumeBriefing(),
                     craftOpportunity = craftOpportunity(),
@@ -234,6 +237,7 @@ class PlayController(
                     npcPrivate = npcContext(pending.playerText),
                     sceneNpcIds = sceneNpcIds(pending.playerText),
                     sourceContext = sourceContext(pending.playerText),
+                    mundoContext = mundoContext(),
                     worldContext = worldContext(),
                     resumeBriefing = resumeBriefing(),
                     craftOpportunity = craftOpportunity(),

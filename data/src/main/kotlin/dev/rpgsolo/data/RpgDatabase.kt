@@ -21,12 +21,12 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
 /**
- * Versão 10. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
+ * Versão 11. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
  * os esquemas exportados ficam em `data/schemas/` (3.1.2). Nunca use fallbackToDestructiveMigration:
  * apagaria as campanhas do jogador.
  */
 @Database(
-    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class, FontePipelineRow::class, CanonFactsRow::class],
+    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class, FontePipelineRow::class, CanonFactsRow::class, MundoRow::class, MundoSnapshotRow::class, MundoCronicaRow::class, CampanhaMundoRow::class],
     version = RpgDatabase.VERSION,
     exportSchema = true,
 )
@@ -53,9 +53,17 @@ abstract class RpgDatabase : RoomDatabase() {
 
     abstract fun fatosCanonicos(): CanonFactsDao
 
+    abstract fun mundos(): MundoDao
+
+    abstract fun mundoSnapshots(): MundoSnapshotDao
+
+    abstract fun mundoCronica(): MundoCronicaDao
+
+    abstract fun campanhaMundo(): CampanhaMundoDao
+
     companion object {
         /** Versão atual do esquema; a mesma da anotação [Database]. */
-        const val VERSION = 10
+        const val VERSION = 11
 
         val MIGRATIONS =
             arrayOf(
@@ -165,6 +173,27 @@ abstract class RpgDatabase : RoomDatabase() {
                         db.execSQL(
                             "CREATE TABLE IF NOT EXISTS `fatos_canonicos` (`campaignId` TEXT NOT NULL, `factsJson` TEXT NOT NULL, PRIMARY KEY(`campaignId`), FOREIGN KEY(`campaignId`) REFERENCES `campanhas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
                         )
+                    }
+                },
+                object : androidx.room.migration.Migration(10, 11) {
+                    // MI-10: só cria tabelas novas (mundo, snapshots, crônica filtrada e vínculo campanha → mundo);
+                    // nenhuma tabela existente é alterada, então campanhas e logs ficam intactos.
+                    override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS `mundos` (`id` TEXT NOT NULL, `moldeId` TEXT NOT NULL, `moldeHash` TEXT NOT NULL, `dinamicaHash` TEXT NOT NULL, `semente` INTEGER NOT NULL, `criadoEm` INTEGER NOT NULL, `atualizadoEm` INTEGER NOT NULL, `proximoDia` INTEGER NOT NULL, `totalDeltas` INTEGER NOT NULL, `hashCronica` TEXT NOT NULL, `ultimoBloco` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                        )
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS `mundo_snapshots` (`mundoId` TEXT NOT NULL, `bloco` INTEGER NOT NULL, `dia` INTEGER NOT NULL, `hashEstado` TEXT NOT NULL, `hashCronica` TEXT NOT NULL, `deltas` INTEGER NOT NULL, `bytes` INTEGER NOT NULL, `criadoEm` INTEGER NOT NULL, `snapshotJson` TEXT NOT NULL, PRIMARY KEY(`mundoId`, `bloco`), FOREIGN KEY(`mundoId`) REFERENCES `mundos`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                        )
+                        db.execSQL("CREATE INDEX IF NOT EXISTS `index_mundo_snapshots_mundoId` ON `mundo_snapshots` (`mundoId`)")
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS `mundo_cronica` (`mundoId` TEXT NOT NULL, `seq` INTEGER NOT NULL, `deltaId` TEXT NOT NULL, `dia` INTEGER NOT NULL, `nivel` INTEGER NOT NULL, `importancia` INTEGER NOT NULL, `tipo` TEXT NOT NULL, `entidade` TEXT NOT NULL, `linhaJson` TEXT NOT NULL, PRIMARY KEY(`mundoId`, `seq`), FOREIGN KEY(`mundoId`) REFERENCES `mundos`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                        )
+                        db.execSQL("CREATE INDEX IF NOT EXISTS `index_mundo_cronica_mundoId_dia` ON `mundo_cronica` (`mundoId`, `dia`)")
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS `campanha_mundo` (`campaignId` TEXT NOT NULL, `mundoId` TEXT NOT NULL, `moldeId` TEXT NOT NULL, `vinculadoEm` INTEGER NOT NULL, PRIMARY KEY(`campaignId`), FOREIGN KEY(`campaignId`) REFERENCES `campanhas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`mundoId`) REFERENCES `mundos`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+                        )
+                        db.execSQL("CREATE INDEX IF NOT EXISTS `index_campanha_mundo_mundoId` ON `campanha_mundo` (`mundoId`)")
                     }
                 },
             )
@@ -589,4 +618,208 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
     private companion object {
         val IO = Executors.newCachedThreadPool { r -> Thread(r, "rpgsolo-db").apply { isDaemon = true } }
     }
+}
+
+/**
+ * [MundoStore] sobre Room (MI-10). Mesma regra do [RoomEventStore]: cada operação numa transação e, se chamada da
+ * thread principal, executada numa thread de IO enquanto quem chamou espera (prefira `Dispatchers.IO`).
+ */
+class RoomMundoStore(private val db: RpgDatabase) : dev.rpgsolo.world.MundoStore {
+    private fun onMainThread(): Boolean = android.os.Looper.getMainLooper()?.thread === Thread.currentThread()
+
+    private fun <T> io(block: () -> T): T {
+        if (!onMainThread()) return block()
+        try {
+            return IO.submit(Callable { block() }).get()
+        } catch (e: ExecutionException) {
+            throw e.cause ?: e
+        }
+    }
+
+    private companion object {
+        val IO = Executors.newCachedThreadPool { r -> Thread(r, "rpgsolo-db-mundo").apply { isDaemon = true } }
+    }
+
+    private fun MundoRow.paraRegistro() =
+        dev.rpgsolo.world.MundoRegistro(
+            id, moldeId, moldeHash, dinamicaHash, semente, criadoEm, atualizadoEm, proximoDia, totalDeltas, hashCronica, ultimoBloco,
+        )
+
+    private fun dev.rpgsolo.world.MundoRegistro.paraRow() =
+        MundoRow(id, moldeId, moldeHash, dinamicaHash, semente, criadoEm, atualizadoEm, proximoDia, totalDeltas, hashCronica, ultimoBloco)
+
+    private fun MundoSnapshotInfoRow.paraInfo() = dev.rpgsolo.world.SnapshotInfo(bloco, dia, hashEstado, hashCronica, deltas, bytes, criadoEm)
+
+    override fun criarMundo(mundo: dev.rpgsolo.world.MundoRegistro) = io { db.mundos().inserir(mundo.paraRow()) }
+
+    override fun mundo(id: String) = io { db.mundos().buscar(id)?.paraRegistro() }
+
+    override fun mundos() = io { db.mundos().listar().map { it.paraRegistro() } }
+
+    override fun vincular(vinculo: dev.rpgsolo.world.VinculoMundo) =
+        io {
+            db.runInTransaction {
+                check(db.mundos().buscar(vinculo.mundoId) != null) { "mundo inexistente: ${vinculo.mundoId}" }
+                db.campanhaMundo().salvar(CampanhaMundoRow(vinculo.campanhaId, vinculo.mundoId, vinculo.moldeId, vinculo.vinculadoEm))
+            }
+        }
+
+    override fun vinculo(campanhaId: String) =
+        io {
+            db.campanhaMundo().buscar(campanhaId)?.let { dev.rpgsolo.world.VinculoMundo(it.campaignId, it.mundoId, it.moldeId, it.vinculadoEm) }
+        }
+
+    override fun mundoDaCampanha(campanhaId: String) =
+        io {
+            db.campanhaMundo().buscar(campanhaId)?.let { db.mundos().buscar(it.mundoId)?.paraRegistro() }
+        }
+
+    override fun campanhasDoMundo(mundoId: String) = io { db.campanhaMundo().contarPorMundo(mundoId) }
+
+    override fun guardarBloco(
+        mundoId: String,
+        bloco: Int,
+        snapshot: dev.rpgsolo.world.Snapshot,
+        linhas: List<dev.rpgsolo.world.CronicaGuardada>,
+        agora: Long,
+    ) = io {
+        db.runInTransaction {
+            val mundo = checkNotNull(db.mundos().buscar(mundoId)) { "mundo inexistente: $mundoId" }
+            val json = snapshot.paraJson()
+            db.mundoSnapshots().salvar(
+                MundoSnapshotRow(
+                    mundoId, bloco, snapshot.dia, snapshot.hashEstado, snapshot.hashCronica, snapshot.deltas,
+                    json.toByteArray(Charsets.UTF_8).size, agora, json,
+                ),
+            )
+            if (linhas.isNotEmpty()) {
+                db.mundoCronica().anexar(
+                    linhas.map { MundoCronicaRow(mundoId, it.seq, it.deltaId, it.dia, it.nivel, it.importancia, it.tipo, it.entidade, it.linhaJson) },
+                )
+            }
+            db.mundos().atualizar(
+                mundo.copy(
+                    atualizadoEm = agora,
+                    proximoDia = snapshot.dia,
+                    totalDeltas = snapshot.deltas,
+                    hashCronica = snapshot.hashCronica,
+                    ultimoBloco = bloco,
+                ),
+            )
+        }
+    }
+
+    override fun ultimoSnapshot(mundoId: String) =
+        io {
+            db.mundoSnapshots().ultimo(mundoId)?.let { row ->
+                dev.rpgsolo.world.SnapshotGuardado(
+                    dev.rpgsolo.world.SnapshotInfo(row.bloco, row.dia, row.hashEstado, row.hashCronica, row.deltas, row.bytes, row.criadoEm),
+                    dev.rpgsolo.world.Snapshot.deJson(row.snapshotJson),
+                )
+            }
+        }
+
+    override fun snapshots(mundoId: String) = io { db.mundoSnapshots().listarInfo(mundoId).map { it.paraInfo() } }
+
+    override fun cronica(
+        mundoId: String,
+        desdeDia: Int,
+        ateDia: Int,
+        nivelMaximo: Int,
+        limite: Int,
+    ) = io {
+        db.mundoCronica().listar(mundoId, desdeDia, ateDia, nivelMaximo, limite).map {
+            dev.rpgsolo.world.CronicaGuardada(it.seq, it.deltaId, it.dia, it.nivel, it.importancia, it.tipo, it.entidade, it.linhaJson)
+        }
+    }
+
+    override fun voltarAoBloco(
+        mundoId: String,
+        bloco: Int,
+        agora: Long,
+    ) = io {
+        db.runInTransaction {
+            val mundo = checkNotNull(db.mundos().buscar(mundoId)) { "mundo inexistente: $mundoId" }
+            db.mundoSnapshots().apagarDepoisDe(mundoId, bloco)
+            val alvo = if (bloco > 0) checkNotNull(db.mundoSnapshots().buscar(mundoId, bloco)) { "bloco $bloco inexistente em $mundoId" } else null
+            // Snapshot.dia é o próximo dia a simular: os deltas desse dia em diante pertencem aos blocos descartados.
+            db.mundoCronica().apagarDesdeDia(mundoId, alvo?.dia ?: 0)
+            db.mundos().atualizar(
+                mundo.copy(
+                    atualizadoEm = agora,
+                    proximoDia = alvo?.dia ?: 0,
+                    totalDeltas = alvo?.deltas ?: 0,
+                    hashCronica = alvo?.hashCronica ?: "",
+                    ultimoBloco = bloco,
+                ),
+            )
+        }
+    }
+
+    override fun bytesEmDisco(mundoId: String) = io { db.mundoSnapshots().somaBytes(mundoId) + db.mundoCronica().somaBytes(mundoId) }
+
+    override fun espaco(mundoId: String) =
+        io {
+            db.runInTransaction<dev.rpgsolo.world.EspacoMundo> {
+                dev.rpgsolo.world.EspacoMundo(
+                    db.mundoSnapshots().contar(mundoId),
+                    db.mundoSnapshots().somaBytes(mundoId),
+                    db.mundoCronica().contar(mundoId),
+                    db.mundoCronica().somaBytes(mundoId),
+                )
+            }
+        }
+
+    override fun podarSnapshots(
+        mundoId: String,
+        manter: Int,
+    ) = io {
+        require(manter >= 1) { "manter ao menos 1 snapshot" }
+        db.mundoSnapshots().apagarAntigos(mundoId, manter)
+    }
+
+    override fun podarCronica(
+        mundoId: String,
+        antesDoDia: Int,
+    ) = io { db.mundoCronica().apagarAntesDoDia(mundoId, antesDoDia) }
+
+    override fun ramificar(
+        origemId: String,
+        novoId: String,
+        bloco: Int,
+        agora: Long,
+    ) = io {
+        db.runInTransaction<dev.rpgsolo.world.MundoRegistro> {
+            val origem = checkNotNull(db.mundos().buscar(origemId)) { "mundo inexistente: $origemId" }
+            val alvo = if (bloco > 0) checkNotNull(db.mundoSnapshots().buscar(origemId, bloco)) { "bloco $bloco inexistente em $origemId" } else null
+            val novo =
+                origem.copy(
+                    id = novoId,
+                    criadoEm = agora,
+                    atualizadoEm = agora,
+                    proximoDia = alvo?.dia ?: 0,
+                    totalDeltas = alvo?.deltas ?: 0,
+                    hashCronica = alvo?.hashCronica ?: "",
+                    ultimoBloco = bloco,
+                )
+            db.mundos().inserir(novo)
+            if (alvo != null) {
+                db.mundoSnapshots().copiar(origemId, novoId, bloco, agora)
+                db.mundoCronica().copiar(origemId, novoId, alvo.dia)
+            }
+            novo.paraRegistro()
+        }
+    }
+
+    override fun apagarMundo(mundoId: String) =
+        io {
+            db.runInTransaction<Boolean> {
+                if (db.campanhaMundo().contarPorMundo(mundoId) > 0) {
+                    false
+                } else {
+                    db.mundos().apagar(mundoId)
+                    true
+                }
+            }
+        }
 }

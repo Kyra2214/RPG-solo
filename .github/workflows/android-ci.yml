@@ -1,11 +1,22 @@
 name: Android CI
 
+# Dispara em qualquer push, em PR para main e manualmente (aba Actions ou `gh workflow run`).
+# Disparo manual: escolha a branch e, se quiser, desligue o E2E (mais lento).
 on:
   push:
-    branches: [ "main", "implementation/code-first-combat", "feature/racas-subracas", "world/aeltharyn-reino-das-florestas" ]
+    branches: [ "**" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
+    inputs:
+      e2e:
+        description: "Rodar o E2E no emulador (:app e :data connectedDebugAndroidTest)"
+        type: boolean
+        default: true
+      python:
+        description: "Rodar os testes Python do motor de Mythralis"
+        type: boolean
+        default: true
 
 concurrency:
   group: android-ci-${{ github.ref }}
@@ -15,39 +26,66 @@ permissions:
   contents: read
 
 jobs:
-  test-and-build:
+  # Motor Python de Mythralis: fonte dos vetores de conformidade do módulo :world (D-I2).
+  python-motor:
+    name: Motor Python (Mythralis)
+    if: github.event_name != 'workflow_dispatch' || inputs.python
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testes do motor
+        working-directory: Mythralis
+        run: python3 -m unittest discover -s motor/testes -v
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
+  # Estilo, testes JVM/Android unitários (inclui :world:test) e APK debug.
+  test-and-build:
+    name: Estilo, testes e APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
 
-      - name: Check Kotlin style
+      # Os passos abaixo usam !cancelled() para que uma falha de estilo não esconda o resultado dos testes.
+      - name: ktlintCheck
         run: ./gradlew ktlintCheck --stacktrace
 
-      - name: Run JVM and Android tests
+      - name: Testes do módulo world (prova da Fase 21)
+        if: ${{ !cancelled() }}
+        run: ./gradlew :world:test --stacktrace
+
+      - name: Suíte completa
+        if: ${{ !cancelled() }}
         run: ./gradlew test --continue --stacktrace
 
-      - name: Upload JVM test reports
+      - name: Build do APK debug
+        if: ${{ !cancelled() }}
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Relatórios de teste e ktlint
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: rpgsolo-jvm-test-reports
           path: |
             **/build/test-results/test/*.xml
-            **/build/reports/tests/test/**
+            **/build/test-results/testDebugUnitTest/*.xml
+            **/build/reports/tests/**
+            **/build/reports/ktlint/**
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Upload Room schemas
+      - name: Esquemas do Room
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -56,16 +94,38 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Enable KVM group perms
-        if: github.event_name != 'pull_request'
+      - name: APK debug
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpgsolo-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  # E2E no emulador (gate do CI, regra Q-05). Fora dos PRs, como antes; no disparo manual pode ser desligado.
+  e2e:
+    name: E2E no emulador
+    if: github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.e2e)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Habilitar KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Run Android E2E on emulator
-        if: github.event_name != 'pull_request'
-        id: e2e
+      - name: E2E (:app) e migrações Room (:data)
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -90,8 +150,8 @@ jobs:
             wait "$logcat_pid" 2>/dev/null || true
             exit $result
 
-      - name: Upload E2E diagnostics
-        if: always() && github.event_name != 'pull_request'
+      - name: Diagnósticos do E2E
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: rpgsolo-e2e-diagnostics
@@ -101,17 +161,4 @@ jobs:
             app/build/reports/androidTests/connected
             data/build/reports/androidTests/connected
           if-no-files-found: ignore
-          retention-days: 14
-
-      # O E2E é gate do CI; os diagnósticos acima continuam sendo publicados em caso de falha.
-
-      - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
-
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: rpgsolo-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
           retention-days: 14

@@ -168,3 +168,14 @@ As execuções antigas sem runner e sem etapas, descritas em versões anteriores
 ## CI #39707524769 — diagnóstico e correção
 
 A execução do commit `38503b5` chegou ao runner, mas falhou na compilação Kotlin do app (`:app:compileDebugKotlin` e `:app:compileReleaseKotlin`). O log apontou helpers `approvedRuleEffects`/`approvedRuleBonusSummary` duplicados em `AppModel`, a falta do import de `SpellSlots` e código de loja de magias referenciado no painel de inventário fora de escopo. Os três problemas foram corrigidos no hotfix seguinte. O E2E não iniciou porque a compilação falhou antes da etapa do emulador.
+
+## Como disparar o CI (configurado em 09/11/2026)
+
+Workflow: `.github/workflows/android-ci.yml`, três jobs: **Motor Python (Mythralis)** (62 testes), **Estilo, testes e APK** (`ktlintCheck`, `:world:test`, `./gradlew test`, `:app:assembleDebug`) e **E2E no emulador** (`:app:connectedDebugAndroidTest`, mais `:data:connectedDebugAndroidTest` informativo). Roda em qualquer push, em PR para `main` (sem E2E) e manualmente.
+
+- Por push: `git push origin <branch>`.
+- Manual pela web: aba Actions → Android CI → Run workflow (escolha a branch; `e2e` e `python` ligam/desligam esses jobs).
+- Manual pelo terminal (Termux com `gh` autenticado): `tools/dispara-ci.sh [branch] [e2e] [python]`, ou `gh workflow run android-ci.yml --ref <branch> -f e2e=true`.
+- Resultados: artefatos `rpgsolo-jvm-test-reports`, `rpgsolo-debug-apk`, `rpgsolo-room-schemas` e `rpgsolo-e2e-diagnostics`.
+
+Os passos de estilo, `:world:test` e suíte rodam mesmo que um deles falhe, para a primeira execução mostrar todos os problemas de uma vez. **Nada foi executado ainda:** o MI-24 só fecha com uma execução verde registrada aqui.

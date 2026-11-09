@@ -205,3 +205,142 @@ interface CanonFactsDao {
     @Query("DELETE FROM fatos_canonicos WHERE campaignId = :id")
     fun apagar(id: String)
 }
+
+@Dao
+interface MundoDao {
+    @Query("SELECT * FROM mundos WHERE id = :id")
+    fun buscar(id: String): MundoRow?
+
+    @Query("SELECT * FROM mundos ORDER BY criadoEm, id")
+    fun listar(): List<MundoRow>
+
+    /** ABORT (o padrão): id repetido falha em vez de substituir o mundo e apagar o que depende dele. */
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun inserir(row: MundoRow)
+
+    @androidx.room.Update
+    fun atualizar(row: MundoRow)
+
+    @Query("DELETE FROM mundos WHERE id = :id")
+    fun apagar(id: String)
+}
+
+@Dao
+interface MundoSnapshotDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: MundoSnapshotRow)
+
+    @Query("SELECT * FROM mundo_snapshots WHERE mundoId = :mundoId ORDER BY bloco DESC LIMIT 1")
+    fun ultimo(mundoId: String): MundoSnapshotRow?
+
+    @Query("SELECT * FROM mundo_snapshots WHERE mundoId = :mundoId AND bloco = :bloco")
+    fun buscar(
+        mundoId: String,
+        bloco: Int,
+    ): MundoSnapshotRow?
+
+    @Query(
+        "SELECT bloco, dia, hashEstado, hashCronica, deltas, bytes, criadoEm FROM mundo_snapshots " +
+            "WHERE mundoId = :mundoId ORDER BY bloco",
+    )
+    fun listarInfo(mundoId: String): List<MundoSnapshotInfoRow>
+
+    @Query("DELETE FROM mundo_snapshots WHERE mundoId = :mundoId AND bloco > :bloco")
+    fun apagarDepoisDe(
+        mundoId: String,
+        bloco: Int,
+    )
+
+    @Query("SELECT COALESCE(SUM(bytes), 0) FROM mundo_snapshots WHERE mundoId = :mundoId")
+    fun somaBytes(mundoId: String): Long
+
+    /** Copia o snapshot [bloco] de um mundo para outro (ramificação, MI-12). */
+    @Query(
+        "INSERT INTO mundo_snapshots (mundoId, bloco, dia, hashEstado, hashCronica, deltas, bytes, criadoEm, snapshotJson) " +
+            "SELECT :novoId, bloco, dia, hashEstado, hashCronica, deltas, bytes, :agora, snapshotJson " +
+            "FROM mundo_snapshots WHERE mundoId = :origemId AND bloco = :bloco",
+    )
+    fun copiar(
+        origemId: String,
+        novoId: String,
+        bloco: Int,
+        agora: Long,
+    )
+
+    @Query("SELECT COUNT(*) FROM mundo_snapshots WHERE mundoId = :mundoId")
+    fun contar(mundoId: String): Int
+
+    /** Mantém os [manter] últimos snapshots (por número de bloco) e apaga os anteriores. */
+    @Query(
+        "DELETE FROM mundo_snapshots WHERE mundoId = :mundoId AND bloco <= " +
+            "(SELECT MAX(bloco) FROM mundo_snapshots WHERE mundoId = :mundoId) - :manter",
+    )
+    fun apagarAntigos(
+        mundoId: String,
+        manter: Int,
+    ): Int
+}
+
+@Dao
+interface MundoCronicaDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun anexar(rows: List<MundoCronicaRow>)
+
+    @Query(
+        "SELECT * FROM mundo_cronica WHERE mundoId = :mundoId AND dia >= :desdeDia AND dia <= :ateDia " +
+            "AND nivel <= :nivelMaximo ORDER BY seq LIMIT :limite",
+    )
+    fun listar(
+        mundoId: String,
+        desdeDia: Int,
+        ateDia: Int,
+        nivelMaximo: Int,
+        limite: Int,
+    ): List<MundoCronicaRow>
+
+    /** Descarta as linhas posteriores a um dia (usado ao voltar a um snapshot: `dia` é o `proximoDia` dele). */
+    @Query("DELETE FROM mundo_cronica WHERE mundoId = :mundoId AND dia >= :dia")
+    fun apagarDesdeDia(
+        mundoId: String,
+        dia: Int,
+    )
+
+    @Query("SELECT COALESCE(SUM(LENGTH(linhaJson)), 0) FROM mundo_cronica WHERE mundoId = :mundoId")
+    fun somaBytes(mundoId: String): Long
+
+    /** Copia a crônica anterior ao dia [antesDoDia] de um mundo para outro (ramificação, MI-12). */
+    @Query(
+        "INSERT INTO mundo_cronica (mundoId, seq, deltaId, dia, nivel, importancia, tipo, entidade, linhaJson) " +
+            "SELECT :novoId, seq, deltaId, dia, nivel, importancia, tipo, entidade, linhaJson " +
+            "FROM mundo_cronica WHERE mundoId = :origemId AND dia < :antesDoDia",
+    )
+    fun copiar(
+        origemId: String,
+        novoId: String,
+        antesDoDia: Int,
+    )
+
+    @Query("SELECT COUNT(*) FROM mundo_cronica WHERE mundoId = :mundoId")
+    fun contar(mundoId: String): Int
+
+    @Query("DELETE FROM mundo_cronica WHERE mundoId = :mundoId AND dia < :dia")
+    fun apagarAntesDoDia(
+        mundoId: String,
+        dia: Int,
+    ): Int
+}
+
+@Dao
+interface CampanhaMundoDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: CampanhaMundoRow)
+
+    @Query("SELECT * FROM campanha_mundo WHERE campaignId = :campaignId")
+    fun buscar(campaignId: String): CampanhaMundoRow?
+
+    @Query("SELECT COUNT(*) FROM campanha_mundo WHERE mundoId = :mundoId")
+    fun contarPorMundo(mundoId: String): Int
+
+    @Query("DELETE FROM campanha_mundo WHERE campaignId = :campaignId")
+    fun apagar(campaignId: String)
+}

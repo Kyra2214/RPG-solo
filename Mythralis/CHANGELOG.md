@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-08 — documentação: estado real da integração
+
+- `README.md`: a integração com o app deixou de ser descrita como "só plano"; passa a listar o que existe (`motor/exportar_molde.py`, `motor/exportar_vetores.py`, módulo `../world`, molde em `../rules`) e o que falta (uso pelo app, MI-09 em diante). Sem mudança de código nem de dados. Suíte Python reexecutada: 62 testes OK.
+
 ## 2026-11-08 — vetores dos motores de pessoas (MI-05 da integração)
 
 - `motor/exportar_vetores.py` gera também `../world/src/test/resources/conformidade/vetores-motores-pessoas.txt`. Motor Python inalterado.

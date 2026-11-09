@@ -39,6 +39,8 @@ data class PlayInput(
     val craftOpportunity: Boolean = false,
     /** DC-05.1: trechos do documento-fonte para esta cena. */
     val sourceContext: String? = null,
+    /** MI-20: contexto do mundo só da cena (ver `ContextInput.mundoContext`). */
+    val mundoContext: String? = null,
     /** Notas mecânicas privadas persistidas para regenerar a mesma narração sem perder imunidades aplicadas. */
     val mechanicalNotes: List<String> = emptyList(),
 )
@@ -735,6 +737,7 @@ class GameLoop(
                     recentNarrative = narrations.toList(),
                     resumeBriefing = if (narrations.isEmpty()) input.resumeBriefing else null,
                     sourceContext = input.sourceContext,
+                    mundoContext = input.mundoContext,
                     craftOpportunity = input.craftOpportunity,
                     budgetTokens = input.budgetTokens,
                 ),

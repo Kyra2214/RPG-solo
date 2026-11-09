@@ -202,3 +202,114 @@ data class CanonFactsRow(
     @androidx.room.PrimaryKey val campaignId: String,
     val factsJson: String,
 )
+
+/**
+ * Mundo guardado no aparelho (MI-10, D-I3 e D-I4): instância de um molde que evolui. O progresso resume o último
+ * snapshot. Inserido com ABORT e alterado com UPDATE: um REPLACE apagaria, em cascata, snapshots, crônica e vínculos.
+ */
+@Entity(tableName = "mundos")
+data class MundoRow(
+    @androidx.room.PrimaryKey val id: String,
+    val moldeId: String,
+    val moldeHash: String,
+    val dinamicaHash: String,
+    val semente: Long,
+    val criadoEm: Long,
+    val atualizadoEm: Long,
+    val proximoDia: Int,
+    val totalDeltas: Int,
+    val hashCronica: String,
+    val ultimoBloco: Int,
+)
+
+/** Snapshot do estado do mundo ao fim de um bloco (D-I3): ponto de retomada. [snapshotJson] é o JSON canônico do `Snapshot`. */
+@Entity(
+    tableName = "mundo_snapshots",
+    primaryKeys = ["mundoId", "bloco"],
+    foreignKeys = [
+        ForeignKey(
+            entity = MundoRow::class,
+            parentColumns = ["id"],
+            childColumns = ["mundoId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("mundoId")],
+)
+data class MundoSnapshotRow(
+    val mundoId: String,
+    val bloco: Int,
+    val dia: Int,
+    val hashEstado: String,
+    val hashCronica: String,
+    val deltas: Int,
+    val bytes: Int,
+    val criadoEm: Long,
+    val snapshotJson: String,
+)
+
+/** Resumo de um snapshot sem o JSON do estado (consulta de listagem). */
+data class MundoSnapshotInfoRow(
+    val bloco: Int,
+    val dia: Int,
+    val hashEstado: String,
+    val hashCronica: String,
+    val deltas: Int,
+    val bytes: Int,
+    val criadoEm: Long,
+)
+
+/** Linha da crônica filtrada do mundo (D-I3). [seq] é a ordem do delta na crônica completa e pode ter buracos. */
+@Entity(
+    tableName = "mundo_cronica",
+    primaryKeys = ["mundoId", "seq"],
+    foreignKeys = [
+        ForeignKey(
+            entity = MundoRow::class,
+            parentColumns = ["id"],
+            childColumns = ["mundoId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("mundoId", "dia")],
+)
+data class MundoCronicaRow(
+    val mundoId: String,
+    val seq: Int,
+    val deltaId: String,
+    val dia: Int,
+    val nivel: Int,
+    val importancia: Int,
+    val tipo: String,
+    val entidade: String,
+    val linhaJson: String,
+)
+
+/**
+ * Vínculo campanha → mundo (D-I4). Apagar a campanha apaga só o vínculo; o mundo só pode ser apagado sem campanhas
+ * (RESTRICT), porque o cânone pode ser compartilhado (MP-07).
+ */
+@Entity(
+    tableName = "campanha_mundo",
+    foreignKeys = [
+        ForeignKey(
+            entity = CampanhaRow::class,
+            parentColumns = ["id"],
+            childColumns = ["campaignId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+        ForeignKey(
+            entity = MundoRow::class,
+            parentColumns = ["id"],
+            childColumns = ["mundoId"],
+            onDelete = ForeignKey.RESTRICT,
+        ),
+    ],
+    indices = [Index("mundoId")],
+)
+data class CampanhaMundoRow(
+    @androidx.room.PrimaryKey val campaignId: String,
+    val mundoId: String,
+    val moldeId: String,
+    val vinculadoEm: Long,
+)

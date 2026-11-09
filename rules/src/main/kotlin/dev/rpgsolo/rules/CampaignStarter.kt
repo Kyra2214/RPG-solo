@@ -11,6 +11,9 @@ import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.EventStore
 import dev.rpgsolo.engine.ExecResult
 import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.engine.RecordFact
+import dev.rpgsolo.world.WorldTemplate
+import dev.rpgsolo.world.WorldTemplates
 
 sealed interface StartResult {
     data class Started(
@@ -58,7 +61,16 @@ object CampaignStarter {
         val problems = mutableListOf<String>()
         if (name.isBlank()) problems += "dê um nome à campanha"
         if (store.campaign(campaignId) != null) problems += "já existe uma campanha com o id $campaignId"
-        if (worldId != null && worldId != AeltharynWorld.ID) problems += "mundo não suportado: $worldId"
+        if (worldId != null && worldId != AeltharynWorld.ID && worldId != WorldTemplates.MYTHRALIS) problems += "mundo não suportado: $worldId"
+        // MI-09: o molde de Mythralis precisa carregar sem erro antes de a campanha ser vinculada a ele.
+        val template: WorldTemplate? =
+            if (worldId == WorldTemplates.MYTHRALIS) {
+                runCatching { WorldTemplates.mythralis }
+                    .onFailure { problems += "molde de Mythralis indisponível: ${it.message}" }
+                    .getOrNull()
+            } else {
+                null
+            }
         if (worldId == AeltharynWorld.ID) {
             problems += AeltharynWorld.validate().map { "catálogo de mundo inválido: $it" }
         }
@@ -75,6 +87,8 @@ object CampaignStarter {
         val settingName =
             if (worldId == AeltharynWorld.ID) {
                 AeltharynWorld.NAME
+            } else if (template != null) {
+                template.nome
             } else {
                 customSetting?.trim()?.takeIf { it.isNotEmpty() }
                     ?: config.settingIds.firstNotNullOfOrNull { catalog?.entry(it)?.name }
@@ -121,11 +135,35 @@ object CampaignStarter {
             }
         }
 
+        // MI-09: vínculo campanha → mundo. Só o molde é apontado; cidades, NPCs e facções entram no log quando a cena os tocar (MI-18).
+        template?.let { t ->
+            val link =
+                listOf(
+                    "mundo.id" to t.id,
+                    "mundo.nome" to t.nome,
+                    "mundo.origem" to "preconfigurado",
+                    "mundo.molde_hash" to t.hashMolde,
+                    "mundo.dinamica_hash" to t.hashDinamica,
+                )
+            for ((key, value) in link) {
+                val recorded = session.execute(RecordFact(key, value))
+                if (recorded is ExecResult.Rejected) {
+                    store.truncate(campaignId, 0)
+                    return StartResult.Refused(listOf("não foi possível vincular a campanha a ${t.nome}: ${recorded.reason}"))
+                }
+            }
+        }
+
         val notes = ready.notes.toMutableList()
         if (pkg == null) notes += "não há pacote de regras instalado para ${edition.id}: a ficha e os NPCs não são validados pelo motor"
         if (worldId == AeltharynWorld.ID) {
             val activeNpcCount = AeltharynWorld.figures.count { it.aliveAtStart }
             notes += "Aeltharyn instalado: dez cidades, mapa conectado, sete relógios e $activeNpcCount NPCs ativos com dossiês privados; só Elarion começa descoberta."
+        }
+        template?.let { t ->
+            notes +=
+                "${t.nome} vinculado: ${t.reinos.size} reinos, ${t.cidades} cidades e ${t.npcs} NPCs no molde. " +
+                "Cidades, NPCs e facções ainda não entram na campanha; isso vem com a instanciação sob demanda (MI-18)."
         }
         return StartResult.Started(session, record, campanha, pkg, ficha.id, notes)
     }

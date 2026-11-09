@@ -34,6 +34,7 @@ import dev.rpgsolo.ai.UsageTracker
 import dev.rpgsolo.data.CampanhaMetaRow
 import dev.rpgsolo.data.FichaRow
 import dev.rpgsolo.data.RoomEventStore
+import dev.rpgsolo.data.RoomMundoStore
 import dev.rpgsolo.data.RpgDatabase
 import dev.rpgsolo.data.SourceDocumentStore
 import dev.rpgsolo.engine.CampaignRecord
@@ -481,6 +482,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     private var roles: AiRoles? = null
     private val database = RpgDatabase.build(application)
     private val store = RoomEventStore(database)
+    private val worldStore = RoomMundoStore(database)
     private val activeCampaignPrefs = application.getSharedPreferences("rpgsolo_session", Application.MODE_PRIVATE)
     private var playerId = "hero"
     private var activePackage: RulePackage? = null
@@ -2301,8 +2303,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val loop =
             GameLoop(
                 r.narrator,
-                runner = TurnRunner(r.narrator, npcCreator = npcCreator),
-                premiumRunner = if (r.hasPremium) TurnRunner(r.premium, npcCreator = npcCreator) else null,
+                runner = TurnRunner(r.narrator, npcCreator = npcCreator, canonGuard = canonGuard),
+                premiumRunner = if (r.hasPremium) TurnRunner(r.premium, npcCreator = npcCreator, canonGuard = canonGuard) else null,
                 menu = activePackage?.let { CheckMenu(it, it.exceptionRegistry()) },
                 powerMenu = activePackage?.let { dev.rpgsolo.ai.PowerMenu(it, it.exceptionRegistry()) },
                 attackExecutor = { targetId -> combatActions.unifiedAttack(targetId) },
@@ -2358,6 +2360,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             resumeBriefing = { dev.rpgsolo.ai.ResumeBriefing.build(quests.all(), quests.timeline(), chapters.summaries()) },
             craftOpportunity = { activePackage?.recipes()?.isNotEmpty() == true },
             sourceContext = { text -> sourceContextForScene(text) },
+            mundoContext = { mundoContextForScene() },
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
             generationPreferences = {
@@ -2535,6 +2538,140 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         return NewCampaignFlow(CampaignInterpreter(r.cheap), catalog, content.registry, store)
     }
 
+    /** Mundo ligado à campanha ativa, ou `null` (campanha sem mundo persistente ou ainda sem campanha). Chamada bloqueante. */
+    fun activeWorld(): dev.rpgsolo.world.MundoRegistro? = runCatching { worldStore.mundoDaCampanha(session.campaignId) }.getOrNull()
+
+    /** MI-17: aplica o período simulado à campanha ativa (um lote só). Chamada bloqueante. */
+    fun applySimulation(
+        diaInicio: Int,
+        diaFim: Int,
+        feed: dev.rpgsolo.world.FeedSimulacao,
+    ): ResultadoAplicacao {
+        val world = activeWorld()
+        val estado = world?.let { runCatching { worldStore.ultimoSnapshot(it.id)?.snapshot?.estado }.getOrNull() }
+        val heroi =
+            IdadeHeroi.estado(session.state)?.let {
+                dev.rpgsolo.world.MotorHeroi.simular(MythralisRuntime.dinamica(), it, world?.semente ?: 0L, diaInicio, diaFim)
+            }
+        return AplicacaoSimulacao.aplicar(session, diaInicio, diaFim, feed, estado, heroi)
+    }
+
+    /**
+     * MI-26: ao iniciar a campanha com mundo, converte a faixa de idade da ficha em anos (percentual da `vida_max` da
+     * classe de longevidade do povo: sub-raça, senão raça) e fixa a idade no dia do mundo. Sem mundo, sem raça ou povo
+     * sem idade, não faz nada. Falha só vira aviso.
+     */
+    private fun applyHeroAgeFromFicha(choices: CharacterChoices) {
+        if (choices.raceId.isBlank() || activeWorld() == null) return
+        runCatching {
+            val din = MythralisRuntime.dinamica()
+            val classe = din.classeDe(choices.raceId, choices.subraceId)
+            val anos = FaixaIdade.de(choices.ageBand).anos(din.classes[classe]?.max ?: 0)
+            if (anos > 0) setHeroAge(anos, classe)?.let { configError = "idade do herói não definida: $it" }
+        }.onFailure { configError = "idade do herói não definida: ${it.message}" }
+    }
+
+    /** MI-27: o herói morre de velhice em (diaInicio, diaFim]? Mesma conta do Aplicar (semente do mundo). Chamada bloqueante. */
+    fun heroDeathIn(
+        diaInicio: Int,
+        diaFim: Int,
+    ): MorteHeroi? = IdadeHeroi.previsaoDeMorte(session.state, MythralisRuntime.dinamica(), activeWorld()?.semente ?: 0L, diaInicio, diaFim)
+
+    /** MI-27: texto do resumo da morte do herói (idade e causa). */
+    fun heroDeathSummary(morte: MorteHeroi): String = IdadeHeroi.resumoDaMorte(session.state, morte)
+
+    /** MI-26: fixa a idade do herói (em anos) no dia atual do mundo e a classe de longevidade do povo. `null` = deu certo. */
+    fun setHeroAge(
+        anos: Int,
+        classe: String,
+    ): String? {
+        val diaMundo = session.state.facts[AplicacaoSimulacao.CHAVE_DIA]?.toIntOrNull() ?: activeWorld()?.proximoDia ?: 0
+        val r = session.executeAll(IdadeHeroi.definir(anos, diaMundo, classe))
+        return (r as? dev.rpgsolo.engine.ExecResult.Rejected)?.reason
+    }
+
+    /** MI-17: desfaz o lote aplicado (dia e fatos da campanha). Chamada bloqueante. */
+    fun undoSimulation(lote: LoteAplicado) = AplicacaoSimulacao.desfazer(session, lote)
+
+    /**
+     * MI-18: leva a cidade [cityId] do mundo para a campanha ativa (local, NPCs vivos necessários e facções presentes),
+     * lendo o último snapshot do mundo. `null` = deu certo ou já estava lá. Chamada bloqueante (carrega o molde).
+     */
+    fun instantiateCity(cityId: String): String? {
+        val world = activeWorld() ?: return "a campanha não tem mundo persistente"
+        val estado = worldStore.ultimoSnapshot(world.id)?.snapshot?.estado
+        val cena = dev.rpgsolo.world.InstanciacaoCena.cena(MythralisRuntime.mundo, estado, cityId) ?: return "cidade inexistente no mundo: $cityId"
+        val erro = InstanciacaoCampanha.instanciar(session, cena)
+        val vida = VidaForaDeCena.comandos(session.state, estado)
+        val erroVida = if (erro == null && vida.isNotEmpty()) (session.executeAll(vida) as? dev.rpgsolo.engine.ExecResult.Rejected)?.reason else null
+        if (erro == null && erroVida == null) campaignVersion++
+        return erro ?: erroVida
+    }
+
+    @Volatile private var mundoContextCache: Pair<String, String?>? = null
+
+    /** MI-21: cânone do mundo da cena atual (atualizado com o contexto do mestre a cada turno). */
+    @Volatile private var canonMundoAtual: List<dev.rpgsolo.world.FatoCanonMundo> = emptyList()
+
+    private val canonGuard =
+        object : dev.rpgsolo.ai.CanonGuard {
+            override fun recusaFato(
+                chave: String,
+                valor: String,
+            ) = dev.rpgsolo.world.CanonMundo.recusa(canonMundoAtual, chave, valor)
+
+            override fun recusaNpc(id: String) = dev.rpgsolo.world.CanonMundo.recusaNpc(canonMundoAtual, id)
+        }
+
+    /**
+     * MI-20: contexto do mundo só do lugar atual (se for cidade do molde), lendo o último snapshot; guarda o texto
+     * enquanto mundo, bloco simulado e lugar não mudam. Chamada bloqueante (fora da thread principal, como o turno).
+     */
+    private fun mundoContextForScene(): String? {
+        val place = session.state.currentPlaceId ?: return null
+        val world = activeWorld() ?: return null.also { canonMundoAtual = emptyList() }
+        val chave = "${world.id}|${world.ultimoBloco}|$place"
+        mundoContextCache?.let { if (it.first == chave) return it.second }
+        val estado = runCatching { worldStore.ultimoSnapshot(world.id)?.snapshot?.estado }.getOrNull()
+        val molde = MythralisRuntime.mundo
+        val cena = dev.rpgsolo.world.InstanciacaoCena.cena(molde, estado, place)
+        val cronica = runCatching { worldStore.cronica(world.id) }.getOrDefault(emptyList())
+        val canon = cena?.let { dev.rpgsolo.world.CanonMundo.fatos(molde, estado, it, cronica) }.orEmpty()
+        canonMundoAtual = canon
+        runCatching { CanonCampanha.sincronizar(this, session.campaignId, world.id, canon) }
+        val texto = cena?.let { dev.rpgsolo.world.ContextoMestre.cena(molde, it, canon = canon) }
+        mundoContextCache = chave to texto
+        return texto
+    }
+
+    /** Armazenamento do mundo para a tela Simulação de tempo (MI-15). */
+    fun worldStoreForSimulation(): dev.rpgsolo.world.MundoStore = worldStore
+
+    /**
+     * MI-10: se a campanha nasceu vinculada a um molde de mundo (fatos `mundo.*` gravados pelo `CampaignStarter`),
+     * cria o mundo da campanha no Room e liga os dois. Um mundo por campanha; o compartilhamento é o MI-12.
+     */
+    private fun linkWorld(started: StartResult.Started) {
+        val facts = started.session.state.facts
+        val moldeId = facts["mundo.id"] ?: return
+        val now = System.currentTimeMillis()
+        val worldId = "mundo-${started.campanha.id}"
+        runCatching {
+            worldStore.criarMundo(
+                dev.rpgsolo.world.MundoRegistro(
+                    id = worldId,
+                    moldeId = moldeId,
+                    moldeHash = facts["mundo.molde_hash"].orEmpty(),
+                    dinamicaHash = facts["mundo.dinamica_hash"].orEmpty(),
+                    semente = started.record.seed,
+                    criadoEm = now,
+                    atualizadoEm = now,
+                ),
+            )
+            worldStore.vincular(dev.rpgsolo.world.VinculoMundo(started.campanha.id, worldId, moldeId, now))
+        }.onFailure { configError = "mundo não vinculado à campanha: ${it.message}" }
+    }
+
     /** Troca a campanha ativa pela recém-criada: sessão, personagem, pacote, capítulos e missões novos. */
     fun activate(started: StartResult.Started) {
         pendingCombatNpcIds.clear()
@@ -2580,6 +2717,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
             is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "configuração da campanha não salva: ${style.reason}"
         }
+        linkWorld(started)
+        applyHeroAgeFromFicha(loadoutChoices)
         activeCampaignPrefs.edit().putString("active_campaign", session.campaignId).apply()
         chapters = ChapterBook()
         chapters.open(session, "Capítulo 1")

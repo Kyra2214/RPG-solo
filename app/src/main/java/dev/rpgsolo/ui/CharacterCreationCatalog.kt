@@ -37,6 +37,8 @@ data class CharacterChoices(
     val elementalAffinity: String = "",
     val cursedClassBranchId: String = "",
     val additionalClassIds: List<String> = emptyList(),
+    /** MI-26: faixa de idade ([FaixaIdade.id]); vazio = adulto. */
+    val ageBand: String = "",
 ) {
     fun toJson(): String =
         JSONObject()
@@ -49,6 +51,7 @@ data class CharacterChoices(
             .put("cursedClassBranchId", cursedClassBranchId)
             .put("additionalClassIds", org.json.JSONArray(additionalClassIds))
             .put("curseIds", org.json.JSONArray(curseIds))
+            .put("ageBand", ageBand)
             .toString()
 
     companion object {
@@ -69,6 +72,7 @@ data class CharacterChoices(
                         (0 until (obj.optJSONArray("additionalClassIds")?.length() ?: 0)).mapNotNull {
                             obj.optJSONArray("additionalClassIds")?.optString(it)?.takeIf(String::isNotBlank)
                         },
+                    ageBand = obj.optString("ageBand"),
                     // Migração: conceitos antigos da Classe de Malditos não são maldições lançadas.
                     curseIds = emptyList(),
                 )

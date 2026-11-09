@@ -1,4 +1,112 @@
+## 09/11/2026 — CI e E2E
+
+- `android-ci.yml` reorganizado em três jobs (motor Python, estilo/testes/APK, E2E), com disparo em qualquer push e manual com opções; `tools/dispara-ci.sh` e seção "Como disparar o CI" em `docs/VALIDACAO_CI.md`. Configuração apenas; MI-23 e MI-24 seguem pendentes até uma execução verde.
+
+## 09/11/2026 — decisões do proprietário
+
+- Registradas em `PLANO_RPG_SOLO.md` §5 (itens 10 a 17): teto de empilhamento de +3 por escopo (só fontes do catálogo), vantagens dobrando, XP N-04 confirmado, conjuntos por faixa de nível, teto +3 da Sorte em testes, PV do chefe validado pelo motor (×2 a ×3), custos de PM da árvore reduzidos e pontos iniciais mantidos. Só documentação; nada compilado.
+
 # Changelog
+
+## 2026-11-09 — app: idade do herói na criação da ficha (MI-26, pendência; não compilado)
+
+- `app`: `FaixaIdade` (jovem 20%, adulto 40%, veterano 70% da `vida_max` do povo), `CharacterChoices.ageBand` (JSON), seletor em `CharactersScreen` (+5 strings) e `AppModel.applyHeroAgeFromFicha` no `activate` (classe pela raça/sub-raça; `setHeroAge` no dia do mundo). 🔶 ASSUMINDO: vazio = adulto; sem mundo ou povo sem idade, nada é definido.
+- **Validação:** nenhuma; nada compilado nem testado. Faixa ainda não aparece na biblioteca de fichas. Documentação: `docs/PLANO_INTEGRACAO_MYTHRALIS.md` (MI-26) e `README.md`.
+
+## 2026-11-09 — docs: fechamento documental da Fase 25 (MI-25) e pendências MI-23/MI-24
+
+- Decisão do autor: documentar MI-23 (desempenho em aparelho) e MI-24 (suíte, E2E e CI) como pendências e seguir. Ambos ⏸: exigem aparelho Android e Gradle com rede, ausentes no ambiente; nada medido nem executado; teto da D-I6 inalterado. MI-25 🟡 (documentação atualizada em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md`, `README.md` e `Mythralis/plano/INTEGRACAO_FUTURA_RPG_SOLO.md`).
+- **Validação:** nenhuma; sem código alterado. Sem marco de código restante nas Fases 21 a 25.
+
+## 2026-11-09 — engine/app: morte do herói na simulação (MI-27, não compilado)
+
+- `engine`: comando `MarkHeroDead` (só o herói vivo; `EntityDied` sem autor). `app`: `IdadeHeroi.previsaoDeMorte/resumoDaMorte`, `TimeSimulationController(morteDoHeroi)` encerra o período no dia da morte (`Concluido`/`Aplicado` com `MorteHeroi`), `AppModel.heroDeathIn/heroDeathSummary` e cartão "O herói morreu" na tela com as opções do M-04 (renascer, assumir NPC, encerrar). 🔶 ASSUMINDO: morte decidida antes da execução (motor `heroi` independente do mundo); Desfazer some depois de escolher uma opção do legado; renascer/assumir não reinicia a idade.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Sem recuperar itens do corpo (LG-04). Documentação: MI-27 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`. Progresso da integração: 24 de 27 marcos escritos; progresso geral do projeto não recalculado (o plano mantém a estimativa anterior de ≈79%).
+
+## 2026-11-09 — world/app: idade do herói (MI-26, não compilado)
+
+- `world`: `MotorHeroi.kt` (envelhecimento, doença da idade e morte natural pela longevidade do povo, gerador próprio, fora dos hashes do mundo). `app`: `IdadeHeroi.kt` (fatos `heroi.*`), `AppModel.setHeroAge`, motor rodando no lote de Aplicar, `MythralisRuntime.dinamica()`. 🔶 ASSUMINDO: fatos em vez de campo na entidade; classe passada por quem chama; morte só registrada (MI-27).
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Falta o campo de idade na tela de criação. Documentação: MI-26 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-09 — engine/app: vida fora de cena (MI-22, não compilado)
+
+- `engine`: comando `MarkNpcDead`. `app`: `VidaForaDeCena.kt` (NPC morto no mundo vira morto na campanha, no lote de Aplicar e em `instantiateCity`). 🔶 ASSUMINDO: só morte de NPCs já instanciados; sem memória entre campanhas (MP-03).
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Documentação: MI-22 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-09 — world/ai/app: cânone do mundo (MI-21, não compilado)
+
+- `world`: `CanonMundo.kt` (fatos de vida/morte e governante ligados ao delta; `recusa`, `recusaNpc`); `ContextoMestre` mostra o cânone. `ai`: `CanonGuard` no `TurnRunner` (recusa `record_fact` que contradiz o cânone ou usa chave reservada, e `create_npc` de NPC morto). `app`: `CanonCampanha.kt` (ORIGINAL por delta, `divergir`) e ligação no `AppModel`. 🔶 ASSUMINDO: só vida/morte e governante; contradição por chave; crônica de até 500 linhas.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Documentação: MI-21 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-09 — world/ai/app: contexto do mestre (MI-20, não compilado)
+
+- `world`: `ContextoMestre.kt` (resumos do molde da cidade, NPCs e facções da cena, presentes vivos e rumores, em ordem de prioridade e até 600 tokens). `ai`: `ContextInput`/`PlayInput.mundoContext` e parâmetro do `PlayController` (seção cortável pelo orçamento). `app`: `AppModel.mundoContextForScene` (lugar atual + último snapshot, com cache). 🔶 ASSUMINDO: escolha pelas entidades da cena, só `camada_max` = `local`; NPC sem resumo entra pelo conceito.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Contradição da IA com o mundo fica para o MI-21. Documentação: MI-20 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — world/app: Ecos viram rumores (MI-19, não compilado)
+
+- `world`: `RumoresEcos.kt` (`VersaoRumor`, `Rumor`, leitura do estado `eco.*`); `CenaInstanciavel.rumores`. `app`: `InstanciacaoCampanha` grava `mundo.rumor.<eco>@<cidade>`. 🔶 ASSUMINDO: confirmado = exata, alegado = exagerada, rumor = falsa; sem restrito/secreto; janela de 1 ano; até 5 rumores.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Reconhecimento do herói fica para o MI-26. Documentação: MI-19 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — world/app: instanciação sob demanda (MI-18, não compilado)
+
+- `world`: `InstanciacaoCena.kt` (seleção do necessário de uma cidade a partir do molde e do último snapshot). `app`: `InstanciacaoCampanha.kt` (lote idempotente de local, NPCs e fatos de facção) e `AppModel.instantiateCity`. 🔶 ASSUMINDO: até 5 NPCs e 3 facções; facções como fatos; NPCs sem ficha mecânica.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Sem gatilho de cena ainda (MI-19/MI-20). Documentação: MI-18 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — app: aplicar à campanha (MI-17, não compilado)
+
+- `app`: `AplicacaoSimulacao.kt` (lote de `AdvanceDays` e `RecordFact` por `executeAll`, `LoteAplicado`, desfazer por `rollbackTo`), `AppModel.applySimulation`/`undoSimulation`, estado `Aplicado` no `TimeSimulationController` e botões Aplicar/Desfazer na tela. 🔶 ASSUMINDO: os efeitos entram como fatos até o MI-18.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Limite conhecido: `GameLoop.undo` pode levar o lote sem reverter o mundo. Documentação: MI-17 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — world/app: feed de eventos por nível e resumo final (MI-16, não compilado)
+
+- `world`: `ResumoNiveis.kt` (porta de `gerar_niveis` e `texto`, com `PyTexto`), `FeedPeriodo.kt` (`AcumuladorFeed`, `EventoFeed`, `ResumoDecada`, `ResumoPeriodo`, `FeedSimulacao`) e `Niveis.aprender`. `app`: `TimeSimulationController.feed` e cartões de marcos, década e resumo na tela. 🔶 ASSUMINDO as definições de pacto novo, reino caído, NPC principal e empossado (ver o plano).
+- **Validação:** nenhuma; nada compilado nem testado; a conformidade de `niveis.md` com o Python fica para o fim da Fase 22. Documentação: MI-16 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — app: tela Passar o tempo (MI-15, não compilado)
+
+- `app`: `TimeSimulationScreen.kt`, `SimulationPeriods.kt` e `MythralisRuntime.kt` (fábrica concreta do simulador); `AppModel.activeWorld()`/`worldStoreForSimulation()`; botão no topo da aba Jogar (`PlayScreen`). `TimeSimulationController.descartar()` passa a valer também após erro. 🔶 ASSUMINDO: "1 era" = 120 anos; calendário na contagem base; textos fixos em português.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22); TalkBack e contraste não revisados em aparelho. Sem feed (MI-16) nem aplicar (MI-17). Documentação: MI-15 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — app: velocidade de exibição 1x/5x/10x (MI-14, não compilado)
+
+- `app`: `ui/SimulationPlayback.kt` (`VelocidadeSimulacao`, `QuadroExibicao`, `ExibicaoSimulacao`). A exibição segue o dia já calculado e espera o cálculo se ele atrasar; o controlador não muda e não conhece a velocidade. 🔶 ASSUMINDO: período curto = até 91 dias, mostrado de uma vez; aparelho lento após 2 s de espera.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Sem tela ainda. Documentação: MI-14 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — app: TimeSimulationController (MI-13, não compilado)
+
+- `app`: `ui/TimeSimulationController.kt` (`SimuladorFabrica`, `EstadoSimulacao`, `ProgressoSimulacao`). Execução por blocos em `Dispatchers.Default`, gravação de snapshot e crônica filtrada a cada bloco, pausa/retomada/cancelamento/parada em marco na fronteira do bloco. 🔶 ASSUMINDO: cancelar volta ao bloco em que a execução começou; marco = delta de nível 1.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Sem tela nem fábrica concreta do simulador no `app` ainda. Documentação: MI-13 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — world/data: ramificação de mundo (MI-12, não compilado)
+
+- `world`: `RamificacaoMundo.kt` (`ModoMundo`: cânone compartilhado, linha do tempo alternativa, cópia independente). `MundoStore.ramificar` copia um snapshot e a crônica anterior para um mundo novo; `RoomMundoStore` e os DAOs implementam. Sem mudança de esquema; 🔶 ASSUMINDO que o modo vai nos fatos da campanha (`mundo.modo`).
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). A tela de nova campanha ainda não usa a API. Documentação: MI-12 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — world/data: retomada, janela de retenção e espaço em disco do mundo (MI-11, não compilado)
+
+- `world`: `RetencaoMundo.kt` com `PoliticaRetencao` (🔶 ASSUMINDO último século de crônica e 5 snapshots), `RetencaoMundo.limpar`/`limparOrfaos` e `RetomadaMundo.retomar` (continua do último snapshot e realinha o progresso se estiver à frente). `MundoStore` ganhou `espaco`, `podarSnapshots`, `podarCronica` e `apagarMundo` (só sem campanhas); `RoomMundoStore` e os DAOs implementam. Sem mudança de esquema.
+- **Validação:** nenhuma; nada compilado nem testado (testes no fim da Fase 22). Nada chama as novas funções ainda (MI-13 e MI-15). Documentação: MI-11 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — Room v11: mundo, snapshots, crônica filtrada e vínculo campanha → mundo (MI-10, não compilado)
+
+- `data`: tabelas `mundos`, `mundo_snapshots`, `mundo_cronica` e `campanha_mundo`; migração explícita 10 → 11 (só cria tabelas; sem `fallbackToDestructiveMigration`); DAOs novos e `RoomMundoStore`, que implementa o `MundoStore` do `world`. `world`: `MundoStore.kt` (registros, `FiltroCronica` e a interface). `app`: `AppModel.activate` cria o mundo da campanha e o vínculo quando a campanha nasce com Mythralis.
+- O módulo `data` passa a depender de `:world`. `mundos` usa INSERT/UPDATE (não REPLACE) para não apagar dados dependentes em cascata.
+- **Validação:** nenhuma; nada compilado nem testado. O esquema `11.json` será gerado pelo build e precisa ser commitado; o teste de migração 10 → 11 fica para o fim da Fase 22. Nada grava snapshot ainda (MI-13); retenção e limpeza são o MI-11.
+
+## 2026-11-08 — world: molde no app e escolha do mundo na nova campanha (MI-09, não compilado)
+
+- `world`: `WorldTemplate`, `OrigemMundo`, `ReinoResumo` e `WorldTemplates.mythralis` (resumo do molde: 5 reinos, cidades, NPCs, facções e hashes). `rules`: `WorldOptions` (mundo próprio, Aeltharyn, Mythralis e "mundo anterior", este indisponível até o MI-10/MI-12) e `CampaignStarter` com `worldId = "world.mythralis"`, que grava o vínculo campanha → mundo em fatos (`mundo.id`, `mundo.molde_hash` e outros). `app`: a nova campanha mostra a lista "Mundo da campanha".
+- **O `app` agora depende do `:world`** (`implementation(project(":world"))`; `rules` usa `api`). Antes disso não havia ligação.
+- **Validação:** nenhuma; nada foi compilado nem testado (sem Gradle/Android SDK aqui; testes ficam para o fim da Fase 22). Cidades, NPCs e facções ainda não entram na campanha (MI-18) e o Room v11 é o MI-10.
+- Documentação: MI-09 🟡 em `docs/PLANO_INTEGRACAO_MYTHRALIS.md`, `PLANO_RPG_SOLO.md` e `README.md`.
+
+## 2026-11-08 — documentação sincronizada com o estado real da integração Mythralis
+
+- `README.md`, `Mythralis/README.md`, `docs/PLANO_INTEGRACAO_MYTHRALIS.md` e `PLANO_RPG_SOLO.md` deixaram de dizer que a integração é "só plano" ou que "nada foi implementado": o módulo `:world` (MI-01 a MI-08), o molde exportado em `rules/src/main/resources/mundos/mythralis/` e os testes de conformidade já estão no repositório.
+- **Distinção técnica registrada:** `:world` está em `settings.gradle.kts`, mas o `app` não declara `project(":world")` e nenhum código do app referencia `dev.rpgsolo.world`. A ligação com o app (Room v11, tela Simulação de tempo, campanha) começa só na MI-09.
+- A falha de compilação de `:world:test` em `Dinamica.kt:98` (comentário não fechado) citada na entrada "MI-08" abaixo está corrigida no código atual; as entradas MI-08 e anteriores continuam como histórico do momento em que foram escritas.
+- Verificado nesta atualização: suíte Python do motor, `python3 -m unittest discover -s Mythralis/motor/testes`, 62 testes OK em 136,9 s; varredura estática sem comentário de bloco desbalanceado em `world/`. **Não verificado aqui:** `:world:test`, `ktlintCheck` e `./gradlew test` (sem Gradle nem Android SDK neste ambiente); nenhum CI GitHub após `036d445`. A Fase 21 segue não aceita até `:world:test` passar no CI.
 
 ## 2026-11-08 — auditoria de escopos mecânicos do catálogo
 
@@ -33,6 +141,8 @@
 - Documentação atualizada em `PLANO_RPG_SOLO.md` e `docs/VALIDACAO_CI.md`.
 
 ## 2026-11-08 — world: testes de conformidade Kotlin × Python e lote de 20 sementes (MI-08, validação parcial)
+
+> **Registro histórico.** Os resultados de Gradle e ktlint abaixo descrevem as tentativas feitas antes das correções (a falha em `Dinamica.kt:98` já foi corrigida); o estado atual está na entrada "documentação sincronizada", acima.
 
 - `world/src/test/kotlin`: `Conformidade` (apoio) e `RngJsonConformidadeTest`, `EstadoConformidadeTest`, `MotoresConformidadeTest`, `SimuladorConformidadeTest` (500 anos × 3 sementes e retomada por snapshot), `ValidadorConformidadeTest` (0 erro, 20 avisos, relatório idêntico) e `LoteConformidadeTest` (sementes 1 a 20 × 500 anos, hashes e métricas da seção 14). `world/build.gradle.kts`: recursos do molde de `rules` no classpath de teste e heap de 1 GB.
 - `Mythralis/motor/exportar_vetores.py --lote` gera `vetores-lote.txt` (Python; ≈ 2 min por semente). `vetores-lote.txt` gerado (HDR + 20 linhas `LOTE`); `LOTE_CACHE` permite retomar a geração.

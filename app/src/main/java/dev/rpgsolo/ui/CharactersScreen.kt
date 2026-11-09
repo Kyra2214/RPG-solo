@@ -155,8 +155,9 @@ private fun Creator(
     var elementalAffinity by remember(key) { mutableStateOf("") }
     var cursedClassBranchId by remember(key) { mutableStateOf("") }
     var additionalClassIds by remember(key) { mutableStateOf(emptyList<String>()) }
+    var ageBand by remember(key) { mutableStateOf("") }
     val choices =
-        CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId, additionalClassIds)
+        CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId, additionalClassIds, ageBand)
     val choiceErrors = (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct()
     @Suppress("UNUSED_EXPRESSION")
     version
@@ -332,6 +333,19 @@ private fun Creator(
                 (id, label) ->
             FilterChip(selected = elementalAffinity == id, onClick = {
                 elementalAffinity = if (elementalAffinity == id) "" else id
+                version++
+            }, label = { Text(label) })
+        }
+    }
+    SectionTitle(stringResource(R.string.char_age_title), stringResource(R.string.char_age_help))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            FaixaIdade.JOVEM to stringResource(R.string.char_age_young),
+            FaixaIdade.ADULTO to stringResource(R.string.char_age_adult),
+            FaixaIdade.VETERANO to stringResource(R.string.char_age_veteran),
+        ).forEach { (faixa, label) ->
+            FilterChip(selected = FaixaIdade.de(ageBand) == faixa, onClick = {
+                ageBand = faixa.id
                 version++
             }, label = { Text(label) })
         }
@@ -792,6 +806,7 @@ private fun Creator(
                         hybridId = saved.hybridId
                         classId = saved.classId
                         professionId = saved.professionId
+                        ageBand = saved.ageBand
                         curseIds = saved.curseIds.toSet()
                         editingChoicesFichaId = f.id
                         message = null

@@ -64,6 +64,8 @@ data class ContextInput(
     val resumeBriefing: String? = null,
     /** DC-05.1: trechos do documento-fonte escolhidos pelo código para esta cena (ver [SourceContext]); cortável pelo orçamento. */
     val sourceContext: String? = null,
+    /** MI-20: contexto do mundo (resumos da cidade, presentes, rumores) só da cena; cortável pelo orçamento. */
+    val mundoContext: String? = null,
     /** Há receitas de ofício no pacote ativo; liga o lembrete da regra 18 enquanto o fato [CRAFT_OFFER_FACT] não existe. */
     val craftOpportunity: Boolean = false,
 )
@@ -238,6 +240,7 @@ object ContextAssembler {
                 input.ruleSnippets.takeIf { it.isNotEmpty() }?.let { "Regras relevantes:\n" + it.joinToString("\n") },
                 input.chapterSummary?.takeIf { it.isNotBlank() }?.let { "Resumo do capítulo:\n$it" },
                 input.sourceContext?.takeIf { it.isNotBlank() },
+                input.mundoContext?.takeIf { it.isNotBlank() },
                 input.generationPreferences?.takeIf { it.isNotBlank() },
                 input.recentNarrative.takeIf { it.isNotEmpty() }?.let { "Últimas cenas:\n" + it.takeLast(5).joinToString("\n") },
             )

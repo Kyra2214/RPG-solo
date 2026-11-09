@@ -523,6 +523,11 @@
     <string name="char_combined_classes">Classes combinadas: %1$d/4 — %2$s</string>
     <string name="char_element_title">Afinidade elemental</string>
     <string name="char_element_help">Opcional para técnicas físicas; habilidades mágicas exigem compatibilidade com a afinidade escolhida.</string>
+    <string name="char_age_title">Idade do herói</string>
+    <string name="char_age_help">Vale uma parte da vida do povo: jovem 20%, adulto 40%, veterano 70%. Conta quando a campanha tem mundo com tempo.</string>
+    <string name="char_age_young">Jovem</string>
+    <string name="char_age_adult">Adulto</string>
+    <string name="char_age_veteran">Veterano</string>
     <string name="char_element_water">Água</string>
     <string name="char_element_fire">Fogo</string>
     <string name="char_element_wind">Vento</string>

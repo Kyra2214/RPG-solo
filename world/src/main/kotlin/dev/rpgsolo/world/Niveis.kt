@@ -62,6 +62,12 @@ class Niveis(
         for (d in deltas) ver(d)
     }
 
+    /** Aprende, para a crônica que chega aos poucos (MI-16), o reino e o papel das entidades criadas em [d]. */
+    fun aprender(d: Map<String, Any?>) {
+        r.registrar(d)
+        ver(d)
+    }
+
     /** Aprende NPCs simulados (`criacao`) à medida que a crônica avança. */
     fun ver(d: Map<String, Any?>) {
         val e = d["entidade"].toString()

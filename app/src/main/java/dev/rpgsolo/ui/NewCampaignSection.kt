@@ -11,6 +11,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +24,8 @@ import dev.rpgsolo.R
 import dev.rpgsolo.ai.CampaignForm
 import dev.rpgsolo.ai.NewCampaignFlow
 import dev.rpgsolo.engine.Ficha
+import dev.rpgsolo.rules.WorldOption
+import dev.rpgsolo.rules.WorldOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +52,13 @@ fun NewCampaignSection(model: AppModel) {
     var text by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var chosen by remember { mutableStateOf<Ficha?>(null) }
-    var useAeltharyn by remember(flow) { mutableStateOf(false) }
+    // MP-08: id do mundo escolhido (null = criar o próprio, a descrição livre acima).
+    var worldId by remember(flow) { mutableStateOf<String?>(null) }
+    var worldOptions by remember { mutableStateOf<List<WorldOption>>(emptyList()) }
+    LaunchedEffect(Unit) {
+        // O molde de Mythralis lê arquivos: carga fora da thread principal.
+        worldOptions = withContext(Dispatchers.IO) { WorldOptions.list() }
+    }
     var busy by remember { mutableStateOf(false) }
     var showForm by remember { mutableStateOf(false) }
     var genre by remember { mutableStateOf("") }
@@ -156,17 +165,20 @@ fun NewCampaignSection(model: AppModel) {
                     )
                 }
                 r.notes.forEach { Text(stringResource(R.string.campaign_note, it), style = MaterialTheme.typography.bodySmall) }
-                Text("Mundo inicial (opcional)", style = MaterialTheme.typography.titleSmall)
-                FilterChip(
-                    selected = useAeltharyn,
-                    onClick = { useAeltharyn = !useAeltharyn },
-                    label = { Text("Aeltharyn — Reino das Florestas") },
-                )
-                if (useAeltharyn) {
-                    Text(
-                        "Instala as dez cidades, rotas e crises iniciais de Aeltharyn. Só Elarion começa descoberta.",
-                        style = MaterialTheme.typography.bodySmall,
+                Text("Mundo da campanha", style = MaterialTheme.typography.titleSmall)
+                worldOptions.forEach { option ->
+                    FilterChip(
+                        selected = worldId == option.id && option.available,
+                        enabled = option.available,
+                        onClick = { worldId = option.id },
+                        label = { Text(option.name) },
                     )
+                    if (worldId == option.id && option.available) {
+                        Text(option.summary, style = MaterialTheme.typography.bodySmall)
+                    }
+                    if (!option.available) {
+                        Text(option.unavailableReason.orEmpty(), style = MaterialTheme.typography.bodySmall)
+                    }
                 }
                 if (s.ready.draft.ignored.isNotEmpty()) {
                     Text(
@@ -191,6 +203,7 @@ fun NewCampaignSection(model: AppModel) {
                 s.errors.forEach { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                 Button(modifier = Modifier.fillMaxWidth(), enabled = chosen != null && name.isNotBlank() && !busy, onClick = {
                     val ficha = chosen!!
+                    val chosenWorldId = worldId
                     val campaignName = name
                     busy = true
                     scope.launch {
@@ -203,7 +216,7 @@ fun NewCampaignSection(model: AppModel) {
                                             ficha,
                                             campaignName,
                                             Random.nextLong(),
-                                            worldId = if (useAeltharyn) "kingdom.aeltharyn" else null,
+                                            worldId = chosenWorldId,
                                         ).also {
                                             if (it is NewCampaignFlow.Step.Started) model.activate(it.result)
                                         }
@@ -239,7 +252,7 @@ fun NewCampaignSection(model: AppModel) {
                     text = ""
                     name = ""
                     chosen = null
-                    useAeltharyn = false
+                    worldId = null
                 }) { Text(stringResource(R.string.campaign_create_another)) }
             }
         }

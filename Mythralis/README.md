@@ -2,9 +2,20 @@
 
 > *"O mundo não existe para contar a sua história. Sua história acontece dentro dele."*
 >
-> **Mythralis** (antes Orravel) é o mundo vivo. **Crônicas de Mythralis:** o registro da história mundial. **Eras de Mythralis:** os períodos históricos. **Ecos de Mythralis:** acontecimentos e rumores. Plano do motor e do simulador (blocos de 10 anos, eras livres, notificações): `plano/PLANO_MOTOR_MYTHRALIS.md` (decisões D-M tratadas; F0 a F9 concluídas, sem pendência do autor no motor). Integração no app (só plano, nada implementado): `../docs/PLANO_INTEGRACAO_MYTHRALIS.md`. **F1 a F6 concluídas; F7 e F8 implementadas e testadas (62 testes; lote 500 anos × 20 sementes sem falhas; I-01 a I-28).** **F9 concluída (08/11/2026): motor fechado, sem pendência do autor (D-180 a D-182).** Novo na F9.1: sucessão conta como um evento nas métricas de níveis (D-178). Novo na F8: níveis de relevância dos eventos (`motor/niveis.py`: nível 1 nações, povos e reis; nível 2 heróis e NPCs secundários; nível 3 o resto) e **alianças entre raças e sub-raças** nas 46 cidades (`motor/motores/povos.py`, `dinamica/povos.txt`). F7 e F8 aceitas pelo autor em 08/11/2026 (D-180); ver `plano/RELATORIO_F8_4.md`. (`motor/`: estado, crônica, simulador em blocos de 10 anos, notificações, dinâmica v0 em `dinamica/` e motores de demografia, sucessão, relógios, eventos e política; testes em `motor/testes/`).
+> **Mythralis** (antes Orravel) é o mundo vivo. **Crônicas de Mythralis:** o registro da história mundial. **Eras de Mythralis:** os períodos históricos. **Ecos de Mythralis:** acontecimentos e rumores. Plano do motor e do simulador (blocos de 10 anos, eras livres, notificações): `plano/PLANO_MOTOR_MYTHRALIS.md` (decisões D-M tratadas; F0 a F9 concluídas, sem pendência do autor no motor). Integração no app: o porte do motor para Kotlin está em andamento no módulo `../world` (MI-01 a MI-08; Fase 21 ainda não aceita), com o molde exportado em `../rules/src/main/resources/mundos/mythralis/`; **o app usa o `world` só na escolha do mundo da nova campanha (MI-09)** (ver "Integração com o RPG Solo" abaixo). Plano: `../docs/PLANO_INTEGRACAO_MYTHRALIS.md`. **F1 a F6 concluídas; F7 e F8 implementadas e testadas (62 testes; lote 500 anos × 20 sementes sem falhas; I-01 a I-28).** **F9 concluída (08/11/2026): motor fechado, sem pendência do autor (D-180 a D-182).** Novo na F9.1: sucessão conta como um evento nas métricas de níveis (D-178). Novo na F8: níveis de relevância dos eventos (`motor/niveis.py`: nível 1 nações, povos e reis; nível 2 heróis e NPCs secundários; nível 3 o resto) e **alianças entre raças e sub-raças** nas 46 cidades (`motor/motores/povos.py`, `dinamica/povos.txt`). F7 e F8 aceitas pelo autor em 08/11/2026 (D-180); ver `plano/RELATORIO_F8_4.md`. (`motor/`: estado, crônica, simulador em blocos de 10 anos, notificações, dinâmica v0 em `dinamica/` e motores de demografia, sucessão, relógios, eventos e política; testes em `motor/testes/`).
 
-Projeto **independente** do código do RPG Solo, só para escrever o mundo: reinos, povos, cidades, NPCs, facções e a camada de mundo. Quando os reinos estiverem prontos e revisados, o conteúdo é implementado no RPG Solo.
+Esta pasta é **independente** do código do RPG Solo: nela se escreve o mundo (reinos, povos, cidades, NPCs, facções e a camada de mundo) e roda o motor de referência em Python. O conteúdo e o motor estão sendo levados ao RPG Solo (ver abaixo); esta pasta continua sendo a fonte da verdade.
+
+## Integração com o RPG Solo
+
+| Peça | Onde | Situação (08/11/2026) |
+|---|---|---|
+| Exportação do molde, da dinâmica e de `subracas-em-prosa.txt` | `motor/exportar_molde.py` → `../rules/src/main/resources/mundos/mythralis/` | Feita (MI-01, MI-02); hash do molde `f11f1c120acc99b1` |
+| Vetores de conformidade Python → Kotlin | `motor/exportar_vetores.py` → `../world/src/test/resources/conformidade/` | Gerados (MI-03 a MI-08) |
+| Porte do motor para Kotlin | `../world/` (pacote `dev.rpgsolo.world`, módulo Gradle `:world`, incluído em `settings.gradle.kts`) | Escrito (MI-01 a MI-08), com testes de conformidade Kotlin × Python |
+| Uso pelo app | `../app`, `../rules` | **Parcial (MI-09, escrito e não compilado).** `app` e `rules` declaram `project(":world")`; a nova campanha escolhe Mythralis e grava o vínculo com o molde. Estado do mundo na campanha, o Room v11 já guarda mundo, snapshots, crônica filtrada e vínculo (MI-10, escrito e não compilado); tela *Simulação de tempo* e instanciação de cidades e NPCs são as MI-11 em diante |
+
+A Fase 21 só fecha quando o `:world:test` (conformidade com o Python e lote de 20 sementes) passar no CI. Detalhes e pendências: `../docs/PLANO_INTEGRACAO_MYTHRALIS.md`.
 
 
 ## O que há aqui
@@ -22,6 +33,7 @@ Projeto **independente** do código do RPG Solo, só para escrever o mundo: rein
 | `referencia/sistema/` | Catálogo de estilos de RPG, itens, companheiros e perigos do sistema |
 | `referencia/dados-brutos/` | `personagem-catalogo.json`: fonte dos IDs (inclui efeitos mecânicos) |
 | `referencia-tecnica/` | Catálogo Kotlin de Aeltharyn, só como referência (não compila aqui) |
+| `motor/exportar_molde.py`, `motor/exportar_vetores.py` | Exportam o molde para o app e geram os vetores de conformidade usados pelos testes Kotlin do módulo `../world` |
 
 ## Regras de trabalho
 

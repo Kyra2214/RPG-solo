@@ -41,8 +41,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -119,7 +121,23 @@ fun PlayScreen(
         }
         return
     }
-    PlayContent(c, model, model.classifierWarning)
+    val world by produceState<dev.rpgsolo.world.MundoRegistro?>(null, model.campaignVersion) {
+        value = withContext(Dispatchers.IO) { model.activeWorld() }
+    }
+    var timeOpen by rememberSaveable { mutableStateOf(false) }
+    val w = world
+    if (w != null && timeOpen) {
+        TimeSimulationScreen(model, w) { timeOpen = false }
+        return
+    }
+    Column(Modifier.fillMaxSize()) {
+        if (w != null) {
+            OutlinedButton(onClick = { timeOpen = true }, modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+                Text("Passar o tempo")
+            }
+        }
+        Box(Modifier.weight(1f)) { PlayContent(c, model, model.classifierWarning) }
+    }
 }
 
 @Composable

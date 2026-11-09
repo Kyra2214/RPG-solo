@@ -7,6 +7,12 @@ sealed interface Command
 
 data class CreateEntity(val entity: Entity) : Command
 
+/** MI-22: dá um NPC como morto sem passar por dano (a morte aconteceu fora de cena, na simulação do mundo). */
+data class MarkNpcDead(val entityId: String, val cause: String? = null) : Command
+
+/** MI-27: dá o herói (PLAYER) como morto de causa natural (velhice na simulação do mundo), sem dano nem autor; o legado nasce no `apply` de [EntityDied]. */
+data class MarkHeroDead(val entityId: String, val cause: String? = null) : Command
+
 /** Dano: reduz o recurso (nunca abaixo de 0) e pode matar. */
 data class Damage(
     val entityId: String,
@@ -491,6 +497,20 @@ fun decide(
             } else {
                 Decision.Ok(listOf(EntityCreated(cmd.entity)))
             }
+
+        is MarkNpcDead -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (ent.kind != EntityKind.NPC) return no("${ent.name} não é NPC")
+            if (!ent.alive) return no("${ent.name} já está morto")
+            return Decision.Ok(listOf(EntityDied(ent.id, null, cmd.cause)))
+        }
+
+        is MarkHeroDead -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (ent.kind != EntityKind.PLAYER) return no("${ent.name} não é o herói")
+            if (!ent.alive) return no("${ent.name} já está morto")
+            return Decision.Ok(listOf(EntityDied(ent.id, null, cmd.cause)))
+        }
 
         is Damage -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
