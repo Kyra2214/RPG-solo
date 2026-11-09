@@ -378,7 +378,7 @@ class Estado {
                     linkedMapOf(
                         "reino" to r.getValue("reino"), "tipo" to "npc", "alvo" to r.getValue("id"),
                         "papel" to (if ("governante" in p) "governante" else "general"), "titular" to r.getValue("id"),
-                        "vago_desde" to null, "prazo" to null,
+                        "vago_desde" to null, "prazo" to null, "interino" to "—", "anterior" to "—",
                     )
             }
         }

@@ -401,13 +401,12 @@ class Diplomacia(private val din: Dinamica) : Motor {
                 return r
             }
             val rel = f.str("relacao")
-            val desde = f.int("relacao_dia")
             if (rel == "guerra") continue
-            if (rel == "tratado" && dia >= desde + (d["dipl_tratado_anos"] ?: 30) * 365) {
+            if (rel == "tratado" && dia >= f.int("relacao_dia") + (d["dipl_tratado_anos"] ?: 30) * 365) {
                 out.addAll(campos("neutra", f.int("tensao")))
                 continue
             }
-            if (rel == "ruptura" && dia >= desde + (d["dipl_ruptura_anos"] ?: 12) * 365) {
+            if (rel == "ruptura" && dia >= f.int("relacao_dia") + (d["dipl_ruptura_anos"] ?: 12) * 365) {
                 out.addAll(campos("neutra", f.int("tensao")))
                 continue
             }
@@ -819,7 +818,7 @@ class Povos(private val din: Dinamica) : Motor {
                     ),
                 )
                 out.add(dr("campo", pk, "estado", "alianca", cz, agentes = ag6, quemSabe = alvo))
-                out.add(dr("campo", pk, "desde", dia, cz, agentes = ag6, quemSabe = alvo))
+                out.add(dr("campo", pk, "desde", dia, cz, quemSabe = alvo))
             } else if (pc["estado"] == "alianca" && n < minCid) {
                 val rs = pc.lista("reinos")
                 val c2 = causa(listOf(pk), "pacto-sem-lacos-suficientes")
