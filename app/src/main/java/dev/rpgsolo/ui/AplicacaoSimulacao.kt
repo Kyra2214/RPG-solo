@@ -69,7 +69,8 @@ object AplicacaoSimulacao {
     ): ResultadoAplicacao =
         session.atomically {
             val marca = session.mark()
-            val lote = comandos(diaInicio, diaFim, feed) + VidaForaDeCena.comandos(session.state, estadoMundo) +
+            val lote =
+                comandos(diaInicio, diaFim, feed) + VidaForaDeCena.comandos(session.state, estadoMundo) +
                     (heroi?.let { IdadeHeroi.comandos(session.state, it) } ?: emptyList())
             when (val r = session.executeAll(lote)) {
                 is ExecResult.Accepted -> ResultadoAplicacao.Aplicado(LoteAplicado(marca, diaFim - diaInicio))

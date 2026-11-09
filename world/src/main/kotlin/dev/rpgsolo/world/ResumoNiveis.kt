@@ -7,8 +7,14 @@ package dev.rpgsolo.world
 object ResumoNiveis {
     private val SUC_REGRAS =
         setOf(
-            "sucessao-herdeiro", "sucessao-vice", "sucessao-candidato", "diarquia-reduzida", "nomeacao-sem-candidato",
-            "nomeacao-de-simulado", "vacancia", "interino-substituido",
+            "sucessao-herdeiro",
+            "sucessao-vice",
+            "sucessao-candidato",
+            "diarquia-reduzida",
+            "nomeacao-sem-candidato",
+            "nomeacao-de-simulado",
+            "vacancia",
+            "interino-substituido",
         )
 
     fun importancia(d: Map<String, Any?>): Int = (d["importancia"] as? Number)?.toInt() ?: 0
@@ -39,7 +45,13 @@ object ResumoNiveis {
     ): Set<String> {
         val s = HashSet<String>()
         for (d in deltas) {
-            if (importancia(d) >= 2 && nivelDe(d) <= 2) ((d["causa"] as? Map<*, *>)?.get("ids") as? List<*>)?.forEach { s.add(it.toString()) }
+            if (importancia(d) >= 2 && nivelDe(d) <= 2) {
+                (
+                    (d["causa"] as? Map<*, *>)?.get(
+                        "ids",
+                    ) as? List<*>
+                )?.forEach { s.add(it.toString()) }
+            }
         }
         return s
     }
@@ -68,7 +80,10 @@ object ResumoNiveis {
         return m.entries.map { it.key to it.value }.sortedByDescending { it.second }
     }
 
-    private fun nomeCidade(w: MundoMolde): Map<String, String> = w.t.getValue("cidade").associate { it.getValue("id") to it.getValue("nome").split(" — ")[0] }
+    private fun nomeCidade(w: MundoMolde): Map<String, String> =
+        w.t.getValue("cidade").associate {
+            it.getValue("id") to it.getValue("nome").split(" — ")[0]
+        }
 
     private fun nomeReino(w: MundoMolde): Map<String, String> = w.reinos.mapValues { it.value.linha.getValue("nome") }
 
@@ -81,8 +96,10 @@ object ResumoNiveis {
         val n = Niveis(w, deltas)
         val ano0 = (cab["ano_base"] as? Number)?.toInt() ?: CalendarioReino.ANO_BASE
         val niv = deltas.associate { it["id"].toString() to n.nivel(it) }
+
         fun nv(d: Map<String, Any?>) = niv.getValue(d["id"].toString())
         val cit = citados(deltas, ::nv)
+
         fun dec(d: Map<String, Any?>) = Math.floorDiv(CalendarioReino.anoBase(dia(d)) - ano0, 10)
         val n1 = deltas.filter { nv(it) == 1 && importancia(it) >= 3 && it["entidade"] != "mundo" }
         val n2 = deltas.filter { nv(it) == 2 && importancia(it) >= 2 }
@@ -119,7 +136,10 @@ object ResumoNiveis {
             l += "### Nível 2 — resumo por década"
             l += ""
             val porRei = HashMap<Pair<Int, String>, MutableList<Map<String, Any?>>>()
-            for (d in n2.filter { dia(it) in ini until fim }) n.reinos(d).take(1).forEach { r -> porRei.getOrPut(dec(d) to r) { ArrayList() }.add(d) }
+            for (d in n2.filter { dia(it) in ini until fim }) n.reinos(d).take(1).forEach {
+                    r ->
+                porRei.getOrPut(dec(d) to r) { ArrayList() }.add(d)
+            }
             for (chave in porRei.keys.sortedWith(compareBy({ it.first }, { it.second }))) {
                 val (k, r) = chave
                 val unicos = LinkedHashMap<String, Map<String, Any?>>()

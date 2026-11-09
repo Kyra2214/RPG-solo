@@ -187,6 +187,7 @@ class TimeSimulationController(
                 val brutas = ArrayList<String>()
                 for (texto in linhas) {
                     val linha = JsonLeitor.objeto(texto)
+
                     @Suppress("UNCHECKED_CAST")
                     val d = linha["delta"] as? Map<String, Any?> ?: continue
                     niveis.aprender(d)
@@ -203,8 +204,14 @@ class TimeSimulationController(
                     val id = d["id"].toString()
                     guardadas.add(
                         CronicaGuardada(
-                            id.drop(1).toInt(), id, Valores.numero(d["dia_mundo"]).toInt(), nivel, imp,
-                            d["tipo"].toString(), d["entidade"].toString(), brutas[k],
+                            id.drop(1).toInt(),
+                            id,
+                            Valores.numero(d["dia_mundo"]).toInt(),
+                            nivel,
+                            imp,
+                            d["tipo"].toString(),
+                            d["entidade"].toString(),
+                            brutas[k],
                         ),
                     )
                 }

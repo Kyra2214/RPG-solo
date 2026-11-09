@@ -52,7 +52,14 @@ class AcumuladorFeed(private val w: MundoMolde, private val niveis: Niveis) {
         val e = d["entidade"].toString()
         if (nivel == 1 && imp >= 3 && e != "mundo") {
             val rs = niveis.reinos(d)
-            marcos += EventoFeed(dia, ano, rs.joinToString(", ") { nomeReino[it] ?: it }, niveis.cidade(d)?.let { nomeCidade[it] ?: it }, ResumoNiveis.texto(d))
+            marcos +=
+                EventoFeed(
+                    dia, ano,
+                    rs.joinToString(", ") {
+                        nomeReino[it] ?: it
+                    },
+                    niveis.cidade(d)?.let { nomeCidade[it] ?: it }, ResumoNiveis.texto(d),
+                )
         }
         if (nivel == 2 && imp >= 2) {
             val r = niveis.reinos(d).first()
@@ -72,7 +79,11 @@ class AcumuladorFeed(private val w: MundoMolde, private val niveis: Niveis) {
     fun feed(): FeedSimulacao =
         FeedSimulacao(
             marcos.toList(),
-            porDecada.entries.sortedWith(compareBy({ it.key.first }, { it.key.second })).map { ResumoDecada(it.key.first, nomeReino[it.key.second] ?: it.key.second, it.value.size) },
+            porDecada.entries.sortedWith(
+                compareBy({
+                    it.key.first
+                }, { it.key.second }),
+            ).map { ResumoDecada(it.key.first, nomeReino[it.key.second] ?: it.key.second, it.value.size) },
             ResumoPeriodo(marcos.size, caidos.toList(), pactosNovos, pactosDesfeitos, mortos.size, empossados.size, nivel3),
         )
 

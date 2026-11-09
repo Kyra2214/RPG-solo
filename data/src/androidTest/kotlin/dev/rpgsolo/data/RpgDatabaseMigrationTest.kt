@@ -23,9 +23,9 @@ import java.io.File
 import java.io.IOException
 
 /**
- * Q-04: teste instrumentado das migrações Room. Só os esquemas 2 e 3 estão versionados em `data/schemas`;
- * os testes que dependem do esquema da versão atual são ignorados até que `10.json` seja commitado
- * (o CI publica os esquemas gerados no artefato `rpgsolo-room-schemas`).
+ * Q-04: teste instrumentado das migrações Room. Os esquemas 2, 3 e 11 (versão atual) são versionados em `data/schemas`;
+ * o schema da versão atual permite que [MigrationTestHelper] valide a cadeia completa. O CI também publica
+ * os esquemas gerados no artefato `rpgsolo-room-schemas`.
  */
 @RunWith(AndroidJUnit4::class)
 class RpgDatabaseMigrationTest {

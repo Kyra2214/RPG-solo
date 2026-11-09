@@ -648,7 +648,16 @@ class RoomMundoStore(private val db: RpgDatabase) : dev.rpgsolo.world.MundoStore
     private fun dev.rpgsolo.world.MundoRegistro.paraRow() =
         MundoRow(id, moldeId, moldeHash, dinamicaHash, semente, criadoEm, atualizadoEm, proximoDia, totalDeltas, hashCronica, ultimoBloco)
 
-    private fun MundoSnapshotInfoRow.paraInfo() = dev.rpgsolo.world.SnapshotInfo(bloco, dia, hashEstado, hashCronica, deltas, bytes, criadoEm)
+    private fun MundoSnapshotInfoRow.paraInfo() =
+        dev.rpgsolo.world.SnapshotInfo(
+            bloco,
+            dia,
+            hashEstado,
+            hashCronica,
+            deltas,
+            bytes,
+            criadoEm,
+        )
 
     override fun criarMundo(mundo: dev.rpgsolo.world.MundoRegistro) = io { db.mundos().inserir(mundo.paraRow()) }
 
@@ -666,7 +675,9 @@ class RoomMundoStore(private val db: RpgDatabase) : dev.rpgsolo.world.MundoStore
 
     override fun vinculo(campanhaId: String) =
         io {
-            db.campanhaMundo().buscar(campanhaId)?.let { dev.rpgsolo.world.VinculoMundo(it.campaignId, it.mundoId, it.moldeId, it.vinculadoEm) }
+            db.campanhaMundo().buscar(
+                campanhaId,
+            )?.let { dev.rpgsolo.world.VinculoMundo(it.campaignId, it.mundoId, it.moldeId, it.vinculadoEm) }
         }
 
     override fun mundoDaCampanha(campanhaId: String) =
@@ -713,7 +724,15 @@ class RoomMundoStore(private val db: RpgDatabase) : dev.rpgsolo.world.MundoStore
         io {
             db.mundoSnapshots().ultimo(mundoId)?.let { row ->
                 dev.rpgsolo.world.SnapshotGuardado(
-                    dev.rpgsolo.world.SnapshotInfo(row.bloco, row.dia, row.hashEstado, row.hashCronica, row.deltas, row.bytes, row.criadoEm),
+                    dev.rpgsolo.world.SnapshotInfo(
+                        row.bloco,
+                        row.dia,
+                        row.hashEstado,
+                        row.hashCronica,
+                        row.deltas,
+                        row.bytes,
+                        row.criadoEm,
+                    ),
                     dev.rpgsolo.world.Snapshot.deJson(row.snapshotJson),
                 )
             }
@@ -741,7 +760,14 @@ class RoomMundoStore(private val db: RpgDatabase) : dev.rpgsolo.world.MundoStore
         db.runInTransaction {
             val mundo = checkNotNull(db.mundos().buscar(mundoId)) { "mundo inexistente: $mundoId" }
             db.mundoSnapshots().apagarDepoisDe(mundoId, bloco)
-            val alvo = if (bloco > 0) checkNotNull(db.mundoSnapshots().buscar(mundoId, bloco)) { "bloco $bloco inexistente em $mundoId" } else null
+            val alvo =
+                if (bloco > 0) {
+                    checkNotNull(
+                        db.mundoSnapshots().buscar(mundoId, bloco),
+                    ) { "bloco $bloco inexistente em $mundoId" }
+                } else {
+                    null
+                }
             // Snapshot.dia é o próximo dia a simular: os deltas desse dia em diante pertencem aos blocos descartados.
             db.mundoCronica().apagarDesdeDia(mundoId, alvo?.dia ?: 0)
             db.mundos().atualizar(
@@ -791,7 +817,14 @@ class RoomMundoStore(private val db: RpgDatabase) : dev.rpgsolo.world.MundoStore
     ) = io {
         db.runInTransaction<dev.rpgsolo.world.MundoRegistro> {
             val origem = checkNotNull(db.mundos().buscar(origemId)) { "mundo inexistente: $origemId" }
-            val alvo = if (bloco > 0) checkNotNull(db.mundoSnapshots().buscar(origemId, bloco)) { "bloco $bloco inexistente em $origemId" } else null
+            val alvo =
+                if (bloco > 0) {
+                    checkNotNull(
+                        db.mundoSnapshots().buscar(origemId, bloco),
+                    ) { "bloco $bloco inexistente em $origemId" }
+                } else {
+                    null
+                }
             val novo =
                 origem.copy(
                     id = novoId,

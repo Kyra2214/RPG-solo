@@ -59,9 +59,7 @@ object Periodos {
     ): String = "De ${data(diaPartida)} até ${data(diaPartida + dias)}."
 
     /** Rótulo falado do progresso (TalkBack): inteiro de 0 a 100. */
-    fun porcentagem(
-        progresso: ProgressoSimulacao,
-    ): Int {
+    fun porcentagem(progresso: ProgressoSimulacao): Int {
         val total = progresso.diaFim - progresso.diaInicio
         return if (total <= 0) 0 else ((progresso.diaAtual - progresso.diaInicio) * 100L / total).toInt().coerceIn(0, 100)
     }

@@ -57,7 +57,12 @@ object RumoresEcos {
                 }
             val tipo = v["tipo"].toString()
             val entidade = v["entidade"].toString()
-            Rumor(k, v["origem_delta"].toString(), tipo, entidade, camada, versao, (dif["passo"] as? Number)?.toInt() ?: 0, inicio, "$tipo: ${nome(entidade)}")
+            Rumor(
+                k, v["origem_delta"].toString(), tipo, entidade, camada, versao, (dif["passo"] as? Number)?.toInt() ?: 0, inicio,
+                "$tipo: ${nome(
+                    entidade,
+                )}",
+            )
         }.sortedWith(compareByDescending<Rumor> { it.inicio }.thenBy { it.ecoId }).take(max)
     }
 }

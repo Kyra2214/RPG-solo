@@ -2603,7 +2603,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val cena = dev.rpgsolo.world.InstanciacaoCena.cena(MythralisRuntime.mundo, estado, cityId) ?: return "cidade inexistente no mundo: $cityId"
         val erro = InstanciacaoCampanha.instanciar(session, cena)
         val vida = VidaForaDeCena.comandos(session.state, estado)
-        val erroVida = if (erro == null && vida.isNotEmpty()) (session.executeAll(vida) as? dev.rpgsolo.engine.ExecResult.Rejected)?.reason else null
+        val erroVida =
+            if (erro == null && vida.isNotEmpty()) {
+                (
+                    session.executeAll(
+                        vida,
+                    ) as? dev.rpgsolo.engine.ExecResult.Rejected
+                )?.reason
+            } else {
+                null
+            }
         if (erro == null && erroVida == null) campaignVersion++
         return erro ?: erroVida
     }

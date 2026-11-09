@@ -63,7 +63,14 @@ object InstanciacaoCena {
             w.t.getValue("faccao").filter { cidadeId in it.getValue("presenca_cidades").split(';').map { c -> c.trim() } }
                 .sortedBy { if (it["lideranca"] in escolhidos) 0 else 1 }.take(maxFaccoes)
 
-        val descricao = listOf(cidade["tipo"].orEmpty(), cidade["localizacao"].orEmpty(), cidade["governo"]?.let { "Governo: $it" }.orEmpty()).filter { it.isNotBlank() }.joinToString(" ")
+        val descricao =
+            listOf(
+                cidade["tipo"].orEmpty(),
+                cidade["localizacao"].orEmpty(),
+                cidade["governo"]?.let {
+                    "Governo: $it"
+                }.orEmpty(),
+            ).filter { it.isNotBlank() }.joinToString(" ")
         return CenaInstanciavel(
             cidadeId,
             LocalCena(cidadeId, cidade.getValue("nome").split(" — ")[0], descricao.take(2000)),
@@ -72,13 +79,25 @@ object InstanciacaoCena {
                 val nome = ent[id]?.get("nome")?.toString() ?: r?.get("nome") ?: id
                 val conceito =
                     if (r != null) {
-                        listOf(r["cargo"], r["personalidade"], r["objetivo"]?.let { "Objetivo: $it" }).filter { !it.isNullOrBlank() && it != "—" }.joinToString(". ")
+                        listOf(
+                            r["cargo"],
+                            r["personalidade"],
+                            r["objetivo"]?.let {
+                                "Objetivo: $it"
+                            },
+                        ).filter { !it.isNullOrBlank() && it != "—" }.joinToString(". ")
                     } else {
                         (ent[id]?.get("cargo")?.toString() ?: "").takeIf { it != "—" }.orEmpty()
                     }
                 NpcCena(id, nome, conceito.take(600))
             },
-            faccoes.map { FaccaoCena(it.getValue("id"), it.getValue("nome"), "${it.getValue("nome")}: ${it["objetivo"].orEmpty()}".take(500)) },
+            faccoes.map {
+                FaccaoCena(
+                    it.getValue("id"),
+                    it.getValue("nome"),
+                    "${it.getValue("nome")}: ${it["objetivo"].orEmpty()}".take(500),
+                )
+            },
             RumoresEcos.doLugar(w, estado, cidadeId),
         )
     }

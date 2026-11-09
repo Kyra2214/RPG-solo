@@ -100,7 +100,11 @@ fun TimeSimulationScreen(
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Passar o tempo", style = MaterialTheme.typography.titleLarge)
-        Muted("Mundo ${mundo.moldeId.removePrefix("world.").replaceFirstChar { it.uppercase() }}. Nada entra na campanha antes de você aplicar o resultado.")
+        Muted(
+            "Mundo ${mundo.moldeId.removePrefix(
+                "world.",
+            ).replaceFirstChar { it.uppercase() }}. Nada entra na campanha antes de você aplicar o resultado.",
+        )
 
         if (!ocupado && estado !is EstadoSimulacao.Concluido && estado !is EstadoSimulacao.Aplicado) {
             SectionTitle("Quanto tempo passa")
@@ -180,7 +184,11 @@ fun TimeSimulationScreen(
                     },
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                 )
-                if (quadro?.aparelhoLento == true) ErrorText("O aparelho está mais lento que a velocidade escolhida; a exibição espera o cálculo.")
+                if (quadro?.aparelhoLento == true) {
+                    ErrorText(
+                        "O aparelho está mais lento que a velocidade escolhida; a exibição espera o cálculo.",
+                    )
+                }
             }
             val marcosVistos = feed.marcos.filter { it.dia < diaVisto }
             if (marcosVistos.isNotEmpty()) {
@@ -195,7 +203,9 @@ fun TimeSimulationScreen(
             if (feed.decadas.isNotEmpty() || feed.resumo.eventosNivel3 > 0) {
                 AppCard {
                     Text("Resumo por década", style = MaterialTheme.typography.titleMedium)
-                    feed.decadas.takeLast(6).forEach { Muted("Anos ${it.decada * 10} a ${it.decada * 10 + 9}, ${it.reino}: ${it.eventos} eventos") }
+                    feed.decadas.takeLast(
+                        6,
+                    ).forEach { Muted("Anos ${it.decada * 10} a ${it.decada * 10 + 9}, ${it.reino}: ${it.eventos} eventos") }
                     Muted("${feed.resumo.eventosNivel3} eventos menores (nível 3), só contados.")
                 }
             }
@@ -216,17 +226,17 @@ fun TimeSimulationScreen(
             is EstadoSimulacao.Executando ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
-                            controller.pausar()
-                            exibicao?.pausar(System.currentTimeMillis())
-                        }) { Text("Pausar") }
+                        controller.pausar()
+                        exibicao?.pausar(System.currentTimeMillis())
+                    }) { Text("Pausar") }
                     OutlinedButton(onClick = { controller.cancelar() }) { Text("Cancelar") }
                 }
             is EstadoSimulacao.Pausado ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
-                            controller.retomar()
-                            exibicao?.retomar(System.currentTimeMillis())
-                        }) { Text("Retomar") }
+                        controller.retomar()
+                        exibicao?.retomar(System.currentTimeMillis())
+                    }) { Text("Retomar") }
                     OutlinedButton(onClick = { controller.cancelar() }) { Text("Cancelar") }
                 }
             is EstadoSimulacao.Concluido -> {
@@ -255,7 +265,9 @@ fun TimeSimulationScreen(
                 falhaAplicar?.let { ErrorText("A campanha recusou o lote e nada foi alterado: $it") }
             }
             is EstadoSimulacao.Aplicado -> {
-                Muted("Aplicado: a campanha avançou ${e.progresso.diaAtual - e.progresso.diaInicio} dias e os marcos entraram nos fatos do mundo.")
+                Muted(
+                    "Aplicado: a campanha avançou ${e.progresso.diaAtual - e.progresso.diaInicio} dias e os marcos entraram nos fatos do mundo.",
+                )
                 e.morte?.let { MorteHeroiCard(model, it, scope) { escolheuLegado = true } }
                 if (escolheuLegado) Muted("Depois de escolher o que vem depois da morte, desfazer a simulação não vale mais.")
                 OutlinedButton(
@@ -273,7 +285,9 @@ fun TimeSimulationScreen(
             }
             is EstadoSimulacao.Cancelado -> Muted("Cancelado: o mundo voltou ao ponto em que estava antes deste período.")
             is EstadoSimulacao.Erro -> {
-                ErrorText("A simulação parou: ${e.mensagem}. O bloco com problema não foi gravado; descarte este período para voltar ao ponto de partida.")
+                ErrorText(
+                    "A simulação parou: ${e.mensagem}. O bloco com problema não foi gravado; descarte este período para voltar ao ponto de partida.",
+                )
                 OutlinedButton(onClick = { controller.descartar() }) { Text("Descartar") }
             }
             EstadoSimulacao.Parado -> Unit
@@ -309,14 +323,23 @@ private fun MorteHeroiCard(
             view == null -> Muted("O herói não está mais morto.")
             view.endedReason != null -> Muted("Campanha encerrada: ${view.endedReason}")
             view.rebirthItemName != null ->
-                Button(onClick = { escolher { model.legacyRebirth() } }, modifier = Modifier.fillMaxWidth()) { Text("Renascer com ${view.rebirthItemName}") }
+                Button(onClick = {
+                    escolher { model.legacyRebirth() }
+                }, modifier = Modifier.fillMaxWidth()) { Text("Renascer com ${view.rebirthItemName}") }
             view.npcs.isNotEmpty() -> {
                 Muted("Quem você pode assumir:")
                 view.npcs.forEach { n ->
-                    OutlinedButton(onClick = { escolher { model.legacyAssume(n.id) } }, modifier = Modifier.fillMaxWidth()) { Text("Assumir ${n.name}") }
+                    OutlinedButton(
+                        onClick = { escolher { model.legacyAssume(n.id) } },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("Assumir ${n.name}") }
                 }
             }
-            view.canEnd -> Button(onClick = { escolher { model.legacyEnd() } }, modifier = Modifier.fillMaxWidth()) { Text("Encerrar a campanha") }
+            view.canEnd ->
+                Button(
+                    onClick = { escolher { model.legacyEnd() } },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("Encerrar a campanha") }
         }
         recusa?.let { ErrorText(it) }
     }

@@ -23,7 +23,16 @@ object CanonCampanha {
         for (f in fatos) {
             val id = idFato(f.chave)
             if (atual.get(id) != null) continue
-            val novo = CanonFact(id, campaignId, f.texto, FactStatus.ORIGINAL, sourceId = "mundo:$mundoId", chunkId = f.deltaId ?: "molde", protagonistKnows = false)
+            val novo =
+                CanonFact(
+                    id,
+                    campaignId,
+                    f.texto,
+                    FactStatus.ORIGINAL,
+                    sourceId = "mundo:$mundoId",
+                    chunkId = f.deltaId ?: "molde",
+                    protagonistKnows = false,
+                )
             atual.add(novo)?.let {
                 atual = it
                 mudou = true

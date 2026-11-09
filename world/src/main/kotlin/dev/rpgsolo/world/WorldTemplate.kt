@@ -68,6 +68,7 @@ object WorldTemplates {
             mundo.reinos.values.map { r ->
                 ReinoResumo(r.linha.getValue("id"), r.linha["nome"].orEmpty(), r.linha["tema"].orEmpty())
             }
+
         fun contar(tipo: String) = mundo.t[tipo].orEmpty().size
         return WorldTemplate(
             id = MYTHRALIS,
