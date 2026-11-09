@@ -24,6 +24,10 @@ data class StoredProviderSettings(
     val outputPricePerMillion: Double = 0.0,
     val cacheReadPricePerMillion: Double = 0.0,
     val cacheCreationPricePerMillion: Double = 0.0,
+    /** Nome de [dev.rpgsolo.ai.ProviderPreset] no modo gratuito pré-configurado; vazio = personalizado. */
+    val preset: String = "",
+    /** Modelos reservas, na ordem, usados quando o principal esgota ou sai do ar. */
+    val fallbackModels: List<String> = emptyList(),
 )
 
 class SecureSettings(context: Context) {
@@ -51,6 +55,8 @@ class SecureSettings(context: Context) {
             outputPricePerMillion = preferences.getString("price_output_per_million", "0")?.toDoubleOrNull() ?: 0.0,
             cacheReadPricePerMillion = preferences.getString("price_cache_read_per_million", "0")?.toDoubleOrNull() ?: 0.0,
             cacheCreationPricePerMillion = preferences.getString("price_cache_creation_per_million", "0")?.toDoubleOrNull() ?: 0.0,
+            preset = preferences.getString("preset", "").orEmpty(),
+            fallbackModels = preferences.getString("fallback_models", "").orEmpty().lines().filter { it.isNotBlank() },
         )
     }
 
@@ -66,6 +72,8 @@ class SecureSettings(context: Context) {
             .putString("price_output_per_million", settings.outputPricePerMillion.toString())
             .putString("price_cache_read_per_million", settings.cacheReadPricePerMillion.toString())
             .putString("price_cache_creation_per_million", settings.cacheCreationPricePerMillion.toString())
+            .putString("preset", settings.preset)
+            .putString("fallback_models", settings.fallbackModels.joinToString("\n"))
             .putString("api_key", encrypt(settings.apiKey))
             .apply()
     }

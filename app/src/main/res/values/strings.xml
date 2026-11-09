@@ -679,4 +679,13 @@
     <string name="diag_report_device">Aparelho: %1$s %2$s</string>
     <string name="diag_report_no_crash">Nenhuma falha registrada.</string>
     <string name="diag_report_last_crash">Última falha não tratada (sem mensagem da exceção):</string>
+    <string name="config_preset_custom">Personalizado</string>
+    <string name="config_preset_key_help">Cole a chave do %1$s. O endereço do provedor já vem configurado.</string>
+    <string name="config_find_free_models">Buscar modelos gratuitos</string>
+    <string name="config_finding_free_models">Buscando modelos…</string>
+    <string name="config_free_models_title">Modelo principal (os demais viram reserva)</string>
+    <string name="config_free_models_auto_help">São exibidos até 12 modelos; só eles entram na cadeia. Se o escolhido esgotar o limite ou sair do ar, o app passa ao próximo e continua a jogada. Modelos gratuitos mudam: busque de novo se algo parar.</string>
+    <string name="config_free_key_steps_title">Como conseguir a chave grátis</string>
+    <string name="config_free_key_steps_openrouter">1. Abra openrouter.ai/keys no navegador do celular.\n2. Crie uma conta grátis (dá para entrar com Google).\n3. Toque em Create Key, dê um nome e confirme.\n4. Copie a chave (começa com sk-or-) e cole acima.\n5. Toque em Buscar modelos gratuitos e depois em Salvar e usar.</string>
+    <string name="config_free_key_steps_groq">1. Abra console.groq.com/keys no navegador do celular.\n2. Crie uma conta grátis (dá para entrar com Google).\n3. Toque em Create API Key, dê um nome e confirme.\n4. Copie a chave (começa com gsk_), que só aparece uma vez, e cole acima.\n5. Toque em Buscar modelos gratuitos e depois em Salvar e usar.</string>
 </resources>

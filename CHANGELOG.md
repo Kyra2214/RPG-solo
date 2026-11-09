@@ -1,3 +1,10 @@
+## 09/11/2026 — provedores gratuitos pré-configurados
+
+- Config: **OpenRouter (grátis)** e **Groq (grátis)** só pedem a chave; **Buscar modelos gratuitos** lista os modelos gratuitos de texto e a jogada passa sozinha para o próximo quando um esgota ou sai do ar (`FallbackProvider`, `ModelDiscovery`, `ProviderPreset`, `ProviderFactory.buildFreeFallback`, `HttpTransport.get`). Guia em `docs/PROVEDORES_GRATUITOS.md`. Modo antigo em **Personalizado**.
+- Testes do E2E que digitam o endpoint passaram a tocar em **Personalizado** antes. Novos testes JVM em `FreeProvidersTest`.
+- CI: `:data:connectedDebugAndroidTest` (migrações Room) agora falha o job do E2E.
+- A validação automatizada e a geração do APK debug desta entrega são feitas pelo workflow Android CI associado ao commit.
+
 ## 09/11/2026 — CI e E2E
 
 - `android-ci.yml` reorganizado em três jobs (motor Python, estilo/testes/APK, E2E), com disparo em qualquer push e manual com opções; `tools/dispara-ci.sh` e seção "Como disparar o CI" em `docs/VALIDACAO_CI.md`. Configuração apenas; MI-23 e MI-24 seguem pendentes até uma execução verde.

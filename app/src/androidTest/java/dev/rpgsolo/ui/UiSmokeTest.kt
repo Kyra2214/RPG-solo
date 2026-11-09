@@ -33,6 +33,7 @@ class UiSmokeTest {
 
         // A tela Nova campanha exige provedor configurado; usa endpoint fictício sem rede externa.
         composeRule.openTab("Config")
+        composeRule.onNodeWithText("Personalizado").performScrollTo().performClick()
         composeRule.onNodeWithText("Endpoint (https)").performScrollTo().performTextInput("https://fake.local/v1/chat/completions")
         composeRule.onNodeWithText("Modelo").performScrollTo().performTextInput("fake-model")
         composeRule.onNodeWithText("Chave de API").performScrollTo().performTextInput("chave-falsa")

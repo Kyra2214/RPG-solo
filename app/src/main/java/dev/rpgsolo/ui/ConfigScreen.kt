@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.R
 import dev.rpgsolo.ai.ProviderKind
+import dev.rpgsolo.ai.ProviderPreset
 import dev.rpgsolo.ai.maskKey
 import kotlinx.coroutines.launch
 
@@ -39,6 +40,13 @@ fun ConfigScreen(model: AppModel) {
     var kind by remember {
         mutableStateOf(stored?.kind?.let { runCatching { ProviderKind.valueOf(it) }.getOrNull() } ?: ProviderKind.OPENAI_COMPATIBLE)
     }
+    // Primeira vez: já abre num provedor gratuito pré-configurado. Quem salvou um endpoint próprio continua em Personalizado.
+    var preset by remember { mutableStateOf(if (stored == null) ProviderPreset.OPENROUTER else ProviderPreset.fromName(stored.preset)) }
+    var freeModels by remember {
+        mutableStateOf(if (stored != null && stored.preset.isNotBlank()) listOf(stored.model) + stored.fallbackModels else emptyList())
+    }
+    var discovering by remember { mutableStateOf(false) }
+    var discoverResult by remember { mutableStateOf<FreeModelsResult?>(null) }
     var endpoint by remember { mutableStateOf(stored?.endpoint ?: "https://") }
     var modelName by remember { mutableStateOf(stored?.model.orEmpty()) }
     var key by remember { mutableStateOf(stored?.apiKey.orEmpty()) }
@@ -61,38 +69,150 @@ fun ConfigScreen(model: AppModel) {
     var testResult by remember { mutableStateOf<ConnectionTestResult?>(null) }
     val scope = rememberCoroutineScope()
     val configPriceError = stringResource(R.string.config_price_error)
+    val effKind = if (preset != null) ProviderKind.OPENAI_COMPATIBLE else kind
+    val effEndpoint = preset?.chatEndpoint ?: endpoint
+    val effCheap = if (preset != null) "" else cheapModel
+    val effPremium = if (preset != null) "" else premiumModel
+    val effCache = if (preset != null) false else cacheSystemPrompt
     ScreenColumn {
         SectionTitle(stringResource(R.string.config_provider_title), stringResource(R.string.config_provider_supporting))
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ProviderKind.values().forEach { k ->
-                FilterChip(selected = kind == k, onClick = { kind = k }, label = { Text(k.label) })
+            ProviderPreset.values().forEach { p ->
+                FilterChip(
+                    selected = preset == p,
+                    enabled = !discovering && !testing,
+                    onClick = {
+                        if (preset != p) {
+                            preset = p
+                            freeModels = emptyList()
+                            modelName = ""
+                            key = stored?.takeIf { it.preset == p.name }?.apiKey.orEmpty()
+                            discoverResult = null
+                            testResult = null
+                            saved = false
+                        }
+                    },
+                    label = { Text(p.label) },
+                )
+            }
+            FilterChip(
+                selected = preset == null,
+                enabled = !discovering && !testing,
+                onClick = {
+                    if (preset != null) {
+                        preset = null
+                        freeModels = emptyList()
+                        modelName = stored?.takeIf { it.preset.isBlank() }?.model.orEmpty()
+                        key = stored?.takeIf { it.preset.isBlank() }?.apiKey.orEmpty()
+                        discoverResult = null
+                        testResult = null
+                        saved = false
+                    }
+                },
+                label = { Text(stringResource(R.string.config_preset_custom)) },
+            )
+        }
+        preset?.let { p ->
+            Muted(stringResource(R.string.config_preset_key_help, p.label))
+            ApiKeyField(key, enabled = !discovering && !testing) { nextKey ->
+                if (nextKey != key) {
+                    key = nextKey
+                    freeModels = emptyList()
+                    modelName = ""
+                    discoverResult = null
+                    testResult = null
+                    saved = false
+                }
+            }
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !discovering && !testing,
+                onClick = {
+                    val requestedKey = key.trim()
+                    discovering = true
+                    discoverResult = null
+                    freeModels = emptyList()
+                    modelName = ""
+                    saved = false
+                    scope.launch {
+                        val result = cancellableIo { model.discoverFreeModels(p, requestedKey) }
+                        if (preset == p && key.trim() == requestedKey) {
+                            discoverResult = result
+                            if (result.success) {
+                                freeModels = result.models
+                                if (modelName !in result.models) modelName = result.models.first()
+                            }
+                        }
+                        discovering = false
+                    }
+                },
+            ) { Text(stringResource(if (discovering) R.string.config_finding_free_models else R.string.config_find_free_models)) }
+            discoverResult?.let { result ->
+                if (result.success) {
+                    AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text(result.message) }
+                } else {
+                    ErrorText(result.message)
+                }
+            }
+            if (freeModels.isNotEmpty()) {
+                Text(stringResource(R.string.config_free_models_title), style = MaterialTheme.typography.titleSmall)
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    freeModels.take(12).forEach { id ->
+                        FilterChip(
+                            selected = modelName == id,
+                            enabled = !discovering && !testing,
+                            onClick = {
+                                modelName = id
+                                testResult = null
+                                saved = false
+                            },
+                            label = { Text(id) },
+                        )
+                    }
+                }
+                Muted(stringResource(R.string.config_free_models_auto_help))
+            }
+            AppCard {
+                Text(stringResource(R.string.config_free_key_steps_title), style = MaterialTheme.typography.titleSmall)
+                Muted(
+                    stringResource(
+                        if (p == ProviderPreset.OPENROUTER) R.string.config_free_key_steps_openrouter else R.string.config_free_key_steps_groq,
+                    ),
+                )
             }
         }
-        OutlinedTextField(endpoint, {
-            endpoint = it
-        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_endpoint_label)) }, singleLine = true)
-        if (endpoint.trim().startsWith("http://", ignoreCase = true)) {
-            ErrorText(stringResource(R.string.config_http_error))
+        if (preset == null) {
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ProviderKind.values().forEach { k ->
+                    FilterChip(selected = kind == k, onClick = { kind = k }, label = { Text(k.label) })
+                }
+            }
+            OutlinedTextField(endpoint, {
+                endpoint = it
+            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_endpoint_label)) }, singleLine = true)
+            if (endpoint.trim().startsWith("http://", ignoreCase = true)) {
+                ErrorText(stringResource(R.string.config_http_error))
+            }
+            OutlinedTextField(modelName, {
+                modelName = it
+            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_model_label)) }, singleLine = true)
+            OutlinedTextField(cheapModel, {
+                cheapModel = it
+            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_cheap_model_label)) }, singleLine = true)
+            OutlinedTextField(premiumModel, {
+                premiumModel = it
+            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_premium_model_label)) }, singleLine = true)
+            OutlinedTextField(
+                key,
+                { key = it },
+                Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.config_api_key_label)) },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            )
         }
-        OutlinedTextField(modelName, {
-            modelName = it
-        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_model_label)) }, singleLine = true)
-        OutlinedTextField(cheapModel, {
-            cheapModel = it
-        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_cheap_model_label)) }, singleLine = true)
-        OutlinedTextField(premiumModel, {
-            premiumModel = it
-        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.config_premium_model_label)) }, singleLine = true)
-        OutlinedTextField(
-            key,
-            { key = it },
-            Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.config_api_key_label)) },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        )
-        if (kind == ProviderKind.ANTHROPIC) {
+        if (preset == null && kind == ProviderKind.ANTHROPIC) {
             FilterChip(
                 selected = cacheSystemPrompt,
                 onClick = { cacheSystemPrompt = !cacheSystemPrompt },
@@ -102,42 +222,51 @@ fun ConfigScreen(model: AppModel) {
         }
         Button(
             modifier = Modifier.fillMaxWidth(),
-            enabled = !testing,
+            enabled =
+                !testing && !discovering &&
+                    (preset == null || (modelName.isNotBlank() && modelName in freeModels.take(12))),
             onClick = {
                 testing = true
                 testResult = null
                 scope.launch {
                     val result =
                         cancellableIo {
-                            model.testConnection(kind, endpoint, modelName, key, cacheSystemPrompt)
+                            model.testConnection(effKind, effEndpoint, modelName, key, effCache)
                         }
                     testResult = result
                     testing = false
                 }
             },
         ) { Text(stringResource(if (testing) R.string.config_testing_connection else R.string.config_test_connection)) }
-        Button(modifier = Modifier.fillMaxWidth(), onClick = {
-            fun parsePrice(value: String): Double? =
-                if (value.isBlank()) null else value.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
-            val input = parsePrice(inputPrice)
-            val output = parsePrice(outputPrice)
-            val cacheRead = parsePrice(cacheReadPrice)
-            val cacheCreation = parsePrice(cacheCreationPrice)
-            if ((!inputPrice.isBlank() && input == null) || (!outputPrice.isBlank() && output == null) ||
-                (!cacheReadPrice.isBlank() && cacheRead == null) || (!cacheCreationPrice.isBlank() && cacheCreation == null)
-            ) {
-                priceError = configPriceError
-                saved = false
-            } else {
-                priceError = null
-                val baseInput = input ?: 0.0
-                saved =
-                    model.applySettings(
-                        kind, endpoint, modelName, key, cheapModel, premiumModel, cacheSystemPrompt,
-                        baseInput, output ?: 0.0, cacheRead ?: baseInput, cacheCreation ?: baseInput,
-                    )
-            }
-        }) { Text(stringResource(R.string.config_save_and_use)) }
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            enabled =
+                !discovering && !testing &&
+                    (preset == null || (modelName.isNotBlank() && modelName in freeModels.take(12))),
+            onClick = {
+                fun parsePrice(value: String): Double? =
+                    if (value.isBlank()) null else value.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
+                val input = parsePrice(inputPrice)
+                val output = parsePrice(outputPrice)
+                val cacheRead = parsePrice(cacheReadPrice)
+                val cacheCreation = parsePrice(cacheCreationPrice)
+                if ((!inputPrice.isBlank() && input == null) || (!outputPrice.isBlank() && output == null) ||
+                    (!cacheReadPrice.isBlank() && cacheRead == null) || (!cacheCreationPrice.isBlank() && cacheCreation == null)
+                ) {
+                    priceError = configPriceError
+                    saved = false
+                } else {
+                    priceError = null
+                    val baseInput = input ?: 0.0
+                    saved =
+                        model.applySettings(
+                            effKind, effEndpoint, modelName, key, effCheap, effPremium, effCache,
+                            baseInput, output ?: 0.0, cacheRead ?: baseInput, cacheCreation ?: baseInput,
+                            preset?.name.orEmpty(), freeModels.take(12).filter { it != modelName },
+                        )
+                }
+            },
+        ) { Text(stringResource(R.string.config_save_and_use)) }
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             model.forgetProvider()
             key = ""
@@ -307,4 +436,22 @@ fun ConfigScreen(model: AppModel) {
             }
         }
     }
+}
+
+@Composable
+private fun ApiKeyField(
+    value: String,
+    enabled: Boolean = true,
+    onChange: (String) -> Unit,
+) {
+    OutlinedTextField(
+        value,
+        onChange,
+        Modifier.fillMaxWidth(),
+        label = { Text(stringResource(R.string.config_api_key_label)) },
+        singleLine = true,
+        enabled = enabled,
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+    )
 }

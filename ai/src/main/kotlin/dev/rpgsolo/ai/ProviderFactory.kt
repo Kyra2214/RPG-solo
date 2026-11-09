@@ -26,6 +26,34 @@ object ProviderFactory {
     }
 
     /**
+     * Modo gratuito: o modelo principal e os reservas formam uma cadeia. Se um esgotar ou ficar indisponível,
+     * a mesma jogada continua no próximo. Os três papéis usam a mesma cadeia.
+     */
+    fun buildFreeFallback(
+        config: ProviderConfig,
+        fallbackModels: List<String>,
+        usage: UsageTracker? = null,
+        transport: HttpTransport = JavaNetTransport(),
+        maxRequestsPerMinute: Int = 20,
+        limiter: RateLimiter? = null,
+    ): AiRoles {
+        val models = (listOf(config.model) + fallbackModels.map { it.trim() }.filter { it.isNotEmpty() }).distinct()
+        val requestLimiter = limiter ?: RateLimiter(maxRequestsPerMinute, 60_000)
+        val candidates: List<Pair<String, AiProvider>> =
+            models.map { model ->
+                model to
+                    RateLimitedProvider(
+                        OpenAiCompatibleProvider(config.copy(model = model), transport),
+                        requestLimiter,
+                    )
+            }
+        val base: AiProvider = FallbackProvider(candidates)
+        val tracked = if (usage != null) UsageTrackingProvider(base, usage) else base
+        val provider = RetryingProvider(tracked)
+        return AiRoles(provider, provider, provider)
+    }
+
+    /**
      * 6.4.1/6.4.2: três papéis sobre o mesmo endpoint e chave, mudando só o modelo. Modelo em branco = usa o principal.
      * Fila, retentativas e contagem de uso valem para os três.
      */

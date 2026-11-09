@@ -372,12 +372,10 @@ class TurnRunner(
                                 normalized += command
                             }
                             is dev.rpgsolo.engine.RecordFact -> {
-                                canonGuard?.recusaFato(command.key, command.value)?.let {
-                                    return Attempt.Retry(
-                                        "fato recusado: $it",
-                                        false,
-                                    )
-                                }
+                                canonGuard?.recusaFato(
+                                    command.key,
+                                    command.value,
+                                )?.let { return Attempt.Retry("fato recusado: $it", false) }
                                 normalized += command
                             }
                             is dev.rpgsolo.engine.ProposeRuleAddition -> {

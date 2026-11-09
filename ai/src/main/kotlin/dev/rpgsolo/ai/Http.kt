@@ -83,6 +83,12 @@ interface HttpTransport {
         body: String,
     ): HttpReply
 
+    /** GET simples (lista de modelos). Transportes falsos antigos não precisam implementar. */
+    fun get(
+        url: String,
+        headers: Map<String, String>,
+    ): HttpReply = throw AiError.BadRequest("este transporte não suporta GET")
+
     /** Lê uma resposta progressivamente por linhas (SSE). Implementações falsas herdam o fallback completo. */
     fun postStream(
         url: String,
@@ -131,6 +137,39 @@ class JavaNetTransport(
                     conn.headerFields.filterKeys { it != null }
                         .mapKeys { it.key.lowercase() }.mapValues { it.value.firstOrNull().orEmpty() }
                 return HttpReply(status, captured.toString(), hdrs)
+            } finally {
+                token?.attach(null)
+                conn.disconnect()
+            }
+        } catch (e: IOException) {
+            token?.throwIfCancelled()
+            throw AiError.NoInternet(e.javaClass.simpleName)
+        }
+    }
+
+    override fun get(
+        url: String,
+        headers: Map<String, String>,
+    ): HttpReply {
+        val token = CancelToken.current()
+        token?.throwIfCancelled()
+        try {
+            val conn = URL(url).openConnection() as HttpURLConnection
+            token?.attach { conn.disconnect() }
+            try {
+                conn.requestMethod = "GET"
+                conn.connectTimeout = connectTimeoutMs
+                conn.readTimeout = readTimeoutMs
+                headers.forEach { (k, v) -> conn.setRequestProperty(k, v) }
+                val status = conn.responseCode
+                val stream = if (status in 200..299) conn.inputStream else conn.errorStream
+                val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+                val hdrs =
+                    conn.headerFields
+                        .filterKeys { it != null }
+                        .mapKeys { it.key.lowercase() }
+                        .mapValues { it.value.firstOrNull().orEmpty() }
+                return HttpReply(status, text, hdrs)
             } finally {
                 token?.attach(null)
                 conn.disconnect()

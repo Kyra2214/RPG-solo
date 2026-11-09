@@ -21,12 +21,14 @@ import dev.rpgsolo.ai.CheckMenu
 import dev.rpgsolo.ai.CheckOption
 import dev.rpgsolo.ai.GameLoop
 import dev.rpgsolo.ai.IntentClassifier
+import dev.rpgsolo.ai.ModelDiscovery
 import dev.rpgsolo.ai.NewCampaignFlow
 import dev.rpgsolo.ai.PlayController
 import dev.rpgsolo.ai.PlayerSheet
 import dev.rpgsolo.ai.ProviderConfig
 import dev.rpgsolo.ai.ProviderFactory
 import dev.rpgsolo.ai.ProviderKind
+import dev.rpgsolo.ai.ProviderPreset
 import dev.rpgsolo.ai.Role
 import dev.rpgsolo.ai.SourceContext
 import dev.rpgsolo.ai.TurnRunner
@@ -68,6 +70,9 @@ import java.io.File
 import java.io.FileOutputStream
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
+
+/** Resultado da busca de modelos gratuitos de um provedor pré-configurado (ids do mais indicado ao menos). */
+data class FreeModelsResult(val success: Boolean, val models: List<String>, val message: String)
 
 data class SourceDocumentImportOutcome(
     val entry: SourceEntry?,
@@ -2081,22 +2086,34 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         outputPricePerMillion: Double = 0.0,
         cacheReadPricePerMillion: Double = inputPricePerMillion,
         cacheCreationPricePerMillion: Double = inputPricePerMillion,
+        preset: String = "",
+        fallbackModels: List<String> = emptyList(),
     ): Boolean =
         try {
             require(apiKey.isNotBlank()) { "informe a chave de API" }
+            require(model.isNotBlank() || preset.isBlank()) { "toque em Buscar modelos gratuitos antes de salvar" }
             require(
                 listOf(inputPricePerMillion, outputPricePerMillion, cacheReadPricePerMillion, cacheCreationPricePerMillion)
                     .all { it.isFinite() && it >= 0.0 },
             ) { "preços por milhão devem ser números finitos e não negativos" }
             val r =
-                ProviderFactory.buildRoles(
-                    kind,
-                    ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim(), cacheSystemPrompt = cacheSystemPrompt),
-                    cheapModel,
-                    premiumModel,
-                    usage,
-                    AiTestHooks.transportOrDefault(),
-                )
+                if (preset.isNotBlank()) {
+                    ProviderFactory.buildFreeFallback(
+                        ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim(), cacheSystemPrompt = false),
+                        fallbackModels,
+                        usage,
+                        AiTestHooks.transportOrDefault(),
+                    )
+                } else {
+                    ProviderFactory.buildRoles(
+                        kind,
+                        ProviderConfig(endpoint.trim(), model.trim(), apiKey.trim(), cacheSystemPrompt = cacheSystemPrompt),
+                        cheapModel,
+                        premiumModel,
+                        usage,
+                        AiTestHooks.transportOrDefault(),
+                    )
+                }
             roles = r
             controller = buildController(r)
             storedSettings =
@@ -2112,6 +2129,8 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     outputPricePerMillion = outputPricePerMillion,
                     cacheReadPricePerMillion = cacheReadPricePerMillion,
                     cacheCreationPricePerMillion = cacheCreationPricePerMillion,
+                    preset = preset,
+                    fallbackModels = fallbackModels.map { it.trim() }.filter { it.isNotEmpty() },
                 ).also(secureSettings::save)
             configError = null
             true
@@ -2171,6 +2190,30 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             ConnectionTestResult(false, e.message ?: "configuração inválida")
         } catch (e: Exception) {
             ConnectionTestResult(false, "não foi possível testar a conexão: ${e.message ?: "erro desconhecido"}")
+        }
+
+    /**
+     * Busca os modelos gratuitos de texto do provedor pré-configurado, do mais indicado ao menos. Também confirma
+     * que a chave é aceita. Não persiste nada.
+     */
+    fun discoverFreeModels(
+        preset: ProviderPreset,
+        apiKey: String,
+    ): FreeModelsResult =
+        try {
+            require(apiKey.isNotBlank()) { "informe a chave de API" }
+            val found = ModelDiscovery.fetch(preset, apiKey, AiTestHooks.transportOrDefault())
+            if (found.isEmpty()) {
+                FreeModelsResult(false, emptyList(), "nenhum modelo gratuito de texto disponível agora; tente de novo mais tarde")
+            } else {
+                FreeModelsResult(true, found.map { it.id }, "${found.size} modelos gratuitos encontrados")
+            }
+        } catch (e: AiError) {
+            FreeModelsResult(false, emptyList(), e.message ?: "falha ao buscar os modelos")
+        } catch (e: IllegalArgumentException) {
+            FreeModelsResult(false, emptyList(), e.message ?: "configuração inválida")
+        } catch (e: Exception) {
+            FreeModelsResult(false, emptyList(), "não foi possível buscar os modelos: ${e.message ?: "erro desconhecido"}")
         }
 
     /** Remove a chave cifrada e desativa o provedor atual. */
@@ -3159,6 +3202,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     saved.cheapModel, saved.premiumModel, saved.cacheSystemPrompt,
                     saved.inputPricePerMillion, saved.outputPricePerMillion,
                     saved.cacheReadPricePerMillion, saved.cacheCreationPricePerMillion,
+                    saved.preset, saved.fallbackModels,
                 )
             }
         }
