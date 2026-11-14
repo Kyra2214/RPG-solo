@@ -64,7 +64,7 @@ Não alocados a reino, lugar ou facção; os 20 exemplos do catálogo não são 
 | `tabaxi` | Felídeo Errante | Felídeo Errante | sim |
 | `homem-corvo` | Corvário | Corvário | sim |
 | `elemental-fogo` | Nascido da Brasa | Nascido da Brasa | sim |
-| `orcano` | Orcano | Orcano | sim |
+| `orcano` | Orc | Orc | sim |
 | `minotauro` | Labiríntico | Labiríntico | sim |
 | `homem-lobo` | Lupino | Lupino | sim |
 | `plantae` | Verdejante | Verdejante | sim |

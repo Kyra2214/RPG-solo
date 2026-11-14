@@ -8,6 +8,35 @@ sealed interface Command
 data class CreateEntity(val entity: Entity) : Command
 
 /** MI-22: dá um NPC como morto sem passar por dano (a morte aconteceu fora de cena, na simulação do mundo). */
+/** MP-01: registra um marco; os participantes passam a saber (CONFIRMED). */
+data class RecordMilestone(
+    val id: String,
+    val type: MilestoneType,
+    val participantIds: List<String>,
+    val what: String,
+    val placeId: String? = null,
+    val consequence: String = "",
+    val certainty: Certainty = Certainty.CONFIRMED,
+    val scope: MilestoneScope = MilestoneScope.PERSON,
+) : Command
+
+/** MP-01: [personId] ouve falar do marco ou o descobre; [certainty] é o que ele passa a acreditar. */
+data class LearnMilestone(val milestoneId: String, val personId: String, val certainty: Certainty = Certainty.RUMOR) : Command
+
+/** MP-01: corrige a certeza do fato em si (ex.: um rumor virou fato confirmado). */
+data class ReviseMilestone(val milestoneId: String, val certainty: Certainty) : Command
+
+/**
+ * RV-01: o NPC elegível termina o combate vivo ([DefeatOutcome]). [DefeatOutcome.SPARED] só vale para NPC relevante
+ * ([spareAllowed]). Sem rolagem de fuga: é escolha do jogador.
+ */
+data class EndNpcAlive(
+    val entityId: String,
+    val outcome: DefeatOutcome,
+    val byId: String? = null,
+    val attitude: DefeatAttitude = DefeatAttitude.RESPECT,
+) : Command
+
 data class MarkNpcDead(val entityId: String, val cause: String? = null) : Command
 
 /** MI-27: dá o herói (PLAYER) como morto de causa natural (velhice na simulação do mundo), sem dano nem autor; o legado nasce no `apply` de [EntityDied]. */
@@ -110,6 +139,21 @@ data class AllocateInitialBuild(
     val statIncreases: Map<String, Int>,
     val skillPoints: Int,
 ) : Command
+
+/**
+ * Prova de perícia: única forma de a perícia ganhar ponto. Vale só nos níveis múltiplos de [EngineConfig.skillTrialEvery];
+ * mobs e quests comuns não dão ponto de perícia.
+ */
+data class AdvanceSkillByTrial(val entityId: String, val skillId: String, val trialLevel: Int) : Command
+
+/** Árvore de status: distribui uma única vez os pontos iniciais de status entre os atributos. Independente das habilidades. */
+data class AllocateInitialStats(
+    val entityId: String,
+    val statIncreases: Map<String, Int>,
+) : Command
+
+/** Árvore de habilidades: concede uma única vez os pontos iniciais de habilidade. Independente do status. */
+data class GrantInitialAbilityPoints(val entityId: String) : Command
 
 /** Evolui uma habilidade da árvore; o catálogo valida origem, afinidade e pré-requisitos antes da chamada. */
 data class ProgressSkillTree(
@@ -265,6 +309,12 @@ data class ConnectPlaces(val fromId: String, val toId: String) : Command
 
 data class DiscoverPlace(val id: String) : Command
 
+/**
+ * LG-04: passa todos os itens do inventário de um corpo (entidade morta) para [toId]. Fora de combate é só pegar;
+ * em combate o app exige antes um teste de destreza (e o turno é gasto).
+ */
+data class TransferBodyItems(val bodyId: String, val toId: String) : Command
+
 /** Só o jogador pode mover-se; a IA não move a miniatura automaticamente. */
 data class MoveToPlace(val id: String) : Command
 
@@ -302,6 +352,8 @@ data class EngineConfig(
     val levelCostFactor: Int = 0,
     /** N-04: XP por inimigo derrotado, em % do custo do próximo nível do jogador (modulado pela diferença de nível). 0 = desligado. */
     val victoryXpPercent: Int = 0,
+    /** RV-01: resultado mínimo no d6 para um NPC elegível fugir ao zerar o recurso de morte (5 = 1/3); 7 desliga a fuga. */
+    val fleeThreshold: Int = DEFAULT_FLEE_THRESHOLD,
     /** Bônus de defesa da ação Defend; 0 desativa a ação. */
     val defendBonus: Int = 0,
     /** Pontos concedidos por cada nível novo, conforme declarado pelo pacote. */
@@ -316,6 +368,8 @@ data class EngineConfig(
     val initialAbilityPoints: Int = 2,
     /** MU-06.2: níveis-chave; cada um permite liberar o nível 2 de uma perícia (por missão). */
     val masteryLevels: List<Int> = emptyList(),
+    /** Perícias ganham ponto só ao passar a prova (quest) dos níveis múltiplos deste valor (ex.: 5). 0 = desligado. */
+    val skillTrialEvery: Int = 0,
     /** MU-07.2: níveis-chave que concedem 1 slot de magia cada (`niveis_slot_magia`). Vazio = sem magia. */
     val spellSlotLevels: List<Int> = emptyList(),
     /** Quantidade de cada recurso restaurada por nível novo, limitada ao máximo atual. */
@@ -446,7 +500,7 @@ sealed interface Decision {
     data class No(val reason: String) : Decision
 }
 
-private fun combatEndEvents(state: GameState): List<Event> {
+internal fun combatEndEvents(state: GameState): List<Event> {
     val clockAdvances =
         state.clocks.values
             .filter { !it.full && it.combatTick > 0 }
@@ -455,6 +509,18 @@ private fun combatEndEvents(state: GameState): List<Event> {
                 ClockAdvanced(clock.id, filled, filled - clock.filled)
             }
     return listOf(CombatEnded) + clockAdvances
+}
+
+/** RV-01: [CombatEnded] (e relógios de combate) se, depois de [defeated], restar só um lado vivo na ordem. */
+internal fun combatEndAfter(
+    state: GameState,
+    defeated: NpcDefeated,
+): List<Event> {
+    val after = state.apply(defeated)
+    val order = after.combat?.order ?: return emptyList()
+    val aliveKinds = order.mapNotNull { after.entities[it]?.takeIf(Entity::alive)?.kind }.distinct()
+    val combatKinds = state.combat!!.order.mapNotNull { state.entities[it]?.kind }.distinct()
+    return if (combatKinds.size >= 2 && aliveKinds.size < 2) combatEndEvents(state) else emptyList()
 }
 
 private fun no(reason: String) = Decision.No(reason)
@@ -503,6 +569,169 @@ fun decide(
             if (ent.kind != EntityKind.NPC) return no("${ent.name} não é NPC")
             if (!ent.alive) return no("${ent.name} já está morto")
             return Decision.Ok(listOf(EntityDied(ent.id, null, cmd.cause)))
+        }
+
+        is RecordMilestone -> {
+            if (state.milestones.containsKey(cmd.id)) return no("marco já existe: ${cmd.id}")
+            if (state.milestones.size >= MILESTONES_MAX) return no("limite de $MILESTONES_MAX marcos atingido")
+            if (cmd.id.isBlank()) return no("marco sem id")
+            if (cmd.what.isBlank() || cmd.what.length > MILESTONE_TEXT_MAX) return no("descrição do marco deve ter 1 a $MILESTONE_TEXT_MAX caracteres")
+            if (cmd.consequence.length > MILESTONE_TEXT_MAX) return no("consequência do marco passa de $MILESTONE_TEXT_MAX caracteres")
+            if (cmd.participantIds.isEmpty()) return no("o marco precisa de ao menos um participante")
+            cmd.participantIds.firstOrNull { entity(it) == null }?.let { return no("participante inexistente: $it") }
+            if (cmd.placeId != null && !state.places.containsKey(cmd.placeId)) return no("lugar inexistente: ${cmd.placeId}")
+            val m =
+                Milestone(
+                    cmd.id.trim(), cmd.type, cmd.participantIds.distinct(), cmd.what.trim(), cmd.placeId, state.day,
+                    cmd.consequence.trim(), cmd.certainty, cmd.scope,
+                    cmd.participantIds.distinct().associateWith { Certainty.CONFIRMED },
+                )
+            return Decision.Ok(listOf(MilestoneRecorded(m)))
+        }
+
+        is IssueWanted -> {
+            if (cmd.id.isBlank() || state.wanted.containsKey(cmd.id)) return no("procurado sem id ou já existente: ${cmd.id}")
+            if (state.wanted.size >= Wanted.WANTED_MAX) return no("limite de ${Wanted.WANTED_MAX} procurados atingido")
+            if (entity(cmd.targetId) == null) return no("alvo inexistente: ${cmd.targetId}")
+            if (cmd.issuerName.isBlank() || cmd.issuerName.length > Wanted.TEXT_MAX) return no("emissor deve ter 1 a ${Wanted.TEXT_MAX} caracteres")
+            if (cmd.bounty <= 0) return no("a recompensa deve ser positiva")
+            if (cmd.originPlaceId !in state.places) return no("lugar de origem inexistente: ${cmd.originPlaceId}")
+            if (cmd.witnessIds.isEmpty()) return no("o procurado nasce de uma testemunha")
+            cmd.witnessIds.firstOrNull { entity(it) == null }?.let { return no("testemunha inexistente: $it") }
+            val r = IssuerResources(cmd.resources.gold.coerceAtLeast(0), cmd.resources.men.coerceAtLeast(0), cmd.resources.influence.coerceAtLeast(0))
+            return Decision.Ok(
+                listOf(
+                    WantedIssued(
+                        WantedRecord(
+                            cmd.id.trim(), cmd.targetId, cmd.issuerName.trim(), cmd.issuerLevel, cmd.bounty, r, cmd.originPlaceId,
+                            cmd.witnessIds.distinct(), ReachRung.RUMOR, state.day, state.day, cmd.deadlineDay,
+                        ),
+                    ),
+                ),
+            )
+        }
+
+        is EscalateWanted -> {
+            val r = state.wanted[cmd.id] ?: return no("procurado inexistente: ${cmd.id}")
+            Wanted.cannotEscalate(r, cmd.groupLevel, state.day)?.let { return no(it) }
+            val next = ReachRung.values().first { it.level == r.rung.level + 1 }
+            val res = r.resources
+            return Decision.Ok(
+                listOf(
+                    WantedUpdated(
+                        r.copy(
+                            rung = next,
+                            resources = IssuerResources(res.gold - next.costGold, res.men - next.costMen, res.influence - next.costInfluence),
+                        ),
+                    ),
+                ),
+            )
+        }
+
+        is RenewWanted -> {
+            val r = state.wanted[cmd.id] ?: return no("procurado inexistente: ${cmd.id}")
+            if (r.status == WantedStatus.PAID || r.status == WantedStatus.PROVEN_FALSE) return no("procurado encerrado")
+            val m = state.milestones[cmd.milestoneId] ?: return no("marco inexistente: ${cmd.milestoneId}")
+            if (cmd.milestoneId in r.usedMilestones) return no("este marco já renovou o procurado")
+            if (r.targetId !in m.participantIds) return no("o marco não envolve o alvo do procurado")
+            return Decision.Ok(
+                listOf(WantedUpdated(r.copy(lastRenewedDay = state.day, status = WantedStatus.ACTIVE, usedMilestones = r.usedMilestones + cmd.milestoneId))),
+            )
+        }
+
+        is RespondWanted -> {
+            val r = state.wanted[cmd.id] ?: return no("procurado inexistente: ${cmd.id}")
+            if (!Wanted.isLive(r, state.day)) return no("o procurado não está ativo")
+            val bounty = Wanted.effectiveBounty(r, state.day)
+            val lower = { by: Int -> ReachRung.values().first { it.level == (r.rung.level - by).coerceAtLeast(1) } }
+            val next =
+                when (cmd.response) {
+                    WantedResponse.PAY -> {
+                        if (cmd.amount < bounty) return no("pagar exige ao menos $bounty")
+                        r.copy(status = WantedStatus.PAID)
+                    }
+                    WantedResponse.BRIBE -> {
+                        if (cmd.amount < bounty / 2) return no("subornar exige ao menos ${bounty / 2}")
+                        r.copy(rung = lower(1))
+                    }
+                    WantedResponse.DISGUISE -> r.copy(status = WantedStatus.HIDDEN)
+                    // Matar o mensageiro corta a testemunha e o alcance, mas a recompensa sobe 25%: o gesto vira notícia.
+                    WantedResponse.KILL_MESSENGER -> r.copy(witnessIds = emptyList(), rung = lower(1), bounty = r.bounty + r.bounty / 4)
+                    WantedResponse.PROVE_FALSE -> if (r.rung.level <= 4) r.copy(status = WantedStatus.PROVEN_FALSE) else r.copy(rung = lower(2))
+                    WantedResponse.RECRUIT -> r.copy(rung = lower(1))
+                }
+            return Decision.Ok(listOf(WantedUpdated(next)))
+        }
+
+        is RegisterRelic -> {
+            if (cmd.id.isBlank() || state.relics.containsKey(cmd.id)) return no("relíquia sem id ou já existente: ${cmd.id}")
+            if (state.relics.size >= Wanted.RELICS_MAX) return no("limite de ${Wanted.RELICS_MAX} relíquias atingido")
+            if (cmd.name.isBlank() || cmd.name.length > Wanted.TEXT_MAX || cmd.ownerName.isBlank()) return no("relíquia exige nome e dono")
+            return Decision.Ok(listOf(RelicSet(Relic(cmd.id.trim(), cmd.name.trim(), cmd.trait.trim(), listOf(RelicOwner(cmd.ownerName.trim(), state.day, cmd.how.trim()))))))
+        }
+
+        is TransferRelic -> {
+            val rel = state.relics[cmd.id] ?: return no("relíquia inexistente: ${cmd.id}")
+            if (cmd.newOwnerName.isBlank() || cmd.newOwnerName == rel.currentOwner) return no("novo dono inválido")
+            return Decision.Ok(listOf(RelicSet(rel.copy(owners = rel.owners + RelicOwner(cmd.newOwnerName.trim(), state.day, cmd.how.trim())))))
+        }
+
+        is StartRumor -> {
+            if (cmd.id.isBlank() || state.rumors.containsKey(cmd.id)) return no("rumor sem id ou já existente: ${cmd.id}")
+            if (state.rumors.size >= RUMORS_MAX) return no("limite de $RUMORS_MAX rumores atingido")
+            if (cmd.text.isBlank() || cmd.text.length > RUMOR_TEXT_MAX) return no("texto do rumor deve ter 1 a $RUMOR_TEXT_MAX caracteres")
+            if (cmd.originPlaceId !in state.places) return no("lugar de origem inexistente: ${cmd.originPlaceId}")
+            val truth = cmd.truth ?: Fame.drawTruth("${cmd.id}|${state.day}")
+            val rumor =
+                Rumor(
+                    cmd.id.trim(), cmd.text.trim(), cmd.originPlaceId, state.day, truth, cmd.channel,
+                    mapOf(cmd.originPlaceId to cmd.channel.startStrength),
+                )
+            return Decision.Ok(listOf(RumorStarted(rumor)))
+        }
+
+        is SpreadRumors -> {
+            if (cmd.days !in 1..FAME_JUMP_DAYS_MAX) return no("dias de propagação devem ficar entre 1 e $FAME_JUMP_DAYS_MAX")
+            return Decision.Ok(listOf(RumorsSpread(cmd.days)))
+        }
+
+        is ChangeFame -> {
+            if (cmd.key.isBlank() || cmd.key.length > 80) return no("fama exige uma chave de lugar ou facção")
+            if (cmd.key !in state.fame && state.fame.size >= FAME_KEYS_MAX) return no("limite de $FAME_KEYS_MAX registros de fama atingido")
+            val old = state.fame[cmd.key] ?: RegionFame()
+            val next = RegionFame((old.reach + cmd.reachDelta).coerceIn(0, 100), (old.disposition + cmd.dispositionDelta).coerceIn(-100, 100))
+            return Decision.Ok(listOf(FameChanged(cmd.key.trim(), next)))
+        }
+
+        is InheritChronicle -> {
+            if (state.places.isNotEmpty() || state.currentPlaceId != null) return no("o mundo anterior só pode ser herdado numa campanha sem mapa")
+            if (cmd.chronicle.places.isEmpty()) return no("o mundo anterior não tem lugares")
+            if (cmd.jumpDays !in 0..FAME_JUMP_DAYS_MAX) return no("salto de tempo deve ficar entre 0 e $FAME_JUMP_DAYS_MAX dias")
+            return Decision.Ok(listOf(ChronicleInherited(cmd.chronicle, cmd.jumpDays)))
+        }
+
+        is LearnMilestone -> {
+            val m = state.milestones[cmd.milestoneId] ?: return no("marco inexistente: ${cmd.milestoneId}")
+            if (entity(cmd.personId) == null) return no("pessoa inexistente: ${cmd.personId}")
+            val cap = if (m.certainty == Certainty.CONFIRMED) cmd.certainty else maxOf(cmd.certainty, m.certainty)
+            return Decision.Ok(listOf(MilestoneLearned(m.id, cmd.personId, cap)))
+        }
+
+        is ReviseMilestone -> {
+            if (!state.milestones.containsKey(cmd.milestoneId)) return no("marco inexistente: ${cmd.milestoneId}")
+            return Decision.Ok(listOf(MilestoneRevised(cmd.milestoneId, cmd.certainty)))
+        }
+
+        is EndNpcAlive -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!state.defeatEligible(ent.id)) return no("${ent.name} não pode terminar o combate vivo (precisa ser NPC com dossiê, não capanga nem companheiro)")
+            if (cmd.outcome == DefeatOutcome.SPARED && !state.spareAllowed(ent.id)) return no("só NPC relevante (elite ou chefe) pode ser poupado")
+            if (cmd.byId != null && entity(cmd.byId) == null) return no("autor inexistente: ${cmd.byId}")
+            val resource = config.deathResource?.takeIf { ent.resources.containsKey(it) }
+            val defeated = NpcDefeated(ent.id, cmd.outcome, cmd.byId, cmd.attitude, null, resource)
+            val events = mutableListOf<Event>(defeated)
+            if (state.combat != null && ent.id in state.combat.order) events += combatEndAfter(state, defeated)
+            return Decision.Ok(events)
         }
 
         is MarkHeroDead -> {
@@ -814,6 +1043,30 @@ fun decide(
             return Decision.Ok(listOf(StatPointsAllocated(ent.id, cmd.increases, cost.toInt())))
         }
 
+        is AdvanceSkillByTrial -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            val every = config.skillTrialEvery
+            if (every <= 0) return no("este sistema não usa prova de perícia")
+            if (cmd.trialLevel <= 0 || cmd.trialLevel % every != 0) return no("a prova de perícia só existe em níveis múltiplos de $every")
+            if (ent.level < cmd.trialLevel) return no("a prova do nível ${cmd.trialLevel} ainda não está disponível (nível ${ent.level})")
+            if (cmd.trialLevel in ent.skillTrialsClaimed) return no("a prova do nível ${cmd.trialLevel} já deu o ponto de perícia")
+            val cap = config.skillCaps[cmd.skillId] ?: return no("perícia não permitida pelo pacote: ${cmd.skillId}")
+            if ((ent.skills[cmd.skillId] ?: 0) >= cap) return no("a perícia ${cmd.skillId} já está no máximo ($cap)")
+            return Decision.Ok(listOf(SkillTrialPassed(ent.id, cmd.skillId, cmd.trialLevel)))
+        }
+
+        is TransferBodyItems -> {
+            val body = entity(cmd.bodyId) ?: return no("entidade inexistente: ${cmd.bodyId}")
+            val to = entity(cmd.toId) ?: return no("entidade inexistente: ${cmd.toId}")
+            if (cmd.bodyId == cmd.toId) return no("não dá para recuperar itens de si mesmo")
+            if (body.alive) return no("${body.name} não é um corpo: ainda está vivo")
+            if (!to.alive) return no("${to.name} está morto")
+            val items = state.inventory[cmd.bodyId].orEmpty().filter { it.value > 0 }
+            if (items.isEmpty()) return no("o corpo de ${body.name} não tem itens para recuperar")
+            return Decision.Ok(items.flatMap { (id, qty) -> listOf(ItemChanged(body.id, id, -qty), ItemChanged(to.id, id, qty)) })
+        }
+
         is MasterSkill -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
             if (!ent.alive) return no("${ent.name} está morto")
@@ -877,6 +1130,31 @@ fun decide(
                 )
             }
             return Decision.Ok(listOf(InitialBuildAllocated(ent.id, cmd.statIncreases.filterValues { it > 0 }, cmd.skillPoints)))
+        }
+
+        is AllocateInitialStats -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (ent.initialBuildAllocated) return no("a distribuição inicial de pontos de status já foi feita")
+            if (cmd.statIncreases.values.any { it < 0 }) return no("a distribuição não pode conter valores negativos")
+            if (cmd.statIncreases.keys.any { it !in ent.stats && it !in config.statDefaults }) return no("atributo inexistente na ficha")
+            val statTotal = cmd.statIncreases.values.sumOf { it.toLong() }
+            if (statTotal != config.initialStatPoints.toLong()) {
+                return no("distribua exatamente ${config.initialStatPoints} pontos de status entre os atributos")
+            }
+            for ((key, increase) in cmd.statIncreases) {
+                val current = ent.stats[key] ?: config.statDefaults[key] ?: return no("atributo inexistente na ficha: $key")
+                val cap = config.statCaps[key] ?: return no("o pacote não define limite para o atributo: $key")
+                if (current.toLong() + increase.toLong() > cap.toLong()) return no("o atributo $key ultrapassaria o limite $cap")
+            }
+            return Decision.Ok(listOf(InitialStatsAllocated(ent.id, cmd.statIncreases.filterValues { it > 0 })))
+        }
+
+        is GrantInitialAbilityPoints -> {
+            val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
+            if (!ent.alive) return no("${ent.name} está morto")
+            if (ent.initialAbilityGranted) return no("os pontos iniciais de habilidade já foram concedidos")
+            return Decision.Ok(listOf(InitialAbilityPointsGranted(ent.id, config.initialAbilityPoints)))
         }
 
         is ProgressSkillTree -> {
@@ -1297,6 +1575,13 @@ fun decide(
             if (npc.kind != EntityKind.NPC) return no("dossiê privado só pode pertencer a NPC")
             if (dossier.npcId.isBlank() || dossier.npcId.length > 80) return no("dossiê exige id de NPC válido")
             if (dossier.personality.length > 2000) return no("personalidade do NPC excede 2000 caracteres")
+            if (dossier.age !in 0..1000) return no("idade do NPC deve ficar entre 0 e 1000 anos")
+            if (dossier.identity.length > 300 || dossier.sex.length > 30 || dossier.longevityClass.length > 40) {
+                return no("identidade, sexo ou classe de longevidade do NPC longos demais")
+            }
+            if (dossier.publicInfo.size > 10 || dossier.publicInfo.any { it.isBlank() || it.length > 300 }) {
+                return no("informação pública do NPC aceita até 10 itens de até 300 caracteres")
+            }
             if (dossier.goals.size > 30 || dossier.motivations.size > 30 ||
                 (dossier.goals + dossier.motivations).any { it.isBlank() || it.length > 300 }
             ) {
@@ -1415,6 +1700,11 @@ fun decide(
             val rule = state.additionalRules[cmd.id] ?: return no("adaptação inexistente: ${cmd.id}")
             if (rule.approved) return no("adaptação aprovada não pode ser descartada como pendente")
             return Decision.Ok(listOf(AdditionalRuleRejected(cmd.id)))
+        }
+
+        is AdvanceLegend -> {
+            val (events, reason) = Legends.advance(state, cmd.id)
+            return if (reason != null) no(reason) else Decision.Ok(events)
         }
 
         is RecordFact ->

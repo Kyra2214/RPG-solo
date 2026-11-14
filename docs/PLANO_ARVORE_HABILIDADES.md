@@ -186,3 +186,8 @@ Implementações adicionadas nesta branch:
 - Corrigido o rank 7 do arqueiro: `Disparo Apocalíptico` é uma técnica física e não deve exigir afinidade elemental para ser desbloqueada/usada.
 - Acrescentado teste de catálogo para impedir que as habilidades ofensivas iniciais da Classe de Malditos voltem a ser apenas modificadores.
 - CI verde no commit `5205b037ebd45ed71d633f40c0ce08ba3c7ecc2d` (workflow #243): testes JVM/Android e build do APK debug passaram; E2E foi ignorado. A asserção do arqueiro e os testes de golpes iniciais amaldiçoados passaram nessa versão. Qualquer mudança posterior exige nova validação.
+
+## Atualização de 12/11/2026 (decisão do autor; escrito, não compilado)
+
+- **Status e habilidades são duas árvores independentes** (painéis `StatusTreePanel` e `SkillTreePanel`; comandos `AllocateInitialStats` e `GrantInitialAbilityPoints`). Os 10 pontos de status travam no limite; a habilidade começa com 2 pontos que o jogador distribui na árvore.
+- **Perícias não são da árvore de habilidades:** ganham ponto só pela prova dos níveis múltiplos de 5, integrada à história pelo Mestre. Resumo em `docs/REGRAS_PROGRESSAO_E_CRIACAO.md`.

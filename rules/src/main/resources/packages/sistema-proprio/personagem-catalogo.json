@@ -82,7 +82,7 @@
     },
     {
       "id": "orcano",
-      "name": "Orcano",
+      "name": "Orc",
       "summary": "Povos de tradição oral intensa, conhecidos por redes de parentesco e pactos de hospitalidade.",
       "lore": "Povos de tradição oral intensa, conhecidos por redes de parentesco e pactos de hospitalidade.",
       "tags": [
@@ -1131,7 +1131,7 @@
     {
       "id": "orcano-das-estepes",
       "parentRaceId": "orcano",
-      "name": "Orcano das Estepes",
+      "name": "Orc das Estepes",
       "summary": "Sua cultura acompanha rebanhos, ventos e encontros sazonais entre clãs.",
       "lore": "Sua cultura acompanha rebanhos, ventos e encontros sazonais entre clãs.",
       "inheritance": {
@@ -1156,7 +1156,7 @@
     {
       "id": "orcano-das-matas",
       "parentRaceId": "orcano",
-      "name": "Orcano das Matas",
+      "name": "Orc das Matas",
       "summary": "Comunidades de floresta preservam trilhas discretas e pactos com aldeias vizinhas.",
       "lore": "Comunidades de floresta preservam trilhas discretas e pactos com aldeias vizinhas.",
       "inheritance": {
@@ -2296,10 +2296,10 @@
       "contentVersion": 1,
       "armorWeight": "medio",
       "weaponTypes": [
+        "arco",
         "espada",
         "adaga",
-        "lanca",
-        "arco"
+        "lanca"
       ],
       "traits": [
         "Curiosidade por horizontes ainda pouco conhecidos",
@@ -2538,10 +2538,10 @@
       "contentVersion": 1,
       "armorWeight": "medio",
       "weaponTypes": [
+        "arco",
         "espada",
         "adaga",
-        "lanca",
-        "arco"
+        "lanca"
       ],
       "traits": [
         "Discrição ao percorrer áreas desconhecidas",
@@ -2602,9 +2602,9 @@
       "contentVersion": 1,
       "armorWeight": "medio",
       "weaponTypes": [
+        "lanca",
         "espada",
         "adaga",
-        "lanca",
         "arco"
       ],
       "traits": [
@@ -2634,8 +2634,8 @@
       "contentVersion": 1,
       "armorWeight": "pesado",
       "weaponTypes": [
-        "espada",
         "machado",
+        "espada",
         "clava",
         "lanca"
       ],
@@ -2698,8 +2698,8 @@
       "contentVersion": 1,
       "armorWeight": "leve",
       "weaponTypes": [
-        "cajado",
-        "adaga"
+        "adaga",
+        "cajado"
       ],
       "traits": [
         "Curiosidade pelas vozes pouco ouvidas",
@@ -2728,8 +2728,8 @@
       "contentVersion": 1,
       "armorWeight": "leve",
       "weaponTypes": [
-        "cajado",
-        "adaga"
+        "adaga",
+        "cajado"
       ],
       "traits": [
         "Cautela diante de substâncias desconhecidas",
@@ -2758,9 +2758,9 @@
       "contentVersion": 1,
       "armorWeight": "medio",
       "weaponTypes": [
+        "lanca",
         "espada",
         "adaga",
-        "lanca",
         "arco"
       ],
       "traits": [
@@ -2790,9 +2790,9 @@
       "contentVersion": 1,
       "armorWeight": "medio",
       "weaponTypes": [
+        "lanca",
         "espada",
         "adaga",
-        "lanca",
         "arco"
       ],
       "traits": [
@@ -2822,9 +2822,9 @@
       "contentVersion": 1,
       "armorWeight": "pesado",
       "weaponTypes": [
+        "clava",
         "espada",
         "machado",
-        "clava",
         "lanca"
       ],
       "traits": [
@@ -2854,8 +2854,8 @@
       "contentVersion": 1,
       "armorWeight": "leve",
       "weaponTypes": [
-        "cajado",
-        "adaga"
+        "adaga",
+        "cajado"
       ],
       "traits": [
         "Visão coletiva acima do protagonismo pessoal",
@@ -2884,10 +2884,10 @@
       "contentVersion": 1,
       "armorWeight": "pesado",
       "weaponTypes": [
+        "lanca",
         "espada",
         "machado",
-        "clava",
-        "lanca"
+        "clava"
       ],
       "traits": [
         "Cuidado atento com a montaria",
@@ -3163,8 +3163,8 @@
       "contentVersion": 1,
       "armorWeight": "leve",
       "weaponTypes": [
-        "cajado",
-        "adaga"
+        "adaga",
+        "cajado"
       ],
       "traits": [
         "Compaixão expressa por decisões práticas",
@@ -3193,8 +3193,8 @@
       "contentVersion": 1,
       "armorWeight": "leve",
       "weaponTypes": [
-        "cajado",
-        "adaga"
+        "adaga",
+        "cajado"
       ],
       "traits": [
         "Ceticismo diante de explicações convenientes",
@@ -3223,8 +3223,8 @@
       "contentVersion": 1,
       "armorWeight": "leve",
       "weaponTypes": [
-        "cajado",
-        "adaga"
+        "adaga",
+        "cajado"
       ],
       "traits": [
         "Respeito por diferenças sem apagar conflitos",
@@ -3375,8 +3375,8 @@
       "contentVersion": 1,
       "armorWeight": "leve",
       "weaponTypes": [
-        "cajado",
-        "adaga"
+        "adaga",
+        "cajado"
       ],
       "traits": [
         "Expõe lacunas sem preenchê-las com certezas",
@@ -3405,8 +3405,8 @@
       "contentVersion": 1,
       "armorWeight": "leve",
       "weaponTypes": [
-        "cajado",
-        "adaga"
+        "adaga",
+        "cajado"
       ],
       "traits": [
         "Distingue observação direta de informação recebida",
@@ -3559,10 +3559,10 @@
       "contentVersion": 1,
       "armorWeight": "pesado",
       "weaponTypes": [
+        "lanca",
         "espada",
         "machado",
-        "clava",
-        "lanca"
+        "clava"
       ],
       "traits": [
         "Mantém postura reservada diante de desconhecidos",
@@ -3623,10 +3623,10 @@
       "contentVersion": 1,
       "armorWeight": "pesado",
       "weaponTypes": [
+        "lanca",
         "espada",
         "machado",
-        "clava",
-        "lanca"
+        "clava"
       ],
       "traits": [
         "Prioriza coesão sobre exibição individual",
@@ -3655,9 +3655,9 @@
       "contentVersion": 1,
       "armorWeight": "medio",
       "weaponTypes": [
+        "lanca",
         "espada",
         "adaga",
-        "lanca",
         "arco"
       ],
       "traits": [
@@ -3687,10 +3687,10 @@
       "contentVersion": 1,
       "armorWeight": "medio",
       "weaponTypes": [
+        "arco",
         "espada",
         "adaga",
-        "lanca",
-        "arco"
+        "lanca"
       ],
       "traits": [
         "Prudente diante de reservas aparentemente abundantes",

@@ -235,6 +235,18 @@ fun automaticTimeline(
                     } else {
                         null
                     }
+                is InitialStatsAllocated ->
+                    if (event.entityId == playerId) {
+                        AutomaticTimelineEntry(index, "progressão", "Você distribuiu seus pontos iniciais de status.")
+                    } else {
+                        null
+                    }
+                is SkillTrialPassed ->
+                    if (event.entityId == playerId) {
+                        AutomaticTimelineEntry(index, "progressão", "Sua perícia ${event.skillId} subiu de nível.")
+                    } else {
+                        null
+                    }
                 is AbilityActivated ->
                     if (event.entityId == playerId) {
                         AutomaticTimelineEntry(index, "habilidade", "Você ativou uma habilidade.")
@@ -250,6 +262,20 @@ fun automaticTimeline(
                 is ConditionAdded ->
                     if (event.entityId == playerId) {
                         AutomaticTimelineEntry(index, "condição", "Você sofreu uma condição.")
+                    } else {
+                        null
+                    }
+                is NpcDefeated ->
+                    if (combatIncludesPlayer && event.entityId in combatants) {
+                        finalState.entities[event.entityId]?.let {
+                            val how =
+                                when (event.outcome) {
+                                    DefeatOutcome.SPARED -> "foi poupado"
+                                    DefeatOutcome.FLED -> "fugiu"
+                                    DefeatOutcome.HUMILIATED -> "foi humilhado"
+                                }
+                            AutomaticTimelineEntry(index, "combate", "${it.name} $how.")
+                        }
                     } else {
                         null
                     }

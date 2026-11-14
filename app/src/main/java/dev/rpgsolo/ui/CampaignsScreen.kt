@@ -306,6 +306,39 @@ fun CampaignsScreen(model: AppModel) {
                 }
             }
         }
+        SectionTitle(stringResource(R.string.achievements_title))
+        val desbloqueadas = remember(model.conquistasVersao) { model.conquistasDesbloqueadas() }
+        Muted(stringResource(R.string.achievements_count, desbloqueadas.size, Conquista.entries.size))
+        Conquista.entries.forEach { c ->
+            val ok = c in desbloqueadas
+            Text(
+                (if (ok) "✓ " else "○ ") + c.titulo,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (ok) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Muted(c.descricao)
+        }
+        SectionTitle(stringResource(R.string.game_mode_title))
+        Muted(stringResource(R.string.game_mode_help))
+        var gameMode by remember(v) { mutableStateOf(model.gameMode()) }
+        listOf(
+            ModoJogo.HISTORIA to (R.string.game_mode_story to R.string.game_mode_story_desc),
+            ModoJogo.CRIATIVO to (R.string.game_mode_creative to R.string.game_mode_creative_desc),
+        ).forEach { (modo, textos) ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = gameMode == modo,
+                    onClick = {
+                        gameMode = modo
+                        model.setGameMode(modo)
+                    },
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(textos.first), style = MaterialTheme.typography.bodyMedium)
+                    Muted(stringResource(textos.second))
+                }
+            }
+        }
         SectionTitle(stringResource(R.string.source_privacy_title))
         Muted(stringResource(R.string.source_privacy_body))
         val sourceConsent = remember(v) { model.sourcePrivacyConsent() }
@@ -541,9 +574,9 @@ fun CampaignsScreen(model: AppModel) {
             Muted(stringResource(R.string.spell_slots_help, slots.used, slots.total))
         }
 
-        if (statPoints.statPoints > 0 || statPoints.abilityPoints > 0) {
+        if (statPoints.statPoints > 0) {
             SectionTitle(stringResource(R.string.statpoints_title))
-            Muted(stringResource(R.string.statpoints_help, statPoints.statPoints, statPoints.abilityPoints))
+            Muted(stringResource(R.string.statpoints_help, statPoints.statPoints))
             if (statPoints.statPoints > 0) {
                 statPoints.choices.forEach { choice ->
                     val statDesc = stringResource(R.string.statpoints_increase_desc, choice.name)
@@ -562,7 +595,6 @@ fun CampaignsScreen(model: AppModel) {
                     }
                 }
             }
-            if (statPoints.abilityPoints > 0) Muted(stringResource(R.string.statpoints_ability_note))
         }
 
         SectionTitle(stringResource(R.string.quests_title))

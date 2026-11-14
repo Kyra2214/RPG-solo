@@ -129,13 +129,18 @@ class CombatActions(
         if (session().state.combat != null || session().state.entities[playerId()]?.alive != true) return 0
         val companionIds = session().state.companions.values.filter { it.ownerId == playerId() }.map { it.entityId }.toSet()
         val npcIds = combatantIds.filter { session().state.entities[it]?.kind == EntityKind.NPC && it !in companionIds }
-        if (npcIds.isEmpty() || npcIds.any { session().state.entities[it]?.alive == true }) return 0
+        val defeats = session().state.defeats
+        if (npcIds.isEmpty() || npcIds.any { session().state.entities[it]?.alive == true && it !in defeats }) return 0
         val config = activePackage()?.engineConfig()
         val fixed = activePackage()?.data?.creation?.get("combate_xp_vitoria")?.toIntOrNull() ?: 0
 
         fun xpFor(level: Int): Int =
             if ((config?.victoryXpPercent ?: 0) > 0) {
-                npcIds.sumOf { config!!.battleXp(level, session().state.entities[it]?.level ?: 1) }
+                npcIds.sumOf {
+                    val full = config!!.battleXp(level, session().state.entities[it]?.level ?: 1)
+                    // RV-01: quem fugiu, foi poupado ou humilhado paga 50% do XP da derrota.
+                    if (it in defeats) dev.rpgsolo.engine.defeatXpHalf(full) else full
+                }
             } else {
                 fixed
             }
@@ -162,11 +167,12 @@ class CombatActions(
     fun unifiedAttack(
         targetId: String,
         attackerId: String = playerId(),
+        guaranteedHit: Boolean = false,
     ): String? {
         val combat = session().state.combat ?: return "Não há combate ativo."
         if (combat.current != attackerId) return "não é o turno de $attackerId"
         val mark = session().mark()
-        return when (val result = strike(attackerId, targetId)) {
+        return when (val result = strike(attackerId, targetId, guaranteedHit = guaranteedHit)) {
             is dev.rpgsolo.engine.UnifiedAttackResult.Rejected -> result.reason
             is dev.rpgsolo.engine.UnifiedAttackResult.Resolved -> {
                 val targetName = session().state.entities[targetId]?.name ?: targetId
@@ -195,6 +201,7 @@ class CombatActions(
         targetId: String,
         extraAttack: Int = 0,
         elementalScope: String? = null,
+        guaranteedHit: Boolean = false,
     ): dev.rpgsolo.engine.UnifiedAttackResult {
         fun rejected(reason: String) = dev.rpgsolo.engine.UnifiedAttackResult.Rejected(reason)
         val pkg = activePackage() ?: return rejected("pacote de regras não está ativo")
@@ -286,8 +293,9 @@ class CombatActions(
                 attackStat,
                 defenseStat,
                 damageResource = resource,
-                hitStat = hitStat,
-                dodgeStat = dodgeStat,
+                // Sem teste de acerto e de esquiva o golpe sempre acerta (a defesa ainda reduz o dano).
+                hitStat = if (guaranteedHit) null else hitStat,
+                dodgeStat = if (guaranteedHit) null else dodgeStat,
                 luckStat = luckStat,
                 damageReduction = reduction.coerceAtLeast(0),
                 luckItemBonus =
@@ -436,6 +444,140 @@ class CombatActions(
                 "Postura defensiva ativa até o próximo ataque recebido ou o retorno do seu turno."
             }
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+    }
+
+    /** RV-06: poupar só vale para quem já está com até este percentual da vida. */
+    private val SPARE_HP_PERCENT = 25
+
+    /** RV-06: um NPC relevante que o jogador pode poupar agora. */
+    data class SpareOption(val id: String, val name: String, val current: Int, val max: Int)
+
+    /**
+     * RV-06: NPCs que podem ser poupados: só no turno do jogador, só NPC relevante (elite ou chefe, RV-01) e só quando
+     * já está no limite (até [SPARE_HP_PERCENT]% da vida), pois poupar é render quem já foi vencido.
+     */
+    fun spareOptions(): List<SpareOption> {
+        val state = session().state
+        val combat = state.combat ?: return emptyList()
+        if (combat.current != playerId()) return emptyList()
+        val resourceId = activePackage()?.manifest?.deathResource ?: return emptyList()
+        return combat.order.mapNotNull { id ->
+            val ent = state.entities[id] ?: return@mapNotNull null
+            val res = ent.resources[resourceId] ?: return@mapNotNull null
+            if (!state.spareAllowed(id) || res.max <= 0 || res.current * 100 > res.max * SPARE_HP_PERCENT) return@mapNotNull null
+            SpareOption(id, ent.name, res.current, res.max)
+        }.sortedBy { it.name }
+    }
+
+    /**
+     * RV-06: poupar o NPC (RV-01). Sem rolagem de fuga; o motor grava o rival (atitude de dívida: ele deve a vida ao
+     * herói), encerra o combate se for o último e o XP é metade da derrota ([awardCombatVictoryXp]).
+     */
+    fun spare(npcId: String): String? {
+        if (spareOptions().none { it.id == npcId }) return "este adversário não pode ser poupado agora"
+        val before = session().state.combat?.order.orEmpty()
+        val name = session().state.entities[npcId]?.name ?: "o adversário"
+        return when (
+            val r = session().execute(dev.rpgsolo.engine.EndNpcAlive(npcId, dev.rpgsolo.engine.DefeatOutcome.SPARED, playerId(), dev.rpgsolo.engine.DefeatAttitude.DEBT))
+        ) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                val xp = awardCombatVictoryXp(before)
+                onChanged()
+                "Você poupou $name." + if (xp > 0) " +$xp XP." else ""
+            }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> r.reason
+        }
+    }
+
+    /** LG-04: um corpo (entidade morta) que ainda carrega itens. */
+    data class BodyOption(val id: String, val name: String, val itemCount: Int)
+
+    fun bodies(): List<BodyOption> {
+        val state = session().state
+        return state.entities.values.filter { !it.alive && it.id != playerId() }.mapNotNull { body ->
+            val count = state.inventory[body.id].orEmpty().values.filter { it > 0 }.sum()
+            if (count > 0) BodyOption(body.id, body.name, count) else null
+        }.sortedBy { it.name }
+    }
+
+    /**
+     * LG-04: recuperar os itens de um corpo. Fora de combate é só pegar. Em combate exige o turno do jogador, gasta o
+     * turno (sem ataque) e pede um teste de destreza real do pacote: sucesso pega os itens; falha, o adversário acerta o jogador.
+     */
+    fun recoverBody(bodyId: String): String? {
+        val combat = session().state.combat
+        if (combat == null) {
+            return when (val r = session().execute(dev.rpgsolo.engine.TransferBodyItems(bodyId, playerId()))) {
+                is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                    onChanged()
+                    "Você pegou os itens do corpo."
+                }
+                is dev.rpgsolo.engine.ExecResult.Rejected -> r.reason
+            }
+        }
+        return try {
+            require(isPlayerCombatTurn()) { "só é possível pegar itens do corpo no seu turno" }
+            val pkg = requireNotNull(activePackage()) { "pacote de regras não está ativo" }
+            val checkId =
+                listOf("destreza", "esquiva").firstOrNull { id -> pkg.data.checks.any { it.id == id } }
+                    ?: return "o pacote não define um teste de destreza"
+            val difficulty = pkg.defaultDifficulty() ?: return "o pacote não define dificuldade para o teste de destreza"
+            val player = requireNotNull(session().state.entities[playerId()]) { "personagem inexistente" }
+            val combatantsBefore = combat.order
+            val mark = session().mark()
+            val base = pkg.check(checkId, player.stats, difficulty, player.skills)
+            val adjusted =
+                pkg.adjustCheck(
+                    base,
+                    session().state.conditions[playerId()].orEmpty(),
+                    bonuses.combatTraitIds(playerId()),
+                    checkId,
+                    additionalBonuses = bonuses.selectedCatalogBonuses(pkg),
+                )
+            val adaptation = listOfNotNull(adjusted.checkId, adjusted.stat, checkId).distinct().sumOf(bonuses::approvedRuleBonus)
+            val danger = session().state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
+            val shift = danger - 5
+            val spec =
+                when (adjusted.comparison) {
+                    dev.rpgsolo.engine.Comparison.ROLL_OVER -> adjusted.copy(modifier = adjusted.modifier + adaptation - shift)
+                    dev.rpgsolo.engine.Comparison.ROLL_UNDER -> adjusted.copy(difficulty = (adjusted.difficulty + adaptation - shift).coerceAtLeast(1))
+                    dev.rpgsolo.engine.Comparison.POINTS -> adjusted.copy(modifier = (adjusted.modifier + adaptation - shift).coerceAtLeast(0))
+                }
+            val result = session().check(spec)
+            val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}."
+            val passed =
+                result.outcome in setOf(dev.rpgsolo.engine.Outcome.SUCCESS, dev.rpgsolo.engine.Outcome.CRITICAL_SUCCESS)
+            if (passed) {
+                val taken = session().execute(dev.rpgsolo.engine.TransferBodyItems(bodyId, playerId()))
+                if (taken is dev.rpgsolo.engine.ExecResult.Rejected) {
+                    session().rollbackTo(mark)
+                    return taken.reason
+                }
+                val next = session().execute(NextTurn)
+                if (next is dev.rpgsolo.engine.ExecResult.Rejected) {
+                    session().rollbackTo(mark)
+                    return next.reason
+                }
+                awardCombatVictoryXp(combatantsBefore)
+                onChanged()
+                "$roll Você pegou os itens do corpo, mas gastou o turno."
+            } else {
+                val next = session().execute(NextTurn)
+                if (next is dev.rpgsolo.engine.ExecResult.Rejected) {
+                    session().rollbackTo(mark)
+                    return next.reason
+                }
+                val adversary = session().state.combat?.current?.takeIf { it != playerId() }
+                // Falhou no teste de destreza: o adversário acerta o jogador (sem teste de acerto).
+                val hit = adversary?.let { unifiedAttack(playerId(), it, guaranteedHit = true) }
+                onChanged()
+                "$roll Você falhou ao pegar os itens e o adversário aproveitou a brecha." + (hit?.let { " $it" } ?: "")
+            }
+        } catch (e: IllegalArgumentException) {
+            e.message
+        } catch (e: IllegalStateException) {
+            e.message
         }
     }
 

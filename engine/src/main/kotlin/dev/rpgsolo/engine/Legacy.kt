@@ -8,6 +8,9 @@ const val CAUSE_CONDITION_PREFIX = "condicao:"
 /** LG-01: relação mínima (em módulo) para um NPC entrar nos vínculos do legado. */
 const val LEGACY_BOND_MIN = 30
 
+/** LG-03: máximo de lugares visitados guardados por legado. */
+const val LEGACY_PLACES_MAX = 10
+
 /** LG-01: máximo de vínculos guardados por legado. */
 const val LEGACY_BONDS_MAX = 5
 
@@ -44,6 +47,8 @@ data class HeroLegacy(
     val killerName: String? = null,
     val cause: String? = null,
     val bonds: List<LegacyBond> = emptyList(),
+    /** LG-03: lugares conhecidos pelo herói ao morrer (até [LEGACY_PLACES_MAX]); logs antigos assumem vazio. */
+    val visitedPlaceIds: List<String> = emptyList(),
 )
 
 /** LG-01: situação do assassino hoje, para decidir o desfecho da vingança (LG-03). */
@@ -101,6 +106,7 @@ internal fun GameState.legacyOf(
         killerName = killer?.name,
         cause = if (kind == DeathKind.CONDITION) cause else null,
         bonds = bonds,
+        visitedPlaceIds = knownPlaces.sorted().take(LEGACY_PLACES_MAX),
     )
 }
 

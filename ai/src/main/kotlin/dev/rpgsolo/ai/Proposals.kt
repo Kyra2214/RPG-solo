@@ -4,6 +4,10 @@ import dev.rpgsolo.engine.AddCondition
 import dev.rpgsolo.engine.AddItem
 import dev.rpgsolo.engine.AddPlace
 import dev.rpgsolo.engine.AdvanceClock
+import dev.rpgsolo.engine.AdvanceLegend
+import dev.rpgsolo.engine.AdvanceSkillByTrial
+import dev.rpgsolo.engine.Certainty
+import dev.rpgsolo.engine.ChangeFame
 import dev.rpgsolo.engine.ChangeRelation
 import dev.rpgsolo.engine.Command
 import dev.rpgsolo.engine.ConnectPlaces
@@ -13,20 +17,31 @@ import dev.rpgsolo.engine.Damage
 import dev.rpgsolo.engine.DiscoverPlace
 import dev.rpgsolo.engine.GainXp
 import dev.rpgsolo.engine.Heal
+import dev.rpgsolo.engine.IssueWanted
+import dev.rpgsolo.engine.IssuerResources
 import dev.rpgsolo.engine.KeepPromise
 import dev.rpgsolo.engine.LearnKnowledge
+import dev.rpgsolo.engine.LearnMilestone
 import dev.rpgsolo.engine.MakePromise
+import dev.rpgsolo.engine.MilestoneScope
+import dev.rpgsolo.engine.MilestoneType
 import dev.rpgsolo.engine.NoteMemory
 import dev.rpgsolo.engine.NpcDossier
 import dev.rpgsolo.engine.Place
 import dev.rpgsolo.engine.ProposeRuleAddition
 import dev.rpgsolo.engine.RecordFact
+import dev.rpgsolo.engine.RecordMilestone
+import dev.rpgsolo.engine.RegisterRelic
 import dev.rpgsolo.engine.RegraAdicional
 import dev.rpgsolo.engine.RemoveCondition
+import dev.rpgsolo.engine.ReviseMilestone
 import dev.rpgsolo.engine.Revive
 import dev.rpgsolo.engine.RuleOrigin
+import dev.rpgsolo.engine.RumorChannel
 import dev.rpgsolo.engine.Secret
 import dev.rpgsolo.engine.SpendResource
+import dev.rpgsolo.engine.StartRumor
+import dev.rpgsolo.engine.TransferRelic
 import dev.rpgsolo.rules.NpcProposal
 import dev.rpgsolo.rules.RuleSource
 import dev.rpgsolo.rules.ThreatCategory
@@ -75,6 +90,10 @@ data class QuestRequest(
     val xpReward: Int = 0,
     val masterySkillId: String? = null,
     val spellRewardId: String? = null,
+    /** LG-03: true quando a missão é a quest de legado oferecida pelo motor; o app recusa se não há oferta. */
+    val legacy: Boolean = false,
+    /** RV-05: true quando a missão é a quest de rival oferecida pelo motor; o app recusa se não há oferta. */
+    val rival: Boolean = false,
 )
 
 sealed interface ParseResult {
@@ -88,12 +107,12 @@ object ProposalSchema {
     val INSTRUCTIONS: String =
         """
         Responda SOMENTE com um objeto JSON, sem texto fora dele:
-        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}, "personality":"...", "goals":[], "motivations":[], "relations":{}, "secrets":[{"id":"...", "text":"...", "falseInfo":false}]}, "request_combat": false}
+        {"narrative": "texto que o jogador vai ler", "proposals": [ ... ], "suggestions": ["até 3 ideias curtas de ação"], "create_npc": {"name":"...", "concept":"...", "stats":{"poder":1}, "traits":[], "skills":{}, "identity":"nome completo, origem, ofício", "age":0, "sex":"masculino|feminino", "publicInfo":["o que qualquer um vê: aparência, idade aparente"], "personality":"...", "goals":[], "motivations":[], "relations":{}, "secrets":[{"id":"...", "text":"...", "falseInfo":false}]}, "request_combat": false}
         "create_npc" é opcional: quando criar um NPC relevante, proponha nome, conceito, atributos, traços e perícias. O pacote valida tudo; não invente ids nem regras. Não inclua create_npc ao pedir teste/rolagem.
         "request_npc" é opcional e usa os mesmos campos de create_npc, mais "id" (opcional, slug minúsculo com letras, números e hífen, 2 a 40 caracteres, ainda não usado) para você citar o NPC depois. Use quando a cena introduz um NPC relevante sem iniciar luta; o pacote valida a ficha e o motor cria o NPC. Envie sozinho, sem create_npc, proposals, request_combat, request_power, request_check ou request_roll.
         "request_combat" é opcional e booleano. Use true somente quando a cena realmente iniciar uma luta; nesse caso, envie também create_npc com um único adversário e deixe proposals, request_check e request_roll vazios/ausentes. O app valida a ficha pelo pacote, cria o NPC e o motor rola a iniciativa. Não use request_combat para ameaças ainda não hostis.
         "request_power" é opcional: {"power":"id-do-poder","target":"id-do-npc opcional"}. Use somente quando o jogador declarar que o personagem usa um dos poderes ou magias listados no contexto (magias têm id "magia:<id>"); o app valida traço, recurso e alvo, e o motor gasta o custo, rola o teste e aplica o efeito. Descreva só a tentativa; não invente o resultado nem números. Envie sozinho, sem proposals, create_npc, request_combat, request_check ou request_roll.
-        "request_quest" é opcional: {"title":"...","objectives":["..."],"xpReward":0,"masterySkill":"id opcional","spell":"id opcional"}. Use quando a história oferece uma missão clara ao personagem (até 20 objetivos curtos). xpReward é só uma proposta de XP ao concluir (0 = sem XP); masterySkill e spell só com ids que existam no pacote. O app valida e o motor limita e paga a recompensa na conclusão; nunca narre a recompensa como já recebida. Envie sozinho, sem proposals, create_npc, request_npc, request_combat, request_power, request_attack, request_check ou request_roll.
+        "request_quest" é opcional: {"title":"...","objectives":["..."],"xpReward":0,"masterySkill":"id opcional","spell":"id opcional","legacy":false}. Use quando a história oferece uma missão clara ao personagem (até 20 objetivos curtos). xpReward é só uma proposta de XP ao concluir (0 = sem XP); masterySkill e spell só com ids que existam no pacote. "legacy":true só para a quest de legado e "rival":true só para a quest de rival que o contexto do mestre oferecer (nunca por conta própria). O app valida e o motor limita e paga a recompensa na conclusão; nunca narre a recompensa como já recebida. Envie sozinho, sem proposals, create_npc, request_npc, request_combat, request_power, request_attack, request_check ou request_roll.
         "request_attack" é opcional: {"target":"id-do-npc"}. Use somente em combate ativo, no turno do jogador, quando ele declarar que ataca um adversário. O motor rola ataque e defesa, calcula o dano e avança o turno. Descreva só a tentativa; não invente acerto, dano nem números. Envie sozinho, sem proposals, create_npc, request_npc, request_combat, request_power, request_check ou request_roll.
         "suggestions" é opcional: no máximo ${ProposalParser.MAX_SUGGESTIONS} ideias curtas do que o personagem poderia fazer; o jogador pode ignorá-las.
         "proposals" é a lista (pode ser vazia) de mudanças que você PROPÕE. O motor valida cada uma e pode recusar.
@@ -104,9 +123,17 @@ object ProposalSchema {
         add_item(ownerId, itemId, qty) · consume_item(ownerId, itemId, qty) · gain_xp(entityId, amount)
         revive(entityId, reason) · record_fact(key, value) · record_memory(subjectId, text: nota curta sobre um NPC ou lugar) · learn(key, text, source, believed)
         make_promise(id, npcId, text) · keep_promise(id) · add_condition(entityId, condition) · remove_condition(entityId, condition)
+        record_milestone(id, type: HUMILIATION|DEFEAT|MERCY|BETRAYAL|HELP|DEBT_PAID|DECEIT|PROMISE|INJUSTICE|HEROIC_ACT, participantIds, what: fato curto, placeId opcional, consequence opcional, certainty opcional CONFIRMED|SUSPECTED|RUMOR, scope opcional PERSON|WORLD) · learn_milestone(milestoneId, personId, certainty: CONFIRMED|SUSPECTED|RUMOR) · revise_milestone(milestoneId, certainty)
+        Marcos são fatos da história entre personagens (só participantes que existem); só registre o que aconteceu de fato na cena, nunca invente o passado. Só os participantes sabem do marco; quem ouviu falar entra com learn_milestone e nunca com certeza maior que a do fato.
+        issue_wanted(id, targetId, issuerName, issuerLevel, bounty, gold, men, influence, originPlaceId, witnessIds, deadlineDay opcional) · register_relic(id, name, trait opcional, ownerName, how opcional) · transfer_relic(id, newOwnerName, how)
+        Procurado só nasce de um ato visto por testemunha que existe, emitido por alguém com motivo e recursos (gold, men, influence); o MOTOR sobe os degraus (rumor, cartaz, caçadores, elite, emissário, Boss) com o tempo e gasta os recursos do emissor: você nunca escala, nunca cria caçadores além dos informados no contexto e nunca rebaixa o Boss. Relíquia é item único com histórico de donos; registre quando surgir e transfira quando mudar de mãos.
+        start_rumor(id, text: o que se diz, curto, originPlaceId, channel opcional WITNESS|MERCHANT|BARD|POSTER) · change_fame(key: id de lugar ou facção, reachDelta -30..30, dispositionDelta -30..30)
+        Rumor e fama nascem de atos que o herói realmente praticou e foram vistos; o MOTOR sorteia se o rumor é exato, exagerado ou falso, espalha pelas passagens do mapa e define reconhecimento, preço e relação inicial: você só narra a distorção, nunca transforma rumor em fato e não cita números de fama.
+        advance_legend(id: id da lenda listada no contexto) · Lenda é a história de um herói de outra campanha; o MOTOR grava o estágio (só avança um passo por dia): proponha apenas quando a cena mostrar o próximo passo.
         change_relation(fromId, toId, delta, reason) · create_clock(id, name, segments, publicClue opcional, midClue opcional, consequence opcional, restTick opcional, moveTick opcional, chapterTick opcional, combatTick opcional, questTick opcional) · advance_clock(id, by)
         Em create_clock, publicClue é opcional e só aparece ao jogador quando o relógio completa. Use apenas consequência/pista pública; nunca coloque nela o nome interno do relógio, a contagem ou segredo privado. Quando houver base narrativa, proponha publicClue e midClue como sinais observáveis, concretos e contextualizados nos fatos já estabelecidos na cena/campanha. Não invente um acontecimento como já ocorrido, não explique a causa secreta nem revele planos, nomes internos ou contagens; se não houver uma pista segura e coerente, omita-a. midClue deve sinalizar uma mudança perceptível no meio do progresso; publicClue, um efeito observável quando ele se completa. restTick (inteiro, opcional, padrão 0) é quantas casas o relógio avança sozinho a cada descanso do jogador; moveTick, a cada viagem validada para outro local; chapterTick, a cada capítulo encerrado; combatTick, no fim de cada combate; questTick, quando uma missão é encerrada como concluída ou falha. Cada valor é número de casas de 0 até segments (padrão 0); o motor aplica automaticamente o avanço configurado, sem você propor outra ação. midClue (opcional) é uma pista pública curta, só de mundo, revelada quando o relógio chega à metade das casas; as mesmas restrições de publicClue valem. consequence (opcional) é uma nota PRIVADA para você: o que acontece no mundo quando o relógio completar; o jogador nunca a vê.
         propose_rule(id, name, description, effects, limit): adaptação explícita, nunca regra oficial; fica pendente até aprovação do jogador.
+        skill_trial(entityId, skillId, level): só ao FIM de uma sequência de testes da perícia que o jogador superou, quando o contexto de PROGRESSÃO indicar perícia pendente; o motor recusa se o nível não bate.
         add_place(id, name, description, secret) · connect_places(fromId, toId) · discover_place(id); não use move_to_place, pois só o jogador se desloca.
         Se ainda não houver local conhecido, crie o ponto inicial e descubra-o; segredos de local só são revelados pelo motor após teste apropriado.
         Campo opcional "request_roll" (regra 9), uma entrada para CADA face: {"sides": 6, "label": "Onde a flecha acerta", "table": {"1": {"text": "raspa no ombro", "damage": 1}, "2": {...}, "4": {"text": "fura a coxa", "damage": 4, "conditions": ["sangramento"]}, "6": {"text": "atinge perto do coração", "damage": 6}}}
@@ -121,11 +148,22 @@ object ProposalSchema {
             "damage", "heal", "spend_resource", "add_item", "consume_item", "gain_xp", "revive",
             "record_fact", "record_memory", "learn", "make_promise", "keep_promise", "add_condition", "remove_condition",
             "change_relation", "create_clock", "advance_clock", "propose_rule",
-            "add_place", "connect_places", "discover_place",
+            "add_place", "connect_places", "discover_place", "skill_trial",
+            "record_milestone", "learn_milestone", "revise_milestone",
+            "issue_wanted", "register_relic", "transfer_relic",
+            "start_rumor", "change_fame", "advance_legend",
         )
 }
 
 private class Bad(message: String) : Exception(message)
+
+/** MP-01: converte texto da IA em enum do motor, recusando valor fora da lista (sem corrigir em silêncio). */
+private inline fun <reified E : Enum<E>> enumOf(
+    raw: String,
+    field: String,
+): E =
+    enumValues<E>().firstOrNull { it.name.equals(raw.trim(), ignoreCase = true) }
+        ?: throw Bad("campo '$field' inválido: '$raw' (permitidos: ${enumValues<E>().joinToString("|") { it.name }})")
 
 object ProposalParser {
     const val MAX_SUGGESTIONS = 3
@@ -325,7 +363,35 @@ object ProposalParser {
                         }
                     val skill = (rawQuest["masterySkill"] as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
                     val spell = (rawQuest["spell"] as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
-                    title?.let { QuestRequest(it, objectives, xp, skill, spell) }
+                    val legacy =
+                        when (val rawLegacy = rawQuest["legacy"]) {
+                            null, is JsonNull -> false
+                            is JsonPrimitive ->
+                                rawLegacy.takeIf { !it.isString }?.content?.toBooleanStrictOrNull()
+                                    ?: run {
+                                        errors += "request_quest: 'legacy' deve ser booleano"
+                                        false
+                                    }
+                            else -> {
+                                errors += "request_quest: 'legacy' deve ser booleano"
+                                false
+                            }
+                        }
+                    val rival =
+                        when (val rawRival = rawQuest["rival"]) {
+                            null, is JsonNull -> false
+                            is JsonPrimitive ->
+                                rawRival.takeIf { !it.isString }?.content?.toBooleanStrictOrNull()
+                                    ?: run {
+                                        errors += "request_quest: 'rival' deve ser booleano"
+                                        false
+                                    }
+                            else -> {
+                                errors += "request_quest: 'rival' deve ser booleano"
+                                false
+                            }
+                        }
+                    title?.let { QuestRequest(it, objectives, xp, skill, spell, legacy, rival) }
                 }
                 else -> {
                     errors += "'request_quest' deve ser um objeto"
@@ -371,6 +437,11 @@ object ProposalParser {
     private fun JsonObject.str(key: String): String? = (this[key] as? JsonPrimitive)?.takeIf { it.isString }?.content
 
     private fun JsonObject.int(key: String): Int? = (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
+
+    private fun JsonObject.strList(key: String): List<String> =
+        (this[key] as? JsonArray)
+            ?.mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content?.trim()?.takeIf { v -> v.isNotEmpty() } }
+            .orEmpty()
 
     private fun JsonObject.bool(key: String): Boolean? = (this[key] as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull
 
@@ -443,11 +514,18 @@ object ProposalParser {
         val personality = o.str("personality")?.trim().orEmpty()
         val goals = textList("goals")
         val motivations = textList("motivations")
+        val identity = o.str("identity")?.trim().orEmpty()
+        val npcAge = (o["age"] as? JsonPrimitive)?.content?.trim()?.toIntOrNull() ?: 0
+        val npcSex = o.str("sex")?.trim().orEmpty()
+        val longevity = o.str("longevityClass")?.trim().orEmpty()
+        val publicInfo = textList("publicInfo")
         val dossier =
-            if (personality.isBlank() && goals.isEmpty() && motivations.isEmpty() && relations.isEmpty() && secrets.isEmpty()) {
+            if (personality.isBlank() && goals.isEmpty() && motivations.isEmpty() && relations.isEmpty() && secrets.isEmpty() &&
+                identity.isBlank() && npcAge == 0 && npcSex.isBlank() && publicInfo.isEmpty()
+            ) {
                 null
             } else {
-                NpcDossier("pending", personality, goals, motivations, relations, secrets)
+                NpcDossier("pending", personality, goals, motivations, relations, secrets, identity, npcAge, npcSex, longevity, publicInfo)
             }
         val rawId = o["id"]
         val customId =
@@ -635,9 +713,54 @@ object ProposalParser {
             "add_item" -> AddItem(s("ownerId"), s("itemId"), nOr("qty", 1))
             "consume_item" -> ConsumeItem(s("ownerId"), s("itemId"), nOr("qty", 1))
             "gain_xp" -> GainXp(s("entityId"), n("amount"))
+            "skill_trial" -> AdvanceSkillByTrial(s("entityId"), s("skillId"), n("level"))
             "revive" -> Revive(s("entityId"), s("reason"))
             "record_fact" -> RecordFact(s("key"), o.str("value") ?: throw Bad("record_fact: campo 'value' ausente"))
             "record_memory" -> NoteMemory(s("subjectId"), s("text"))
+            "issue_wanted" ->
+                IssueWanted(
+                    id = s("id"),
+                    targetId = s("targetId"),
+                    issuerName = s("issuerName"),
+                    issuerLevel = n("issuerLevel"),
+                    bounty = n("bounty"),
+                    resources = IssuerResources(nOr("gold", 0), nOr("men", 0), nOr("influence", 0)),
+                    originPlaceId = slug(s("originPlaceId")),
+                    witnessIds = o.strList("witnessIds").takeIf { it.isNotEmpty() } ?: throw Bad("issue_wanted: 'witnessIds' deve ser uma lista de ids não vazia"),
+                    deadlineDay = if (o.containsKey("deadlineDay")) n("deadlineDay") else null,
+                )
+            "start_rumor" ->
+                StartRumor(
+                    id = s("id"),
+                    text = s("text"),
+                    originPlaceId = slug(s("originPlaceId")),
+                    channel = opt("channel")?.let { enumOf<RumorChannel>(it, "channel") } ?: RumorChannel.WITNESS,
+                )
+            "advance_legend" -> AdvanceLegend(s("id"))
+            "change_fame" -> {
+                val reach = nOr("reachDelta", 0)
+                val disposition = nOr("dispositionDelta", 0)
+                if (reach !in -30..30 || disposition !in -30..30) throw Bad("change_fame: reachDelta e dispositionDelta devem ficar entre -30 e 30")
+                ChangeFame(s("key"), reach, disposition)
+            }
+            "register_relic" -> RegisterRelic(s("id"), s("name"), o.str("trait")?.trim().orEmpty(), s("ownerName"), opt("how") ?: "posse inicial")
+            "transfer_relic" -> TransferRelic(s("id"), s("newOwnerName"), s("how"))
+            "record_milestone" ->
+                RecordMilestone(
+                    id = s("id"),
+                    type = enumOf<MilestoneType>(s("type"), "type"),
+                    participantIds =
+                        o.strList("participantIds").takeIf { it.isNotEmpty() }
+                            ?: throw Bad("record_milestone: campo 'participantIds' deve ser uma lista de ids não vazia"),
+                    what = s("what"),
+                    placeId = opt("placeId"),
+                    consequence = o.str("consequence")?.trim().orEmpty(),
+                    certainty = opt("certainty")?.let { enumOf<Certainty>(it, "certainty") } ?: Certainty.CONFIRMED,
+                    scope = opt("scope")?.let { enumOf<MilestoneScope>(it, "scope") } ?: MilestoneScope.PERSON,
+                )
+            "learn_milestone" ->
+                LearnMilestone(s("milestoneId"), s("personId"), opt("certainty")?.let { enumOf<Certainty>(it, "certainty") } ?: Certainty.RUMOR)
+            "revise_milestone" -> ReviseMilestone(s("milestoneId"), enumOf<Certainty>(s("certainty"), "certainty"))
             "learn" -> LearnKnowledge(s("key"), s("text"), s("source"), o.bool("believed") ?: false)
             "make_promise" -> MakePromise(s("id"), s("npcId"), s("text"))
             "keep_promise" -> KeepPromise(s("id"))

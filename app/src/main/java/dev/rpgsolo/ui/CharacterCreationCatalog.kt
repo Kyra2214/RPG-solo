@@ -37,8 +37,20 @@ data class CharacterChoices(
     val elementalAffinity: String = "",
     val cursedClassBranchId: String = "",
     val additionalClassIds: List<String> = emptyList(),
-    /** MI-26: faixa de idade ([FaixaIdade.id]); vazio = adulto. */
-    val ageBand: String = "",
+    /** MI-26: idade do herói em anos, informada pelo jogador na criação; 0 = não informada (ficha antiga: adulto). */
+    val age: Int = 0,
+    /** Sexo do herói escolhido na criação: "masculino" ou "feminino"; vazio = não informado (ficha antiga). */
+    val sex: String = "",
+    /** Criação por abas: origem narrativa ("native", "foreigner" ou "mixed"); vazio = não informada. Não tem efeito mecânico. */
+    val originKind: String = "",
+    /** Id do reino da origem (por exemplo `kingdom.aeltharyn`); vazio = não informado. */
+    val originKingdomId: String = "",
+    /** Cidade de nascimento (nativo e mestiço) ou de residência (forasteiro); vazio = não informada. */
+    val originCity: String = "",
+    /** Criação por abas: evoluções das habilidades gratuitas feitas com os pontos iniciais (id da habilidade -> evoluções). */
+    val initialSkillUpgrades: Map<String, Int> = emptyMap(),
+    /** Mestiço livre (CG-4.12): exatamente duas raças distintas; exclui raça, sub-raça e híbrido nomeado. Vazio = não é mestiço livre. */
+    val mixedRaceIds: List<String> = emptyList(),
 ) {
     fun toJson(): String =
         JSONObject()
@@ -51,7 +63,13 @@ data class CharacterChoices(
             .put("cursedClassBranchId", cursedClassBranchId)
             .put("additionalClassIds", org.json.JSONArray(additionalClassIds))
             .put("curseIds", org.json.JSONArray(curseIds))
-            .put("ageBand", ageBand)
+            .put("age", age)
+            .put("sex", sex)
+            .put("originKind", originKind)
+            .put("originKingdomId", originKingdomId)
+            .put("originCity", originCity)
+            .put("initialSkillUpgrades", JSONObject(initialSkillUpgrades.filterValues { it > 0 }))
+            .put("mixedRaceIds", org.json.JSONArray(mixedRaceIds))
             .toString()
 
     companion object {
@@ -72,7 +90,19 @@ data class CharacterChoices(
                         (0 until (obj.optJSONArray("additionalClassIds")?.length() ?: 0)).mapNotNull {
                             obj.optJSONArray("additionalClassIds")?.optString(it)?.takeIf(String::isNotBlank)
                         },
-                    ageBand = obj.optString("ageBand"),
+                    age = obj.optInt("age", 0),
+                    sex = obj.optString("sex"),
+                    originKind = obj.optString("originKind"),
+                    originKingdomId = obj.optString("originKingdomId"),
+                    originCity = obj.optString("originCity"),
+                    mixedRaceIds =
+                        (0 until (obj.optJSONArray("mixedRaceIds")?.length() ?: 0)).mapNotNull {
+                            obj.optJSONArray("mixedRaceIds")?.optString(it)?.takeIf(String::isNotBlank)
+                        },
+                    initialSkillUpgrades =
+                        obj.optJSONObject("initialSkillUpgrades")?.let { up ->
+                            up.keys().asSequence().associateWith { up.optInt(it, 0) }.filterValues { it > 0 }
+                        }.orEmpty(),
                     // Migração: conceitos antigos da Classe de Malditos não são maldições lançadas.
                     curseIds = emptyList(),
                 )
@@ -238,18 +268,41 @@ object CharacterCreationCatalog {
                 choices.classId,
                 choices.professionId,
             ) + choices.additionalClassIds
-        return selectedIds
-            .filter { it.isNotBlank() }
-            .distinct()
-            .mapNotNull(::find)
-            .flatMap { entry ->
-                entry.mechanicalEffects.map { effect ->
-                    effect.copy(
-                        source = entry.id + "/" + effect.source,
-                        effectId = effect.effectId,
-                    )
+        val regular =
+            selectedIds
+                .filter { it.isNotBlank() }
+                .distinct()
+                .mapNotNull(::find)
+                .flatMap { entry ->
+                    entry.mechanicalEffects.map { effect ->
+                        effect.copy(
+                            source = entry.id + "/" + effect.source,
+                            effectId = effect.effectId,
+                        )
+                    }
                 }
+        return regular + mixedRaceEffects(choices.mixedRaceIds)
+    }
+
+    /** Teto dos bônus positivos somados das duas raças do mestiço livre, por escopo (decisão de 14/11/2026). */
+    const val MIXED_SCOPE_CAP = 3
+
+    /** Soma os bônus das duas raças por escopo; o total positivo de cada escopo é limitado a [MIXED_SCOPE_CAP]. Penalidades passam inteiras. */
+    fun mixedRaceEffects(raceIds: List<String>): List<CharacterCatalogEffect> {
+        val effects =
+            raceIds.distinct().mapNotNull(::find).flatMap { entry ->
+                entry.mechanicalEffects.map { it.copy(source = entry.id + "/" + it.source) }
             }
+        return effects.groupBy { it.scope }.flatMap { (scope, group) ->
+            val positive = group.filter { it.bonus > 0 }
+            val rest = group.filter { it.bonus <= 0 }
+            val total = positive.sumOf { it.bonus }
+            if (total <= MIXED_SCOPE_CAP) {
+                group
+            } else {
+                rest + CharacterCatalogEffect(scope, MIXED_SCOPE_CAP, "mestico/teto", "mestico:$scope")
+            }
+        }
     }
 
     /**
@@ -327,6 +380,15 @@ object CharacterCreationCatalog {
             errors += "A sub-raça não pertence à raça selecionada"
         }
         if (choices.hybridId.isNotBlank() && hybrids.none { it.id == choices.hybridId }) errors += "Híbrido selecionado não existe no catálogo"
+        if (choices.mixedRaceIds.isNotEmpty()) {
+            if (choices.mixedRaceIds.size != 2 || choices.mixedRaceIds.distinct().size != 2) {
+                errors += "O mestiço livre exige duas raças distintas"
+            }
+            if (choices.mixedRaceIds.any { id -> races.none { it.id == id } }) errors += "Raça do mestiço não existe no catálogo"
+            if (choices.raceId.isNotBlank() || choices.subraceId.isNotBlank() || choices.hybridId.isNotBlank()) {
+                errors += "Escolha mestiço livre ou raça/sub-raça/híbrido, não ambos"
+            }
+        }
         if (choices.hybridId.isNotBlank() && (choices.raceId.isNotBlank() || choices.subraceId.isNotBlank())) errors += "Escolha raça/sub-raça ou híbrido, não ambos"
         if (choices.classId.isNotBlank() && classes.none { it.id == choices.classId }) errors += "Classe selecionada não existe no catálogo"
         if (choices.professionId.isNotBlank() &&
@@ -397,7 +459,7 @@ object CharacterCreationCatalog {
         pkg: RulePackage,
         choices: CharacterChoices,
     ): List<String> {
-        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds + choices.mixedRaceIds
         // O resolvedor de testes só consome escopos de atributo, teste, perícia e combate.
         // Um ID de vantagem/poder não é, por si só, um escopo executável.
         val validScopes =

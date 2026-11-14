@@ -30,6 +30,7 @@ class BasicJourneyE2eTest {
 
         composeRule.onNodeWithText("Heróis").performClick()
         composeRule.onNodeWithText("Personagens").assertIsDisplayed()
+        composeRule.onNodeWithText("Modo avançado").performClick()
         composeRule.onNodeWithText("Ponto de partida").assertIsDisplayed()
         composeRule.onNodeWithText("Nome").performTextInput("Herói E2E")
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()
@@ -37,7 +38,7 @@ class BasicJourneyE2eTest {
         composeRule.onNodeWithText("Ficha de Herói E2E criada e salva.").assertIsDisplayed()
 
         composeRule.openTab("Campanhas")
-        composeRule.onNodeWithText("Campanhas salvas").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Crônicas salvas").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Gerar texto").performScrollTo().performClick()
         // O backup é gerado em IO: o botão "Restaurar texto" só habilita quando o campo recebe o JSON.
         composeRule.waitUntil(timeoutMillis = 10_000) {

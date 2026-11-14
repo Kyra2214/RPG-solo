@@ -36,14 +36,50 @@ class GameEngine private constructor(
             when (val d = decide(tmp, config, c)) {
                 is Decision.No -> return ExecResult.Rejected(d.reason, i)
                 is Decision.Ok -> {
-                    d.events.forEach { tmp = tmp.apply(it) }
-                    produced += d.events
+                    val events = if (c is Damage) withFlee(tmp, d.events) else d.events
+                    events.forEach { tmp = tmp.apply(it) }
+                    produced += events
                 }
             }
         }
         log += produced
         state = tmp
         return ExecResult.Accepted(produced)
+    }
+
+    /**
+     * RV-01: se o dano zerou o recurso de morte de um NPC elegível, o motor rola 1d6 (gravado no log): resultado
+     * >= [EngineConfig.fleeThreshold] = fuga (vivo com 1, sai do combate, deixa cair 1 item do próprio inventário
+     * para o jogador); senão a morte segue como antes. A IA não decide a fuga nem cria o item.
+     */
+    private fun withFlee(
+        before: GameState,
+        events: List<Event>,
+    ): List<Event> {
+        val died = events.filterIsInstance<EntityDied>().firstOrNull { it.cause == null && before.defeatEligible(it.entityId) }
+        if (died == null || config.fleeThreshold !in 1..6) return events
+        val roll = dice.roll(1, 6)
+        val result = mutableListOf<Event>(RollRecorded("fuga:${died.entityId}", roll.expression, roll.dice, roll.modifier, roll.total))
+        if (roll.total < config.fleeThreshold) return result + events
+        val rest = events.filter { it !== died }
+        val owner = before.spoilsOwner()
+        val items = before.inventory[died.entityId].orEmpty().filterValues { it > 0 }.keys.sorted()
+        var dropped: String? = null
+        val extra = mutableListOf<Event>()
+        if (owner != null && items.isNotEmpty()) {
+            val pick = if (items.size == 1) 0 else dice.roll(1, items.size).also {
+                result += RollRecorded("fuga-item:${died.entityId}", it.expression, it.dice, it.modifier, it.total)
+            }.total - 1
+            dropped = items[pick]
+            extra += ItemChanged(died.entityId, dropped, -1)
+            extra += ItemChanged(owner, dropped, 1)
+        }
+        val defeated =
+            NpcDefeated(died.entityId, DefeatOutcome.FLED, died.killerId ?: owner, DefeatAttitude.RESENTMENT, dropped, config.deathResource)
+        result += rest
+        result += defeated
+        result += extra
+        return result
     }
 
     /** Rola o teste, registra no log e devolve o resultado definitivo. */

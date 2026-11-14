@@ -47,7 +47,7 @@ Legenda: **O** obrigatório, **F** formato, **→** referência.
 `id` · `reino` · `nome` · `lideranca` → npc · `objetivo` · `recursos` · `metodos` · `tensao` · `aliados` → faction (lista) · `rivais` → faction (lista) · `presenca_cidades` → lista · `presenca_assentamentos` → lista · `fonte`. Aliado e rival ao mesmo tempo é erro (M6.2).
 
 ### 3.6 `rota.txt`
-`id` · `reino` · `de` → city/settlement · `para` → city/settlement · `meio` (`estrada`, `rio`, `mar`, `trilha`, `misto`) · `duracao_min` · `duracao_max` (número ou `?`) · `unidade` (`dia`) · `estado` (`documentada`, `com_ressalva`, `desconhecida`) · `condicao` (o que altera o tempo) · `fonte`. Duração `?` fica `?`: nunca se preenche para fechar o grafo. Rota entre reinos fica em arquivo de nível mundo (M-07), com o mesmo formato.
+`id` · `reino` · `de` → city/settlement · `para` → city/settlement · `meio` (`estrada`, `rio`, `mar`, `trilha`, `misto`, `aereo` — mensageiros que voam; só rota sem percurso terrestre) · `duracao_min` · `duracao_max` (número ou `?`) · `unidade` (`dia`) · `estado` (`documentada`, `com_ressalva`, `desconhecida`) · `condicao` (o que altera o tempo) · `fonte`. Duração `?` fica `?`: nunca se preenche para fechar o grafo. Rota entre reinos fica em arquivo de nível mundo (M-07), com o mesmo formato.
 
 ### 3.7 `relogio.txt`
 `id` · `reino` · `nome` · `segmentos` (número) · `progresso` (número ≤ segmentos) · `move` · `trava` · `paga` · `completa` · `inacao` · `entidades` → lista · `fonte`. Todos **O**. O contador é estado do mundo: camada `secreto`.

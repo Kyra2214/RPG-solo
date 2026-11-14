@@ -204,7 +204,7 @@ Se não puder ser confirmado, a IA reduz a precisão, mantém a incerteza ou ped
 - revelar fato restrito ou secreto sem o caminho de descoberta cumprido, ou mudar a camada de um fato;
 - avançar relógio sem gatilho observável (`12-relogios.csv`) ou por calendário; usar a agenda sazonal como prazo (doc 01 parte 5);
 - decidir o Conflito G, explicar a Neblina Longa, o Mistério D ou o Mistério E; criar rota, tempo, passagem ou distância entre o Vale e Aeltharyn, as Coroas ou o Véu (inclusive Ermo de Sal ↔ Vale); fazer o Vale ir além do pé das elevações (L-09);
-- fazer centauros, orcanos ou felídeos de Aeltharyn, ou `npc.oranna-passo-largo` e os demais de A4 e A5, agirem a mando do Vale, ou vice-versa; dar parentesco entre as linhagens do Vale e as de Aeltharyn (P-3);
+- fazer centauros, orcs ou felídeos de Aeltharyn, ou `npc.oranna-passo-largo` e os demais de A4 e A5, agirem a mando do Vale, ou vice-versa; dar parentesco entre as linhagens do Vale e as de Aeltharyn (P-3);
 - dar causa, número ou fim à Descida do Argente; dizer de onde vem o combustível ou o alimento de Brasalume; dar ao Véu causa vinda do Vale; criar fluxo de refugiados entre o Vale e outro reino;
 - dar ano de Aeltharyn a evento do Vale ou sincronizar as eras locais com as de outro reino;
 - usar nome do registro mestre dos reinos 1 a 3 (inclusive "Calar" e o prefixo "Passo-");

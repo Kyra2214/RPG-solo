@@ -6,6 +6,7 @@ import dev.rpgsolo.engine.Comparison
 import dev.rpgsolo.engine.DeathMode
 import dev.rpgsolo.engine.ElementChart
 import dev.rpgsolo.engine.ElementPath
+import dev.rpgsolo.engine.DEFAULT_FLEE_THRESHOLD
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Ficha
 import dev.rpgsolo.engine.REAL_DICE
@@ -22,6 +23,11 @@ data class CharacterReport(
     val advantages: Int = 0,
     val disadvantages: Int = 0,
     val disadvantagesRequired: Int = 0,
+    /** Pontos de status (atributos) gastos e o limite. Em pacotes sem pools separados, o limite é o orçamento geral. */
+    val statPointsSpent: Int = 0,
+    val statPointsAvailable: Int = 0,
+    /** true quando o pacote declara pontos_iniciais_status: os 10 pontos de status são só dos atributos (habilidades da árvore têm pontos próprios, concedidos à parte). */
+    val separatePools: Boolean = false,
 ) {
     val valid: Boolean get() = errors.isEmpty()
 }
@@ -78,6 +84,12 @@ class RulePackage internal constructor(val data: PackageData) {
 
     val creationPoints: Int get() = data.creation["pontos"]?.toIntOrNull() ?: 0
     val statCost: Int get() = data.creation["custo_atributo"]?.toIntOrNull() ?: 1
+
+    /** Pool só dos atributos (`pontos_iniciais_status`). null = o pacote usa um orçamento único (`pontos`). */
+    val statPool: Int? get() = data.creation["pontos_iniciais_status"]?.toIntOrNull()?.takeIf { it in 0..1000 }
+
+    /** Pools separados valem quando o pacote declara o pool de status. */
+    val separatePools: Boolean get() = statPool != null
 
     /**
      * Tabela de equilíbrio (`equilibrio|1,3,5`): com N vantagens (N = 1, 2, 3...) a ficha precisa de pelo menos
@@ -542,6 +554,7 @@ class RulePackage internal constructor(val data: PackageData) {
             levelThresholds = data.progression ?: emptyList(),
             levelCostFactor = data.creation["custo_nivel_fator"]?.toIntOrNull()?.takeIf { it in 0..100000 } ?: 0,
             victoryXpPercent = data.creation["combate_xp_vitoria_percentual"]?.toIntOrNull()?.takeIf { it in 0..1000 } ?: 0,
+            fleeThreshold = data.creation["combate_fuga_limiar"]?.toIntOrNull()?.takeIf { it in 1..7 } ?: DEFAULT_FLEE_THRESHOLD,
             defendBonus = data.creation["combate_bonus_defender"]?.toIntOrNull() ?: 0,
             advancementPointsPerLevel = data.creation["pontos_por_nivel"]?.toIntOrNull() ?: 0,
             masteryLevels =
@@ -550,6 +563,7 @@ class RulePackage internal constructor(val data: PackageData) {
             spellSlotLevels =
                 data.creation["niveis_slot_magia"]?.trim()
                     ?.takeIf { it.isNotEmpty() && it != "-" }?.split(",")?.map { it.trim().toInt() } ?: emptyList(),
+            skillTrialEvery = data.creation["nivel_missao_pericia"]?.toIntOrNull()?.takeIf { it in 0..100 } ?: 0,
             initialStatPoints = data.creation["pontos_iniciais_status"]?.toIntOrNull()?.takeIf { it in 0..1000 } ?: 10,
             initialAbilityPoints = data.creation["pontos_iniciais_habilidade"]?.toIntOrNull()?.takeIf { it in 0..1000 } ?: 2,
             statPointsPerLevel = data.creation["pontos_status_por_nivel"]?.toIntOrNull() ?: 0,
@@ -596,10 +610,12 @@ class RulePackage internal constructor(val data: PackageData) {
         stats.keys.filter { it !in statById }.forEach { errors += "atributo desconhecido: $it" }
         val full = data.stats.associate { it.id to (stats[it.id] ?: it.default) }
         var spent = 0
+        var statSpent = 0
         for (def in data.stats) {
             val v = full.getValue(def.id)
             if (v !in def.min..def.max) errors += "${def.name} fora do limite ${def.min}..${def.max}: $v"
             spent += (v - def.min) * statCost
+            statSpent += (v - def.min) * statCost
             if (isUncertain(def.id) && stats.containsKey(def.id)) warnings += "regra incerta em ${def.name}: ${uncertainById.getValue(def.id).note}"
         }
         traits.groupBy { it }.filter { it.value.size > 1 }.keys.forEach { errors += "traço repetido: $it" }
@@ -659,12 +675,29 @@ class RulePackage internal constructor(val data: PackageData) {
         data.creation["limite_desvantagens"]?.toIntOrNull()?.let { lim ->
             if (negativos > lim) errors += "desvantagens somam $negativos pontos; o limite é $lim"
         }
-        if (spent > creationPoints) errors += "pontos gastos ($spent) passam do limite ($creationPoints)"
+        val statLimit = statPool
+        if (statLimit != null) {
+            // Pontos de status: só atributos, travados no limite. Perícias sobem por quest/nível e as habilidades da árvore têm pontos próprios.
+            if (statSpent > statLimit) errors += "pontos gastos de status ($statSpent) passam do limite ($statLimit)"
+        } else if (spent > creationPoints) {
+            errors += "pontos gastos ($spent) passam do limite ($creationPoints)"
+        }
         for (r in data.resources) {
             val v = r.stat?.let { full[it] ?: 0 } ?: 0
             if (r.base + r.mult * v < 0) errors += "recurso ${r.name} ficaria negativo"
         }
-        return CharacterReport(errors, warnings, spent, creationPoints, advCount, disCount, disNeeded)
+        return CharacterReport(
+            errors,
+            warnings,
+            spent,
+            creationPoints,
+            advCount,
+            disCount,
+            disNeeded,
+            statPointsSpent = statSpent,
+            statPointsAvailable = statLimit ?: creationPoints,
+            separatePools = statLimit != null,
+        )
     }
 
     /** Cria a ficha pelas regras da edição: valida, deriva recursos e marca o sistema/edição. */

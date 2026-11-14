@@ -194,7 +194,7 @@ NAT=['elfo','satiro','feerico','plantae','fungal','centauro','tabaxi','orcano','
 cmap={}
 for c in cities:
     for p in c['povos'].split(';'): cmap.setdefault(p,[]).append(c['id'])
-rows=[dict(povo=p,reino=K,relacao='originário',cidades=';'.join(cmap.get(p,[])) or '?',nota=['Elfos','Silvanos Festivos (sátiros)','Feéricos','Verdejantes','Micélioides','Centauros das Florestas','Felídeos das Selvas','Orcanos das Matas','Corvários','Pequeninos','Gnomos dos Vales'][NAT.index(p)],fonte='doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3') for p in NAT]
+rows=[dict(povo=p,reino=K,relacao='originário',cidades=';'.join(cmap.get(p,[])) or '?',nota=['Elfos','Silvanos Festivos (sátiros)','Feéricos','Verdejantes','Micélioides','Centauros das Florestas','Felídeos das Selvas','Orcs das Matas','Corvários','Pequeninos','Gnomos dos Vales'][NAT.index(p)],fonte='doc 10 §2; M-05 §3 (D-24); cidades por menção em doc 01 §5 e doc 10 §3') for p in NAT]
 rows.append(dict(povo='tritao',reino=K,relacao='aliado',cidades=';'.join(cmap.get('tritao',[])) or '?',nota='Abissal Costeiro (aliado costeiro, não nativo)',fonte='doc 10; M-05 §3 (D-24)'))
 for p,n in [('humano','Humano'),('anao','Anão'),('goblin','Goblin'),('homem-rato','Ratoide')]:
     rows.append(dict(povo=p,reino=K,relacao='migrante',cidades=';'.join(cmap.get(p,[])) or '?',nota=n+' (residente ou viajante; não nativo)',fonte='doc 01 §2.4; doc 10 §1; M-05 M5-04 (proposto, F*)'))

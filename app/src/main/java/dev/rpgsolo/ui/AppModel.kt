@@ -138,6 +138,14 @@ data class AdvancementChoice(val id: String, val name: String, val current: Int,
 
 data class AdvancementState(val pointsAvailable: Int, val choices: List<AdvancementChoice>)
 
+data class SkillTrialRow(val id: String, val name: String, val value: Int, val max: Int, val description: String = "")
+
+data class SkillTrialState(
+    val every: Int,
+    val pendingLevels: List<Int>,
+    val skills: List<SkillTrialRow>,
+)
+
 data class StatPointsState(val statPoints: Int, val abilityPoints: Int, val choices: List<AdvancementChoice>)
 
 data class InitialBuildState(
@@ -147,6 +155,8 @@ data class InitialBuildState(
     val statPoints: Int = 10,
     /** Pontos de habilidade concedidos de uma vez (N-02: 2). */
     val abilityPoints: Int = 2,
+    /** Árvore de habilidades: os pontos iniciais já foram concedidos (independente do status). */
+    val abilityGranted: Boolean = false,
 )
 
 data class SetupStatus(val providerReady: Boolean, val heroReady: Boolean, val campaignReady: Boolean) {
@@ -273,7 +283,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 editorialChoices
             } else {
                 editorialChoices.copy(
-                    raceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.races.any { it.id == id } }.orEmpty(),
+                    raceId =
+                        if (editorialChoices.mixedRaceIds.isNotEmpty()) {
+                            ""
+                        } else {
+                            loadoutIds.firstOrNull { id -> CharacterCreationCatalog.races.any { it.id == id } }.orEmpty()
+                        },
                     subraceId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.subraces.any { it.id == id } }.orEmpty(),
                     classId = classOrder.firstOrNull().orEmpty(),
                     professionId = loadoutIds.firstOrNull { id -> CharacterCreationCatalog.professions.any { it.id == id } }.orEmpty(),
@@ -287,7 +302,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     elementalAffinity = storedLoadout?.skillTreeElement.orEmpty(),
                 )
             }
-        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds
+        val selectedIds = listOf(choices.raceId, choices.subraceId, choices.hybridId, choices.cursedClassBranchId, choices.classId, choices.professionId) + choices.additionalClassIds + choices.mixedRaceIds
         val selected = selectedIds.filter { it.isNotBlank() }.distinct().mapNotNull(CharacterCreationCatalog::find)
         val ancestryIds = selected.filter { it.id == choices.hybridId }.flatMap { it.hybridRaceIds }
         val ancestry = ancestryIds.mapNotNull(CharacterCreationCatalog::find)
@@ -344,6 +359,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 "Habilidades de árvore desbloqueadas: ",
             ).append(unlockedSkills.ifEmpty { listOf("nenhuma") }.joinToString("; ")).append(".\n")
             append("Maldições atualmente aplicadas: ").append(activeCurses.ifEmpty { listOf("nenhuma") }.joinToString("; ")).append(".\n")
+            choices.origemNarrativa().takeIf { it.isNotBlank() }?.let {
+                append("Origem narrativa do herói: ").append(it).append(" (contexto, sem efeito mecânico).\n")
+            }
             entries.forEach { entry ->
                 append("- ").append(entry.name)
                 if (entry.id == choices.hybridId && ancestry.isNotEmpty()) {
@@ -390,6 +408,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var fontScale by mutableStateOf(narrationPrefs.getFloat("font_scale", 1.0f).coerceIn(0.85f, 1.4f))
         private set
 
+    /** CG-6.3: tema do app: "sistema" (padrão), "claro" ou "escuro". */
+    var themeMode by mutableStateOf(narrationPrefs.getString("theme_mode", "sistema").orEmpty().let { if (it in TEMAS) it else "sistema" })
+        private set
+
+    fun setThemeMode(value: String) {
+        if (value !in TEMAS) return
+        themeMode = value
+        narrationPrefs.edit().putString("theme_mode", value).apply()
+    }
+
     @JvmName("persistFontScale")
     fun setFontScale(value: Float) {
         if (!value.isFinite()) return
@@ -430,6 +458,14 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         narrationStyle = style
         narrationPrefs.edit().putString("length", length).putString("style", style).apply()
         campaignVersion++
+    }
+
+    /** Rascunho da criação por abas (CG-4.8); chamar fora da thread principal. Falha de leitura vira "sem rascunho". */
+    fun creationDraft(): String? = runCatching { store.creationDraft() }.getOrNull()
+
+    /** Grava (ou, com nulo, apaga) o rascunho da criação por abas; falha não interrompe a criação. */
+    fun saveCreationDraft(json: String?) {
+        runCatching { if (json == null) store.clearCreationDraft() else store.saveCreationDraft(json) }
     }
 
     /** ID de rascunho sem acesso ao banco (seguro na composição): UUID aleatório conferido só contra a memória. */
@@ -517,6 +553,35 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** null enquanto não houver provedor configurado. */
     var controller: PlayController? by mutableStateOf(null)
         private set
+
+    private val conquistasPrefs = application.getSharedPreferences("rpg_conquistas", 0)
+    private val conquistas =
+        ConquistasLocais(
+            { conquistasPrefs.getStringSet("ids", emptySet()).orEmpty().toSet() },
+            { conquistasPrefs.edit().putStringSet("ids", it).apply() },
+        )
+
+    /** Conquistas desbloqueadas (observável: muda a cada [registrarConquista] nova). */
+    var conquistasVersao by mutableIntStateOf(0)
+        private set
+
+    fun conquistasDesbloqueadas(): Set<Conquista> = conquistas.desbloqueadas()
+
+    fun registrarConquista(c: Conquista) {
+        if (conquistas.registrar(c)) conquistasVersao++
+    }
+
+    /** CG-6.2: modo de jogo por campanha (padrão: História guiada). */
+    private val gameModePrefs = application.getSharedPreferences("rpg_game_mode", 0)
+
+    fun gameMode(campaignId: String = session.campaignId): ModoJogo = ModoJogo.deId(gameModePrefs.getString("mode_$campaignId", null))
+
+    fun setGameMode(
+        mode: ModoJogo,
+        campaignId: String = session.campaignId,
+    ) {
+        if (campaignId.isNotBlank()) gameModePrefs.edit().putString("mode_$campaignId", mode.id).apply()
+    }
 
     /** Q-09: consentimento por campanha para enviar trechos de fontes ao provedor de IA. */
     private val sourcePrivacyPrefs = application.getSharedPreferences("rpg_source_privacy", 0)
@@ -644,6 +709,45 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             activeCampaignPrefs.edit().putString("active_campaign", record.id).apply()
         }
     }
+
+    /**
+     * MP-08: a IA propõe o mundo próprio a partir da descrição; o motor valida antes de qualquer gravação
+     * ([dev.rpgsolo.ai.CustomWorldProposer]). Chamada de rede: chame fora da thread principal.
+     */
+    fun proposeCustomWorld(description: String): dev.rpgsolo.ai.CustomWorldProposal {
+        val provider = roles?.narrator ?: return dev.rpgsolo.ai.CustomWorldProposal.Failed("configure o provedor de IA na aba Config")
+        return dev.rpgsolo.ai.CustomWorldProposer(provider).propose(description)
+    }
+
+    /** MP-08: instala o mundo próprio validado na campanha recém-criada (sem mapa). Devolve `null` se aceitou ou o motivo da recusa. */
+    fun installCustomWorld(draft: dev.rpgsolo.rules.CustomWorldDraft): String? =
+        when (val result = dev.rpgsolo.rules.CustomWorld.install(session, draft, session.campaignId)) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                campaignVersion++
+                null
+            }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+
+    /**
+     * MP-07: campanhas cujo mundo pode ser continuado. O instantâneo sai do replay do log (sem tabela nova); campanhas
+     * sem mapa ficam de fora. Chame fora da thread principal.
+     */
+    fun previousWorlds(): List<dev.rpgsolo.rules.PreviousWorld> =
+        store.campaigns().mapNotNull { rec ->
+            runCatching {
+                val state = CampaignSession.open(store, rec.id).state
+                if (state.places.isEmpty()) {
+                    null
+                } else {
+                    dev.rpgsolo.rules.PreviousWorld(
+                        campaignId = rec.id,
+                        campaignName = rec.name,
+                        chronicle = dev.rpgsolo.engine.WorldChronicle.from(state),
+                    )
+                }
+            }.getOrNull()
+        }
 
     private fun refreshCampaigns() {
         campaigns.clear()
@@ -1580,7 +1684,19 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             playerId = { playerId },
             setPlayer = { playerId = it },
             onChanged = { campaignVersion++ },
+            restartAge = { anos, classe -> restartHeroAge(anos, classe) },
         )
+
+    /** Vida nova (renascer ou assumir NPC): a idade recomeça e a morte anterior deixa de valer na simulação. */
+    private fun restartHeroAge(
+        anos: Int,
+        classe: String?,
+    ): String? {
+        val c = classe ?: session.state.facts[IdadeHeroi.LONGEVIDADE] ?: return null
+        val diaMundo = session.state.facts[AplicacaoSimulacao.CHAVE_DIA]?.toIntOrNull() ?: activeWorld()?.proximoDia ?: 0
+        val r = session.executeAll(IdadeHeroi.recomecar(anos, diaMundo, c))
+        return (r as? dev.rpgsolo.engine.ExecResult.Rejected)?.reason
+    }
 
     /** M-04: opções quando o herói morre (null com o herói vivo). */
     fun legacyView(): LegacyView? = legacy.view()
@@ -1766,6 +1882,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
     /** Fuga usa um teste real do pacote; sucesso encerra o combate, falha cede a próxima ação ao adversário. */
     fun fleeCombat(): String? = combatActions.fleeCombat()
+
+    /** RV-06: NPCs relevantes que podem ser poupados agora (turno do jogador, vida no limite). */
+    fun spareOptions(): List<CombatActions.SpareOption> = combatActions.spareOptions()
+
+    /** RV-06: poupar o NPC; o motor grava o rival e o XP é metade da derrota. */
+    fun spare(npcId: String): String? = combatActions.spare(npcId)
+
+    /** RV-06: rivais registrados no mundo desta campanha (RV-02), por prioridade. */
+    fun rivals(): List<dev.rpgsolo.engine.Rival> = dev.rpgsolo.engine.Rivals.register(recurringCharacters())
+
+    /** LG-04: corpos com itens para recuperar. */
+    fun bodies(): List<CombatActions.BodyOption> = combatActions.bodies()
+
+    /** LG-04: em combate, teste de destreza e turno gasto; fora de combate, só pegar. */
+    fun recoverBody(bodyId: String): String? = combatActions.recoverBody(bodyId)
 
     fun exportBackup(): String =
         dev.rpgsolo.engine.Backup.export(
@@ -1966,12 +2097,63 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         saveError =
             try {
                 writeMetadata()
+                syncRecurring()
                 store.touch(session.campaignId)
                 session.saveError
             } catch (e: Exception) {
                 e.message ?: e::class.simpleName ?: "falha ao gravar"
             }
     }
+
+    /**
+     * MP-02: grava heróis mortos e NPCs com derrota viva como personagens recorrentes do mundo da campanha
+     * (anti-duplicação pela identidade). Falha aqui nunca impede salvar a campanha.
+     */
+    private fun syncRecurring() {
+        runCatching {
+            val state = session.state
+            if (state.legacies.isEmpty() && state.defeats.isEmpty()) return
+            val worldId = worldStore.vinculo(session.campaignId)?.mundoId ?: return
+            store.saveRecurring(worldId, dev.rpgsolo.engine.RecurringExtractor.from(state, worldId, session.campaignId))
+        }
+    }
+
+    /** MP-02: personagens recorrentes do mundo da campanha aberta, também de campanhas anteriores e outros protagonistas. */
+    /** RV-03: panteão unificado (heróis mortos e rivais) do mundo desta campanha; vazio sem mundo vinculado. */
+    fun pantheon(): List<dev.rpgsolo.engine.PantheonEntry> = dev.rpgsolo.engine.Pantheon.entries(recurringCharacters())
+
+    /** LG-06: cartões do memorial dos heróis mortos da campanha aberta. */
+    fun memorialCards(): List<dev.rpgsolo.engine.MemorialCard> = dev.rpgsolo.engine.Memorial.cards(session.state.legacies.values)
+
+    /**
+     * LG-05: planta na campanha recém-criada até 3 lendas (heróis mortos do panteão de qualquer mundo já jogado, exceto
+     * o próprio mundo novo se ele está vazio) como rumores de bardo e fatos `lenda.*`. Devolve `null` se aceitou (ou se
+     * não havia lenda) ou o motivo da recusa. ASSUMINDO: o panteão vem de todos os mundos das campanhas salvas, pois o
+     * mundo novo ainda não tem recorrentes.
+     */
+    fun seedLegends(): String? =
+        runCatching {
+            val worldIds = store.campaigns().mapNotNull { worldStore.vinculo(it.id)?.mundoId }.distinct()
+            val all = worldIds.flatMap { store.recurringCharacters(it) }.distinctBy { it.identityKey }
+            val chosen = dev.rpgsolo.engine.Legends.pick(dev.rpgsolo.engine.Pantheon.entries(all))
+            val commands = dev.rpgsolo.engine.Legends.seed(session.state, chosen)
+            if (commands.isEmpty()) return@runCatching null
+            when (val result = session.executeAll(commands)) {
+                is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                    campaignVersion++
+                    null
+                }
+                is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+            }
+        }.getOrElse { it.message ?: "lendas não trazidas" }
+
+    /** LG-05: lendas da campanha aberta para o contexto do mestre. */
+    private fun legendsContextForMaster(): String? = dev.rpgsolo.engine.Legends.masterContext(session.state)
+
+    fun recurringCharacters(): List<dev.rpgsolo.engine.RecurringCharacter> =
+        runCatching {
+            worldStore.vinculo(session.campaignId)?.mundoId?.let { store.recurringCharacters(it) }.orEmpty()
+        }.getOrDefault(emptyList())
 
     /** Tenta gravar de novo log e metadados pendentes. Devolve `null` se confirmou ou o motivo da falha. */
     fun retrySave(): String? {
@@ -2351,7 +2533,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 menu = activePackage?.let { CheckMenu(it, it.exceptionRegistry()) },
                 powerMenu = activePackage?.let { dev.rpgsolo.ai.PowerMenu(it, it.exceptionRegistry()) },
                 attackExecutor = { targetId -> combatActions.unifiedAttack(targetId) },
-                questExecutor = { q -> addQuest(q.title, q.objectives, q.xpReward, q.masterySkillId, q.spellRewardId) },
+                questExecutor = { q -> if (q.legacy) addLegacyQuest(q) else if (q.rival) addRivalQuest(q) else addQuest(q.title, q.objectives, q.xpReward, q.masterySkillId, q.spellRewardId) },
                 playerTraits = { activeFicha?.traits.orEmpty() },
                 additionalBonus = { scope -> approvedRuleBonus(scope) },
                 luckTestBonus = { id -> luckTestBonusOf(id) },
@@ -2403,7 +2585,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             resumeBriefing = { dev.rpgsolo.ai.ResumeBriefing.build(quests.all(), quests.timeline(), chapters.summaries()) },
             craftOpportunity = { activePackage?.recipes()?.isNotEmpty() == true },
             sourceContext = { text -> sourceContextForScene(text) },
-            mundoContext = { mundoContextForScene() },
+            mundoContext = { listOfNotNull(gameMode().instrucao, legacyContextForMaster(), bodyLootContextForMaster(), reencounterContextForMaster(), legendsContextForMaster(), fameContextForMaster(), wantedContextForMaster(), progressionContextForMaster(), mundoContextForScene()).joinToString("\n\n").ifBlank { null } },
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
             generationPreferences = {
@@ -2570,9 +2752,31 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         append("; seus textos não foram enviados; só podem ser revelados após teste autorizado")
                     }
                 }
+                // MP-01: só o que este NPC viveu ou descobriu (o motor decide; UNKNOWN não entra).
+                dev.rpgsolo.engine.MilestoneContext.forNpc(session.state, id)?.let { append("; ").append(it.replace('\n', ' ')) }
                 append(". Nunca exponha estes números nem nomes de mecânica ao jogador.")
             }
         }
+
+    /**
+     * CG-5.4: cria e salva a ficha de um herói pronto (Jogo rápido, sem a tela de criação) no pacote [pacoteId].
+     * Devolve a ficha ou `null` se o pacote não existir ou a ficha não for válida. Chamada bloqueante.
+     */
+    fun criarFichaDeHeroi(
+        heroi: HeroiPronto,
+        pacoteId: String,
+    ): Ficha? {
+        val pkg = content.registry.get(pacoteId) ?: return null
+        val draft = dev.rpgsolo.rules.CharacterDraft(pkg, newFichaId())
+        val est = EstadoCriacao()
+        CriacaoJogoRapido.preparar(heroi, 0, est, draft, pkg)
+        val b = draft.build() as? dev.rpgsolo.rules.FichaBuild.Created ?: return null
+        saveFicha(b.ficha)
+        saveCharacterChoices(b.ficha.id, est.escolhas())
+        registrarConquista(Conquista.PRIMEIRO_HEROI)
+        registrarConquista(Conquista.HEROI_PRONTO)
+        return b.ficha
+    }
 
     /** Fluxo "Nova campanha" (9.1). null até haver provedor de IA configurado. */
     fun newCampaignFlow(): NewCampaignFlow? {
@@ -2600,16 +2804,23 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * MI-26: ao iniciar a campanha com mundo, converte a faixa de idade da ficha em anos (percentual da `vida_max` da
-     * classe de longevidade do povo: sub-raça, senão raça) e fixa a idade no dia do mundo. Sem mundo, sem raça ou povo
+     * MI-26: ao iniciar a campanha com mundo, fixa a idade em anos informada na ficha no dia do mundo (limitada à
+     * `vida_max` da classe de longevidade do povo: sub-raça, senão raça) e registra o sexo. Sem mundo, sem raça ou povo
      * sem idade, não faz nada. Falha só vira aviso.
      */
     private fun applyHeroAgeFromFicha(choices: CharacterChoices) {
+        // O sexo informado na criação vira fato da campanha (não depende de mundo).
+        if (choices.sex.isNotBlank()) session.execute(dev.rpgsolo.engine.RecordFact("heroi.sexo", choices.sex))
         if (choices.raceId.isBlank() || activeWorld() == null) return
         runCatching {
             val din = MythralisRuntime.dinamica()
             val classe = din.classeDe(choices.raceId, choices.subraceId)
-            val anos = FaixaIdade.de(choices.ageBand).anos(din.classes[classe]?.max ?: 0)
+            val vidaMax = din.classes[classe]?.max ?: 0
+            if (vidaMax <= 0) return
+            // Idade informada pelo jogador; ficha antiga sem idade usa adulto. Acima da longevidade do povo, ajusta e avisa.
+            val anos =
+                if (choices.age > 0) choices.age.coerceAtMost(vidaMax - 1) else FaixaIdade.ADULTO.anos(vidaMax)
+            if (choices.age > anos) configError = "idade ajustada para $anos anos (longevidade do povo: $vidaMax)"
             if (anos > 0) setHeroAge(anos, classe)?.let { configError = "idade do herói não definida: $it" }
         }.onFailure { configError = "idade do herói não definida: ${it.message}" }
     }
@@ -2658,6 +2869,263 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             }
         if (erro == null && erroVida == null) campaignVersion++
         return erro ?: erroVida
+    }
+
+    /**
+     * Progressão contada na história: o Mestre costura os ganhos (perícia, status, habilidade) na narrativa, no momento
+     * oportuno, sem tratar como missão formal. Perícia só sobe por skill_trial, validado pelo motor.
+     */
+    /** LG-02: legados dos heróis mortos como fato fixo para o mestre (nada vem da IA). */
+    private fun legacyContextForMaster(): String? =
+        runCatching {
+            emitLegacyPins()
+            listOfNotNull(
+                dev.rpgsolo.engine.LegacyMemory.masterContext(session.state.legacies.values, chapters.chapters),
+                legacyQuestOffer()?.let { dev.rpgsolo.engine.LegacyQuests.masterInstruction(it) },
+            ).joinToString("\n\n").ifBlank { null }
+        }.getOrNull()
+
+    /**
+     * LG-02: grava pelo motor as notas fixadas dos NPCs vivos com vínculo ao herói morto ([dev.rpgsolo.engine.LegacyMemory.pendingPins]).
+     * Idempotente: depois de gravadas não há pendência. ASSUMINDO: chamada ao montar o contexto do mestre (a cada jogada); cada
+     * nota é executada isoladamente, então uma recusa não impede as demais; falha nunca interrompe a jogada.
+     */
+    private fun emitLegacyPins() {
+        val pins =
+            session.state.legacies.values.flatMap { dev.rpgsolo.engine.LegacyMemory.pendingPins(it, session.state) }
+        if (pins.isEmpty()) return
+        var gravou = false
+        pins.forEach { pin ->
+            if (session.execute(pin) is dev.rpgsolo.engine.ExecResult.Accepted) gravou = true
+        }
+        if (gravou) campaignVersion++
+    }
+
+    /**
+     * LG-04: o mestre só narra a recuperação de itens de corpos. Quem pega os itens é o motor (`TransferBodyItems`, com
+     * teste de destreza e turno gasto em combate); a IA não entrega os itens do corpo por `add_item` nem inventa o
+     * resultado do teste. Lista só os corpos com itens ainda não recolhidos.
+     */
+    private fun bodyLootContextForMaster(): String? =
+        runCatching {
+            val bodies = combatActions.bodies().filter { it.itemCount > 0 }
+            if (bodies.isEmpty()) return@runCatching null
+            val emCombate = session.state.combat != null
+            "ITENS EM CORPOS (estado do motor): " + bodies.joinToString("; ") { "${it.name} (${it.itemCount} item(ns))" } + ". " +
+                "Só o jogador recupera estes itens, pelo painel do app" +
+                (if (emCombate) " (em combate gasta o turno e exige teste de destreza; se falhar, o adversário acerta)" else " (fora de combate é só pegar)") +
+                ". Narre o que o motor decidir; não entregue estes itens com add_item e não decida o resultado do teste."
+        }.getOrNull()
+
+    /**
+     * MP-07: os rumores viajam pelas passagens com o passar dos dias. O dia da última propagação fica no fato
+     * `rumores.dia` (estado do motor, sem migração), gravado no mesmo lote de [dev.rpgsolo.engine.SpreadRumors].
+     * ASSUMINDO: sem o fato, conta a partir do rumor mais antigo; rumor iniciado depois da última propagação também
+     * envelhece pelos dias desde ela (aproximação aceita).
+     */
+    private fun advanceRumors() {
+        val state = session.state
+        if (state.rumors.isEmpty()) return
+        val last = state.facts[RUMOR_DAY_FACT]?.toIntOrNull() ?: state.rumors.values.minOf { it.startedOnDay }
+        val days = state.day - last
+        if (days < 1) return
+        val capped = days.coerceAtMost(dev.rpgsolo.engine.FAME_JUMP_DAYS_MAX)
+        val result =
+            session.executeAll(
+                listOf(dev.rpgsolo.engine.SpreadRumors(capped), dev.rpgsolo.engine.RecordFact(RUMOR_DAY_FACT, state.day.toString())),
+            )
+        if (result is dev.rpgsolo.engine.ExecResult.Accepted) campaignVersion++
+    }
+
+    /**
+     * MP-07: o que o lugar atual sabe do herói, decidido pelo motor ([dev.rpgsolo.engine.Fame.effects] e rumores com a força
+     * que chegou ali). A veracidade do rumor não vai ao mestre; os números não são citados ao jogador.
+     * ASSUMINDO: preço e relação inicial entram como orientação ao mestre (a loja do app não aplica o ajuste de preço).
+     */
+    private fun fameContextForMaster(): String? =
+        runCatching {
+            advanceRumors()
+            val place = session.state.currentPlaceId ?: return@runCatching null
+            val fx = dev.rpgsolo.engine.Fame.effects(session.state, place)
+            val rumors = dev.rpgsolo.engine.Fame.rumorsAt(session.state, place)
+            if (!fx.recognized && rumors.isEmpty() && fx.priceModPercent == 0 && fx.initialRelationBonus == 0) return@runCatching null
+            buildString {
+                append("FAMA NESTE LUGAR (decidida pelo motor): ")
+                append(if (fx.recognized) "o herói costuma ser reconhecido aqui. " else "ninguém o reconhece de imediato. ")
+                if (fx.initialRelationBonus > 0) append("Os moradores tendem a recebê-lo bem. ")
+                if (fx.initialRelationBonus < 0) append("Os moradores tendem a desconfiar dele. ")
+                if (fx.priceModPercent > 0) append("O comércio local cobra um pouco mais dele. ")
+                if (fx.priceModPercent < 0) append("O comércio local lhe faz um preço melhor. ")
+                if (rumors.isNotEmpty()) {
+                    append("Rumores que circulam aqui (podem estar exagerados ou errados; nunca os trate como fato): ")
+                    append(rumors.joinToString("; ") { it.text })
+                    append(". ")
+                }
+                append("Não invente fama além disto nem cite números.")
+            }
+        }.getOrNull()
+
+    /**
+     * MP-06: o motor sobe os degraus do procurado contra o herói quando o prazo passa ([dev.rpgsolo.engine.Wanted.dueEscalations]);
+     * a IA não escala. Chamada ao montar o contexto do mestre; idempotente. ASSUMINDO: grupo = o herói (nível dele).
+     */
+    private fun advanceWanted() {
+        val level = session.state.entities[playerId]?.level ?: 1
+        val due = dev.rpgsolo.engine.Wanted.dueEscalations(session.state, playerId, level)
+        var subiu = false
+        due.forEach { if (session.execute(it) is dev.rpgsolo.engine.ExecResult.Accepted) subiu = true }
+        if (subiu) campaignVersion++
+    }
+
+    /** MP-06: procurados contra o herói que ainda importam (ativos ou escondidos), para a tela de respostas. */
+    fun wantedList(): List<dev.rpgsolo.engine.WantedRecord> =
+        session.state.wanted.values
+            .filter { it.targetId == playerId && (dev.rpgsolo.engine.Wanted.isLive(it, session.state.day) || it.status == dev.rpgsolo.engine.WantedStatus.HIDDEN) }
+            .sortedBy { it.id }
+
+    /** MP-06: recompensa já com o decaimento do dia. */
+    fun wantedBounty(r: dev.rpgsolo.engine.WantedRecord): Int = dev.rpgsolo.engine.Wanted.effectiveBounty(r, session.state.day)
+
+    /**
+     * MP-06: resposta do jogador ao procurado. Pagar custa a recompensa atual e subornar a metade, em moedas do pacote,
+     * descontadas no mesmo lote da resposta (recusa do motor desfaz tudo). Devolve `null` se aceitou ou o motivo da recusa.
+     */
+    fun respondWanted(
+        id: String,
+        response: dev.rpgsolo.engine.WantedResponse,
+    ): String? {
+        val r = session.state.wanted[id] ?: return "procurado inexistente"
+        val bounty = dev.rpgsolo.engine.Wanted.effectiveBounty(r, session.state.day)
+        val amount =
+            when (response) {
+                dev.rpgsolo.engine.WantedResponse.PAY -> bounty
+                dev.rpgsolo.engine.WantedResponse.BRIBE -> bounty / 2
+                else -> 0
+            }
+        val commands = mutableListOf<dev.rpgsolo.engine.Command>()
+        if (amount > 0) {
+            val currency = activePackage?.currencyItemId ?: return "o pacote não define moeda"
+            val have = session.state.inventory[playerId]?.get(currency) ?: 0
+            if (have < amount) return "moedas insuficientes ($have de $amount)"
+            commands += dev.rpgsolo.engine.ConsumeItem(playerId, currency, amount)
+        }
+        commands += dev.rpgsolo.engine.RespondWanted(id, response, amount)
+        return when (val result = session.executeAll(commands)) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                campaignVersion++
+                null
+            }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+    }
+
+    /** MP-06: procurados ativos contra o herói, com agentes escalonados pelo nível atual do herói (nunca pelo do Boss). */
+    private fun wantedContextForMaster(): String? =
+        runCatching {
+            advanceWanted()
+            dev.rpgsolo.engine.Wanted.masterContext(session.state, playerId, session.state.entities[playerId]?.level ?: 1)
+        }.getOrNull()
+
+    /**
+     * MP-04: reencontro decidido pelo motor, no máximo um NPC recorrente por campanha (com a vida fora de cena do MP-03 aplicada, WD-10). ASSUMINDO: campanhas fora =
+     * campanhas do mundo menos as que já registraram o NPC; aparições = registros menos 1; marcos novos = `RecurringCharacter.newMilestones` (MP-04). O nível usa o nível do herói (a escala do pacote entra quando o pacote expuser a função).
+     */
+    private fun reencounterPlan(): dev.rpgsolo.engine.ReencounterPlan? =
+        runCatching {
+            val worldId = worldStore.vinculo(session.campaignId)?.mundoId ?: return@runCatching null
+            val total = worldStore.campanhasDoMundo(worldId)
+            val heroLevel = session.state.entities[playerId]?.level ?: 1
+            val recurring = store.recurringCharacters(worldId)
+            // WD-10: vida fora de cena (MP-03) calculada ao montar o contexto, de forma determinística (semente do motor),
+            // com os lugares do mundo desta campanha e os outros recorrentes como opções. Não é gravada: o mesmo avanço
+            // é recalculado igual a cada chamada, então nunca soma passos duas vezes.
+            val places = session.state.places.values.map { it.name }
+            val candidates =
+                recurring.map { c ->
+                    val away = (total - c.campaigns).coerceAtLeast(0)
+                    val peers = recurring.filter { it.identityKey != c.identityKey }.map { it.name }
+                    val advanced = dev.rpgsolo.engine.OffscreenRules.advance(c, away, session.engine.seed, places, peers)
+                    dev.rpgsolo.engine.ReencounterCandidate(advanced, campaignsAway = total - c.campaigns, appearances = (c.campaigns - 1).coerceAtLeast(0), newMilestones = c.newMilestones)
+                }
+            dev.rpgsolo.engine.Reencounter.plan(session.state, playerId, candidates, session.engine.seed) { dev.rpgsolo.engine.ReencounterLevel.forCharacter(it, heroLevel) }
+        }.getOrNull()
+
+    private fun reencounterContextForMaster(): String? =
+        runCatching {
+            val plan = reencounterPlan() ?: return@runCatching null
+            listOfNotNull(
+                dev.rpgsolo.engine.Reencounter.masterContext(plan),
+                dev.rpgsolo.engine.OffscreenRules.masterContext(plan.character),
+                dev.rpgsolo.engine.RelationAxes.contextOf(plan.character, playerId),
+                rivalQuestOffer(plan)?.let { dev.rpgsolo.engine.RivalQuests.masterInstruction(it) },
+            ).joinToString("\n")
+        }.getOrNull()
+
+    /** RV-05: oferta de quest de rival para o reencontro planejado (gatilho e papel do motor, RV-04). */
+    private fun rivalQuestOffer(plan: dev.rpgsolo.engine.ReencounterPlan? = reencounterPlan()): dev.rpgsolo.engine.RivalQuestOffer? =
+        runCatching { dev.rpgsolo.engine.RivalQuests.offer(plan, quests.all(), session.state.day) }.getOrNull()
+
+    /** RV-05: registra a quest de rival oferecida; recusa se não há oferta e limita o XP pelo teto do motor. */
+    private fun addRivalQuest(q: dev.rpgsolo.ai.QuestRequest): String? {
+        val offer = rivalQuestOffer() ?: return "não há quest de rival oferecida agora; não use \"rival\":true"
+        val player = session.state.entities[playerId]
+        val cap = dev.rpgsolo.engine.RivalQuests.xpCap(offer, session.engine.config.maxQuestXp(player?.level ?: 1))
+        return addQuest(
+            q.title,
+            q.objectives,
+            q.xpReward.coerceIn(0, cap),
+            q.masterySkillId,
+            q.spellRewardId,
+            idOverride = dev.rpgsolo.engine.RivalQuests.questId(offer),
+        )
+    }
+
+
+
+    /** LG-03: oferta de quest de legado para hoje (gatilho do motor; a IA só propõe o que foi oferecido). */
+    private fun legacyQuestOffer(): dev.rpgsolo.engine.LegacyQuestOffer? =
+        dev.rpgsolo.engine.LegacyQuests.evaluate(session.state, playerId, quests.all(), session.engine.seed)
+
+    /** LG-03: registra a quest de legado oferecida; recusa se não há oferta e limita o XP pelo teto do motor. */
+    private fun addLegacyQuest(q: dev.rpgsolo.ai.QuestRequest): String? {
+        val offer = legacyQuestOffer() ?: return "não há quest de legado oferecida agora; não use \"legacy\":true"
+        val player = session.state.entities[playerId]
+        val cap = dev.rpgsolo.engine.LegacyQuests.xpCap(offer, session.engine.config.maxQuestXp(player?.level ?: 1))
+        return addQuest(
+            q.title,
+            q.objectives,
+            q.xpReward.coerceIn(0, cap),
+            q.masterySkillId,
+            q.spellRewardId,
+            idOverride = dev.rpgsolo.engine.LegacyQuests.questId(offer.heroId, offer.step, offer.day),
+        )
+    }
+
+    private fun progressionContextForMaster(): String? {
+        val player = session.state.entities[playerId] ?: return null
+        val trial = skillTrialState()
+        val linhas = mutableListOf<String>()
+        val nivel = trial.pendingLevels.firstOrNull()
+        if (nivel != null) {
+            val dificuldade = nivel / trial.every
+            val opcoes =
+                trial.skills.filter { it.value < it.max }
+                    .joinToString("; ") { "${it.id} (${it.name}, nível ${it.value}/${it.max}: ${it.description.take(120)})" }
+            linhas +=
+                "Perícia pendente (nível $nivel, dificuldade $dificuldade): quando a cena der espaço, sem pressa e sem chamar de prova ou missão, " +
+                    "crie um acontecimento da própria história (armadilha, travessia, duelo, fuga...) que exija PELO MENOS 3 testes seguidos de UMA perícia que combine com a cena, " +
+                    "usando request_check com dificuldade proporcional a $dificuldade. Só conta se o jogador passar na maioria desses testes: nesse caso, ao final use a proposta " +
+                    "skill_trial(entityId=\"$playerId\", skillId, level=$nivel) e anuncie na narrativa que a perícia subiu de nível, descrevendo os novos bônus. " +
+                    "Se ele falhar, não use skill_trial: a oportunidade continua para mais tarde. Perícias possíveis: $opcoes."
+        }
+        val status = statPointsState().statPoints
+        val habilidade = session.state.entities[playerId]?.abilityPoints ?: 0
+        if (status > 0 || habilidade > 0) {
+            linhas +=
+                "O personagem tem pontos novos para distribuir (status: $status, habilidade: $habilidade). Quando for natural, " +
+                    "mostre na narrativa que ele evoluiu (mais forte, mais ágil, um insight novo) e lembre que pode distribuir os pontos nos painéis; não é missão."
+        }
+        return if (linhas.isEmpty()) null else "PROGRESSÃO (integre à história):\n" + linhas.joinToString("\n")
     }
 
     @Volatile private var mundoContextCache: Pair<String, String?>? = null
@@ -2724,6 +3192,27 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         }.onFailure { configError = "mundo não vinculado à campanha: ${it.message}" }
     }
 
+    /** Criação por abas: gasta os pontos iniciais de habilidade nas evoluções escolhidas (1 ponto cada, validado pelo motor). */
+    private fun applyInitialSkillUpgrades(choices: CharacterChoices) {
+        val upgrades = choices.initialSkillUpgrades.filterValues { it > 0 }
+        if (upgrades.isEmpty()) return
+        val limit = session.engine.config.initialAbilityPoints
+        if (upgrades.values.sum() > limit) {
+            configError = "evoluções iniciais acima do limite de $limit pontos"
+            return
+        }
+        grantInitialAbilityPoints()?.let {
+            configError = "pontos iniciais de habilidade não concedidos: $it"
+            return
+        }
+        val actions = skillTreeActions()
+        for ((skillId, times) in upgrades) {
+            repeat(times) {
+                actions.unlockOrUpgrade(skillId)?.let { configError = "evolução inicial não aplicada ($skillId): $it" }
+            }
+        }
+    }
+
     /** Troca a campanha ativa pela recém-criada: sessão, personagem, pacote, capítulos e missões novos. */
     fun activate(started: StartResult.Started) {
         pendingCombatNpcIds.clear()
@@ -2742,7 +3231,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 listOf(
                     loadoutChoices.raceId, loadoutChoices.subraceId, loadoutChoices.hybridId,
                     loadoutChoices.classId, loadoutChoices.professionId, loadoutChoices.cursedClassBranchId,
-                ) + loadoutChoices.additionalClassIds
+                ) + loadoutChoices.additionalClassIds + loadoutChoices.mixedRaceIds
             ).filter { it.isNotBlank() }.toSet()
         when (
             val loadoutResult =
@@ -2761,6 +3250,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         runCatching { skillTreeActions().grantSelectedFreeBaseSkills() }
             .onFailure { configError = "falha ao conceder habilidades básicas: ${it.message}" }
             .getOrNull()?.let { configError = "habilidades básicas não concedidas: $it" }
+        applyInitialSkillUpgrades(loadoutChoices)
         when (val setting = session.execute(dev.rpgsolo.engine.SetAmbientacao(started.campanha.ambientacao))) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> Unit
             is dev.rpgsolo.engine.ExecResult.Rejected -> configError = "ambientação não salva: ${setting.reason}"
@@ -2905,7 +3395,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         val config = session.engine.config
-        return InitialBuildState(player.initialBuildAllocated, stats, config.initialStatPoints, config.initialAbilityPoints)
+        return InitialBuildState(player.initialBuildAllocated, stats, config.initialStatPoints, config.initialAbilityPoints, player.initialAbilityGranted)
     }
 
     /** O motor exige exatamente os pontos iniciais do pacote (10 de status + 2 de habilidade) e impede repetir a distribuição. */
@@ -2921,6 +3411,26 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
         }
 
+    /** Árvore de status: distribui só os pontos iniciais de status (não mexe nas habilidades). */
+    fun allocateInitialStats(statIncreases: Map<String, Int>): String? =
+        when (val result = session.execute(dev.rpgsolo.engine.AllocateInitialStats(playerId, statIncreases))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                campaignVersion++
+                null
+            }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+
+    /** Árvore de habilidades: concede os pontos iniciais de habilidade (não depende do status). */
+    fun grantInitialAbilityPoints(): String? =
+        when (val result = session.execute(dev.rpgsolo.engine.GrantInitialAbilityPoints(playerId))) {
+            is dev.rpgsolo.engine.ExecResult.Accepted -> {
+                campaignVersion++
+                null
+            }
+            is dev.rpgsolo.engine.ExecResult.Rejected -> result.reason
+        }
+
     /** Ações da árvore vinculadas às escolhas salvas na ficha ativa. */
     fun skillTreeActions(): SkillTreeActions {
         val choices = characterChoices(activeFichaId ?: activeFicha?.id.orEmpty())
@@ -2929,7 +3439,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             (
                 listOf(
                     choices.raceId, choices.subraceId, choices.classId, choices.professionId, choices.hybridId, choices.cursedClassBranchId,
-                ) + choices.additionalClassIds
+                ) + choices.additionalClassIds + choices.mixedRaceIds
             ).filter { it.isNotBlank() }.toSet()
         val affinity =
             runCatching {
@@ -3080,12 +3590,31 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             e.message
         }
 
+    /** Perícias e provas disponíveis. Perícia só ganha ponto pela prova dos níveis múltiplos de 5. */
+    fun skillTrialState(): SkillTrialState {
+        val player = session.state.entities[playerId] ?: return SkillTrialState(0, emptyList(), emptyList())
+        val every = session.engine.config.skillTrialEvery
+        val pkg = activePackage
+        val caps = session.engine.config.skillCaps
+        val skills =
+            pkg?.data?.traits.orEmpty().filter { it.type == "pericia" }
+                .map { SkillTrialRow(it.id, it.name, player.skills[it.id] ?: 0, caps[it.id] ?: 5, it.description) }
+                val pending =
+            if (every <= 0) {
+                emptyList()
+            } else {
+                (every..player.level step every).filter { it !in player.skillTrialsClaimed }
+            }
+        return SkillTrialState(every, pending, skills)
+    }
+
     fun addQuest(
         title: String,
         objectives: List<String> = emptyList(),
         xpReward: Int = 0,
         masterySkillId: String? = null,
         spellRewardId: String? = null,
+        idOverride: String? = null,
     ): String? =
         try {
             require(title.isNotBlank()) { "dê um título à missão" }
@@ -3102,7 +3631,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             require(cleanObjectives.size <= 20 && cleanObjectives.all { it.length <= 300 }) {
                 "a missão aceita até 20 objetivos, cada um com no máximo 300 caracteres"
             }
-            val id = "q${quests.all().size + 1}-${title.hashCode()}"
+            val id = idOverride ?: "q${quests.all().size + 1}-${title.hashCode()}"
             quests.add(
                 Quest(
                     id = id,
@@ -3224,5 +3753,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 }
 
 /** Limite de entrada do XP de missão; o teto real por nível continua no motor (`EngineConfig.maxQuestXp`). */
+/** MP-07: fato do motor com o dia da última propagação de rumores. */
+private const val RUMOR_DAY_FACT = "rumores.dia"
 private const val MAX_QUEST_XP_INPUT = 100_000
 private const val PORTRAIT_MAX_SIDE = 512
+
+/** Temas aceitos em [AppModel.themeMode]. */
+internal val TEMAS = listOf("sistema", "claro", "escuro")

@@ -1,0 +1,22 @@
+# esquema=1
+# WD-02: geografia mestra em registros (M-04, G-01 a G-10). Só posição relativa e relevo; sem coordenadas nem distâncias.
+# elevacao: nivel_mar < baixa < media < alta. "?" = não fixado pelo cânone (vira aviso, nunca é inventado).
+# Rótulos antigos de M-04: "Marcas das Feras" = kingdom.vale-palancar; "Pacto Humano" = kingdom.azeroth.
+id|nome|tipo|reino|elevacao|nasce_em|desemboca_em|vizinhos|fonte
+geo.valdoren|Valdoren|continente|-|-|-|-|-|M-04 G-01
+geo.coroas-de-pedra|Coroas de Pedra|cordilheira|kingdom.coroas-de-pedra|alta|-|-|geo.espinha-de-vidro,geo.dentes-de-brasa,geo.campos-das-marcas|M-04 G-03
+geo.dentes-de-brasa|Dentes de Brasa|vulcoes|kingdom.coroas-de-pedra|alta|-|-|geo.coroas-de-pedra|M-04 G-05
+geo.espinha-de-vidro|Espinha de Vidro|cordilheira|kingdom.aeltharyn|media|-|-|geo.coroas-de-pedra,geo.bacia-de-aeltharyn|M-04 G-04
+geo.elevacoes-ocidentais|Elevações ocidentais|cordilheira|kingdom.aeltharyn|media|-|-|geo.bacia-de-aeltharyn,geo.campos-das-marcas|M-04 §2
+geo.bacia-de-aeltharyn|Bacia florestal de Aeltharyn|floresta|kingdom.aeltharyn|baixa|-|-|geo.espinha-de-vidro,geo.elevacoes-ocidentais,geo.costa-de-ambar,geo.pantano-de-orvass|M-04 §2
+geo.costa-de-ambar|Costa de Âmbar|costa|kingdom.aeltharyn|baixa|-|-|geo.bacia-de-aeltharyn,geo.mar-de-ambar,geo.ilhas-de-salgueiro|M-04 §2
+geo.ilhas-de-salgueiro|Ilhas de Salgueiro|ilha|kingdom.aeltharyn|nivel_mar|-|-|geo.costa-de-ambar,geo.mar-de-ambar|M-04 §2
+geo.pantano-de-orvass|Pântano de Orvass|pantano|kingdom.aeltharyn|baixa|-|-|geo.bacia-de-aeltharyn,geo.o-veu|M-04 §2
+geo.rio-lumen|Rio Lúmen|rio|kingdom.aeltharyn|baixa|geo.coroas-de-pedra|geo.mar-de-ambar|geo.bacia-de-aeltharyn|M-04 §2 e G-03
+geo.rio-tres-vozes|Rio das Três Vozes|rio|kingdom.aeltharyn|baixa|?|?|geo.bacia-de-aeltharyn|M-04 §1 (nascente e foz não fixadas)
+geo.rio-argente|Rio Argente|rio|kingdom.vale-palancar|baixa|geo.coroas-de-pedra|geo.mar-austral|geo.campos-das-marcas,geo.o-veu|M-04 G-06
+geo.campos-das-marcas|Campos das Marcas|planalto|kingdom.vale-palancar|media|-|-|geo.coroas-de-pedra,geo.elevacoes-ocidentais,geo.rio-argente,geo.ermo-de-sal|M-04 G-07
+geo.o-veu|O Véu|neblina|kingdom.veu-dos-malditos|baixa|-|-|geo.pantano-de-orvass,geo.rio-argente,geo.ermo-de-sal|M-04 G-08
+geo.ermo-de-sal|Ermo de Sal|deserto|kingdom.vale-palancar|baixa|-|-|geo.campos-das-marcas,geo.o-veu|M-04 G-10
+geo.mar-de-ambar|Mar de Âmbar|mar|-|nivel_mar|-|-|geo.costa-de-ambar,geo.ilhas-de-salgueiro,geo.mar-austral|M-04 G-09
+geo.mar-austral|Mar Austral|mar|kingdom.azeroth|nivel_mar|-|-|geo.mar-de-ambar,geo.rio-argente|M-04 G-09

@@ -21,12 +21,12 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
 /**
- * Versão 11. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
+ * Versão 13. Ao mudar tabelas: aumente [version], escreva uma `Migration` e registre em [MIGRATIONS];
  * os esquemas exportados ficam em `data/schemas/` (3.1.2). Nunca use fallbackToDestructiveMigration:
  * apagaria as campanhas do jogador.
  */
 @Database(
-    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class, FontePipelineRow::class, CanonFactsRow::class, MundoRow::class, MundoSnapshotRow::class, MundoCronicaRow::class, CampanhaMundoRow::class],
+    entities = [CampanhaRow::class, EventoRow::class, FichaRow::class, CampanhaMetaRow::class, CapituloRow::class, MissaoRow::class, SnapshotRow::class, LinhaTempoRow::class, FonteRow::class, FonteVinculoRow::class, FontePipelineRow::class, CanonFactsRow::class, MundoRow::class, MundoSnapshotRow::class, MundoCronicaRow::class, CampanhaMundoRow::class, CriacaoRascunhoRow::class, PersonagemRecorrenteRow::class],
     version = RpgDatabase.VERSION,
     exportSchema = true,
 )
@@ -61,9 +61,13 @@ abstract class RpgDatabase : RoomDatabase() {
 
     abstract fun campanhaMundo(): CampanhaMundoDao
 
+    abstract fun criacaoRascunho(): CriacaoRascunhoDao
+
+    abstract fun personagensRecorrentes(): PersonagemRecorrenteDao
+
     companion object {
         /** Versão atual do esquema; a mesma da anotação [Database]. */
-        const val VERSION = 11
+        const val VERSION = 13
 
         val MIGRATIONS =
             arrayOf(
@@ -194,6 +198,22 @@ abstract class RpgDatabase : RoomDatabase() {
                             "CREATE TABLE IF NOT EXISTS `campanha_mundo` (`campaignId` TEXT NOT NULL, `mundoId` TEXT NOT NULL, `moldeId` TEXT NOT NULL, `vinculadoEm` INTEGER NOT NULL, PRIMARY KEY(`campaignId`), FOREIGN KEY(`campaignId`) REFERENCES `campanhas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`mundoId`) REFERENCES `mundos`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
                         )
                         db.execSQL("CREATE INDEX IF NOT EXISTS `index_campanha_mundo_mundoId` ON `campanha_mundo` (`mundoId`)")
+                    }
+                },
+                object : androidx.room.migration.Migration(11, 12) {
+                    // CG-4.8: só cria a tabela do rascunho da criação por abas; nenhuma tabela existente é alterada.
+                    override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS `criacao_rascunho` (`id` TEXT NOT NULL, `draftJson` TEXT NOT NULL, `atualizadoEm` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                        )
+                    }
+                },
+                object : androidx.room.migration.Migration(12, 13) {
+                    // MP-02: só cria a tabela de personagens recorrentes; nenhuma tabela existente é alterada.
+                    override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS `personagem_recorrente` (`mundoId` TEXT NOT NULL, `identityKey` TEXT NOT NULL, `kind` TEXT NOT NULL, `nome` TEXT NOT NULL, `json` TEXT NOT NULL, `atualizadoEm` INTEGER NOT NULL, PRIMARY KEY(`mundoId`, `identityKey`))",
+                        )
                     }
                 },
             )
@@ -539,6 +559,36 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
             }
             facts
         }
+
+    /** Rascunho da criação por abas (CG-4.8): um só, em JSON opaco para esta camada; nulo se não houver. */
+    fun creationDraft(): String? = io { db.criacaoRascunho().buscar(creationDraftId)?.draftJson }
+
+    fun saveCreationDraft(json: String) =
+        io { db.criacaoRascunho().salvar(CriacaoRascunhoRow(creationDraftId, json, System.currentTimeMillis())) }
+
+    fun clearCreationDraft() = io { db.criacaoRascunho().apagar(creationDraftId) }
+
+    /**
+     * MP-02: grava os personagens recorrentes de [mundoId]; se a identidade já existe, une com o guardado
+     * (anti-duplicação, [dev.rpgsolo.engine.RecurringIdentity.merge]). Tudo numa transação.
+     */
+    fun saveRecurring(
+        mundoId: String,
+        characters: List<dev.rpgsolo.engine.RecurringCharacter>,
+    ) = inTransaction {
+        val dao = db.personagensRecorrentes()
+        characters.forEach { c ->
+            val current = dao.buscar(mundoId, c.identityKey)?.let { runCatching { dev.rpgsolo.engine.RecurringCharacter.fromJson(it.json) }.getOrNull() }
+            val merged = if (current == null) c.copy(worldId = mundoId) else dev.rpgsolo.engine.RecurringIdentity.merge(current, c.copy(worldId = mundoId))
+            dao.salvar(PersonagemRecorrenteRow(mundoId, merged.identityKey, merged.kind.name, merged.name, merged.toJson(), System.currentTimeMillis()))
+        }
+    }
+
+    /** MP-02: personagens recorrentes do mundo (mais recentes primeiro); linhas ilegíveis são ignoradas. */
+    fun recurringCharacters(mundoId: String): List<dev.rpgsolo.engine.RecurringCharacter> =
+        io { db.personagensRecorrentes().listar(mundoId).mapNotNull { runCatching { dev.rpgsolo.engine.RecurringCharacter.fromJson(it.json) }.getOrNull() } }
+
+    private val creationDraftId = "atual"
 
     /** Valida IDs, conteúdo e campanha antes de substituir todo o conjunto de forma atômica. */
     fun saveCanonFacts(

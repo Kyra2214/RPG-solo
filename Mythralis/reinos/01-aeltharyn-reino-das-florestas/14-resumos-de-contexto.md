@@ -168,7 +168,7 @@
   *Vizinhança:* lidera raiz-de-prata (cidade-mãe: Elarion); cooperação com Liga dos Celeiros; cooperação com Lethariel Nascente-Clara; desconfiança com Companhia do Âmbar
 - **`npc.othalen-vira-pedra` — Othalen Vira-Pedra.** Othalen Vira-Pedra: liderança de assentamento: magistrado eleito por moradores e comerciantes a cada quatro anos  
   *Vizinhança:* lidera sete-degraus (cidade-mãe: Elarion); cooperação com Tavian Lume-Fino; dependência com Torvelume — A Fortaleza da Espinha de Vidro; tensão com guarda real
-- **`npc.beren-tres-canais` — Beren Três-Canais.** Beren Três-Canais: liderança de assentamento: construtor de diques escolhido pelo conselho de famílias e equipes de manutenção; Orcano das Matas, 61 anos. texto do doc: Orcano das Matas, 61 anos; Capacidade: constrói diques; lidera comunidade em Nymvar. Limite: acusado de desviar materiais; ainda não apresentou todos os registros. Tom: de obra, prático.  
+- **`npc.beren-tres-canais` — Beren Três-Canais.** Beren Três-Canais: liderança de assentamento: construtor de diques escolhido pelo conselho de famílias e equipes de manutenção; Orc das Matas, 61 anos. texto do doc: Orc das Matas, 61 anos; Capacidade: constrói diques; lidera comunidade em Nymvar. Limite: acusado de desviar materiais; ainda não apresentou todos os registros. Tom: de obra, prático.  
   *Vizinhança:* lidera junco-alto (cidade-mãe: Nymvar); cooperação com Elsin Várzea-Clara; cooperação com Irmandade das Águas; rivalidade com proprietários que desviam água
 - **`npc.sava-mao-de-corrente` — Sava Mão-de-Corrente.** Sava Mão-de-Corrente: liderança de assentamento: mestra das barcas escolhida pelas guildas e sujeita a revisão pública anual  
   *Vizinhança:* lidera tres-barcas (cidade-mãe: Nymvar); dependência com Nymvar — Cidade das Três Vozes; dependência com Torvelume — A Fortaleza da Espinha de Vidro; tensão com Liga das Rotas
@@ -224,7 +224,7 @@
   *Vizinhança:* sem vínculo local escrito
 - **`npc.neralis-vento-manso` — Neralis Vento-Manso.** Neralis Vento-Manso: Vigia-Mor de Brumafunda e figura respeitada entre guias; Elfo do Crepúsculo, cerca de 190 anos. texto do doc: Elfo do Crepúsculo, cerca de 190 anos; Capacidade: exige evidência antes de fechar trilhas; respeitado entre guias. Limite: não sabe se o mapa que guarda é confiável. Tom: cético, exige evidência.  
   *Vizinhança:* governa Brumafunda; lidera rede-guias; vínculo com pessoa desaparecida
-- **`npc.nima-raiz-de-lodo` — Nima Raiz-de-Lodo.** Nima Raiz-de-Lodo: herói(na) da tríade da cidade; Curandeira orcana das matas, falecida há 90 anos. morto(a); Capacidade: Registrou tratamentos úteis e efeitos adversos perigosos. Limite: Uma mistura antiga ajudou adultos e causou reação grave em crianças.  
+- **`npc.nima-raiz-de-lodo` — Nima Raiz-de-Lodo.** Nima Raiz-de-Lodo: herói(na) da tríade da cidade; Curandeira orc das matas, falecida há 90 anos. morto(a); Capacidade: Registrou tratamentos úteis e efeitos adversos perigosos. Limite: Uma mistura antiga ajudou adultos e causou reação grave em crianças.  
   *Vizinhança:* cidade: Orvass
 - **`npc.maereth-vaelorian` — Princesa Maereth Vaelorian.** Princesa Maereth Vaelorian: herdeira reconhecida e Guardiã do Pacto das Nascentes; texto do doc: Elfa das Estrelas, 173 anos; Capacidade: influência política como herdeira. Limite: não comanda a guarda inteira; propostas podem ser bloqueadas pelo conselho. Tom: franca, metódica, impaciente com burocracia.  
   *Vizinhança:* discordância com Rei Aerendyl Vaelorian

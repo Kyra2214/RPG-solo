@@ -29,7 +29,13 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
         value: Int,
     ): Boolean {
         if (pkg.stat(statId) == null) return false
+        val previous = stats[statId]
         stats[statId] = value
+        // Trava: com pools separados, não deixa a distribuição de status passar do limite (ex.: 10).
+        if (pkg.separatePools && report().statPointsSpent > (pkg.statPool ?: Int.MAX_VALUE)) {
+            if (previous == null) stats.remove(statId) else stats[statId] = previous
+            return false
+        }
         return true
     }
 
@@ -68,7 +74,12 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
 
     fun report(): CharacterReport = pkg.validateCharacter(stats, traits.toList(), skills = skills.toMap())
 
-    fun pointsLeft(): Int = pkg.creationPoints - report().pointsSpent
+    /** Pontos de criação que ainda sobram (com pools separados, só os de status). */
+    fun pointsLeft(): Int = statPointsLeft()
+
+    /** Pontos de status que ainda podem ser distribuídos (trava em 0 quando bate o limite). */
+    fun statPointsLeft(r: CharacterReport = report()): Int =
+        if (r.separatePools) r.statPointsAvailable - r.statPointsSpent else pkg.creationPoints - r.pointsSpent
 
     /** Traços que ainda cabem: não escolhidos e que não gerariam erro se adicionados agora. */
     fun allowedTraits(): List<TraitDef> =
@@ -91,7 +102,9 @@ class CharacterDraft(val pkg: RulePackage, val id: String) {
 
     fun build(): FichaBuild {
         if (name.isBlank()) return FichaBuild.Invalid(listOf("dê um nome ao personagem"))
-        if (pointsLeft() < 0) return FichaBuild.Invalid(listOf("pontos gastos passam do limite (${pkg.creationPoints})"))
+        if (statPointsLeft() < 0) {
+            return FichaBuild.Invalid(listOf("pontos gastos passam do limite (${pkg.creationPoints})"))
+        }
         return pkg.buildFicha(id, name.trim(), concept.trim(), stats, traits.toList(), skills)
     }
 }

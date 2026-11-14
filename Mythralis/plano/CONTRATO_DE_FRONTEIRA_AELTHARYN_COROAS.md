@@ -11,7 +11,7 @@
 | F2 | A **Espinha de Vidro** é uma serra arborizada no noroeste de Aeltharyn, **não é o reino montanhoso**; passagens controladas por postos florestais; dá acesso a antigas minas abandonadas | doc 01 §2.1 |
 | F3 | Lenda local: a Espinha seria o esqueleto de um gigante; geólogos tratam como metáfora e não explicam todas as formações cristalinas | doc 01 §5.10 |
 | F4 | O **Lúmen** nasce nas encostas do norte, passa por Elarion e vai ao litoral leste; navegável nos trechos médio e baixo | doc 01 §2.1 |
-| F5 | **Torvelume**: fortaleza florestal e cidade de ofícios na passagem entre a floresta e a Espinha; cerca de 18.000 habitantes (elfos dos bosques, gnomos, anões residentes, orcanos, trabalhadores de estrada) | doc 01 §5.10 |
+| F5 | **Torvelume**: fortaleza florestal e cidade de ofícios na passagem entre a floresta e a Espinha; cerca de 18.000 habitantes (elfos dos bosques, gnomos, anões residentes, orcs, trabalhadores de estrada) | doc 01 §5.10 |
 | F6 | Torvelume **não representa um reino anão** e não pode ser anexada por um; o comandante-civil (Dauren Galho-de-Ferro) cumpre o juramento de defesa de Aeltharyn | doc 01 §5.10, §9; doc 11 |
 | F7 | **Mina selada de Torvelume** (relógio 1/6) e **Mistério D** continuam com 4 hipóteses abertas: atividade geológica, mecanismos antigos, invasores, algo sobrenatural | doc 01 §6, §26 |
 | F8 | Rotas: Torvelume–Elarion cerca de 4 dias; Torvelume–Caladwen cerca de 3; Torvelume–Vael-Tir cerca de 1 a 2; Estrada da Espinha completa 4 a 5 dias; não há ligação documentada Arven–Torvelume | doc 07 |

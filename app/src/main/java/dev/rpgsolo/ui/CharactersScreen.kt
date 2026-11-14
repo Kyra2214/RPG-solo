@@ -23,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +53,9 @@ import kotlinx.coroutines.withContext
  * Aba Personagens (10.2 e 5.0): criação guiada pelo pacote, com validação do motor e biblioteca de fichas.
  * Fluxo: arquétipo (ou ficha pronta) → atributos → cardápio do arquétipo → ajuste fino → criar.
  */
+/** Limite de idade aceito na criação (a idade real é ajustada à longevidade do povo ao iniciar a campanha). */
+private const val MAX_HERO_AGE = 1000
+
 @Composable
 fun CharactersScreen(model: AppModel) {
     val packageVersion = model.packageVersion
@@ -154,11 +158,22 @@ private fun Creator(
     var curseIds by remember(key) { mutableStateOf(setOf<String>()) }
     var elementalAffinity by remember(key) { mutableStateOf("") }
     var cursedClassBranchId by remember(key) { mutableStateOf("") }
+    var mostrarMalditos by remember(key) { mutableStateOf(false) }
     var additionalClassIds by remember(key) { mutableStateOf(emptyList<String>()) }
-    var ageBand by remember(key) { mutableStateOf("") }
+    var ageText by remember(key) { mutableStateOf("") }
+    var sex by remember(key) { mutableStateOf("") }
+    var modoAbas by remember(key) { mutableStateOf(true) }
+    var progressoAbas by remember(key) { mutableIntStateOf(0) }
+    var confirmarSaida by remember(key) { mutableStateOf(false) }
     val choices =
-        CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId, additionalClassIds, ageBand)
-    val choiceErrors = (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct()
+        CharacterChoices(raceId, subraceId, classId, professionId, curseIds.toList(), hybridId, elementalAffinity, cursedClassBranchId, additionalClassIds, ageText.toIntOrNull() ?: 0, sex)
+    val ageSexErrors =
+        listOfNotNull(
+            if (choices.age !in 1..MAX_HERO_AGE) stringResource(R.string.char_age_required, MAX_HERO_AGE) else null,
+            if (choices.sex.isBlank()) stringResource(R.string.char_sex_required) else null,
+        )
+    val choiceErrors =
+        (CharacterCreationCatalog.validateChoices(choices) + CharacterCreationCatalog.validateEffectScopes(pkg, choices)).distinct() + ageSexErrors
     @Suppress("UNUSED_EXPRESSION")
     version
 
@@ -178,461 +193,536 @@ private fun Creator(
         version++
     }
 
-    // ---------- 1. Ponto de partida ----------
-    SectionTitle(
-        stringResource(R.string.char_start_title),
-        stringResource(R.string.char_start_help),
-    )
-    OutlinedTextField(
-        archQuery,
-        { archQuery = it },
-        Modifier.fillMaxWidth(),
-        placeholder = { Text(stringResource(R.string.char_archetype_search)) },
-        singleLine = true,
-        shape = MaterialTheme.shapes.large,
-    )
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        pkg.archetypesSorted(archQuery).forEach { a ->
-            FilterChip(
-                selected = archId == a.id,
-                onClick = {
-                    if (draft.loadArchetype(a.id)) {
-                        archId = a.id
-                        if (draft.concept.isBlank()) draft.concept = a.name
-                        message = null
-                        version++
+    // ---------- Modo de criação: por abas (padrão) ou formulário avançado ----------
+    SectionTitle(stringResource(R.string.wiz_mode_label))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(selected = modoAbas, onClick = { modoAbas = true }, label = { Text(stringResource(R.string.wiz_mode_tabs)) })
+        FilterChip(
+            selected = !modoAbas,
+            onClick = { if (modoAbas && progressoAbas > 0) confirmarSaida = true else modoAbas = false },
+            label = { Text(stringResource(R.string.wiz_mode_advanced)) },
+        )
+    }
+    if (confirmarSaida) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { confirmarSaida = false },
+            title = { Text(stringResource(R.string.wiz_leave_title)) },
+            text = { Text(stringResource(R.string.wiz_leave_text)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmarSaida = false
+                    modoAbas = false
+                }) { Text(stringResource(R.string.wiz_leave_confirm)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmarSaida = false }) { Text(stringResource(R.string.wiz_leave_stay)) } },
+        )
+    }
+    val usarAbas = modoAbas && editingChoicesFichaId == null
+    var rascunhoSalvo by remember(key) { mutableStateOf<String?>(null) }
+    var rascunhoLido by remember(key) { mutableStateOf(false) }
+    LaunchedEffect(key) {
+        rascunhoSalvo = withContext(Dispatchers.IO) { model.creationDraft() }
+        rascunhoLido = true
+    }
+    if (usarAbas) {
+        if (rascunhoLido) CriacaoPorAbas(
+            pkg,
+            draft,
+            dbBusy,
+            message,
+            { progressoAbas = it },
+            rascunhoSalvo,
+            { json -> scope.launch(Dispatchers.IO) { model.saveCreationDraft(json) } },
+        ) { escolhasAbas, lore ->
+            when (val b = draft.build()) {
+                is FichaBuild.Created -> {
+                    var newId = draftId
+                    io({
+                        model.saveFicha(b.ficha)
+                        model.saveCharacterChoices(b.ficha.id, escolhasAbas)
+                        model.registrarConquista(Conquista.PRIMEIRO_HEROI)
+                        if (escolhasAbas.mixedRaceIds.isNotEmpty() || escolhasAbas.hybridId.isNotBlank()) model.registrarConquista(Conquista.HEROI_MESTICO)
+                        val loreError = if (lore.isNotBlank()) model.approveLore(b.ficha.id, lore) else null
+                        newId = model.newFichaId()
+                        model.saveCreationDraft(null)
+                        loreError
+                    }) { failure ->
+                        if (failure == null) {
+                            rascunhoSalvo = null
+                            draftId = newId
+                            message = context.getString(R.string.char_created, b.ficha.name)
+                        } else {
+                            message = failure
+                        }
                     }
-                },
-                label = { Text(a.name) },
-            )
-        }
-    }
-    archId?.let { pkg.archetype(it) }?.let { a ->
-        AppCard(accent = MaterialTheme.colorScheme.primary) {
-            Text(a.name, style = MaterialTheme.typography.titleMedium)
-            Muted(a.description)
-        }
-    }
-    if (pkg.data.examples.isNotEmpty()) {
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            pkg.data.examples.forEach { ex ->
-                OutlinedButton(onClick = {
-                    draft.loadExample(ex.id)
-                    archId = null
-                    version++
-                }) { Text(ex.title) }
+                }
+                is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
             }
         }
-    }
+    } else {
+        Muted(stringResource(R.string.wiz_mode_advanced_help))
+        // ---------- 1. Ponto de partida ----------
+        SectionTitle(
+            stringResource(R.string.char_start_title),
+            stringResource(R.string.char_start_help),
+        )
+        OutlinedTextField(
+            archQuery,
+            { archQuery = it },
+            Modifier.fillMaxWidth(),
+            placeholder = { Text(stringResource(R.string.char_archetype_search)) },
+            singleLine = true,
+            shape = MaterialTheme.shapes.large,
+        )
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            pkg.archetypesSorted(archQuery).forEach { a ->
+                FilterChip(
+                    selected = archId == a.id,
+                    onClick = {
+                        if (draft.loadArchetype(a.id)) {
+                            archId = a.id
+                            if (draft.concept.isBlank()) draft.concept = a.name
+                            message = null
+                            version++
+                        }
+                    },
+                    label = { Text(a.name) },
+                )
+            }
+        }
+        archId?.let { pkg.archetype(it) }?.let { a ->
+            AppCard(accent = MaterialTheme.colorScheme.primary) {
+                Text(a.name, style = MaterialTheme.typography.titleMedium)
+                Muted(a.description)
+            }
+        }
+        if (pkg.data.examples.isNotEmpty()) {
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pkg.data.examples.forEach { ex ->
+                    OutlinedButton(onClick = {
+                        draft.loadExample(ex.id)
+                        archId = null
+                        version++
+                    }) { Text(ex.title) }
+                }
+            }
+        }
 
-    // ---------- 2. Origem e identidade de aventura ----------
-    SectionTitle(
-        stringResource(R.string.char_origin_title),
-        stringResource(R.string.char_origin_help),
-    )
-    val catalogErrors = CharacterCreationCatalog.validationErrors()
-    if (catalogErrors.isNotEmpty()) {
-        AppCard {
-            Text(stringResource(R.string.char_catalog_invalid), color = MaterialTheme.colorScheme.error)
-            catalogErrors.take(5).forEach { Muted(it) }
+        // ---------- 2. Origem e identidade de aventura ----------
+        SectionTitle(
+            stringResource(R.string.char_origin_title),
+            stringResource(R.string.char_origin_help),
+        )
+        val catalogErrors = CharacterCreationCatalog.validationErrors()
+        if (catalogErrors.isNotEmpty()) {
+            AppCard {
+                Text(stringResource(R.string.char_catalog_invalid), color = MaterialTheme.colorScheme.error)
+                catalogErrors.take(5).forEach { Muted(it) }
+            }
         }
-    }
-    if (choiceErrors.isNotEmpty()) {
-        AppCard {
-            Text(stringResource(R.string.char_review_choices), color = MaterialTheme.colorScheme.error)
-            choiceErrors.forEach { Muted(it) }
+        if (choiceErrors.isNotEmpty()) {
+            AppCard {
+                Text(stringResource(R.string.char_review_choices), color = MaterialTheme.colorScheme.error)
+                choiceErrors.forEach { Muted(it) }
+            }
         }
-    }
-    val catalogRaces = CharacterCreationCatalog.races
-    val catalogSubraces = CharacterCreationCatalog.subraces.filter { it.parentRaceId == raceId }
-    CatalogPicker(stringResource(R.string.char_race), catalogRaces, raceId, { selected ->
-        raceId = selected
-        if (selected.isNotBlank()) hybridId = ""
-        if (subraceId.isNotBlank() && CharacterCreationCatalog.subraces.none { it.id == subraceId && it.parentRaceId == selected }) subraceId = ""
-        version++
-    })
-    if (raceId.isNotBlank()) {
-        CatalogPicker(stringResource(R.string.char_subrace), catalogSubraces, subraceId, {
-            subraceId = it
+        val catalogRaces = CharacterCreationCatalog.races
+        val catalogSubraces = CharacterCreationCatalog.subraces.filter { it.parentRaceId == raceId }
+        CatalogPicker(stringResource(R.string.char_race), catalogRaces, raceId, { selected ->
+            raceId = selected
+            if (selected.isNotBlank()) hybridId = ""
+            if (subraceId.isNotBlank() && CharacterCreationCatalog.subraces.none { it.id == subraceId && it.parentRaceId == selected }) subraceId = ""
+            version++
+        })
+        if (raceId.isNotBlank()) {
+            CatalogPicker(stringResource(R.string.char_subrace), catalogSubraces, subraceId, {
+                subraceId = it
+                version++
+            }, allowNone = true)
+        }
+        CatalogPicker(stringResource(R.string.char_hybrid), CharacterCreationCatalog.hybrids, hybridId, { selected ->
+            hybridId = selected
+            if (selected.isNotBlank()) {
+                raceId = ""
+                subraceId = ""
+            }
             version++
         }, allowNone = true)
-    }
-    CatalogPicker(stringResource(R.string.char_hybrid), CharacterCreationCatalog.hybrids, hybridId, { selected ->
-        hybridId = selected
-        if (selected.isNotBlank()) {
-            raceId = ""
-            subraceId = ""
-        }
-        version++
-    }, allowNone = true)
-    hybridId.takeIf { it.isNotBlank() }?.let { selectedId ->
-        CharacterCreationCatalog.find(selectedId)?.let { entry ->
-            AppCard {
-                Text(entry.name, style = MaterialTheme.typography.titleSmall)
-                Muted(
-                    stringResource(
-                        R.string.char_ancestry,
-                        entry.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "),
-                    ),
-                )
-                if (entry.lore.isNotBlank()) Muted(entry.lore)
-            }
-        }
-    }
-    CatalogPicker(stringResource(R.string.char_main_class), CharacterCreationCatalog.classes, classId, {
-        classId = it
-        additionalClassIds = additionalClassIds - it
-        version++
-    }, allowNone = true)
-    SectionTitle(
-        stringResource(R.string.char_extra_classes_title),
-        stringResource(R.string.char_extra_classes_help),
-    )
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CharacterCreationCatalog.classes.filter { it.id != classId }.forEach { option ->
-            FilterChip(
-                selected = option.id in additionalClassIds,
-                onClick = {
-                    additionalClassIds =
-                        if (option.id in additionalClassIds) {
-                            additionalClassIds - option.id
-                        } else if (additionalClassIds.size < 3) {
-                            additionalClassIds + option.id
-                        } else {
-                            additionalClassIds
-                        }
-                    version++
-                },
-                label = { Text(option.name) },
-            )
-        }
-    }
-    val totalClasses = (if (classId.isBlank()) 0 else 1) + additionalClassIds.size
-    val hybridAppearance =
-        when (totalClasses) {
-            0, 1 -> stringResource(R.string.char_appearance_normal)
-            2 -> stringResource(R.string.char_appearance_visible)
-            3 -> stringResource(R.string.char_appearance_monstrous)
-            else -> stringResource(R.string.char_appearance_extreme)
-        }
-    Muted(stringResource(R.string.char_combined_classes, totalClasses, hybridAppearance))
-    SectionTitle(
-        stringResource(R.string.char_element_title),
-        stringResource(R.string.char_element_help),
-    )
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf(
-            "WATER" to stringResource(R.string.char_element_water),
-            "FIRE" to stringResource(R.string.char_element_fire),
-            "WIND" to stringResource(R.string.char_element_wind),
-            "EARTH" to stringResource(R.string.char_element_earth),
-            "METAL" to stringResource(R.string.char_element_metal),
-            "YIN" to stringResource(R.string.char_element_yin),
-            "YANG" to stringResource(R.string.char_element_yang),
-        ).forEach {
-                (id, label) ->
-            FilterChip(selected = elementalAffinity == id, onClick = {
-                elementalAffinity = if (elementalAffinity == id) "" else id
-                version++
-            }, label = { Text(label) })
-        }
-    }
-    SectionTitle(stringResource(R.string.char_age_title), stringResource(R.string.char_age_help))
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf(
-            FaixaIdade.JOVEM to stringResource(R.string.char_age_young),
-            FaixaIdade.ADULTO to stringResource(R.string.char_age_adult),
-            FaixaIdade.VETERANO to stringResource(R.string.char_age_veteran),
-        ).forEach { (faixa, label) ->
-            FilterChip(selected = FaixaIdade.de(ageBand) == faixa, onClick = {
-                ageBand = faixa.id
-                version++
-            }, label = { Text(label) })
-        }
-    }
-    CatalogPicker(stringResource(R.string.char_profession), CharacterCreationCatalog.professions, professionId, {
-        professionId = it
-        version++
-    }, allowNone = true)
-
-    SectionTitle(stringResource(R.string.char_cursed_title), stringResource(R.string.char_cursed_help))
-    CatalogPicker(stringResource(R.string.char_cursed_branch), CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, {
-        cursedClassBranchId = it
-        version++
-    }, allowNone = true)
-
-    val chosenCatalogEntries =
-        (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + additionalClassIds + curseIds.toList())
-            .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
-    if (chosenCatalogEntries.isNotEmpty()) {
-        AppCard {
-            Text(stringResource(R.string.char_summary_title), style = MaterialTheme.typography.titleSmall)
-            chosenCatalogEntries.forEach { entry ->
-                Text(entry.name, style = MaterialTheme.typography.bodyMedium)
-                if (entry.summary.isNotBlank()) Muted(entry.summary)
-                if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted(stringResource(R.string.char_lore, entry.lore))
-                if (entry.benefits.isNotEmpty()) {
-                    entry.benefits.forEach { Muted(stringResource(R.string.char_benefit_summary, it)) }
-                } else if (entry.benefit.isNotBlank()) {
-                    Muted(stringResource(R.string.char_benefit_summary, entry.benefit))
-                }
-                if (entry.drawbacks.isNotEmpty()) {
-                    entry.drawbacks.forEach { Muted(stringResource(R.string.char_drawback_summary, it)) }
-                } else if (entry.drawback.isNotBlank()) {
-                    Muted(stringResource(R.string.char_drawback_summary, entry.drawback))
-                }
-                entry.mechanicalEffects.forEach {
+        hybridId.takeIf { it.isNotBlank() }?.let { selectedId ->
+            CharacterCreationCatalog.find(selectedId)?.let { entry ->
+                AppCard {
+                    Text(entry.name, style = MaterialTheme.typography.titleSmall)
                     Muted(
                         stringResource(
-                            R.string.char_effect_declared,
-                            entry.name,
-                            it.scope,
-                            (if (it.bonus >= 0) "+" else "") + it.bonus,
+                            R.string.char_ancestry,
+                            entry.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "),
+                        ),
+                    )
+                    if (entry.lore.isNotBlank()) Muted(entry.lore)
+                }
+            }
+        }
+        CatalogPicker(stringResource(R.string.char_main_class), CharacterCreationCatalog.classes, classId, {
+            classId = it
+            additionalClassIds = additionalClassIds - it
+            version++
+        }, allowNone = true)
+        SectionTitle(
+            stringResource(R.string.char_extra_classes_title),
+            stringResource(R.string.char_extra_classes_help),
+        )
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            CharacterCreationCatalog.classes.filter { it.id != classId }.forEach { option ->
+                FilterChip(
+                    selected = option.id in additionalClassIds,
+                    onClick = {
+                        additionalClassIds =
+                            if (option.id in additionalClassIds) {
+                                additionalClassIds - option.id
+                            } else if (additionalClassIds.size < 3) {
+                                additionalClassIds + option.id
+                            } else {
+                                additionalClassIds
+                            }
+                        version++
+                    },
+                    label = { Text(option.name) },
+                )
+            }
+        }
+        val totalClasses = (if (classId.isBlank()) 0 else 1) + additionalClassIds.size
+        val hybridAppearance =
+            when (totalClasses) {
+                0, 1 -> stringResource(R.string.char_appearance_normal)
+                2 -> stringResource(R.string.char_appearance_visible)
+                3 -> stringResource(R.string.char_appearance_monstrous)
+                else -> stringResource(R.string.char_appearance_extreme)
+            }
+        Muted(stringResource(R.string.char_combined_classes, totalClasses, hybridAppearance))
+        SectionTitle(
+            stringResource(R.string.char_element_title),
+            stringResource(R.string.char_element_help),
+        )
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(
+                "WATER" to stringResource(R.string.char_element_water),
+                "FIRE" to stringResource(R.string.char_element_fire),
+                "WIND" to stringResource(R.string.char_element_wind),
+                "EARTH" to stringResource(R.string.char_element_earth),
+                "METAL" to stringResource(R.string.char_element_metal),
+                "YIN" to stringResource(R.string.char_element_yin),
+                "YANG" to stringResource(R.string.char_element_yang),
+            ).forEach {
+                    (id, label) ->
+                FilterChip(selected = elementalAffinity == id, onClick = {
+                    elementalAffinity = if (elementalAffinity == id) "" else id
+                    version++
+                }, label = { Text(label) })
+            }
+        }
+        SectionTitle(stringResource(R.string.char_age_title), stringResource(R.string.char_age_help))
+        OutlinedTextField(
+            value = ageText,
+            onValueChange = { value ->
+                ageText = value.filter(Char::isDigit).take(4)
+                version++
+            },
+            label = { Text(stringResource(R.string.char_age_field)) },
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(
+                "masculino" to stringResource(R.string.char_sex_male),
+                "feminino" to stringResource(R.string.char_sex_female),
+            ).forEach { (id, label) ->
+                FilterChip(selected = sex == id, onClick = {
+                    sex = id
+                    version++
+                }, label = { Text(label) })
+            }
+        }
+        CatalogPicker(stringResource(R.string.char_profession), CharacterCreationCatalog.professions, professionId, {
+            professionId = it
+            version++
+        }, allowNone = true)
+
+        FilterChip(
+            selected = mostrarMalditos,
+            onClick = {
+                mostrarMalditos = !mostrarMalditos
+                if (!mostrarMalditos) cursedClassBranchId = ""
+                version++
+            },
+            label = { Text(stringResource(R.string.char_cursed_toggle)) },
+        )
+        if (mostrarMalditos) {
+            SectionTitle(stringResource(R.string.char_cursed_title), stringResource(R.string.char_cursed_help))
+            Muted(stringResource(R.string.char_cursed_warning))
+            CatalogPicker(stringResource(R.string.char_cursed_branch), CharacterCreationCatalog.cursedClassBranches, cursedClassBranchId, {
+                cursedClassBranchId = it
+                version++
+            }, allowNone = true)
+        }
+
+        val chosenCatalogEntries =
+            (listOf(raceId, subraceId, hybridId, cursedClassBranchId, classId, professionId) + additionalClassIds + curseIds.toList())
+                .filter { it.isNotBlank() }.mapNotNull { CharacterCreationCatalog.find(it) }
+        if (chosenCatalogEntries.isNotEmpty()) {
+            AppCard {
+                Text(stringResource(R.string.char_summary_title), style = MaterialTheme.typography.titleSmall)
+                chosenCatalogEntries.forEach { entry ->
+                    Text(entry.name, style = MaterialTheme.typography.bodyMedium)
+                    if (entry.summary.isNotBlank()) Muted(entry.summary)
+                    if (entry.lore.isNotBlank() && entry.lore != entry.summary) Muted(stringResource(R.string.char_lore, entry.lore))
+                    if (entry.benefits.isNotEmpty()) {
+                        entry.benefits.forEach { Muted(stringResource(R.string.char_benefit_summary, it)) }
+                    } else if (entry.benefit.isNotBlank()) {
+                        Muted(stringResource(R.string.char_benefit_summary, entry.benefit))
+                    }
+                    if (entry.drawbacks.isNotEmpty()) {
+                        entry.drawbacks.forEach { Muted(stringResource(R.string.char_drawback_summary, it)) }
+                    } else if (entry.drawback.isNotBlank()) {
+                        Muted(stringResource(R.string.char_drawback_summary, entry.drawback))
+                    }
+                    entry.mechanicalEffects.forEach {
+                        Muted(
+                            stringResource(
+                                R.string.char_effect_declared,
+                                entry.name,
+                                it.scope,
+                                (if (it.bonus >= 0) "+" else "") + it.bonus,
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+
+        editingChoicesFichaId?.let { fichaId ->
+            AppCard {
+                Text(
+                    stringResource(R.string.char_editing_choices, model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Muted(stringResource(R.string.char_editing_help))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(enabled = choiceErrors.isEmpty() && !dbBusy, onClick = {
+                        io({
+                            model.saveCharacterChoices(fichaId, choices)
+                            null
+                        }) {
+                            editingChoicesFichaId = null
+                            libraryMessage = context.getString(R.string.char_choices_updated)
+                        }
+                    }) { Text(stringResource(R.string.char_save_choices)) }
+                    TextButton(onClick = { editingChoicesFichaId = null }) { Text(stringResource(R.string.char_cancel)) }
+                }
+            }
+        }
+
+        // ---------- 2. Nome ----------
+        OutlinedTextField(draft.name, {
+            draft.name = it
+            version++
+        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.char_name)) }, singleLine = true)
+        OutlinedTextField(draft.concept, {
+            draft.concept = it
+            version++
+        }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.char_concept)) })
+
+        // ---------- 3. Atributos (pontos de status: pool próprio, trava no limite) ----------
+        val report = draft.report()
+        val statLeft = draft.statPointsLeft(report)
+        SectionTitle(stringResource(R.string.char_attributes), stringResource(R.string.char_stat_points_help))
+        AppCard(accent = if (statLeft < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.char_stat_points), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                Text(
+                    stringResource(R.string.char_points_left, statLeft, report.statPointsAvailable),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+            LinearProgressIndicator(
+                progress = { (report.statPointsSpent.toFloat() / report.statPointsAvailable.coerceAtLeast(1)).coerceIn(0f, 1f) },
+                modifier = Modifier.fillMaxWidth(),
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            )
+            if (statLeft <= 0) Muted(stringResource(R.string.char_stat_points_locked))
+        }
+        AppCard {
+            pkg.data.stats.forEach { st ->
+                val v = draft.stats()[st.id] ?: st.default
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(st.name, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    OutlinedButton(enabled = v > st.min, onClick = {
+                        draft.setStat(st.id, v - 1)
+                        version++
+                    }, modifier = Modifier.semantics { contentDescription = decreaseLabel(st.name) }) { Text("−") }
+                    Text(v.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
+                    // Travado: bateu o limite de pontos de status, não aceita mais "+".
+                    OutlinedButton(enabled = v < st.max && statLeft > 0, onClick = {
+                        draft.setStat(st.id, v + 1)
+                        version++
+                    }, modifier = Modifier.semantics { contentDescription = increaseLabel(st.name) }) { Text("+") }
+                }
+            }
+        }
+
+        // Perícias não se distribuem na criação: sobem por quest e por nível. Os pontos de habilidade (árvore) são dados à parte.
+        Muted(stringResource(R.string.char_skills_later))
+
+        // ---------- 5. Vantagens e desvantagens (seção própria: equilíbrio por quantidade, não por pontos) ----------
+        SectionTitle(stringResource(R.string.char_adv_dis_title), stringResource(R.string.char_adv_dis_help))
+        AppCard(accent = if (report.valid) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) {
+            if (pkg.balanceTable.isNotEmpty()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.char_balance), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    val ok = report.disadvantages >= report.disadvantagesRequired
+                    Pill(
+                        stringResource(R.string.char_balance_pill, report.advantages, report.disadvantages, report.disadvantagesRequired),
+                        if (ok) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
+                    )
+                }
+                Muted(stringResource(R.string.char_balance_help))
+            }
+            report.errors.forEach { ErrorText(it) }
+            report.warnings.forEach { Muted(it) }
+        }
+
+        // ---------- Cardápio do arquétipo (vantagens/desvantagens sugeridas) ----------
+        val menu = archId?.let { pkg.archetypeOptions(it) }
+        if (menu != null) {
+            SectionTitle(stringResource(R.string.char_menu_title), stringResource(R.string.char_menu_help))
+            Text(
+                stringResource(R.string.char_advantages),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.tertiary,
+            )
+            menu.advantages.mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, it.id in draft.traits()) { toggle(it.id) } }
+            Text(
+                stringResource(R.string.char_disadvantages),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+            menu.disadvantages.mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, it.id in draft.traits()) { toggle(it.id) } }
+        }
+
+        // ---------- 6. Escolhidos ----------
+        if (draft.traits().isNotEmpty()) {
+            SectionTitle(stringResource(R.string.char_on_sheet))
+            draft.traits().mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, true) { toggle(it.id) } }
+        }
+
+        // ---------- 7. Todos os traços ----------
+        SectionTitle(stringResource(R.string.char_all_traits_title), stringResource(R.string.char_all_traits_help))
+        OutlinedTextField(
+            traitQuery,
+            { traitQuery = it },
+            Modifier.fillMaxWidth(),
+            placeholder = { Text(stringResource(R.string.char_trait_search)) },
+            singleLine = true,
+            shape = MaterialTheme.shapes.large,
+        )
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(
+                "todos" to stringResource(R.string.char_filter_all),
+                "vantagem" to stringResource(R.string.char_advantages),
+                "desvantagem" to stringResource(R.string.char_disadvantages),
+                "poder" to stringResource(R.string.char_filter_powers),
+            )
+                .forEach { (id, label) -> FilterChip(selected = typeFilter == id, onClick = { typeFilter = id }, label = { Text(label) }) }
+        }
+        val allowed = remember(version, key) { draft.allowedTraits() }
+        val q = traitQuery.trim().lowercase()
+        val shown =
+            allowed.filter {
+                // Perícias sobem por quest/nível, não entram na criação.
+                !(pkg.separatePools && it.type == "pericia") &&
+                    (typeFilter == "todos" || it.type == typeFilter) &&
+                    (q.isEmpty() || it.name.lowercase().contains(q) || it.description.lowercase().contains(q))
+            }
+        Muted(
+            stringResource(R.string.char_traits_available, shown.size) +
+                if (shown.size > 40) stringResource(R.string.char_traits_showing_40) else "",
+        )
+        shown.take(40).forEach { TraitRow(it, false) { toggle(it.id) } }
+
+        // ---------- 8. Revisão final ----------
+        SectionTitle(
+            stringResource(R.string.char_final_title),
+            stringResource(R.string.char_final_help),
+        )
+        AppCard {
+            Text(draft.name.ifBlank { stringResource(R.string.char_unnamed) }, style = MaterialTheme.typography.titleMedium)
+            Muted(stringResource(R.string.char_final_race, CharacterCreationCatalog.find(raceId)?.name ?: notSelected))
+            if (subraceId.isNotBlank()) {
+                Muted(
+                    stringResource(R.string.char_final_subrace, CharacterCreationCatalog.find(subraceId)?.name ?: idNotFound),
+                )
+            }
+            if (hybridId.isNotBlank()) {
+                val hybrid = CharacterCreationCatalog.find(hybridId)
+                Muted(stringResource(R.string.char_final_hybrid, hybrid?.name ?: idNotFound))
+                if (hybrid != null) {
+                    Muted(
+                        stringResource(
+                            R.string.char_final_ancestries,
+                            hybrid.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "),
                         ),
                     )
                 }
             }
-        }
-    }
-
-    editingChoicesFichaId?.let { fichaId ->
-        AppCard {
-            Text(
-                stringResource(R.string.char_editing_choices, model.fichas.firstOrNull { it.id == fichaId }?.name ?: fichaId),
-                style = MaterialTheme.typography.titleSmall,
-            )
-            Muted(stringResource(R.string.char_editing_help))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(enabled = choiceErrors.isEmpty() && !dbBusy, onClick = {
-                    io({
-                        model.saveCharacterChoices(fichaId, choices)
-                        null
-                    }) {
-                        editingChoicesFichaId = null
-                        libraryMessage = context.getString(R.string.char_choices_updated)
-                    }
-                }) { Text(stringResource(R.string.char_save_choices)) }
-                TextButton(onClick = { editingChoicesFichaId = null }) { Text(stringResource(R.string.char_cancel)) }
-            }
-        }
-    }
-
-    // ---------- 2. Nome ----------
-    OutlinedTextField(draft.name, {
-        draft.name = it
-        version++
-    }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.char_name)) }, singleLine = true)
-    OutlinedTextField(draft.concept, {
-        draft.concept = it
-        version++
-    }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.char_concept)) })
-
-    // ---------- 3. Atributos ----------
-    SectionTitle(stringResource(R.string.char_attributes))
-    AppCard {
-        pkg.data.stats.forEach { st ->
-            val v = draft.stats()[st.id] ?: st.default
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(st.name, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                OutlinedButton(enabled = v > st.min, onClick = {
-                    draft.setStat(st.id, v - 1)
-                    version++
-                }, modifier = Modifier.semantics { contentDescription = decreaseLabel(st.name) }) { Text("−") }
-                Text(v.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
-                OutlinedButton(enabled = v < st.max, onClick = {
-                    draft.setStat(st.id, v + 1)
-                    version++
-                }, modifier = Modifier.semantics { contentDescription = increaseLabel(st.name) }) { Text("+") }
-            }
-        }
-    }
-
-    // ---------- 4. Pontos de perícia ----------
-    val skills = pkg.data.traits.filter { it.type == "pericia" }
-    if (skills.isNotEmpty()) {
-        SectionTitle(stringResource(R.string.char_skills_title), stringResource(R.string.char_skills_help))
-        AppCard {
-            skills.forEach { skill ->
-                val value = draft.skills()[skill.id] ?: 0
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Column(Modifier.weight(1f)) {
-                        Text(skill.name, style = MaterialTheme.typography.titleSmall)
-                        Muted(skill.description)
-                    }
-                    OutlinedButton(enabled = value > 0, onClick = {
-                        draft.setSkill(skill.id, value - 1)
-                        version++
-                    }, modifier = Modifier.semantics { contentDescription = decreaseLabel(skill.name) }) { Text("−") }
-                    Text(value.toString(), Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium)
-                    OutlinedButton(enabled = value < 5 && draft.pointsLeft() > 0, onClick = {
-                        draft.setSkill(skill.id, value + 1)
-                        version++
-                    }, modifier = Modifier.semantics { contentDescription = increaseLabel(skill.name) }) { Text("+") }
-                }
-            }
-        }
-    }
-
-    // ---------- 5. Contas da ficha ----------
-    val report = draft.report()
-    AppCard(accent = if (report.valid) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.char_points), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-            Text(
-                stringResource(R.string.char_points_left, draft.pointsLeft(), pkg.creationPoints),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-        LinearProgressIndicator(
-            progress = { (report.pointsSpent.toFloat() / pkg.creationPoints.coerceAtLeast(1)).coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth(),
-            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-        )
-        if (pkg.balanceTable.isNotEmpty()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.char_balance), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                val ok = report.disadvantages >= report.disadvantagesRequired
-                Pill(
-                    stringResource(R.string.char_balance_pill, report.advantages, report.disadvantages, report.disadvantagesRequired),
-                    if (ok) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
-                )
-            }
-            Muted(stringResource(R.string.char_balance_help))
-        }
-        report.errors.forEach { ErrorText(it) }
-        report.warnings.forEach { Muted(it) }
-    }
-
-    // ---------- 5. Cardápio do arquétipo ----------
-    val menu = archId?.let { pkg.archetypeOptions(it) }
-    if (menu != null) {
-        SectionTitle(stringResource(R.string.char_menu_title), stringResource(R.string.char_menu_help))
-        Text(
-            stringResource(R.string.char_advantages),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.tertiary,
-        )
-        menu.advantages.mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, it.id in draft.traits()) { toggle(it.id) } }
-        Text(
-            stringResource(R.string.char_disadvantages),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.error,
-        )
-        menu.disadvantages.mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, it.id in draft.traits()) { toggle(it.id) } }
-    }
-
-    // ---------- 6. Escolhidos ----------
-    if (draft.traits().isNotEmpty()) {
-        SectionTitle(stringResource(R.string.char_on_sheet))
-        draft.traits().mapNotNull { pkg.trait(it) }.forEach { TraitRow(it, true) { toggle(it.id) } }
-    }
-
-    // ---------- 7. Todos os traços ----------
-    SectionTitle(stringResource(R.string.char_all_traits_title), stringResource(R.string.char_all_traits_help))
-    OutlinedTextField(
-        traitQuery,
-        { traitQuery = it },
-        Modifier.fillMaxWidth(),
-        placeholder = { Text(stringResource(R.string.char_trait_search)) },
-        singleLine = true,
-        shape = MaterialTheme.shapes.large,
-    )
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf(
-            "todos" to stringResource(R.string.char_filter_all),
-            "vantagem" to stringResource(R.string.char_advantages),
-            "desvantagem" to stringResource(R.string.char_disadvantages),
-            "pericia" to stringResource(R.string.char_skills_title),
-            "poder" to stringResource(R.string.char_filter_powers),
-        )
-            .forEach { (id, label) -> FilterChip(selected = typeFilter == id, onClick = { typeFilter = id }, label = { Text(label) }) }
-    }
-    val allowed = remember(version, key) { draft.allowedTraits() }
-    val q = traitQuery.trim().lowercase()
-    val shown =
-        allowed.filter {
-            (typeFilter == "todos" || it.type == typeFilter) &&
-                (q.isEmpty() || it.name.lowercase().contains(q) || it.description.lowercase().contains(q))
-        }
-    Muted(
-        stringResource(R.string.char_traits_available, shown.size) +
-            if (shown.size > 40) stringResource(R.string.char_traits_showing_40) else "",
-    )
-    shown.take(40).forEach { TraitRow(it, false) { toggle(it.id) } }
-
-    // ---------- 8. Revisão final ----------
-    SectionTitle(
-        stringResource(R.string.char_final_title),
-        stringResource(R.string.char_final_help),
-    )
-    AppCard {
-        Text(draft.name.ifBlank { stringResource(R.string.char_unnamed) }, style = MaterialTheme.typography.titleMedium)
-        Muted(stringResource(R.string.char_final_race, CharacterCreationCatalog.find(raceId)?.name ?: notSelected))
-        if (subraceId.isNotBlank()) {
+            Muted(stringResource(R.string.char_final_class, CharacterCreationCatalog.find(classId)?.name ?: notSelected))
+            Muted(stringResource(R.string.char_final_profession, CharacterCreationCatalog.find(professionId)?.name ?: notSelected))
+            Muted(stringResource(R.string.char_final_cursed, CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: noneLabel))
             Muted(
-                stringResource(R.string.char_final_subrace, CharacterCreationCatalog.find(subraceId)?.name ?: idNotFound),
+                stringResource(
+                    R.string.char_final_hybrid_classes,
+                    (listOf(classId).filter { it.isNotBlank() } + additionalClassIds)
+                        .mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf(noneLabel) }.joinToString(" + "),
+                ),
+            )
+            Muted(stringResource(R.string.char_final_curses_note))
+            Muted(
+                stringResource(
+                    R.string.char_final_traits,
+                    draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf(noneMasc) }.joinToString(", "),
+                ),
+            )
+            Muted(
+                stringResource(
+                    R.string.char_final_stats,
+                    draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" },
+                ),
             )
         }
-        if (hybridId.isNotBlank()) {
-            val hybrid = CharacterCreationCatalog.find(hybridId)
-            Muted(stringResource(R.string.char_final_hybrid, hybrid?.name ?: idNotFound))
-            if (hybrid != null) {
-                Muted(
-                    stringResource(
-                        R.string.char_final_ancestries,
-                        hybrid.hybridRaceIds.mapNotNull { CharacterCreationCatalog.find(it)?.name }.joinToString(" + "),
-                    ),
-                )
-            }
-        }
-        Muted(stringResource(R.string.char_final_class, CharacterCreationCatalog.find(classId)?.name ?: notSelected))
-        Muted(stringResource(R.string.char_final_profession, CharacterCreationCatalog.find(professionId)?.name ?: notSelected))
-        Muted(stringResource(R.string.char_final_cursed, CharacterCreationCatalog.find(cursedClassBranchId)?.name ?: noneLabel))
-        Muted(
-            stringResource(
-                R.string.char_final_hybrid_classes,
-                (listOf(classId).filter { it.isNotBlank() } + additionalClassIds)
-                    .mapNotNull { CharacterCreationCatalog.find(it)?.name }.ifEmpty { listOf(noneLabel) }.joinToString(" + "),
-            ),
-        )
-        Muted(stringResource(R.string.char_final_curses_note))
-        Muted(
-            stringResource(
-                R.string.char_final_traits,
-                draft.traits().mapNotNull { pkg.trait(it)?.name }.ifEmpty { listOf(noneMasc) }.joinToString(", "),
-            ),
-        )
-        Muted(
-            stringResource(
-                R.string.char_final_stats,
-                draft.stats().entries.joinToString(", ") { (id, value) -> "${pkg.stat(id)?.name ?: id}: $value" },
-            ),
-        )
-    }
 
-    // ---------- 9. Criar ----------
-    Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null && choiceErrors.isEmpty() && !dbBusy, onClick = {
-        when (val b = draft.build()) {
-            is FichaBuild.Created -> {
-                var newId = draftId
-                io({
-                    model.saveFicha(b.ficha)
-                    model.saveCharacterChoices(b.ficha.id, choices)
-                    newId = model.newFichaId()
-                    null
-                }) { failure ->
-                    if (failure == null) {
-                        draftId = newId
-                        message = context.getString(R.string.char_created, b.ficha.name)
-                    } else {
-                        message = failure
+        // ---------- 9. Criar ----------
+        Button(modifier = Modifier.fillMaxWidth(), enabled = editingChoicesFichaId == null && choiceErrors.isEmpty() && !dbBusy, onClick = {
+            when (val b = draft.build()) {
+                is FichaBuild.Created -> {
+                    var newId = draftId
+                    io({
+                        model.saveFicha(b.ficha)
+                        model.saveCharacterChoices(b.ficha.id, choices)
+                        newId = model.newFichaId()
+                        null
+                    }) { failure ->
+                        if (failure == null) {
+                            draftId = newId
+                            message = context.getString(R.string.char_created, b.ficha.name)
+                        } else {
+                            message = failure
+                        }
                     }
                 }
+                is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
             }
-            is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
-        }
-    }) { Text(stringResource(R.string.char_create)) }
-    message?.let { Muted(it) }
+        }) { Text(stringResource(R.string.char_create)) }
+        message?.let { Muted(it) }
+    }
 
     SectionTitle(stringResource(R.string.char_import_title), stringResource(R.string.char_import_help))
     AppCard {
@@ -806,7 +896,8 @@ private fun Creator(
                         hybridId = saved.hybridId
                         classId = saved.classId
                         professionId = saved.professionId
-                        ageBand = saved.ageBand
+                        ageText = saved.age.takeIf { it > 0 }?.toString().orEmpty()
+                        sex = saved.sex
                         curseIds = saved.curseIds.toSet()
                         editingChoicesFichaId = f.id
                         message = null

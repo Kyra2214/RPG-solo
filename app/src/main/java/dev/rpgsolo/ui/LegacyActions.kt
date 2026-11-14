@@ -31,6 +31,8 @@ class LegacyActions(
     private val playerId: () -> String,
     private val setPlayer: (String) -> Unit,
     private val onChanged: () -> Unit,
+    /** Nova vida: recomeça a idade ([anos], classe de longevidade ou null = a do herói anterior). Devolve o motivo da falha, ou null. */
+    private val restartAge: (anos: Int, classe: String?) -> String? = { _, _ -> null },
 ) {
     private fun rebirthItem(heroId: String): String? {
         val ids = activePackage()?.rebirthItemIds.orEmpty()
@@ -47,7 +49,7 @@ class LegacyActions(
         val npcs =
             state.entities.values.filter { it.kind == EntityKind.NPC && it.alive }.sortedBy { it.name }.mapNotNull { npc ->
                 val sheet = state.npcSheet(npc.id) ?: return@mapNotNull null
-                LegacyNpcOption(npc.id, npc.name, sheet.discovered)
+                LegacyNpcOption(npc.id, npc.name, sheet.publicInfo + sheet.discovered)
             }
         return LegacyView(hero.name, item?.let { pkg?.item(it)?.name ?: it }, npcs, item == null && npcs.isEmpty(), state.endedReason)
     }
@@ -62,12 +64,22 @@ class LegacyActions(
         }
 
     /** Usa o item de renascimento do herói morto (consome 1; volta com a fração de PV do pacote). */
-    fun useRebirth(): String? = run(UseRebirthItem(playerId()))
+    fun useRebirth(): String? {
+        val refusal = run(UseRebirthItem(playerId()))
+        // Quem renasce volta criança (7 anos), sem virar bebê.
+        if (refusal == null) restartAge(IdadeHeroi.IDADE_RENASCIDO, null)
+        return refusal
+    }
 
     /** O jogador passa a controlar [npcId]; o herói morto vira corpo. O app troca o `playerId` se o motor aceitar. */
     fun assume(npcId: String): String? {
         val refusal = run(AssumeNpc(npcId))
-        if (refusal == null) setPlayer(npcId)
+        if (refusal == null) {
+            setPlayer(npcId)
+            // O NPC tem identidade e idade próprias (definidas pelo Mestre): a vida nova começa com a idade dele.
+            val dossier = session().state.npcDossiers[npcId]
+            if (dossier != null && dossier.age > 0) restartAge(dossier.age, dossier.longevityClass.ifBlank { null })
+        }
         return refusal
     }
 

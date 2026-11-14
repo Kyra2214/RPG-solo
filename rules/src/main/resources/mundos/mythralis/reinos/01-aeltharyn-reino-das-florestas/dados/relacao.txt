@@ -76,3 +76,5 @@ npc.parel-tres-parafusos|—|Coroa|tensão|[discordância] recusa patrocínio co
 npc.nimeth-vela-chuva|—|críticos|tensão|[tensão] acusam-na de decidir sozinha o que o povo conhece|doc 01 §19.1|C
 npc.avarra-sete-pontes|—|famílias removidas|rivalidade|[rivalidade] contestam a celebração; duas famílias removidas para o trajeto|doc 01 §17 e §19.1|C
 npc.avariel-thorne|—|conselho urbano|vínculo de cargo|[vínculo] fiscalizado por ele; nomeado pelo rei|doc 01 §5.1|C
+faction.companhia-ambar|faction.vigias-primeiro-verde|—|rivalidade|[rivalidade forte] a Companhia explora âmbar e resina; os Vigias existem para impedir extração destrutiva|decisão do autor 14/11/2026; metas em faccao.txt|C
+faction.liga-das-rotas|faction.irmandade-aguas|—|rivalidade|[rivalidade leve] a Liga mantém estradas, rios e portos abertos; a Irmandade protege rios, canais e diques|decisão do autor 14/11/2026; metas em faccao.txt|C

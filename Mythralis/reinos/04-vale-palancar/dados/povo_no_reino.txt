@@ -1,6 +1,6 @@
 # esquema=1
 povo|reino|relacao|cidades|nota|fonte
-orcano|kingdom.vale-palancar|originário|city.terreiro-maior;city.vazante;city.gramal|Orcano|doc 10 §1; M-05 (D-24)
+orcano|kingdom.vale-palancar|originário|city.terreiro-maior;city.vazante;city.gramal|Orc|doc 10 §1; M-05 (D-24)
 tabaxi|kingdom.vale-palancar|originário|city.vazante;city.encosta-aberta|Felídeo Errante|doc 10 §1; M-05 (D-24)
 centauro|kingdom.vale-palancar|originário|city.terreiro-maior;city.vazante;city.encosta-aberta|Centauro|doc 10 §1; M-05 (D-24)
 goblin|kingdom.vale-palancar|originário|city.rasovau;city.praia-pardo;city.alvasal|Goblin|doc 10 §1; M-05 (D-24)

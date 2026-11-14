@@ -76,19 +76,19 @@ Vivem em cidades profundas e mantêm mapas de cavernas que mudam com o tempo.
 
 **Herança:** {'mode': 'inherit-and-extend', 'inheritedTraitIds': [], 'addedTraitIds': [], 'replacedTraitIds': []}
 
-### Orcano das Estepes  
+### Orc das Estepes  
 `orcano-das-estepes`
 
-Sua cultura acompanha rebanhos, ventos e encontros sazonais entre clãs. (raça-base: Orcano)
+Sua cultura acompanha rebanhos, ventos e encontros sazonais entre clãs. (raça-base: Orc)
 
 Sua cultura acompanha rebanhos, ventos e encontros sazonais entre clãs.
 
 **Herança:** {'mode': 'inherit-and-extend', 'inheritedTraitIds': [], 'addedTraitIds': [], 'replacedTraitIds': []}
 
-### Orcano das Matas  
+### Orc das Matas  
 `orcano-das-matas`
 
-Comunidades de floresta preservam trilhas discretas e pactos com aldeias vizinhas. (raça-base: Orcano)
+Comunidades de floresta preservam trilhas discretas e pactos com aldeias vizinhas. (raça-base: Orc)
 
 Comunidades de floresta preservam trilhas discretas e pactos com aldeias vizinhas.
 

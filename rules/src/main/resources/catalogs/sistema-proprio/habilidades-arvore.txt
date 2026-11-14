@@ -874,7 +874,7 @@ profissao-arquivista-5|arquivista|Arquivo Total|PROFESSION|PASSIVE|-|-|false|-|3
 racial-humano|humano|Humano — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-humano,defesa,1,1,passiva-defesa,-,-
 racial-elfo|elfo|Elfo — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-elfo,defesa,1,1,racial-elfo,1,-
 racial-anao|anao|Anão — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-anao,ataque,1,1,racial-anao,1,-
-racial-orcano|orcano|Orcano — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-orcano,percepcao,1,1,passiva-percepcao,-,-
+racial-orcano|orcano|Orc — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-orcano,percepcao,1,1,passiva-percepcao,-,-
 racial-pequenino|pequenino|Pequenino — Dom Inato|RACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-pequenino,defesa,1,1,passiva-defesa,-,-
 racial-gnomo|gnomo|Gnomo — Dom Inato|RACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-gnomo,defesa,1,1,racial-gnomo,1,-
 racial-draconato|draconato|Draconato — Dom Inato|RACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-draconato,ataque,1,1,racial-draconato,1,-
@@ -929,8 +929,8 @@ racial-elfo-do-crepusculo|elfo-do-crepusculo|Elfo do Crepúsculo — Dom Inato|S
 racial-anao-das-montanhas|anao-das-montanhas|Anão das Montanhas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-anao-das-montanhas,percepcao,1,1,passiva-percepcao,-,-
 racial-anao-das-forjas|anao-das-forjas|Anão das Forjas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-anao-das-forjas,defesa,1,1,passiva-defesa,-,-
 racial-anao-dos-abismos|anao-dos-abismos|Anão dos Abismos — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-anao-dos-abismos,defesa,1,1,racial-anao-dos-abismos,1,-
-racial-orcano-das-estepes|orcano-das-estepes|Orcano das Estepes — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-orcano-das-estepes,ataque,1,1,racial-orcano-das-estepes,1,-
-racial-orcano-das-matas|orcano-das-matas|Orcano das Matas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-orcano-das-matas,percepcao,1,1,passiva-percepcao,-,-
+racial-orcano-das-estepes|orcano-das-estepes|Orc das Estepes — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-orcano-das-estepes,ataque,1,1,racial-orcano-das-estepes,1,-
+racial-orcano-das-matas|orcano-das-matas|Orc das Matas — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-orcano-das-matas,percepcao,1,1,passiva-percepcao,-,-
 racial-pequenino-ribeirinho|pequenino-ribeirinho|Pequenino Ribeirinho — Dom Inato|SUBRACE|PASSIVE|-|-|false|-|1|-|-|0|true|MODIFIER|0|-|1|SELF|fx-racial-pequenino-ribeirinho,defesa,1,1,passiva-defesa,-,-
 racial-pequenino-viajante|pequenino-viajante|Pequenino Viajante — Dom Inato|SUBRACE|DEFENSE|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-pequenino-viajante,defesa,1,1,racial-pequenino-viajante,1,-
 racial-gnomo-das-engrenagens|gnomo-das-engrenagens|Gnomo das Engrenagens — Dom Inato|SUBRACE|BUFF|-|-|false|-|1|-|-|0|true|MODIFIER|1|pm|1|SELF|fx-racial-gnomo-das-engrenagens,ataque,1,1,racial-gnomo-das-engrenagens,1,-

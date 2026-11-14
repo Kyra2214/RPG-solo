@@ -45,6 +45,7 @@ class FakeAiPlayTest {
 
         // Ficha: usar um exemplo válido do pacote para que o motor aceite a ficha ao iniciar a campanha.
         composeRule.onNodeWithText("Heróis").performClick()
+        composeRule.onNodeWithText("Modo avançado").performClick()
         composeRule.onNodeWithText("Guerreiro de exemplo").performScrollTo().performClick()
         composeRule.onNodeWithText("Nome").performTextReplacement("Herói IA")
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()

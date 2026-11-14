@@ -1,3 +1,498 @@
+## 14/11/2026 — Decisões editoriais WD-03, WD-08 e WD-09 (só documentação)
+
+- Autor decidiu: Dauren Galho-de-Ferro é o segundo general de Aeltharyn (já principal e general em `npc.txt`; A-01 de generais cumprido); cidades do tritão (Thalanor), goblin e homem-rato (Silvaran) confirmadas; as duas rotas Altavento–Pedra-Ata ficam (trilha e aéreo). Relatórios `WD-03`, `WD-08`, `WD-09`, `PLANO_RPG_SOLO.md` e progresso atualizados; nenhum dado nem código alterado. Percentual: 130 de 157 (≈82,8%). Restam MI-23, MI-24 e Q-08 (aparelho/Gradle).
+- Os relatórios WD-03 e WD-08 estavam defasados em relação aos dados (generais e cidades já registrados); corrigidos.
+
+## 14/11/2026 — Testes da Fase 5 (parte 6, fim da D-10)
+
+- `MarcosMemorialTest` (`engine`): certeza dos marcos, o que o NPC sabe, consulta por pessoa, contexto do mestre e ordem do memorial. **Escritos, não executados** (sem Gradle). Com isso todos os blocos citados na D-10 têm ao menos um teste escrito; falta executar a suíte completa no CI, o `ktlintCheck` e gerar o `13.json`.
+
+## 14/11/2026 — Testes da Fase 5 (parte 5)
+
+- `ProcuradoMp06Test` (`engine`): decaimento, procurado vivo, alcance pelas passagens, escalada (testemunha, recursos, Boss), agentes e escaladas devidas. **Escritos, não executados** (sem Gradle). Seguem sem teste: Memorial e Milestone.
+
+## 14/11/2026 — Testes da Fase 5 (parte 4)
+
+- `MundoProprioMp08Test` (`rules`): `CustomWorldValidator` (rascunho válido, ids e nomes duplicados, ligações, mapa desconexo, limites). **Escritos, não executados** (sem Gradle). Seguem sem teste: Memorial, Milestone, Wanted.
+
+## 14/11/2026 — Testes da Fase 5 (parte 3)
+
+- `FamaVidaForaDeCenaTest` (`engine`): efeitos da fama, rumores (força, espalhamento, ordem e limite), veracidade determinística e vida fora de cena (limites, determinismo, sem tocar marcos). **Escritos, não executados** (sem Gradle). Seguem sem teste: Memorial, Milestone, Wanted, CustomWorldValidator.
+
+## 14/11/2026 — Testes da Fase 5 (parte 2)
+
+- `PanteaoRivaisReencontroTest` (`engine`): registro de rivais (RV-02), panteão (RV-03), orçamento de aparições e plano do reencontro (MP-04). **Escritos, não executados** (sem Gradle). Seguem sem teste: Memorial, Milestone, Fame, Wanted, OffscreenRules, CustomWorldValidator.
+
+## 14/11/2026 — Testes da Fase 5 (primeira parte)
+
+- `LegendsReencounterTest` (`engine`): contratos de `Legends` (escolha, semeadura idempotente, avanço de um estágio por dia, teto 3, contexto) e de `ReencounterLevel`. **Escritos, não executados**: o ambiente não tem Gradle. Os demais blocos da D-10 (Memorial, Pantheon, Rivals, Milestone, Fame, Wanted, Reencounter, OffscreenRules, CustomWorldValidator) seguem sem teste.
+
+## 14/11/2026 — LG-05: lendas entre campanhas
+
+- `engine/Legends.kt`: `Legends.pick` (até 3 heróis mortos do panteão), `Legends.seed` (fatos `lenda.*` e rumor de bardo no lugar atual), comando `AdvanceLegend` (um estágio por dia, só o motor grava; estágios 0 a 3) e `Legends.masterContext`. `ai`: proposta `advance_legend`. `app`: interruptor "trazer lendas" na nova campanha (`AppModel.seedLegends`) e contexto do mestre.
+- ASSUMINDO: sem tabela `legados` nem migração (estado em `GameState.facts`, recorrentes do MP-02); panteão de todos os mundos das campanhas salvas; estágio 2 = relíquia e 3 = herdeiro; sem lugar atual não há rumor, só os fatos. Escrito, não compilado; sem teste novo até a conclusão da fase.
+
+## 14/11/2026 — MP-04: escala de nível do reencontro (fecha D-18)
+
+- `engine/Reencounter.kt`: `ReencounterLevel.forCharacter` (nível do grupo + 2 por faixa de cargo ganha ou perdida fora de cena, limitado a ±4, mínimo 1); `AppModel.reencounterPlan` passa a usá-la no lugar do nível fixo do herói. O contexto do mestre diz que o nível é fixado pelo motor.
+- ASSUMINDO: escala no motor, não no pacote (o pacote só escala itens); 2 por faixa e teto ±4 são valores iniciais. Escrito, não compilado; sem teste novo até a conclusão da fase.
+
+## 14/11/2026 — WD-01: validador de autoria com consumidor (fecha D-09)
+
+- `world/ValidacaoAutoria.kt`: carrega o molde de Mythralis pelo classpath, soma os erros de carga aos achados do `ValidadorAutoria` (A-01 a A-06), imprime e grava o relatório; código de saída 1 com erro de carga ou achado `E`, avisos só listados. Tarefa Gradle `:world:validarAutoria` (relatório em `world/build/reports/autoria/`) ligada a `check`; passo novo no CI (`android-ci.yml`) e relatório nos artefatos.
+- Conferência por réplica em Python das regras sobre os dados atuais: 0 erros e 6 avisos (Vale Palancar e Véu dos Malditos com 8 cidades; 4 portos com meio de rota `?`), então o build não quebra hoje. Escrito, não compilado; sem teste novo até a conclusão da fase.
+- ASSUMINDO: avisos não falham o build (conteúdo em escrita, WD-03 a WD-09); o `ValidadorGeografia` (WD-02) não entra neste consumidor por estar fora do escopo do WD-01.
+
+## 14/11/2026 — MP-08: mundo próprio ligado à tela de nova campanha (fecha D-07)
+
+- `AppModel.proposeCustomWorld` (IA propõe via `CustomWorldProposer`, o motor valida) e `AppModel.installCustomWorld` (`CustomWorld.install` na campanha recém-criada, sob exclusividade de turno). Na revisão da nova campanha, com o mundo próprio escolhido, o botão "Criar o meu mundo com a IA" usa a descrição livre, mostra o mundo validado ou os erros do motor e instala ao começar. Strings `campaign_custom_world_*`. Sem migração. Escrito, não compilado.
+- ASSUMINDO: a instalação ocorre logo após o início da campanha (o `CampaignStarter` não muda); falha ao instalar aparece na tela de início e a campanha segue com a ambientação livre. Sem edição manual do rascunho; testes na conclusão da fase.
+
+## 14/11/2026 — MP-07: acionamento de fama e rumores (fecha D-03)
+
+- `ai`: propostas `start_rumor` (a veracidade é sorteada pelo motor, nunca informada pela IA) e `change_fame` (deltas limitados a ±30). `app`: `advanceRumors` espalha os rumores pelas passagens a cada dia (`SpreadRumors` + fato `rumores.dia` no mesmo lote, sem migração) e `fameContextForMaster` informa ao mestre reconhecimento, tendência de recepção e de preço e os rumores com força no lugar atual (sem veracidade nem números).
+- ASSUMINDO: preço e relação inicial de `Fame.effects` chegam como orientação ao mestre; a loja do app não aplica o ajuste de preço (exibiria preço diferente do cobrado). Rumor iniciado depois da última propagação envelhece pelos dias desde ela. Escrito, não compilado.
+
+## 14/11/2026 — MP-06: acionamento de Alcance, Procurado e relíquias (fecha D-02)
+
+- `ai`: propostas `issue_wanted`, `register_relic` e `transfer_relic` (validadas pelo motor); a IA não escala nem cria caçadores. `engine`: `Wanted.dueEscalations` (3 dias por nível do degrau, só o que `cannotEscalate` aceita; um degrau por chamada; idempotente).
+- `app`: `AppModel.advanceWanted` executa as escaladas ao montar o contexto do mestre (por isso `GameState.wanted` e o contexto de agentes passam a ter dados); `wantedList/wantedBounty/respondWanted` (pagar e subornar descontam moedas do pacote no mesmo lote do `RespondWanted`) e `WantedPanel` na aba Jogar (item `procurado`) com as 6 respostas. Strings `wanted_*`. Sem migração. Escrito, não compilado.
+- ASSUMINDO: grupo = herói; pagar custa a recompensa atual e subornar a metade; relíquias só entram por proposta da IA (sem tela). Testes na conclusão da fase.
+
+## 14/11/2026 — MP-04: contador de marcos novos no orçamento do reencontro (D-18, parte 1)
+
+- `RecurringCharacter.newMilestones` (opcional, dados antigos = 0): `RecurringIdentity.merge` conta os marcos desconhecidos do registro antigo (acumula na mesma campanha, recomeça em outra). `AppModel.reencounterPlan` passa o valor ao `ReencounterCandidate`, então o bônus de +10 por marco novo do `Reencounter.chance` passa a valer. Sem migração (JSON do Room). Escrito, não compilado.
+- Pendente (sem API no pacote, não inventada): função de escala de nível pelo pacote; o nível segue o do herói, como a regra de aliados do M-04. MP-04 continua 🟡; percentual inalterado.
+
+## 14/11/2026 — MP-05: adaptador de recorrentes e eixos no reencontro (fecha D-04)
+
+- `RelationAxes.originNpcId/profileOf/contextOf`: perfil em eixos de um `RecurringCharacter` de campanha antiga, derivado só dos marcos que ele guarda (id de origem deduzido do participante mais frequente fora do herói; relação numérica conta 0). Nada é gravado.
+- `AppModel.reencounterContextForMaster` anexa o contexto de eixos ao reencontro. Sem migração. Escrito, não compilado.
+- ASSUMINDO: o herói tem o mesmo id entre campanhas (`hero`); testes na conclusão da fase.
+
+## 14/11/2026 — MP-01: acionamento dos marcos (fecha D-06)
+
+- `ai/Proposals.kt`: novas propostas `record_milestone`, `learn_milestone` e `revise_milestone`, convertidas em `RecordMilestone`, `LearnMilestone` e `ReviseMilestone`; tipo, certeza e escopo fora da lista são recusados com a lista de valores permitidos (sem correção silenciosa). O motor segue validando participantes, lugar, limites e certeza.
+- `AppModel.privateNpcContext` anexa `MilestoneContext.forNpc` aos NPCs da cena: o mestre só recebe o que o NPC viveu ou descobriu. Sem migração. Escrito, não compilado.
+- ASSUMINDO: a IA registra marcos só do que ocorreu na cena (regra no prompt); testes na conclusão da fase.
+
+## 14/11/2026 — LG-02: emissão das notas fixadas dos vínculos (fecha D-08)
+
+- `AppModel.emitLegacyPins` grava pelo motor (`NoteMemory`, uma por vez) as notas `[fixa]` de `LegacyMemory.pendingPins`; é chamada ao montar o contexto do mestre e é idempotente.
+- `LegacyMemory.pendingPins` não emite quando o NPC já tem `PINNED_NOTES_MAX` notas fixadas, para o `MemoryRollup` não descartar uma e a emissão se repetir a cada jogada. Sem migração. Escrito, não compilado.
+- ASSUMINDO: a emissão ocorre na primeira jogada após a morte do herói, não no instante da morte; testes na conclusão da fase.
+
+## 14/11/2026 — Auditoria técnica integral e independente (análise estática)
+
+- Auditoria do código contra o roadmap, sem compilar nem executar. Relatório: `docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`. Progresso real recalculado: 118 de 157 requisitos confirmados (≈75%), 35 parciais, 3 pendentes, 1 impossível de confirmar. O ≈79% anterior foi substituído.
+- 19 divergências registradas (5 altas, 9 médias, 5 baixas): Room 13 sem `13.json`; MP-06, MP-07 e MP-05 implementados mas sem acionamento; LG-05 ausente; MP-01, MP-08, LG-02 e WD-01 sem ligação; testes da Fase 5 ausentes; README e §9 desatualizados; `12.json` com hash suspeito.
+- Corrigido (somente documentação): README (Room 13, validação não comprovada, limitações), roadmap (cabeçalho, §1, §3.2, §9, nova §10), `PROGRESSO_EXECUCAO.md`. **Nenhum código-fonte foi alterado.**
+- Pendências e validação prática (Gradle, CI, `13.json`, testes) ficam com o proprietário.
+
+## 14/11/2026 — LG-06: interface do memorial e do panteão
+
+- Novo `engine/Memorial.kt` (`MemorialCard`, `Memorial.cards`): cartões dos heróis mortos da campanha, derivados do legado (LG-01), mais recente primeiro. Novo `MemorialPanel` (aba Jogar, item `memorial`): cartões e lista recolhível do panteão do mundo (`AppModel.pantheon()`, RV-03). Strings `memorial_*`.
+- Só leitura, sem estado novo nem migração. ASSUMINDO: painel oculto sem herói morto e sem panteão. Escrito, não compilado.
+
+## 14/11/2026 — RV-06: interface do rival
+
+- Novo `RivalPanel` (aba Jogar): botão Poupar para NPC relevante no limite da vida, no turno do jogador (`EndNpcAlive` SPARED, atitude de dívida, XP pela metade), e lista de rivais registrados. `CombatActions.spareOptions/spare`, `AppModel.spareOptions/spare/rivals`, strings `rival_*`.
+- ASSUMINDO: limiar de 25% da vida e atitude DEBT ao poupar. Escrito, não compilado.
+
+## 14/11/2026 — RV-05: cena e quests do mestre para o rival
+
+- Novo `engine/RivalQuests.kt`: oferta (uma por rival e papel, nenhuma com outra de rival ativa), teto de XP por papel e instrução ao mestre para vilão, chefão, aliado, favor e redenção.
+- `ai`: `QuestRequest.rival` validado como booleano. `app`: `reencounterPlan` extraído, `addRivalQuest` com recusa sem oferta e XP limitado; a instrução entra no contexto do reencontro. Sem migração. Escrito, não compilado.
+
+## 14/11/2026 — RV-04: gatilho e papel do retorno do rival
+
+- Novo `engine/RivalReturn.kt`: `ReturnRole` (vilão, chefão, aliado, favor, redenção) decidido pelo motor a partir da atitude, do desfecho (RV-01) e do cargo fora de cena (MP-03), sem sorteio; `seeksHeir` quando o herói que o derrotou já morreu.
+- `ReencounterPlan.role/seeksHeir` e `Reencounter.masterContext` informam o papel ao mestre. Sem migração. Escrito, não compilado.
+
+## 14/11/2026 — RV-03: panteão unificado
+
+- Novo `engine/Pantheon.kt`: heróis mortos e rivais num só registro público derivado dos recorrentes persistidos (sem migração); ordem determinística, limite de 30 entradas e `masterContext` de até 3. `AppModel.pantheon()` para a interface.
+- Ligação ao mestre fica para RV-04/RV-05. Escrito, não compilado.
+
+## 14/11/2026 — RV-02: registro do rival
+
+- Novo `engine/Rival.kt`: `Rivals.register` deriva os rivais dos NPCs recorrentes vivos com derrota sem morte (poupado, fugiu, humilhado), com atitude, alvo, alvo morto (procura o herdeiro) e prioridade determinística.
+- `RecurringCharacter.defeatedBy` (opcional, compatível com dados antigos), preenchido pelo `RecurringExtractor` e preservado no `merge`. Sem migração. Escrito, não compilado.
+
+## 14/11/2026 — LG-04: itens do corpo, lado da IA
+
+- `AppModel.bodyLootContextForMaster`: o mestre recebe os corpos com itens e a regra (só o jogador recupera, pelo motor; teste de destreza e turno gasto em combate); a IA narra e não entrega esses itens por `add_item`. Entra no contexto do mestre junto dos demais.
+- O lado `engine`/`app` (`TransferBodyItems`, `recoverBody`, `BodyLootPanel`) já existia desde 12/11. Escrito, não compilado.
+
+## 14/11/2026 — WD-10: integração do mundo (vida fora de cena no reencontro)
+
+- `AppModel.reencounterContextForMaster` aplica `OffscreenRules.advance` (MP-03) aos NPCs recorrentes, com os lugares da campanha e os outros recorrentes como opções, e anexa a vida fora de cena ao contexto do reencontro (MP-04). Determinístico pela semente do motor, sem gravar estado (sem migração).
+- Instanciação sob demanda, contexto por cena, cânone e os 3 modos já existiam (MI-12, MI-18, MI-20, MI-21). Escrito, não compilado.
+
+## 14/11/2026 — WD-09: auditoria de facções, rotas e conflitos
+
+- 64 facções e 55 rotas: referências válidas, rivalidades recíprocas, pontas de rota existentes; pendências editoriais registradas (Aeltharyn sem rivalidades; par Altavento–Pedra-Ata com duas rotas `?` em Coroas de Pedra).
+- Relatório `docs/relatorios/WD-09-auditoria-faccoes-rotas.md`; molde exportado intocado.
+
+## 14/11/2026 — WD-08: auditoria de povos e migrações
+
+- Originários por reino (11, 12, 11, 12, 9) coincidem com M-05 §3; toda cidade citada existe; aliado e migrantes de Aeltharyn sem cidade (`?`) aguardam o autor.
+- Relatório `docs/relatorios/WD-08-auditoria-povos.md`; molde exportado intocado.
+
+## 14/11/2026 — WD-07: auditoria de escala de Azeroth
+
+- Azeroth (reino 5): 10 cidades, 12 NPCs principais (2 heróis, 2 generais), 15 facções e 9 rotas (meio `?`, D-153) cumprem integralmente a escala; sem pendências.
+- Relatório `docs/relatorios/WD-07-auditoria-05.md`; molde exportado intocado (manifesto e hashes preservados).
+
+## 14/11/2026 — WD-06: auditoria de escala do Vale Palancar
+
+- Vale Palancar (reino 4): 8 lugares (escala decidida pelo autor em D-102, que prevalece sobre o mínimo de 10 do plano; aviso A-01 de cidades esperado), 12 NPCs principais com 2 heróis e 2 generais, 14 facções e 6 rotas registradas (meio e duração `?`, D-63).
+- Relatório `docs/relatorios/WD-06-auditoria-04.md`; molde exportado intocado (manifesto e hashes preservados).
+
+## 14/11/2026 — WD-05: auditoria de escala do Véu dos Malditos
+
+- Véu dos Malditos (reino 3): 8 lugares (escala decidida pelo autor em D-66, que prevalece sobre o mínimo de 10 do plano; aviso A-01 de cidades esperado), 12 NPCs principais com 2 heróis e 2 generais, facções e rotas registradas.
+- Relatório `docs/relatorios/WD-05-auditoria-03.md`; molde exportado intocado (manifesto e hashes preservados).
+
+## 14/11/2026 — WD-04: auditoria de escala de Coroas de Pedra
+
+- Coroas de Pedra (reino 2): 10 cidades, 12 NPCs principais (2 heróis, 2 generais) e registros completos de facções e rotas cumprem integralmente a escala; sem pendências.
+- Relatório `docs/relatorios/WD-04-auditoria-02.md`; molde exportado intocado (manifesto e hashes preservados).
+
+## 14/11/2026 — WD-03: auditoria de escala de Aeltharyn
+
+- Aeltharyn (reino 1): 10 cidades, 10 NPCs principais (2 heróis), 17 rotas e 10 facções cumprem a escala; **pendência editorial** de 1 general (A-01), à espera da decisão do autor sobre o segundo general (candidato: Dauren Galho-de-Ferro).
+- Relatório `docs/relatorios/WD-03-auditoria-01.md`; molde exportado intocado (manifesto e hashes preservados).
+
+## 14/11/2026 — WD-02: geografia e regiões
+
+- Novo `geografia/geografia.txt` (18 feições de M-04) e `world/GeografiaMundo.kt` com `ValidadorGeografia` (G-01 a G-07): rio nasce em área elevada e desce, vizinhança recíproca, fortaleza em posição defensável, reino sem feição. Carregamento fora do manifesto do molde gerado.
+- Escrito, não compilado.
+
+## 14/11/2026 — MP-06: alcance e procurado
+
+- Novo `engine/Wanted.kt`: escada de alcance em 6 degraus com custo para o emissor, procurado com decaimento e renovação por marco, propagação pelas passagens, agentes escalonados pelo grupo, respostas do jogador e relíquia com histórico de donos; comandos, eventos e estado correspondentes; contexto do mestre no `AppModel`.
+- Escrito, não compilado.
+
+## 14/11/2026 — MP-03: vida fora de cena
+
+- Novo `engine/OffscreenLife.kt`: passos pequenos e limitados entre campanhas (cargo, cidade, aliança, perda de poder), por semente e personalidade, sem tocar relações nem marcos; `RecurringCharacter.offscreen` opcional.
+- Escrito, não compilado.
+
+## 14/11/2026 — MP-04: reencontro com justificativa
+
+- Novo `engine/Reencounter.kt`: orçamento de aparições (chance cai a cada aparição e só sobe com marco novo), janela de 5 a 10 campanhas, no máximo 1 recorrente por campanha, sorteio determinístico; plano com motivo, fato ou rumor, recursos, nível (por função do pacote) e reconhecimento mútuo.
+- `AppModel` injeta o reencontro no contexto do mestre. Escrito, não compilado.
+
+## 14/11/2026 — MP-05: relação em eixos
+
+- Novo `engine/RelationAxes.kt`: oito eixos (ressentimento, respeito, gratidão, desconfiança, dívida, medo, perdão parcial, rivalidade amistosa) derivados da relação numérica e dos marcos que o NPC conhece, com peso pela certeza (viveu, suspeita, rumor); `RelationApproach` indica negociar, exigir preço, reconciliar, ajudar ou lutar; `RelationAxes.context` monta o texto do mestre.
+- Sem estado novo nem migração; escrito, não compilado.
+
+## 14/11/2026 — MP-07: mundo persistente (crônica), fama e rumores
+
+- Novo `engine/Fame.kt`: rumores com veracidade sorteada de forma determinística (exato, exagerado ou falso), canais, propagação pelas passagens do mapa com perda por dia e por passagem, fama por região/facção (alcance e disposição) e efeitos mecânicos (reconhecimento, preço, relação inicial). Comandos `StartRumor`, `SpreadRumors`, `ChangeFame`, `InheritChronicle`; eventos e estado (`GameState.fame`, `rumors`) correspondentes.
+- `WorldChronicle`: instantâneo de mapa, dia, fama e rumores no fim da campanha; `CampaignStarter` herda-o com `WorldOptions.PREVIOUS`, começando num lugar vizinho após um salto de dias.
+- App: a opção "Mundo anterior" fica disponível quando há campanhas com mapa (instantâneo por replay do log, sem migração Room) e pede o salto de tempo. Escrito, não compilado; testes na conclusão da fase.
+
+## 14/11/2026 — MP-08: escolha e criação de mundo (mundo próprio validado)
+
+- Novo `rules/CustomWorld.kt`: `CustomWorldDraft`, `CustomWorldLimits`, `CustomWorldValidator` (limites de lugares, facções, conflitos e relógios; ids válidos e únicos; nomes únicos sem acento/caixa; ligações existentes; mapa conexo) e `CustomWorld.install`, que grava ambientação, mapa, lugar inicial e relógios em lote atômico, recusando campanha com mapa prévio.
+- Novo `ai/CustomWorldProposer.kt`: a IA propõe o mundo em JSON; o motor valida e devolve `Valid`, `Invalid` (com os erros) ou `Failed`; nada é corrigido em silêncio nem gravado sem validação.
+- Escolha das três vias (`WorldOptions`) preservada; a opção "mundo anterior" segue indisponível até o MP-07. Escrito, não compilado; testes na conclusão da fase.
+
+## 14/11/2026 — WD-01: esquema, carregador e validador de mundo
+
+- O esquema (`# esquema=1`, tabelas com `|`), o `CarregadorMolde` e o `ValidadorMundo` (W-00 a W-09) já existiam no módulo `:world` pelo Mythralis; o `ValidadorMundo` não foi alterado, porque seu relatório é conferido contra o do Python (0 erro, 20 avisos).
+- Novo `ValidadorAutoria.kt` (world), códigos A-01 a A-06 sobre o `MundoMolde` carregado: A-01 mínimos por reino (10 cidades, 8 a 12 NPCs principais, 2 heróis, 2 generais; aviso), A-02 nome duplicado em cidade, NPC ou facção (erro), A-03 cidade sem reino ou com reino inexistente (erro), A-04 aliança e rivalidade entre o mesmo par (erro), A-05 porto sem rota (erro), só com rotas não navegáveis (erro) ou com meio ainda `?` (aviso), A-06 cidade mineradora sem recurso mineral (aviso). `relatorio` gera o texto.
+- Calibrado por script contra os dados atuais: 0 erro; os avisos refletem lacunas reais de conteúdo (Aeltharyn com 1 general; Véu dos Malditos e Vale Palancar com 8 cidades; portos com rota de meio `?`).
+- ASSUMINDO: heróis e generais são os papéis `heroi` e `general` dos NPCs com `principal = sim`; as regras de rio e fortaleza ficam para o WD-02 (sem altitude nem coordenadas no esquema); o validador não está ligado ao app nem a teste novo (sem testes nesta etapa). **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — MP-02: persistência entre campanhas
+
+- Novo `RecurringCharacter.kt` (engine): `RecurringCharacter` (identidade, tipo HERO/NPC, mundo, campanha de origem, conceito, epitáfio público, personalidade e objetivos, marcos de escopo PESSOA, derrota e atitude, nº de campanhas), `RecurringIdentity` (`key` = tipo + nome sem acentos e minúsculo; `merge` = anti-duplicação: une marcos por id, o estado mais recente vence, nada é apagado) e `RecurringExtractor.from` (heróis mortos pelo legado; NPCs com derrota viva pelo RV-01). Nunca guarda ficha nem segredos do dossiê.
+- `data`: tabela `personagem_recorrente` (chave composta mundo + identidade), `PersonagemRecorrenteDao`, migração Room 12→13 (só cria a tabela; `VERSION = 13`), `RoomEventStore.saveRecurring` (transação, une com o já guardado) e `recurringCharacters(mundoId)`.
+- `app`: `AppModel.syncRecurring` roda ao salvar metadados (só com legado ou derrota viva e campanha ligada a um mundo; falha não impede salvar) e `recurringCharacters()` consulta os personagens do mundo, de campanhas anteriores e outros protagonistas.
+- ASSUMINDO: identidade = tipo + nome normalizado dentro do mundo (dois personagens homônimos se fundem); marcos MUNDO não entram na tabela (ficam com a campanha); campanha sem mundo vinculado não grava; o schema `13.json` e o teste instrumentado da migração 12→13 dependem do build. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — MP-01: marcos estruturados
+
+- Novo `Milestones.kt` (engine): `Milestone` (id, tipo, participantes, o que aconteceu, lugar, dia, consequência, certeza, escopo PESSOA/MUNDO e `knowledge`: quem sabe e com que certeza), `MilestoneType` (humilhação, derrota, misericórdia, traição, ajuda, dívida quitada, engano, promessa, injustiça, ato heroico, morte), `Certainty` (CONFIRMED, SUSPECTED, RUMOR, UNKNOWN). `GameState.milestones`, eventos `MilestoneRecorded`, `MilestoneLearned` (não rebaixa quem já sabe com mais certeza) e `MilestoneRevised`; comandos `RecordMilestone` (valida id único, textos de até 200 caracteres, participantes e lugar existentes, máximo de 300 marcos), `LearnMilestone` (a certeza de quem ouve nunca passa da do fato) e `ReviseMilestone`.
+- Marcos automáticos no `apply`: morte de herói (LG-01, `morte:<herói>`, sabem o herói, o assassino e os vínculos) e derrota viva (RV-01: poupado = misericórdia, fugiu = derrota, humilhado = humilhação). Consultas `milestonesKnownBy`, `milestonesOf` e `MilestoneContext.forNpc` (UNKNOWN nunca entra; o NPC só cita o que viveu ou descobriu).
+- ASSUMINDO: o escopo PESSOA/MUNDO só é gravado aqui (a separação por armazenamento é do MP-02); marcos de tipos manuais entram por comando (a ligação com a IA e o contexto do mestre ficam para o MP-04); o dia do marco é `state.day`. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — RV-01: estados de derrota
+
+- Novo `Defeat.kt` (engine): `DefeatOutcome` (SPARED, FLED, HUMILIATED), `DefeatAttitude` (RESENTMENT, RESPECT, DEBT), `DefeatRecord`, `GameState.defeats`, `defeatEligible` (NPC vivo com dossiê, não capanga nem companheiro), `spareAllowed` (ELITE, CHEFE, CHEFE_FINAL) e `defeatXpHalf`. Evento `NpcDefeated` (NPC fica vivo com ao menos 1 no recurso de morte, sai da ordem do combate e grava o registro) e comando `EndNpcAlive` (poupar ou humilhar por escolha do jogador, sem rolar fuga; encerra o combate se restar só um lado).
+- Fuga por d6 em `GameEngine.withFlee`: quando um `Damage` zera o recurso de morte de NPC elegível, o motor rola 1d6 (`RollRecorded`, reproduzível); ≥ `EngineConfig.fleeThreshold` (padrão 5, chave `combate_fuga_limiar` do pacote, 7 desliga) = fuga com atitude RESENTMENT e 1 item do inventário do próprio NPC (sorteado pelo motor) passa ao PLAYER vivo; senão morre como antes. Morte por condição, capanga, companheiro e NPC sem dossiê seguem morrendo.
+- `Entity.threat` (nome de `ThreatCategory`, padrão COMUM para dados antigos), preenchido por `NpcSheet.toEntity`. `CombatActions.awardCombatVictoryXp` conta NPC derrotado vivo como encerrado e paga 50% do XP. Linha do tempo automática ganha a entrada de derrota viva.
+- ASSUMINDO: poupar e humilhar pagam 50% do XP (como a fuga); o botão Poupar na interface, o rival (RV-02) e a atitude escolhida pelo jogador ficam para a interface; atitude da fuga é sempre RESENTMENT; `EndNpcAlive` vale com o NPC em combate ou fora dele. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — LG-03: quest em memória e vingança
+
+- Novo `LegacyQuests.kt` (engine): `evaluate` decide a oferta só pelo estado e pelo registro de missões. Gatilho por tempo (≥5 dias desde a morte, 30%/dia) ou por chegada a lugar que o herói conhecia (60%), sorteio por semente (semente, herói, dia, lugar), cooldown de 7 dias, no máximo 1 quest de legado ativa e cadeia de até 3 (favor, descoberta, desfecho). `KillerStatus`: ALIVE = investigação (se o assassino não foi descoberto) e depois vingança/perdão; ALLY = dilema; PLAYER_CONTROLLED = história pessoal; DEAD e NONE = só o favor, nunca vingança. O nome do assassino só entra no texto do mestre depois de descoberto (`npcSheet.discovered`). `masterInstruction` e `xpCap` (metade do teto em favor/descoberta, teto inteiro no desfecho; o motor continua limitando por `maxQuestXp`).
+- `HeroLegacy.visitedPlaceIds` (até 10, dos `knownPlaces` na morte; logs antigos assumem vazio). `QuestRequest.legacy` e `request_quest` com `"legacy":true` no parser e no prompt; `AppModel.legacyQuestOffer/addLegacyQuest` recusam sem oferta, limitam o XP e usam o id `legado:<herói>:<etapa>:<dia>`, que serve de contagem da cadeia e de cooldown; a oferta entra no `legacyContextForMaster`.
+- ASSUMINDO: lugares do herói = `knownPlaces` ao morrer; "descoberto" = há análise ou segredo do assassino em `knowledge`; chances e prazos são constantes iniciais; quest de legado FAILED conta na cadeia; recompensas só pelo pacote (sem item novo). Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — LG-02: memória do herói no mestre
+
+Novo `LegacyMemory.kt` (engine): fato fixo do legado (≤500 caracteres, com feitos de capítulos encerrados, no máx. 3), nota `[fixa]` por vínculo (≤200), `pendingPins`, `masterContext` e regra de citar o herói sem repetir. `MemoryRollup.compact`/`trim` e o apply de `MemoryNoted` preservam até 2 notas `[fixa]` por assunto (sem notas fixadas o comportamento é idêntico). `AppModel.legacyContextForMaster` injeta o bloco no contexto do mestre. ASSUMINDO: feitos = primeira linha dos resumos dos 3 últimos capítulos encerrados (linha do tempo automática não usada); notas fixadas só entram no estado quando alguém emitir `pendingPins` (MP-02/LG-05), pois não há ainda fluxo de novo herói no mesmo mundo. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — Fechamento da frente CG (M5, M6, M7, M8.1, M10) e registro de bloqueios
+
+- Verificação estática: imports não usados e `R.string.*` das entregas CG-5.2 a CG-10.1 conferidos (sem pendência; `getValue`/`setValue` são operadores de delegação). **Suíte completa não executada**: o ambiente não tem Android SDK, dependências do Gradle em cache nem rede; fica para o CI.
+- Pendências que dependem de recurso externo ou decisão: retrato por IA (M8) e imagens por IA (M12) exigem gerador de imagens; voz e Modo ao vivo (M9) seguem adiados até o CG-9.1 por decisão anterior. Próximo na ordem do plano (§9): validar no CI o estado atual (plano 4) e as auditorias do plano 3.
+- Percentual mantido em ≈79%.
+
+## 14/11/2026 — CG-10.1: conquistas locais
+
+Novo `Conquistas.kt` (`Conquista`, `ConquistasLocais`, 5 marcos) e `AppModel.registrarConquista` (prefs `rpg_conquistas`), registradas ao criar herói (abas e Jogo rápido), herói mestiço, campanha iniciada e Mythralis; lista na aba Campanhas (`achievements_*`). ASSUMINDO: só locais, sem notificação nem recompensa; catálogo inicial de 5. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-6.3: tema claro/escuro/sistema
+
+Config ganhou a escolha de tema (`AppModel.themeMode`, prefs `theme_mode`); `RpgTheme(modo)` aplica claro, escuro ou o do sistema (padrão). ASSUMINDO: só claro/escuro, sem paleta por mundo. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-6.2: modo de jogo História × Criativo (D-CG-05)
+
+- Novo `ModoJogo.kt` (`HISTORIA`, `CRIATIVO`, com a instrução ao mestre). `AppModel.gameMode`/`setGameMode` guardam o modo por campanha em SharedPreferences (`rpg_game_mode`, padrão História guiada) e a instrução entra no `mundoContext` enviado ao mestre. Na aba Campanhas, seção "Modo de jogo" com duas opções (`game_mode_*`).
+- ASSUMINDO: o modo só muda o texto de instrução à IA; não altera regras, dados, validações do cânone nem o Room; vale para a campanha aberta e é mudado a qualquer momento. Não aparece na criação da campanha. Temas visuais (M6) seguem pendentes. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-8.1: aparência por chips e sorteio
+
+- Novo `CriacaoAparencia.kt` (Kotlin puro: `categorias`, `alternar`, `contem`, `sortear`). Na aba Informações, quatro linhas de chips (Cabelo, Olhos, Porte, Marca) alternam frases no campo de aparência, que continua de texto livre; botão "Sortear aparência" (string `wiz_appearance_draw`) troca o texto por uma frase de cada categoria. Sem mudança de modelo, rascunho ou ficha.
+- ASSUMINDO: frases neutras e próprias, sem ligação com raça, sexo ou reino; sortear substitui o texto atual. Retrato por IA (M8) segue pendente. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-7.1: "Crônicas" na lista de salvos (D-CG-02)
+
+- `campaign_saved_title` passou de "Campanhas salvas" para "Crônicas salvas"; o resto do app segue dizendo "campanha". Teste E2E `BasicJourneyE2eTest` ajustado ao novo texto. As abas ficam como estão (D-CG-01 manteve as abas atuais; a ação **Criar** já é a aba Heróis, que abre direto na criação por abas).
+- ASSUMINDO: M7 se resume ao rótulo, pois D-CG-01 mantém as abas atuais; nenhuma aba renomeada, para não quebrar os testes de navegação. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-6.1: cartões de mundo na nova campanha
+
+- A escolha de mundo na revisão da "Nova campanha" deixou de ser lista de chips e virou cartões (`CartaoMundo` em `NewCampaignSection.kt`): medalhão com monograma (lugar da imagem do M12), nome e resumo; mundo indisponível mostra o motivo e não é clicável. Papel de botão e estado "Selecionado/Não selecionado" para o TalkBack. Strings `campaign_world_*`. Regra de escolha (`worldId`) inalterada.
+- ASSUMINDO: escopo só dos cartões; temas e modo História × Criativo (M6) seguem pendentes. Imports do arquivo reordenados. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-5.4: Jogo rápido ligado ao início de campanha
+
+- `AppModel.criarFichaDeHeroi(heroi, pacoteId)`: monta a ficha de um herói pronto sem a tela de criação (`CriacaoJogoRapido.preparar` sobre `EstadoCriacao` e `CharacterDraft` locais), grava ficha e escolhas. Na revisão de "Nova campanha" (`NewCampaignSection`), a seção "Jogo rápido" lista os 6 heróis; tocar em um cria a ficha, a seleciona, escolhe o mundo Mythralis (se disponível) e sugere o nome da ficha como nome da campanha. Strings `campaign_quick_*`.
+- ASSUMINDO: `edition.id` da campanha é o id do pacote no registro; o fluxo de descrição pela IA continua o mesmo (o Jogo rápido entra no passo de revisão); o nome da campanha pode ser trocado. Fecha o item "Jogo rápido (M5)". Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-5.3: Jogo rápido na criação
+
+- Novo `CriacaoJogoRapido.kt`: no cartão "Heróis prontos", o botão "Jogo rápido com este herói" aplica o herói (CG-5.2), sorteia o nome pelo reino, distribui os pontos de status em rodízio (respeitando teto e saldo), escolhe uma vantagem aleatória que deixe a ficha válida e abre a aba Informações; criar a ficha é um toque. `PassoRaca` e `HeroisProntosCartao` ganharam `pkg` e `draft`. String `wiz_heroes_quick`.
+- ASSUMINDO: distribuição simples (rodízio), sem otimizar pela classe; Jogo rápido cria a ficha, e a campanha segue pelo fluxo "Nova campanha" existente (a IA interpreta a descrição, não foi alterada). Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-5.2: cartões de heróis prontos na aba Raça
+
+- Aba Raça: cartão "Heróis prontos" (recolhido por padrão) lista os 6 heróis de `HeroisProntos.mythralis` (título, conceito, reino · raça · classe · profissão). "Usar este herói" chama `EstadoCriacao.aplicarHeroi`: limpa a raça e preenche raça, sub-raça, origem, cidade, classe, profissão, classes extras, idade e sexo; o jogador batiza e ajusta o resto. Heróis cuja raça não existe no catálogo ativo ficam ocultos. Strings `wiz_heroes_*`.
+- ASSUMINDO: aplicar substitui as escolhas de raça/classe/profissão, sem diálogo de confirmação; nome, status, vantagens e história do rascunho ficam intactos; evoluções iniciais são zeradas. Pendente: Jogo rápido (criar campanha com herói pronto). Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-5.1: heróis prontos de Mythralis (dados e leitor)
+
+- Novo `mundos/mythralis/herois-prontos.json`: 6 heróis (Aeltharyn, Coroas de Pedra, Véu dos Malditos, Vale Palancar e dois em Azeroth), cada um com título, conceito, reino e `escolhas` no formato de `CharacterChoices` (raça, sub-raça, classe, profissão, idade, sexo e origem nativa). Sem nome próprio (o jogador batiza), para não colidir com o registro de nomes do cânone.
+- Novo `HeroisProntos.kt` (`HeroiPronto`, `HeroisProntos.mythralis`, `validar`): leitura do recurso com lista vazia em caso de falha. Conferido por script: ids de raça, sub-raça (com raça-mãe), classe e profissão existem; cada raça é nativa do reino e cada cidade existe nele. Não ligado à tela.
+- ASSUMINDO: numeração CG-5.1 (o plano antigo foi removido); `status` `rascunho` (conceitos pedem sua aprovação); idades de adulto jovem do povo (a tela avisa se passar da longevidade). Pendente: Jogo rápido (começar a campanha com um herói pronto) e cartões na tela. Sem testes; **não compilado nem testado**.
+
+## 14/11/2026 — D-CG-11: revisão editorial da taxonomia
+
+- Revisão das 50 classes, 104 profissões e 50 raças em `taxonomia-criacao.json`: agrupamento coerente, sem mudanças. `status` virou `revisada` e a `nota` foi atualizada (o código não lê esses dois campos). Resumo em `docs/catalogo/TAXONOMIA_CLASSES_PROFISSOES_RACAS.md`.
+- ASSUMINDO: critério é coerência e legibilidade da navegação. Verificado por script que `classes`, `profissoes` e `racas` ficaram idênticos. Sem testes; **não compilado nem testado**.
+
+## 14/11/2026 — Imagens: prompts, manifesto e ícones SVG provisórios
+
+- Novo `tools/gerar_imagens.py` (offline) e `imagens/`: `imagens-manifesto.json` (274 registros, `pendente`), `prompts.csv`, `PROMPT_BASE.md`, `previa.html` e 274 SVG em `icones/<grupo>/<id>.svg` (50 raças, 50 sub-raças, 50 classes, 104 profissões, 20 híbridos). `docs/PLANO_IMAGENS.md` ganhou a seção 9.
+- Sem imagem de IA (sem ferramenta nem rede aqui). SVG são provisórios, só validados como XML, sem conferência visual. Nada ligado ao app; código e dados do jogo intactos. Sem testes.
+
+## 14/11/2026 — Plano de imagens (M12)
+
+- Novo `docs/PLANO_IMAGENS.md`: inventário (274 ícones), níveis de arte, guia de estilo, pipeline, formato do manifesto, cache em jogo, fases e decisões abertas. Só documentação; sem código nem dados.
+
+## 14/11/2026 — CG-0.5: kit visual sem imagem
+
+- `Bloco` (grade da criação) mostra o glifo dentro de um medalhão redondo de 36 dp (`CriacaoTokens.MedalhaoTamanho`, glifo de 20 sp): fundo `primaryContainer` quando selecionado, `surfaceContainerHigh` nos demais. Sem imagem, o glifo (subgrupo ou monograma) segue como fallback e o medalhão é o lugar onde a imagem por IA (M12) entrará.
+- Mudança visual leve: o bloco pode ficar um pouco mais alto que 76 dp (a altura é mínima). Selos, TalkBack e cores do tema inalterados. Imports `size` e `CircleShape` adicionados; `sp` removido de `CriacaoAbas.kt` por ficar sem uso. ASSUMINDO: kit limitado ao bloco da grade; sem ícones novos nem cores por categoria. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-0.4: tokens de design da criação
+
+- `Theme.kt`: objeto `CriacaoTokens` (espaços 4/6/8/10/12 dp, borda, altura mínima do bloco, largura do valor). `CriacaoAbas.kt` passou a usá-los no lugar dos literais `dp` (15 `spacedBy`, bloco, borda, padding); import de `dp` removido por ficar sem uso. Cores, formas e tipografia seguem no tema existente.
+- Valores idênticos aos anteriores: sem mudança visual. ASSUMINDO: escopo só na criação por abas; outras telas ficam como estão. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-2.8: auditoria editorial de raças
+
+- Auditoria estática das 50 raças, 50 sub-raças e 20 híbridos: ids, taxonomia, `parentRaceId`, `raceIds` e escopos dos bônus todos íntegros. Relatório em `docs/relatorios/auditoria-racas-2026-11-14.md`.
+- Achados registrados, não corrigidos: `lore` igual a `summary` em todas as raças e sub-raças; nenhuma declara `benefits`/`drawbacks`. São textos novos do autor.
+- ASSUMINDO: a auditoria é de integridade e coerência; conteúdo editorial novo não foi inventado. Sem mudança de código nem de dados. `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-3.7: auditoria editorial da arma principal por classe
+
+- Revisada a ordem de `weaponTypes` das 50 classes em `personagem-catalogo.json` (sistema-proprio): 20 classes passaram a ter a arma principal coerente com o conceito no primeiro lugar (Berserker machado; Artífice clava; Lanceiro, Sentinela, Cavaleiro, Monge, Artista Marcial, Caçador de Monstros e Domador lança; Explorador, Batedor e Sobrevivente arco; Bardo, Alquimista, Estrategista, Médico de Campo, Investigador, Diplomata, Cronista e Cartógrafo adaga). As outras 30 já estavam coerentes.
+- Só a ordem mudou: o conjunto de tipos de cada classe é o mesmo, então o bônus fora da classe (N-13) e `EquipmentRestriction` não mudam (usam pertencimento ao conjunto). Afeta só o texto \"Arma principal\" do CG-3.9.
+- ASSUMINDO: critério editorial próprio, limitado aos tipos já existentes no conjunto de cada classe (sem tipo novo, como `cajado` para Monge); cópias em `Mythralis/` e `mundos/mythralis` não foram tocadas. `docs/CRIACAO_POR_ABAS.md` e `docs/catalogo/TAXONOMIA_CLASSES_PROFISSOES_RACAS.md` atualizados. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-3.9: arma principal por classe
+
+- O painel da classe (aba Classe) mostra "Arma principal: X" e, quando há mais de um tipo, "Também usa: Y, Z". Antes listava todas juntas em "Armas:". Strings `wiz_weapon_main` e `wiz_weapon_others` (a antiga `wiz_weapons` saiu).
+- ASSUMINDO: a arma principal é o primeiro tipo de `weaponTypes` da classe em `personagem-catalogo.json`; a ordem dos tipos não foi auditada editorialmente (fica no CG-3.7). Sem mudança mecânica: `weaponTypes` segue valendo para o bônus fora da classe (N-13).
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-3.4: classe amaldiçoada desligada por padrão no Modo avançado (D-CG-06)
+
+- No Modo avançado, "Classe de Malditos" fica atrás do botão "Conceitos de classe amaldiçoada (avançado)", **desligado por padrão**, com aviso de desvantagens e reações hostis. Desligar limpa a vertente escolhida. A criação por abas continua sem esses conceitos.
+- Também fica registrado que o resumo combinado de bônus (CG-3.6 do plano antigo) já está coberto: bônus por escopo somados na revisão da aba Informações (CG-4.6) e prévia do mestiço com teto +3 (CG-2.5/4.12). Nada a implementar.
+- ASSUMINDO: ao reabrir o formulário (nova composição) o botão volta a desligado. `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-1.8: desempenho da criação por abas
+
+- O relatório de validação do rascunho (`draft.report()`) passa a ser lembrado por `est.tick` e id do rascunho, em vez de recalculado a cada recomposição (digitar história ou aparência não o refaz).
+- O JSON do rascunho salvo (CG-4.8) sai da composição: `snapshotFlow` + `collectLatest` com atraso de 0,8 s, só regrava quando o texto muda.
+- ASSUMINDO: toda alteração de status, vantagens e nome passa por `est.tick++` (conferido nos pontos de chamada); as grades continuam sem lista preguiçosa porque a tela já rola e cada página mostra poucos blocos (`RACAS_POR_PAGINA`, `BLOCOS_POR_PAGINA_TRACOS`). Sem medição em aparelho.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-4.10: testes da criação por abas (fecha o assistente do CG-4)
+
+- Unitários (JVM): `CriacaoPassosTest` (5: regra dos sete passos, primeiro pendente, limites de próximo/anterior) e `SorteioNomesTest` (5: semente igual → nome igual, sem nome reservado em 500 sorteios por reino, reservado sem diferenciar maiúsculas e epíteto, evita o nome atual, variedade).
+- Instrumentados (Compose): `CriacaoAbasTest` (3: aba padrão e navegação até Informações, "Sortear nome" preenche o nome, Modo avançado disponível).
+- **Escritos, não executados**: sem Gradle nem rede neste ambiente (`kotlinc`/`gradle` ausentes). Rodar `./gradlew :app:ktlintCheck :app:testDebugUnitTest` e o instrumentado no CI. Não cobertos: restauração do rascunho (CG-4.8), mensagens por passo (CG-4.9) e a aplicação das evoluções (CG-4.11).
+- `docs/CRIACAO_POR_ABAS.md` atualizado.
+
+## 14/11/2026 — CG-4.9: mensagens por passo na criação por abas
+
+- Cada aba (exceto Informações, que já lista as pendências) mostra uma linha curta sob as etapas: o que fazer enquanto o passo não está pronto e a confirmação quando está (`PassoCriacao.mensagem`, strings `wiz_msg_*`). Habilidades tem uma só mensagem, pois o passo não tem pendência.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-4.8: rascunho salvo e retomável da criação por abas
+
+- Room **v12**: tabela nova `criacao_rascunho` (um rascunho, JSON), `CriacaoRascunhoRow`/`CriacaoRascunhoDao`, migração 11→12 (só cria a tabela) e `RoomEventStore.creationDraft/saveCreationDraft/clearCreationDraft`. `data/schemas/.../12.json` escrito à mão a partir do 11: o `identityHash` é o do 11 e o build do Room o regrava.
+- Novo `CriacaoRascunho.kt` (serializa e restaura passo, escolhas das abas e `CharacterDraft`). `CriacaoPorAbas` grava 0,8 s depois da última alteração e restaura ao abrir; `CharactersScreen` lê o rascunho fora da thread principal e o apaga ao criar a ficha; `AppModel.creationDraft/saveCreationDraft`.
+- ASSUMINDO: um rascunho único, descartado se for de outro pacote de regras; sem aviso de retomada; voltar do Modo avançado para as abas na mesma tela restaura o último rascunho gravado. Teste de migração: `criacao_rascunho` entra na lista de tabelas do `RpgDatabaseMigrationTest`.
+- `docs/CRIACAO_POR_ABAS.md` e README (Room v12) atualizados. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-4.5: sorteio de nomes por reino
+
+- Novo `CriacaoSorteioNomes.kt` (`SorteioNomes`, Kotlin puro): nome de 1 a 3 sílabas, com epíteto em cerca de metade dos casos, no tom do reino de origem (Aeltharyn, Coroas de Pedra, Véu dos Malditos, Vale Palancar; tom geral nos demais ou sem origem). Nunca devolve primeiro nome reservado do cânone (reinos 1 a 3 e "Azeroth") nem repete o nome atual.
+- Botão "Sortear nome" na aba Informações. ASSUMINDO: sílabas e epítetos são conteúdo próprio; raça não determina o nome (W-01), por isso o tom vem do reino e não do povo; sem regra por sexo.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-3.5: classes adicionais na criação por abas
+
+- Cartão "Classes adicionais (híbrido)" na aba Classe (até 3 extras); entram em `CharacterChoices.additionalClassIds`, na aba Habilidades e no resumo.
+- Docs: o item CG-4.4 (idade por faixa) foi marcado como substituído pela idade em anos (12/11/2026). `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-2.6: comparador de raças
+
+- Cartão "Comparar com outra raça" na aba Raça: bônus do catálogo somados por escopo, benefícios e desvantagens das duas raças. Não altera a escolha.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-1.7: acessibilidade dos blocos da criação por abas
+
+- `Bloco`: descrição para TalkBack com nome e selo (nível mínimo ou "gratuita"), papel de botão e estado selecionado; o glifo deixa de ser lido.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-2.5: detalhe com lore completa e prévia de impacto
+
+- Painel de detalhe com "Ver detalhes": lore completa, demais benefícios/desvantagens e bônus do catálogo por escopo.
+- Mestiço livre: prévia dos bônus combinados das duas raças com o teto de +3.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-1.4: busca por nome em Classe e Profissão
+
+- Campo "Buscar pelo nome" nas abas Classe e Profissão; com texto, grade única de resultados (painel e botão Continuar iguais). `CriacaoBusca.normalizar` em `CriacaoDados.kt`.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-4.1: regra dos passos em Kotlin puro
+
+- Novo `CriacaoPassos.kt` (`ProgressoCriacao`, `concluidos`, `proximo`, `anterior`, `primeiroPendente`); `CriacaoPorAbas` passa a usar `concluidos` em vez da lógica embutida (mesma regra de antes).
+- Atalho "Ir para a primeira etapa pendente" quando a aba atual não está pronta.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-4.6: revisão final com bônus e origem
+
+- O resumo da aba Informações lista os bônus do catálogo somados por escopo (inclui o teto +3 do mestiço livre), além da origem narrativa; só aparece com escolhas válidas.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-4.3: progresso e confirmação ao sair da criação por abas
+
+- Pílula "N de 7 etapas prontas" no topo da criação por abas.
+- Trocar para o **Modo avançado** com progresso nas abas abre diálogo de confirmação (as escolhas das abas se perdem); sem progresso, troca direto.
+- Textos em `strings_criacao_abas.xml`; `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos. **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-4.12: mestiço livre (duas raças quaisquer, teto +3 por escopo)
+
+- `CharacterChoices.mixedRaceIds` (ficha antiga lê vazio) e validação: duas raças distintas e existentes, sem raça, sub-raça ou híbrido junto.
+- Aba Raça → Outros → Mestiço: grade "Mestiço livre" (duas raças) e cidade de nascimento de um dos pais; as 20 combinações nomeadas continuam.
+- `CharacterCreationCatalog.mixedRaceEffects`: soma dos bônus por escopo com teto de +3 (`MIXED_SCOPE_CAP`); entra em `selectedEffects` e, portanto, nos bônus aplicados. Árvores das duas raças no loadout, na aba Habilidades e no contexto da IA.
+- `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos (regra do submódulo). **Não compilado nem testado aqui**; o CI decide.
+
+## 14/11/2026 — CG-4.11: evolução das habilidades gratuitas na criação
+
+- `CharacterChoices.initialSkillUpgrades` (id da habilidade → evoluções; ficha antiga lê vazio). Aba **Habilidades** com contador dos pontos iniciais e botões Evoluir/Desfazer nas gratuitas de origem (raça, sub-raça, classe, profissão); o saldo vem do pacote.
+- `AppModel.applyInitialSkillUpgrades` (em `activate`): concede os pontos iniciais e gasta 1 ponto por evolução via `SkillTreeActions.unlockOrUpgrade`, validado pelo motor; erro vai para `configError`.
+- Textos em `strings_criacao_abas.xml`; `docs/CRIACAO_POR_ABAS.md` atualizado. Sem testes novos (regra do submódulo). **Não compilado nem testado aqui**; o CI decide.
+
+## 13/11/2026 — criação de personagem por abas (CG-4, primeira versão)
+
+Detalhes e limites em `docs/CRIACAO_POR_ABAS.md`.
+
+- **Heróis → Criação por abas** (padrão): Raça (por reino, com Forasteiro e Mestiço em "Outros") → Classe → Profissão → Status → Habilidades (prévia das árvores) → Vantagens → Informações. O formulário antigo continua como **Modo avançado**.
+- Novos: `CriacaoAbas.kt` (tela), `CriacaoDados.kt` (reinos, cidades, taxonomia, nomes curtos, árvores), `taxonomia-criacao.json` (rascunho D-CG-11 como recurso do módulo `rules`), `strings_criacao_abas.xml` e `CriacaoDadosTest.kt`.
+- `CharacterChoices` ganhou `originKind`, `originKingdomId` e `originCity` (origem narrativa, sem efeito mecânico; ficha antiga lê vazio). O contexto da IA recebe a linha "Origem narrativa do herói".
+- Testes instrumentados que usam o formulário antigo passaram a tocar em "Modo avançado" antes.
+- **Plano antigo removido:** `docs/PLANO_CRIACAO_GUIADA_E_CARTOES.md` foi apagado; `docs/CRIACAO_POR_ABAS.md` passou a ser o plano e o estado, com a lista do que veio do antigo (aplicado, substituído e pendente). As entradas abaixo que citam o nome antigo são histórico.
+- **Código de cartões removido:** `ui/cartoes/Cartao.kt`, `CartaoTest.kt` (14 testes) e `docs/CONTRATO_CARTAO.md` (CG-0.2 do plano antigo) foram apagados por decisão do autor; a entrada de 12/11 que os descreve é histórico.
+- **Não compilado nem testado aqui**; o CI decide.
+
+## 12/11/2026 — pontos separados, prova de perícia, idade/sexo, vida nova, NPC e itens do corpo
+
+Resumo completo em `docs/REGRAS_PROGRESSAO_E_CRIACAO.md`.
+
+- **Vida nova:** quem renasce volta criança, com **7 anos**; quem assume um NPC recomeça com a **idade do NPC**. A morte anterior deixa de valer na simulação (`heroi.morte = nenhuma`).
+- **NPC:** o Mestre define identidade, idade, sexo e informação pública ao apresentar o NPC (`create_npc`); o jogador só vê o público e o que descobrir, e a ficha completa só se ele assumir o NPC.
+- **Itens do corpo (LG-04):** fora de combate é só pegar; em combate gasta o turno, pede teste de destreza (`destreza` em `testes.txt`) e, se falhar, o adversário acerta o jogador (golpe garantido). Painel "Itens do corpo". Comando `TransferBodyItems`.
+
+- MI-26: a criação da ficha pede a **idade em anos** (campo numérico) e o **sexo** (masculino/feminino) em vez da faixa jovem/adulto/veterano; os dois são obrigatórios. A idade é limitada à longevidade do povo ao iniciar a campanha (com aviso) e o sexo vira o fato `heroi.sexo`. Ficha antiga sem idade continua como adulto. Não compilado nem testado.
+
+- Status (10 iniciais, trava no limite) e habilidades (2 iniciais) viraram duas árvores independentes, inclusive no motor (`AllocateInitialStats` e `GrantInitialAbilityPoints`).
+- Perícias só ganham ponto pela prova dos níveis múltiplos de 5 (`nivel_missao_pericia|5`, `AdvanceSkillByTrial`); dificuldade = nível/5. Sem missão formal: o Mestre recebe o contexto PROGRESSÃO, costura a prova na história (vários testes) e, ao fim, propõe `skill_trial`, que o motor valida. Também lembra, na narrativa, pontos de status/habilidade novos. Mobs e missões comuns não dão ponto de perícia. Vantagens/desvantagens seguem o equilíbrio 1/1, 2/3, 3/5. **Não compilado nem testado aqui**; o CI decide.
+
+## 09/11/2026 — CG-0.1 e CG-0.2 (contrato do cartão)
+
+- CG-0.1 concluído: todas as decisões do plano de criação guiada registradas (D-CG-10 adiada).
+- CG-0.2: novo `app/.../ui/cartoes/Cartao.kt` (`Cartao`, `TipoCartao`, `SeloCartao`, `EstadoCartao`, `ResumoBonus`) e `CartaoTest.kt` (14 testes), mais `docs/CONTRATO_CARTAO.md`. Kotlin puro, ainda sem uso na interface. **Não compilado nem testado aqui**; o CI decide.
+
+## 09/11/2026 — decisões D-CG-12 e D-CG-13
+
+- `PLANO_CRIACAO_GUIADA_E_CARTOES.md`: imagens geradas sob demanda com cache, pré-geração opcional e pacote importável; provedor de imagem atrás de uma abstração compatível com `/images/generations`, escolhido depois de testar 10 cartões. Todas as decisões do plano fechadas (D-CG-10 adiada até o CG-9.1). Só documentação.
+
+## 09/11/2026 — decisões D-CG-07, D-CG-08 e D-CG-09; módulo de imagens
+
+- `PLANO_CRIACAO_GUIADA_E_CARTOES.md`: arte dos cartões **gerada por IA dentro do app desde o início** (novo módulo **M12 / Fase 1B**, submódulos CG-12.1 a CG-12.12: provedor de imagem, cache, fila, fallback, custo e cota, privacidade, retrato); 6 heróis prontos por mundo; rascunho da criação em tabela nova da mesma base. D-CG-10 adiada até o CG-9.1. Novas pendentes: D-CG-12 e D-CG-13. Só documentação.
+
+## 09/11/2026 — decisões D-CG-02, D-CG-06 e D-CG-11
+
+- `PLANO_CRIACAO_GUIADA_E_CARTOES.md`: "Crônicas" na lista de salvos e "campanha" no resto; conceitos de classe amaldiçoada só no Modo avançado, com aviso e desligados por padrão; taxonomia aprovada como rascunho, com ajustes no CG-0.7. Só documentação.
+
+## 09/11/2026 — decisões D-CG-01, D-CG-03 e D-CG-05
+
+- `PLANO_CRIACAO_GUIADA_E_CARTOES.md`: navegação mantém as abas atuais com **Criar** como ação principal; ordem dos passos Modo → Mundo → Herói → Povo → Classe → Profissão → Idade → Nome → Aparência; História guiada (mestre protege o cânone) × Criativo livre (jogador propõe fatos do mundo). Só documentação.
+
+## 09/11/2026 — raça Orcano passa a se chamar Orc
+
+- Nome de exibição trocado de **Orcano** para **Orc** (sub-raças: Orc das Estepes, Orc das Matas) no catálogo, no mundo Mythralis, nas fichas de NPC, nos CSVs e em `AeltharynWorld.kt`. Os **ids não mudaram** (`orcano`, `orcano-das-estepes`), então saves e referências continuam válidos. Os históricos (`CHANGELOG.md`, `DECISOES.md`) mantêm o nome antigo; "Meio-Orcão" ficou como estava.
+- Como o molde de Mythralis é conferido por SHA-256, foram regenerados com as ferramentas do projeto: manifesto do molde (hash `1e28129df4b3f41a`, antes `f11f1c120acc99b1`), `saidas/validacao-mundo.txt` e os seis arquivos de vetores de conformidade (`vetores-estado`, `-rng-json`, `-motores-mundo`, `-motores-pessoas`, `-simulador`, `-lote`).
+- Verificado aqui: catálogos válidos, 62 testes Python passando, `exportar_molde.py --verificar` OK. **Não verificado:** compilação e testes Kotlin (`:world`, conformidade com os novos vetores); o CI decide.
+
+## 09/11/2026 — Orcano passa a se chamar Orc
+
+- Nome de exibição trocado de **Orcano** para **Orc** (sub-raças: Orc das Estepes, Orc das Matas; plurais e femininos ajustados) no catálogo do sistema próprio, no catálogo do Mythralis e nos textos do mundo (≈420 ocorrências em 63 arquivos). **Os ids não mudaram** (`orcano`, `orcano-das-estepes`, `orcano-das-matas`), então saves e referências seguem valendo. `CHANGELOG.md` e `DECISOES.md` mantêm o nome antigo (histórico). "Meio-Orcão" não foi alterado.
+- Como o hash do molde cobre esses arquivos, foram regenerados com as ferramentas do projeto: `manifesto.txt` (molde `f11f1c12…` → `1e28129d…`), `validacao-mundo.txt` e os seis arquivos de vetores de conformidade (`exportar_vetores.py`, `--simulador` e `--lote`). README do Mythralis atualizado.
+- Verificado localmente: JSON dos catálogos válidos, 62 testes Python OK, `exportar_molde.py --verificar` OK. **Não** compilado nem executado no Kotlin: o CI decide.
+
+## 09/11/2026 — plano de criação guiada, cartões e taxonomia
+
+- Novo `docs/PLANO_CRIACAO_GUIADA_E_CARTOES.md`: fases F0 a F9, módulos M0 a M11 e submódulos `CG-x.y` (assistente em passos, cartões de raças, sub-raças, híbridos, classes, profissões e mundos, heróis prontos, Jogo rápido, navegação, aparência, voz). Decisão D-CG-04: navegação em três níveis (categoria → subgrupo → cartão), adaptativa.
+- Novos `docs/catalogo/TAXONOMIA_CLASSES_PROFISSOES_RACAS.md` e `taxonomia-proposta.json` (rascunho: 50 classes, 104 profissões e 50 raças classificadas, sem repetição).
+- Só documentação; nada implementado nem compilado.
+
 ## 09/11/2026 — provedores gratuitos pré-configurados
 
 - Config: **OpenRouter (grátis)** e **Groq (grátis)** só pedem a chave; **Buscar modelos gratuitos** lista os modelos gratuitos de texto e a jogada passa sozinha para o próximo quando um esgota ou sai do ar (`FallbackProvider`, `ModelDiscovery`, `ProviderPreset`, `ProviderFactory.buildFreeFallback`, `HttpTransport.get`). Guia em `docs/PROVEDORES_GRATUITOS.md`. Modo antigo em **Personalizado**.

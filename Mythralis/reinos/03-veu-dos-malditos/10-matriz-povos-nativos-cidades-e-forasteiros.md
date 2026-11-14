@@ -82,7 +82,7 @@ Os 17 de M-05 §4 (coluna Malditos = F). **Forasteiro** = origem fora do Véu: r
 | `tabaxi` | Felídeo Errante | Borda-Mansa | viagem, vigia |
 | `homem-corvo` | Corvário | Borda-Mansa | viagem; **não é Corvídeo** (D-01 aberta) |
 | `elemental-fogo` | Nascido da Brasa | Candeia-Morta | luz, forja de vigia |
-| `orcano` | Orcano | sem lugar fixo | passagem avulsa (ASSUMINDO) |
+| `orcano` | Orc | sem lugar fixo | passagem avulsa (ASSUMINDO) |
 | `minotauro` | Labiríntico | sem lugar fixo | passagem avulsa (ASSUMINDO) |
 | `homem-lobo` | Lupino | sem lugar fixo | passagem avulsa; **não é Metamorfo Lupino** |
 | `plantae` | Verdejante | sem lugar fixo | passagem avulsa (ASSUMINDO) |
@@ -123,7 +123,7 @@ Preenchem o herói dos cinco povos que não tinham. **Figuras de lenda, sem feit
 - Nenhum povo é só vilão, só herói ou só funcionário; os 11 têm herói (vivo ou lendário), 7 têm guardião e 8 têm benfeitor ou liderança (§6).
 - **Cultura, religião e língua** por povo: não decididas (M-05 §7); nomes: M-10.
 - **Quantidade de gente e proporção entre povos:** R3-3.2. **Relação entre povos nos lugares:** R3-4.3.
-- **Povos de Aeltharyn** (Elfo, Anão, Gnomo, Pequenino, Goblin, Orcano e outros): só forasteiros avulsos; nenhuma cidade ou NPC de Aeltharyn alterado; **nada liga um povo do Véu a Brumafunda, ao Bosque dos Sussurros ou a desaparecimento algum**.
+- **Povos de Aeltharyn** (Elfo, Anão, Gnomo, Pequenino, Goblin, Orc e outros): só forasteiros avulsos; nenhuma cidade ou NPC de Aeltharyn alterado; **nada liga um povo do Véu a Brumafunda, ao Bosque dos Sussurros ou a desaparecimento algum**.
 - **Povos das Coroas** (Anão, Gnomo, Construto Desperto): só como visitantes em Fozbreu.
 
 ## 8. Conferências **[PROPOSTO P-08]**

@@ -11,7 +11,7 @@ Nativo = povo de referência do reino, não cidadania nem lealdade (M-05 §1). L
 
 | Nº | Povo | ID do catálogo | Lugares onde está | Identidade no reino (uma linha) |
 |---|---|---|---|---|
-| 1 | Orcano | `orcano` | Terreiro-Maior, Vazante, Gramal | assembleia, marcha e rebanhos |
+| 1 | Orc | `orcano` | Terreiro-Maior, Vazante, Gramal | assembleia, marcha e rebanhos |
 | 2 | Felídeo Errante | `tabaxi` | Vazante, Encosta-Aberta | trilha e marcha |
 | 3 | Centauro | `centauro` | Terreiro-Maior, Vazante, Encosta-Aberta | marcha, assembleia e trilhas |
 | 4 | Goblin | `goblin` | Rasovau, Praia-Pardo, Alvasal | vau, pouso e cisterna |
@@ -33,7 +33,7 @@ Só IDs que existem no JSON. Onde cada uma aparece é ASSUMINDO pelo nome; a tro
 
 | Povo | Sub-raça (ID) | Onde aparece |
 |---|---|---|
-| Orcano | `orcano-das-estepes` | Terreiro-Maior, Vazante, Gramal |
+| Orc | `orcano-das-estepes` | Terreiro-Maior, Vazante, Gramal |
 | Felídeo Errante | `felideo-das-dunas` | Vazante, Encosta-Aberta |
 | Centauro | `centauro-das-pradarias` | Terreiro-Maior, Vazante, Encosta-Aberta |
 | Goblin | `goblin-das-sucatas` | Rasovau, Praia-Pardo, Alvasal |
@@ -42,7 +42,7 @@ Só IDs que existem no JSON. Onde cada uma aparece é ASSUMINDO pelo nome; a tro
 
 Sem sub-raça no catálogo (não se inventa): Leporino, Ursino, Lupino, Porcino, Cervino, Insetoide. **Não usadas** por falta de lugar que as sustente: `goblin-dos-pantanos` (o reino não tem pântano em M-04) e `legionario-das-cidadelas` (o reino não tem cidadela). Sub-raça de cada NPC: R4-2.3.
 
-### 2.1 Linhagens próprias de Orcano, Felídeo Errante e Centauro (P-3)
+### 2.1 Linhagens próprias de Orc, Felídeo Errante e Centauro (P-3)
 Estes três povos são nativos **também** de Aeltharyn, em linhagens diferentes (M-05 §3). O catálogo tem duas sub-raças de cada um, e Aeltharyn já usa uma (`orcano-das-matas`, `felideo-das-selvas`, `centauro-das-florestas`). **Proposta:** o Vale usa a **outra** de cada par (`orcano-das-estepes`, `felideo-das-dunas`, `centauro-das-pradarias`), **sem parentesco** com as de Aeltharyn e sem nome novo. Nenhum NPC de Aeltharyn (`npc.oranna-passo-largo` e os demais, contrato A4 e A5) é parente de alguém do Vale. Se o autor preferir outro nome de linhagem, vale D-110, opção B.
 
 ## 3. Mestiços **[D-64]**
@@ -59,10 +59,10 @@ Povos presentes conforme o doc 01; nenhum lugar tem menos de dois povos nativos.
 | Rasovau | Vulpino; Leporino; Goblin | Humano; Pequenino; Corvídeo |
 | Praia-Pardo | Goblin; Insetoide | Anão; Escamado Miúdo (e visitantes da Descida: Gnomo e Construto Desperto, doc 05 §3) |
 | Alvasal | Lupino; Goblin de Legião; Goblin | Ratoide; Metamorfo Lupino; Umbral |
-| Terreiro-Maior | Orcano; Centauro; Cervino; Lupino | Elfo; Humano (visitantes individuais, sem representar reino) |
-| Vazante | Centauro; Felídeo Errante; Lupino; Orcano; Goblin de Legião | Silvano Festivo; Feérico |
+| Terreiro-Maior | Orc; Centauro; Cervino; Lupino | Elfo; Humano (visitantes individuais, sem representar reino) |
+| Vazante | Centauro; Felídeo Errante; Lupino; Orc; Goblin de Legião | Silvano Festivo; Feérico |
 | Encosta-Aberta | Centauro; Felídeo Errante; Cervino | Labiríntico; Draconato; Altaneiro |
-| Gramal | Leporino; Porcino; Ursino; Insetoide; Orcano | Felino das Nuvens; Verdejante |
+| Gramal | Leporino; Porcino; Ursino; Insetoide; Orc | Felino das Nuvens; Verdejante |
 
 ## 5. Forasteiros **[PROPOSTO PV-05]**
 
@@ -104,7 +104,7 @@ Papel = herói, guardião ou benfeitor/liderança já nomeado (doc 01 parte 2, d
 
 | Povo | Herói | Guardião | Benfeitor ou liderança |
 |---|---|---|---|
-| Orcano | Hukk Pedra-de-Divisa (L) | Yorna Palavra-Firme | Bolgra Forja-de-Campo |
+| Orc | Hukk Pedra-de-Divisa (L) | Yorna Palavra-Firme | Bolgra Forja-de-Campo |
 | Felídeo Errante | Tessun Salto-Calado (V) | nenhum nomeado | nenhum nomeado |
 | Centauro | nenhum nomeado | Kharos Casco-de-Marcha | Cadrek Cerca-Aberta |
 | Goblin | Nokk Peso-Alheio (L) | Zinu Troca-Justa | Grebb Balança-Justa |
@@ -124,7 +124,7 @@ Lacunas **ficam abertas** (D-107 só exige tríade por lugar, já cumprida em 8 
 - Nenhum povo é só vilão, só herói ou só funcionário; 7 dos 12 têm herói (vivo ou lendário), 8 têm guardião e 8 têm benfeitor ou liderança (§6). Raça não determina cargo (doc 01, parte 2 §4).
 - **Cultura, religião e língua** por povo: não decididas (M-05 §7); nomes: M-10 §9.
 - **Quantidade de gente e proporção entre povos:** R4-3.2; nada de \"maioria\" de um povo sem decisão. **Relação entre povos nos lugares:** R4-4.3.
-- **Povos de Aeltharyn** (Orcano, Felídeo Errante e Centauro em linhagem diferente; Elfo e Humano como visitantes): nenhuma cidade ou NPC de Aeltharyn alterado; **nada liga um povo do Vale ao Conflito G, à Neblina Longa ou a desaparecimento algum**.
+- **Povos de Aeltharyn** (Orc, Felídeo Errante e Centauro em linhagem diferente; Elfo e Humano como visitantes): nenhuma cidade ou NPC de Aeltharyn alterado; **nada liga um povo do Vale ao Conflito G, à Neblina Longa ou a desaparecimento algum**.
 - **Povos das Coroas** (Anão, Escamado Miúdo; Gnomo e Construto como visitantes) e **do Véu** (Ratoide, Umbral, Metamorfo Lupino, Nascido do Crepúsculo, Ursino Sombrio e outros): só forasteiros ou viajantes avulsos; nada liga um povo do Véu à Rota do Sal além do que M-05 §5 já diz.
 - **Humanos e Pacto Humano:** Humano é forasteiro avulso; o reino 5 não é descrito.
 

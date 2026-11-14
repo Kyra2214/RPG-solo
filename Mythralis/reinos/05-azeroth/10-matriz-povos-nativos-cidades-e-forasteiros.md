@@ -79,7 +79,7 @@ Os 25 de M-05 §4 (coluna Humanos = F, lida por script). **Forasteiro** = origem
 | `lizardino` | Escamado | Torrefronte, Meiovau (chegado, §5.1) | passagem; chegada |
 | `tiefling` | Nascido do Crepúsculo | Meiovau (chegado, §5.1) | chegada |
 | `vampirico` | Noctívago | Meiovau (chegado, §5.1) | chegada |
-| `orcano` | Orcano | sem lugar fixo | passagem avulsa |
+| `orcano` | Orc | sem lugar fixo | passagem avulsa |
 | `draconato` | Draconato | sem lugar fixo | passagem avulsa |
 | `goliath` | Altaneiro | sem lugar fixo | passagem avulsa |
 | `tabaxi` | Felídeo Errante | sem lugar fixo | passagem avulsa |

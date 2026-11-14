@@ -110,7 +110,6 @@ V-27|A|settlement.torre-nevoa-mansa|acesso com duração desconhecida|assentamen
 V-27|A|settlement.tres-barcas|acesso com duração desconhecida|assentamento.txt
 V-27|A|settlement.vigilia-do-lago|acesso com duração desconhecida|assentamento.txt
 V-31|A|mundo|mundo com 1 reino em composição (reinos 3 a 5 e Aeltharyn fora deste conjunto); mínimo 5 só no nível mundo|—
-V-33|A|kingdom.aeltharyn|menos de 2 NPCs vivos com papel general|—
 V-35|A|npc.avarra-sete-pontes|agenda ou pressão idêntica a outro principal|npc.txt
 V-35|A|npc.maereth-cartografa-das-copas|agenda ou pressão idêntica a outro principal|npc.txt
 V-42|A|faction.arquivistas-seiva|aliados ou rivais desconhecidos|faccao.txt
@@ -135,4 +134,4 @@ V-74|A|npc.maereth-cartografa-das-copas|principal sem tom|npc.txt
 V-74|A|npc.nilo-recado-certo|principal sem tom|npc.txt
 V-74|A|npc.nivara-folha-de-orvalho|principal sem tom|npc.txt
 V-74|A|npc.othalen-vira-pedra|principal sem tom|npc.txt
-# resumo: 0 erros, 136 avisos, 63 exceções aplicadas
+# resumo: 0 erros, 135 avisos, 63 exceções aplicadas

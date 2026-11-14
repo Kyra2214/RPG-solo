@@ -66,13 +66,13 @@ Povos presentes (doc 01), com sub-raças de §2. Mestiços não entram na tabela
 
 | Cidade | Nativos | Sub-raças | Forasteiros típicos (§5) |
 |---|---|---|---|
-| Brasalume | Anão; Nascido da Brasa; Draconato | anao-das-forjas; draconato-cinzento | Orcano; Ursino; Humano |
+| Brasalume | Anão; Nascido da Brasa; Draconato | anao-das-forjas; draconato-cinzento | Orc; Ursino; Humano |
 | Altavento | Altaneiro; Felino das Nuvens; Anão | altaneiro (2); anao-das-montanhas | Nascido do Vento; Estelar; Elfo |
 | Veiaclara | Gnomo; Cristalino; Anão | — | Elfo; Luminar |
 | Barcaalta | Anão; Gnomo; Construto Desperto | gnomo-das-engrenagens | Goblin; Pequenino; Humano; Ratoide |
 | Portão-Cinza | Anão; Draconato; Escamado Miúdo | anao-dos-abismos; draconato-cinzento; escamado-das-minas | Humano; Elfo; Hobgoblin; Lupino |
 | Sinuosa | Labiríntico; Escamado Miúdo; Gnomo | labirintico (2); escamado-das-minas | Umbral; Moldável; Goblin |
-| Cumieira | Giganteano; Nascido da Rocha; Anão | anao-das-montanhas | Orcano; Porcino; Ursino |
+| Cumieira | Giganteano; Nascido da Rocha; Anão | anao-das-montanhas | Orc; Porcino; Ursino |
 | Rodaviva | Construto Desperto; Gnomo; Anão | gnomo-das-engrenagens; anao-dos-abismos | Pequenino; Goblin; Humano |
 | Geodália | Cristalino; Gnomo; Escamado Miúdo | escamado-das-ruinas | Luminar; Tiefling; Elfo |
 | Pedra-Ata | Anão; Draconato; Felino das Nuvens | anao-das-montanhas; draconato-de-cobre | Humano; Pequenino; Tiefling; Elfo |
@@ -85,7 +85,7 @@ Os 17 de M-05 §4 (coluna Montanhas = F). **Forasteiro** = origem fora das Coroa
 |---|---|---|---|
 | `humano` | Humano | Portão-Cinza, Pedra-Ata, Rodaviva, Brasalume, Barcaalta | comércio, ofício, família mista |
 | `elfo` | Elfo | Portão-Cinza, Pedra-Ata, Geodália, Altavento, Veiaclara | estudo, viagem, peregrinação; **individual**, sem mandato de Aeltharyn (contrato §3.2) |
-| `orcano` | Orcano | Brasalume, Cumieira | trabalho pesado, família mista, mercenário avulso |
+| `orcano` | Orc | Brasalume, Cumieira | trabalho pesado, família mista, mercenário avulso |
 | `pequenino` | Pequenino | Barcaalta, Rodaviva, Pedra-Ata | hospedagem, cozinha de cais, comércio |
 | `tiefling` | Nascido do Crepúsculo | Pedra-Ata, Geodália | arquivo, estudo, exílio |
 | `aasimar` | Luminar | Veiaclara, Geodália | peregrinação à nascente, estudo da luz |
@@ -142,7 +142,7 @@ Nomes conferidos contra os reservados do reino 1 (M-10): 0 colisão.
 - **Cultura, religião e língua** de cada povo: não decididas (M-05 §7); convenções de nome por povo em M-10.
 - **Quantidade de gente, proporção entre povos, nascimento:** R2-3.2.
 - **Relação entre povos nas cidades** (afeto, dívida, rivalidade): R2-4.3.
-- **Povos de Aeltharyn** (Elfo, Orcano, Pequenino, Gnomo dos vales, Goblin, Anão, Ratoide, Humano): só como forasteiros individuais; nenhuma cidade de Aeltharyn alterada (contrato §3.9).
+- **Povos de Aeltharyn** (Elfo, Orc, Pequenino, Gnomo dos vales, Goblin, Anão, Ratoide, Humano): só como forasteiros individuais; nenhuma cidade de Aeltharyn alterada (contrato §3.9).
 
 ## 8. Conferências **[PROPOSTO P-08]**
 
@@ -155,7 +155,7 @@ Nomes conferidos contra os reservados do reino 1 (M-10): 0 colisão.
 | Mestiços | regra D-64: nenhum alocado, sem lista fechada |
 | NPC novo | 5 lendários falecidos, IDs `npc.*` únicos, sem colisão |
 | Rota, tempo, população | 0 |
-| Termos de fronteira | Elfo, Orcano, Goblin, Pequenino, Humano, Anão, Ratoide: só como indivíduos; nenhuma menção a Torvelume, mina selada ou Mistério D |
+| Termos de fronteira | Elfo, Orc, Goblin, Pequenino, Humano, Anão, Ratoide: só como indivíduos; nenhuma menção a Torvelume, mina selada ou Mistério D |
 
 ## 9. Decisão pendente
 

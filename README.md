@@ -11,7 +11,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-O estado validado mais recente está no commit `21b90e1` de `main`. O Android CI terminou com sucesso, incluindo KtLint, suíte de testes, motor Python e testes E2E no emulador. A correção do import que impedia a compilação de Mythralis foi integrada; os módulos apontados pelo KtLint foram formatados; a string com percentuais literais foi corrigida; e o schema Room 11 foi incluído para validação das migrações.
+**Auditoria técnica de 14/11/2026 (análise estática, sem compilar nem executar):** progresso real ≈75% (118 de 157 requisitos do roadmap confirmados por inspeção; ver [`docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`](docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md)). O Room está na **versão 13**; os esquemas versionados vão só até o 12 (`13.json` falta, deve ser gerado pelo build). A versão anterior deste texto citava CI verde no commit `21b90e1`; essa execução não está registrada em `docs/VALIDACAO_CI.md`, cujo último CI verde documentado é o `036d445` (25/10/2026), e não cobre os blocos LG/RV/MP/WD de 14/11/2026. Trate o código atual como **não validado em execução**.
 
 O APK produzido pelo CI é de **debug**, destinado a testes, não uma versão release assinada para publicação na Play Store. A validação E2E em emulador não substitui a revisão visual e funcional em aparelhos físicos.
 
@@ -26,7 +26,7 @@ O histórico de validação anterior permanece disponível em [Android CI #40163
 - Primeiro uso transacional: a tela Jogar acompanha provedor, ficha disponível e campanha ativa e não abre o chat antes das três etapas estarem prontas.
 - Camada de IA com provedores configuráveis, teste de conexão, classificação de intenção, contexto, propostas validadas, sugestões e ações locais sem chamada de IA.
 - Cache `ephemeral` do prefixo system implementado para a API oficial Anthropic; Config permite ativar/desativar o cache, mostra contagens de tokens lidos/criados e aceita preços por milhão com tarifas separadas para estimar custo na moeda informada. O uso real ainda não foi validado em rede. A linha do tempo automática derivada do log também foi adicionada à aba Campanhas, incluindo acontecimentos de combate com participação do jogador. O sistema próprio declara sorte/destino global: 1 PA permite repetir a rolagem ou somar uma face após o resultado, quando o teste não define uma política específica.
-- Persistência via Room v11 para campanhas, eventos, fichas, metadados, biblioteca de fontes, progresso de pipeline e fatos canônicos; documentos originais ficam em armazenamento privado do app, com verificação de hash.
+- Persistência via Room v13 para campanhas, eventos, fichas, metadados, biblioteca de fontes, progresso de pipeline e fatos canônicos, o rascunho da criação por abas e os personagens recorrentes entre campanhas (v13); documentos originais ficam em armazenamento privado do app, com verificação de hash.
 - Chave do provedor protegida pelo Android Keystore e excluída do backup.
 - Diagnóstico local: a Config exporta um relatório de texto (versão, Android, aparelho e última falha não tratada, sem mensagem da exceção, prompts, dados de campanha ou chave) pelo compartilhamento do sistema.
 - Backup JSON local com eventos/configuração do motor e metadados de capítulos, missões e linha do tempo, por seletor de arquivos Android (SAF) ou texto. Fatos canônicos e bytes originais de fontes não entram no backup atual.
@@ -94,3 +94,11 @@ Consulte o [plano de integração Mythralis](docs/PLANO_INTEGRACAO_MYTHRALIS.md)
 ## Princípios de conteúdo e licença
 
 O app embute apenas conteúdo de criação própria: o sistema próprio, o catálogo de estilos e o catálogo de personagem. Não há links, textos nem pacotes de sistemas de terceiros. A importação ZIP aceita pacotes no formato do app, e o conteúdo importado é responsabilidade de quem o importa. A mecânica efetivamente jogada é sempre a do pacote escolhido e do motor, não uma regra improvisada pela IA.
+
+## Regras de progressão e criação
+
+Status (10), habilidades (2), perícias (prova nos níveis múltiplos de 5), vantagens e desvantagens, idade e sexo, vida nova (renascer com 7 anos, assumir NPC) e itens do corpo: ver `docs/REGRAS_PROGRESSAO_E_CRIACAO.md`. Implementado em código; a validação em execução depende do CI (ver Estado atual).
+
+## Limitações conhecidas da Fase 5 (NPCs recorrentes, rivais, fama; auditoria 14/11/2026)
+
+Existem no código, mas **não estão ligados ao jogo**: alcance e procurado/relíquias (MP-06), fama e propagação de rumores (MP-07), eixos de relação (MP-05), marcos além dos automáticos de morte e derrota (MP-01), criação de mundo próprio pela IA (MP-08) (o interruptor "trazer lendas", LG-05, foi ligado em 14/11/2026). O memorial, o panteão e os rivais (LG-06, RV-01 a RV-06) estão ligados à aba Jogar. Não há testes para esses blocos além de `LegadoLg01Test`. Lista completa no relatório de auditoria.

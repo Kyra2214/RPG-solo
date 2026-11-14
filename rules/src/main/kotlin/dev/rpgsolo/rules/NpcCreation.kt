@@ -90,10 +90,12 @@ data class NpcSheet(
     val ruleSource: RuleSource,
     val warnings: List<String> = emptyList(),
     val dossier: NpcDossier? = null,
+    /** RV-01: categoria de ameaça gravada na entidade (padrão COMUM). */
+    val threat: ThreatCategory = ThreatCategory.COMUM,
 ) {
     val isPrivate: Boolean get() = true
 
-    fun toEntity() = ficha.toEntity(EntityKind.NPC).copy(rulesValidated = validated)
+    fun toEntity() = ficha.toEntity(EntityKind.NPC).copy(rulesValidated = validated, threat = threat.name)
 
     /** O que a interface pode mostrar ao jogador por padrão: só a identidade, nunca a mecânica. */
     fun playerView(): Pair<String, String> = ficha.name to ficha.concept
@@ -152,6 +154,7 @@ object NpcFactory {
                             proposal.ruleSource,
                             b.warnings,
                             proposal.dossier?.copy(npcId = proposal.id),
+                            proposal.threat,
                         ),
                     )
                 }
@@ -192,6 +195,7 @@ object NpcFactory {
                 proposal.ruleSource,
                 warnings,
                 proposal.dossier?.copy(npcId = proposal.id),
+                proposal.threat,
             ),
         )
     }

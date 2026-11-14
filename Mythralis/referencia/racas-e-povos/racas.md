@@ -25,7 +25,7 @@ Comunidades ligadas à pedra, à engenharia e a juramentos cuja reputação atra
 
 **Marcas:** raca, original
 
-### Orcano  
+### Orc  
 `orcano`
 
 Povos de tradição oral intensa, conhecidos por redes de parentesco e pactos de hospitalidade.

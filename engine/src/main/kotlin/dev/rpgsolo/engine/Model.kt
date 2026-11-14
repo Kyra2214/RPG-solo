@@ -62,6 +62,8 @@ data class Entity(
     val abilityPoints: Int = 0,
     /** MU-06.2: perícias com o nível 2 liberado (por missão, em níveis-chave). */
     val masteredSkills: Set<String> = emptySet(),
+    /** Níveis (múltiplos de skillTrialEvery) cuja prova de perícia já deu o ponto. Perícia só ganha ponto assim. */
+    val skillTrialsClaimed: Set<Int> = emptySet(),
     /** MU-06.3: habilidades aprendidas com pontos de habilidade. */
     val abilities: Set<String> = emptySet(),
     /** MU-07.2: magias aprendidas; cada uma ocupa um slot (aquisição em MU-07.3). */
@@ -74,6 +76,8 @@ data class Entity(
     val freeSkillIds: Set<String> = emptySet(),
     /** Marca a distribuição única dos 12 pontos iniciais do novo sistema. */
     val initialBuildAllocated: Boolean = false,
+    /** Árvore de habilidades: os pontos iniciais de habilidade já foram concedidos (independe do status). */
+    val initialAbilityGranted: Boolean = false,
     /** Maldições aplicadas durante a aventura, distintas da identidade Classe de Malditos. */
     val appliedCurses: Map<String, AppliedCurseState> = emptyMap(),
     /** Recompensas de pergaminhos já resgatadas, para impedir duplicação por missão. */
@@ -82,6 +86,8 @@ data class Entity(
     val skillTreeTreeIds: Set<String> = emptySet(),
     val skillTreeClassOrder: List<String> = emptyList(),
     val skillTreeElement: String = "",
+    /** RV-01: categoria de ameaça do NPC (nome de `ThreatCategory`); dados antigos assumem COMUM. */
+    val threat: String = "COMUM",
 )
 
 /** MU-07.2: slots de magia de uma entidade: [total] pelos níveis-chave alcançados, [used] por magias aprendidas. */
@@ -152,6 +158,17 @@ data class GameState(
     val endedReason: String? = null,
     /** LG-01: legado de cada herói morto (id do herói -> legado); renascer apaga. Dados antigos assumem vazio. */
     val legacies: Map<String, HeroLegacy> = emptyMap(),
+    /** RV-01: NPCs que terminaram o combate vivos (poupado, fugiu, humilhado); id do NPC -> registro. */
+    val defeats: Map<String, DefeatRecord> = emptyMap(),
+    /** MP-01: marcos estruturados (id -> marco); dados antigos assumem vazio. */
+    val milestones: Map<String, Milestone> = emptyMap(),
+    /** MP-07: fama por região ou facção (alcance e disposição). */
+    val fame: Map<String, RegionFame> = emptyMap(),
+    /** MP-07: rumores em circulação (id -> rumor). */
+    val rumors: Map<String, Rumor> = emptyMap(),
+    /** MP-06: procurados (id -> registro) e relíquias (id -> relíquia). */
+    val wanted: Map<String, WantedRecord> = emptyMap(),
+    val relics: Map<String, Relic> = emptyMap(),
 )
 
 const val MEMORY_NOTES_PER_SUBJECT = 5

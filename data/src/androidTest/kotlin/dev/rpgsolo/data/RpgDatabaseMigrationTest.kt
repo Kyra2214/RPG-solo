@@ -23,7 +23,7 @@ import java.io.File
 import java.io.IOException
 
 /**
- * Q-04: teste instrumentado das migrações Room. Os esquemas 2, 3 e 11 (versão atual) estão versionados em `data/schemas`;
+ * Q-04: teste instrumentado das migrações Room. Os esquemas 2, 3, 11 e 12 (versão atual) estão versionados em `data/schemas`;
  * o esquema atual permite que [MigrationTestHelper] valide a cadeia completa. O CI também publica
  * os esquemas gerados no artefato `rpgsolo-room-schemas`.
  */
@@ -121,7 +121,7 @@ class RpgDatabaseMigrationTest {
             )
             // O JSON antigo continua intacto (rollback do app depende dele).
             assertEquals(1, count(sqlite, "SELECT COUNT(*) FROM campanha_meta WHERE campanhaId = 'c1' AND chaptersJson <> '[]'"))
-            for (tabela in listOf("fontes", "fonte_vinculos", "fonte_pipeline", "fatos_canonicos", "snapshots")) {
+            for (tabela in listOf("fontes", "fonte_vinculos", "fonte_pipeline", "fatos_canonicos", "snapshots", "criacao_rascunho")) {
                 assertEquals("tabela $tabela deveria existir vazia", 0, count(sqlite, "SELECT COUNT(*) FROM $tabela"))
             }
         } finally {

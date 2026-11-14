@@ -45,7 +45,7 @@ Uma grande bacia florestal temperada, cercada por elevações antigas a oeste e 
 
 ## 3. Os povos
 
-**Onze povos nativos de referência** (doc 10, D-01, D-03): elfos (com linhagens dos Bosques, das Estrelas e do Crepúsculo); silvanos festivos (`satiro`); feéricos; verdejantes (`plantae`); micélioides (`fungal`); centauros das florestas; felídeos das selvas (`tabaxi`); orcanos das matas; corvários (`homem-corvo`, D-01); pequeninos; gnomos dos vales. O abissal das enseadas (`tritao`) é aliado costeiro, **não** um 12º povo nativo. Humanos, anões e outros vivem como residentes, mercadores ou refugiados.
+**Onze povos nativos de referência** (doc 10, D-01, D-03): elfos (com linhagens dos Bosques, das Estrelas e do Crepúsculo); silvanos festivos (`satiro`); feéricos; verdejantes (`plantae`); micélioides (`fungal`); centauros das florestas; felídeos das selvas (`tabaxi`); orcs das matas; corvários (`homem-corvo`, D-01); pequeninos; gnomos dos vales. O abissal das enseadas (`tritao`) é aliado costeiro, **não** um 12º povo nativo. Humanos, anões e outros vivem como residentes, mercadores ou refugiados.
 
 | Povo | Papel no reino | Onde pesa mais |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ Uma grande bacia florestal temperada, cercada por elevações antigas a oeste e 
 | Micélioides | Redes de fungos; deliberam devagar, silêncio não é concordância | Orvass |
 | Centauros | Trilhas largas e corredores de migração; negociam passagem | Vael-Tir, Arven |
 | Felídeos das selvas | Caçadores, guias e comerciantes | Thalanor, Vael-Tir, Brumafunda |
-| Orcanos das matas | Aldeias de parentesco e hospitalidade, pactos mútuos | Nymvar, Orvass, Torvelume |
+| Orcs das matas | Aldeias de parentesco e hospitalidade, pactos mútuos | Nymvar, Orvass, Torvelume |
 | Corvários | Mensageiros e guardiões de arquivos em torres | Elarion, Brumafunda |
 | Pequeninos | Lavoura, barcos, cozinha e pousadas | Nymvar, Arven |
 | Gnomos dos vales | Irrigação, relógios hidráulicos, instrumentos | Caladwen, Torvelume |

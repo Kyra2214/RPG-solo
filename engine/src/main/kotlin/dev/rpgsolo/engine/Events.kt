@@ -62,6 +62,30 @@ data class GemRemoved(
  * [killerId]/[cause] (LG-01): quem ou o que causou a morte; ambos null = ambiente ou origem desconhecida.
  * [cause] só é preenchida quando não há um autor (ex.: `condicao:veneno`). Logs antigos decodificam com null.
  */
+/** MP-01: registra um marco (id único). */
+@Serializable
+data class MilestoneRecorded(val milestone: Milestone) : Event
+
+/** MP-01: [personId] passou a saber do marco com a certeza [certainty] (nunca rebaixa quem já sabe com mais certeza). */
+@Serializable
+data class MilestoneLearned(val milestoneId: String, val personId: String, val certainty: Certainty) : Event
+
+/** MP-01: a verdade registrada do marco mudou (ex.: um rumor foi confirmado). */
+@Serializable
+data class MilestoneRevised(val milestoneId: String, val certainty: Certainty) : Event
+
+/** RV-01: NPC elegível termina o combate vivo (poupado, fugiu ou humilhado); fica com ao menos 1 no recurso de morte e sai da ordem. */
+@Serializable
+data class NpcDefeated(
+    val entityId: String,
+    val outcome: DefeatOutcome,
+    val byId: String? = null,
+    val attitude: DefeatAttitude,
+    val droppedItem: String? = null,
+    /** Recurso de morte do NPC (ex.: pv); se estiver em 0, volta a 1. */
+    val resourceId: String? = null,
+) : Event
+
 @Serializable
 data class EntityDied(val entityId: String, val killerId: String? = null, val cause: String? = null) : Event
 
@@ -130,6 +154,20 @@ data class SkillTreeProgressed(
     val newLevel: Int,
     val pointsSpent: Int,
     val freeBase: Boolean,
+) : Event
+
+/** Árvore de status: distribuição inicial única dos pontos de status (independente das habilidades). */
+@Serializable
+data class InitialStatsAllocated(
+    val entityId: String,
+    val statIncreases: Map<String, Int>,
+) : Event
+
+/** Árvore de habilidades: concessão inicial única dos pontos de habilidade (independente do status). */
+@Serializable
+data class InitialAbilityPointsGranted(
+    val entityId: String,
+    val points: Int,
 ) : Event
 
 /** Distribuição inicial única (N-02): 10 pontos de status entre os atributos + 2 pontos de habilidade (valores do pacote). */
@@ -211,6 +249,10 @@ object EffectsRoundEnded : Event
 /** MU-06.2: nível 2 de uma perícia liberado. */
 @Serializable
 data class SkillMastered(val entityId: String, val skillId: String) : Event
+
+/** Prova de perícia concluída: +1 ponto na perícia e o nível da prova fica marcado como usado. */
+@Serializable
+data class SkillTrialPassed(val entityId: String, val skillId: String, val trialLevel: Int) : Event
 
 /** MU-05.2: pontos de status gastos em atributos, sem teto. */
 @Serializable
@@ -424,10 +466,71 @@ fun GameState.apply(e: Event): GameState {
                         combat = combat?.copy(defending = combat.defending - e.entityId),
                     )
                 if (dying.kind == EntityKind.PLAYER) {
-                    died.copy(legacies = legacies + (dying.id to legacyOf(dying, e.killerId, e.cause)))
+                    val legacy = legacyOf(dying, e.killerId, e.cause)
+                    val withLegacy = died.copy(legacies = legacies + (dying.id to legacy))
+                    val m = deathMilestone(legacy)
+                    withLegacy.copy(milestones = withLegacy.milestones + (m.id to m))
                 } else {
                     died
                 }
+            }
+            is WantedIssued -> copy(wanted = wanted + (e.record.id to e.record))
+            is WantedUpdated -> copy(wanted = wanted + (e.record.id to e.record))
+            is RelicSet -> copy(relics = relics + (e.relic.id to e.relic))
+            is RumorStarted -> copy(rumors = rumors + (e.rumor.id to e.rumor))
+            is RumorsSpread ->
+                copy(
+                    rumors =
+                        rumors.mapValues { (_, r) -> Fame.spread(r, placeLinks, e.days) }
+                            .filterValues { it.strength.isNotEmpty() },
+                )
+            is FameChanged -> copy(fame = fame + (e.key to e.fame))
+            is ChronicleInherited -> {
+                val c = e.chronicle
+                val start = c.startPlaceId()
+                copy(
+                    places = c.places.associateBy { it.id },
+                    placeLinks = c.places.associate { it.id to c.links[it.id].orEmpty() },
+                    day = c.day + e.jumpDays,
+                    knownPlaces = setOfNotNull(start),
+                    currentPlaceId = start,
+                    fame = c.fame,
+                    rumors =
+                        c.rumors.map { Fame.spread(it, c.links, e.jumpDays) }
+                            .filter { it.strength.isNotEmpty() }.associateBy { it.id },
+                )
+            }
+            is MilestoneRecorded -> copy(milestones = milestones + (e.milestone.id to e.milestone))
+            is MilestoneLearned -> {
+                val m = milestones[e.milestoneId]
+                if (m == null) {
+                    this
+                } else {
+                    val current = m.knowledge[e.personId]
+                    val keep = current != null && current.ordinal <= e.certainty.ordinal
+                    copy(milestones = milestones + (m.id to if (keep) m else m.copy(knowledge = m.knowledge + (e.personId to e.certainty))))
+                }
+            }
+            is MilestoneRevised -> {
+                val m = milestones[e.milestoneId]
+                if (m == null) this else copy(milestones = milestones + (m.id to m.copy(certainty = e.certainty)))
+            }
+            is NpcDefeated -> {
+                val npc = entity(e.entityId)
+                val res = e.resourceId?.let { npc.resources[it] }
+                val healed =
+                    if (res != null && res.current < 1) {
+                        npc.copy(resources = npc.resources + (e.resourceId to res.copy(current = 1)))
+                    } else {
+                        npc
+                    }
+                val m = defeatMilestone(e, npc.name, e.byId?.let { entities[it]?.name })
+                copy(
+                    entities = entities + (e.entityId to healed),
+                    combat = combat?.without(e.entityId),
+                    defeats = defeats + (e.entityId to DefeatRecord(npc.id, npc.name, e.outcome, e.byId, e.attitude, day, e.droppedItem)),
+                    milestones = milestones + (m.id to m),
+                )
             }
             is EntityDowned ->
                 copy(
@@ -544,6 +647,35 @@ fun GameState.apply(e: Event): GameState {
                                             },
                                     abilityPoints = current.abilityPoints + e.skillPointsGranted,
                                     initialBuildAllocated = true,
+                                    initialAbilityGranted = true,
+                                )
+                        ),
+                )
+            }
+            is InitialStatsAllocated -> {
+                val current = entity(e.entityId)
+                copy(
+                    entities =
+                        entities + (
+                            current.id to
+                                current.copy(
+                                    stats =
+                                        current.stats +
+                                            e.statIncreases.mapValues { (key, increase) -> (current.stats[key] ?: 0) + increase },
+                                    initialBuildAllocated = true,
+                                )
+                        ),
+                )
+            }
+            is InitialAbilityPointsGranted -> {
+                val current = entity(e.entityId)
+                copy(
+                    entities =
+                        entities + (
+                            current.id to
+                                current.copy(
+                                    abilityPoints = current.abilityPoints + e.points,
+                                    initialAbilityGranted = true,
                                 )
                         ),
                 )
@@ -643,6 +775,19 @@ fun GameState.apply(e: Event): GameState {
             is SkillMastered -> {
                 val current = entity(e.entityId)
                 copy(entities = entities + (e.entityId to current.copy(masteredSkills = current.masteredSkills + e.skillId)))
+            }
+            is SkillTrialPassed -> {
+                val current = entity(e.entityId)
+                copy(
+                    entities =
+                        entities + (
+                            e.entityId to
+                                current.copy(
+                                    skills = current.skills + (e.skillId to ((current.skills[e.skillId] ?: 0) + 1)),
+                                    skillTrialsClaimed = current.skillTrialsClaimed + e.trialLevel,
+                                )
+                        ),
+                )
             }
             is StatPointsAllocated -> {
                 val current = entity(e.entityId)
@@ -887,7 +1032,7 @@ fun GameState.apply(e: Event): GameState {
             is FactRecorded -> copy(facts = facts + (e.key to e.value))
             is MemoryNoted ->
                 copy(
-                    memories = memories + (e.subjectId to (memories[e.subjectId].orEmpty() + e.text).takeLast(MEMORY_NOTES_PER_SUBJECT)),
+                    memories = memories + (e.subjectId to MemoryRollup.trim(memories[e.subjectId].orEmpty() + e.text)),
                 )
             is MemoryRolledUp -> copy(memories = memories + (e.subjectId to e.notes))
             is KnowledgeGained -> copy(knowledge = knowledge + (e.key to Knowledge(e.key, e.text, e.source, e.believed)))

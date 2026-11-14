@@ -2,6 +2,7 @@ pontos|10
 pontos_por_nivel|0
 pontos_iniciais_status|10
 pontos_iniciais_habilidade|2
+nivel_missao_pericia|5
 pontos_status_por_nivel|1
 pontos_habilidade_por_nivel|1
 recurso_sorte|pa

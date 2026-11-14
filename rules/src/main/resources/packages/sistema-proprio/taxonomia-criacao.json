@@ -1,0 +1,827 @@
+{
+  "status": "revisada",
+  "data": "2026-11-09",
+  "nota": "Revisão editorial de 14/11/2026 (D-CG-11); ainda fora do catálogo. Chave = id do catálogo.",
+  "classes": {
+    "guerreiro": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Linha de frente"
+    },
+    "lanceiro": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Linha de frente"
+    },
+    "cavaleiro": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Linha de frente"
+    },
+    "gladiador": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Linha de frente"
+    },
+    "berserker": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Linha de frente"
+    },
+    "guardiao": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Defensores e juramentados"
+    },
+    "sentinela": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Defensores e juramentados"
+    },
+    "paladino": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Defensores e juramentados"
+    },
+    "guardiao-do-codigo": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Defensores e juramentados"
+    },
+    "guardiao-runico": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Defensores e juramentados"
+    },
+    "duelista": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Lâmina e artes marciais"
+    },
+    "espadachim": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Lâmina e artes marciais"
+    },
+    "monge": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Lâmina e artes marciais"
+    },
+    "artista-marcial": {
+      "categoria": "Combate corpo a corpo",
+      "subgrupo": "Lâmina e artes marciais"
+    },
+    "ladino": {
+      "categoria": "Furtivos e distância",
+      "subgrupo": "Furtivos"
+    },
+    "assassino": {
+      "categoria": "Furtivos e distância",
+      "subgrupo": "Furtivos"
+    },
+    "agente-das-sombras": {
+      "categoria": "Furtivos e distância",
+      "subgrupo": "Furtivos"
+    },
+    "arqueiro": {
+      "categoria": "Furtivos e distância",
+      "subgrupo": "Arco e tiro"
+    },
+    "atirador-de-precisao": {
+      "categoria": "Furtivos e distância",
+      "subgrupo": "Arco e tiro"
+    },
+    "pistoleiro": {
+      "categoria": "Furtivos e distância",
+      "subgrupo": "Arco e tiro"
+    },
+    "mago": {
+      "categoria": "Magia e mistérios",
+      "subgrupo": "Arcanistas"
+    },
+    "feiticeiro": {
+      "categoria": "Magia e mistérios",
+      "subgrupo": "Arcanistas"
+    },
+    "invocador": {
+      "categoria": "Magia e mistérios",
+      "subgrupo": "Arcanistas"
+    },
+    "ilusionista": {
+      "categoria": "Magia e mistérios",
+      "subgrupo": "Mente e ilusão"
+    },
+    "psiquico": {
+      "categoria": "Magia e mistérios",
+      "subgrupo": "Mente e ilusão"
+    },
+    "tecelao-de-sonhos": {
+      "categoria": "Magia e mistérios",
+      "subgrupo": "Mente e ilusão"
+    },
+    "curandeiro": {
+      "categoria": "Fé, cura e espírito",
+      "subgrupo": "Cura"
+    },
+    "medico-de-campo": {
+      "categoria": "Fé, cura e espírito",
+      "subgrupo": "Cura"
+    },
+    "sacerdote": {
+      "categoria": "Fé, cura e espírito",
+      "subgrupo": "Fé e visão"
+    },
+    "xama": {
+      "categoria": "Fé, cura e espírito",
+      "subgrupo": "Fé e visão"
+    },
+    "oraculo": {
+      "categoria": "Fé, cura e espírito",
+      "subgrupo": "Fé e visão"
+    },
+    "explorador": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Exploração"
+    },
+    "batedor": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Exploração"
+    },
+    "sobrevivente": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Exploração"
+    },
+    "cacador-de-monstros": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Feras e criaturas"
+    },
+    "domador": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Feras e criaturas"
+    },
+    "druida": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Feras e criaturas"
+    },
+    "pirata": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Mar"
+    },
+    "marinheiro": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Mar"
+    },
+    "bucaneiro": {
+      "categoria": "Natureza, viagem e mar",
+      "subgrupo": "Mar"
+    },
+    "estrategista": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Liderança e diplomacia"
+    },
+    "comandante": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Liderança e diplomacia"
+    },
+    "diplomata": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Liderança e diplomacia"
+    },
+    "investigador": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Estudo e investigação"
+    },
+    "cronista": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Estudo e investigação"
+    },
+    "cartografo": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Estudo e investigação"
+    },
+    "guardiao-de-reliquias": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Estudo e investigação"
+    },
+    "artifice": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Engenho e arte"
+    },
+    "alquimista": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Engenho e arte"
+    },
+    "bardo": {
+      "categoria": "Intelecto, liderança e ofício",
+      "subgrupo": "Engenho e arte"
+    }
+  },
+  "profissoes": {
+    "ferreiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Metal, minas e armas"
+    },
+    "armeiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Metal, minas e armas"
+    },
+    "armeiro-de-armaduras": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Metal, minas e armas"
+    },
+    "minerador": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Metal, minas e armas"
+    },
+    "fabricante-de-arcos": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Metal, minas e armas"
+    },
+    "fabricante-de-flechas": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Metal, minas e armas"
+    },
+    "perito-em-arcos": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Metal, minas e armas"
+    },
+    "carpinteiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Madeira, pedra e barro"
+    },
+    "marceneiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Madeira, pedra e barro"
+    },
+    "pedreiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Madeira, pedra e barro"
+    },
+    "oleiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Madeira, pedra e barro"
+    },
+    "vidreiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Madeira, pedra e barro"
+    },
+    "alfaiate": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Tecido e couro"
+    },
+    "tecelao": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Tecido e couro"
+    },
+    "curtidor": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Tecido e couro"
+    },
+    "sapateiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Tecido e couro"
+    },
+    "cordoeiro": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Tecido e couro"
+    },
+    "preparador-de-peles": {
+      "categoria": "Produção e ofícios",
+      "subgrupo": "Tecido e couro"
+    },
+    "especialista-em-joias": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Joias e gemas"
+    },
+    "lapidador": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Joias e gemas"
+    },
+    "ourives": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Joias e gemas"
+    },
+    "joalheiro-de-campo": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Joias e gemas"
+    },
+    "montador-de-gemas": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Joias e gemas"
+    },
+    "artista": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Artes e espetáculo"
+    },
+    "musico": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Artes e espetáculo"
+    },
+    "ator": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Artes e espetáculo"
+    },
+    "dancarino": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Artes e espetáculo"
+    },
+    "tatuador": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Artes e espetáculo"
+    },
+    "mestre-de-cerimonias": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Artes e espetáculo"
+    },
+    "organizador-de-eventos": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Artes e espetáculo"
+    },
+    "perfumista": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Preparados e fragrâncias"
+    },
+    "saboeiro": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Preparados e fragrâncias"
+    },
+    "alquimista-de-oficina": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Preparados e fragrâncias"
+    },
+    "especialista-em-toxinas": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Preparados e fragrâncias"
+    },
+    "herbalista": {
+      "categoria": "Criação e arte",
+      "subgrupo": "Preparados e fragrâncias"
+    },
+    "cozinheiro": {
+      "categoria": "Comida e campo",
+      "subgrupo": "Cozinha e bebida"
+    },
+    "padeiro": {
+      "categoria": "Comida e campo",
+      "subgrupo": "Cozinha e bebida"
+    },
+    "cervejeiro": {
+      "categoria": "Comida e campo",
+      "subgrupo": "Cozinha e bebida"
+    },
+    "agricultor": {
+      "categoria": "Comida e campo",
+      "subgrupo": "Lavoura e criação"
+    },
+    "apicultor": {
+      "categoria": "Comida e campo",
+      "subgrupo": "Lavoura e criação"
+    },
+    "jardineiro": {
+      "categoria": "Comida e campo",
+      "subgrupo": "Lavoura e criação"
+    },
+    "criador-de-animais": {
+      "categoria": "Comida e campo",
+      "subgrupo": "Lavoura e criação"
+    },
+    "guia-de-montanha": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Guias e caça"
+    },
+    "guia-de-floresta": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Guias e caça"
+    },
+    "guia-de-deserto": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Guias e caça"
+    },
+    "cacador": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Guias e caça"
+    },
+    "guarda-florestal": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Guias e caça"
+    },
+    "observador-do-clima": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Guias e caça"
+    },
+    "tratador-de-montarias": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Animais"
+    },
+    "tratador-de-aves-mensageiras": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Animais"
+    },
+    "treinador": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Animais"
+    },
+    "adestrador": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Animais"
+    },
+    "botanico": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Ciências da natureza"
+    },
+    "geologo": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Ciências da natureza"
+    },
+    "paleontologo": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Ciências da natureza"
+    },
+    "astronomo": {
+      "categoria": "Natureza e animais",
+      "subgrupo": "Ciências da natureza"
+    },
+    "pescador": {
+      "categoria": "Mar e estrada",
+      "subgrupo": "Mar e pesca"
+    },
+    "pescador-de-profundidade": {
+      "categoria": "Mar e estrada",
+      "subgrupo": "Mar e pesca"
+    },
+    "mergulhador": {
+      "categoria": "Mar e estrada",
+      "subgrupo": "Mar e pesca"
+    },
+    "marinheiro-de-carga": {
+      "categoria": "Mar e estrada",
+      "subgrupo": "Mar e pesca"
+    },
+    "construtor-de-barcos": {
+      "categoria": "Mar e estrada",
+      "subgrupo": "Mar e pesca"
+    },
+    "navegador": {
+      "categoria": "Mar e estrada",
+      "subgrupo": "Mar e pesca"
+    },
+    "mensageiro": {
+      "categoria": "Mar e estrada",
+      "subgrupo": "Estrada e correio"
+    },
+    "cartografo-de-campo": {
+      "categoria": "Mar e estrada",
+      "subgrupo": "Estrada e correio"
+    },
+    "escriba": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Letras e ensino"
+    },
+    "bibliotecario": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Letras e ensino"
+    },
+    "tradutor": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Letras e ensino"
+    },
+    "professor": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Letras e ensino"
+    },
+    "arquivista": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Letras e ensino"
+    },
+    "genealogista": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Letras e ensino"
+    },
+    "heraldista": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Letras e ensino"
+    },
+    "arqueologo": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Passado e relíquias"
+    },
+    "restaurador": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Passado e relíquias"
+    },
+    "reparador-de-reliquias": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Passado e relíquias"
+    },
+    "avaliador-de-antiguidades": {
+      "categoria": "Saber e estudo",
+      "subgrupo": "Passado e relíquias"
+    },
+    "arquiteto": {
+      "categoria": "Engenharia e construção",
+      "subgrupo": "Construção"
+    },
+    "engenheiro-de-pontes": {
+      "categoria": "Engenharia e construção",
+      "subgrupo": "Construção"
+    },
+    "construtor-de-fortificacoes": {
+      "categoria": "Engenharia e construção",
+      "subgrupo": "Construção"
+    },
+    "inventor": {
+      "categoria": "Engenharia e construção",
+      "subgrupo": "Engenho e mecânica"
+    },
+    "mecanico": {
+      "categoria": "Engenharia e construção",
+      "subgrupo": "Engenho e mecânica"
+    },
+    "mecanico-de-artefatos": {
+      "categoria": "Engenharia e construção",
+      "subgrupo": "Engenho e mecânica"
+    },
+    "relojoeiro": {
+      "categoria": "Engenharia e construção",
+      "subgrupo": "Engenho e mecânica"
+    },
+    "curandeiro-comunitario": {
+      "categoria": "Cura e saúde",
+      "subgrupo": "Cuidados"
+    },
+    "enfermeiro": {
+      "categoria": "Cura e saúde",
+      "subgrupo": "Cuidados"
+    },
+    "cirurgiao": {
+      "categoria": "Cura e saúde",
+      "subgrupo": "Cuidados"
+    },
+    "comerciante": {
+      "categoria": "Comércio e serviços",
+      "subgrupo": "Comércio e contas"
+    },
+    "avaliador-de-materiais": {
+      "categoria": "Comércio e serviços",
+      "subgrupo": "Comércio e contas"
+    },
+    "contador": {
+      "categoria": "Comércio e serviços",
+      "subgrupo": "Comércio e contas"
+    },
+    "estalajadeiro": {
+      "categoria": "Comércio e serviços",
+      "subgrupo": "Hospedagem e cuidados pessoais"
+    },
+    "taverneiro": {
+      "categoria": "Comércio e serviços",
+      "subgrupo": "Hospedagem e cuidados pessoais"
+    },
+    "barbeiro": {
+      "categoria": "Comércio e serviços",
+      "subgrupo": "Hospedagem e cuidados pessoais"
+    },
+    "lavadeiro": {
+      "categoria": "Comércio e serviços",
+      "subgrupo": "Hospedagem e cuidados pessoais"
+    },
+    "advogado": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Lei e diplomacia"
+    },
+    "escrivao-judicial": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Lei e diplomacia"
+    },
+    "diplomata-de-corte": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Lei e diplomacia"
+    },
+    "mediador": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Lei e diplomacia"
+    },
+    "detetive": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Investigação e segredos"
+    },
+    "investigador-de-incendios": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Investigação e segredos"
+    },
+    "espiao": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Investigação e segredos"
+    },
+    "criptoanalista": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Investigação e segredos"
+    },
+    "perito-em-armadilhas": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Investigação e segredos"
+    },
+    "escolta-profissional": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Proteção e captura"
+    },
+    "carcereiro": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Proteção e captura"
+    },
+    "cacador-de-recompensas": {
+      "categoria": "Lei, investigação e proteção",
+      "subgrupo": "Proteção e captura"
+    }
+  },
+  "racas": {
+    "humano": {
+      "categoria": "Povos clássicos",
+      "subgrupo": "Povos clássicos"
+    },
+    "elfo": {
+      "categoria": "Povos clássicos",
+      "subgrupo": "Povos clássicos"
+    },
+    "anao": {
+      "categoria": "Povos clássicos",
+      "subgrupo": "Povos clássicos"
+    },
+    "orcano": {
+      "categoria": "Povos clássicos",
+      "subgrupo": "Povos clássicos"
+    },
+    "pequenino": {
+      "categoria": "Povos clássicos",
+      "subgrupo": "Povos clássicos"
+    },
+    "gnomo": {
+      "categoria": "Povos clássicos",
+      "subgrupo": "Povos clássicos"
+    },
+    "draconato": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Sangue lendário"
+    },
+    "tiefling": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Sangue lendário"
+    },
+    "aasimar": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Sangue lendário"
+    },
+    "goliath": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Sangue lendário"
+    },
+    "gigante": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Sangue lendário"
+    },
+    "ancestral-estelar": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Sangue lendário"
+    },
+    "vampirico": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Noite, sonho e artifício"
+    },
+    "licantropo": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Noite, sonho e artifício"
+    },
+    "metamorfo": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Noite, sonho e artifício"
+    },
+    "sombrio": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Noite, sonho e artifício"
+    },
+    "onirico": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Noite, sonho e artifício"
+    },
+    "construto": {
+      "categoria": "Herança sobrenatural e sombria",
+      "subgrupo": "Noite, sonho e artifício"
+    },
+    "tabaxi": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Felinos e aves"
+    },
+    "felino-das-nuvens": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Felinos e aves"
+    },
+    "kenku": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Felinos e aves"
+    },
+    "homem-corvo": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Felinos e aves"
+    },
+    "centauro": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Cascos e chifres"
+    },
+    "minotauro": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Cascos e chifres"
+    },
+    "homem-cervo": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Cascos e chifres"
+    },
+    "homem-javali": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Cascos e chifres"
+    },
+    "homem-lobo": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Caninos, roedores e ursos"
+    },
+    "homem-raposa": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Caninos, roedores e ursos"
+    },
+    "homem-rato": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Caninos, roedores e ursos"
+    },
+    "homem-coelho": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Caninos, roedores e ursos"
+    },
+    "homem-urso": {
+      "categoria": "Povos bestiais",
+      "subgrupo": "Caninos, roedores e ursos"
+    },
+    "lizardino": {
+      "categoria": "Escamados, goblinoides e artrópodes",
+      "subgrupo": "Escamados"
+    },
+    "kobold": {
+      "categoria": "Escamados, goblinoides e artrópodes",
+      "subgrupo": "Escamados"
+    },
+    "tortle": {
+      "categoria": "Escamados, goblinoides e artrópodes",
+      "subgrupo": "Escamados"
+    },
+    "goblin": {
+      "categoria": "Escamados, goblinoides e artrópodes",
+      "subgrupo": "Goblinoides"
+    },
+    "hobgoblin": {
+      "categoria": "Escamados, goblinoides e artrópodes",
+      "subgrupo": "Goblinoides"
+    },
+    "bugbear": {
+      "categoria": "Escamados, goblinoides e artrópodes",
+      "subgrupo": "Goblinoides"
+    },
+    "aracnideo": {
+      "categoria": "Escamados, goblinoides e artrópodes",
+      "subgrupo": "Artrópodes"
+    },
+    "insetoide": {
+      "categoria": "Escamados, goblinoides e artrópodes",
+      "subgrupo": "Artrópodes"
+    },
+    "elemental-terra": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Elementais"
+    },
+    "elemental-fogo": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Elementais"
+    },
+    "elemental-agua": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Elementais"
+    },
+    "elemental-ar": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Elementais"
+    },
+    "feerico": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Florestas e fadas"
+    },
+    "satiro": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Florestas e fadas"
+    },
+    "plantae": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Florestas e fadas"
+    },
+    "fungal": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Florestas e fadas"
+    },
+    "cristalino": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Pedra e águas"
+    },
+    "tritao": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Pedra e águas"
+    },
+    "sereiano": {
+      "categoria": "Natureza, elementos e águas",
+      "subgrupo": "Pedra e águas"
+    }
+  }
+}

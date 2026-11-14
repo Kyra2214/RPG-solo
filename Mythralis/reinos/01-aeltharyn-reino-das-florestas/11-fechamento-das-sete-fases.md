@@ -68,7 +68,7 @@ Concluído não significa inventar números para todas as lacunas. Distâncias l
 
 **Concluída editorialmente.**
 
-Os onze povos nativos de referência são: elfos; silvanos festivos; feéricos; verdejantes; micélioides; centauros das florestas; felídeos das selvas; orcanos das matas; corvários; pequeninos; gnomos dos vales.
+Os onze povos nativos de referência são: elfos; silvanos festivos; feéricos; verdejantes; micélioides; centauros das florestas; felídeos das selvas; orcs das matas; corvários; pequeninos; gnomos dos vales.
 
 - Linhagens élficas e regionais não aumentam automaticamente a contagem de povos.
 - O Abissal das Enseadas é aliado costeiro/residente de origem externa, não um décimo segundo povo nativo.

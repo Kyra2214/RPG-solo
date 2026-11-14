@@ -34,10 +34,7 @@ fun SkillTreePanel(
     var message by remember { mutableStateOf<String?>(null) }
     var selectedTargets by remember { mutableStateOf(emptyMap<String, String>()) }
     var completedQuestId by remember { mutableStateOf("") }
-    var initialInputs by remember { mutableStateOf(emptyMap<String, String>()) }
     val initial = model.initialBuildState()
-    val initialValuesValid = initialInputs.values.all { it.toIntOrNull()?.let { value -> value >= 0 } == true }
-    val initialTotal = initialInputs.values.sumOf { it.toIntOrNull()?.toLong() ?: 0L }
     val actions = remember(model, version, model.campaignVersion, model.packageVersion) { model.skillTreeActions() }
     val entries = remember(version, model.campaignVersion, model.packageVersion) { actions.view() }
     val targets = remember(version, model.campaignVersion) { actions.targets() }
@@ -49,38 +46,17 @@ fun SkillTreePanel(
             stringResource(R.string.skilltree_title),
             stringResource(R.string.skilltree_points_help, state.abilityPoints),
         )
-        if (!initial.allocated) {
-            SectionTitle(
-                stringResource(R.string.skilltree_initial_title, initial.statPoints, initial.abilityPoints),
-                stringResource(R.string.skilltree_initial_help, initial.statPoints, initial.abilityPoints),
-            )
-            initial.stats.forEach { stat ->
-                OutlinedTextField(
-                    value = initialInputs[stat.id] ?: "0",
-                    onValueChange = { value -> initialInputs = initialInputs + (stat.id to value.filter { it.isDigit() }) },
-                    label = { Text(stringResource(R.string.skilltree_stat_label, stat.name, stat.current)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-            Muted(stringResource(R.string.skilltree_distributed, initialTotal, initial.statPoints))
-            Button(
-                enabled = enabled && initialValuesValid && initialTotal == initial.statPoints.toLong() && initial.stats.isNotEmpty(),
-                onClick = {
-                    val statIncreases =
-                        initial.stats.associate { stat -> stat.id to (initialInputs[stat.id]?.toIntOrNull() ?: 0) }
-                            .filterValues { it > 0 }
-                    act({ model.allocateInitialBuild(statIncreases, initial.abilityPoints) }) { result ->
-                        message = result ?: context.getString(R.string.skilltree_initial_done)
-                        version++
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(R.string.skilltree_confirm)) }
-        } else {
-            Muted(stringResource(R.string.skilltree_initial_complete))
+        // Os pontos iniciais de habilidade são concedidos sozinhos, sem depender do status.
+        androidx.compose.runtime.LaunchedEffect(initial.abilityGranted) {
+            if (!initial.abilityGranted) act({ model.grantInitialAbilityPoints() }) { version++ }
         }
-        if (initial.allocated && entries.any { it.currentLevel == 0 && it.skill.scrollRank != null }) {
+        // Árvore de habilidades: só pontos de habilidade. Os pontos de status ficam na árvore de status (painel separado).
+        SectionTitle(
+            stringResource(R.string.skilltree_ability_title, initial.abilityPoints),
+            stringResource(R.string.skilltree_ability_help, initial.abilityPoints),
+        )
+        Muted(stringResource(R.string.skilltree_ability_left, state.abilityPoints))
+        if (initial.abilityGranted && entries.any { it.currentLevel == 0 && it.skill.scrollRank != null }) {
             OutlinedTextField(
                 value = completedQuestId,
                 onValueChange = { completedQuestId = it.trim() },

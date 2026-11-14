@@ -1,6 +1,8 @@
 package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.AeltharynWorld
+import dev.rpgsolo.engine.InheritChronicle
+import dev.rpgsolo.engine.WorldChronicle
 import dev.rpgsolo.engine.Ambientacao
 import dev.rpgsolo.engine.CampaignRecord
 import dev.rpgsolo.engine.CampaignSession
@@ -56,12 +58,19 @@ object CampaignStarter {
         customSetting: String? = null,
         /** ID explícito do mundo a instalar; nulo preserva o comportamento de ambientação livre. */
         worldId: String? = null,
+        /** MP-07: instantâneo do mundo anterior; obrigatório com [WorldOptions.PREVIOUS]. */
+        chronicle: WorldChronicle? = null,
+        /** MP-07: dias que passam entre o fim da campanha anterior e o começo desta. */
+        jumpDays: Int = 0,
     ): StartResult {
         val edition = ready.edition
         val problems = mutableListOf<String>()
         if (name.isBlank()) problems += "dê um nome à campanha"
         if (store.campaign(campaignId) != null) problems += "já existe uma campanha com o id $campaignId"
-        if (worldId != null && worldId != AeltharynWorld.ID && worldId != WorldTemplates.MYTHRALIS) problems += "mundo não suportado: $worldId"
+        if (worldId != null && worldId != AeltharynWorld.ID && worldId != WorldTemplates.MYTHRALIS && worldId != WorldOptions.PREVIOUS) {
+            problems += "mundo não suportado: $worldId"
+        }
+        if (worldId == WorldOptions.PREVIOUS && chronicle == null) problems += "o mundo anterior precisa do instantâneo da campanha de origem"
         // MI-09: o molde de Mythralis precisa carregar sem erro antes de a campanha ser vinculada a ele.
         val template: WorldTemplate? =
             if (worldId == WorldTemplates.MYTHRALIS) {
@@ -135,6 +144,15 @@ object CampaignStarter {
             }
         }
 
+        // MP-07: a campanha herda o mapa, o dia, a fama e os rumores da anterior e começa num lugar vizinho.
+        if (worldId == WorldOptions.PREVIOUS && chronicle != null) {
+            val inherited = session.execute(InheritChronicle(chronicle, jumpDays))
+            if (inherited is ExecResult.Rejected) {
+                store.truncate(campaignId, 0)
+                return StartResult.Refused(listOf("não foi possível herdar o mundo anterior: ${inherited.reason}"))
+            }
+        }
+
         // MI-09: vínculo campanha → mundo. Só o molde é apontado; cidades, NPCs e facções entram no log quando a cena os tocar (MI-18).
         template?.let { t ->
             val link =
@@ -159,6 +177,9 @@ object CampaignStarter {
         if (worldId == AeltharynWorld.ID) {
             val activeNpcCount = AeltharynWorld.figures.count { it.aliveAtStart }
             notes += "Aeltharyn instalado: dez cidades, mapa conectado, sete relógios e $activeNpcCount NPCs ativos com dossiês privados; só Elarion começa descoberta."
+        }
+        if (worldId == WorldOptions.PREVIOUS) {
+            notes += "Mundo anterior herdado: mapa, fama e rumores continuam; a campanha começa num lugar vizinho, $jumpDays dia(s) depois."
         }
         template?.let { t ->
             notes +=

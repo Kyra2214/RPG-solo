@@ -1,6 +1,6 @@
 # esquema=1
 # gerado por Mythralis/motor/exportar_molde.py; não editar à mão
-# molde_sha256=f11f1c120acc99b1b19d2b01fc3c60606f54ae0871da3e526cd32240ae70d0a0
+# molde_sha256=1e28129df4b3f41a2f497d8577c808ccf3587edf39d999a29b502d448e90c07d
 # dinamica_sha256=449544ec1df5ba5d6fdb744768eee13592d2d0e6aaf3e69b1d31bb619df506bc
 # arquivos_molde=120
 # arquivos_dinamica=13
@@ -17,15 +17,15 @@ molde|reinos/01-aeltharyn-reino-das-florestas/dados/faccao.txt|5312|3a40f08ca5fa
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/fato.txt|22193|7f129c17bd5f1fd5f3596a2c3cf2a53db2deb6fea653e0854c27c690e0a24a8f
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/ids_aposentados.txt|28|5388f01c7a801794e3c9767f3dda3bc77face3fe624b091b5c3898691419d0de
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/misterio.txt|7432|5a09df9bfb6149c65b3676ac7c7fde760c821b63ec4fbbd4139873b299d9f132
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/npc.txt|67503|fe6cec4c09fbf79a521e7e2cadea7c25c53a7404bdf83d473efa89e7ddb2a311
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/povo_no_reino.txt|2708|51032b2987cf4f44a719b9d5868733e10bc5d19430a3eb4353a331ab22396ae6
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/npc.txt|67494|1b267430c4a0bfe12b9d35183833f438d88c9c9ebac845fec18d535910df8ca7
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/povo_no_reino.txt|2705|067cfcdbfb1ae077b934b630efdda1ea87a92be26aab6f2e0c8e71e00b211c7b
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/recurso.txt|6250|c878a17429e371b2b22fa683e40a8b2b6b24b74febd0ac6c917fa367ccd1a929
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/reino.txt|354|7ba4fb1e707abfafd1e2699e35cfb3984bf67306c175de42c5cb43307b8d461f
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/relacao.txt|8985|08f330239da0f8bc55fc710ddde4e0cc7f1aa3853a114dca07586253abb2f569
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/relatorio-validador.txt|10733|12cab8301453032cde8459888bb36b64a8b55c77a95c9659bc89b2843bef166b
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/relogio.txt|4901|f5ce985811d6768b83c814b5168773dfd7ccdab76e63f268ef82ff5ac80f27b2
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/reputacao.txt|5894|3a47d0153f04a5f8be27c14904364e2c6a06f2b74f15d4339414cdafa45b2b60
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/resumo.txt|68490|f4e1ff5517bd735186af8f314b06804e3b5b1a831129354d9ec726db8657ee3d
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/resumo.txt|68481|23b777e26618784e3ce6a112a561a659e8818842011db592b5cf79009d3b2b84
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/rota.txt|3152|3cb07963cc637601c6038bf1b8f5e52dc721bc053a16ae3a8a48f92f29ae8e8a
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/semente.txt|37713|1fded3de5386aae5abe4e1f787188bef8c761f78e6ca84046af3c3cac7348e5c
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/assentamento.txt|7276|a563cadf6224db3e6bfa7f29e7c0a7001b6ab1c45e04106bfafde2677e453bd1
@@ -78,15 +78,15 @@ molde|reinos/04-vale-palancar/dados/assentamento.txt|114|f18cd09ffbf474ac147bc47
 molde|reinos/04-vale-palancar/dados/calendario.txt|285|e824b020f2f7825efe8d48c6add6a69978cc9d4aa93225275faf1e4cc7738041
 molde|reinos/04-vale-palancar/dados/canal.txt|4282|facb59591d89f76f0e74f9753796ee53c3ca799894005f24e037382b5800ebd5
 molde|reinos/04-vale-palancar/dados/cena.txt|6760|655728681857ad9265244b171e35623fb7390b99300a1498b4d73a499935f3db
-molde|reinos/04-vale-palancar/dados/cidade.txt|12832|83086e779a9d143948841851a9d190bf103b0e3aeca1cb9834168610a53e7549
+molde|reinos/04-vale-palancar/dados/cidade.txt|12829|f450b3622c07d4a14aa0a1c67999ead2f8a6b5e371fb8a00489148239a6c66aa
 molde|reinos/04-vale-palancar/dados/evento.txt|10005|4ad23fc4243d16f9de06e1827366876bbd12c1896235e467b6e8f3a889f3f50a
 molde|reinos/04-vale-palancar/dados/excecoes.txt|464|e9c1650a109f1c1eb6e177b16ceb8f0cd0ee7123f8d560f4be923608ae7fc45f
 molde|reinos/04-vale-palancar/dados/faccao.txt|5770|39eac58c6bc31778b8285633dbf20a2c9fefb9b27ef488dfb4a788b2518a2910
 molde|reinos/04-vale-palancar/dados/fato.txt|13603|1ad941cc7fd9ce7ff77340ed156a64928820829acb88db3d851dee3121b24488
 molde|reinos/04-vale-palancar/dados/ids_aposentados.txt|28|5388f01c7a801794e3c9767f3dda3bc77face3fe624b091b5c3898691419d0de
-molde|reinos/04-vale-palancar/dados/misterio.txt|14045|2cc379b0e0c78c3a90a6644e1d380ec400675816eb17fa602ccab01dff0dbcd1
-molde|reinos/04-vale-palancar/dados/npc.txt|25985|b75b576ec8b481a24a7194ae17ae3c4972c5b01175df14f7d20417e2bba73bb4
-molde|reinos/04-vale-palancar/dados/povo_no_reino.txt|1424|0618a0a8abbbcfec2f6a2f164b407f73214829b3471e9021e5bd034262bfadac
+molde|reinos/04-vale-palancar/dados/misterio.txt|14042|4fe7d2e424c8123be8f618ccde953c5af4730fc19887e4f3843937c1387fc956
+molde|reinos/04-vale-palancar/dados/npc.txt|25970|e03b6792ee1e96f7391cbbaa08496fa9ac979b6dc0d7a6f3235bdf795e533871
+molde|reinos/04-vale-palancar/dados/povo_no_reino.txt|1421|47739cf50d617bb17edcba76c3bc0487f1fc5de5434de734cb2d43fadc14f153
 molde|reinos/04-vale-palancar/dados/recurso.txt|9732|30c7a2fcbf42447576d4a741b97a8c2838991e880ba8772c87f7aa66d122ce65
 molde|reinos/04-vale-palancar/dados/reino.txt|366|a1b7f790f9a5c372f29aaf241631d248e01286d1d8ba34a26b782e29b6a63337
 molde|reinos/04-vale-palancar/dados/relacao.txt|14121|411c6fdddc776c6d3d9f6826c1e93d70b43e554dc25c3f5ec904d770a3abbd35
@@ -94,7 +94,7 @@ molde|reinos/04-vale-palancar/dados/relatorio-validador.md|1893|77f9406369207b60
 molde|reinos/04-vale-palancar/dados/relatorio-validador.txt|1169|7ec87204866fec76ad193f991478d801257b2381c65369e93a0a99a2f5263039
 molde|reinos/04-vale-palancar/dados/relogio.txt|6602|eb0dab7e1766306cf90e00b84b981f953c31841ee6d1b2a4cc4cfb58251c3b4a
 molde|reinos/04-vale-palancar/dados/reputacao.txt|7937|0fac3273689cd83a81a498ad97e303dc7fa14803cc5cd3c67097e6e1387b9f50
-molde|reinos/04-vale-palancar/dados/resumo.txt|30397|06416c43b396920279f27dbe94c5cea1d815ee4f9151d84a08d9427a0fa9fe92
+molde|reinos/04-vale-palancar/dados/resumo.txt|30376|520620741e6ebdd1512b447174505e370886b0a15423300faf487a029fe181e1
 molde|reinos/04-vale-palancar/dados/rota.txt|1444|7c3bd8630824d735043c89fe51b13fb1c43a57736be9edba033f99a0fdabba11
 molde|reinos/04-vale-palancar/dados/semente.txt|12732|7e333dea1117aefa504e58e914cc62eb5bc1137c5c8be6c5c6e32455b997b27f
 molde|reinos/05-azeroth/dados/assentamento.txt|114|f18cd09ffbf474ac147bc477a67ff00924315316fef032eaed483ba82590b2c4
@@ -123,9 +123,9 @@ molde|reinos/05-azeroth/dados/semente.txt|16159|19341c6a3a850704cb4746cf2823a0c8
 molde|mundo/M-01-biblia-do-mundo-minima.md|2789|8f259e0e1ec91f668d2584e11e8c87a4c170968eda5d8c14600fbf02de679576
 molde|mundo/M-02-calendario-e-conversao.md|4837|3f29b1ca69c1e2e40c673c478fb99735a7fc22ce25d78891c5ad84f16d5c7c3a
 molde|mundo/M-04-geografia-mestra.md|10470|84d3036a8904a9075b5faac445cc192f1ad64417a2ea8bee5ba45ac2a368f2dd
-molde|mundo/M-05-povos-e-migracoes.md|9298|174ccf49a754282515e76bf6817bad0d331b64274e71c9343d5739aa592d4070
-molde|mundo/M-10-nomes-minimo.md|14477|ae7878448e78cc768d5536153459f71d64690ea7c75876613d15a7bb2719f596
-molde|referencia/dados-brutos/personagem-catalogo.json|267627|524c4b8f0c7573519cba84ac30427b141ca095eabc4e5c69002005168c9f3308
+molde|mundo/M-05-povos-e-migracoes.md|9286|34458d4b94a499f148f794e81c23bc4836952599eb1a5b9349ef091c415e6060
+molde|mundo/M-10-nomes-minimo.md|14474|4fa22107ab42924dcae8d156af8a91bfee4ae79b7d290d6a2f6c182512a15475
+molde|referencia/dados-brutos/personagem-catalogo.json|267618|ea4d342aa307a63a69e39331a944ee6a91dce156baea47c684a8066279000926
 dinamica|dinamica/classes_longevidade.txt|567|082a0c3dca3769abe3fd0ad2cad60f28ca79089fabd4f0d14eb12aaaf27fa902
 dinamica|dinamica/diplomacia.txt|1436|46139d3fa3ad3e8a7dfd1529dd81507c94c1bf41bba0c4638584b8b7c66d711c
 dinamica|dinamica/economia.txt|1697|56e219c01c6e92d2f0a1679ab8be879494e762076313cf6573a25aee7744eb95

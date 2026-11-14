@@ -82,9 +82,18 @@ private val AppShapes =
     )
 
 @Composable
-fun RpgTheme(content: @Composable () -> Unit) {
+fun RpgTheme(
+    modo: String = "sistema",
+    content: @Composable () -> Unit,
+) {
+    val escuro =
+        when (modo) {
+            "claro" -> false
+            "escuro" -> true
+            else -> isSystemInDarkTheme()
+        }
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) Dark else Light,
+        colorScheme = if (escuro) Dark else Light,
         typography = AppTypography,
         shapes = AppShapes,
         content = content,
@@ -116,3 +125,17 @@ fun resourceColor(id: String): Color =
         "pa", "ap" -> Color(0xFFE0A84B)
         else -> MaterialTheme.colorScheme.primary
     }
+
+/** Tokens de design da criação de personagem (abas): espaçamentos, borda e tamanho mínimo do bloco da grade. */
+object CriacaoTokens {
+    val EspacoXs = 4.dp
+    val EspacoS = 6.dp
+    val EspacoM = 8.dp
+    val EspacoG = 10.dp
+    val EspacoXg = 12.dp
+    val Borda = 1.dp
+    val BlocoAlturaMin = 76.dp
+    val ValorLargura = 28.dp
+    val MedalhaoTamanho = 36.dp
+    val GlifoTamanho = 20.sp
+}

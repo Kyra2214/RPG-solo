@@ -19,7 +19,7 @@ Os **16 IDs** usados no catálogo de Aeltharyn existem no catálogo de personage
 | 5 | Micélioides | `fungal` | races | Micélioide | sim |
 | 6 | Centauros das Florestas | `centauro-das-florestas` | subraces | Centauro das Florestas | sim |
 | 7 | Felídeos das Selvas | `felideo-das-selvas` | subraces | Felídeo das Selvas | sim |
-| 8 | Orcanos das Matas | `orcano-das-matas` | subraces | Orcano das Matas | sim |
+| 8 | Orcs das Matas | `orcano-das-matas` | subraces | Orc das Matas | sim |
 | 9 | Corvários | `homem-corvo-das-torres` | subraces | Corvário das Torres | sim |
 | 10 | Pequeninos (ribeirinhos) | `pequenino-ribeirinho` | subraces | Pequenino Ribeirinho | sim |
 | 11 | Gnomos dos Vales | `gnomo-dos-vales` | subraces | Gnomo dos Vales | sim |

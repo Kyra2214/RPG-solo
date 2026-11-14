@@ -840,3 +840,8 @@ Em 08/11/2026 o autor decidiu manter sem carência, como em D-177. Com D-180, D-
 ## D-183 — Nome do reino 5: Azeroth fica
 
 Em 08/11/2026, ao integrar o molde no app (MI-01), o autor confirmou que mantém o nome "Azeroth" (D-139): a coincidência com outro mundo é casual e não há relação com ele. Nada muda nos dados nem no hash do molde.
+
+
+## D-184 — Pendências de Aeltharyn: general, rivalidades, rotas e cidades de povos
+
+Em 14/11/2026 o autor decidiu: (1) Dauren Galho-de-Ferro é o 2º general (papéis `governante;general`) e NPC principal, com objetivo, agenda e pressão tirados do doc 01 §5.10; (2) rivalidades Companhia do Âmbar × Vigias do Primeiro Verde (forte) e Liga das Rotas × Irmandade das Águas (leve); (3) `route.altavento-pedra-ata` ganha o meio `aereo` (valor novo do enum) e `route.concilio-altavento-pedra-ata` fica `trilha`, o que encerra o V-21 do reino 2; (4) tritão em Thalanor, goblin e homem-rato em Silvaran.

@@ -9,7 +9,6 @@ V-10|A|event.comporta-cede|[exceção] rotas aponta para ID inexistente ou de ti
 V-10|A|event.nevasca-fecha-passos|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.altavento-passos|evento.txt
 V-10|A|event.registro-duplo|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.concilio-pedra-ata|evento.txt
 V-10|A|event.registro-provado|[exceção] rotas aponta para ID inexistente ou de tipo errado: route.veiaclara-jusante|evento.txt
-V-21|A|route.altavento-pedra-ata|[exceção] rota duplicada (mesmo par e meio)|rota.txt
 V-23|A|kingdom.coroas-de-pedra|cidades conexas só contando rotas de duração desconhecida (nenhuma rota documentada com tempo)|rota.txt
 V-26|A|kingdom.coroas-de-pedra|rio, posição de fortaleza e relevo: revisão manual contra M-04 (não verificável por regra)|M-04
 V-27|A|settlement.albergue-de-cima|acesso com duração desconhecida|assentamento.txt
@@ -39,4 +38,4 @@ V-42|A|faction.casa-das-comportas|aliados ou rivais desconhecidos|faccao.txt
 V-42|A|faction.conselho-de-sangue|aliados ou rivais desconhecidos|faccao.txt
 V-42|A|faction.coro-das-facetas|aliados ou rivais desconhecidos|faccao.txt
 V-42|A|faction.rede-dos-passos-altos|aliados ou rivais desconhecidos|faccao.txt
-# resumo: 0 erros, 40 avisos, 7 exceções aplicadas
+# resumo: 0 erros, 39 avisos, 6 exceções aplicadas

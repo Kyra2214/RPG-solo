@@ -88,7 +88,7 @@
 ### 2.5 Terreiro-Maior — O Ponto da Assembleia  [PROPOSTO VP-05]
 
 **ID:** `city.terreiro-maior` | **Tipo:** terreiro sazonal de reunião dos clãs. | **Regime:** sazonal (muda de campo com a migração).  
-**População:** faixa **grande** na reunião e quase vazio fora dela (porte relativo; ASSUMINDO, D-63). **Povos presentes:** Orcano; Centauro; Cervino; Lupino; Elfo e Humano (forasteiros, como visitantes individuais, sem representar reino nenhum).  
+**População:** faixa **grande** na reunião e quase vazio fora dela (porte relativo; ASSUMINDO, D-63). **Povos presentes:** Orc; Centauro; Cervino; Lupino; Elfo e Humano (forasteiros, como visitantes individuais, sem representar reino nenhum).  
 **Localização:** numa campina aberta dos planaltos; a cada ciclo a Assembleia escolhe o campo, sempre ao alcance dos clãs em marcha. Sem rota, sem duração, sem sede fixa.  
 **Governo local:** a **Assembleia de Clãs** (D-102) e o **Trato do Terreiro** (instituição), que cuida da ordem da reunião. O Capitão de Marcha comparece, mas não preside. Liderança nomeada: R4-1.3.  
 **Economia:** hospedagem de clãs, fogo e forragem, mediação de pactos e o acerto das contas entre clãs.  
@@ -97,13 +97,13 @@
 **Problemas atuais:** o mandato do Capitão de Marcha atual **está perto do fim** e a Assembleia se divide entre quem quer prova e quem quer aclamação (sucessão de chefia).  
 **Facções presentes:** Clãs da Prova; Clãs da Aclamação (doc 04 §9).  
 **Rumores (não confirmados):** contam que um campo escolhido uma vez nunca mais foi escolhido; que a Pedra da Palavra esfria quando alguém mente. **Rumor não vira fato.**  
-**Lenda:** a versão dos Orcanos diz que a Assembleia nasceu de um clã que perdeu uma disputa e pediu que todos ouvissem; a versão dos Centauros diz que nasceu de uma marcha que parou para decidir o rumo.  
+**Lenda:** a versão dos Orcs diz que a Assembleia nasceu de um clã que perdeu uma disputa e pediu que todos ouvissem; a versão dos Centauros diz que nasceu de uma marcha que parou para decidir o rumo.  
 **Função narrativa:** cena de assembleia; onde as decisões do reino são tomadas e contestadas.
 
 ### 2.6 Vazante — O Acampamento da Marcha  [PROPOSTO VP-06]
 
 **ID:** `city.vazante` | **Tipo:** acampamento móvel de migração e defesa. | **Regime:** sazonal (muda de campo com a migração).  
-**População:** faixa **grande** (porte relativo; ASSUMINDO, D-63). **Povos presentes:** Centauro; Felídeo Errante; Lupino; Orcano; Goblin de Legião; Silvano Festivo e Feérico (forasteiros).  
+**População:** faixa **grande** (porte relativo; ASSUMINDO, D-63). **Povos presentes:** Centauro; Felídeo Errante; Lupino; Orc; Goblin de Legião; Silvano Festivo e Feérico (forasteiros).  
 **Localização:** nos campos abertos, onde a marcha estiver; muda de campo com o pasto e a caça. Sem rota, sem duração.  
 **Governo local:** o **Capitão de Marcha**, que **reside aqui** (§1), e o **Trato da Marcha** (instituição), que cuida da ordem do acampamento. Liderança nomeada: R4-1.3.  
 **Economia:** a própria marcha: carroças, rebanhos, forja de campo, caça e a guarda de quem acompanha.  
@@ -133,7 +133,7 @@
 ### 2.8 Gramal — O Território dos Rebanhos  [PROPOSTO VP-08]
 
 **ID:** `city.gramal` | **Tipo:** território sazonal de pasto e caça dos clãs. | **Regime:** sazonal (muda de campo com a migração).  
-**População:** faixa **média** (porte relativo; ASSUMINDO, D-63). **Povos presentes:** Leporino; Porcino; Ursino; Insetoide; Orcano; Felino das Nuvens e Verdejante (forasteiros).  
+**População:** faixa **média** (porte relativo; ASSUMINDO, D-63). **Povos presentes:** Leporino; Porcino; Ursino; Insetoide; Orc; Felino das Nuvens e Verdejante (forasteiros).  
 **Localização:** nas savanas, onde o pasto estiver; muda de campo com a estação. Sem rota, sem duração.  
 **Governo local:** **Trato dos Rebanhos** (instituição), mantido pelos clãs de gado e de caça. Liderança nomeada: R4-1.3.  
 **Economia:** gado, couro e caça; a marca dos rebanhos e a divisão do pasto entre clãs.  
@@ -149,7 +149,7 @@
 
 | Povo | ID | Lugares |
 |---|---|---|
-| Orcano | `orcano` | VP-05, VP-06, VP-08 |
+| Orc | `orcano` | VP-05, VP-06, VP-08 |
 | Felídeo Errante | `tabaxi` | VP-06, VP-07 |
 | Centauro | `centauro` | VP-05, VP-06, VP-07 |
 | Goblin | `goblin` | VP-02, VP-03, VP-04 |
@@ -162,7 +162,7 @@
 | Cervino | `homem-cervo` | VP-01, VP-05, VP-07 |
 | Insetoide | `insetoide` | VP-03, VP-08 |
 
-Os 12 nativos aparecem. Orcano, Felídeo Errante e Centauro têm linhagem própria do Vale, **sem parentesco** com as de Aeltharyn (M-05 §3); os nomes das linhagens vêm no R4-1.6 (P-3). Forasteiros usados, todos da matriz de M-05 §4: Anão, Giganteano, Humano, Pequenino, Corvídeo, Escamado Miúdo, Ratoide, Metamorfo Lupino, Umbral, Elfo, Silvano Festivo, Feérico, Labiríntico, Draconato, Altaneiro, Felino das Nuvens e Verdejante. Visitantes de passagem (D-103, P-2): Gnomo e Construto Desperto, só em Praia-Pardo. **Mestiços:** não são alocados (D-64).
+Os 12 nativos aparecem. Orc, Felídeo Errante e Centauro têm linhagem própria do Vale, **sem parentesco** com as de Aeltharyn (M-05 §3); os nomes das linhagens vêm no R4-1.6 (P-3). Forasteiros usados, todos da matriz de M-05 §4: Anão, Giganteano, Humano, Pequenino, Corvídeo, Escamado Miúdo, Ratoide, Metamorfo Lupino, Umbral, Elfo, Silvano Festivo, Feérico, Labiríntico, Draconato, Altaneiro, Felino das Nuvens e Verdejante. Visitantes de passagem (D-103, P-2): Gnomo e Construto Desperto, só em Praia-Pardo. **Mestiços:** não são alocados (D-64).
 
 ## 4. Conferência (R4-1.1)
 
@@ -202,7 +202,7 @@ Os 12 nativos aparecem. Orcano, Felídeo Errante e Centauro têm linhagem própr
 **Desconhecido:** Como foi escolhido e o que faria se a Assembleia o contrariasse.
 
 ### N-02 Yorna Palavra-Firme  [PROPOSTO]
-**ID:** `npc.yorna-palavra-firme` | **Povo:** Orcano (`orcano`, linhagem do Vale) | **Lugar:** `city.terreiro-maior` | **Categoria:** governante; **faixa etária:** idosa (ASSUMINDO).  
+**ID:** `npc.yorna-palavra-firme` | **Povo:** Orc (`orcano`, linhagem do Vale) | **Lugar:** `city.terreiro-maior` | **Categoria:** governante; **faixa etária:** idosa (ASSUMINDO).  
 **Papel:** guardiã da Pedra da Palavra; cuida da ordem da Assembleia (Trato do Terreiro); guardiã do Terreiro-Maior.  
 **Agenda:** Manter a Assembleia inteira e sem arma no Fogo do Meio até a escolha do próximo Capitão.  
 **Pressão:** Os dois lados da sucessão a cobram; um terreiro cheio é frágil se o Capitão estiver longe.  
@@ -321,8 +321,8 @@ Os 12 nativos aparecem. Orcano, Felídeo Errante e Centauro têm linhagem própr
 | Rasovau | Jessik Trato-Primeiro (Vulpino, falecido, lenda) | Zinu Troca-Justa* | Quira Recado-Certo* |
 | Praia-Pardo | Nokk Peso-Alheio (Goblin, falecido, lenda) | Vrissk Colônia-Quieta* | Grebb Balança-Justa (Goblin) |
 | Alvasal | Urrek Bando-Parado (Lupino, falecido, lenda) | Gruzk Estandarte-Baixo* | Aruun Poço-Compartilhado (Lupino) |
-| Terreiro-Maior | Hukk Pedra-de-Divisa (Orcano, falecido, lenda) | Yorna Palavra-Firme* | Cassan Galhada-Velha* |
-| Vazante | Rukhan Retorno-Certo* | Kharos Casco-de-Marcha* | Bolgra Forja-de-Campo (Orcano) |
+| Terreiro-Maior | Hukk Pedra-de-Divisa (Orc, falecido, lenda) | Yorna Palavra-Firme* | Cassan Galhada-Velha* |
+| Vazante | Rukhan Retorno-Certo* | Kharos Casco-de-Marcha* | Bolgra Forja-de-Campo (Orc) |
 | Encosta-Aberta | Tessun Salto-Calado* | Sendro Clareira-Vigia (Cervino) | Cadrek Cerca-Aberta (Centauro) |
 | Gramal | Zzirr Favo-Dividido (Insetoide, falecido, lenda) | Tibbe Salto-Curto* | Ghorla Fartura-Dividida (Porcino) |
 
@@ -332,14 +332,14 @@ Só o que as lendas da parte 1 sustentam; **lenda não é fato** e nenhum feito 
 - **Jessik Trato-Primeiro:** figura da versão dos Vulpinos da lenda de Rasovau (o trato entre dois clãs que não se falavam).
 - **Nokk Peso-Alheio:** figura da versão dos Goblins da lenda de Praia-Pardo (o clã que aprendeu a pesar o que não era dele).
 - **Urrek Bando-Parado:** figura da versão dos Lupinos da lenda de Alvasal (o bando que decidiu não seguir adiante).
-- **Hukk Pedra-de-Divisa:** figura da versão dos Orcanos da lenda do Terreiro-Maior (o clã que perdeu uma disputa e pediu que todos ouvissem).
+- **Hukk Pedra-de-Divisa:** figura da versão dos Orcs da lenda do Terreiro-Maior (o clã que perdeu uma disputa e pediu que todos ouvissem).
 - **Zzirr Favo-Dividido:** figura da versão dos Insetoides da lenda de Gramal (a colônia que dividiu o capim).
 
 ## 4. Cobertura por povo
 
 | Povo | Onde aparece |
 |---|---|
-| Orcano | Yorna (N-02), Hukk, Bolgra |
+| Orc | Yorna (N-02), Hukk, Bolgra |
 | Felídeo Errante | Tessun (N-06) |
 | Centauro | Kharos (N-01), Cadrek |
 | Goblin | Zinu (N-08), Nokk, Grebb |
@@ -384,7 +384,7 @@ Quatro eras. A **ordem** é a que as lendas aceitam; o que houve dentro de cada 
 O doc 01 prometeu registrar a origem e o sentido do nome. Registro:
 
 - **Fixo:** "Palancar" é o nome do reino, **não de um vale, de um planalto, de um rio ou de um lugar**; o reino não tem vale nomeado e o relevo continua o de M-04. Ninguém é "do Palancar" por raça (W-01). Quem deu o nome e quando é `desconhecido`.
-- **Duas versões contadas** (lenda, sem valor de fato; ambas só reaproveitam as lendas do Terreiro-Maior, sem lugar novo): a versão dos Centauros diz que a palavra era o que a marcha dizia ao parar para decidir o rumo; a versão dos Orcanos diz que era o que o clã que perdeu a disputa dizia para que todos ouvissem.
+- **Duas versões contadas** (lenda, sem valor de fato; ambas só reaproveitam as lendas do Terreiro-Maior, sem lugar novo): a versão dos Centauros diz que a palavra era o que a marcha dizia ao parar para decidir o rumo; a versão dos Orcs diz que era o que o clã que perdeu a disputa dizia para que todos ouvissem.
 - **Fica `desconhecido`:** qual versão é a mais velha, e se as duas falam da mesma palavra.
 - **Fora do reino:** como Aeltharyn, as Coroas e o Véu chamam o reino, ou se sabem o que o nome significa, **não é decidido aqui** (contrato A1). "Marcas das Feras" segue como nome de trabalho antigo e nunca como sentença (D-102).
 
@@ -398,7 +398,7 @@ Só **confirmado** que a lenda existe e é contada; as duas versões vêm do §2
 | Rasovau | um trato entre dois clãs que não se falavam (Vulpinos; figura: Jessik Trato-Primeiro) / um rebanho que não quis dar a volta (Leporinos) | 2ª | quais clãs; se o trato foi dito ou marcado |
 | Praia-Pardo | um clã que aprendeu a pesar o que não era dele (Goblins; figura: Nokk Peso-Alheio) / uma colônia que seguiu o rio (Insetoides) | 2ª | se o pouso nasceu antes ou depois da Descida (sem ligação causal com ela) |
 | Alvasal | um bando que decidiu não seguir adiante (Lupinos; figura: Urrek Bando-Parado) / uma ordem de vigia que ninguém lembra de ter recebido (Goblins de Legião) | 2ª ou 3ª | que ordem; de quem |
-| Terreiro-Maior | um clã que perdeu uma disputa e pediu que todos ouvissem (Orcanos; figura: Hukk Pedra-de-Divisa) / uma marcha que parou para decidir o rumo (Centauros) | 3ª | se a Assembleia veio antes da Marcha ou depois |
+| Terreiro-Maior | um clã que perdeu uma disputa e pediu que todos ouvissem (Orcs; figura: Hukk Pedra-de-Divisa) / uma marcha que parou para decidir o rumo (Centauros) | 3ª | se a Assembleia veio antes da Marcha ou depois |
 | Vazante | uma marcha mais antiga que qualquer assembleia (Centauros) / uma ordem de acampamento anterior ao acampamento (Goblins de Legião) | 3ª | o mesmo ponto: qual poder é mais velho |
 | Encosta-Aberta | um pouso nascido do último dia de um corredor (Centauros) / um rebanho que parou para olhar o alto (Cervinos) | 2ª ou 3ª | qual corredor; se algum corredor termina ali (sem tocar o Conflito G) |
 | Gramal | um rebanho que não parou de crescer (Leporinos) / uma colônia que dividiu o capim (Insetoides; figura: Zzirr Favo-Dividido) | 1ª | qual rebanho ou colônia |
@@ -482,7 +482,7 @@ Os seis heróis lendários da parte 2 são **figuras de lenda**; nenhum feito é
 **Parte de:** rumor do Terreiro-Maior (a Pedra da Palavra esfria quando alguém mente); suspeita de N-02 (sabe de um costume da Pedra que a Assembleia esqueceu); desconhecido de N-02 (o que a Pedra registra e quem a escolheu para o cargo).
 **Confirmado:** a Pedra da Palavra existe e dá a palavra na rodada; Yorna (N-02) cuida da ordem e **não vota, não escolhe o Capitão**; a reunião só se fecha quando todos foram ouvidos (L-01).
 **Hipóteses abertas:** (a) a pedra é fria por natureza e o costume leu nela o que quis; (b) Yorna conhece um gesto que faz a pedra "esfriar" e o usa para pesar a palavra; (c) a Assembleia deixou a lenda correr para impor honestidade, sem que a pedra faça nada; (d) a pedra esfria de fato e ninguém a testou fora do Fogo do Meio.
-**A verdade não pode ser:** prova que decida a sucessão (prova ou aclamação) ou dê voto à Pedra; magia ou lore de objeto de Aeltharyn, das Coroas ou do Véu; Yorna acusada de manipular a Assembleia sem os clãs ouvidos; culpa dos Orcanos como povo; a Pedra substituindo a regra de maioria (doc 04 §2.2).
+**A verdade não pode ser:** prova que decida a sucessão (prova ou aclamação) ou dê voto à Pedra; magia ou lore de objeto de Aeltharyn, das Coroas ou do Véu; Yorna acusada de manipular a Assembleia sem os clãs ouvidos; culpa dos Orcs como povo; a Pedra substituindo a regra de maioria (doc 04 §2.2).
 **Provas possíveis:** Pedra da Palavra; Fogo do Meio; relato de Cassan (N-12), que ouve todos e **não toma lado em público**; Yorna, que **pode não revelar** o costume.
 
 ### MPL-07 — O mapa do Capitão e o terceiro campo (Vazante)

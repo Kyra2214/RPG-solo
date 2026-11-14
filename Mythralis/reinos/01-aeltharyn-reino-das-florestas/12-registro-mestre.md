@@ -115,7 +115,7 @@ Os assentamentos ainda **não existem no catálogo técnico**. A cidade indicada
 | `npc.iven-folhas-brancas` | Iven das Folhas Brancas | Nymvar | BENEFACTOR | elfo-dos-bosques | sim |  |
 | `npc.mara-barro-claro` | Mara Barro-Claro | Nymvar | GUARDIAN | pequenino-ribeirinho | sim |  |
 | `npc.korga-ponta-junco` | Korga Ponta-de-Junco | Orvass | BENEFACTOR | orcano-das-matas | sim |  |
-| `npc.nima-raiz-de-lodo` | Nima Raiz-de-Lodo | Orvass | HERO | orcano-das-matas | não | Curandeira orcana das matas, falecida há 90 anos. |
+| `npc.nima-raiz-de-lodo` | Nima Raiz-de-Lodo | Orvass | HERO | orcano-das-matas | não | Curandeira orc das matas, falecida há 90 anos. |
 | `npc.oru-rede-chuva` | Oru Rede-de-Chuva | Orvass | HERO | fungal | não |  |
 | `npc.syris-canal-velado` | Syris do Canal Velado | Orvass | HERO | elfo-do-crepusculo | não |  |
 | `npc.veyra-pavio-silencioso` | Veyra Pavio-Silencioso | Orvass | BENEFACTOR | elfo-do-crepusculo | sim |  |
@@ -155,7 +155,7 @@ Os assentamentos ainda **não existem no catálogo técnico**. A cidade indicada
 | `npc.maereth-cartografa-das-copas` | Maereth, a Cartógrafa das Copas | Elarion | — | — | — | heroína histórica, morta há 430 anos |
 | `npc.nivara-folha-de-orvalho` | Nivara Folha-de-Orvalho | Elarion | — | — | — | liderança de assentamento |
 | `npc.othalen-vira-pedra` | Othalen Vira-Pedra | Elarion | — | — | — | liderança de assentamento |
-| `npc.beren-tres-canais` | Beren Três-Canais | Nymvar | — | — | — | Orcano das Matas, 61 anos. |
+| `npc.beren-tres-canais` | Beren Três-Canais | Nymvar | — | — | — | Orc das Matas, 61 anos. |
 | `npc.sava-mao-de-corrente` | Sava Mão-de-Corrente | Nymvar | — | — | — | liderança de assentamento |
 | `npc.nima-barro-manso` | Nima Barro-Manso | Orvass | — | — | — | liderança de assentamento |
 | `npc.vela-tres-margens` | Vela Três-Margens | Orvass | — | — | — | liderança de assentamento |
@@ -211,7 +211,7 @@ Cada linha repete o que o texto diz; `—` significa que o texto não diz (nada 
 | `npc.maereth-cartografa-das-copas` | Maereth, a Cartógrafa das Copas | Elarion | heroína histórica; desenhou rotas de evacuação nos níveis inferiores da capital | Elfa, morta há 430 anos (pessoa distinta da princesa) |
 | `npc.nivara-folha-de-orvalho` | Nivara Folha-de-Orvalho | Elarion | liderança de assentamento: eleita por famílias viveiristas por mandatos de seis anos; a confirmação distrital é formal, mas a recusa real pode provocar disputa | — |
 | `npc.othalen-vira-pedra` | Othalen Vira-Pedra | Elarion | liderança de assentamento: magistrado eleito por moradores e comerciantes a cada quatro anos | — |
-| `npc.beren-tres-canais` | Beren Três-Canais | Nymvar | liderança de assentamento: construtor de diques escolhido pelo conselho de famílias e equipes de manutenção | Orcano das Matas, 61 anos |
+| `npc.beren-tres-canais` | Beren Três-Canais | Nymvar | liderança de assentamento: construtor de diques escolhido pelo conselho de famílias e equipes de manutenção | Orc das Matas, 61 anos |
 | `npc.elsin-varzea-clara` | Elsin Várzea-Clara | Nymvar | Matriarca dos canais de Nymvar | Pequenina ribeirinha, 64 anos |
 | `npc.sava-mao-de-corrente` | Sava Mão-de-Corrente | Nymvar | liderança de assentamento: mestra das barcas escolhida pelas guildas e sujeita a revisão pública anual | — |
 | `npc.nima-barro-manso` | Nima Barro-Manso | Orvass | liderança de assentamento: escolhida por curandeiros e famílias por mandato revogável | — |

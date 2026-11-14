@@ -19,6 +19,15 @@ data class NpcDossier(
     /** outro id -> natureza da relação (aliado, rival, deve favor...). */
     val relations: Map<String, String> = emptyMap(),
     val secrets: List<Secret> = emptyList(),
+    /** Identidade própria do NPC, definida pelo Mestre ao apresentá-lo (nome completo, origem, ofício...). Só o Mestre vê até o jogador assumir o NPC. */
+    val identity: String = "",
+    /** Idade do NPC em anos, escolhida pelo Mestre; vira a idade do herói se o jogador assumir o NPC. 0 = não definida. */
+    val age: Int = 0,
+    val sex: String = "",
+    /** Classe de longevidade do povo do NPC (ex.: `humana`); vazio = usa a do herói anterior. */
+    val longevityClass: String = "",
+    /** O que qualquer um vê ao conhecer o NPC (aparência, idade aparente). Aparece para o jogador desde a apresentação. */
+    val publicInfo: List<String> = emptyList(),
 )
 
 class DossierBook {
@@ -42,6 +51,9 @@ class DossierBook {
         sceneNpcIds.mapNotNull { dossiers[it] }.map { d ->
             buildString {
                 append("NPC ${d.npcId}")
+                if (d.identity.isNotBlank()) append(" (${d.identity})")
+                if (d.age > 0) append(", ${d.age} anos")
+                if (d.sex.isNotBlank()) append(", ${d.sex}")
                 if (d.personality.isNotBlank()) append(": ${d.personality}")
                 if (d.goals.isNotEmpty()) append("; objetivos: ${d.goals.joinToString(", ")}")
                 if (d.motivations.isNotEmpty()) append("; motivações: ${d.motivations.joinToString(", ")}")
@@ -201,6 +213,16 @@ data class NpcSheetView(
     val concept: String? = null,
     val inventory: Map<String, Int>? = null,
     val equipped: Map<String, String>? = null,
+    /** O que o jogador pode ver desde a apresentação (aparência, idade aparente). */
+    val publicInfo: List<String> = emptyList(),
+    /** Só depois de assumir o NPC: identidade, idade, sexo, personalidade, objetivos, motivações e segredos. */
+    val identity: String? = null,
+    val age: Int? = null,
+    val sex: String? = null,
+    val personality: String? = null,
+    val goals: List<String>? = null,
+    val motivations: List<String>? = null,
+    val secrets: List<String>? = null,
 )
 
 /** Visão da ficha de [id] para o jogador (M-04); `null` se a entidade não existe. Nunca inclui o dossiê. */
@@ -212,7 +234,11 @@ fun GameState.npcSheet(id: String): NpcSheetView? {
             .sortedBy { it.key }
             .map { it.value.text }
     val assumed = ent.kind == EntityKind.PLAYER
-    if (!assumed) return NpcSheetView(ent.id, ent.name, ent.alive, assumed = false, discovered = discovered)
+    val dossier = npcDossiers[id]
+    val publicInfo = dossier?.publicInfo.orEmpty()
+    if (!assumed) {
+        return NpcSheetView(ent.id, ent.name, ent.alive, assumed = false, discovered = discovered, publicInfo = publicInfo)
+    }
     return NpcSheetView(
         id = ent.id,
         name = ent.name,
@@ -229,5 +255,13 @@ fun GameState.npcSheet(id: String): NpcSheetView? {
         concept = ent.concept,
         inventory = inventory[ent.id].orEmpty(),
         equipped = equipped[ent.id].orEmpty(),
+        publicInfo = publicInfo,
+        identity = dossier?.identity?.takeIf { it.isNotBlank() },
+        age = dossier?.age?.takeIf { it > 0 },
+        sex = dossier?.sex?.takeIf { it.isNotBlank() },
+        personality = dossier?.personality?.takeIf { it.isNotBlank() },
+        goals = dossier?.goals,
+        motivations = dossier?.motivations,
+        secrets = dossier?.secrets?.map { it.text },
     )
 }

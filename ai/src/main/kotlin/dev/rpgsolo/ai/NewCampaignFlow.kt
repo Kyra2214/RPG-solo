@@ -55,12 +55,16 @@ class NewCampaignFlow(
         name: String,
         seed: Long,
         worldId: String? = null,
+        /** MP-07: instantâneo do mundo anterior (só com [dev.rpgsolo.rules.WorldOptions.PREVIOUS]). */
+        chronicle: dev.rpgsolo.engine.WorldChronicle? = null,
+        /** MP-07: dias entre o fim da campanha anterior e o começo desta. */
+        jumpDays: Int = 0,
     ): Step {
         val review = step as? Step.Review ?: return step
         val result =
             CampaignStarter.start(
                 store, registry, catalog, review.ready.resolved, review.ready.config, ficha,
-                newId(), name, seed, review.ready.draft.customSetting, worldId,
+                newId(), name, seed, review.ready.draft.customSetting, worldId, chronicle, jumpDays,
             )
         step =
             when (result) {

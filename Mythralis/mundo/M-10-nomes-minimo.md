@@ -100,7 +100,7 @@ Reservados (entram na lista de não repetição dos reinos 4 e 5): estações N�
 
 | Povo | Famílias de epíteto sugeridas |
 |---|---|
-| Orcano | marco, osso, juramento, pedra de divisa |
+| Orc | marco, osso, juramento, pedra de divisa |
 | Felídeo Errante | trilha, salto, silêncio, estrada |
 | Centauro | casco, horizonte, corredor, retorno |
 | Goblin | troca, remendo, engenho, caravana |

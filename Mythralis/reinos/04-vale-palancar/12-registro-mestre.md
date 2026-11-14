@@ -27,7 +27,7 @@
 
 | Povo | ID | Qtd |
 |---|---|---|
-| Orcano | `orcano` | 3 |
+| Orc | `orcano` | 3 |
 | Porcino | `homem-javali` | 3 |
 | Lupino | `homem-lobo` | 3 |
 | Goblin | `goblin` | 3 |
@@ -79,7 +79,7 @@ Os 12 nativos têm pelo menos uma pessoa. Nenhum forasteiro e nenhum mestiço (D
 | ID | Nome | Lugar | Povo | Povo (ID) | Vivo | Situação |
 |---|---|---|---|---|---|---|
 | `npc.kharos-casco-de-marcha` | Kharos Casco-de-Marcha | `city.vazante` | Centauro | `centauro` | sim | proposto, ficha completa (D-107) |
-| `npc.yorna-palavra-firme` | Yorna Palavra-Firme | `city.terreiro-maior` | Orcano | `orcano` | sim | proposto, ficha completa (D-107) |
+| `npc.yorna-palavra-firme` | Yorna Palavra-Firme | `city.terreiro-maior` | Orc | `orcano` | sim | proposto, ficha completa (D-107) |
 | `npc.gruzk-estandarte-baixo` | Gruzk Estandarte-Baixo | `city.alvasal` | Goblin de Legião | `hobgoblin` | sim | proposto, ficha completa (D-107) |
 | `npc.moura-mel-guardado` | Moura Mel-Guardado | `city.tabuleiro-velho` | Ursino | `homem-urso` | sim | proposto, ficha completa (D-107) |
 | `npc.pocha-ninhada-farta` | Pocha Ninhada-Farta | `city.tabuleiro-velho` | Porcino | `homem-javali` | sim | proposto, ficha completa (D-107) |
@@ -96,8 +96,8 @@ Os 12 nativos têm pelo menos uma pessoa. Nenhum forasteiro e nenhum mestiço (D
 | `npc.grebb-balanca-justa` | Grebb Balança-Justa | `city.praia-pardo` | Goblin | `goblin` | sim | proposto, só tríade (sem ficha) |
 | `npc.urrek-bando-parado` | Urrek Bando-Parado | `city.alvasal` | Lupino | `homem-lobo` | não | proposto, herói lendário (D-107) |
 | `npc.aruun-poco-compartilhado` | Aruun Poço-Compartilhado | `city.alvasal` | Lupino | `homem-lobo` | sim | proposto, só tríade (sem ficha) |
-| `npc.hukk-pedra-de-divisa` | Hukk Pedra-de-Divisa | `city.terreiro-maior` | Orcano | `orcano` | não | proposto, herói lendário (D-107) |
-| `npc.bolgra-forja-de-campo` | Bolgra Forja-de-Campo | `city.vazante` | Orcano | `orcano` | sim | proposto, só tríade (sem ficha) |
+| `npc.hukk-pedra-de-divisa` | Hukk Pedra-de-Divisa | `city.terreiro-maior` | Orc | `orcano` | não | proposto, herói lendário (D-107) |
+| `npc.bolgra-forja-de-campo` | Bolgra Forja-de-Campo | `city.vazante` | Orc | `orcano` | sim | proposto, só tríade (sem ficha) |
 | `npc.sendro-clareira-vigia` | Sendro Clareira-Vigia | `city.encosta-aberta` | Cervino | `homem-cervo` | sim | proposto, só tríade (sem ficha) |
 | `npc.cadrek-cerca-aberta` | Cadrek Cerca-Aberta | `city.encosta-aberta` | Centauro | `centauro` | sim | proposto, só tríade (sem ficha) |
 | `npc.zzirr-favo-dividido` | Zzirr Favo-Dividido | `city.gramal` | Insetoide | `insetoide` | não | proposto, herói lendário (D-107) |

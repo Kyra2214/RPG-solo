@@ -20,7 +20,7 @@ Chegada ao acampamento móvel da Marcha e conversa com o Capitão sobre o campo.
 **Entra (1883 caracteres):**
 
 - Ano 611 da Contagem dos Marcos, Pasto Magro (inverno), Lua 1, dia 1.
-- [city.vazante] Vazante — O Acampamento da Marcha. Acampamento móvel de migração e defesa (regime sazonal). Liderança: Kharos Casco-de-Marcha. Obrigação: Conduzir a migração e a defesa; responder à Assembleia. Interesse: Achar pasto e manter a marcha inteira. Tensão: Dois campos de pasto possíveis; qualquer escolha deixa um clã sem pasto. Povos: Orcano; Felídeo Errante; Centauro; Goblin de Legião; Lupino. Porte: grande (relativo, sem número).
+- [city.vazante] Vazante — O Acampamento da Marcha. Acampamento móvel de migração e defesa (regime sazonal). Liderança: Kharos Casco-de-Marcha. Obrigação: Conduzir a migração e a defesa; responder à Assembleia. Interesse: Achar pasto e manter a marcha inteira. Tensão: Dois campos de pasto possíveis; qualquer escolha deixa um clã sem pasto. Povos: Orc; Felídeo Errante; Centauro; Goblin de Legião; Lupino. Porte: grande (relativo, sem número).
 - [city.vazante] Vizinhança: Ligações (sem duração): Tabuleiro-Velho (Tabuleiro é lugar-mãe); Terreiro-Maior (vínculo político).
 - [npc.kharos-casco-de-marcha] Kharos Casco-de-Marcha, Centauro. Capitão de Marcha; guardião da Vazante. Limite: chefia a migração e a defesa; não preside a Assembleia nem decide pactos. Pressão: O mandato está perto do fim; a Assembleia se divide entre prova e aclamação; qualquer campo escolhido deixa um clã sem pasto.
 - [voz npc.kharos-casco-de-marcha] tom: firme e prudente; decide devagar e fala em termos de marcha; modelo: "A marcha vai inteira ou não vai." | "Escolho o campo; os pactos não são meus para mexer." | "A Assembleia me deu o mandato; a Assembleia dirá o que vem depois."
@@ -75,9 +75,9 @@ Reunião aberta dos clãs no Fogo do Meio, com a palavra dada pela guardiã da P
 **Entra (1969 caracteres):**
 
 - Ano 611 da Contagem dos Marcos, Pasto Magro (inverno), Lua 1, dia 1.
-- [city.terreiro-maior] Terreiro-Maior — O Ponto da Assembleia. Terreiro sazonal de reunião dos clãs (regime sazonal). Liderança: Yorna Palavra-Firme. Obrigação: Reunir os clãs, mediar pactos e acertar contas; o Capitão comparece sem presidir. Interesse: Decidir o rumo do reino na paz. Tensão: Mandato do Capitão de Marcha perto do fim; Assembleia dividida entre prova e aclamação. Povos: Orcano; Centauro; Lupino; Cervino. Porte: grande (relativo, sem número).
+- [city.terreiro-maior] Terreiro-Maior — O Ponto da Assembleia. Terreiro sazonal de reunião dos clãs (regime sazonal). Liderança: Yorna Palavra-Firme. Obrigação: Reunir os clãs, mediar pactos e acertar contas; o Capitão comparece sem presidir. Interesse: Decidir o rumo do reino na paz. Tensão: Mandato do Capitão de Marcha perto do fim; Assembleia dividida entre prova e aclamação. Povos: Orc; Centauro; Lupino; Cervino. Porte: grande (relativo, sem número).
 - [city.terreiro-maior] Vizinhança: Ligações (sem duração): Tabuleiro-Velho (Tabuleiro é lugar-mãe); Vazante (vínculo político).
-- [npc.yorna-palavra-firme] Yorna Palavra-Firme, Orcano. Guardiã da Pedra da Palavra; cuida da ordem da Assembleia (Trato do Terreiro); guardiã do Terreiro-Maior. Limite: dá a palavra e ordena a reunião; não vota, não escolhe o Capitão e não comanda marcha. Pressão: Os dois lados da sucessão a cobram; um terreiro cheio é frágil se o Capitão estiver longe.
+- [npc.yorna-palavra-firme] Yorna Palavra-Firme, Orc. Guardiã da Pedra da Palavra; cuida da ordem da Assembleia (Trato do Terreiro); guardiã do Terreiro-Maior. Limite: dá a palavra e ordena a reunião; não vota, não escolhe o Capitão e não comanda marcha. Pressão: Os dois lados da sucessão a cobram; um terreiro cheio é frágil se o Capitão estiver longe.
 - [voz npc.yorna-palavra-firme] tom: severa e paciente; palavra medida, de quem ordena a reunião; modelo: "Fala quem tem a Pedra; os outros ouvem." | "Sem arma no Fogo do Meio." | "Eu dou a palavra. Voto, não."
 - [fact.yorna-cuida-ordem-reuniao|publico] Cuida da ordem da reunião
 - [fact.cassan-hospeda-visitantes|publico] Hospeda clãs de fora no Terreiro
@@ -104,7 +104,7 @@ Cena de acerto entre clãs de gado e de caça sobre o mesmo campo, com o chefe d
 **Entra (1640 caracteres):**
 
 - Ano 611 da Contagem dos Marcos, Pasto Magro (inverno), Lua 1, dia 1.
-- [city.gramal] Gramal — O Território dos Rebanhos. Território sazonal de pasto e caça dos clãs (regime sazonal). Liderança: Tibbe Salto-Curto. Obrigação: Dividir o pasto e marcar os rebanhos. Interesse: Pasto e caça para a estação. Tensão: Clãs de gado e de caça dizem que o mesmo campo é deles. Povos: Orcano; Leporino; Ursino; Porcino; Insetoide. Porte: média (relativo, sem número).
+- [city.gramal] Gramal — O Território dos Rebanhos. Território sazonal de pasto e caça dos clãs (regime sazonal). Liderança: Tibbe Salto-Curto. Obrigação: Dividir o pasto e marcar os rebanhos. Interesse: Pasto e caça para a estação. Tensão: Clãs de gado e de caça dizem que o mesmo campo é deles. Povos: Orc; Leporino; Ursino; Porcino; Insetoide. Porte: média (relativo, sem número).
 - [city.gramal] Vizinhança: Ligações (sem duração): Tabuleiro-Velho (Tabuleiro é lugar-mãe).
 - [npc.tibbe-salto-curto] Tibbe Salto-Curto, Leporino. Guardião do Território; chefe do Trato dos Rebanhos. Limite: marca os rebanhos e divide o campo; não escolhe o campo da Marcha. Pressão: Cada lado acusa o outro de estragar o pasto; a estação não espera.
 - [voz npc.tibbe-salto-curto] tom: ligeiro e conciliador; fala depressa e sorri entre as frases; modelo: "O campo se divide em paz, ou não se divide." | "Gado e caça: cada um com a sua marca." | "Precisamos do acerto antes que a estação acabe."
@@ -133,7 +133,7 @@ Viagem narrada sem distância nem tempo, partindo do celeiro rumo ao território
 - Ano 611 da Contagem dos Marcos, Pasto Magro (inverno), Lua 1, dia 1.
 - [city.tabuleiro-velho] Tabuleiro-Velho — O Celeiro do Planalto. Fortaleza-celeiro de planalto (regime fixo). Liderança: Moura Mel-Guardado. Obrigação: Guardar a reserva e os marcos dos pastos pactuados; abrigar clãs em ano ruim. Interesse: Manter a reserva e o muro. Tensão: Clãs de fora pedem reserva e os guardiões dizem que é de quem a juntou; ninguém concorda sobre o direito quando a migração falha. Povos: Ursino; Porcino; Cervino. Porte: média (relativo, sem número).
 - [city.tabuleiro-velho] Vizinhança: Ligações (sem duração): Terreiro-Maior (Tabuleiro é lugar-mãe); Vazante (Tabuleiro é lugar-mãe); Gramal (Tabuleiro é lugar-mãe).
-- [city.gramal] Gramal — O Território dos Rebanhos. Território sazonal de pasto e caça dos clãs (regime sazonal). Liderança: Tibbe Salto-Curto. Obrigação: Dividir o pasto e marcar os rebanhos. Interesse: Pasto e caça para a estação. Tensão: Clãs de gado e de caça dizem que o mesmo campo é deles. Povos: Orcano; Leporino; Ursino; Porcino; Insetoide. Porte: média (relativo, sem número).
+- [city.gramal] Gramal — O Território dos Rebanhos. Território sazonal de pasto e caça dos clãs (regime sazonal). Liderança: Tibbe Salto-Curto. Obrigação: Dividir o pasto e marcar os rebanhos. Interesse: Pasto e caça para a estação. Tensão: Clãs de gado e de caça dizem que o mesmo campo é deles. Povos: Orc; Leporino; Ursino; Porcino; Insetoide. Porte: média (relativo, sem número).
 - [rota route.tabuleiro-gramal] Tabuleiro-Velho ↔ Gramal: vínculo político; o Gramal muda de campo com a estação
 - [fact.mpl-01-marco-pastos-pactuados|local] o Campo dos Marcos guarda os marcos dos pastos pactuados; os marcos são renovados quando o campo muda
 - [fact.mpl-02-celeiro-guarda-reserva|publico] o celeiro guarda grão e carne seca para os anos ruins

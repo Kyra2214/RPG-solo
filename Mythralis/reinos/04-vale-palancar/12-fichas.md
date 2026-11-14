@@ -157,7 +157,7 @@
 | Campo | Ficha |
 |---|---|
 | Idade | idosa (faixa, sem número; ASSUMINDO) |
-| Povo (ID) e sub-raça | orcano (Orcano); sub-raça: orcano-das-estepes |
+| Povo (ID) e sub-raça | orcano (Orc); sub-raça: orcano-das-estepes |
 | Origem | desconhecida (nenhuma origem documentada) |
 | Cargo e títulos | guardiã da Pedra da Palavra; cuida da ordem da Assembleia (Trato do Terreiro); guardiã do Terreiro-Maior |
 | Cidade e facção | city.terreiro-maior; facção: nenhuma declarada |

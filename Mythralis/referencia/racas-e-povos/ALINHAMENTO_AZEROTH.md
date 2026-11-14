@@ -55,7 +55,7 @@ Não alocados a reino, lugar ou facção; os 20 exemplos do catálogo não são 
 | `lizardino` | Escamado | Escamado | sim |
 | `tiefling` | Nascido do Crepúsculo | Nascido do Crepúsculo | sim |
 | `vampirico` | Noctívago | Noctívago | sim |
-| `orcano` | Orcano | Orcano | sim |
+| `orcano` | Orc | Orc | sim |
 | `draconato` | Draconato | Draconato | sim |
 | `goliath` | Altaneiro | Altaneiro | sim |
 | `tabaxi` | Felídeo Errante | Felídeo Errante | sim |

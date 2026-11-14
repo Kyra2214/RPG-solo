@@ -90,7 +90,7 @@ Aeltharyn é governado por elfos, mas não é etnicamente uniforme nem todos os 
 - **Micélioide** (`fungal`): povos ligados a redes de fungos, cavernas úmidas e decomposição. Suas formas de comunicação nem sempre são compreendidas por visitantes.
 - **Centauro das Florestas** (`centauro-das-florestas`): comunidades que percorrem trilhas largas, clareiras e corredores de migração; defendem direito de passagem e preservação de pastagens.
 - **Felídeo das Selvas** (`felideo-das-selvas`, sub-raça de Felídeo Errante, `tabaxi`): caçadores, guias e comerciantes de regiões de mata densa; várias famílias vivem em cidades sem abandonar suas tradições.
-- **Orcano das Matas** (`orcano-das-matas`): comunidades de parentesco e hospitalidade, com aldeias próprias e pactos de proteção mútua. Relações históricas com a Coroa variam de cidade para cidade.
+- **Orc das Matas** (`orcano-das-matas`): comunidades de parentesco e hospitalidade, com aldeias próprias e pactos de proteção mútua. Relações históricas com a Coroa variam de cidade para cidade.
 - **Corvário** (`homem-corvo`) e Corvário das Torres (`homem-corvo-das-torres`): mensageiros, observadores e guardiões de arquivos em torres. Não são uma raça de espiões por natureza.
 - **Pequenino** (`pequenino`), sobretudo famílias ribeirinhas (`pequenino-ribeirinho`): agricultores, barqueiros, cozinheiros, comerciantes e anfitriões de pousadas.
 - **Gnomo dos Vales** (`gnomo-dos-vales`): artesãos de instrumentos, mecanismos de irrigação, relógios hidráulicos e ferramentas de precisão.
@@ -183,7 +183,7 @@ As populações são estimativas narrativas iniciais, não números demográfico
 
 ### 5.2 Nymvar — Cidade das Três Vozes
 **ID:** `city.nymvar` | **Tipo:** cidade ribeirinha, celeiro e centro de cura.  
-**População:** cerca de 31.000; elfos, pequeninos ribeirinhos, humanos residentes, orcanos das matas e curandeiros itinerantes.  
+**População:** cerca de 31.000; elfos, pequeninos ribeirinhos, humanos residentes, orcs das matas e curandeiros itinerantes.  
 **Localização:** confluência dos três braços do Rio das Três Vozes, cercada por campos úmidos e pomares.  
 **Governo:** Matriarca eleita dos canais, Elsin Várzea-Clara, com mandato renovável após prestação de contas.  
 **Economia:** grãos, frutas, ervas, peixes, tecidos de fibra vegetal e transporte fluvial.  
@@ -225,7 +225,7 @@ As populações são estimativas narrativas iniciais, não números demográfico
 
 ### 5.5 Orvass — Cidade das Águas Escuras
 **ID:** `city.orvass` | **Tipo:** cidade de pântano, pesca, ervas e travessias.  
-**População:** cerca de 16.500; orcanos das matas, elfos do crepúsculo, micélioides, humanos residentes e barqueiros de famílias mistas.  
+**População:** cerca de 16.500; orcs das matas, elfos do crepúsculo, micélioides, humanos residentes e barqueiros de famílias mistas.  
 **Localização:** ilhas de terra firme e passarelas sobre o Pântano de Orvass.  
 **Governo:** Conselho das Estacas, composto por representantes de bairros e comunidades de água.  
 **Economia:** ervas medicinais, tinturas, pesca, fungos, fibras resistentes à umidade e guias de travessia.  
@@ -267,7 +267,7 @@ As populações são estimativas narrativas iniciais, não números demográfico
 
 ### 5.8 Arven — As Clareiras Douradas
 **ID:** `city.arven` | **Tipo:** centro agrícola e de criação sustentável.  
-**População:** cerca de 27.000; pequeninos, elfos, centauros, orcanos das matas e humanos de famílias antigas.  
+**População:** cerca de 27.000; pequeninos, elfos, centauros, orcs das matas e humanos de famílias antigas.  
 **Localização:** clareiras férteis a sul de Elarion, conectadas por estrada e canais.  
 **Governo:** Prefeita dos Celeiros, Tessa Folhinha, escolhida por associações de produtores.  
 **Economia:** grãos, frutas, mel, lã, tinturas, sementes e criação de animais de pasto.  
@@ -295,7 +295,7 @@ As populações são estimativas narrativas iniciais, não números demográfico
 
 ### 5.10 Torvelume — A Fortaleza da Espinha de Vidro
 **ID:** `city.torvelume` | **Tipo:** fortaleza florestal, posto de fronteira e cidade de ofícios.  
-**População:** cerca de 18.000; elfos dos bosques, gnomos, anões residentes, orcanos e trabalhadores de estradas.  
+**População:** cerca de 18.000; elfos dos bosques, gnomos, anões residentes, orcs e trabalhadores de estradas.  
 **Localização:** passagem entre a floresta e a Espinha de Vidro, perto de antigas galerias minerais.  
 **Governo:** Comandante-Civil Dauren Galho-de-Ferro, escolhido pela guarnição e ratificado pelos habitantes.  
 **Economia:** ferramentas, manutenção de estradas, pedra, vidro natural, ferragens, couro e abastecimento de patrulhas.  
@@ -533,7 +533,7 @@ Guia e caçador de resgate que opera entre Vael-Tir e Brumafunda. Conhece os sin
 Mediadora informal entre Silvaran e comunidades feéricas. Não é porta-voz de todos os feéricos. Negocia favores com termos literais e pode considerar uma promessa casual como compromisso sério, se isso tiver sido claramente dito.
 
 ### Beren Três-Canais
-**ID:** `npc.beren-tres-canais` | Orcano das Matas, 61 anos.  
+**ID:** `npc.beren-tres-canais` | Orc das Matas, 61 anos.  
 Construtor de diques e líder de uma comunidade em Nymvar. Quer que a manutenção seja financiada antes das cerimônias da capital. Foi acusado injustamente de desviar materiais, mas ainda não apresentou todos os registros de sua equipe.
 
 ## 10. Leis, costumes e vida cotidiana
@@ -701,7 +701,7 @@ Patrulheiro que abriu uma rota de resgate durante a Guerra das Cinzas Verdes e d
 **Memória na cidade:** o Ninho dos Mapas guarda duas versões de seu mapa, uma aberta e outra com a rota riscada.
 
 ### Orvass — Nima Raiz-de-Lodo
-**ID:** `npc.nima-raiz-de-lodo` | Curandeira orcana das matas, falecida há 90 anos.  
+**ID:** `npc.nima-raiz-de-lodo` | Curandeira orc das matas, falecida há 90 anos.  
 Aprendeu a tratar febres locais com plantas e fungos após observar que os remédios da capital pioravam alguns pacientes. Não era infalível: uma mistura que ajudou adultos causou reações graves em crianças e foi retirada de uso. Sua história é ensinada junto com a regra de testar, registrar e revisar tratamentos.  
 **Memória na cidade:** a Casa das Ervas Fundas conserva cadernos de receitas com alertas escritos por gerações posteriores.
 
@@ -814,7 +814,7 @@ As idades e datas são aproximadas. O calendário tem quatro estações principa
 
 **Voz-de-Muitas-Raízes — guardião vivo do Círculo Micelial.** Micélioide, idade incerta. Coordena a preservação de redes fúngicas e ajuda a reconhecer contaminação da água. Comunica-se lentamente e nem sempre distingue urgência humana de mudanças ecológicas graduais; precisa de interlocutores que traduzam os sinais para decisões práticas.
 
-**Korga Ponta-de-Junco — benfeitora viva dos bairros alagados.** ID: `npc.korga-ponta-junco`. Orcana das Matas, 58 anos. Organizou passarelas elevadas e depósitos de remédios em áreas que a capital considerava caras demais para proteger. O trabalho reduziu isolamento, mas a madeira tratada é escassa e parte das estruturas precisa ser refeita.
+**Korga Ponta-de-Junco — benfeitora viva dos bairros alagados.** ID: `npc.korga-ponta-junco`. Orc das Matas, 58 anos. Organizou passarelas elevadas e depósitos de remédios em áreas que a capital considerava caras demais para proteger. O trabalho reduziu isolamento, mas a madeira tratada é escassa e parte das estruturas precisa ser refeita.
 
 **Aruã das Lanternas Baixas — herói histórico, morto há 220 anos.** Guia que conduziu uma caravana por canais durante uma seca, quando rotas conhecidas ficaram intransitáveis. Cobrou dos comerciantes ricos e transportou famílias sem pagamento. A história é celebrada, embora os registros não concordem sobre o número de pessoas salvas.
 
@@ -898,7 +898,7 @@ Aeltharyn é um reino élfico antigo. **Não abriga as 50 raças como povos orig
 | Sátiro / Silvano Festivo `satiro`, `silvano-dos-festivais` | Povo vizinho ligado a ciclos sazonais e pactos orais | Silvaran, Arven | Festivais, mediação, música e preservação de histórias locais |
 | Centauro das Florestas `centauro-das-florestas` | Aliado regional de longa data, com território e autoridade próprios | Vael-Tir, Arven | Corredores de migração, pastagens e rotas de emergência; não é súdito sem direitos |
 | Felídeo das Selvas `felideo-das-selvas` | Povo de mata densa, integrado às rotas interiores | Brumafunda, Vael-Tir | Guias, rastreadores, cuidadores de fauna e comerciantes |
-| Orcano das Matas `orcano-das-matas` | Comunidades florestais com pactos locais e memória de conflitos | Orvass, Vael-Tir | Medicina, passarelas, defesa de aldeias e manejo de recursos |
+| Orc das Matas `orcano-das-matas` | Comunidades florestais com pactos locais e memória de conflitos | Orvass, Vael-Tir | Medicina, passarelas, defesa de aldeias e manejo de recursos |
 | Pequenino Ribeirinho `pequenino-ribeirinho` | Povo das margens, canais e várzeas | Nymvar, Arven | Agricultura, barcaças, sementes e manutenção comunitária de diques |
 | Gnomo dos Vales `gnomo-dos-vales` | Povo vizinho de vales e cursos d'água, integrado por ofícios | Caladwen, Nymvar, Elarion | Instrumentos, irrigação, medição e reparos de precisão |
 | Corvário das Torres `homem-corvo-das-torres` | Comunidades de torres e rotas de mensageiros | Brumafunda, Elarion | Mensagens, observação e arquivo; não são espiões por natureza |
@@ -984,7 +984,7 @@ Esta matriz cobre **os 16 povos e linhagens relevantes de Aeltharyn definidos na
 | Silvano dos Festivais `silvano-dos-festivais` | **Alena das Quatro Máscaras**, morta — expôs fraude documental durante um festival e sofreu perseguição. | **Voro Canção-de-Pedra**, vivo — protege espaços de ensaio e artistas contra coerção. | **Vessa Fio-Dourado**, viva — mantém oficinas e refeições para artistas itinerantes durante as chuvas. |
 | Centauro das Florestas `centauro-das-florestas` | **Oranna Passo-Largo**, viva — negociou a reabertura de um corredor migratório sem expulsar agricultores. | **Calar Raiz-Curva** (`npc.calar-raiz-curva`), vivo — coordena vigias de pastagens e protege as trilhas de manada. | **Tavro Passo-de-Raiz**, vivo — mantém abrigos e pontos de água sem exigir juramento político. |
 | Felídeo das Selvas `felideo-das-selvas` | **Sela dos Retornos**, desaparecida — criou orientação tátil e sonora para travessias na neblina. | **Sivra Pata-de-Musgo**, viva — protege ninhos e registra caça ilegal. | **Milo Passo-de-Bruma**, vivo — mantém abrigo para viajantes que retornam de expedições incompletas. |
-| Orcano das Matas `orcano-das-matas` | **Nima Raiz-de-Lodo**, morta — registrou tratamentos úteis e efeitos adversos perigosos. | **Mirek Junco-Ferro** (`npc.mirek-junco-ferro`), vivo — organiza defesa de aldeias e prioriza evacuação antes de retaliação. | **Korga Ponta-de-Junco**, viva — organiza passarelas elevadas e depósitos de remédios. |
+| Orc das Matas `orcano-das-matas` | **Nima Raiz-de-Lodo**, morta — registrou tratamentos úteis e efeitos adversos perigosos. | **Mirek Junco-Ferro** (`npc.mirek-junco-ferro`), vivo — organiza defesa de aldeias e prioriza evacuação antes de retaliação. | **Korga Ponta-de-Junco**, viva — organiza passarelas elevadas e depósitos de remédios. |
 | Pequenino Ribeirinho `pequenino-ribeirinho` | **Dena Três-Correntes**, morta — redesenhou comportas, reduzindo perdas, mas deslocando famílias. | **Mara Barro-Claro**, viva — inspeciona diques e suspende travessias inseguras. | **Bento Sete-Sementes**, vivo — mantém banco de sementes diversificadas e troca variedades testadas. |
 | Gnomo dos Vales `gnomo-dos-vales` | **Tirven Eixo-Claro** (`npc.tirven-eixo-claro`), morto — reorganizou as comportas de irrigação para permitir reparos por módulos sem interromper todo o fluxo; seu projeto foi adotado por comunidades de três vales. | **Meda Martelo-Calmo**, viva — fiscaliza padrões de segurança em oficinas e portões. | **Parel Três-Parafusos**, vivo — ensina moradores a inspecionar cabos e pontes. |
 | Corvário das Torres `homem-corvo-das-torres` | **Kheva Ouvido-de-Névoa**, vivo — restabeleceu sinais depois de uma tempestade; a reconstrução foi coletiva. | **Teren Asa-de-Corda** (`npc.teren-asa-corda`), vivo — mantém passagens altas sem transformar ninhos em postos de vigilância. | **Nilo Recado-Certo** (`npc.nilo-recado-certo`), vivo — criou mensagens com confirmação de entrega e cópia de avisos urgentes. |

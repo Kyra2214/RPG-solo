@@ -17,7 +17,7 @@
 | A5 | Outros centauros de Aeltharyn: `npc.tavro-passo-raiz` (benfeitor, 91 anos), `npc.calar-raiz-curva` (vigias de pastagens), `npc.calar-passo-curvo` (guardião rotativo de `settlement.passo-do-veado`), Lessa Cervo-Manso (guardiã dos corredores de pasto; **sem ID no registro mestre**, lacuna herdada) | doc 01 §19.4, §19.8, §24 e §29; `12-registro-mestre` |
 | A6 | **Conflito G (corredores centauros):** uma estrada comercial corta uma rota de migração; a Liga das Rotas (`faction.liga-das-rotas`) quer mantê-la aberta, os centauros exigem passagem segura; soluções possíveis (desvio, ponte, horário, indenização) têm custo real. **No início, a rota centaura perto de Vael-Tir está sob tensão** | doc 01 §13, §14 |
 | A7 | `city.vael-tir` e `city.arven` são cidades de Aeltharyn; `settlement.passo-do-veado` é posto de trilha e mercado sazonal em Vael-Tir | doc 01 §5, §29 |
-| A8 | Orcanos das matas e felídeos das selvas (`tabaxi`) são povos nativos de Aeltharyn, de **linhagens próprias** | doc 10; M-05 §3 |
+| A8 | Orcs das matas e felídeos das selvas (`tabaxi`) são povos nativos de Aeltharyn, de **linhagens próprias** | doc 10; M-05 §3 |
 | A9 | Humanos, anões, **goblins** e ratoides vivem em Aeltharyn só como viajantes, refugiados, mercadores ou residentes individuais; **não são representantes oficiais** de reino nenhum | doc 01 §2.4 e §20; M-05 §6 |
 | A10 | O doc 07 de Aeltharyn **não tem rota para as Marcas** nem duração para o oeste (conferido por busca de termos: "Marcas", "Campos", "Feras") | doc 07 |
 | A11 | **Lei de Proteção de Refugiados**, Quarentena de Esporos e Direito de Trilha são leis de Aeltharyn, com aplicação disputada | doc 01 §10 |
@@ -55,7 +55,7 @@
 - Fica a **oeste**, com planaltos, savanas e campos abertos de migração (M-04 G-02, G-07 "Campos das Marcas").
 - Tem como vizinhos plenos as Coroas de Pedra e o Véu dos Malditos, e só contato parcial com Aeltharyn (G-02).
 - O Argente corre pelas planícies das Marcas (G-06); o Ermo de Sal as separa do Véu (G-10).
-- Existem os 12 nativos e os 25 forasteiros de M-05 §4 (D-24); Orcano, Felídeo Errante e Centauro são nativos **também** de Aeltharyn, em linhagens diferentes (M-05 §3).
+- Existem os 12 nativos e os 25 forasteiros de M-05 §4 (D-24); Orc, Felídeo Errante e Centauro são nativos **também** de Aeltharyn, em linhagens diferentes (M-05 §3).
 - Liga-se a Aeltharyn **só** pelo contato oeste de M-04 §5 (elevações ocidentais, trilhas largas, corredores de migração) e pelo fluxo **Os Corredores Largos** (M-05 §5).
 - Os fluxos de M-05 §5 do lado das Marcas: a Descida do Argente **chega**; a Rota do Sal **passa** pelo Ermo; os Corredores Largos **partem** para as elevações ocidentais.
 - Pode ter **lugares e rotas internas**, com "curta", "longa" ou `desconhecida`, e povos, facções e NPCs próprios, desde que respeitem as seções 1 a 3.
@@ -63,7 +63,7 @@
 ## 5. O que o reino 4 não pode afirmar
 
 1. **Resolução ou causa do Conflito G**: qual solução vale (desvio, ponte, horário, indenização), quem vence, ou que o conflito nasce de algo das Marcas. O reino 4 pode dar **destino às trilhas** (M-04 G-07), não decidir o conflito.
-2. Que os centauros, orcanos ou felídeos de Aeltharyn sejam súditos, emissários, parentes de sangue ou agentes das Marcas, nem o contrário; que `npc.oranna-passo-largo` e os demais centauros de Aeltharyn (A4, A5) atuem a mando das Marcas ou tenham parentes citados como NPC do reino 4 **sem aprovação**.
+2. Que os centauros, orcs ou felídeos de Aeltharyn sejam súditos, emissários, parentes de sangue ou agentes das Marcas, nem o contrário; que `npc.oranna-passo-largo` e os demais centauros de Aeltharyn (A4, A5) atuem a mando das Marcas ou tenham parentes citados como NPC do reino 4 **sem aprovação**.
 3. Causa, autor ou explicação do **Mistério D, Mistério E, Neblina Longa** ou do desaparecimento de qualquer pessoa de Aeltharyn.
 4. **Duração, distância, rota ou passagem nova** para Aeltharyn, para as Coroas (além do Argente) ou para o Véu (além da Rota do Sal). A ligação Ermo de Sal ↔ Marcas **não ganha duração**.
 5. **Causa da Descida do Argente**, número de quem desce, ou o que a Descida faz rio acima; **origem do combustível ou do alimento de Brasalume** (C5); que as Marcas comprem, vendam ou bloqueiem algo de Barcaalta como fato novo das Coroas.
@@ -94,7 +94,7 @@
 |---|---|---|---|
 | P-1 | O doc 01 do Véu dizia que o Argente "entra pelo leste das Marcas"; M-04 G-06 só diz que ele corre pelas planícies das Marcas | afirmação do Véu sobre a **posição interna** das Marcas, fora do que o contrato do Véu permitia (§6 dele) | **RESOLVIDO (D-103, opção A, 07/11/2026):** a frase do Véu (doc 01, linha 11) virou "do rio que chega das Marcas até a foz"; nenhum fato mudou e o reino 4 fica livre para posicionar o Argente nas planícies |
 | P-2 | M-05 §5 diz que anões, kobolds, gnomos e construtos descem "para as Marcas", mas a matriz (M-05 §4) dá "—" a **gnomo** e **construto desperto** nas Feras (anão e escamado miúdo são "F") | mesmo ponto que o Véu resolveu como visitante de passagem (D-73) | **RESOLVIDO (D-103, opção A, 07/11/2026):** gnomos e construtos aparecem no Vale Palancar **só como visitantes de passagem** onde a Descida chega, sem residir nem ter lugar fixo; a matriz não muda; nota registrada em M-05 §5 |
-| P-3 | Orcano, Felídeo Errante e Centauro são nativos nas Feras **e** em Aeltharyn, "linhagens diferentes", mas só Aeltharyn nomeou as suas | o reino 4 precisa de nome de linhagem próprio, **sem parentesco** com as de lá | **ACEITO pela continuação (R4-1.6, D-110, 07/11/2026):** o Vale usa a outra sub-raça do catálogo de cada par (`orcano-das-estepes`, `felideo-das-dunas`, `centauro-das-pradarias`), sem parentesco com as de Aeltharyn; atribuição por NPC em `ALINHAMENTO_PALANCAR.md` (R4-2.3) |
+| P-3 | Orc, Felídeo Errante e Centauro são nativos nas Feras **e** em Aeltharyn, "linhagens diferentes", mas só Aeltharyn nomeou as suas | o reino 4 precisa de nome de linhagem próprio, **sem parentesco** com as de lá | **ACEITO pela continuação (R4-1.6, D-110, 07/11/2026):** o Vale usa a outra sub-raça do catálogo de cada par (`orcano-das-estepes`, `felideo-das-dunas`, `centauro-das-pradarias`), sem parentesco com as de Aeltharyn; atribuição por NPC em `ALINHAMENTO_PALANCAR.md` (R4-2.3) |
 | P-4 | Lessa Cervo-Manso (Aeltharyn) não tem ID no registro mestre | lacuna herdada de Aeltharyn | não é do reino 4; fica registrada, sem correção aqui |
 
 ## 8. Alteração de um fixo

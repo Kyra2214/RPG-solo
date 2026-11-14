@@ -313,3 +313,22 @@ data class CampanhaMundoRow(
     val moldeId: String,
     val vinculadoEm: Long,
 )
+
+/** Rascunho único da criação de personagem por abas (CG-4.8); some ao criar a ficha. */
+@Entity(tableName = "criacao_rascunho")
+data class CriacaoRascunhoRow(
+    @androidx.room.PrimaryKey val id: String,
+    val draftJson: String,
+    val atualizadoEm: Long,
+)
+
+/** Personagem recorrente entre campanhas (MP-02/LG-05): heróis mortos e NPCs. Uma linha por (mundo, identidade). */
+@Entity(tableName = "personagem_recorrente", primaryKeys = ["mundoId", "identityKey"])
+data class PersonagemRecorrenteRow(
+    val mundoId: String,
+    val identityKey: String,
+    val kind: String,
+    val nome: String,
+    val json: String,
+    val atualizadoEm: Long,
+)

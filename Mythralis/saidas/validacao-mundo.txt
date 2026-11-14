@@ -19,4 +19,4 @@ W-07|A|mundo|1 NPCs vivos sem cidade nem facção (o motor os coloca "em trânsi
 W-08|A|kingdom.vale-palancar|cidades fora do grafo de rotas: city.rasovau, city.praia-pardo, city.alvasal, city.encosta-aberta
 W-08|A|mundo|rotas com duração: 16 de 55; rotas ENTRE reinos: 0 (depende de M-07)
 W-09|A|mundo|15 eventos sem relógio (gatilho só em prosa): ficam latentes na F4
-# resumo: 0 erros, 20 avisos; 5 reinos, 46 cidades, 233 NPCs, 64 facções, 40 relógios; molde sha256=f11f1c120acc99b1
+# resumo: 0 erros, 20 avisos; 5 reinos, 46 cidades, 233 NPCs, 64 facções, 40 relógios; molde sha256=1e28129df4b3f41a

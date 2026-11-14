@@ -24,13 +24,13 @@
 
 A lógica segue o relevo e a vizinhança do M-04:
 
-- **Florestas** (11): Elfo, Orcano, Pequenino, Gnomo, Felídeo Errante, Silvano Festivo, Centauro, Corvário, Feérico, Micélioide, Verdejante.
+- **Florestas** (11): Elfo, Orc, Pequenino, Gnomo, Felídeo Errante, Silvano Festivo, Centauro, Corvário, Feérico, Micélioide, Verdejante.
 - **Montanhas** (12): Anão, Gnomo, Draconato, Altaneiro, Labiríntico, Escamado Miúdo, Nascido da Rocha, Nascido da Brasa, Cristalino, Construto Desperto, Giganteano, Felino das Nuvens.
 - **Malditos** (11): Nascido do Crepúsculo, Corvídeo, Ursino Sombrio, Escamado, Ratoide, Umbral, Onírico, Noctívago, Metamorfo Lupino, Moldável, Aracnídeo.
-- **Feras** (12): Orcano, Felídeo Errante, Centauro, Goblin, Goblin de Legião, Vulpino, Leporino, Ursino, Lupino, Porcino, Cervino, Insetoide.
+- **Feras** (12): Orc, Felídeo Errante, Centauro, Goblin, Goblin de Legião, Vulpino, Leporino, Ursino, Lupino, Porcino, Cervino, Insetoide.
 - **Humanos** (9): Humano, Pequenino, Luminar, Tartarino, Abissal Costeiro, Nascido da Maré, Nascido do Vento, Sereiano, Estelar.
 
-Nativos em dois reinos (linhagens diferentes): Orcano, Pequenino, Gnomo, Felídeo Errante, Centauro.
+Nativos em dois reinos (linhagens diferentes): Orc, Pequenino, Gnomo, Felídeo Errante, Centauro.
 
 **Por quê:** as Montanhas ficam com os povos da pedra, do fogo e das grandes alturas; o Véu, com os pactuados, os noturnos e os de neblina; as Marcas, com os povos-animais e os de migração; os Humanos, com os povos de planície, rio e costa. Aeltharyn conserva seus onze.
 
@@ -41,7 +41,7 @@ Nativos em dois reinos (linhagens diferentes): Orcano, Pequenino, Gnomo, Felíde
 | `humano` | Humano | F* | F | F | F | N |
 | `elfo` | Elfo | N | F | — | F | F |
 | `anao` | Anão | F* | N | — | F | F |
-| `orcano` | Orcano | N | F | F | N | F |
+| `orcano` | Orc | N | F | F | N | F |
 | `pequenino` | Pequenino | N | F | F | F | N |
 | `gnomo` | Gnomo | N | N | — | — | F |
 | `draconato` | Draconato | — | N | F | F | F |

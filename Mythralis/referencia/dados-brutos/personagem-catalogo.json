@@ -82,7 +82,7 @@
     },
     {
       "id": "orcano",
-      "name": "Orcano",
+      "name": "Orc",
       "summary": "Povos de tradição oral intensa, conhecidos por redes de parentesco e pactos de hospitalidade.",
       "lore": "Povos de tradição oral intensa, conhecidos por redes de parentesco e pactos de hospitalidade.",
       "tags": [
@@ -1131,7 +1131,7 @@
     {
       "id": "orcano-das-estepes",
       "parentRaceId": "orcano",
-      "name": "Orcano das Estepes",
+      "name": "Orc das Estepes",
       "summary": "Sua cultura acompanha rebanhos, ventos e encontros sazonais entre clãs.",
       "lore": "Sua cultura acompanha rebanhos, ventos e encontros sazonais entre clãs.",
       "inheritance": {
@@ -1156,7 +1156,7 @@
     {
       "id": "orcano-das-matas",
       "parentRaceId": "orcano",
-      "name": "Orcano das Matas",
+      "name": "Orc das Matas",
       "summary": "Comunidades de floresta preservam trilhas discretas e pactos com aldeias vizinhas.",
       "lore": "Comunidades de floresta preservam trilhas discretas e pactos com aldeias vizinhas.",
       "inheritance": {

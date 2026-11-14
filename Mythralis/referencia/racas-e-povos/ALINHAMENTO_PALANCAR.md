@@ -14,7 +14,7 @@ Conferência entre `reinos/04-vale-palancar/` (doc 10 e `12-registro-mestre.csv`
 
 | Nº | Povo no doc | ID no catálogo | Nome no catálogo | Confere |
 |---|---|---|---|---|
-| 1 | Orcano | `orcano` | Orcano | sim |
+| 1 | Orc | `orcano` | Orc | sim |
 | 2 | Felídeo Errante | `tabaxi` | Felídeo Errante | sim |
 | 3 | Centauro | `centauro` | Centauro | sim |
 | 4 | Goblin | `goblin` | Goblin | sim |
@@ -31,7 +31,7 @@ Conferência entre `reinos/04-vale-palancar/` (doc 10 e `12-registro-mestre.csv`
 
 | Sub-raça (ID) | Raça-mãe | Nome no catálogo | Onde aparece (doc 10 §2) |
 |---|---|---|---|
-| `orcano-das-estepes` | `orcano` | Orcano das Estepes | Terreiro-Maior, Vazante, Gramal |
+| `orcano-das-estepes` | `orcano` | Orc das Estepes | Terreiro-Maior, Vazante, Gramal |
 | `felideo-das-dunas` | `tabaxi` | Felídeo das Dunas | Vazante, Encosta-Aberta |
 | `centauro-das-pradarias` | `centauro` | Centauro das Pradarias | Terreiro-Maior, Vazante, Encosta-Aberta |
 | `goblin-das-sucatas` | `goblin` | Goblin das Sucatas | Rasovau, Praia-Pardo, Alvasal |
@@ -108,7 +108,7 @@ Não alocados a reino, lugar ou facção; os 20 exemplos do catálogo não são 
 
 ## 3. Sinônimos e nomes
 
-- **Felídeo Errante (`tabaxi`), Orcano (`orcano`) e Centauro (`centauro`):** mesmos IDs de raça de Aeltharyn; a diferença entre os reinos está só na sub-raça (§1.1).
+- **Felídeo Errante (`tabaxi`), Orc (`orcano`) e Centauro (`centauro`):** mesmos IDs de raça de Aeltharyn; a diferença entre os reinos está só na sub-raça (§1.1).
 - **Goblin (`goblin`) × Goblin de Legião (`hobgoblin`):** dois povos; nenhum é "o inimigo" por raça (W-01).
 - **Lupino (`homem-lobo`) × Metamorfo Lupino (`licantropo`):** dois povos; o Metamorfo Lupino é só forasteiro em Alvasal.
 - **Vulpino (`homem-raposa`), Leporino (`homem-coelho`), Ursino (`homem-urso`), Porcino (`homem-javali`), Cervino (`homem-cervo`):** nomes de exibição do catálogo, iguais aos dos documentos.

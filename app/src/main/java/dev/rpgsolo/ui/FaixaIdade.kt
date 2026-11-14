@@ -1,7 +1,7 @@
 package dev.rpgsolo.ui
 
 /**
- * Faixa de idade do herói (MI-26), escolhida na criação da ficha: cada faixa vale uma porcentagem da longevidade do
+ * Faixa de idade do herói (MI-26), hoje só para ficha antiga sem idade informada (a criação pede a idade em anos): cada faixa vale uma porcentagem da longevidade do
  * povo (`vida_max` da classe de longevidade). Decidido pelo autor: jovem 20%, adulto 40%, veterano 70%.
  * 🔶 ASSUMINDO: faixa vazia na ficha = adulto; povo sem idade (`vida_max` 0) não recebe idade.
  */

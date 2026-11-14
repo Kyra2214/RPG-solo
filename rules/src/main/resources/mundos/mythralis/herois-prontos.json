@@ -1,0 +1,49 @@
+{
+  "mundo": "mundo.mythralis",
+  "status": "rascunho",
+  "nota": "Seis heróis prontos (M5). Sem nome próprio: o jogador batiza. Só escolhas já existentes no catálogo; idades de adulto jovem do povo (ASSUMINDO).",
+  "herois": [
+    {
+      "id": "hp.aeltharyn-guia",
+      "titulo": "Guia das Sete Copas",
+      "conceito": "Elfo dos bosques que conhece as trilhas entre as cidades de Aeltharyn e vive de guiar viajantes.",
+      "reinoId": "kingdom.aeltharyn",
+      "escolhas": {"raceId": "elfo", "subraceId": "elfo-dos-bosques", "classId": "explorador", "professionId": "guia-de-floresta", "age": 70, "sex": "feminino", "originKind": "native", "originKingdomId": "kingdom.aeltharyn", "originCity": "Elarion"}
+    },
+    {
+      "id": "hp.coroas-armeiro",
+      "titulo": "Armeiro de Brasalume",
+      "conceito": "Anão das forjas que troca o martelo pela espada quando as encomendas do Concílio viram guerra.",
+      "reinoId": "kingdom.coroas-de-pedra",
+      "escolhas": {"raceId": "anao", "subraceId": "anao-das-forjas", "classId": "guerreiro", "professionId": "armeiro", "age": 60, "sex": "masculino", "originKind": "native", "originKingdomId": "kingdom.coroas-de-pedra", "originCity": "Brasalume"}
+    },
+    {
+      "id": "hp.veu-intermediario",
+      "titulo": "Intérprete do Véu",
+      "conceito": "Corvídeo de Fozbreu que sobrevive entre pactos e charcos traduzindo o que os outros preferem não dizer.",
+      "reinoId": "kingdom.veu-dos-malditos",
+      "escolhas": {"raceId": "kenku", "classId": "ladino", "professionId": "tradutor", "age": 30, "sex": "masculino", "originKind": "native", "originKingdomId": "kingdom.veu-dos-malditos", "originCity": "Fozbreu"}
+    },
+    {
+      "id": "hp.palancar-arqueira",
+      "titulo": "Arqueira da Marcha",
+      "conceito": "Orcana das estepes que caça para o clã e abre caminho à frente da marcha pelo Vale Palancar.",
+      "reinoId": "kingdom.vale-palancar",
+      "escolhas": {"raceId": "orcano", "subraceId": "orcano-das-estepes", "classId": "arqueiro", "professionId": "cacador", "age": 25, "sex": "feminino", "originKind": "native", "originKingdomId": "kingdom.vale-palancar", "originCity": "Terreiro-Maior"}
+    },
+    {
+      "id": "hp.azeroth-menestrel",
+      "titulo": "Menestrel de Meiovau",
+      "conceito": "Humano das cidades que canta e cozinha na cidade livre, onde as três coroas rivais ainda dividem a mesa.",
+      "reinoId": "kingdom.azeroth",
+      "escolhas": {"raceId": "humano", "subraceId": "humano-das-cidades", "classId": "bardo", "professionId": "cozinheiro", "age": 28, "sex": "masculino", "originKind": "native", "originKingdomId": "kingdom.azeroth", "originCity": "Meiovau"}
+    },
+    {
+      "id": "hp.azeroth-curandeira",
+      "titulo": "Curandeira de Vaudouro",
+      "conceito": "Pequenina que cuida de feridas e febres com ervas das hortas de Vaudouro.",
+      "reinoId": "kingdom.azeroth",
+      "escolhas": {"raceId": "pequenino", "classId": "curandeiro", "professionId": "herbalista", "age": 30, "sex": "feminino", "originKind": "native", "originKingdomId": "kingdom.azeroth", "originCity": "Vaudouro"}
+    }
+  ]
+}

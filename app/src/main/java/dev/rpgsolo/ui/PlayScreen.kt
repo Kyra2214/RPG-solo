@@ -243,6 +243,10 @@ private fun PlayContent(
             item(key = "inventario") { InventoryPanel(model, enabled = !busy, act = ::act) }
             item(key = "loja") { ShopPanel(model, enabled = !busy, act = ::act) }
             item(key = "poderes") { PowersPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "rivais") { RivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "procurado") { WantedPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "corpos") { BodyLootPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
+            item(key = "arvore-status") { StatusTreePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "arvore-pericias") { SkillTreePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "maldições") { CursePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "oficios") { RecipesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
@@ -253,6 +257,7 @@ private fun PlayContent(
             item(key = "remover-condicoes") {
                 ConditionRemovalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
             }
+            item(key = "memorial") { MemorialPanel(model) }
             item(key = "legado") { LegacyPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             item(key = "sobrevivencia") { SurvivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             luckOffer?.let { offer ->

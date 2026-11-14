@@ -297,6 +297,16 @@ fun ConfigScreen(model: AppModel) {
                 steps = 10,
             )
             Muted(stringResource(R.string.config_font_scale_help))
+            Text(stringResource(R.string.config_theme_title))
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(
+                    "sistema" to R.string.config_theme_system,
+                    "claro" to R.string.config_theme_light,
+                    "escuro" to R.string.config_theme_dark,
+                ).forEach { (id, rotulo) ->
+                    FilterChip(selected = model.themeMode == id, onClick = { model.setThemeMode(id) }, label = { Text(stringResource(rotulo)) })
+                }
+            }
         }
         AppCard {
             Text(stringResource(R.string.config_generation_title), style = MaterialTheme.typography.titleSmall)

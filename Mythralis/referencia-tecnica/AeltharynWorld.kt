@@ -151,7 +151,7 @@ object AeltharynWorld {
             ),
             WorldPeople(
                 "orcano-das-matas",
-                "Orcano das Matas",
+                "Orc das Matas",
                 "comunidades pactuadas",
                 listOf("city.orvass", "city.vael-tir"),
                 "Medicina local, defesa de aldeias e passarelas.",

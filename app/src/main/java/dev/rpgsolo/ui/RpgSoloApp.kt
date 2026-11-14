@@ -69,8 +69,8 @@ enum class Tab(
 
 @Composable
 fun RpgSoloApp() {
-    RpgTheme {
-        val model: AppModel = viewModel()
+    val model: AppModel = viewModel()
+    RpgTheme(model.themeMode) {
         var selectedName by rememberSaveable { mutableStateOf(Tab.JOGAR.name) }
         val selected = Tab.valueOf(selectedName)
         // U-05: ao concluir as três etapas do primeiro uso fora da aba Jogar, leva o jogador até ela.

@@ -344,3 +344,36 @@ interface CampanhaMundoDao {
     @Query("DELETE FROM campanha_mundo WHERE campaignId = :campaignId")
     fun apagar(campaignId: String)
 }
+
+@Dao
+interface CriacaoRascunhoDao {
+    @Query("SELECT * FROM criacao_rascunho WHERE id = :id")
+    fun buscar(id: String): CriacaoRascunhoRow?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: CriacaoRascunhoRow)
+
+    @Query("DELETE FROM criacao_rascunho WHERE id = :id")
+    fun apagar(id: String)
+}
+
+@Dao
+interface PersonagemRecorrenteDao {
+    @Query("SELECT * FROM personagem_recorrente WHERE mundoId = :mundoId AND identityKey = :identityKey")
+    fun buscar(
+        mundoId: String,
+        identityKey: String,
+    ): PersonagemRecorrenteRow?
+
+    @Query("SELECT * FROM personagem_recorrente WHERE mundoId = :mundoId ORDER BY atualizadoEm DESC")
+    fun listar(mundoId: String): List<PersonagemRecorrenteRow>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun salvar(row: PersonagemRecorrenteRow)
+
+    @Query("DELETE FROM personagem_recorrente WHERE mundoId = :mundoId AND identityKey = :identityKey")
+    fun apagar(
+        mundoId: String,
+        identityKey: String,
+    )
+}

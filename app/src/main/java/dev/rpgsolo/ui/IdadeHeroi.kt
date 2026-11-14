@@ -23,6 +23,12 @@ object IdadeHeroi {
     const val SAUDE = "heroi.saude"
     const val MORTE = "heroi.morte"
 
+    /** Valor de [MORTE] depois que um novo herói assume (renascimento ou NPC): não conta como morte. */
+    const val SEM_MORTE = "nenhuma"
+
+    /** Quem renasce não vira bebê: recomeça criança, com esta idade. */
+    const val IDADE_RENASCIDO = 7
+
     /** Fatos que fixam a idade de [anos] no dia do mundo [diaMundo] (campo de idade da ficha e da criação). */
     fun definir(
         anos: Int,
@@ -37,9 +43,16 @@ object IdadeHeroi {
         )
     }
 
+    /** Fatos de uma vida nova (renascimento ou NPC assumido): nova idade, saúde sã e a morte anterior deixa de valer. */
+    fun recomecar(
+        anos: Int,
+        diaMundo: Int,
+        classe: String,
+    ): List<Command> = definir(anos, diaMundo, classe) + RecordFact(MORTE, SEM_MORTE)
+
     fun estado(state: GameState): EstadoHeroi? {
         val nasc = state.facts[NASC]?.toIntOrNull() ?: return null
-        if (MORTE in state.facts) return null
+        if (state.facts[MORTE]?.let { it != SEM_MORTE } == true) return null
         return EstadoHeroi(nasc, state.facts[LONGEVIDADE] ?: "humana", state.facts[SAUDE] == "doente")
     }
 

@@ -56,7 +56,7 @@ Nenhum mestiço é alocado às Coroas de Pedra. Qualquer combinação de duas ra
 |---|---|---|
 | `humano` | Humano | sim |
 | `elfo` | Elfo | sim |
-| `orcano` | Orcano | sim |
+| `orcano` | Orc | sim |
 | `pequenino` | Pequenino | sim |
 | `tiefling` | Nascido do Crepúsculo | sim |
 | `aasimar` | Luminar | sim |

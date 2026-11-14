@@ -25,6 +25,7 @@ class UiSmokeTest {
 
         composeRule.onNodeWithText("Heróis").performClick()
         composeRule.onNodeWithText("Personagens").assertIsDisplayed()
+        composeRule.onNodeWithText("Modo avançado").performClick()
         composeRule.onNodeWithText("Ponto de partida").assertIsDisplayed()
         composeRule.onNodeWithText("Nome").performTextInput("Herói UI")
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()

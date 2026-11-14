@@ -171,7 +171,7 @@ A execução do commit `38503b5` chegou ao runner, mas falhou na compilação Ko
 
 ## Como disparar o CI (configurado em 09/11/2026)
 
-Workflow: `.github/workflows/android-ci.yml`, três jobs: **Motor Python (Mythralis)** (62 testes), **Estilo, testes e APK** (`ktlintCheck`, `:world:test`, `./gradlew test`, `:app:assembleDebug`) e **E2E no emulador** (`:app:connectedDebugAndroidTest`, mais `:data:connectedDebugAndroidTest` informativo). Roda em qualquer push, em PR para `main` (sem E2E) e manualmente.
+Workflow: `.github/workflows/android-ci.yml`, três jobs: **Motor Python (Mythralis)** (62 testes), **Estilo, testes e APK** (`ktlintCheck`, `:world:test`, `:world:validarAutoria` (WD-01, falha com erro de carga ou de autoria do molde), `./gradlew test`, `:app:assembleDebug`) e **E2E no emulador** (`:app:connectedDebugAndroidTest`, mais `:data:connectedDebugAndroidTest` informativo). Roda em qualquer push, em PR para `main` (sem E2E) e manualmente.
 
 - Por push: `git push origin <branch>`.
 - Manual pela web: aba Actions → Android CI → Run workflow (escolha a branch; `e2e` e `python` ligam/desligam esses jobs).

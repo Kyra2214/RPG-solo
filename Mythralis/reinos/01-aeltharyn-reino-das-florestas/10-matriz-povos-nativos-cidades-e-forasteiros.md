@@ -29,7 +29,7 @@ A lista abaixo organiza os povos já presentes no documento principal. Os IDs s�
 | 5 | Micélioides | Povo associado ao ID `fungal` | Comunidades de zonas úmidas, redes subterrâneas e decomposição, com formas próprias de comunicação e memória. |
 | 6 | Centauros das Florestas | Linhagem regional `centauro-das-florestas` | Povos de corredores de migração, clareiras e trilhas largas; seus direitos de passagem fazem parte dos pactos. |
 | 7 | Felídeos das Selvas | Sub-raça/linhagem associada ao Felídeo Errante (`tabaxi`), ID `felideo-das-selvas` | Comunidades de mata densa, caça sustentável, orientação, comércio e guia de viajantes. |
-| 8 | Orcanos das Matas | Linhagem regional `orcano-das-matas` | Comunidades de parentesco e hospitalidade, com aldeias e pactos de defesa; suas relações com a Coroa variam localmente. |
+| 8 | Orcs das Matas | Linhagem regional `orcano-das-matas` | Comunidades de parentesco e hospitalidade, com aldeias e pactos de defesa; suas relações com a Coroa variam localmente. |
 | 9 | Corvários | Povo associado ao ID `homem-corvo`, incluindo a linhagem `homem-corvo-das-torres` | Comunidades de torres, observação, mensageria e preservação de registros. Não são espiões por natureza. |
 | 10 | Pequeninos | Povo associado ao ID `pequenino`, incluindo a linhagem `pequenino-ribeirinho` | Comunidades agrícolas e ribeirinhas, barqueiros, anfitriões, cozinheiros e comerciantes. |
 | 11 | Gnomos dos Vales | Linhagem regional `gnomo-dos-vales` | Artesãos de precisão, instrumentos, mecanismos de irrigação e manutenção de equipamentos locais. |
@@ -59,7 +59,7 @@ A estrutura acordada é de **dez cidades no total**: Elarion, a capital élfica,
 | **Brumafunda — A Cidade do Bosque Velado** | Comunidades feéricas e verdejantes, em convivência com guias e famílias élficas. | A lei da Coroa nem sempre corresponde aos pactos locais; negociar exige entender costumes e limites que não estão escritos nos arquivos reais. |
 | **Arven — As Clareiras Douradas** | Região agrícola com comunidades de gnomos dos vales, pequeninos e elfos ligados a pomares e sementes. | Produção, ferramentas, polinização e reserva de sementes ligam a prosperidade local à segurança alimentar do reino. |
 | **Silvaran — A Cidade dos Festivais** | Principal centro dos Silvanos Festivos, com encontros sazonais e pactos orais que reúnem diferentes povos nativos. | Festivais preservam alianças e memória coletiva, mas também são palco de disputa por representação, recursos e interpretações de juramentos antigos. |
-| **Torvelume — A Fortaleza da Espinha de Vidro** | Centro de defesa, oficinas e passagens, com comunidades orcanas das matas e famílias de outros povos aliados. | Os pactos de proteção não eliminam tensões sobre prioridades civis e militares, acesso às passagens e distribuição de ferramentas. |
+| **Torvelume — A Fortaleza da Espinha de Vidro** | Centro de defesa, oficinas e passagens, com comunidades orcs das matas e famílias de outros povos aliados. | Os pactos de proteção não eliminam tensões sobre prioridades civis e militares, acesso às passagens e distribuição de ferramentas. |
 
 ### 3.1 Limites desta distribuição
 
@@ -86,7 +86,7 @@ A tabela seguinte consolida a distribuição como **hipótese editorial de traba
 | Micélioides | Orvass | Comunidades úmidas e subterrâneas ligadas aos assentamentos já existentes | A presença em áreas úmidas não implica que todos vivam isolados ou tenham uma única forma de comunicação. |
 | Centauros das Florestas | Vael-Tir | Passo do Veado e outros corredores de passagem já descritos | Preservar largura e acesso às rotas; não converter todos os centauros em patrulheiros ou cavaleiros. |
 | Felídeos das Selvas | Thalanor e Vael-Tir | Outras cidades por comércio, guia e vínculos familiares | Caça e orientação são tradições possíveis, não uma obrigação individual nem uma licença para estereótipos. |
-| Orcanos das Matas | Torvelume | Aldeias e comunidades aliadas ligadas aos pactos de defesa | Não os reduzir a guarnições ou guerreiros; os pactos variam entre comunidades. |
+| Orcs das Matas | Torvelume | Aldeias e comunidades aliadas ligadas aos pactos de defesa | Não os reduzir a guarnições ou guerreiros; os pactos variam entre comunidades. |
 | Corvários | Caladwen | Elarion e postos de observação ou mensageria já existentes | Mensageria e arquivo são tradições, não prova de espionagem ou conhecimento universal. |
 | Pequeninos, incluindo ribeirinhos | Nymvar e Arven | Thalanor e assentamentos ribeirinhos ou agrícolas já descritos | Não presumir que todo pequenino seja agricultor, barqueiro ou anfitrião. |
 | Gnomos dos Vales | Arven | Torvelume e cidades que demandam manutenção de ferramentas e mecanismos | Ofícios de precisão são uma tradição reconhecida, não uma profissão obrigatória para cada gnomo. |
