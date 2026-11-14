@@ -53,7 +53,7 @@ class TestDinamica(unittest.TestCase):
     def test_estado_inicial(self):
         e = ES.Estado.do_molde(MUNDO, DIN)
         self.assertEqual(sum(1 for i in e.ent if i.startswith('posto.')), 110)
-        self.assertEqual(sum(1 for i in e.ent if i.startswith('par.')), 64)
+        self.assertEqual(sum(1 for i in e.ent if i.startswith('par.')), 66)
         self.assertEqual(sum(1 for i in e.ent if i.startswith('event.')), 62)
         self.assertEqual(ES.Estado.do_molde(MUNDO, DIN).hash(), e.hash())
 
