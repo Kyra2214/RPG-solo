@@ -27,12 +27,12 @@ O pacote enviado (`RPG-solo-decisoes-wd.zip`) foi sincronizado no repositório `
 
 | Verificação | Estado em 14/11/2026 |
 |---|---|
-| Suíte Python Mythralis | 62 testes passaram no job Python do CI `43649388794`. |
-| `ktlintCheck` | Passou localmente e no CI `43649388794`. |
+| Suíte Python Mythralis | 62 testes passaram no job Python do CI `43651188305`. |
+| `ktlintCheck` | Passou localmente e no CI `43651188305`. |
 | `validar_mundo.py` | Passou: 0 erros e 20 avisos; 5 reinos, 46 cidades, 233 NPCs, 64 facções e 40 relógios. |
 | `exportar_molde.py --verificar` | Passou com o hash atualizado `dfd2e53678a41edb`. |
-| Testes Kotlin `:world:test` | Passaram no CI `43649388794`, junto com a suíte completa e WD-01. O teste local não iniciou porque não há JDK 17 configurado neste ambiente. |
-| Compilação Android e APK | O CI `43649388794` compilou o app, concluiu a suíte e gerou/uploadou `rpgsolo-debug-apk`; o APK desse run foi baixado para inspeção. |
-| E2E no emulador | O job `43649388794` falhou ao compilar `CriacaoAbasTest.kt`: import inválido `androidx.compose.ui.test.assertDoesNotExist`. O import foi removido localmente (a interação já oferece esse método, como demonstram outros testes); falta confirmar com novo CI. |
+| Testes Kotlin `:world:test` | Passaram no CI `43651188305`, junto com a suíte completa e WD-01. O teste local não iniciou porque não há JDK 17 configurado neste ambiente. |
+| Compilação Android e APK | O CI `43651188305` compilou o app, concluiu os testes principais e gerou/uploadou `rpgsolo-debug-apk`. O APK é de debug e depende do E2E final para validação completa. |
+| E2E no emulador | O import inválido de `assertDoesNotExist` foi corrigido; no run `43651188305`, 12 testes instrumentados executaram e 5 falharam. Três fluxos avançados não preencheram idade/sexo obrigatórios; dois não rolavam o trilho horizontal até a aba Informações. Os testes foram ajustados localmente para preencher os campos e selecionar a aba visível; aguarda novo CI. |
 
-O último CI totalmente verde anterior, no commit `21b90e1`, é histórico. O run `43649388794` gerou um APK debug, mas não concluiu o E2E; este relatório registra esse estado como snapshot. O próximo push contém a correção do teste instrumentado e disparará a validação final. O APK entregue será o artifact do run final, se o E2E passar; não é um pacote release assinado para a Play Store.
+Este relatório registra o estado do run `43651188305` no commit `2532804`; o E2E ainda não está verde. O código do app e o artifact debug foram gerados, mas o setup de testes instrumentados está sendo corrigido antes da próxima execução. O APK entregue será o artifact do run final, se o E2E passar; não é um pacote release assinado para a Play Store.

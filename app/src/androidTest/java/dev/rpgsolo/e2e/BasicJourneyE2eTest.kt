@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.rpgsolo.MainActivity
+import dev.rpgsolo.ui.fillRequiredHeroIdentity
 import dev.rpgsolo.ui.openTab
 import dev.rpgsolo.ui.waitForAppReady
 import dev.rpgsolo.ui.waitForText
@@ -32,7 +33,9 @@ class BasicJourneyE2eTest {
         composeRule.onNodeWithText("Personagens").assertIsDisplayed()
         composeRule.onNodeWithText("Modo avançado").performClick()
         composeRule.onNodeWithText("Ponto de partida").assertIsDisplayed()
+        composeRule.onNodeWithText("Guerreiro de exemplo").performScrollTo().performClick()
         composeRule.onNodeWithText("Nome").performTextInput("Herói E2E")
+        composeRule.fillRequiredHeroIdentity()
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()
         composeRule.waitForText("Ficha de Herói E2E criada e salva.")
         composeRule.onNodeWithText("Ficha de Herói E2E criada e salva.").assertIsDisplayed()

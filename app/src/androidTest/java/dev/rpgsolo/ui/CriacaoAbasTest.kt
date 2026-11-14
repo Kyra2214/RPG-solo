@@ -22,7 +22,7 @@ class CriacaoAbasTest {
         composeRule.waitForAppReady()
         composeRule.onNodeWithText("Heróis").performClick()
         composeRule.onNodeWithText("Criação por abas").assertIsDisplayed()
-        composeRule.onNodeWithText("Informações", substring = true).performClick()
+        composeRule.onNodeWithText("Informações").performScrollTo().performClick()
         composeRule.onNodeWithText("Falta o nome do herói.").performScrollTo().assertIsDisplayed()
     }
 
@@ -30,7 +30,7 @@ class CriacaoAbasTest {
     fun sortearNome_preencheONome() {
         composeRule.waitForAppReady()
         composeRule.onNodeWithText("Heróis").performClick()
-        composeRule.onNodeWithText("Informações", substring = true).performClick()
+        composeRule.onNodeWithText("Informações").performScrollTo().performClick()
         composeRule.onNodeWithText("Sortear nome").performScrollTo().performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Falta o nome do herói.").assertDoesNotExist()

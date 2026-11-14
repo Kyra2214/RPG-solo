@@ -12,7 +12,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-**Estado da validação em 14/11/2026:** a auditoria técnica estimou ≈75% (118 de 157 requisitos confirmados por inspeção; ver [`docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`](docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md)). O Room está na **versão 13**; os esquemas versionados vão até o 12 (`13.json` deve ser gerado pelo build). No CI `43649388794`, Python, KtLint, WD-01, `:world:test`, suíte completa e build/upload do APK passaram. O E2E falhou ao compilar `CriacaoAbasTest.kt` por um import inválido de `assertDoesNotExist`; o import foi removido e aguarda nova execução. Até o E2E passar, trate a validação completa como **pendente**.
+**Estado da validação em 14/11/2026:** a auditoria técnica estimou ≈75% (118 de 157 requisitos confirmados por inspeção; ver [`docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`](docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md)). O Room está na **versão 13**; os esquemas versionados vão até o 12 (`13.json` deve ser gerado pelo build). No CI `43651188305`, Python, KtLint, WD-01, `:world:test`, suíte completa e build/upload do APK passaram. O E2E executou 12 testes, com 5 falhas de setup: os testes avançados não preenchiam idade/sexo obrigatórios e os testes por abas não rolavam até Informações. Os testes foram ajustados localmente e aguardam novo CI; até ele passar, a validação completa está **pendente**.
 
 O APK produzido pelo CI é de **debug**, destinado a testes, não uma versão release assinada para publicação na Play Store. A validação E2E em emulador não substitui a revisão visual e funcional em aparelhos físicos.
 

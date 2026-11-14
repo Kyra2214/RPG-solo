@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToString
 import dev.rpgsolo.ai.HttpReply
 import dev.rpgsolo.ai.HttpTransport
@@ -43,6 +44,12 @@ fun ComposeTestRule.waitForAppReady(timeoutMillis: Long = 15_000) {
     check(onAllNodesWithText("Preparar sua mesa").fetchSemanticsNodes().isNotEmpty()) {
         "O app exibiu erro de inicialização; consulte a exceção AppModel no logcat do E2E."
     }
+}
+
+/** O modo avançado exige idade e sexo; preenche a identidade mínima antes de tocar em Criar ficha. */
+fun ComposeTestRule.fillRequiredHeroIdentity(age: String = "30") {
+    onNodeWithText("Idade (anos)").performScrollTo().performTextInput(age)
+    onNodeWithText("Masculino").performScrollTo().performClick()
 }
 
 /** Resposta no formato OpenAI com o texto dado (o JSON é montado por org.json, sem escapes manuais). */

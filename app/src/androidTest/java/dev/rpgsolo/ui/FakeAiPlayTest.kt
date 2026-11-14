@@ -48,6 +48,7 @@ class FakeAiPlayTest {
         composeRule.onNodeWithText("Modo avançado").performClick()
         composeRule.onNodeWithText("Guerreiro de exemplo").performScrollTo().performClick()
         composeRule.onNodeWithText("Nome").performTextReplacement("Herói IA")
+        composeRule.fillRequiredHeroIdentity()
         composeRule.onNodeWithText("Criar ficha").performScrollTo().performClick()
         composeRule.waitForText("Ficha de Herói IA criada e salva.")
         composeRule.onNodeWithText("Ficha de Herói IA criada e salva.").assertIsDisplayed()
