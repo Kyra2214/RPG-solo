@@ -12,7 +12,7 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 
 ## Estado atual
 
-**Estado da validação em 14/11/2026:** a auditoria técnica estimou ≈75% (118 de 157 requisitos confirmados por inspeção; ver [`docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`](docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md)). O Room está na **versão 13**; os esquemas versionados vão até o 12 (`13.json` deve ser gerado pelo build). A sincronização mais recente disparou o CI `43645457039`, que detectou problemas de formatação, recursos/vetores Mythralis desatualizados e um import ausente no app. Correções estão sendo preparadas; ainda falta um CI verde sobre este estado e a geração do APK. Até lá, trate estas alterações como **não validadas em execução**.
+**Estado da validação em 14/11/2026:** a auditoria técnica estimou ≈75% (118 de 157 requisitos confirmados por inspeção; ver [`docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`](docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md)). O Room está na **versão 13**; os esquemas versionados vão até o 12 (`13.json` deve ser gerado pelo build). No CI `43648514243`, Python, `ktlintCheck` e WD-01 passaram; `:world:test` usou o vetor-lote anterior, e a compilação/E2E do app falharam por colisão JVM em `setThemeMode`. O vetor foi regenerado e a correção `@JvmName("persistThemeMode")` aplicada; falta uma nova execução verde e a geração do APK. Até lá, trate estas alterações como **não validadas em execução**.
 
 O APK produzido pelo CI é de **debug**, destinado a testes, não uma versão release assinada para publicação na Play Store. A validação E2E em emulador não substitui a revisão visual e funcional em aparelhos físicos.
 

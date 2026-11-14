@@ -412,6 +412,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     var themeMode by mutableStateOf(narrationPrefs.getString("theme_mode", "sistema").orEmpty().let { if (it in TEMAS) it else "sistema" })
         private set
 
+    @JvmName("persistThemeMode")
     fun setThemeMode(value: String) {
         if (value !in TEMAS) return
         themeMode = value

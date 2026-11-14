@@ -19,18 +19,19 @@ O pacote enviado (`RPG-solo-decisoes-wd.zip`) foi sincronizado no repositório `
 
 1. Foi corrigida a expectativa obsoleta de relações no teste `test_f4.py` (o molde atual contém 66 relações, não 64).
 2. O `ktlintFormat` foi aplicado; `CombatActions.kt` recebeu o import da extensão existente `spareAllowed` e a propriedade de percentual foi renomeada para camelCase. A regra de elegibilidade não foi alterada.
-3. O manifesto de recursos de Mythralis e o relatório Python foram regenerados a partir da fonte oficial. O hash atual do molde é `dfd2e53678a41edb75d5c1501d021d7a8a441976539c55ba707973b281ea6731`.
-4. Os vetores Python→Kotlin de RNG/JSON, estado, motores, simulador de 500 anos e o lote de 20 sementes estão sendo alinhados com a fonte Python atual. O arquivo do lote será incorporado em um push subsequente assim que a geração terminar.
+3. A compilação remota revelou outra colisão JVM entre a propriedade `themeMode` e o método `setThemeMode`; `@JvmName("persistThemeMode")` foi aplicado ao método sem mudar seus usos Kotlin.
+4. O manifesto de recursos de Mythralis e o relatório Python foram regenerados a partir da fonte oficial. O hash atual do molde é `dfd2e53678a41edb75d5c1501d021d7a8a441976539c55ba707973b281ea6731`.
+5. Todos os vetores Python→Kotlin foram regenerados; o lote de 20 sementes × 500 anos foi concluído em paralelo e gravou 21 linhas em `vetores-lote.txt`.
 
 ## Evidências e pendências
 
 | Verificação | Estado em 14/11/2026 |
 |---|---|
-| Suíte Python Mythralis | 62 testes passaram no job Python do CI `43645457039`, após a correção da contagem. |
-| `ktlintCheck` | Passou localmente após o formatter. |
+| Suíte Python Mythralis | 62 testes passaram no job Python do CI `43648514243`. |
+| `ktlintCheck` | Passou localmente e no CI `43648514243`. |
 | `validar_mundo.py` | Passou: 0 erros e 20 avisos; 5 reinos, 46 cidades, 233 NPCs, 64 facções e 40 relógios. |
 | `exportar_molde.py --verificar` | Passou com o hash atualizado `dfd2e53678a41edb`. |
-| Testes Kotlin `:world:test` | Ainda aguardam validação em CI com os vetores regenerados. O Gradle local não encontrou JDK 17 e não iniciou os testes; isso é uma limitação do ambiente local, não um resultado de teste. |
-| Compilação Android, E2E e APK | Ainda pendentes de nova execução com runner Android. A execução `43645457039` foi falha: apontou os dados/vetores antigos e o import ausente, que foram corrigidos localmente depois do run. |
+| Testes Kotlin `:world:test` | No CI `43648514243`, o único teste falho foi `LoteConformidadeTest`, porque aquele commit ainda continha o vetor de lote antigo. O vetor final foi regenerado depois do run e aguarda novo CI. A execução local não iniciou porque não há JDK 17 configurado neste ambiente. |
+| Compilação Android, E2E e APK | O CI `43648514243` falhou ao compilar `AppModel.kt` pela colisão JVM entre o setter da propriedade `themeMode` e `setThemeMode`; a correção `@JvmName("persistThemeMode")` está aplicada localmente. O E2E falhou em consequência da mesma compilação. APK ainda pendente. |
 
-O último CI verde anterior, no commit `21b90e1`, é histórico e não valida estas alterações mais recentes. O APK do workflow é de **debug**, para testes; não é um pacote release assinado para a Play Store. O próximo push atualizará os vetores finais, disparará nova execução do workflow e permitirá baixar o APK somente após a geração do artifact.
+O último CI verde anterior, no commit `21b90e1`, é histórico e não valida estas alterações mais recentes. O APK do workflow é de **debug**, para testes; não é um pacote release assinado para a Play Store. O próximo push inclui o vetor final e a correção de compilação, dispara nova execução do workflow e permitirá baixar o APK somente após a geração do artifact.
