@@ -27,11 +27,12 @@ O pacote enviado (`RPG-solo-decisoes-wd.zip`) foi sincronizado no repositório `
 
 | Verificação | Estado em 14/11/2026 |
 |---|---|
-| Suíte Python Mythralis | 62 testes passaram no job Python do CI `43648514243`. |
-| `ktlintCheck` | Passou localmente e no CI `43648514243`. |
+| Suíte Python Mythralis | 62 testes passaram no job Python do CI `43649388794`. |
+| `ktlintCheck` | Passou localmente e no CI `43649388794`. |
 | `validar_mundo.py` | Passou: 0 erros e 20 avisos; 5 reinos, 46 cidades, 233 NPCs, 64 facções e 40 relógios. |
 | `exportar_molde.py --verificar` | Passou com o hash atualizado `dfd2e53678a41edb`. |
-| Testes Kotlin `:world:test` | No CI `43648514243`, o único teste falho foi `LoteConformidadeTest`, porque aquele commit ainda continha o vetor de lote antigo. O vetor final foi regenerado depois do run e aguarda novo CI. A execução local não iniciou porque não há JDK 17 configurado neste ambiente. |
-| Compilação Android, E2E e APK | O CI `43648514243` falhou ao compilar `AppModel.kt` pela colisão JVM entre o setter da propriedade `themeMode` e `setThemeMode`; a correção `@JvmName("persistThemeMode")` está aplicada localmente. O E2E falhou em consequência da mesma compilação. APK ainda pendente. |
+| Testes Kotlin `:world:test` | Passaram no CI `43649388794`, junto com a suíte completa e WD-01. O teste local não iniciou porque não há JDK 17 configurado neste ambiente. |
+| Compilação Android e APK | O CI `43649388794` compilou o app, concluiu a suíte e gerou/uploadou `rpgsolo-debug-apk`; o APK desse run foi baixado para inspeção. |
+| E2E no emulador | O job `43649388794` falhou ao compilar `CriacaoAbasTest.kt`: import inválido `androidx.compose.ui.test.assertDoesNotExist`. O import foi removido localmente (a interação já oferece esse método, como demonstram outros testes); falta confirmar com novo CI. |
 
-O último CI verde anterior, no commit `21b90e1`, é histórico e não valida estas alterações mais recentes. O APK do workflow é de **debug**, para testes; não é um pacote release assinado para a Play Store. O próximo push inclui o vetor final e a correção de compilação, dispara nova execução do workflow e permitirá baixar o APK somente após a geração do artifact.
+O último CI totalmente verde anterior, no commit `21b90e1`, é histórico. O run `43649388794` gerou um APK debug, mas não concluiu o E2E; este relatório registra esse estado como snapshot. O próximo push contém a correção do teste instrumentado e disparará a validação final. O APK entregue será o artifact do run final, se o E2E passar; não é um pacote release assinado para a Play Store.
