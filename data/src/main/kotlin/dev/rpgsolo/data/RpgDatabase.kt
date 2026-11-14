@@ -578,15 +578,38 @@ class RoomEventStore(private val db: RpgDatabase) : EventStore {
     ) = inTransaction {
         val dao = db.personagensRecorrentes()
         characters.forEach { c ->
-            val current = dao.buscar(mundoId, c.identityKey)?.let { runCatching { dev.rpgsolo.engine.RecurringCharacter.fromJson(it.json) }.getOrNull() }
-            val merged = if (current == null) c.copy(worldId = mundoId) else dev.rpgsolo.engine.RecurringIdentity.merge(current, c.copy(worldId = mundoId))
-            dao.salvar(PersonagemRecorrenteRow(mundoId, merged.identityKey, merged.kind.name, merged.name, merged.toJson(), System.currentTimeMillis()))
+            val current =
+                dao.buscar(mundoId, c.identityKey)?.let {
+                    runCatching { dev.rpgsolo.engine.RecurringCharacter.fromJson(it.json) }.getOrNull()
+                }
+            val merged =
+                if (current == null) {
+                    c.copy(
+                        worldId = mundoId,
+                    )
+                } else {
+                    dev.rpgsolo.engine.RecurringIdentity.merge(current, c.copy(worldId = mundoId))
+                }
+            dao.salvar(
+                PersonagemRecorrenteRow(
+                    mundoId,
+                    merged.identityKey,
+                    merged.kind.name,
+                    merged.name,
+                    merged.toJson(),
+                    System.currentTimeMillis(),
+                ),
+            )
         }
     }
 
     /** MP-02: personagens recorrentes do mundo (mais recentes primeiro); linhas ilegíveis são ignoradas. */
     fun recurringCharacters(mundoId: String): List<dev.rpgsolo.engine.RecurringCharacter> =
-        io { db.personagensRecorrentes().listar(mundoId).mapNotNull { runCatching { dev.rpgsolo.engine.RecurringCharacter.fromJson(it.json) }.getOrNull() } }
+        io {
+            db.personagensRecorrentes().listar(mundoId).mapNotNull {
+                runCatching { dev.rpgsolo.engine.RecurringCharacter.fromJson(it.json) }.getOrNull()
+            }
+        }
 
     private val creationDraftId = "atual"
 

@@ -19,7 +19,8 @@ object ValidadorAutoria {
 
     private val MEIOS_NAVEGAVEIS = setOf("rio", "misto", "mar", "maritima", "marítima", "navegavel", "navegável")
     private val SINAIS_MINERACAO = listOf("mineraç", "minerad", "minério", "minerio")
-    private val RECURSOS_MINERAIS = setOf("minerio", "minério", "metal", "ferro", "cobre", "prata", "ouro", "pedra", "carvao", "carvão", "cristal", "gema")
+    private val RECURSOS_MINERAIS =
+        setOf("minerio", "minério", "metal", "ferro", "cobre", "prata", "ouro", "pedra", "carvao", "carvão", "cristal", "gema")
 
     private fun normalizar(s: String): String =
         Normalizer.normalize(s.trim(), Normalizer.Form.NFD).replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "").lowercase()
@@ -60,7 +61,8 @@ object ValidadorAutoria {
 
         // A-02 nomes duplicados dentro de cada tipo (erro)
         for ((tipo, linhas) in listOf("cidade" to cidades, "npc" to npcs, "faccao" to facoes)) {
-            linhas.groupBy { normalizar(it["nome"].orEmpty()) }.filter { it.key.isNotEmpty() && it.value.size > 1 }.toSortedMap().forEach { (nome, v) ->
+            linhas.groupBy { normalizar(it["nome"].orEmpty()) }.filter { it.key.isNotEmpty() && it.value.size > 1 }.toSortedMap().forEach {
+                    (nome, v) ->
                 achar("A-02", "E", v.joinToString(", ") { it["id"].orEmpty() }, "nome duplicado em $tipo: $nome")
             }
         }
@@ -84,7 +86,14 @@ object ValidadorAutoria {
             tiposPorPar.getOrPut(par) { LinkedHashSet() }.add(tipo)
         }
         for ((par, tipos) in tiposPorPar) {
-            if ("alianca" in tipos && "rivalidade" in tipos) achar("A-04", "E", par.sorted().joinToString(" x "), "aliados e rivais ao mesmo tempo")
+            if ("alianca" in tipos && "rivalidade" in tipos) {
+                achar(
+                    "A-04",
+                    "E",
+                    par.sorted().joinToString(" x "),
+                    "aliados e rivais ao mesmo tempo",
+                )
+            }
         }
 
         // A-05 porto sem acesso navegável
@@ -114,7 +123,13 @@ object ValidadorAutoria {
             val texto = normalizar(c["economia"].orEmpty() + " " + c["funcao"].orEmpty() + " " + c["tipo"].orEmpty())
             if (SINAIS_MINERACAO.none { it in texto }) continue
             val dela = recursos.filter { it["localidade"] == id }.map { normalizar(it["recurso"].orEmpty()) }
-            if (dela.none { r -> RECURSOS_MINERAIS.any { it in r } }) achar("A-06", "A", id, "cidade mineradora sem recurso mineral registrado")
+            if (dela.none {
+                        r ->
+                    RECURSOS_MINERAIS.any { it in r }
+                }
+            ) {
+                achar("A-06", "A", id, "cidade mineradora sem recurso mineral registrado")
+            }
         }
 
         return f

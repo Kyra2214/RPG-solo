@@ -39,7 +39,12 @@ class MarcosMemorialTest {
     }
 
     @Test fun marcosDeUmaPessoaSaoOsDosParticipantesEmOrdemDeDia() {
-        val s = state(marco("a", 5, emptyMap(), participants = listOf("hero")), marco("b", 1, emptyMap(), participants = listOf("hero", "x")), marco("c", 2, emptyMap(), participants = listOf("x")))
+        val s =
+            state(
+                marco("a", 5, emptyMap(), participants = listOf("hero")),
+                marco("b", 1, emptyMap(), participants = listOf("hero", "x")),
+                marco("c", 2, emptyMap(), participants = listOf("x")),
+            )
         assertEquals(listOf("b", "a"), s.milestonesOf("hero").map { it.id })
     }
 
@@ -53,7 +58,10 @@ class MarcosMemorialTest {
     }
 
     @Test fun contextoDiferenciaRumorDeFato() {
-        val text = checkNotNull(MilestoneContext.forNpc(state(marco("a", 1, mapOf("npc" to Certainty.RUMOR), consequence = "ficou em dívida")), "npc"))
+        val text =
+            checkNotNull(
+                MilestoneContext.forNpc(state(marco("a", 1, mapOf("npc" to Certainty.RUMOR), consequence = "ficou em dívida")), "npc"),
+            )
         assertTrue(text.contains("só ouviu rumor"))
         assertTrue(text.contains("ficou em dívida"))
     }

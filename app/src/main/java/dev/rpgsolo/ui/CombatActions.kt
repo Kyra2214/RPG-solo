@@ -3,6 +3,7 @@ package dev.rpgsolo.ui
 import dev.rpgsolo.engine.CampaignSession
 import dev.rpgsolo.engine.EntityKind
 import dev.rpgsolo.engine.NextTurn
+import dev.rpgsolo.engine.spareAllowed
 import dev.rpgsolo.rules.RulePackage
 import kotlin.math.roundToInt
 
@@ -448,14 +449,14 @@ class CombatActions(
     }
 
     /** RV-06: poupar só vale para quem já está com até este percentual da vida. */
-    private val SPARE_HP_PERCENT = 25
+    private val spareHpPercent = 25
 
     /** RV-06: um NPC relevante que o jogador pode poupar agora. */
     data class SpareOption(val id: String, val name: String, val current: Int, val max: Int)
 
     /**
      * RV-06: NPCs que podem ser poupados: só no turno do jogador, só NPC relevante (elite ou chefe, RV-01) e só quando
-     * já está no limite (até [SPARE_HP_PERCENT]% da vida), pois poupar é render quem já foi vencido.
+     * já está no limite (até [spareHpPercent]% da vida), pois poupar é render quem já foi vencido.
      */
     fun spareOptions(): List<SpareOption> {
         val state = session().state
@@ -465,7 +466,7 @@ class CombatActions(
         return combat.order.mapNotNull { id ->
             val ent = state.entities[id] ?: return@mapNotNull null
             val res = ent.resources[resourceId] ?: return@mapNotNull null
-            if (!state.spareAllowed(id) || res.max <= 0 || res.current * 100 > res.max * SPARE_HP_PERCENT) return@mapNotNull null
+            if (!state.spareAllowed(id) || res.max <= 0 || res.current * 100 > res.max * spareHpPercent) return@mapNotNull null
             SpareOption(id, ent.name, res.current, res.max)
         }.sortedBy { it.name }
     }
@@ -479,7 +480,15 @@ class CombatActions(
         val before = session().state.combat?.order.orEmpty()
         val name = session().state.entities[npcId]?.name ?: "o adversário"
         return when (
-            val r = session().execute(dev.rpgsolo.engine.EndNpcAlive(npcId, dev.rpgsolo.engine.DefeatOutcome.SPARED, playerId(), dev.rpgsolo.engine.DefeatAttitude.DEBT))
+            val r =
+                session().execute(
+                    dev.rpgsolo.engine.EndNpcAlive(
+                        npcId,
+                        dev.rpgsolo.engine.DefeatOutcome.SPARED,
+                        playerId(),
+                        dev.rpgsolo.engine.DefeatAttitude.DEBT,
+                    ),
+                )
         ) {
             is dev.rpgsolo.engine.ExecResult.Accepted -> {
                 val xp = awardCombatVictoryXp(before)
@@ -541,8 +550,14 @@ class CombatActions(
             val spec =
                 when (adjusted.comparison) {
                     dev.rpgsolo.engine.Comparison.ROLL_OVER -> adjusted.copy(modifier = adjusted.modifier + adaptation - shift)
-                    dev.rpgsolo.engine.Comparison.ROLL_UNDER -> adjusted.copy(difficulty = (adjusted.difficulty + adaptation - shift).coerceAtLeast(1))
-                    dev.rpgsolo.engine.Comparison.POINTS -> adjusted.copy(modifier = (adjusted.modifier + adaptation - shift).coerceAtLeast(0))
+                    dev.rpgsolo.engine.Comparison.ROLL_UNDER ->
+                        adjusted.copy(
+                            difficulty = (adjusted.difficulty + adaptation - shift).coerceAtLeast(1),
+                        )
+                    dev.rpgsolo.engine.Comparison.POINTS ->
+                        adjusted.copy(
+                            modifier = (adjusted.modifier + adaptation - shift).coerceAtLeast(0),
+                        )
                 }
             val result = session().check(spec)
             val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}."

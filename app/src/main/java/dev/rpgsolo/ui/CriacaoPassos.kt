@@ -27,5 +27,6 @@ internal object CriacaoPassos {
     fun anterior(passo: PassoCriacao): PassoCriacao = PassoCriacao.entries.getOrElse(passo.ordinal - 1) { passo }
 
     /** Primeiro passo ainda não concluído, ou o último se todos estiverem prontos. */
-    fun primeiroPendente(feitos: Set<PassoCriacao>): PassoCriacao = PassoCriacao.entries.firstOrNull { it !in feitos } ?: PassoCriacao.INFORMACOES
+    fun primeiroPendente(feitos: Set<PassoCriacao>): PassoCriacao =
+        PassoCriacao.entries.firstOrNull { it !in feitos } ?: PassoCriacao.INFORMACOES
 }

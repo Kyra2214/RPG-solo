@@ -23,7 +23,10 @@ class MundoProprioMp08Test {
     private fun errors(d: CustomWorldDraft) = CustomWorldValidator.validate(d)
 
     @Test fun rascunhoValidoNaoTemErros() {
-        assertEquals(emptyList<String>(), errors(draft(factions = listOf("Guilda"), clocks = listOf(CustomClockDraft("fome", "Fome", 6)), start = "porto")))
+        assertEquals(
+            emptyList<String>(),
+            errors(draft(factions = listOf("Guilda"), clocks = listOf(CustomClockDraft("fome", "Fome", 6)), start = "porto")),
+        )
     }
 
     @Test fun lugarUnicoEhValidoESemLugarNao() {
@@ -34,8 +37,14 @@ class MundoProprioMp08Test {
     @Test fun nomeVazioIdInvalidoEDuplicadosSaoRecusados() {
         assertTrue(errors(draft(name = " ")).isNotEmpty())
         assertTrue(errors(draft(places = listOf(place("Vila Grande")))).any { it.contains("id de lugar inválido") })
-        assertTrue(errors(draft(places = listOf(place("a", "b"), place("b", "a"), place("a", "b")))).any { it.contains("id de lugar duplicado") })
-        assertTrue(errors(draft(places = listOf(place("a", "b", name = "Vale"), place("b", "a", name = "vale")))).any { it.contains("nome de lugar duplicado") })
+        assertTrue(
+            errors(draft(places = listOf(place("a", "b"), place("b", "a"), place("a", "b")))).any { it.contains("id de lugar duplicado") },
+        )
+        assertTrue(
+            errors(draft(places = listOf(place("a", "b", name = "Vale"), place("b", "a", name = "vale")))).any {
+                it.contains("nome de lugar duplicado")
+            },
+        )
         assertTrue(errors(draft(factions = listOf("Guilda", "GUILDA"))).any { it.contains("facção duplicado") })
     }
 

@@ -726,7 +726,10 @@ object ProposalParser {
                     bounty = n("bounty"),
                     resources = IssuerResources(nOr("gold", 0), nOr("men", 0), nOr("influence", 0)),
                     originPlaceId = slug(s("originPlaceId")),
-                    witnessIds = o.strList("witnessIds").takeIf { it.isNotEmpty() } ?: throw Bad("issue_wanted: 'witnessIds' deve ser uma lista de ids não vazia"),
+                    witnessIds =
+                        o.strList("witnessIds").takeIf {
+                            it.isNotEmpty()
+                        } ?: throw Bad("issue_wanted: 'witnessIds' deve ser uma lista de ids não vazia"),
                     deadlineDay = if (o.containsKey("deadlineDay")) n("deadlineDay") else null,
                 )
             "start_rumor" ->
@@ -740,10 +743,21 @@ object ProposalParser {
             "change_fame" -> {
                 val reach = nOr("reachDelta", 0)
                 val disposition = nOr("dispositionDelta", 0)
-                if (reach !in -30..30 || disposition !in -30..30) throw Bad("change_fame: reachDelta e dispositionDelta devem ficar entre -30 e 30")
+                if (reach !in -30..30 || disposition !in -30..30) {
+                    throw Bad(
+                        "change_fame: reachDelta e dispositionDelta devem ficar entre -30 e 30",
+                    )
+                }
                 ChangeFame(s("key"), reach, disposition)
             }
-            "register_relic" -> RegisterRelic(s("id"), s("name"), o.str("trait")?.trim().orEmpty(), s("ownerName"), opt("how") ?: "posse inicial")
+            "register_relic" ->
+                RegisterRelic(
+                    s("id"),
+                    s("name"),
+                    o.str("trait")?.trim().orEmpty(),
+                    s("ownerName"),
+                    opt("how") ?: "posse inicial",
+                )
             "transfer_relic" -> TransferRelic(s("id"), s("newOwnerName"), s("how"))
             "record_milestone" ->
                 RecordMilestone(
@@ -759,7 +773,11 @@ object ProposalParser {
                     scope = opt("scope")?.let { enumOf<MilestoneScope>(it, "scope") } ?: MilestoneScope.PERSON,
                 )
             "learn_milestone" ->
-                LearnMilestone(s("milestoneId"), s("personId"), opt("certainty")?.let { enumOf<Certainty>(it, "certainty") } ?: Certainty.RUMOR)
+                LearnMilestone(
+                    s("milestoneId"),
+                    s("personId"),
+                    opt("certainty")?.let { enumOf<Certainty>(it, "certainty") } ?: Certainty.RUMOR,
+                )
             "revise_milestone" -> ReviseMilestone(s("milestoneId"), enumOf<Certainty>(s("certainty"), "certainty"))
             "learn" -> LearnKnowledge(s("key"), s("text"), s("source"), o.bool("believed") ?: false)
             "make_promise" -> MakePromise(s("id"), s("npcId"), s("text"))

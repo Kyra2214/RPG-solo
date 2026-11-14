@@ -89,7 +89,9 @@ object Legends {
                 append("- ").append(name).append(" (id ").append(id).append("): o herói ").append(STAGES[s]).append(".\n")
             }
             append("Um NPC pode perguntar \"você conheceu fulano?\" e contar a lenda como rumor. ")
-            append("Só proponha advance_legend quando a cena mostrar de fato o próximo passo (alguém que o conheceu, a relíquia, o herdeiro); ")
+            append(
+                "Só proponha advance_legend quando a cena mostrar de fato o próximo passo (alguém que o conheceu, a relíquia, o herdeiro); ",
+            )
             append("não invente feitos além do que o rumor diz.")
         }
     }

@@ -83,17 +83,36 @@ object RelationAxes {
             ) = add(axis, v * w / 100)
             val receiver = m.participantIds.firstOrNull() == npcId
             when (m.type) {
-                MilestoneType.HUMILIATION -> if (receiver) { a(RelationAxis.RESENTMENT, 30); a(RelationAxis.FEAR, 10) }
+                MilestoneType.HUMILIATION ->
+                    if (receiver) {
+                        a(RelationAxis.RESENTMENT, 30)
+                        a(RelationAxis.FEAR, 10)
+                    }
                 MilestoneType.DEFEAT ->
                     if (receiver) {
-                        a(RelationAxis.RESPECT, 15); a(RelationAxis.RESENTMENT, 15); a(RelationAxis.FEAR, 20)
+                        a(RelationAxis.RESPECT, 15)
+                        a(RelationAxis.RESENTMENT, 15)
+                        a(RelationAxis.FEAR, 20)
                     } else {
                         a(RelationAxis.RESPECT, 10)
                     }
-                MilestoneType.MERCY -> if (receiver) { a(RelationAxis.GRATITUDE, 30); a(RelationAxis.DEBT, 30); a(RelationAxis.RESPECT, 10) }
-                MilestoneType.HELP -> if (receiver) { a(RelationAxis.GRATITUDE, 30); a(RelationAxis.DEBT, 20) }
+                MilestoneType.MERCY ->
+                    if (receiver) {
+                        a(RelationAxis.GRATITUDE, 30)
+                        a(RelationAxis.DEBT, 30)
+                        a(RelationAxis.RESPECT, 10)
+                    }
+                MilestoneType.HELP ->
+                    if (receiver) {
+                        a(RelationAxis.GRATITUDE, 30)
+                        a(RelationAxis.DEBT, 20)
+                    }
                 MilestoneType.DEBT_PAID -> if (receiver) a(RelationAxis.GRATITUDE, 10)
-                MilestoneType.BETRAYAL -> if (receiver) { a(RelationAxis.RESENTMENT, 40); a(RelationAxis.DISTRUST, 40) }
+                MilestoneType.BETRAYAL ->
+                    if (receiver) {
+                        a(RelationAxis.RESENTMENT, 40)
+                        a(RelationAxis.DISTRUST, 40)
+                    }
                 MilestoneType.DECEIT -> if (receiver) a(RelationAxis.DISTRUST, 30)
                 MilestoneType.INJUSTICE -> if (receiver) a(RelationAxis.RESENTMENT, 25)
                 MilestoneType.PROMISE -> a(RelationAxis.RESPECT, 10)

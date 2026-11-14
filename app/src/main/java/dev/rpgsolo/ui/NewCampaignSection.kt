@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -29,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.R
 import dev.rpgsolo.ai.CampaignForm
@@ -222,7 +222,13 @@ fun NewCampaignSection(model: AppModel) {
                         },
                     ) { Text(stringResource(R.string.campaign_custom_world_propose)) }
                     customDraft?.let { Muted(stringResource(R.string.campaign_custom_world_ready, it.name, it.places.size)) }
-                    customWorldMessage?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                    customWorldMessage?.let {
+                        Text(
+                            it,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 }
                 if (worldId == WorldOptions.PREVIOUS) {
                     OutlinedTextField(
@@ -283,7 +289,11 @@ fun NewCampaignSection(model: AppModel) {
                         ) { Text(h.titulo) }
                     }
                     if (quickFailed) {
-                        Text(stringResource(R.string.campaign_quick_failed), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            stringResource(R.string.campaign_quick_failed),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                 }
                 OutlinedTextField(

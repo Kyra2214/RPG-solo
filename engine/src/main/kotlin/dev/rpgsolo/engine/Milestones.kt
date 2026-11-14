@@ -67,7 +67,8 @@ fun GameState.milestonesKnownBy(npcId: String): List<Pair<Milestone, Certainty>>
         .sortedBy { it.first.day }
 
 /** MP-01: marcos que envolvem [personId] como participante (para consulta entre campanhas). */
-fun GameState.milestonesOf(personId: String): List<Milestone> = milestones.values.filter { personId in it.participantIds }.sortedBy { it.day }
+fun GameState.milestonesOf(personId: String): List<Milestone> =
+    milestones.values.filter { personId in it.participantIds }.sortedBy { it.day }
 
 /** MP-01: texto de contexto do mestre sobre o que o NPC sabe, sem revelar o que ele não viveu nem descobriu. */
 object MilestoneContext {

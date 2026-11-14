@@ -304,7 +304,11 @@ fun ConfigScreen(model: AppModel) {
                     "claro" to R.string.config_theme_light,
                     "escuro" to R.string.config_theme_dark,
                 ).forEach { (id, rotulo) ->
-                    FilterChip(selected = model.themeMode == id, onClick = { model.setThemeMode(id) }, label = { Text(stringResource(rotulo)) })
+                    FilterChip(
+                        selected = model.themeMode == id,
+                        onClick = { model.setThemeMode(id) },
+                        label = { Text(stringResource(rotulo)) },
+                    )
                 }
             }
         }

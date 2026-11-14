@@ -418,7 +418,12 @@ internal fun CriacaoPorAbas(
                     },
                 ) { entrada -> ExtraProfissao(entrada) }
             PassoCriacao.STATUS -> PassoStatus(est, pkg, draft) { est.passo = PassoCriacao.HABILIDADES }
-            PassoCriacao.HABILIDADES -> PassoHabilidades(est, dados, pkg.engineConfig().initialAbilityPoints) { est.passo = PassoCriacao.VANTAGENS }
+            PassoCriacao.HABILIDADES ->
+                PassoHabilidades(
+                    est,
+                    dados,
+                    pkg.engineConfig().initialAbilityPoints,
+                ) { est.passo = PassoCriacao.VANTAGENS }
             PassoCriacao.VANTAGENS -> PassoVantagens(est, pkg, draft) { est.passo = PassoCriacao.INFORMACOES }
             PassoCriacao.INFORMACOES -> PassoInformacoes(est, dados, pkg, draft, relatorio.valid, statSobra, exigeOrigem, ocupado, mensagem, aoCriar)
         }
@@ -1018,7 +1023,10 @@ private fun PassoStatus(
     AppCard(accent = if (sobra < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.char_stat_points), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-            Text(stringResource(R.string.char_points_left, sobra, relatorio.statPointsAvailable), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(R.string.char_points_left, sobra, relatorio.statPointsAvailable),
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
         LinearProgressIndicator(
             progress = { (relatorio.statPointsSpent.toFloat() / relatorio.statPointsAvailable.coerceAtLeast(1)).coerceIn(0f, 1f) },
@@ -1109,7 +1117,10 @@ private fun PassoHabilidades(
     AppCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.wiz_skill_points), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-            Text(stringResource(R.string.char_points_left, pontosIniciais - gastos, pontosIniciais), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(R.string.char_points_left, pontosIniciais - gastos, pontosIniciais),
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
     val secoes =
@@ -1122,7 +1133,8 @@ private fun PassoHabilidades(
                 R.string.wiz_tree_race to est.mistas.getOrNull(1).orEmpty(),
                 R.string.wiz_tree_class to est.classId,
                 R.string.wiz_tree_profession to est.professionId,
-            ) + est.extrasValidas().map { R.string.wiz_tree_class to it }).filter { it.second.isNotBlank() }
+            ) + est.extrasValidas().map { R.string.wiz_tree_class to it }
+        ).filter { it.second.isNotBlank() }
     val arvores = secoes.map { (rotulo, id) -> Triple(rotulo, id, CriacaoHabilidades.arvore(id)) }.filter { it.third.isNotEmpty() }
     if (arvores.isEmpty()) {
         Muted(stringResource(R.string.wiz_skills_empty))
@@ -1166,7 +1178,11 @@ private fun PassoHabilidades(
             if (escolhida.freeBaseSkill) {
                 val nivelEvol = est.evolucoes[escolhida.id] ?: 0
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(CriacaoTokens.EspacoG)) {
-                    Text(stringResource(R.string.wiz_skill_level, 1 + nivelEvol), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        stringResource(R.string.wiz_skill_level, 1 + nivelEvol),
+                        Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                     OutlinedButton(onClick = { est.evolucoes[escolhida.id] = (nivelEvol - 1).coerceAtLeast(0) }, enabled = nivelEvol > 0) {
                         Text(stringResource(R.string.wiz_skill_downgrade))
                     }
@@ -1204,7 +1220,12 @@ private fun PassoVantagens(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.char_balance), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
                 Pill(
-                    stringResource(R.string.char_balance_pill, relatorio.advantages, relatorio.disadvantages, relatorio.disadvantagesRequired),
+                    stringResource(
+                        R.string.char_balance_pill,
+                        relatorio.advantages,
+                        relatorio.disadvantages,
+                        relatorio.disadvantagesRequired,
+                    ),
                     corBalanco,
                 )
             }
@@ -1268,7 +1289,14 @@ private fun PassoVantagens(
     GradeBlocos(lista.drop(pagina * BLOCOS_POR_PAGINA_TRACOS).take(BLOCOS_POR_PAGINA_TRACOS), 4) { traco, modificador ->
         val ativo = traco.id in escolhidos
         Bloco(
-            glifo = if (traco.type == "desvantagem") "▼" else if (traco.type == "poder") "✦" else "▲",
+            glifo =
+                if (traco.type == "desvantagem") {
+                    "▼"
+                } else if (traco.type == "poder") {
+                    "✦"
+                } else {
+                    "▲"
+                },
             nome = traco.name,
             selecionado = ativo,
             aoClicar = { est.tracoSel = traco.id },
@@ -1322,7 +1350,10 @@ private fun PassoInformacoes(
     aoCriar: (CharacterChoices, String) -> Unit,
 ) {
     val escolhas = est.escolhas()
-    val errosCatalogo = remember(escolhas) { CharacterCreationCatalog.validateChoices(escolhas) + CharacterCreationCatalog.validateEffectScopes(pkg, escolhas) }
+    val errosCatalogo =
+        remember(
+            escolhas,
+        ) { CharacterCreationCatalog.validateChoices(escolhas) + CharacterCreationCatalog.validateEffectScopes(pkg, escolhas) }
     val rotAparencia = stringResource(R.string.wiz_appearance)
     val rotPersonalidade = stringResource(R.string.wiz_personality)
     val rotHistoria = stringResource(R.string.wiz_story)

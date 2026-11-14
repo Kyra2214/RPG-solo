@@ -43,10 +43,20 @@ object Pantheon {
         val byKey = characters.associateBy { it.identityKey }
         val rivals =
             Rivals.register(characters).map { r ->
-                PantheonEntry(r.identityKey, r.name, PantheonKind.RIVAL, rivalLine(r).take(LINE_MAX).trimEnd(), byKey[r.identityKey]?.lastDay ?: 0)
+                PantheonEntry(
+                    r.identityKey,
+                    r.name,
+                    PantheonKind.RIVAL,
+                    rivalLine(r).take(LINE_MAX).trimEnd(),
+                    byKey[r.identityKey]?.lastDay ?: 0,
+                )
             }
         return (heroes + rivals)
-            .sortedWith(compareByDescending<PantheonEntry> { it.lastDay }.thenBy { if (it.kind == PantheonKind.RIVAL) 0 else 1 }.thenBy { it.identityKey })
+            .sortedWith(
+                compareByDescending<PantheonEntry> {
+                    it.lastDay
+                }.thenBy { if (it.kind == PantheonKind.RIVAL) 0 else 1 }.thenBy { it.identityKey },
+            )
             .take(ENTRIES_MAX)
     }
 

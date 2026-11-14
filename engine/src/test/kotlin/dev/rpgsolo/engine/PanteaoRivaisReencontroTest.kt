@@ -16,7 +16,16 @@ class PanteaoRivaisReencontroTest {
         by: String = "",
         alive: Boolean = true,
         day: Int = 0,
-    ) = RecurringCharacter(key, key, RecurringKind.NPC, alive = alive, defeat = defeat, defeatAttitude = attitude, defeatedBy = by, lastDay = day)
+    ) = RecurringCharacter(
+        key,
+        key,
+        RecurringKind.NPC,
+        alive = alive,
+        defeat = defeat,
+        defeatAttitude = attitude,
+        defeatedBy = by,
+        lastDay = day,
+    )
 
     private fun deadHero(
         name: String,
@@ -83,6 +92,7 @@ class PanteaoRivaisReencontroTest {
 
     @Test fun planoRecusaQuemEstaForaDaJanelaOuNaoEhNpcVivo() {
         val state = GameState()
+
         fun plan(vararg candidates: ReencounterCandidate) = Reencounter.plan(state, "hero", candidates.toList(), 42L) { 5 }
         assertNull(plan(ReencounterCandidate(npc("perto"), campaignsAway = 4)))
         assertNull(plan(ReencounterCandidate(npc("morto", alive = false), campaignsAway = 20)))

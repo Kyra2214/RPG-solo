@@ -45,4 +45,3 @@ class CriacaoAbasTest {
         composeRule.onNodeWithText("Ponto de partida").assertIsDisplayed()
     }
 }
-

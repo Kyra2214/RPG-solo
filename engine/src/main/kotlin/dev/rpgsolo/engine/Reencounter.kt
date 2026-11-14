@@ -50,7 +50,11 @@ object Reencounter {
      * Depois de [FULL_WINDOW_CAMPAIGNS_AWAY] campanhas fora, a chance sobe 50% (teto 100).
      */
     fun chance(c: ReencounterCandidate): Int {
-        val base = (BASE_CHANCE - PENALTY_PER_APPEARANCE * c.appearances + BONUS_PER_NEW_MILESTONE * c.newMilestones).coerceIn(MIN_CHANCE, BASE_CHANCE)
+        val base =
+            (BASE_CHANCE - PENALTY_PER_APPEARANCE * c.appearances + BONUS_PER_NEW_MILESTONE * c.newMilestones).coerceIn(
+                MIN_CHANCE,
+                BASE_CHANCE,
+            )
         return if (c.campaignsAway >= FULL_WINDOW_CAMPAIGNS_AWAY) (base * 3 / 2).coerceAtMost(100) else base
     }
 
@@ -91,7 +95,10 @@ object Reencounter {
             }
         val reason =
             when {
-                knowledge == Certainty.UNKNOWN -> ch.goals.firstOrNull()?.let { "segue os próprios objetivos: $it" } ?: "segue a própria vida e cruza o caminho do herói"
+                knowledge == Certainty.UNKNOWN ->
+                    ch.goals.firstOrNull()?.let {
+                        "segue os próprios objetivos: $it"
+                    } ?: "segue a própria vida e cruza o caminho do herói"
                 last?.type == MilestoneType.MERCY -> "quer retribuir a misericórdia que recebeu"
                 last?.type == MilestoneType.HUMILIATION || last?.type == MilestoneType.DEFEAT -> "busca revanche ou reparação pelo que sofreu"
                 last?.type == MilestoneType.HELP -> "quer devolver a ajuda ou pedir um favor em troca"
@@ -125,7 +132,9 @@ object Reencounter {
         buildString {
             append("REENCONTRO (decidido pelo motor): ${plan.character.name} aparece nesta campanha, no máximo uma vez por campanha. ")
             append("Motivo: ${plan.reason}. Como soube: ${plan.howHeKnew}. ")
-            append("Passaram-se cerca de ${plan.campaignsAway} campanhas. Recursos: ${plan.resources}. Nível ${plan.level} (fixado pelo motor a partir do grupo e do cargo). ")
+            append(
+                "Passaram-se cerca de ${plan.campaignsAway} campanhas. Recursos: ${plan.resources}. Nível ${plan.level} (fixado pelo motor a partir do grupo e do cargo). ",
+            )
             append(if (plan.recognizesHero) "Ele reconhece o herói. " else "Ele não reconhece o herói. ")
             append(if (plan.heroRecognizesNpc) "O herói o reconhece. " else "O herói não o conhece. ")
             plan.role?.let { append("Papel do retorno (decidido pelo motor): ${RivalReturns.description(it)}. ") }

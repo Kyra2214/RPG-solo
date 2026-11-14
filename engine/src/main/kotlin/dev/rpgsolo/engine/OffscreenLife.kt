@@ -68,16 +68,43 @@ object OffscreenRules {
                 listOf(
                     OffscreenKind.PROMOTION to if (canPromote) (if (ambitious) 20 else 8) - (if (weakened) 10 else 0) else 0,
                     OffscreenKind.DEMOTION to if (canDemote) (if (weakened) 18 else 6) else 0,
-                    OffscreenKind.RELOCATION to if (canMove) (if (loyal) 5 else if (peaceful) 8 else 14) else 0,
+                    OffscreenKind.RELOCATION to
+                        if (canMove) {
+                            (
+                                if (loyal) {
+                                    5
+                                } else if (peaceful) {
+                                    8
+                                } else {
+                                    14
+                                }
+                            )
+                        } else {
+                            0
+                        },
                     OffscreenKind.ALLIANCE to if (canAlly) (if (loyal) 20 else 10) else 0,
                     OffscreenKind.NONE to 40,
                 ).map { it.first to it.second.coerceAtLeast(0) }
             var roll = rng.nextInt(weights.sumOf { it.second })
-            val kind = weights.first { (_, w) -> if (roll < w) true else { roll -= w; false } }.first
+            val kind =
+                weights.first { (_, w) ->
+                    if (roll < w) {
+                        true
+                    } else {
+                        roll -= w
+                        false
+                    }
+                }.first
             val step =
                 when (kind) {
-                    OffscreenKind.PROMOTION -> { life = life.copy(rank = life.rank + 1); OffscreenStep(kind, "subiu uma faixa de cargo") }
-                    OffscreenKind.DEMOTION -> { life = life.copy(rank = life.rank - 1); OffscreenStep(kind, "perdeu poder: desceu uma faixa de cargo") }
+                    OffscreenKind.PROMOTION -> {
+                        life = life.copy(rank = life.rank + 1)
+                        OffscreenStep(kind, "subiu uma faixa de cargo")
+                    }
+                    OffscreenKind.DEMOTION -> {
+                        life = life.copy(rank = life.rank - 1)
+                        OffscreenStep(kind, "perdeu poder: desceu uma faixa de cargo")
+                    }
                     OffscreenKind.RELOCATION -> {
                         val to = places.filter { it != life.placeId }.let { it[rng.nextInt(it.size)] }
                         life = life.copy(placeId = to)

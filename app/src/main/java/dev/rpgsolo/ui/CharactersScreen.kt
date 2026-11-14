@@ -53,6 +53,7 @@ import kotlinx.coroutines.withContext
  * Aba Personagens (10.2 e 5.0): criação guiada pelo pacote, com validação do motor e biblioteca de fichas.
  * Fluxo: arquétipo (ou ficha pronta) → atributos → cardápio do arquétipo → ajuste fino → criar.
  */
+
 /** Limite de idade aceito na criação (a idade real é ajustada à longevidade do povo ao iniciar a campanha). */
 private const val MAX_HERO_AGE = 1000
 
@@ -225,38 +226,44 @@ private fun Creator(
         rascunhoLido = true
     }
     if (usarAbas) {
-        if (rascunhoLido) CriacaoPorAbas(
-            pkg,
-            draft,
-            dbBusy,
-            message,
-            { progressoAbas = it },
-            rascunhoSalvo,
-            { json -> scope.launch(Dispatchers.IO) { model.saveCreationDraft(json) } },
-        ) { escolhasAbas, lore ->
-            when (val b = draft.build()) {
-                is FichaBuild.Created -> {
-                    var newId = draftId
-                    io({
-                        model.saveFicha(b.ficha)
-                        model.saveCharacterChoices(b.ficha.id, escolhasAbas)
-                        model.registrarConquista(Conquista.PRIMEIRO_HEROI)
-                        if (escolhasAbas.mixedRaceIds.isNotEmpty() || escolhasAbas.hybridId.isNotBlank()) model.registrarConquista(Conquista.HEROI_MESTICO)
-                        val loreError = if (lore.isNotBlank()) model.approveLore(b.ficha.id, lore) else null
-                        newId = model.newFichaId()
-                        model.saveCreationDraft(null)
-                        loreError
-                    }) { failure ->
-                        if (failure == null) {
-                            rascunhoSalvo = null
-                            draftId = newId
-                            message = context.getString(R.string.char_created, b.ficha.name)
-                        } else {
-                            message = failure
+        if (rascunhoLido) {
+            CriacaoPorAbas(
+                pkg,
+                draft,
+                dbBusy,
+                message,
+                { progressoAbas = it },
+                rascunhoSalvo,
+                { json -> scope.launch(Dispatchers.IO) { model.saveCreationDraft(json) } },
+            ) { escolhasAbas, lore ->
+                when (val b = draft.build()) {
+                    is FichaBuild.Created -> {
+                        var newId = draftId
+                        io({
+                            model.saveFicha(b.ficha)
+                            model.saveCharacterChoices(b.ficha.id, escolhasAbas)
+                            model.registrarConquista(Conquista.PRIMEIRO_HEROI)
+                            if (escolhasAbas.mixedRaceIds.isNotEmpty() || escolhasAbas.hybridId.isNotBlank()) {
+                                model.registrarConquista(
+                                    Conquista.HEROI_MESTICO,
+                                )
+                            }
+                            val loreError = if (lore.isNotBlank()) model.approveLore(b.ficha.id, lore) else null
+                            newId = model.newFichaId()
+                            model.saveCreationDraft(null)
+                            loreError
+                        }) { failure ->
+                            if (failure == null) {
+                                rascunhoSalvo = null
+                                draftId = newId
+                                message = context.getString(R.string.char_created, b.ficha.name)
+                            } else {
+                                message = failure
+                            }
                         }
                     }
+                    is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
                 }
-                is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
             }
         }
     } else {
@@ -428,7 +435,10 @@ private fun Creator(
                 version++
             },
             label = { Text(stringResource(R.string.char_age_field)) },
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+            keyboardOptions =
+                androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                ),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )

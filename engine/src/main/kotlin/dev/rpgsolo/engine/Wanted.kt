@@ -138,7 +138,11 @@ object Wanted {
         return when (r.rung) {
             ReachRung.RUMOR, ReachRung.POSTER -> emptyList()
             ReachRung.HUNTERS -> listOf(WantedAgent("caçador de recompensa", lvl(0), 1 + rng.nextInt(3)))
-            ReachRung.ELITE -> listOf(WantedAgent("elite do emissor", lvl(2), 2 + rng.nextInt(2)), WantedAgent("lacaio", lvl(-1), 2 + rng.nextInt(3)))
+            ReachRung.ELITE ->
+                listOf(
+                    WantedAgent("elite do emissor", lvl(2), 2 + rng.nextInt(2)),
+                    WantedAgent("lacaio", lvl(-1), 2 + rng.nextInt(3)),
+                )
             ReachRung.EMISSARY -> listOf(WantedAgent("emissário", lvl(0), 1))
             ReachRung.BOSS -> listOf(WantedAgent("${r.issuerName} em pessoa", lvl(5), 1))
         }

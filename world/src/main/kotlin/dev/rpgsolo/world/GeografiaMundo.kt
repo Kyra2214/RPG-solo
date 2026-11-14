@@ -67,7 +67,8 @@ data class GeografiaMundo(val feicoes: List<Feicao>, val erros: List<String>) {
  * posição plausível"). Sem coordenadas: usa elevação relativa e vizinhança, como o M-04 manda. Códigos G-01 a G-07.
  */
 object ValidadorGeografia {
-    private val MARCAS_FORTALEZA = listOf("fronteira", "limite", "passagem", "morro", "planalto", "alto", "serra", "espinha", "montanha", "colina", "rio", "costa", "porto")
+    private val MARCAS_FORTALEZA =
+        listOf("fronteira", "limite", "passagem", "morro", "planalto", "alto", "serra", "espinha", "montanha", "colina", "rio", "costa", "porto")
 
     private fun normalizar(s: String): String =
         Normalizer.normalize(s.trim(), Normalizer.Form.NFD).replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "").lowercase()
@@ -126,7 +127,17 @@ object ValidadorGeografia {
             val tipo = normalizar(c["tipo"].orEmpty())
             if ("fortaleza" !in tipo && "fortificad" !in tipo) continue
             val lugar = normalizar(c["localizacao"].orEmpty())
-            if (MARCAS_FORTALEZA.none { it in lugar }) achar("G-06", "A", c["id"].orEmpty(), "fortaleza sem posição defensável descrita (passagem, fronteira, morro, planalto...)")
+            if (MARCAS_FORTALEZA.none {
+                    it in lugar
+                }
+            ) {
+                achar(
+                    "G-06",
+                    "A",
+                    c["id"].orEmpty(),
+                    "fortaleza sem posição defensável descrita (passagem, fronteira, morro, planalto...)",
+                )
+            }
         }
 
         // G-07: todo reino do mundo tem ao menos uma feição própria registrada.

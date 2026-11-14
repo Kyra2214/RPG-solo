@@ -9,7 +9,16 @@ import kotlin.random.Random
 
 /** Sorteio de nomes por reino (CG-4.5). */
 class SorteioNomesTest {
-    private val reinos = listOf("kingdom.aeltharyn", "kingdom.coroas-de-pedra", "kingdom.veu-dos-malditos", "kingdom.vale-palancar", "kingdom.azeroth", null, "")
+    private val reinos =
+        listOf(
+            "kingdom.aeltharyn",
+            "kingdom.coroas-de-pedra",
+            "kingdom.veu-dos-malditos",
+            "kingdom.vale-palancar",
+            "kingdom.azeroth",
+            null,
+            "",
+        )
 
     @Test
     fun mesmaSemente_mesmoNome() {

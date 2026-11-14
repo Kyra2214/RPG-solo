@@ -10,7 +10,7 @@ Esta pasta é **independente** do código do RPG Solo: nela se escreve o mundo (
 
 | Peça | Onde | Situação (08/11/2026) |
 |---|---|---|
-| Exportação do molde, da dinâmica e de `subracas-em-prosa.txt` | `motor/exportar_molde.py` → `../rules/src/main/resources/mundos/mythralis/` | Feita (MI-01, MI-02); hash do molde `1e28129df4b3f41a` (muda de `f11f1c120acc99b1` com a troca do nome Orcano por Orc, 09/11/2026) |
+| Exportação do molde, da dinâmica e de `subracas-em-prosa.txt` | `motor/exportar_molde.py` → `../rules/src/main/resources/mundos/mythralis/` | Feita (MI-01, MI-02); hash atual `dfd2e53678a41edb` (reexportado e validado em 14/11/2026) |
 | Vetores de conformidade Python → Kotlin | `motor/exportar_vetores.py` → `../world/src/test/resources/conformidade/` | Gerados (MI-03 a MI-08) |
 | Porte do motor para Kotlin | `../world/` (pacote `dev.rpgsolo.world`, módulo Gradle `:world`, incluído em `settings.gradle.kts`) | Escrito (MI-01 a MI-08), com testes de conformidade Kotlin × Python |
 | Uso pelo app | `../app`, `../rules` | **Parcial (MI-09, escrito e não compilado).** `app` e `rules` declaram `project(":world")`; a nova campanha escolhe Mythralis e grava o vínculo com o molde. Estado do mundo na campanha, o Room v11 já guarda mundo, snapshots, crônica filtrada e vínculo (MI-10, escrito e não compilado); tela *Simulação de tempo* e instanciação de cidades e NPCs são as MI-11 em diante |

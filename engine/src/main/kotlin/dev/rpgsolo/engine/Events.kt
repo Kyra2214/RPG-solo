@@ -62,6 +62,7 @@ data class GemRemoved(
  * [killerId]/[cause] (LG-01): quem ou o que causou a morte; ambos null = ambiente ou origem desconhecida.
  * [cause] só é preenchida quando não há um autor (ex.: `condicao:veneno`). Logs antigos decodificam com null.
  */
+
 /** MP-01: registra um marco (id único). */
 @Serializable
 data class MilestoneRecorded(val milestone: Milestone) : Event

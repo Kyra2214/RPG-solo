@@ -1,6 +1,6 @@
 # esquema=1
 # gerado por Mythralis/motor/exportar_molde.py; não editar à mão
-# molde_sha256=1e28129df4b3f41a2f497d8577c808ccf3587edf39d999a29b502d448e90c07d
+# molde_sha256=dfd2e53678a41edb75d5c1501d021d7a8a441976539c55ba707973b281ea6731
 # dinamica_sha256=449544ec1df5ba5d6fdb744768eee13592d2d0e6aaf3e69b1d31bb619df506bc
 # arquivos_molde=120
 # arquivos_dinamica=13
@@ -10,19 +10,19 @@ molde|reinos/01-aeltharyn-reino-das-florestas/dados/assentamento.txt|10321|c8656
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/calendario.txt|287|002570cbb243c09b943202dff3b6b82625c125d7e8d2eb55c6824c0ecaed710b
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/canal.txt|3431|9dfd97f15a202d402ed4a84887c814b48739e32b6a040455a1f852a3e212b6fa
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/cena.txt|3011|b3a6d7d805d9f291992e88cca310cd3ef5c6aa9ffdbf9e254e15ae15d51913be
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/cidade.txt|14817|d6db8c9b0f2b952cda9dfcc7883aad1fb967e9963b2f7e972586f847f8f9b227
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/cidade.txt|14842|186dbc3d25596321556d2596ade9227c46c0c7ec149e6cfa265e037de5765b02
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/evento.txt|7057|d2da49856ee1596690f25650a61a1baa68e6a075fbb0632865b915e70cb92958
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/excecoes.txt|14690|f9939a902be673c09225b8b8f52072079a3414ef3a51836cf68ef2375e0f39ad
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/faccao.txt|5312|3a40f08ca5faf5ec9b5f3ce368bbe98a7e63b92450a7eea858a314c933b6bf30
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/faccao.txt|5405|bcc05540f3d2b884ee9cf2cb2acff747fe93c01dabbe313f590553bf5bf6715d
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/fato.txt|22193|7f129c17bd5f1fd5f3596a2c3cf2a53db2deb6fea653e0854c27c690e0a24a8f
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/ids_aposentados.txt|28|5388f01c7a801794e3c9767f3dda3bc77face3fe624b091b5c3898691419d0de
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/misterio.txt|7432|5a09df9bfb6149c65b3676ac7c7fde760c821b63ec4fbbd4139873b299d9f132
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/npc.txt|67494|1b267430c4a0bfe12b9d35183833f438d88c9c9ebac845fec18d535910df8ca7
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/povo_no_reino.txt|2705|067cfcdbfb1ae077b934b630efdda1ea87a92be26aab6f2e0c8e71e00b211c7b
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/npc.txt|67866|c6fcf577a70608cb72f7c2196e30f32379233db84763085771ed5fe5aa5cf642
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/povo_no_reino.txt|2741|d8cca2304d9bc37b19d4c6f9934c582b076ba1dfcfb261fac1b39a769cf029b3
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/recurso.txt|6250|c878a17429e371b2b22fa683e40a8b2b6b24b74febd0ac6c917fa367ccd1a929
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/reino.txt|354|7ba4fb1e707abfafd1e2699e35cfb3984bf67306c175de42c5cb43307b8d461f
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/relacao.txt|8985|08f330239da0f8bc55fc710ddde4e0cc7f1aa3853a114dca07586253abb2f569
-molde|reinos/01-aeltharyn-reino-das-florestas/dados/relatorio-validador.txt|10733|12cab8301453032cde8459888bb36b64a8b55c77a95c9659bc89b2843bef166b
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/relacao.txt|9437|c61d0d5989d955379b444c98904ff1666e9d2189cd08840d7895c571c6d98d93
+molde|reinos/01-aeltharyn-reino-das-florestas/dados/relatorio-validador.txt|10664|95b9bd4dede802afb1a9a8996dc6dccbb97603e29381c06d1f10e527760a9dbf
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/relogio.txt|4901|f5ce985811d6768b83c814b5168773dfd7ccdab76e63f268ef82ff5ac80f27b2
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/reputacao.txt|5894|3a47d0153f04a5f8be27c14904364e2c6a06f2b74f15d4339414cdafa45b2b60
 molde|reinos/01-aeltharyn-reino-das-florestas/dados/resumo.txt|68481|23b777e26618784e3ce6a112a561a659e8818842011db592b5cf79009d3b2b84
@@ -34,7 +34,7 @@ molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/canal.txt|4686|8543eb4
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/cena.txt|3678|2441dae1564f25ffbcd2c2accad77da970c7048682c5e6e3897b1de7d45d973d
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/cidade.txt|12173|ce19028e4498c03c307ec011ef6b89ddf6cdda3cb7dc389c19274656ce7fd13c
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/evento.txt|9318|ecd3a5d1ace82f5a566d19f648756450f8bc1fcc2789cec9f3fa2f55b39eef9a
-molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/excecoes.txt|1517|2952358f4535a0dd1121d3fd6471f94e63fb9dab815b2318b9f1f99f10784fcd
+molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/excecoes.txt|1322|ac768ece208e6e72a76b90728119a9988424d0f3e0d1635041b2b06d1e3c8358
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/faccao.txt|7477|3d27a7bc699d7911774e2d07c4238037c93585ad4c5da342801aa508e37d9875
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/fato.txt|15970|2039b3b558805762af65bbe202c20a843d47a390c1429ff957062f97c5ee7764
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/ids_aposentados.txt|28|5388f01c7a801794e3c9767f3dda3bc77face3fe624b091b5c3898691419d0de
@@ -45,11 +45,11 @@ molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/recurso.txt|18514|34a8
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/reino.txt|273|ba297ff18fc4af44a4344be4a51f6af7ac7a4ca8b9cacf360ed096e203d873bf
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/relacao.txt|13955|55956523a1b4629ce7b57b05d313c32d67299985cb27395494516f2c0ecf6009
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/relatorio-validador.md|5952|d658dffd47646b285059ba13c70b9e4207b54b9abe11b81e617f4ab242fac131
-molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/relatorio-validador.txt|3863|e4161a69ba22f019af0d37a8791edf357a941cbf5942bbb734e2cee619ef47eb
+molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/relatorio-validador.txt|3775|c7d4854672faec19fb2b234386e3d83f172fd0d5ea2ac29b73d4598ba6ba2229
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/relogio.txt|4699|4b9fa40e93216c90ed3e3589f9d472c2d6c4264131300838d5d7e66360a89204
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/reputacao.txt|9091|e5d70f9ff0091cc85e9a884ea99162fdd235679c6a16ca4336eb8d25fb6ec95b
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/resumo.txt|50546|d7d36a5916ceb373b26b9a209be61937b9cec5834d3e63f2f7ee0f7b54f68c52
-molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/rota.txt|2798|4712084521389e3ac2f5489d8eab5acaf1970a5c9307745255498e67d054cc42
+molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/rota.txt|2839|284b7ee6de1e70dc4ac20d3d4d6d96f359fa4d937078bd2e7cd1ec1a7247d9f7
 molde|reinos/02-coroas-de-pedra-reino-das-montanhas/dados/semente.txt|46677|4ff1ecf3d830904640cb57bc72488cb7b5558760fe457b6c338ea50641621f7c
 molde|reinos/03-veu-dos-malditos/dados/assentamento.txt|114|f18cd09ffbf474ac147bc477a67ff00924315316fef032eaed483ba82590b2c4
 molde|reinos/03-veu-dos-malditos/dados/calendario.txt|300|aaf2ff231df5afb344b9a158cbfa89ef9185bffae2a57779fc3f2cf4c4a01537

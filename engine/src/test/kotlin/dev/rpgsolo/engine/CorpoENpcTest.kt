@@ -26,7 +26,15 @@ class CorpoENpcTest {
 
     @Test fun dossieGuardaIdentidadeEIdadeDoNpc() {
         val s = sessao()
-        val d = NpcDossier("corpo", personality = "calado", identity = "Ferreiro de Arvel", age = 34, sex = "masculino", publicInfo = listOf("Mãos calejadas"))
+        val d =
+            NpcDossier(
+                "corpo",
+                personality = "calado",
+                identity = "Ferreiro de Arvel",
+                age = 34,
+                sex = "masculino",
+                publicInfo = listOf("Mãos calejadas"),
+            )
         assertTrue(s.execute(SetNpcDossier(d)) is ExecResult.Accepted)
         val antes = s.state.npcSheet("corpo")!!
         assertEquals(listOf("Mãos calejadas"), antes.publicInfo)

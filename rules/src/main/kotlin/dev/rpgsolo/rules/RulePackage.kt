@@ -3,10 +3,10 @@ package dev.rpgsolo.rules
 import dev.rpgsolo.engine.AdvancementRequirement
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.Comparison
+import dev.rpgsolo.engine.DEFAULT_FLEE_THRESHOLD
 import dev.rpgsolo.engine.DeathMode
 import dev.rpgsolo.engine.ElementChart
 import dev.rpgsolo.engine.ElementPath
-import dev.rpgsolo.engine.DEFAULT_FLEE_THRESHOLD
 import dev.rpgsolo.engine.EngineConfig
 import dev.rpgsolo.engine.Ficha
 import dev.rpgsolo.engine.REAL_DICE

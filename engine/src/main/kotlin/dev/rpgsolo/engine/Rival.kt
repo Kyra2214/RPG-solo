@@ -30,7 +30,12 @@ object Rivals {
      * (dados anteriores ao RV-02) e o rival continua válido.
      */
     fun register(characters: List<RecurringCharacter>): List<Rival> {
-        val deadHeroes = characters.filter { it.kind == RecurringKind.HERO && !it.alive }.map { RecurringIdentity.normalize(it.name) }.toSet()
+        val deadHeroes =
+            characters.filter { it.kind == RecurringKind.HERO && !it.alive }.map {
+                RecurringIdentity.normalize(
+                    it.name,
+                )
+            }.toSet()
         return characters
             .filter { it.kind == RecurringKind.NPC && it.alive && it.defeat != null }
             .map { c ->

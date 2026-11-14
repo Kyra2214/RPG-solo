@@ -8,10 +8,11 @@ Aplicativo Android nativo em Kotlin e Jetpack Compose para jogar RPG solo com um
 - Mecânica e equilíbrio dos dados: [`docs/MECANICA_DADOS.md`](docs/MECANICA_DADOS.md)
 - Plano de integração do mundo Mythralis (Fases 21 a 25, MI-01 a MI-27): [`docs/PLANO_INTEGRACAO_MYTHRALIS.md`](docs/PLANO_INTEGRACAO_MYTHRALIS.md)
 - Mundo e motor de simulação Mythralis (projeto e implementação independentes, com integração ao app): [`Mythralis/README.md`](Mythralis/README.md)
+- Estado do backup e validação desta sincronização: [`docs/ESTADO_REPOSITORIO_2026-11-14.md`](docs/ESTADO_REPOSITORIO_2026-11-14.md)
 
 ## Estado atual
 
-**Auditoria técnica de 14/11/2026 (análise estática, sem compilar nem executar):** progresso real ≈75% (118 de 157 requisitos do roadmap confirmados por inspeção; ver [`docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`](docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md)). O Room está na **versão 13**; os esquemas versionados vão só até o 12 (`13.json` falta, deve ser gerado pelo build). A versão anterior deste texto citava CI verde no commit `21b90e1`; essa execução não está registrada em `docs/VALIDACAO_CI.md`, cujo último CI verde documentado é o `036d445` (25/10/2026), e não cobre os blocos LG/RV/MP/WD de 14/11/2026. Trate o código atual como **não validado em execução**.
+**Estado da validação em 14/11/2026:** a auditoria técnica estimou ≈75% (118 de 157 requisitos confirmados por inspeção; ver [`docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`](docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md)). O Room está na **versão 13**; os esquemas versionados vão até o 12 (`13.json` deve ser gerado pelo build). A sincronização mais recente disparou o CI `43645457039`, que detectou problemas de formatação, recursos/vetores Mythralis desatualizados e um import ausente no app. Correções estão sendo preparadas; ainda falta um CI verde sobre este estado e a geração do APK. Até lá, trate estas alterações como **não validadas em execução**.
 
 O APK produzido pelo CI é de **debug**, destinado a testes, não uma versão release assinada para publicação na Play Store. A validação E2E em emulador não substitui a revisão visual e funcional em aparelhos físicos.
 
@@ -71,9 +72,9 @@ Mythralis é um motor de simulação de mundo vivo, independente do RPG Solo. El
 
 A pasta [`Mythralis/`](Mythralis/README.md) contém o mundo (cinco reinos, cidades, povos, NPCs e facções) e o motor de referência em Python. O módulo Gradle `:world` é a implementação Kotlin/JVM da simulação, com motores especializados coordenados pelo simulador, estado, dinâmica, crônica, invariantes, snapshots e testes de conformidade com o Python.
 
-**Estado da implementação:** o módulo `:world` compila no projeto integrado. A correção de compilação de Mythralis foi incorporada ao commit `21b90e1`. O schema Room 11 foi incluído para validar as migrações e a persistência relacionada ao mundo.
+**Estado da implementação:** o módulo `:world` compilou no projeto integrado no commit histórico `21b90e1`; as alterações mais recentes ainda aguardam nova validação completa. O schema Room 11 foi incluído para validar as migrações e a persistência relacionada ao mundo.
 
-**Validação mais recente:** o Android CI no commit `21b90e1` passou em KtLint, suíte de testes, motor Python e E2E no emulador. Portanto, as antigas afirmações deste README de que `:world:test`, o lint e a integração ainda não tinham sido validados não representam mais o estado atual.
+**Última validação verde registrada (histórica):** o Android CI no commit `21b90e1` passou em KtLint, suíte de testes, motor Python e E2E no emulador; esse resultado antecede a sincronização atual. A execução mais recente conhecida, `43645457039`, não ficou verde. Consulte [`docs/ESTADO_REPOSITORIO_2026-11-14.md`](docs/ESTADO_REPOSITORIO_2026-11-14.md) para as evidências e pendências atuais.
 
 A validação em emulador comprova os fluxos cobertos pela suíte automatizada, mas não equivale a testes exploratórios de todos os recursos nem à validação visual em aparelhos físicos. Desempenho em dispositivos reais, revisão visual e demais lacunas listadas no plano continuam sendo acompanhados por etapa.
 

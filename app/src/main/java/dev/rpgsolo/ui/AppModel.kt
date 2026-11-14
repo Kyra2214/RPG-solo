@@ -2119,6 +2119,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** MP-02: personagens recorrentes do mundo da campanha aberta, também de campanhas anteriores e outros protagonistas. */
+
     /** RV-03: panteão unificado (heróis mortos e rivais) do mundo desta campanha; vazio sem mundo vinculado. */
     fun pantheon(): List<dev.rpgsolo.engine.PantheonEntry> = dev.rpgsolo.engine.Pantheon.entries(recurringCharacters())
 
@@ -2533,7 +2534,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 menu = activePackage?.let { CheckMenu(it, it.exceptionRegistry()) },
                 powerMenu = activePackage?.let { dev.rpgsolo.ai.PowerMenu(it, it.exceptionRegistry()) },
                 attackExecutor = { targetId -> combatActions.unifiedAttack(targetId) },
-                questExecutor = { q -> if (q.legacy) addLegacyQuest(q) else if (q.rival) addRivalQuest(q) else addQuest(q.title, q.objectives, q.xpReward, q.masterySkillId, q.spellRewardId) },
+                questExecutor = {
+                        q ->
+                    if (q.legacy) {
+                        addLegacyQuest(q)
+                    } else if (q.rival) {
+                        addRivalQuest(q)
+                    } else {
+                        addQuest(q.title, q.objectives, q.xpReward, q.masterySkillId, q.spellRewardId)
+                    }
+                },
                 playerTraits = { activeFicha?.traits.orEmpty() },
                 additionalBonus = { scope -> approvedRuleBonus(scope) },
                 luckTestBonus = { id -> luckTestBonusOf(id) },
@@ -2585,7 +2595,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             resumeBriefing = { dev.rpgsolo.ai.ResumeBriefing.build(quests.all(), quests.timeline(), chapters.summaries()) },
             craftOpportunity = { activePackage?.recipes()?.isNotEmpty() == true },
             sourceContext = { text -> sourceContextForScene(text) },
-            mundoContext = { listOfNotNull(gameMode().instrucao, legacyContextForMaster(), bodyLootContextForMaster(), reencounterContextForMaster(), legendsContextForMaster(), fameContextForMaster(), wantedContextForMaster(), progressionContextForMaster(), mundoContextForScene()).joinToString("\n\n").ifBlank { null } },
+            mundoContext = {
+                listOfNotNull(gameMode().instrucao, legacyContextForMaster(), bodyLootContextForMaster(), reencounterContextForMaster(), legendsContextForMaster(), fameContextForMaster(), wantedContextForMaster(), progressionContextForMaster(), mundoContextForScene()).joinToString(
+                    "\n\n",
+                ).ifBlank {
+                    null
+                }
+            },
             npcContext = { text -> privateNpcContext(text) },
             sceneNpcIds = { text -> npcIdsForScene(text) },
             generationPreferences = {
@@ -2875,6 +2891,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
      * Progressão contada na história: o Mestre costura os ganhos (perícia, status, habilidade) na narrativa, no momento
      * oportuno, sem tratar como missão formal. Perícia só sobe por skill_trial, validado pelo motor.
      */
+
     /** LG-02: legados dos heróis mortos como fato fixo para o mestre (nada vem da IA). */
     private fun legacyContextForMaster(): String? =
         runCatching {
@@ -2980,7 +2997,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     /** MP-06: procurados contra o herói que ainda importam (ativos ou escondidos), para a tela de respostas. */
     fun wantedList(): List<dev.rpgsolo.engine.WantedRecord> =
         session.state.wanted.values
-            .filter { it.targetId == playerId && (dev.rpgsolo.engine.Wanted.isLive(it, session.state.day) || it.status == dev.rpgsolo.engine.WantedStatus.HIDDEN) }
+            .filter {
+                it.targetId == playerId && (dev.rpgsolo.engine.Wanted.isLive(it, session.state.day) || it.status == dev.rpgsolo.engine.WantedStatus.HIDDEN)
+            }
             .sortedBy { it.id }
 
     /** MP-06: recompensa já com o decaimento do dia. */
@@ -3045,9 +3064,16 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     val away = (total - c.campaigns).coerceAtLeast(0)
                     val peers = recurring.filter { it.identityKey != c.identityKey }.map { it.name }
                     val advanced = dev.rpgsolo.engine.OffscreenRules.advance(c, away, session.engine.seed, places, peers)
-                    dev.rpgsolo.engine.ReencounterCandidate(advanced, campaignsAway = total - c.campaigns, appearances = (c.campaigns - 1).coerceAtLeast(0), newMilestones = c.newMilestones)
+                    dev.rpgsolo.engine.ReencounterCandidate(
+                        advanced,
+                        campaignsAway = total - c.campaigns,
+                        appearances = (c.campaigns - 1).coerceAtLeast(0),
+                        newMilestones = c.newMilestones,
+                    )
                 }
-            dev.rpgsolo.engine.Reencounter.plan(session.state, playerId, candidates, session.engine.seed) { dev.rpgsolo.engine.ReencounterLevel.forCharacter(it, heroLevel) }
+            dev.rpgsolo.engine.Reencounter.plan(session.state, playerId, candidates, session.engine.seed) {
+                dev.rpgsolo.engine.ReencounterLevel.forCharacter(it, heroLevel)
+            }
         }.getOrNull()
 
     private fun reencounterContextForMaster(): String? =
@@ -3080,8 +3106,6 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-
-
     /** LG-03: oferta de quest de legado para hoje (gatilho do motor; a IA só propõe o que foi oferecido). */
     private fun legacyQuestOffer(): dev.rpgsolo.engine.LegacyQuestOffer? =
         dev.rpgsolo.engine.LegacyQuests.evaluate(session.state, playerId, quests.all(), session.engine.seed)
@@ -3113,17 +3137,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     .joinToString("; ") { "${it.id} (${it.name}, nível ${it.value}/${it.max}: ${it.description.take(120)})" }
             linhas +=
                 "Perícia pendente (nível $nivel, dificuldade $dificuldade): quando a cena der espaço, sem pressa e sem chamar de prova ou missão, " +
-                    "crie um acontecimento da própria história (armadilha, travessia, duelo, fuga...) que exija PELO MENOS 3 testes seguidos de UMA perícia que combine com a cena, " +
-                    "usando request_check com dificuldade proporcional a $dificuldade. Só conta se o jogador passar na maioria desses testes: nesse caso, ao final use a proposta " +
-                    "skill_trial(entityId=\"$playerId\", skillId, level=$nivel) e anuncie na narrativa que a perícia subiu de nível, descrevendo os novos bônus. " +
-                    "Se ele falhar, não use skill_trial: a oportunidade continua para mais tarde. Perícias possíveis: $opcoes."
+                "crie um acontecimento da própria história (armadilha, travessia, duelo, fuga...) que exija PELO MENOS 3 testes seguidos de UMA perícia que combine com a cena, " +
+                "usando request_check com dificuldade proporcional a $dificuldade. Só conta se o jogador passar na maioria desses testes: nesse caso, ao final use a proposta " +
+                "skill_trial(entityId=\"$playerId\", skillId, level=$nivel) e anuncie na narrativa que a perícia subiu de nível, descrevendo os novos bônus. " +
+                "Se ele falhar, não use skill_trial: a oportunidade continua para mais tarde. Perícias possíveis: $opcoes."
         }
         val status = statPointsState().statPoints
         val habilidade = session.state.entities[playerId]?.abilityPoints ?: 0
         if (status > 0 || habilidade > 0) {
             linhas +=
                 "O personagem tem pontos novos para distribuir (status: $status, habilidade: $habilidade). Quando for natural, " +
-                    "mostre na narrativa que ele evoluiu (mais forte, mais ágil, um insight novo) e lembre que pode distribuir os pontos nos painéis; não é missão."
+                "mostre na narrativa que ele evoluiu (mais forte, mais ágil, um insight novo) e lembre que pode distribuir os pontos nos painéis; não é missão."
         }
         return if (linhas.isEmpty()) null else "PROGRESSÃO (integre à história):\n" + linhas.joinToString("\n")
     }
@@ -3395,7 +3419,13 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         val config = session.engine.config
-        return InitialBuildState(player.initialBuildAllocated, stats, config.initialStatPoints, config.initialAbilityPoints, player.initialAbilityGranted)
+        return InitialBuildState(
+            player.initialBuildAllocated,
+            stats,
+            config.initialStatPoints,
+            config.initialAbilityPoints,
+            player.initialAbilityGranted,
+        )
     }
 
     /** O motor exige exatamente os pontos iniciais do pacote (10 de status + 2 de habilidade) e impede repetir a distribuição. */
@@ -3599,7 +3629,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         val skills =
             pkg?.data?.traits.orEmpty().filter { it.type == "pericia" }
                 .map { SkillTrialRow(it.id, it.name, player.skills[it.id] ?: 0, caps[it.id] ?: 5, it.description) }
-                val pending =
+        val pending =
             if (every <= 0) {
                 emptyList()
             } else {
@@ -3753,6 +3783,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 }
 
 /** Limite de entrada do XP de missão; o teto real por nível continua no motor (`EngineConfig.maxQuestXp`). */
+
 /** MP-07: fato do motor com o dia da última propagação de rumores. */
 private const val RUMOR_DAY_FACT = "rumores.dia"
 private const val MAX_QUEST_XP_INPUT = 100_000

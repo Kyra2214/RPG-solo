@@ -8,6 +8,7 @@ sealed interface Command
 data class CreateEntity(val entity: Entity) : Command
 
 /** MI-22: dá um NPC como morto sem passar por dano (a morte aconteceu fora de cena, na simulação do mundo). */
+
 /** MP-01: registra um marco; os participantes passam a saber (CONFIRMED). */
 data class RecordMilestone(
     val id: String,
@@ -575,7 +576,11 @@ fun decide(
             if (state.milestones.containsKey(cmd.id)) return no("marco já existe: ${cmd.id}")
             if (state.milestones.size >= MILESTONES_MAX) return no("limite de $MILESTONES_MAX marcos atingido")
             if (cmd.id.isBlank()) return no("marco sem id")
-            if (cmd.what.isBlank() || cmd.what.length > MILESTONE_TEXT_MAX) return no("descrição do marco deve ter 1 a $MILESTONE_TEXT_MAX caracteres")
+            if (cmd.what.isBlank() || cmd.what.length > MILESTONE_TEXT_MAX) {
+                return no(
+                    "descrição do marco deve ter 1 a $MILESTONE_TEXT_MAX caracteres",
+                )
+            }
             if (cmd.consequence.length > MILESTONE_TEXT_MAX) return no("consequência do marco passa de $MILESTONE_TEXT_MAX caracteres")
             if (cmd.participantIds.isEmpty()) return no("o marco precisa de ao menos um participante")
             cmd.participantIds.firstOrNull { entity(it) == null }?.let { return no("participante inexistente: $it") }
@@ -593,12 +598,21 @@ fun decide(
             if (cmd.id.isBlank() || state.wanted.containsKey(cmd.id)) return no("procurado sem id ou já existente: ${cmd.id}")
             if (state.wanted.size >= Wanted.WANTED_MAX) return no("limite de ${Wanted.WANTED_MAX} procurados atingido")
             if (entity(cmd.targetId) == null) return no("alvo inexistente: ${cmd.targetId}")
-            if (cmd.issuerName.isBlank() || cmd.issuerName.length > Wanted.TEXT_MAX) return no("emissor deve ter 1 a ${Wanted.TEXT_MAX} caracteres")
+            if (cmd.issuerName.isBlank() || cmd.issuerName.length > Wanted.TEXT_MAX) {
+                return no(
+                    "emissor deve ter 1 a ${Wanted.TEXT_MAX} caracteres",
+                )
+            }
             if (cmd.bounty <= 0) return no("a recompensa deve ser positiva")
             if (cmd.originPlaceId !in state.places) return no("lugar de origem inexistente: ${cmd.originPlaceId}")
             if (cmd.witnessIds.isEmpty()) return no("o procurado nasce de uma testemunha")
             cmd.witnessIds.firstOrNull { entity(it) == null }?.let { return no("testemunha inexistente: $it") }
-            val r = IssuerResources(cmd.resources.gold.coerceAtLeast(0), cmd.resources.men.coerceAtLeast(0), cmd.resources.influence.coerceAtLeast(0))
+            val r =
+                IssuerResources(
+                    cmd.resources.gold.coerceAtLeast(0),
+                    cmd.resources.men.coerceAtLeast(0),
+                    cmd.resources.influence.coerceAtLeast(0),
+                )
             return Decision.Ok(
                 listOf(
                     WantedIssued(
@@ -621,7 +635,12 @@ fun decide(
                     WantedUpdated(
                         r.copy(
                             rung = next,
-                            resources = IssuerResources(res.gold - next.costGold, res.men - next.costMen, res.influence - next.costInfluence),
+                            resources =
+                                IssuerResources(
+                                    res.gold - next.costGold,
+                                    res.men - next.costMen,
+                                    res.influence - next.costInfluence,
+                                ),
                         ),
                     ),
                 ),
@@ -635,7 +654,15 @@ fun decide(
             if (cmd.milestoneId in r.usedMilestones) return no("este marco já renovou o procurado")
             if (r.targetId !in m.participantIds) return no("o marco não envolve o alvo do procurado")
             return Decision.Ok(
-                listOf(WantedUpdated(r.copy(lastRenewedDay = state.day, status = WantedStatus.ACTIVE, usedMilestones = r.usedMilestones + cmd.milestoneId))),
+                listOf(
+                    WantedUpdated(
+                        r.copy(
+                            lastRenewedDay = state.day,
+                            status = WantedStatus.ACTIVE,
+                            usedMilestones = r.usedMilestones + cmd.milestoneId,
+                        ),
+                    ),
+                ),
             )
         }
 
@@ -657,7 +684,14 @@ fun decide(
                     WantedResponse.DISGUISE -> r.copy(status = WantedStatus.HIDDEN)
                     // Matar o mensageiro corta a testemunha e o alcance, mas a recompensa sobe 25%: o gesto vira notícia.
                     WantedResponse.KILL_MESSENGER -> r.copy(witnessIds = emptyList(), rung = lower(1), bounty = r.bounty + r.bounty / 4)
-                    WantedResponse.PROVE_FALSE -> if (r.rung.level <= 4) r.copy(status = WantedStatus.PROVEN_FALSE) else r.copy(rung = lower(2))
+                    WantedResponse.PROVE_FALSE ->
+                        if (r.rung.level <= 4) {
+                            r.copy(
+                                status = WantedStatus.PROVEN_FALSE,
+                            )
+                        } else {
+                            r.copy(rung = lower(2))
+                        }
                     WantedResponse.RECRUIT -> r.copy(rung = lower(1))
                 }
             return Decision.Ok(listOf(WantedUpdated(next)))
@@ -667,13 +701,26 @@ fun decide(
             if (cmd.id.isBlank() || state.relics.containsKey(cmd.id)) return no("relíquia sem id ou já existente: ${cmd.id}")
             if (state.relics.size >= Wanted.RELICS_MAX) return no("limite de ${Wanted.RELICS_MAX} relíquias atingido")
             if (cmd.name.isBlank() || cmd.name.length > Wanted.TEXT_MAX || cmd.ownerName.isBlank()) return no("relíquia exige nome e dono")
-            return Decision.Ok(listOf(RelicSet(Relic(cmd.id.trim(), cmd.name.trim(), cmd.trait.trim(), listOf(RelicOwner(cmd.ownerName.trim(), state.day, cmd.how.trim()))))))
+            return Decision.Ok(
+                listOf(
+                    RelicSet(
+                        Relic(
+                            cmd.id.trim(),
+                            cmd.name.trim(),
+                            cmd.trait.trim(),
+                            listOf(RelicOwner(cmd.ownerName.trim(), state.day, cmd.how.trim())),
+                        ),
+                    ),
+                ),
+            )
         }
 
         is TransferRelic -> {
             val rel = state.relics[cmd.id] ?: return no("relíquia inexistente: ${cmd.id}")
             if (cmd.newOwnerName.isBlank() || cmd.newOwnerName == rel.currentOwner) return no("novo dono inválido")
-            return Decision.Ok(listOf(RelicSet(rel.copy(owners = rel.owners + RelicOwner(cmd.newOwnerName.trim(), state.day, cmd.how.trim())))))
+            return Decision.Ok(
+                listOf(RelicSet(rel.copy(owners = rel.owners + RelicOwner(cmd.newOwnerName.trim(), state.day, cmd.how.trim())))),
+            )
         }
 
         is StartRumor -> {
@@ -684,7 +731,12 @@ fun decide(
             val truth = cmd.truth ?: Fame.drawTruth("${cmd.id}|${state.day}")
             val rumor =
                 Rumor(
-                    cmd.id.trim(), cmd.text.trim(), cmd.originPlaceId, state.day, truth, cmd.channel,
+                    cmd.id.trim(),
+                    cmd.text.trim(),
+                    cmd.originPlaceId,
+                    state.day,
+                    truth,
+                    cmd.channel,
                     mapOf(cmd.originPlaceId to cmd.channel.startStrength),
                 )
             return Decision.Ok(listOf(RumorStarted(rumor)))
@@ -699,12 +751,17 @@ fun decide(
             if (cmd.key.isBlank() || cmd.key.length > 80) return no("fama exige uma chave de lugar ou facção")
             if (cmd.key !in state.fame && state.fame.size >= FAME_KEYS_MAX) return no("limite de $FAME_KEYS_MAX registros de fama atingido")
             val old = state.fame[cmd.key] ?: RegionFame()
-            val next = RegionFame((old.reach + cmd.reachDelta).coerceIn(0, 100), (old.disposition + cmd.dispositionDelta).coerceIn(-100, 100))
+            val next =
+                RegionFame((old.reach + cmd.reachDelta).coerceIn(0, 100), (old.disposition + cmd.dispositionDelta).coerceIn(-100, 100))
             return Decision.Ok(listOf(FameChanged(cmd.key.trim(), next)))
         }
 
         is InheritChronicle -> {
-            if (state.places.isNotEmpty() || state.currentPlaceId != null) return no("o mundo anterior só pode ser herdado numa campanha sem mapa")
+            if (state.places.isNotEmpty() || state.currentPlaceId != null) {
+                return no(
+                    "o mundo anterior só pode ser herdado numa campanha sem mapa",
+                )
+            }
             if (cmd.chronicle.places.isEmpty()) return no("o mundo anterior não tem lugares")
             if (cmd.jumpDays !in 0..FAME_JUMP_DAYS_MAX) return no("salto de tempo deve ficar entre 0 e $FAME_JUMP_DAYS_MAX dias")
             return Decision.Ok(listOf(ChronicleInherited(cmd.chronicle, cmd.jumpDays)))
@@ -724,8 +781,17 @@ fun decide(
 
         is EndNpcAlive -> {
             val ent = entity(cmd.entityId) ?: return no("entidade inexistente: ${cmd.entityId}")
-            if (!state.defeatEligible(ent.id)) return no("${ent.name} não pode terminar o combate vivo (precisa ser NPC com dossiê, não capanga nem companheiro)")
-            if (cmd.outcome == DefeatOutcome.SPARED && !state.spareAllowed(ent.id)) return no("só NPC relevante (elite ou chefe) pode ser poupado")
+            if (!state.defeatEligible(
+                    ent.id,
+                )
+            ) {
+                return no("${ent.name} não pode terminar o combate vivo (precisa ser NPC com dossiê, não capanga nem companheiro)")
+            }
+            if (cmd.outcome == DefeatOutcome.SPARED && !state.spareAllowed(ent.id)) {
+                return no(
+                    "só NPC relevante (elite ou chefe) pode ser poupado",
+                )
+            }
             if (cmd.byId != null && entity(cmd.byId) == null) return no("autor inexistente: ${cmd.byId}")
             val resource = config.deathResource?.takeIf { ent.resources.containsKey(it) }
             val defeated = NpcDefeated(ent.id, cmd.outcome, cmd.byId, cmd.attitude, null, resource)

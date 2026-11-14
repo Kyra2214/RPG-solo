@@ -67,9 +67,14 @@ class GameEngine private constructor(
         var dropped: String? = null
         val extra = mutableListOf<Event>()
         if (owner != null && items.isNotEmpty()) {
-            val pick = if (items.size == 1) 0 else dice.roll(1, items.size).also {
-                result += RollRecorded("fuga-item:${died.entityId}", it.expression, it.dice, it.modifier, it.total)
-            }.total - 1
+            val pick =
+                if (items.size == 1) {
+                    0
+                } else {
+                    dice.roll(1, items.size).also {
+                        result += RollRecorded("fuga-item:${died.entityId}", it.expression, it.dice, it.modifier, it.total)
+                    }.total - 1
+                }
             dropped = items[pick]
             extra += ItemChanged(died.entityId, dropped, -1)
             extra += ItemChanged(owner, dropped, 1)
