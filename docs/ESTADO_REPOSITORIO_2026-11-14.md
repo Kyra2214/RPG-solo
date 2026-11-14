@@ -27,12 +27,12 @@ O pacote enviado (`RPG-solo-decisoes-wd.zip`) foi sincronizado no repositório `
 
 | Verificação | Estado em 14/11/2026 |
 |---|---|
-| Suíte Python Mythralis | 62 testes passaram no job Python do CI `43651188305`. |
-| `ktlintCheck` | Passou localmente e no CI `43651188305`. |
+| Suíte Python Mythralis | 62 testes passaram no job Python do CI `43653473002`. |
+| `ktlintCheck` | Passou localmente e no CI `43653473002`. |
 | `validar_mundo.py` | Passou: 0 erros e 20 avisos; 5 reinos, 46 cidades, 233 NPCs, 64 facções e 40 relógios. |
 | `exportar_molde.py --verificar` | Passou com o hash atualizado `dfd2e53678a41edb`. |
-| Testes Kotlin `:world:test` | Passaram no CI `43651188305`, junto com a suíte completa e WD-01. O teste local não iniciou porque não há JDK 17 configurado neste ambiente. |
-| Compilação Android e APK | O CI `43651188305` compilou o app, concluiu os testes principais e gerou/uploadou `rpgsolo-debug-apk`. O APK é de debug e depende do E2E final para validação completa. |
-| E2E no emulador | O import inválido de `assertDoesNotExist` foi corrigido; no run `43651188305`, 12 testes instrumentados executaram e 5 falharam. Três fluxos avançados não preencheram idade/sexo obrigatórios; dois não rolavam o trilho horizontal até a aba Informações. Os testes foram ajustados localmente para preencher os campos e selecionar a aba visível; aguarda novo CI. |
+| Testes Kotlin `:world:test` | Passaram no CI `43653473002`, junto com a suíte completa e WD-01. O teste local não iniciou porque não há JDK 17 configurado neste ambiente. |
+| Compilação Android e APK | O CI `43653473002` compilou o app, concluiu os testes principais e gerou/uploadou `rpgsolo-debug-apk`. O APK é de debug; o run só ficou vermelho por um teste instrumentado. |
+| E2E no emulador | No run `43653473002`, 12 testes executaram e 11 passaram. O único restante foi `sortearNome_preencheONome`: o nome do modelo mutável `CharacterDraft` não acionava de modo observável a recomposição do campo/aviso. A correção local tornou o nome um estado Compose explícito, sincronizado com o rascunho e a validação; `ktlintCheck` passou e aguarda novo CI. Os ajustes anteriores reduziram as falhas de cinco para uma. |
 
-Este relatório registra o estado do run `43651188305` no commit `2532804`; o E2E ainda não está verde. O código do app e o artifact debug foram gerados, mas o setup de testes instrumentados está sendo corrigido antes da próxima execução. O APK entregue será o artifact do run final, se o E2E passar; não é um pacote release assinado para a Play Store.
+Este relatório registra o run `43653473002` no commit `eeff075`; a alteração de estado Compose descrita acima está local e ainda não foi enviada. O APK debug desse run foi gerado, mas o E2E ainda não está totalmente verde. O APK entregue será o artifact do run final, após validar a correção; não é um pacote release assinado para a Play Store.

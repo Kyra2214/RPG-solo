@@ -1349,6 +1349,8 @@ private fun PassoInformacoes(
     mensagem: String?,
     aoCriar: (CharacterChoices, String) -> Unit,
 ) {
+    // CharacterDraft é mutável fora do Compose; manter o nome também em State garante atualização imediata do formulário.
+    var nome by remember(draft.id) { mutableStateOf(draft.name) }
     val escolhas = est.escolhas()
     val errosCatalogo =
         remember(
@@ -1388,8 +1390,9 @@ private fun PassoInformacoes(
         if (bonusTotais.isNotEmpty()) Muted(stringResource(R.string.wiz_review_bonuses, bonusTotais.joinToString(", ")))
     }
     OutlinedTextField(
-        draft.name,
+        nome,
         {
+            nome = it
             draft.name = it
             est.tick++
         },
@@ -1399,7 +1402,8 @@ private fun PassoInformacoes(
     )
     OutlinedButton(
         onClick = {
-            draft.name = SorteioNomes.sortear(est.originKingdomId.ifBlank { null }, evitar = draft.name)
+            nome = SorteioNomes.sortear(est.originKingdomId.ifBlank { null }, evitar = nome)
+            draft.name = nome
             est.tick++
         },
     ) { Text(stringResource(R.string.wiz_name_draw)) }
@@ -1462,7 +1466,7 @@ private fun PassoInformacoes(
             if (est.classId.isBlank()) add(stringResource(R.string.wiz_missing_class))
             if (statSobra > 0) add(stringResource(R.string.wiz_hint_stats, statSobra))
             if (!relatorioValido) add(stringResource(R.string.wiz_hint_balance))
-            if (draft.name.isBlank()) add(stringResource(R.string.wiz_missing_name))
+            if (nome.isBlank()) add(stringResource(R.string.wiz_missing_name))
             if (est.sexo.isBlank()) add(stringResource(R.string.char_sex_required))
             if (est.idade() !in 1..IDADE_MAXIMA) add(stringResource(R.string.char_age_required, IDADE_MAXIMA))
             if (!loreOk) add(stringResource(R.string.wiz_story_length))
