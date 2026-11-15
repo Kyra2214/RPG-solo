@@ -54,7 +54,8 @@ jobs:
           ANDROID_SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          # A keystore PKCS12 estável usa a mesma senha para o store e para a chave.
+          RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
         run: |
           if [ -z "$ANDROID_SIGNING_KEYSTORE_BASE64" ]; then
             echo "Secrets de assinatura estável ausentes; mantendo a assinatura debug padrão."

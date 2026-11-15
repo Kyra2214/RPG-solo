@@ -24,14 +24,21 @@ class RespostaProvedorPt01Test {
             e
         }
 
-    private fun responder(body: String): AiResponse = OpenAiCompatibleProvider(cfg, FakeTransport(listOf(HttpReply(200, body)))).complete(req)
+    private fun responder(body: String): AiResponse =
+        OpenAiCompatibleProvider(
+            cfg,
+            FakeTransport(listOf(HttpReply(200, body))),
+        ).complete(req)
 
     @Test fun contentTextoSimples() {
         assertEquals("olá", extractChoiceText(choice("""{"message":{"content":"olá"}}"""), "m"))
     }
 
     @Test fun contentListaDePartesJuntaSoTexto() {
-        val c = choice("""{"message":{"content":[{"type":"text","text":"Olá, "},{"type":"image_url","url":"x"},{"type":"output_text","text":"mundo"}]}}""")
+        val c =
+            choice(
+                """{"message":{"content":[{"type":"text","text":"Olá, "},{"type":"image_url","url":"x"},{"type":"output_text","text":"mundo"}]}}""",
+            )
         assertEquals("Olá, mundo", extractChoiceText(c, "m"))
     }
 
@@ -76,7 +83,10 @@ class RespostaProvedorPt01Test {
     }
 
     @Test fun providerLeContentEmListaEUso() {
-        val r = responder("""{"choices":[{"message":{"content":[{"type":"text","text":"ok"}]}}],"usage":{"prompt_tokens":3,"completion_tokens":1}}""")
+        val r =
+            responder(
+                """{"choices":[{"message":{"content":[{"type":"text","text":"ok"}]}}],"usage":{"prompt_tokens":3,"completion_tokens":1}}""",
+            )
         assertEquals("ok", r.text)
         assertEquals(AiUsage(3, 1), r.usage)
     }
