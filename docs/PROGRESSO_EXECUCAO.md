@@ -7,5 +7,6 @@
 - Pendências do proprietário: gerar e commitar `data/schemas/.../13.json`; conferir as assunções do LG-05 (estágio 3 = herdeiro; sem tabela `legados`); escrever os testes da Fase 5; executar a suíte completa em Gradle/CI (incluindo `:world:validarAutoria`) e registrar o resultado.
 - Último ZIP: `RPG-solo-decisoes-wd.zip` (completo, fora do repositório). Anterior: `RPG-solo-testes-fase5-parte6.zip`.
 - Histórico de entregas: LG-06-auditado → LG-02-integracao → MP-01-integracao → MP-05-integracao → MP-04-contador → MP-06-procurado → MP-07-fama → MP-08-mundo-proprio → WD-01-validador-autoria → MP-04-escala-nivel → LG-05-lendas → testes-fase5-parte1 → testes-fase5-parte2 → testes-fase5-parte3 → testes-fase5-parte4 → testes-fase5-parte5 → testes-fase5-parte6 → decisoes-editoriais-wd (14/11/2026).
+- Correção pós-teste (14/11/2026): bug do "+" dos pontos de status na criação (ver CHANGELOG); aguardando confirmação em aparelho. Testes da Fase 5 reportados como passando pelo proprietário.
 - Bloqueios: ambiente sem rede, Gradle nem Android SDK; compilação e testes ficam para o CI. Execução autônoma encerrada neste ponto: não há submódulo de código pendente.
 - Decisões: memorial e panteão são só leitura e derivados do motor; a IA não escreve nesses cartões.

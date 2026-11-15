@@ -1017,6 +1017,10 @@ private fun PassoStatus(
     draft: CharacterDraft,
     aoContinuar: () -> Unit,
 ) {
+    // O rascunho não é estado do Compose: ler o contador aqui inscreve o passo na mudança e o redesenha a cada +/−
+    // (sem isso, com a recomposição inteligente, o passo era pulado e os pontos não apareciam).
+    @Suppress("UNUSED_VARIABLE")
+    val observaTick = est.tick
     val relatorio = draft.report()
     val sobra = draft.statPointsLeft(relatorio)
     val stats = draft.stats()

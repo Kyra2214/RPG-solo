@@ -1,3 +1,8 @@
+## 14/11/2026 — Correção: botão "+" dos pontos de status não atualizava na criação
+
+- Sintoma (aparelho): na aba Status da criação, "+" não alterava os valores e continuava "10 sobrando de 10". Causa provável: `PassoStatus` (`CriacaoAbas.kt`) não lia `est.tick`; o rascunho (`CharacterDraft`) não é estado do Compose e, com a recomposição inteligente (Kotlin 2.0.21), o passo era pulado após `setStat` + `tick++`. Correção: o passo agora lê `est.tick`. Escrito, não compilado nem testado em aparelho: confirmar no aparelho.
+- Sem teste automatizado novo (UI instrumentada); se persistir, o próximo suspeito é a trava de `CharacterDraft.setStat`.
+
 ## 14/11/2026 — Pendências de testes aprovadas pelo Android CI
 - O workflow [Android CI #43655330273](https://github.com/Kyra2214/RPG-solo/actions/runs/43655330273), no commit `f801b4f5`, passou integralmente.
 - Marcados como executados e aprovados: suíte Gradle/JVM, ktlint, testes do mundo e autoria WD-01, E2E Android do app, testes instrumentados/migrações Room de `data`, build e upload do APK debug.
