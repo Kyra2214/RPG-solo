@@ -124,7 +124,7 @@
     <string name="campaign_pick_mode">Modo</string>
     <string name="campaign_extra_details">Detalhes extras (opcional)</string>
     <string name="campaign_world_after_help">O mundo (Mythralis, mundo próprio ou campanha anterior) e o sistema são escolhidos no próximo passo.</string>
-    <string name="campaign_continue">Continuar</string>
+    <string name="campaign_creation_continue">Continuar</string>
     <string name="campaign_free_text_shortcut">Prefiro descrever por texto livre</string>
     <string name="campaign_back_to_selection">Voltar à seleção</string>
     <string name="campaign_describe">Descreva a campanha (sistema, cenário, tom, dificuldade…)</string>

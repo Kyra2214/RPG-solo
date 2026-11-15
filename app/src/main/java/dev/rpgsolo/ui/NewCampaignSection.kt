@@ -140,7 +140,7 @@ fun NewCampaignSection(model: AppModel) {
                             step = flow.step
                             busy = false
                         }
-                    }) { Text(stringResource(if (busy) R.string.campaign_interpreting else R.string.campaign_continue)) }
+                    }) { Text(stringResource(if (busy) R.string.campaign_interpreting else R.string.campaign_creation_continue)) }
                     TextButton(enabled = !busy, onClick = { freeMode = true }) { Text(stringResource(R.string.campaign_free_text_shortcut)) }
                 } else {
                     OutlinedTextField(
