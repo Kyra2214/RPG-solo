@@ -541,6 +541,12 @@
     <string name="advcheck_group_help">O herói participa automaticamente. Marque os NPCs que participam da tarefa.</string>
     <string name="advcheck_successes">%1$d sucesso(s)</string>
     <string name="advcheck_resolve_group">Resolver teste de grupo</string>
+    <string name="play_view_sheet">Ver ficha</string>
+    <string name="play_sheet_title">Ficha do personagem</string>
+    <string name="play_sheet_close">Fechar</string>
+    <string name="play_opening_busy">O mestre está preparando a cena inicial…</string>
+    <string name="play_opening_idle">O mestre ainda não abriu a história.</string>
+    <string name="play_opening_button">Começar a história</string>
     <string name="chat_narrating">Mestre narrando…</string>
     <string name="chat_thinking">O mestre está pensando…</string>
     <string name="chat_roll_line">🎲 %1$s</string>

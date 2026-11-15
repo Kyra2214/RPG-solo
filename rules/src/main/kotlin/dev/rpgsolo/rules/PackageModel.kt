@@ -156,7 +156,8 @@ data class CheckDef(
     val luckKinds: Set<dev.rpgsolo.engine.LuckKind> = emptySet(),
 )
 
-data class DifficultyDef(val id: String, val name: String, val value: Int)
+/** [discount] = % que a dificuldade tira da chance nos testes por chance (PERCENT); 0 se o pacote não declara. */
+data class DifficultyDef(val id: String, val name: String, val value: Int, val discount: Int = 0)
 
 /**
  * Efeito automático de uma condição nos testes: [dice] = +1 (Ganho, um dado extra) ou -1 (Perda, um dado a menos).

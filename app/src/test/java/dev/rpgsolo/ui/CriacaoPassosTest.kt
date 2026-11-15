@@ -51,4 +51,12 @@ class CriacaoPassosTest {
         assertEquals(PassoCriacao.RACA, CriacaoPassos.anterior(PassoCriacao.RACA))
         assertEquals(PassoCriacao.VANTAGENS, CriacaoPassos.anterior(PassoCriacao.INFORMACOES))
     }
+
+    @Test
+    fun habilidade_naoEDistribuidaNaCriacao_masOsDemaisAtributosSao() {
+        assertTrue(AtributosDaCriacao.ehOculto("habilidade"))
+        listOf("poder", "resistencia", "inteligencia", "agilidade", "destreza", "sorte").forEach {
+            assertFalse(it, AtributosDaCriacao.ehOculto(it))
+        }
+    }
 }

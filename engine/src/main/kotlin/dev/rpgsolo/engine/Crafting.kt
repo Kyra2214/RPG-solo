@@ -15,20 +15,16 @@ enum class CraftKind(val id: String) {
 
 /**
  * N-20: chance (d100, acerta com dado <= chance) de consertar, criar, preparar e identificar.
- * ASSUMINDO: 50% + 5% por ponto de Habilidade + 2% por ponto de Sorte + 5% por degrau de ofício acima do primeiro − dificuldade da receita; entre 5% e 95%.
+ * Usa a fórmula única [TestChance]: o degrau 1 do ofício vale 50% e cada degrau acima soma [TestChance.PER_LEVEL];
+ * Destreza e Sorte entram como nos demais testes; [difficulty] é o desconto da receita. Habilidade não é atributo e não entra.
  */
 object CraftChance {
-    const val BASE = 50
-    const val PER_ABILITY = 5
-    const val PER_LUCK = 2
-    const val PER_TIER = 5
-
     fun percent(
-        ability: Int,
+        dexterity: Int,
         luck: Int,
         tierBonus: Int = 0,
         difficulty: Int = 0,
-    ): Int = (BASE + PER_ABILITY * ability + PER_LUCK * luck + PER_TIER * tierBonus - difficulty).coerceIn(5, 95)
+    ): Int = TestChance.percent(attribute = dexterity, luck = luck, level = 1 + tierBonus, penalty = difficulty)
 }
 
 /** N-20: resultado de uma ação de ofício ou de afanar; [Refused] não altera nada. */

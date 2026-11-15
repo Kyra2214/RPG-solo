@@ -1,3 +1,27 @@
+## 15/11/2026 — Validação local da fórmula única de testes
+
+- A suíte JVM direcionada (`:engine:test :ai:test :rules:test`) encontrou e corrigiu a normalização de linhas da descrição livre em `CampaignForm.toDescription()`: cada linha agora é aparada e linhas vazias são descartadas.
+- Após a correção, os testes JVM passaram localmente (`BUILD SUCCESSFUL`). A validação Android completa, incluindo APK e E2E, será feita pelo workflow.
+
+## 15/11/2026 — Habilidade fora dos status da criação
+
+- A aba **Status** da criação (e também o Modo avançado e o Jogo rápido) deixou de listar **Habilidade** entre os atributos a distribuir: ela evolui só pelos pontos de habilidade e de perícia, não pelos pontos de status. Os demais seis atributos seguem iguais.
+- Implementação mínima: `AtributosDaCriacao.ehOculto` (`CriacaoPassos.kt`) filtra a lista nas três telas. O atributo continua existindo no pacote e no motor (PA = 1 + Habilidade, chance de criar itens, testes por pontos, requisitos de vantagens e arquétipos), então nada foi removido das regras.
+- **Consequência a decidir:** sem distribuição na criação, Habilidade começa em 0, então PA inicial = 1 e as vantagens com requisito `habilidade>=1` ou `>=2` ficam indisponíveis na criação.
+- **Chance de criar/consertar/preparar/identificar** (decisão do autor): 50% no degrau 1 do ofício + 5% por degrau acima do primeiro + 5% a cada 2 pontos de **Destreza** + 5% por ponto de **Sorte** − dificuldade da receita, entre 5% e 95%. Habilidade saiu da conta (antes: 5% por ponto de Habilidade e 2% por ponto de Sorte). `CraftChance.percent(destreza, sorte, ...)`, `RulePackage.craftChance`, comentário de `receitas.txt` e testes `OficioN20Test` (engine e rules) e `OficioN21Test` ajustados. Segue d100 (acerta com dado ≤ chance), que nos 50% base equivale a "1d10, 5 ou menos falha".
+- **Fórmula única para todos os testes** (decisão do autor): `TestChance` + `Comparison.PERCENT`. Esquiva (Agilidade), força (Poder), resistência, inteligência, destreza, perícia, sorte, ataque, ofícios, acerto e afanar usam 1d100 contra 50% + 5% por nível acima do 1 + 5% a cada 2 do atributo + 5% por Sorte − desconto da dificuldade (fácil 0, média 10, difícil 20, heroica 30), entre 5% e 95%. `testes.txt` e `dificuldades.txt` (coluna `desconto`) reescritos; acerto passou de 5% por ponto de diferença para 5% a cada 2; nova `forca` e `inteligencia`; condição Visão turva agora é Perda em Destreza. Sorte entra na própria chance (sem o +1 a cada 2 pontos nos PERCENT). Pontos de bônus e Ganho/Perda valem 5% cada. Testes novos: `TesteUnicoPorChanceTest` e `PointCheckPackageTest` reescrito. POINTS continua existindo para pacotes antigos.
+- **Ainda não tratado:** PA por rodada (1 + Habilidade), vantagens com requisito de Habilidade e arquétipos com `habilidade=N`; Sorte de itens equipados não soma nos testes PERCENT; Sorte não entra no acerto; "+1 face" da Sorte gasta vira +1% em PERCENT; perícia usada num teste genérico entra só por bônus de traço.
+- Teste novo em `CriacaoPassosTest`. Escrito, não compilado nem executado (sem Gradle aqui).
+
+## 15/11/2026 — Ficha em pop-up, abertura narrada e escolhas por botão
+
+- **Ver ficha**: o botão fica ao lado do nome do personagem na aba Jogar e abre um pop-up com abas (Evolução, Inventário, Poderes, Mundo). Os painéis de status, perícias, inventário/equipamentos, loja, poderes, rivais, lugares etc. saíram da lista do chat. Os atalhos "ficha" e "inventário" abrem o pop-up em vez de mandar texto ao mestre.
+- **Abertura da campanha**: `PlayController.openScene` faz o mestre narrar a cena inicial sozinho ao entrar numa campanha nova (pedido interno oculto; grava o fato `abertura-narrada` para não repetir). Há botão "Começar a história" se a abertura falhar.
+- **Escolhas**: o mestre passa a enviar 2 a 4 opções em toda cena de decisão (`MAX_SUGGESTIONS` 3 → 4, regra 6 e esquema atualizados). Elas aparecem como botões que enviam a ação na hora; o campo de texto continua para ações livres.
+- Sem "Desfazer" e sem "Narrar de novo" na aba Jogar: escolhida a ação, não há como voltar atrás nem refazer a narração (a história segue sempre para frente).
+- Barra de título respeita a barra de status (o título "A mesa" não fica mais sob o relógio).
+- Testes: `AberturaCampanhaTest` novo; `IntentAndLocalTest` ajustado ao limite de 4. Escrito, não compilado nem executado (sem Gradle aqui).
+
 ## 14/11/2026 — Decisões do autor sobre o plano pós-teste
 
 - Cadeia de modelos gratuitos passa a incluir todos os que respondem texto: `AppModel` usa `want` e `maxProbes` ilimitados em `ModelProbe.select` (antes 6 e 16). História gerada continua com confirmação do jogador; exportar ficha continua uma por vez; as 4 predefinições de campanha foram mantidas. Escrito, não compilado; os testes do PT-02 não dependem do teto.

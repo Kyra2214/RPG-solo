@@ -2,7 +2,7 @@
 # id|nome|tipo|entradas|saidas|nivel|dificuldade (opcional, 0-40, tira % da chance)|manter_na_falha (opcional, entradas que não se perdem)|habilidade (opcional, N-21: id do degrau que libera a receita)|garantida_por (opcional: degrau que tira a chance de falha)
 # tipo: criar, preparar, consertar, identificar. Entradas e saídas: item:quantidade separados por vírgula (ids aceitam qualidade, ex.: espada-curta#rara).
 # coluna 11 (N-35, opcional): tempo em dias (0-30) que a receita leva; avança o relógio da campanha ao tentar.
-# chance: 50% + 5% por Habilidade + 2% por Sorte + 5% por degrau de ofício acima do primeiro - dificuldade (5% a 95%). Falha: perde metade das entradas (arredondada para baixo) que não estão em manter_na_falha; em consertar (N-35) perde todas.
+# chance: 50% no degrau 1 do ofício + 5% por degrau acima do primeiro + 5% a cada 2 pontos de Destreza + 5% por ponto de Sorte - dificuldade (5% a 95%). Falha: perde metade das entradas (arredondada para baixo) que não estão em manter_na_falha; em consertar (N-35) perde todas.
 forjar-barra-ferro|Forjar barra de ferro|criar|minerio-ferro:2|barra-de-ferro:1|1|0|
 curtir-couro|Curtir couro|criar|couro-cru:2|couro-curtido:1|1|0|
 preparar-pocao-cura-menor|Preparar poção de cura menor|preparar|erva-curativa:2,frasco-vazio:1|pocao-cura-menor:1|1|5|

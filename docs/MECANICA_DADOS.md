@@ -2,6 +2,19 @@
 
 Este documento descreve a regra efetivamente usada pelo pacote `sistema-proprio`. A resolução é feita pelo motor; a IA recebe apenas o desfecho narrável.
 
+## Fórmula única de chance (15/11/2026)
+
+Todos os testes do `sistema-proprio` (ataque, força, resistência, inteligência, sorte, esquiva, destreza, perícia), os ofícios (criar, consertar, preparar, identificar), o acerto e o afanar usam o mesmo cálculo (`TestChance`, comparação `PERCENT`): rola-se 1d100 e acerta com dado ≤ chance.
+
+- 50% no nível 1 da perícia (teste sem perícia conta como nível 1) + 5% por nível acima.
+- + 5% a cada 2 pontos do atributo do teste (3 pontos valem o mesmo que 2): força = Poder, esquiva = Agilidade, resistência = Resistência, inteligência = Inteligência, destreza e perícia = Destreza. O teste de sorte não tem atributo.
+- + 5% por ponto de Sorte; + 5% por ponto de bônus (traços, Ganho/Perda de condição).
+- − desconto da dificuldade: fácil 0%, média 10%, difícil 20%, heroica 30% (coluna `desconto` de `dificuldades.txt`; nos ofícios, a dificuldade da receita).
+- Acerto e afanar: Destreza de quem age contra a Agilidade do alvo (−5% a cada 2 pontos).
+- Sempre entre 5% e 95%. Habilidade não é atributo e não entra na conta.
+
+As seções abaixo sobre testes por pontos valem só para pacotes que ainda declaram `POINTS`.
+
 ## Testes por pontos
 
 Perícias usam a comparação `POINTS`. A dificuldade escolhe o dado:

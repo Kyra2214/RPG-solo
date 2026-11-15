@@ -30,7 +30,7 @@ internal object CriacaoJogoRapido {
         draft: CharacterDraft,
         pkg: RulePackage,
     ) {
-        val atributos = pkg.data.stats
+        val atributos = pkg.data.stats.filterNot { AtributosDaCriacao.ehOculto(it.id) }
         if (atributos.isEmpty()) return
         var semAvanco = 0
         var i = 0

@@ -1040,7 +1040,7 @@ private fun PassoStatus(
         if (sobra <= 0) Muted(stringResource(R.string.char_stat_points_locked))
     }
     AppCard {
-        pkg.data.stats.forEach { atributo ->
+        pkg.data.stats.filterNot { AtributosDaCriacao.ehOculto(it.id) }.forEach { atributo ->
             val valor = stats[atributo.id] ?: atributo.default
             val menos = stringResource(R.string.char_decrease, atributo.name)
             val mais = stringResource(R.string.char_increase, atributo.name)

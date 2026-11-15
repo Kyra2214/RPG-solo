@@ -558,6 +558,10 @@ class CombatActions(
                         adjusted.copy(
                             modifier = (adjusted.modifier + adaptation - shift).coerceAtLeast(0),
                         )
+                    dev.rpgsolo.engine.Comparison.PERCENT ->
+                        adjusted.copy(
+                            modifier = adjusted.modifier + dev.rpgsolo.engine.TestChance.PER_LEVEL * (adaptation - shift),
+                        )
                 }
             val result = session().check(spec)
             val roll = "${result.spec.label}: ${result.roll.expression} [${result.roll.dice.joinToString(", ")}] = ${result.roll.total}."
@@ -633,6 +637,10 @@ class CombatActions(
                     dev.rpgsolo.engine.Comparison.POINTS ->
                         adjusted.copy(
                             modifier = (adjusted.modifier + adaptation - shift).coerceAtLeast(0),
+                        )
+                    dev.rpgsolo.engine.Comparison.PERCENT ->
+                        adjusted.copy(
+                            modifier = adjusted.modifier + dev.rpgsolo.engine.TestChance.PER_LEVEL * (adaptation - shift),
                         )
                 }
             val result = session().check(spec)

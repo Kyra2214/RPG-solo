@@ -26,12 +26,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -55,6 +57,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import dev.rpgsolo.R
 import dev.rpgsolo.ai.Author
 import dev.rpgsolo.ai.ChatLine
@@ -162,6 +166,8 @@ private fun PlayContent(
     // luckOffer() usa a trava de turno: só consulta com a tela livre, nunca durante a narração.
     val luckOffer = remember(version, busy) { if (busy) null else c.luckOffer() }
     val listState = rememberLazyListState()
+    var sheetOpen by rememberSaveable { mutableStateOf(false) }
+    var sheetTab by rememberSaveable { mutableStateOf(0) }
 
     val visible =
         lines.withIndex().filter { (i, line) ->
@@ -182,7 +188,7 @@ private fun PlayContent(
     val pendingRoll = lines.withIndex().any { (i, l) -> l.roll != null && !c.isRollRevealed(i) }
     val showsStreaming = busy && streamingText.isNotBlank()
     val feedItemCount =
-        13 + (if (luckOffer != null) 1 else 0) + 1 + (if (lines.isEmpty()) 1 else visible.size) + clashes.size +
+        3 + (if (luckOffer != null) 1 else 0) + 1 + (if (lines.isEmpty()) 1 else visible.size) + clashes.size +
             (if (showsStreaming) 1 else 0)
 
     LaunchedEffect(feedItemCount, pendingRoll, streamingText.length, busy) {
@@ -229,37 +235,69 @@ private fun PlayContent(
         }
     }
 
+    val panelsEnabled = !busy && !pendingRoll && pendingCheck == null
+
+    fun streamTo(partial: String) {
+        scope.launch(Dispatchers.Main) {
+            streamingText = partial
+            version++
+        }
+    }
+
+    fun openScene() {
+        run {
+            val result = c.openScene(::streamTo)
+            withContext(kotlinx.coroutines.Dispatchers.Main) {
+                streamingText = ""
+                playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
+            }
+        }
+    }
+
+    fun send(submitted: String) {
+        run {
+            val result = c.submit(submitted, ::streamTo)
+            withContext(kotlinx.coroutines.Dispatchers.Main) {
+                streamingText = ""
+                if (result is dev.rpgsolo.ai.PlayResult.Failed) {
+                    playError = result.reason
+                } else {
+                    text = ""
+                    playError = null
+                }
+            }
+            model.autoCloseChapterIfNeeded()
+        }
+    }
+
+    // Campanha nova: o mestre abre a história sozinho, sem o jogador precisar escrever nada.
+    LaunchedEffect(c) {
+        if (c.needsOpening()) openScene()
+    }
+
+    if (sheetOpen) {
+        SheetDialog(
+            model = model,
+            tab = sheetTab,
+            onTab = { sheetTab = it },
+            enabled = panelsEnabled,
+            busy = busy,
+            act = ::act,
+            onClose = { sheetOpen = false },
+        )
+    }
+
     Column(Modifier.fillMaxSize()) {
         model.chapterNotice?.let { notice ->
             Muted(notice)
         }
-        panel?.let { StatusPanel(it) }
+        panel?.let { StatusPanel(it, onSheet = { sheetTab = 0; sheetOpen = true }) }
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth(),
             state = listState,
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item(key = "inventario") { InventoryPanel(model, enabled = !busy, act = ::act) }
-            item(key = "loja") { ShopPanel(model, enabled = !busy, act = ::act) }
-            item(key = "poderes") { PowersPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "rivais") { RivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "procurado") { WantedPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "corpos") { BodyLootPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "arvore-status") { StatusTreePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "arvore-pericias") { SkillTreePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "maldições") { CursePanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "oficios") { RecipesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "marcas") { TattooPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "gemas") { GemsPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "companheiro") { CompanionPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "usos-tracos") { TraitUsesPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "remover-condicoes") {
-                ConditionRemovalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act)
-            }
-            item(key = "memorial") { MemorialPanel(model) }
-            item(key = "legado") { LegacyPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
-            item(key = "sobrevivencia") { SurvivalPanel(model, enabled = !busy && !pendingRoll && pendingCheck == null, act = ::act) }
             luckOffer?.let { offer ->
                 item(key = "fortuna") {
                     LuckPanel(
@@ -284,13 +322,17 @@ private fun PlayContent(
                     )
                 }
             }
-            item(key = "regras-adicionais") { AdditionalRulesPanel(model, enabled = !busy, act = ::act) }
-            item(key = "locais") { PlacesPanel(model, enabled = !busy, act = ::act) }
             item(key = "acoes-rapidas") {
                 QuickActions(
                     enabled = !busy && !pendingRoll && pendingCheck == null,
-                    onSheet = { run { c.submit("ver ficha") } },
-                    onInventory = { run { c.submit("inventário") } },
+                    onSheet = {
+                        sheetTab = 0
+                        sheetOpen = true
+                    },
+                    onInventory = {
+                        sheetTab = 1
+                        sheetOpen = true
+                    },
                     onRest = { run { c.submit("descansar") } },
                 )
             }
@@ -304,9 +346,14 @@ private fun PlayContent(
             item(key = "combate") { CombatControls(model, enabled = !busy, act = ::act) }
             if (lines.isEmpty()) {
                 item(key = "vazio") {
-                    Muted(
-                        "Descreva o que seu personagem faz. O mestre responde, e quando a ação exigir um teste, é você quem rola os dados.",
-                    )
+                    AppCard {
+                        Muted(stringResource(if (busy) R.string.play_opening_busy else R.string.play_opening_idle))
+                        if (!busy) {
+                            Button(onClick = { openScene() }, modifier = Modifier.fillMaxWidth()) {
+                                Text(stringResource(R.string.play_opening_button))
+                            }
+                        }
+                    }
                 }
             }
             item(key = "historico-rolagens") {
@@ -356,28 +403,8 @@ private fun PlayContent(
                 playError = null
             },
             suggestions = suggestions, warning = classifierWarning,
-            onSend = {
-                val submitted = text
-                run {
-                    val result =
-                        c.submit(submitted) { partial ->
-                            scope.launch(Dispatchers.Main) {
-                                streamingText = partial
-                                version++
-                            }
-                        }
-                    withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        streamingText = ""
-                        if (result is dev.rpgsolo.ai.PlayResult.Failed) {
-                            playError = result.reason
-                        } else {
-                            text = ""
-                            playError = null
-                        }
-                    }
-                    model.autoCloseChapterIfNeeded()
-                }
-            },
+            onSend = { send(text) },
+            onSuggestion = { send(it) },
             onRollCheck = {
                 run {
                     val result =
@@ -410,23 +437,75 @@ private fun PlayContent(
                     model.autoCloseChapterIfNeeded()
                 }
             },
-            onUndo = {
-                run {
-                    val undone = c.undo()
-                    withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        playError = if (undone) null else "Não há jogada para desfazer."
-                    }
-                }
-            },
-            onRegenerate = {
-                run {
-                    val result = c.regenerate()
-                    withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        playError = (result as? dev.rpgsolo.ai.PlayResult.Failed)?.reason
-                    }
-                }
-            },
         )
+    }
+}
+
+/** "Ver ficha": tudo da ficha do personagem (evolução, inventário, equipamentos, poderes, mundo) fora do chat. */
+@Composable
+private fun SheetDialog(
+    model: AppModel,
+    tab: Int,
+    onTab: (Int) -> Unit,
+    enabled: Boolean,
+    busy: Boolean,
+    act: (() -> String?, (String?) -> Unit) -> Unit,
+    onClose: () -> Unit,
+) {
+    val titles = listOf("Evolução", "Inventário", "Poderes", "Mundo")
+    Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 24.dp),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surface,
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.play_sheet_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    TextButton(onClick = onClose) { Text(stringResource(R.string.play_sheet_close)) }
+                }
+                ScrollableTabRow(selectedTabIndex = tab, edgePadding = 8.dp) {
+                    titles.forEachIndexed { i, title ->
+                        androidx.compose.material3.Tab(selected = tab == i, onClick = { onTab(i) }, text = { Text(title) })
+                    }
+                }
+                Column(
+                    Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    when (tab) {
+                        0 -> {
+                            StatusTreePanel(model, enabled = enabled, act = act)
+                            SkillTreePanel(model, enabled = enabled, act = act)
+                            SurvivalPanel(model, enabled = enabled, act = act)
+                            TraitUsesPanel(model, enabled = enabled, act = act)
+                            ConditionRemovalPanel(model, enabled = enabled, act = act)
+                            CursePanel(model, enabled = enabled, act = act)
+                        }
+                        1 -> {
+                            InventoryPanel(model, enabled = !busy, act = act)
+                            ShopPanel(model, enabled = !busy, act = act)
+                            BodyLootPanel(model, enabled = enabled, act = act)
+                            GemsPanel(model, enabled = enabled, act = act)
+                            TattooPanel(model, enabled = enabled, act = act)
+                            RecipesPanel(model, enabled = enabled, act = act)
+                        }
+                        2 -> {
+                            PowersPanel(model, enabled = enabled, act = act)
+                            CompanionPanel(model, enabled = enabled, act = act)
+                        }
+                        else -> {
+                            RivalPanel(model, enabled = enabled, act = act)
+                            WantedPanel(model, enabled = enabled, act = act)
+                            PlacesPanel(model, enabled = !busy, act = act)
+                            AdditionalRulesPanel(model, enabled = !busy, act = act)
+                            MemorialPanel(model)
+                            LegacyPanel(model, enabled = enabled, act = act)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1386,11 +1465,15 @@ private fun CombatControls(
 }
 
 @Composable
-private fun StatusPanel(p: PanelState) {
+private fun StatusPanel(
+    p: PanelState,
+    onSheet: () -> Unit,
+) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 2.dp) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(p.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                TextButton(onClick = onSheet) { Text(stringResource(R.string.play_view_sheet)) }
                 if (p.inCombat) Pill(stringResource(R.string.status_in_combat), MaterialTheme.colorScheme.error)
                 if (p.shield > 0) Pill(stringResource(R.string.status_shield, p.shield), MaterialTheme.colorScheme.primary)
             }
@@ -1494,10 +1577,9 @@ private fun BottomBar(
     suggestions: List<String>,
     warning: String?,
     onSend: () -> Unit,
+    onSuggestion: (String) -> Unit,
     onRollCheck: () -> Unit,
     onRollFortune: () -> Unit,
-    onUndo: () -> Unit,
-    onRegenerate: () -> Unit,
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 3.dp) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1522,10 +1604,10 @@ private fun BottomBar(
                     }
                 }
             }
-            // 10.1.2: sugestões opcionais. Tocar só preenche o campo; o jogador pode editar ou ignorar.
-            if (suggestions.isNotEmpty() && !busy && !pendingRoll) {
-                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    suggestions.forEach { sug -> AssistChip(onClick = { onText(sug) }, label = { Text(sug) }) }
+            // Escolhas do mestre: tocar envia a ação na hora. Escrever outra coisa continua possível no campo abaixo.
+            if (suggestions.isNotEmpty() && !busy && !pendingRoll && pendingCheck == null) {
+                suggestions.forEach { sug ->
+                    OutlinedButton(onClick = { onSuggestion(sug) }, modifier = Modifier.fillMaxWidth()) { Text(sug) }
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1543,10 +1625,6 @@ private fun BottomBar(
                 Button(enabled = !busy && !pendingRoll && pendingCheck == null && text.isNotBlank(), onClick = onSend) {
                     Text(stringResource(R.string.chat_send))
                 }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(enabled = !busy, onClick = onUndo) { Text(stringResource(R.string.chat_undo)) }
-                TextButton(enabled = !busy && !pendingRoll, onClick = onRegenerate) { Text(stringResource(R.string.chat_regenerate)) }
             }
         }
     }

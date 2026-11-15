@@ -325,7 +325,7 @@ object PackageParser {
             table(PackageFiles.CHECKS, 10, 19) { f ->
                 val cmp =
                     Comparison.values().firstOrNull { it.name == f[6] }
-                        ?: bad("comparacao inválida: '${f[6]}' (ROLL_OVER, ROLL_UNDER ou POINTS)")
+                        ?: bad("comparacao inválida: '${f[6]}' (ROLL_OVER, ROLL_UNDER, POINTS ou PERCENT)")
                 val count = int(f[2], "dados")
                 val sides = int(f[3], "lados")
                 if (count !in 1..100) bad("dados fora de 1..100")
@@ -335,6 +335,7 @@ object PackageParser {
                         "POINTS exige 1 dado real (dados=1, lados ${REAL_DICE.joinToString(", ")})",
                     )
                 }
+                if (cmp == Comparison.PERCENT && (count != 1 || sides != 100)) bad("PERCENT exige dados=1 e lados=100")
                 val skill = f.getOrNull(10)?.takeIf { it.isNotBlank() && !blank(it) }?.let { id(it, "perícia") }
                 val fortune =
                     f.getOrNull(11)?.takeIf { it.isNotBlank() && !blank(it) }?.let { value ->
@@ -392,8 +393,10 @@ object PackageParser {
                 )
             }
         val difficulties =
-            table(PackageFiles.DIFFICULTIES, 3) { f ->
-                DifficultyDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "valor"))
+            table(PackageFiles.DIFFICULTIES, 3, 4) { f ->
+                val discount = f.getOrNull(3)?.takeIf { !blank(it) }?.let { int(it, "desconto") } ?: 0
+                if (discount !in 0..90) bad("desconto da dificuldade fora de 0..90")
+                DifficultyDef(id(f[0], "id"), text(f[1], "nome"), int(f[2], "valor"), discount)
             }
         val conditions =
             table(PackageFiles.CONDITIONS, 3, 8) { f ->

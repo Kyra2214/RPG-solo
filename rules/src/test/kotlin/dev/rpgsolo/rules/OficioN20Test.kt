@@ -30,12 +30,12 @@ class OficioN20Test {
         assertNull(p.recipe("receita-inventada"))
     }
 
-    @Test fun chanceUsaHabilidadeSorteEDificuldade() {
+    @Test fun chanceUsaDestrezaSorteEDificuldade() {
         val p = pkg()
-        val hero = Entity("h", "H", EntityKind.PLAYER, stats = mapOf("habilidade" to 2, "sorte" to 3))
+        val hero = Entity("h", "H", EntityKind.PLAYER, stats = mapOf("destreza" to 2, "sorte" to 3))
         val r = p.recipe("preparar-pocao-cura-menor")!!
-        assertEquals(61, p.craftChance(r, hero))
-        assertEquals(66, p.craftChance(r, hero, tierBonus = 1))
+        assertEquals(65, p.craftChance(r, hero))
+        assertEquals(70, p.craftChance(r, hero, tierBonus = 1))
         assertEquals(100, p.craftChance(r, hero, guaranteed = true))
         assertNotNull(p.craftChance(r, hero))
     }

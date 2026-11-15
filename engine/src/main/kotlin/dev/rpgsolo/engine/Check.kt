@@ -14,6 +14,12 @@ enum class Comparison {
      * Sempre entre [MIN_POINT_FACES] e (lados − 1) faces; o 1 sempre falha.
      */
     POINTS,
+
+    /**
+     * Teste por chance (fórmula única, [TestChance]): [CheckSpec.modifier] guarda a chance em % (atributo, nível, Sorte e bônus)
+     * e [CheckSpec.difficulty] o desconto da dificuldade em %. Vira 1d100 contra a chance final (5% a 95%); acerta com dado <= chance.
+     */
+    PERCENT,
 }
 
 /** Dados que existem na mesa; a dificuldade de um teste de pontos escolhe um deles. */
@@ -72,7 +78,18 @@ data class CheckSpec(
     val fortuneMode: FortuneMode = FortuneMode.NORMAL,
     /** Quando true, cada dado que mostra o máximo gera dados adicionais, com limite defensivo no motor. */
     val explodeOnMax: Boolean = false,
-)
+) {
+    /**
+     * Soma [points] de bônus na unidade de cada comparação: ROLL_UNDER sobe a dificuldade, POINTS e ROLL_OVER sobem o modificador
+     * e, no teste por chance, cada ponto vale [TestChance.PER_LEVEL] por cento.
+     */
+    fun plusPoints(points: Int): CheckSpec =
+        when (comparison) {
+            Comparison.ROLL_UNDER -> copy(difficulty = difficulty + points)
+            Comparison.PERCENT -> copy(modifier = modifier + TestChance.PER_LEVEL * points)
+            Comparison.ROLL_OVER, Comparison.POINTS -> copy(modifier = modifier + points)
+        }
+}
 
 data class CheckResult(
     val spec: CheckSpec,
@@ -87,6 +104,17 @@ data class CheckResult(
  * (N + 1 - faces). Assim o log, a animação e o cartão do dado mostram exatamente o que vale. Outros testes voltam intactos.
  */
 fun CheckSpec.resolvedPool(): CheckSpec {
+    if (comparison == Comparison.PERCENT) {
+        val chance = TestChance.clamp(modifier - difficulty)
+        return copy(
+            label = "$label · chance $chance%",
+            diceCount = 1,
+            diceSides = 100,
+            modifier = 0,
+            difficulty = chance,
+            comparison = Comparison.ROLL_UNDER,
+        )
+    }
     if (comparison != Comparison.POINTS) return this
     val faces = pointFaces(modifier, diceSides)
     val lowest = diceSides + 1 - faces
@@ -110,7 +138,7 @@ fun resolveCheck(
     val margin =
         when (spec.comparison) {
             Comparison.ROLL_OVER, Comparison.POINTS -> roll.total - spec.difficulty
-            Comparison.ROLL_UNDER -> spec.difficulty - roll.total
+            Comparison.ROLL_UNDER, Comparison.PERCENT -> spec.difficulty - roll.total
         }
     val outcome =
         when {

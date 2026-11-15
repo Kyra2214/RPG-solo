@@ -206,7 +206,7 @@ class RulePackage internal constructor(val data: PackageData) {
         if (recipeBlock(recipe, entity) != null) return null
         if (guaranteed || recipe.guaranteedBy?.let { (entity.skillTreeLevels[it] ?: 0) > 0 } == true) return 100
         return dev.rpgsolo.engine.CraftChance.percent(
-            entity.stats["habilidade"] ?: 0,
+            entity.stats["destreza"] ?: 0,
             entity.stats["sorte"] ?: 0,
             tierBonus + craftTierBonus(recipe, entity),
             recipe.difficulty,
@@ -756,6 +756,9 @@ class RulePackage internal constructor(val data: PackageData) {
         return REAL_DICE[(at + i - ref).coerceIn(0, REAL_DICE.lastIndex)]
     }
 
+    /** Desconto (%) que a dificuldade de valor [value] tira da chance nos testes por chance; 0 se o pacote não declara. */
+    fun difficultyDiscount(value: Int): Int = data.difficulties.firstOrNull { it.value == value }?.discount ?: 0
+
     /** Monta o teste para o motor. O resultado é decidido pelo motor; aqui só se descreve o teste. */
     fun check(
         checkId: String,
@@ -764,6 +767,20 @@ class RulePackage internal constructor(val data: PackageData) {
         skills: Map<String, Int> = emptyMap(),
     ): CheckSpec {
         val c = requireNotNull(checkById[checkId]) { "teste inexistente: $checkId" }
+        if (c.comparison == Comparison.PERCENT) {
+            // Fórmula única (TestChance): atributo do teste, nível da perícia (1 se o teste não tem perícia) e Sorte; a dificuldade só desconta.
+            val attribute = c.stat?.let { stats[it] ?: statById[it]?.default ?: 0 } ?: 0
+            val level = c.skill?.let { skills[it] ?: 0 } ?: 1
+            val luckId = data.creation["combate_atributo_sorte"] ?: "sorte"
+            val luck = stats[luckId] ?: statById[luckId]?.default ?: 0
+            return CheckSpec(
+                label = c.name, diceCount = 1, diceSides = 100,
+                modifier = dev.rpgsolo.engine.TestChance.raw(attribute, luck, level), difficulty = difficultyDiscount(difficulty),
+                comparison = Comparison.PERCENT, partialMargin = c.partialMargin,
+                criticalSuccessRange = c.critSuccess, criticalFailureRange = c.critFailure,
+                stat = c.stat, checkId = c.id, fortuneMode = c.fortuneMode, explodeOnMax = c.explodeOnMax,
+            )
+        }
         val base = c.skill?.let { skills[it] ?: 0 } ?: c.stat?.let { (stats[it] ?: statById[it]?.default ?: 0) * c.mult } ?: 0
         // Teste de pontos não tem CD: a dificuldade escolhida troca o tamanho do dado (fácil d4, média d6, difícil d8...).
         val sides = if (c.comparison == Comparison.POINTS) poolDie(c.diceSides, difficulty) else c.diceSides
@@ -800,7 +817,8 @@ class RulePackage internal constructor(val data: PackageData) {
                 if (e != null && (scope == null || (stat != null && stat in scope))) e.dice else 0
             }
         // Teste de pontos: Ganho/Perda não mexem nos dados (é sempre 1 dado), mudam os pontos em +1/-1.
-        val pool = spec.comparison == Comparison.POINTS
+        val percent = spec.comparison == Comparison.PERCENT
+        val pool = spec.comparison == Comparison.POINTS || percent
         val count = if (pool) spec.diceCount else (spec.diceCount + shift).coerceIn(1, maxOf(spec.diceCount, MAX_CONDITION_DICE))
         val checkId: String? = spec.checkId
         val bonus =
@@ -838,7 +856,9 @@ class RulePackage internal constructor(val data: PackageData) {
             label += " · efeitos: $effectDetails"
         }
         if (count == spec.diceCount && totalBonus == 0 && pointShift == 0 && matchingExternal.isEmpty()) return spec
-        return spec.copy(diceCount = count, modifier = spec.modifier + totalBonus + pointShift, label = label)
+        // No teste por chance cada ponto (bônus, Ganho/Perda) vale 5%.
+        val unit = if (percent) dev.rpgsolo.engine.TestChance.PER_LEVEL else 1
+        return spec.copy(diceCount = count, modifier = spec.modifier + unit * (totalBonus + pointShift), label = label)
     }
 
     /**

@@ -611,7 +611,7 @@ private fun Creator(
             if (statLeft <= 0) Muted(stringResource(R.string.char_stat_points_locked))
         }
         AppCard {
-            pkg.data.stats.forEach { st ->
+            pkg.data.stats.filterNot { AtributosDaCriacao.ehOculto(it.id) }.forEach { st ->
                 val v = draft.stats()[st.id] ?: st.default
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(st.name, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)

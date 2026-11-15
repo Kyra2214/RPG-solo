@@ -30,3 +30,13 @@ internal object CriacaoPassos {
     fun primeiroPendente(feitos: Set<PassoCriacao>): PassoCriacao =
         PassoCriacao.entries.firstOrNull { it !in feitos } ?: PassoCriacao.INFORMACOES
 }
+
+/**
+ * Atributos que continuam existindo na ficha (o motor e o pacote seguem usando), mas não são distribuídos
+ * nas telas de criação: "Habilidade" evolui só pelos pontos de habilidade e de perícia, nunca pelos pontos de status.
+ */
+internal object AtributosDaCriacao {
+    private val ocultos: Set<String> = setOf("habilidade")
+
+    fun ehOculto(id: String): Boolean = id in ocultos
+}

@@ -179,7 +179,9 @@ class GameLoop(
         // Adaptações aprovadas alteram a ficha do jogador; não devem virar bônus globais de NPC.
         val isPlayerEntity = session.state.entities[playerId]?.kind == dev.rpgsolo.engine.EntityKind.PLAYER
         val adaptationBonus = if (isPlayerEntity) scopes.sumOf(additionalBonus) else 0
-        val luckBonus = if (isPlayerEntity) luckTestBonus(playerId) else 0
+        // No teste por chance a Sorte já entra na fórmula (5% por ponto, em RulePackage.check); somar de novo contaria em dobro.
+        val luckBonus =
+            if (isPlayerEntity && adjusted.comparison != dev.rpgsolo.engine.Comparison.PERCENT) luckTestBonus(playerId) else 0
         val bonus = adaptationBonus + luckBonus
         val adaptationSources =
             if (isPlayerEntity) {
@@ -207,10 +209,8 @@ class GameLoop(
                 val label = adjusted.label + sourceLabel + totalLabel
                 if (bonus == 0) {
                     adjusted.copy(label = label)
-                } else if (adjusted.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
-                    adjusted.copy(difficulty = adjusted.difficulty + bonus, label = label)
                 } else {
-                    adjusted.copy(modifier = adjusted.modifier + bonus, label = label)
+                    adjusted.plusPoints(bonus).copy(label = label)
                 }
             }
         // Efeitos da ficha escolhida pertencem somente ao jogador; nunca a NPCs ou adversários.
@@ -241,10 +241,8 @@ class GameLoop(
                 val label = withAdaptations.label + " · efeitos: $details" + totalSuffix
                 if (externalTotal == 0) {
                     withAdaptations.copy(label = label)
-                } else if (withAdaptations.comparison == dev.rpgsolo.engine.Comparison.ROLL_UNDER) {
-                    withAdaptations.copy(difficulty = withAdaptations.difficulty + externalTotal, label = label)
                 } else {
-                    withAdaptations.copy(modifier = withAdaptations.modifier + externalTotal, label = label)
+                    withAdaptations.plusPoints(externalTotal).copy(label = label)
                 }
             }
         val danger = session.state.campaignStyle?.difficultyParams?.get("danger_level")?.roundToInt()?.coerceIn(0, 10) ?: 5
@@ -258,6 +256,11 @@ class GameLoop(
                 withExternal.copy(difficulty = (withExternal.difficulty - shift).coerceAtLeast(1), label = withExternal.label + suffix)
             dev.rpgsolo.engine.Comparison.POINTS ->
                 withExternal.copy(modifier = (withExternal.modifier - shift).coerceAtLeast(0), label = withExternal.label + suffix)
+            dev.rpgsolo.engine.Comparison.PERCENT ->
+                withExternal.copy(
+                    modifier = withExternal.modifier - dev.rpgsolo.engine.TestChance.PER_LEVEL * shift,
+                    label = withExternal.label + suffix,
+                )
         }
     }
 

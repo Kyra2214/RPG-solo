@@ -29,7 +29,7 @@ data class CampaignForm(
                 if (duration.isNotBlank()) add("Duração: ${duration.trim()}")
                 if (contentLimits.isNotBlank()) add("Limites de conteúdo que devem ser respeitados: ${contentLimits.trim()}")
             }
-        val free = freeText.trim()
+        val free = freeText.lines().map(String::trim).filter(String::isNotEmpty).joinToString("\n")
         return when {
             free.isEmpty() -> lines.joinToString("\n")
             lines.isEmpty() -> free

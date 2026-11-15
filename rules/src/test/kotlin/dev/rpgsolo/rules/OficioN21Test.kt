@@ -34,7 +34,7 @@ class OficioN21Test {
             "H",
             EntityKind.PLAYER,
             level = 30,
-            stats = mapOf("habilidade" to 2, "sorte" to 0),
+            stats = mapOf("destreza" to 2, "sorte" to 0),
             skillTreeLevels = skills.associateWith { 1 },
         )
 
@@ -74,7 +74,7 @@ class OficioN21Test {
         assertEquals(CraftKind.REPAIR, r.kind)
         assertEquals(setOf("espada-curta-quebrada"), r.keepOnFailure)
         val h2 = hero("profissao-ferreiro-1", "profissao-ferreiro-2")
-        assertEquals(50 + 10 + 5 * 1 - 5, p.craftChance(r, h2))
+        assertEquals(50 + 5 + 5 * 1 - 5, p.craftChance(r, h2))
         assertEquals(100, p.craftChance(r, hero("profissao-ferreiro-2", "profissao-ferreiro-4")))
     }
 

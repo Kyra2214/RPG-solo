@@ -138,21 +138,21 @@ class GameEngine private constructor(
                 0,
                 when (spec.attackComparison) {
                     Comparison.ROLL_OVER -> spec.defenseDefault + targetDefenseModifier
-                    Comparison.ROLL_UNDER -> spec.defenseDefault + attackModifier - targetDefenseModifier
+                    Comparison.ROLL_UNDER, Comparison.PERCENT -> spec.defenseDefault + attackModifier - targetDefenseModifier
                     Comparison.POINTS -> spec.defenseDefault + targetDefenseModifier
                 },
             )
         val mark = mark()
         val roll =
             when (spec.attackComparison) {
-                Comparison.POINTS, Comparison.ROLL_UNDER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides)
+                Comparison.POINTS, Comparison.ROLL_UNDER, Comparison.PERCENT -> dice.roll(spec.attackDiceCount, spec.attackDiceSides)
                 Comparison.ROLL_OVER -> dice.roll(spec.attackDiceCount, spec.attackDiceSides, attackModifier)
             }
         recordRoll("ataque:${spec.attackerId}->${spec.targetId}", roll)
         val hit =
             when (spec.attackComparison) {
                 Comparison.ROLL_OVER -> roll.total >= defense
-                Comparison.ROLL_UNDER -> roll.total <= defense
+                Comparison.ROLL_UNDER, Comparison.PERCENT -> roll.total <= defense
                 Comparison.POINTS -> {
                     val faces = pointFaces(attackModifier - targetDefenseModifier, spec.attackDiceSides)
                     val lowestSuccess = spec.attackDiceSides + 1 - faces

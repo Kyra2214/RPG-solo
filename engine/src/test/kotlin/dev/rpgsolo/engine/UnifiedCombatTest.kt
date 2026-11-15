@@ -294,8 +294,8 @@ class UnifiedCombatTest {
 
     @Test fun chanceDeAcertoDependeDeDestrezaEAgilidade() {
         assertEquals(50, UnifiedCombat.hitChance(3, 3))
-        assertEquals(65, UnifiedCombat.hitChance(6, 3))
-        assertEquals(35, UnifiedCombat.hitChance(3, 6))
+        assertEquals(60, UnifiedCombat.hitChance(6, 3))
+        assertEquals(40, UnifiedCombat.hitChance(3, 6))
         assertEquals(95, UnifiedCombat.hitChance(50, 0))
         assertEquals(5, UnifiedCombat.hitChance(0, 50))
     }

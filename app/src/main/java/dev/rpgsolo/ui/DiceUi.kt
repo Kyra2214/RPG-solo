@@ -231,6 +231,7 @@ fun RollCard(
                 when {
                     view.plain -> "rolagem"
                     view.label.contains("acerta com") -> "faces de sucesso"
+                    view.label.contains("· chance ") -> "d100 · acerta com ${view.difficulty} ou menos"
                     else -> "d${view.sides}${if (view.modifier == 0) {
                         ""
                     } else {

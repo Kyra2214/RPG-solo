@@ -1,8 +1,11 @@
 # id|nome|dados|lados|atributo|mult|comparacao|parcial|crit_sucesso|crit_falha   ("-" = não existe)
-# d20 (CD da dificuldade): momentos grandes. POINTS (1 dado que a dificuldade troca: fácil d4, média d6, difícil d8, heroica d10; pontos = atributo): perícias do dia a dia.
-ataque|Ataque|1|20|poder|1|ROLL_OVER|3|20..20|1..1
-resistir|Resistir|1|20|resistencia|1|ROLL_OVER|3|-|-
-sorte|Teste de sorte|1|20||0|ROLL_OVER|-|-|-
-esquiva|Esquiva|1|6|habilidade|1|POINTS|-|-|-
-destreza|Teste de destreza|1|6|habilidade|1|POINTS|-|-|-
-pericia|Teste de perícia|1|6|habilidade|1|POINTS|-|-|-
+# PERCENT (fórmula única, 15/11/2026): 1d100 contra a chance = 50% no nível 1 + 5% por nível acima + 5% a cada 2 pontos do atributo + 5% por ponto de Sorte - desconto da dificuldade (5% a 95%).
+# O atributo muda por teste: força = Poder, esquiva = Agilidade, resistência = Resistência, inteligência = Inteligência, destreza e perícia = Destreza; o teste de sorte só usa a Sorte.
+ataque|Ataque|1|100|destreza|1|PERCENT|-|-|-
+forca|Teste de força|1|100|poder|1|PERCENT|-|-|-
+resistir|Resistir|1|100|resistencia|1|PERCENT|-|-|-
+inteligencia|Teste de inteligência|1|100|inteligencia|1|PERCENT|-|-|-
+sorte|Teste de sorte|1|100||0|PERCENT|-|-|-
+esquiva|Esquiva|1|100|agilidade|1|PERCENT|-|-|-
+destreza|Teste de destreza|1|100|destreza|1|PERCENT|-|-|-
+pericia|Teste de perícia|1|100|destreza|1|PERCENT|-|-|-

@@ -106,6 +106,52 @@ class PlayController(
 
     val lines: List<ChatLine> get() = synchronized(chat) { chat.toList() }
 
+    /** true quando a campanha ainda não teve a cena de abertura narrada (e ela não foi tentada nesta sessão). */
+    fun needsOpening(): Boolean =
+        synchronized(chat) { chat.isEmpty() } && loop.turns.isEmpty() && session.state.facts[OPENING_FACT] == null && !openingTried
+
+    @Volatile private var openingTried = false
+
+    /**
+     * Abertura da campanha: o mestre narra a cena inicial sozinho, sem o jogador digitar nada, e já oferece as primeiras
+     * opções de ação. O pedido interno não aparece no chat. Chamada de rede.
+     */
+    fun openScene(onNarrativeChunk: (String) -> Unit = {}): PlayResult = loop.turnGate.exclusive { openSceneLocked(onNarrativeChunk) }
+
+    private fun openSceneLocked(onNarrativeChunk: (String) -> Unit): PlayResult {
+        if (synchronized(chat) { chat.isNotEmpty() } || loop.turns.isNotEmpty() || session.state.facts[OPENING_FACT] != null) {
+            return PlayResult.Failed("a campanha já começou")
+        }
+        openingTried = true
+        val start = chat.size
+        val sheetNow = sheetNow()
+        val result =
+            loop.play(
+                session,
+                PlayInput(
+                    playerId, OPENING_PROMPT, null, healthResource,
+                    chapterSummary = chapterSummary(),
+                    sourceContext = sourceContext(OPENING_PROMPT),
+                    mundoContext = mundoContext(),
+                    worldContext = worldContext(),
+                    craftOpportunity = craftOpportunity(),
+                    generationPreferences = generationPreferences(),
+                    playerSheet = sheetNow?.second,
+                    sheetLevel = sheetNow?.first,
+                ),
+                onNarrativeChunk = onNarrativeChunk,
+            )
+        when (result) {
+            is PlayResult.Played -> {
+                synchronized(chat) { entries.addLast(Entry(start)) }
+                showTurn(result)
+                session.execute(dev.rpgsolo.engine.RecordFact(OPENING_FACT, "sim"))
+            }
+            is PlayResult.Failed -> chat += ChatLine(Author.SYSTEM, result.reason)
+        }
+        return result
+    }
+
     /** Executa uma ação local da interface (combate, inventário, lugares) com exclusividade de turno. Chamar fora da thread principal. */
     fun <T> exclusiveTurn(block: () -> T): T = loop.turnGate.exclusive(block)
 
@@ -783,6 +829,15 @@ class PlayController(
     }
 
     companion object {
+        /** Fato gravado depois da cena de abertura; impede reabrir a campanha do zero ao voltar a ela. */
+        const val OPENING_FACT = "abertura-narrada"
+
+        /** Pedido interno (nunca aparece no chat) que faz o mestre abrir a história. */
+        const val OPENING_PROMPT =
+            "(Início da campanha) Abra a história agora: narre a cena inicial em 2 a 4 parágrafos curtos, " +
+                "apresentando o lugar, o clima e o personagem em ação, sem recitar a ficha. Termine com uma situação " +
+                "que peça uma decisão e envie de 2 a 4 opções de ação em \"suggestions\"."
+
         private fun word(o: Outcome) =
             when (o) {
                 Outcome.CRITICAL_FAILURE -> "falha crítica"

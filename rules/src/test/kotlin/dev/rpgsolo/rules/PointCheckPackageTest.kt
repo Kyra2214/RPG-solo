@@ -2,9 +2,9 @@ package dev.rpgsolo.rules
 
 import dev.rpgsolo.engine.CheckSpec
 import dev.rpgsolo.engine.Comparison
-import dev.rpgsolo.engine.REAL_DICE
 import dev.rpgsolo.engine.RollResult
 import dev.rpgsolo.engine.resolveCheck
+import dev.rpgsolo.engine.resolvedPool
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -129,44 +129,57 @@ class SistemaProprioDadosTest {
         id: String,
     ) = p.difficultyValue(id)!!
 
-    @Test fun periciasSaoDePontosEAtaqueEhD20() {
+    @Test fun todosOsTestesDoSistemaProprioUsamAFormulaUnica() {
         val p = proprio()
-        val stats = mapOf("habilidade" to 2, "poder" to 3)
-        assertEquals(Comparison.POINTS, p.check("esquiva", stats, dif(p, "media")).comparison)
-        assertEquals(Comparison.POINTS, p.check("pericia", stats, dif(p, "media")).comparison)
-        val ataque = p.check("ataque", stats, dif(p, "media"))
-        assertEquals(1, ataque.diceCount)
-        assertEquals(20, ataque.diceSides)
-        assertEquals(3, ataque.modifier)
-        assertEquals(20, p.check("sorte", stats, dif(p, "media")).diceSides)
-    }
-
-    @Test fun dificuldadeSobeADadoReal() {
-        val p = proprio()
-        val stats = mapOf("habilidade" to 3)
-        val dados = listOf("facil", "media", "dificil", "heroica").map { p.check("esquiva", stats, dif(p, it)).diceSides }
-        assertEquals(listOf(4, 6, 8, 10), dados)
-        assertTrue(dados.all { it in REAL_DICE })
-    }
-
-    @Test fun comTresPontosAChanceCaiComADificuldade() {
-        val p = proprio()
-        val stats = mapOf("habilidade" to 3)
-
-        fun chance(id: String): Pair<Int, Int> {
-            val spec = p.check("esquiva", stats, dif(p, id))
-            return winningFaces(spec).size to spec.diceSides
+        listOf("ataque", "forca", "resistir", "inteligencia", "sorte", "esquiva", "destreza", "pericia").forEach {
+            assertEquals(it, Comparison.PERCENT, p.check(it, emptyMap(), dif(p, "media")).comparison)
         }
-        assertEquals(3 to 4, chance("facil")) // 2–4 no d4 (75%, já no máximo do dado)
-        assertEquals(4 to 6, chance("media")) // 3–6 no d6 (66,7%)
-        assertEquals(4 to 8, chance("dificil")) // 5–8 no d8 (50%)
-        assertEquals(4 to 10, chance("heroica")) // 7–10 no d10 (40%)
     }
 
-    @Test fun nuncaPassaDeLadosMenosUmNemCaiDeUm() {
+    private fun chance(
+        p: RulePackage,
+        teste: String,
+        stats: Map<String, Int>,
+        dificuldade: String = "facil",
+    ) = p.check(teste, stats, dif(p, dificuldade)).resolvedPool().difficulty
+
+    @Test fun cadaTesteUsaOAtributoCerto() {
         val p = proprio()
-        assertEquals(3, winningFaces(p.check("esquiva", mapOf("habilidade" to 5), dif(p, "facil"))).size) // d4: até 3 faces
-        assertEquals(1, winningFaces(p.check("esquiva", mapOf("habilidade" to 0), dif(p, "heroica"))).size)
+        // atributo 4 = +10% sobre os 50% base; dificuldade fácil não desconta
+        assertEquals(60, chance(p, "forca", mapOf("poder" to 4)))
+        assertEquals(60, chance(p, "esquiva", mapOf("agilidade" to 4)))
+        assertEquals(60, chance(p, "resistir", mapOf("resistencia" to 4)))
+        assertEquals(60, chance(p, "inteligencia", mapOf("inteligencia" to 4)))
+        assertEquals(60, chance(p, "destreza", mapOf("destreza" to 4)))
+        assertEquals(60, chance(p, "pericia", mapOf("destreza" to 4)))
+        assertEquals(60, chance(p, "ataque", mapOf("destreza" to 4)))
+        // um atributo de outro teste não conta
+        assertEquals(50, chance(p, "esquiva", mapOf("destreza" to 4, "poder" to 4)))
+    }
+
+    @Test fun sorteSomaCincoPorCentoPorPontoEmTodosOsTestes() {
+        val p = proprio()
+        assertEquals(65, chance(p, "esquiva", mapOf("agilidade" to 2, "sorte" to 2)))
+        assertEquals(60, chance(p, "sorte", mapOf("sorte" to 2)))
+    }
+
+    @Test fun dificuldadeDescontaDaChance() {
+        val p = proprio()
+        val chances = listOf("facil", "media", "dificil", "heroica").map { chance(p, "esquiva", emptyMap(), it) }
+        assertEquals(listOf(50, 40, 30, 20), chances)
+    }
+
+    @Test fun chanceNuncaPassaDeNoventaECinco() {
+        val p = proprio()
+        assertEquals(95, chance(p, "forca", mapOf("poder" to 100)))
+    }
+
+    @Test fun ganhoEPerdaEBonusValemCincoPorCentoCada() {
+        val p = proprio()
+        val base = p.check("esquiva", mapOf("agilidade" to 2), dif(p, "media"))
+        assertEquals(50 + 5, base.modifier)
+        val comBonus = p.adjustCheck(base, emptyList(), emptyList(), "esquiva", listOf(ExternalBonus("esquiva", 2, "teste", "teste:1")))
+        assertEquals(base.modifier + 10, comBonus.modifier)
     }
 
     @Test fun dificuldadesEstaoNaEscalaDoD20() {

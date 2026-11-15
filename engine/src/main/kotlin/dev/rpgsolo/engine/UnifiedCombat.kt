@@ -16,7 +16,7 @@ data class CritCheck(
 /** N-06: valores fixos (sem dado) de Destreza do atacante e Agilidade do defensor. */
 data class HitSpec(val dexterity: EffectiveBreakdown, val agility: EffectiveBreakdown)
 
-/** N-06: acerto automático. Chance = 50% + 5% × (Destreza − Agilidade), entre 5% e 95%; d100 em silêncio, acerta com dado ≤ chance. */
+/** N-06: acerto automático. Chance pela fórmula única ([TestChance]): Destreza de quem ataca contra a Agilidade do alvo, entre 5% e 95%; d100 em silêncio, acerta com dado ≤ chance. */
 data class HitCheck(val dexterity: Int, val agility: Int, val chance: Int, val roll: RollResult, val hit: Boolean)
 
 /** Habilidade que pode ignorar defesa (MU-02.3). [percent] é o dano em % do valor efetivo cheio. */
@@ -122,13 +122,11 @@ object UnifiedCombat {
         )
     }
 
-    const val HIT_BASE_CHANCE = 50
-    const val HIT_PER_POINT = 5
-
+    /** Acerto e afanar: fórmula única [TestChance] com a Destreza de quem age e a Agilidade do alvo como atributo oposto. */
     fun hitChance(
         dexterity: Int,
         agility: Int,
-    ): Int = (HIT_BASE_CHANCE + HIT_PER_POINT * (dexterity - agility)).coerceIn(5, 95)
+    ): Int = TestChance.percent(attribute = dexterity, opposing = agility)
 
     fun checkHit(
         spec: HitSpec,

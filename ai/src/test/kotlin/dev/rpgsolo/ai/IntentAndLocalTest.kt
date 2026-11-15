@@ -234,11 +234,11 @@ class IntentAndLocalTest {
             )
         val c = ctrl(session(), ai)
         c.submit("entro")
-        assertEquals(listOf("Acender a tocha", "Escutar na porta", "Voltar"), c.suggestions())
+        assertEquals(listOf("Acender a tocha", "Escutar na porta", "Voltar", "Gritar"), c.suggestions())
         c.submit("espero")
         assertTrue(c.suggestions().isEmpty())
         assertTrue(c.undo())
-        assertEquals(3, c.suggestions().size)
+        assertEquals(4, c.suggestions().size)
         c.submit("ver ficha")
         assertTrue(c.suggestions().isEmpty())
     }
