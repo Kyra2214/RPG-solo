@@ -1,5 +1,9 @@
 # Auditoria técnica integral e independente — 14/11/2026
 
+## Atualização posterior — CI Android #43655330273
+
+A análise abaixo foi realizada antes da execução automatizada e registrava corretamente que nada havia sido executado naquele momento. Depois, o commit `f801b4f5` passou no [Android CI #43655330273](https://github.com/Kyra2214/RPG-solo/actions/runs/43655330273): ktlint, suíte Gradle completa, `:world:test`, validação de autoria, E2E do app, migrações/testes instrumentados de `data`, build e upload do APK debug. As pendências de execução de testes cobertas por esse workflow estão resolvidas; as lacunas de integração sem teste dedicado, validação visual física, release assinado e itens sem teste escrito continuam pendentes.
+
 Base: `RPG-solo-LG-06-atualizado.zip` (projeto `RPG-solo-main`, 6 módulos Gradle, 1.350 arquivos, 349 `.kt`, 992 `@Test`).
 Método: **somente análise estática**. Nada foi compilado, executado, testado nem baixado. Nenhum resultado de execução foi inventado.
 Hierarquia aplicada: instruções do usuário > prompt de auditoria > Roadmap (critério) > especificações > código (evidência) > changelog.

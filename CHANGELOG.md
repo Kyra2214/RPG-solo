@@ -1,3 +1,9 @@
+## 14/11/2026 — Pendências de testes aprovadas pelo Android CI
+- O workflow [Android CI #43655330273](https://github.com/Kyra2214/RPG-solo/actions/runs/43655330273), no commit `f801b4f5`, passou integralmente.
+- Marcados como executados e aprovados: suíte Gradle/JVM, ktlint, testes do mundo e autoria WD-01, E2E Android do app, testes instrumentados/migrações Room de `data`, build e upload do APK debug.
+- Atualizados `PLANO_RPG_SOLO.md`, `docs/VALIDACAO_CI.md` e `docs/relatorios/AUDITORIA_TECNICA_2026-11-14.md`; o relatório detalhado está em `docs/relatorios/ci-android-2026-11-14.md`.
+- Permanecem pendentes somente validações fora desse workflow, como inspeção visual em aparelho físico, `assembleRelease` com keystore real e testes ainda não escritos.
+
 ## 14/11/2026 — Decisões editoriais WD-03, WD-08 e WD-09 (só documentação)
 
 - Autor decidiu: Dauren Galho-de-Ferro é o segundo general de Aeltharyn (já principal e general em `npc.txt`; A-01 de generais cumprido); cidades do tritão (Thalanor), goblin e homem-rato (Silvaran) confirmadas; as duas rotas Altavento–Pedra-Ata ficam (trilha e aéreo). Relatórios `WD-03`, `WD-08`, `WD-09`, `PLANO_RPG_SOLO.md` e progresso atualizados; nenhum dado nem código alterado. Percentual: 130 de 157 (≈82,8%). Restam MI-23, MI-24 e Q-08 (aparelho/Gradle).

@@ -1,5 +1,21 @@
 # Validação CI — RPG Solo
 
+## Estado atual — Android CI #43655330273 (14/11/2026)
+
+**Validação completa e verde** no `main`, commit `f801b4f5`: [workflow #43655330273](https://github.com/Kyra2214/RPG-solo/actions/runs/43655330273). Passaram o motor Python, `ktlintCheck`, `:world:test`, `:world:validarAutoria`, a suíte Gradle completa, o build do APK debug, o E2E Android do app e os testes instrumentados/migrações do módulo `data`. Os artefatos de APK, relatórios JUnit, diagnósticos E2E e esquemas Room foram publicados.
+
+| Pendência de teste/documentação | Estado atual |
+|---|---|
+| Testes JVM escritos anteriormente e ainda marcados como não executados | **Passaram no CI #43655330273** |
+| `RollCardRevealTest`, `NavigationAccessibilityTest` e testes de UI cobertos pela suíte | **Passaram no CI #43655330273** |
+| Cenas de referência e testes da IA | **Passaram no CI #43655330273** |
+| Bateria de continuidade e testes dos módulos JVM | **Passaram no CI #43655330273** |
+| E2E Android do app | **Passou no emulador no CI #43655330273** |
+| Migrações/testes instrumentados de `data` | **Passaram no emulador no CI #43655330273** |
+| Build e upload do APK debug | **Passaram no CI #43655330273** |
+
+As pendências de validação visual em aparelho físico, `assembleRelease` com keystore real e testes que ainda não foram escritos permanecem abertas. O relatório detalhado está em [`docs/relatorios/ci-android-2026-11-14.md`](relatorios/ci-android-2026-11-14.md).
+
 ## Mecânica de dados — validação local (2026-11-08)
 
 Com JDK 17 (`/usr/lib/jvm/java-17-openjdk-arm64`), os módulos JVM independentes do Android SDK foram compilados e testados:
