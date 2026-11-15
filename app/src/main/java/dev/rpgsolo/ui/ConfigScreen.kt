@@ -162,7 +162,8 @@ fun ConfigScreen(model: AppModel) {
                         autoBusy = true
                         autoResult = null
                         scope.launch {
-                            val result = cancellableIo { model.refreshFreeModels(force = true, presetOverride = p, keyOverride = requestedKey) }
+                            val result =
+                                cancellableIo { model.refreshFreeModels(force = true, presetOverride = p, keyOverride = requestedKey) }
                             if (preset == p && key.trim() == requestedKey) autoResult = result
                             autoBusy = false
                         }
@@ -222,7 +223,6 @@ fun ConfigScreen(model: AppModel) {
                     }
                     Muted(stringResource(R.string.config_free_models_auto_help))
                 }
-
             }
             AppCard {
                 Text(stringResource(R.string.config_free_key_steps_title), style = MaterialTheme.typography.titleSmall)
@@ -300,7 +300,14 @@ fun ConfigScreen(model: AppModel) {
                         (preset == null || (modelName.isNotBlank() && modelName in freeModels.take(12))),
                 onClick = {
                     fun parsePrice(value: String): Double? =
-                        if (value.isBlank()) null else value.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
+                        if (value.isBlank()) {
+                            null
+                        } else {
+                            value.trim().replace(
+                                ',',
+                                '.',
+                            ).toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
+                        }
                     val input = parsePrice(inputPrice)
                     val output = parsePrice(outputPrice)
                     val cacheRead = parsePrice(cacheReadPrice)

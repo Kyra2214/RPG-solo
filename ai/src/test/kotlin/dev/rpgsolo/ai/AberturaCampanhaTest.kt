@@ -28,7 +28,10 @@ class AberturaCampanhaTest {
     ) = PlayController(s, GameLoop(ai), "hero", "pv", { null })
 
     @Test fun aberturaNarraSemLinhaDoJogadorEOferecePcoes() {
-        val ai = ScriptedProvider(listOf("""{"narrative":"A praça acorda sob a névoa.","suggestions":["Seguir a voz","Ignorar","Observar a praça"]}"""))
+        val ai =
+            ScriptedProvider(
+                listOf("""{"narrative":"A praça acorda sob a névoa.","suggestions":["Seguir a voz","Ignorar","Observar a praça"]}"""),
+            )
         val s = session()
         val c = ctrl(s, ai)
         assertTrue(c.needsOpening())

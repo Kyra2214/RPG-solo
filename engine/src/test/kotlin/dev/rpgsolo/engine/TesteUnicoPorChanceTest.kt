@@ -26,7 +26,10 @@ class TesteUnicoPorChanceTest {
     }
 
     @Test fun oficioUsaAMesmaFormula() {
-        assertEquals(TestChance.percent(attribute = 4, luck = 2, level = 3, penalty = 5), CraftChance.percent(4, 2, tierBonus = 2, difficulty = 5))
+        assertEquals(
+            TestChance.percent(attribute = 4, luck = 2, level = 3, penalty = 5),
+            CraftChance.percent(4, 2, tierBonus = 2, difficulty = 5),
+        )
     }
 
     @Test fun testePorChanceViraD100ContraAChanceFinal() {

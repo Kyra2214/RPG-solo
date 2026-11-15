@@ -71,6 +71,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 /** Tamanho da cadeia de modelos gratuitos (ASSUMINDO 6; ver PLANO_CORRECOES_POS_TESTE.md) e prazos de renovação. */
+
 /** Cadeia de modelos gratuitos: todos os que respondem texto (decisão do autor em 14/11/2026), sem teto de quantidade nem de sondas. */
 private const val FREE_CHAIN_SIZE = Int.MAX_VALUE
 private const val MODELS_MAX_AGE_MS = 24L * 60L * 60L * 1000L
@@ -2459,14 +2460,26 @@ class AppModel(application: Application) : AndroidViewModel(application) {
             if (found.isEmpty()) {
                 FreeModelsResult(false, emptyList(), "nenhum modelo gratuito de texto disponível agora; tente de novo mais tarde")
             } else {
-                val chain = ModelProbe.select(preset.chatEndpoint, key, found.map { it.id }, transport, want = FREE_CHAIN_SIZE, maxProbes = FREE_CHAIN_SIZE)
+                val chain =
+                    ModelProbe.select(
+                        preset.chatEndpoint,
+                        key,
+                        found.map { it.id },
+                        transport,
+                        want = FREE_CHAIN_SIZE,
+                        maxProbes = FREE_CHAIN_SIZE,
+                    )
                 if (chain.isEmpty()) {
                     FreeModelsResult(false, emptyList(), "nenhum modelo gratuito respondeu agora; tente de novo em alguns minutos")
                 } else {
                     val applied =
                         applySettings(
-                            ProviderKind.OPENAI_COMPATIBLE, preset.chatEndpoint, chain.first(), key,
-                            preset = preset.name, fallbackModels = chain.drop(1),
+                            ProviderKind.OPENAI_COMPATIBLE,
+                            preset.chatEndpoint,
+                            chain.first(),
+                            key,
+                            preset = preset.name,
+                            fallbackModels = chain.drop(1),
                             modelsRefreshedAt = System.currentTimeMillis(),
                         )
                     if (applied) {

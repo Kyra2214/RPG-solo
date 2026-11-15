@@ -291,7 +291,12 @@ private fun PlayContent(
         model.chapterNotice?.let { notice ->
             Muted(notice)
         }
-        panel?.let { StatusPanel(it, onSheet = { sheetTab = 0; sheetOpen = true }) }
+        panel?.let {
+            StatusPanel(it, onSheet = {
+                sheetTab = 0
+                sheetOpen = true
+            })
+        }
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth(),
             state = listState,
@@ -460,8 +465,15 @@ private fun SheetDialog(
             color = MaterialTheme.colorScheme.surface,
         ) {
             Column(Modifier.fillMaxSize()) {
-                Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.play_sheet_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                Row(
+                    Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.play_sheet_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f),
+                    )
                     TextButton(onClick = onClose) { Text(stringResource(R.string.play_sheet_close)) }
                 }
                 ScrollableTabRow(selectedTabIndex = tab, edgePadding = 8.dp) {

@@ -94,7 +94,9 @@ fun RpgSoloApp() {
                     containerColor = MaterialTheme.colorScheme.background,
                     topBar = {
                         Row(
-                            Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 16.dp, vertical = 10.dp),
+                            Modifier.fillMaxWidth().windowInsetsPadding(
+                                WindowInsets.statusBars,
+                            ).padding(horizontal = 16.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {

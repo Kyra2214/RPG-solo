@@ -2,7 +2,6 @@ package dev.rpgsolo.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -141,7 +141,10 @@ fun NewCampaignSection(model: AppModel) {
                             busy = false
                         }
                     }) { Text(stringResource(if (busy) R.string.campaign_interpreting else R.string.campaign_creation_continue)) }
-                    TextButton(enabled = !busy, onClick = { freeMode = true }) { Text(stringResource(R.string.campaign_free_text_shortcut)) }
+                    TextButton(
+                        enabled = !busy,
+                        onClick = { freeMode = true },
+                    ) { Text(stringResource(R.string.campaign_free_text_shortcut)) }
                 } else {
                     OutlinedTextField(
                         text,
@@ -160,7 +163,10 @@ fun NewCampaignSection(model: AppModel) {
                             busy = false
                         }
                     }) { Text(stringResource(if (busy) R.string.campaign_interpreting else R.string.campaign_interpret)) }
-                    TextButton(enabled = !busy, onClick = { freeMode = false }) { Text(stringResource(R.string.campaign_back_to_selection)) }
+                    TextButton(
+                        enabled = !busy,
+                        onClick = { freeMode = false },
+                    ) { Text(stringResource(R.string.campaign_back_to_selection)) }
                 }
             }
 
