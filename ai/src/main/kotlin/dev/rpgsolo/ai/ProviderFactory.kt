@@ -36,6 +36,7 @@ object ProviderFactory {
         transport: HttpTransport = JavaNetTransport(),
         maxRequestsPerMinute: Int = 20,
         limiter: RateLimiter? = null,
+        onAllFailed: (() -> Unit)? = null,
     ): AiRoles {
         val models = (listOf(config.model) + fallbackModels.map { it.trim() }.filter { it.isNotEmpty() }).distinct()
         val requestLimiter = limiter ?: RateLimiter(maxRequestsPerMinute, 60_000)
@@ -47,7 +48,7 @@ object ProviderFactory {
                         requestLimiter,
                     )
             }
-        val base: AiProvider = FallbackProvider(candidates)
+        val base: AiProvider = FallbackProvider(candidates, onAllFailed = onAllFailed)
         val tracked = if (usage != null) UsageTrackingProvider(base, usage) else base
         val provider = RetryingProvider(tracked)
         return AiRoles(provider, provider, provider)

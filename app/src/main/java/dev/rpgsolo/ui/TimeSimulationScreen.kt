@@ -134,7 +134,7 @@ fun TimeSimulationScreen(
             if (dias != null) Muted(Periodos.resumo(atual, dias))
 
             SectionTitle("Velocidade", "Só muda a exibição, nunca o resultado. Até 1 estação o resultado aparece de uma vez.")
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            LinhaQuebravel {
                 VelocidadeSimulacao.values().forEach { v ->
                     FilterChip(selected = velocidade == v, onClick = { velocidade = v }, label = { Text(v.rotulo) })
                 }

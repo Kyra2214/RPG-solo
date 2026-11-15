@@ -1,6 +1,8 @@
 package dev.rpgsolo.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,82 +84,84 @@ fun NewCampaignSection(model: AppModel) {
     }
     var busy by remember { mutableStateOf(false) }
     var quickFailed by remember { mutableStateOf(false) }
-    var showForm by remember { mutableStateOf(false) }
-    var genre by remember { mutableStateOf("") }
-    var era by remember { mutableStateOf("") }
-    var tone by remember { mutableStateOf("") }
-    var difficulty by remember { mutableStateOf("") }
-    var themes by remember { mutableStateOf("") }
-    var duration by remember { mutableStateOf("") }
-    var contentLimits by remember { mutableStateOf("") }
+    // PT-03: a campanha nasce de seleções; o texto livre vira "detalhes extras" (ou o atalho de descrição livre).
+    var selPreset by remember { mutableStateOf<Int?>(null) }
+    var selTone by remember { mutableStateOf<Int?>(null) }
+    var selDifficulty by remember { mutableStateOf<Int?>(1) }
+    var selPace by remember { mutableStateOf<Int?>(1) }
+    var selMode by remember { mutableStateOf<Int?>(0) }
+    var freeMode by remember { mutableStateOf(false) }
+    var lastDescription by remember { mutableStateOf("") }
     val startFailureText = stringResource(R.string.campaign_start_failure)
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        TextButton(onClick = { showForm = !showForm }) {
-            Text(stringResource(if (showForm) R.string.campaign_hide_form else R.string.campaign_show_form))
-        }
-        if (showForm) {
-            Text(stringResource(R.string.campaign_form_optional), style = MaterialTheme.typography.bodySmall)
-            OutlinedTextField(genre, {
-                genre = it
-            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_genre)) }, singleLine = true)
-            OutlinedTextField(
-                era,
-                { era = it },
-                Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.campaign_era)) },
-                singleLine = true,
-            )
-            OutlinedTextField(
-                tone,
-                { tone = it },
-                Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.campaign_tone)) },
-                singleLine = true,
-            )
-            OutlinedTextField(difficulty, {
-                difficulty = it
-            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_difficulty)) }, singleLine = true)
-            OutlinedTextField(themes, { themes = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_themes)) })
-            OutlinedTextField(duration, {
-                duration = it
-            }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.campaign_duration)) }, singleLine = true)
-            OutlinedTextField(
-                contentLimits,
-                { contentLimits = it },
-                Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.campaign_content_limits)) },
-            )
-            OutlinedButton(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    text =
-                        CampaignForm(
-                            genre = genre, era = era, tone = tone, difficulty = difficulty,
-                            themes = themes.split(',').map { it.trim() }.filter { it.isNotEmpty() },
-                            duration = duration, contentLimits = contentLimits, freeText = text,
-                        ).toDescription()
-                },
-            ) { Text(stringResource(R.string.campaign_add_fields)) }
-        }
         when (val s = step) {
             NewCampaignFlow.Step.Describe -> {
-                OutlinedTextField(
-                    text,
-                    { text = it },
-                    Modifier.fillMaxWidth(),
-                    enabled = !busy,
-                    label = { Text(stringResource(R.string.campaign_describe)) },
-                )
-                Button(modifier = Modifier.fillMaxWidth(), enabled = !busy && text.isNotBlank(), onClick = {
-                    busy = true
-                    scope.launch {
-                        // Chamada à IA: fora da thread principal.
-                        cancellableIo { flow.submitDescription(text) }
-                        step = flow.step
-                        busy = false
-                    }
-                }) { Text(stringResource(if (busy) R.string.campaign_interpreting else R.string.campaign_interpret)) }
+                if (!freeMode) {
+                    Text(stringResource(R.string.campaign_pick_preset), style = MaterialTheme.typography.titleSmall)
+                    ChipRow(CampanhaOpcoes.predefinicoes.map { it.nome }, selPreset, !busy) { selPreset = it }
+                    Text(stringResource(R.string.campaign_pick_tone), style = MaterialTheme.typography.titleSmall)
+                    ChipRow(CampanhaOpcoes.tons, selTone, !busy) { selTone = it }
+                    Text(stringResource(R.string.campaign_pick_difficulty), style = MaterialTheme.typography.titleSmall)
+                    ChipRow(CampanhaOpcoes.dificuldades, selDifficulty, !busy) { selDifficulty = it }
+                    Text(stringResource(R.string.campaign_pick_pace), style = MaterialTheme.typography.titleSmall)
+                    ChipRow(CampanhaOpcoes.ritmos, selPace, !busy) { selPace = it }
+                    Text(stringResource(R.string.campaign_pick_mode), style = MaterialTheme.typography.titleSmall)
+                    ChipRow(CampanhaOpcoes.modos, selMode, !busy) { selMode = it }
+                    OutlinedTextField(
+                        text,
+                        { text = it },
+                        Modifier.fillMaxWidth(),
+                        enabled = !busy,
+                        label = { Text(stringResource(R.string.campaign_extra_details)) },
+                    )
+                    Muted(stringResource(R.string.campaign_world_after_help))
+                    Button(modifier = Modifier.fillMaxWidth(), enabled = !busy && selPreset != null, onClick = {
+                        val preset = CampanhaOpcoes.predefinicoes[selPreset!!]
+                        val extras =
+                            buildList {
+                                selPace?.let { add("Ritmo: ${CampanhaOpcoes.ritmos[it]}") }
+                                selMode?.let { add("Modo: ${CampanhaOpcoes.modos[it]}") }
+                                if (text.isNotBlank()) add(text.trim())
+                            }.joinToString("\n")
+                        val description =
+                            CampaignForm(
+                                genre = preset.genero,
+                                tone = selTone?.let { CampanhaOpcoes.tons[it] }.orEmpty(),
+                                difficulty = selDifficulty?.let { CampanhaOpcoes.dificuldades[it] }.orEmpty(),
+                                themes = preset.temas,
+                                freeText = extras,
+                            ).toDescription()
+                        lastDescription = description
+                        busy = true
+                        scope.launch {
+                            // Chamada à IA: fora da thread principal.
+                            cancellableIo { flow.submitDescription(description) }
+                            step = flow.step
+                            busy = false
+                        }
+                    }) { Text(stringResource(if (busy) R.string.campaign_interpreting else R.string.campaign_continue)) }
+                    TextButton(enabled = !busy, onClick = { freeMode = true }) { Text(stringResource(R.string.campaign_free_text_shortcut)) }
+                } else {
+                    OutlinedTextField(
+                        text,
+                        { text = it },
+                        Modifier.fillMaxWidth(),
+                        enabled = !busy,
+                        label = { Text(stringResource(R.string.campaign_describe)) },
+                    )
+                    Button(modifier = Modifier.fillMaxWidth(), enabled = !busy && text.isNotBlank(), onClick = {
+                        lastDescription = text
+                        busy = true
+                        scope.launch {
+                            // Chamada à IA: fora da thread principal.
+                            cancellableIo { flow.submitDescription(text) }
+                            step = flow.step
+                            busy = false
+                        }
+                    }) { Text(stringResource(if (busy) R.string.campaign_interpreting else R.string.campaign_interpret)) }
+                    TextButton(enabled = !busy, onClick = { freeMode = false }) { Text(stringResource(R.string.campaign_back_to_selection)) }
+                }
             }
 
             is NewCampaignFlow.Step.Asking -> {
@@ -193,14 +197,14 @@ fun NewCampaignSection(model: AppModel) {
                 }
                 if (worldId == null) {
                     OutlinedButton(
-                        enabled = !busy && text.isNotBlank(),
+                        enabled = !busy && lastDescription.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             busy = true
                             scope.launch {
                                 val proposal =
                                     try {
-                                        withContext(Dispatchers.IO) { model.proposeCustomWorld(text) }
+                                        withContext(Dispatchers.IO) { model.proposeCustomWorld(lastDescription) }
                                     } finally {
                                         busy = false
                                     }
@@ -372,6 +376,10 @@ fun NewCampaignSection(model: AppModel) {
                     flow.reset()
                     step = flow.step
                     text = ""
+                    lastDescription = ""
+                    selPreset = null
+                    selTone = null
+                    freeMode = false
                     name = ""
                     chosen = null
                     worldId = null
@@ -413,6 +421,46 @@ private fun CartaoMundo(
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
+        }
+    }
+}
+
+/** Predefinições e opções da nova campanha (PT-03). O autor pode trocar as predefinições; ver o plano de correções. */
+private object CampanhaOpcoes {
+    class Predefinicao(val nome: String, val genero: String, val temas: List<String>)
+
+    val predefinicoes =
+        listOf(
+            Predefinicao("Aventura clássica", "Fantasia, aventura clássica", listOf("exploração", "tesouros", "heróis")),
+            Predefinicao("Terror sombrio", "Fantasia sombria, terror", listOf("medo", "mistério", "sobrevivência")),
+            Predefinicao("Intriga política", "Fantasia, intriga política", listOf("facções", "traição", "diplomacia")),
+            Predefinicao("Exploração leve", "Fantasia, exploração leve", listOf("descobertas", "viagem", "vida em comunidade")),
+        )
+    val tons = listOf("Sério", "Leve", "Sombrio", "Épico")
+    val dificuldades = listOf("Fácil", "Normal", "Difícil")
+    val ritmos = listOf("Calmo", "Equilibrado", "Acelerado")
+    val modos = listOf("Narrativo", "Tático (combate detalhado)")
+}
+
+/** Linha rolável de chips de escolha única; tocar de novo no escolhido desmarca. */
+@Composable
+private fun ChipRow(
+    options: List<String>,
+    selected: Int?,
+    enabled: Boolean,
+    onSelect: (Int?) -> Unit,
+) {
+    Row(
+        Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        options.forEachIndexed { i, label ->
+            FilterChip(
+                selected = selected == i,
+                enabled = enabled,
+                onClick = { onSelect(if (selected == i) null else i) },
+                label = { Text(label) },
+            )
         }
     }
 }

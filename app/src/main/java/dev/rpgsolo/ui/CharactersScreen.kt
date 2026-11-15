@@ -33,12 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import dev.rpgsolo.R
 import dev.rpgsolo.rules.CharacterDraft
@@ -96,6 +94,7 @@ private fun Creator(
     var version by remember(key) { mutableIntStateOf(0) }
     var message by remember(key) { mutableStateOf<String?>(null) }
     var libraryMessage by remember(key) { mutableStateOf<String?>(null) }
+    var newStoryFichaId by remember(key) { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val unexpectedError = stringResource(R.string.char_action_failed)
     val context = LocalContext.current
@@ -127,7 +126,6 @@ private fun Creator(
             version++
         }
     }
-    var fichaImportText by remember(key) { mutableStateOf("") }
     var expandedFichaId by remember(key) { mutableStateOf<String?>(null) }
     var editingChoicesFichaId by remember(key) { mutableStateOf<String?>(null) }
     val loreDrafts = remember(key) { androidx.compose.runtime.mutableStateMapOf<String, String>() }
@@ -146,7 +144,6 @@ private fun Creator(
                 }
             }
         }
-    val clipboard = LocalClipboardManager.current
     var archId by remember(key) { mutableStateOf<String?>(null) }
     var archQuery by remember(key) { mutableStateOf("") }
     var traitQuery by remember(key) { mutableStateOf("") }
@@ -248,14 +245,16 @@ private fun Creator(
                                     Conquista.HEROI_MESTICO,
                                 )
                             }
-                            val loreError = if (lore.isNotBlank()) model.approveLore(b.ficha.id, lore) else null
                             newId = model.newFichaId()
                             model.saveCreationDraft(null)
-                            loreError
+                            null
                         }) { failure ->
                             if (failure == null) {
                                 rascunhoSalvo = null
                                 draftId = newId
+                                // PT-04: aparência e personalidade escolhidas viram a base do pedido de história à IA.
+                                loreAppearance[b.ficha.id] = lore
+                                newStoryFichaId = b.ficha.id
                                 message = context.getString(R.string.char_created, b.ficha.name)
                             } else {
                                 message = failure
@@ -265,6 +264,56 @@ private fun Creator(
                     is FichaBuild.Invalid -> message = b.errors.joinToString("; ")
                 }
             }
+        }
+        newStoryFichaId?.let { storyId ->
+            val storyDraft = loreDrafts[storyId]
+            AppCard(accent = MaterialTheme.colorScheme.tertiary) {
+                Text(stringResource(R.string.char_story_ai_title), style = MaterialTheme.typography.titleSmall)
+                Muted(stringResource(R.string.char_story_ai_help))
+                if (storyDraft == null) {
+                    LinhaQuebravel {
+                        TextButton(enabled = !dbBusy, onClick = {
+                            val base = loreAppearance[storyId].orEmpty()
+                            io({
+                                val r = model.generateLore(storyId, base, "")
+                                r.text?.let { loreDrafts[storyId] = it }
+                                r.error
+                            }) { libraryMessage = it }
+                        }) { Text(stringResource(R.string.char_story_ai_button)) }
+                        TextButton(onClick = { newStoryFichaId = null }) { Text(stringResource(R.string.char_story_ai_later)) }
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = storyDraft,
+                        onValueChange = { loreDrafts[storyId] = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(stringResource(R.string.char_lore_draft)) },
+                        minLines = 4,
+                        maxLines = 12,
+                    )
+                    LinhaQuebravel {
+                        TextButton(enabled = !dbBusy, onClick = {
+                            io({ model.approveLore(storyId, storyDraft) }) {
+                                if (it == null) {
+                                    loreDrafts.remove(storyId)
+                                    newStoryFichaId = null
+                                }
+                                libraryMessage = it ?: context.getString(R.string.char_lore_saved)
+                            }
+                        }) { Text(stringResource(R.string.char_lore_approve)) }
+                        TextButton(enabled = !dbBusy, onClick = {
+                            val base = loreAppearance[storyId].orEmpty()
+                            io({
+                                val r = model.generateLore(storyId, base, "")
+                                r.text?.let { loreDrafts[storyId] = it }
+                                r.error
+                            }) { libraryMessage = it }
+                        }) { Text(stringResource(R.string.char_lore_regenerate)) }
+                        TextButton(onClick = { loreDrafts.remove(storyId) }) { Text(stringResource(R.string.char_lore_discard)) }
+                    }
+                }
+                libraryMessage?.let { Muted(it) }
+                        }
         }
     } else {
         Muted(stringResource(R.string.wiz_mode_advanced_help))
@@ -734,30 +783,7 @@ private fun Creator(
         message?.let { Muted(it) }
     }
 
-    SectionTitle(stringResource(R.string.char_import_title), stringResource(R.string.char_import_help))
-    AppCard {
-        OutlinedTextField(
-            value = fichaImportText,
-            onValueChange = { fichaImportText = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.char_import_label)) },
-            placeholder = { Text(stringResource(R.string.char_import_placeholder)) },
-            minLines = 3,
-            maxLines = 8,
-        )
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !dbBusy,
-            onClick = {
-                val raw = fichaImportText
-                io({ model.importFicha(raw) }) {
-                    libraryMessage = it
-                    if (it?.startsWith("Ficha ") == true && it.orEmpty().contains("importada")) fichaImportText = ""
-                }
-            },
-        ) { Text(stringResource(R.string.char_import_button)) }
-    }
-
+    libraryMessage?.let { Muted(it) }
     if (model.fichas.isNotEmpty()) {
         SectionTitle(stringResource(R.string.char_library))
         model.fichas.forEach { f ->
@@ -821,7 +847,7 @@ private fun Creator(
                     } else {
                         Muted(stringResource(R.string.char_portrait_none))
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    LinhaQuebravel {
                         TextButton(enabled = !dbBusy, onClick = {
                             portraitTargetId = f.id
                             portraitPicker.launch("image/*")
@@ -854,7 +880,7 @@ private fun Creator(
                             maxLines = 3,
                         )
                         Muted(stringResource(R.string.char_lore_privacy))
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        LinhaQuebravel {
                             TextButton(enabled = !dbBusy, onClick = {
                                 val appearance = loreAppearance[f.id].orEmpty()
                                 val idea = loreIdea[f.id].orEmpty()
@@ -887,7 +913,7 @@ private fun Creator(
                             minLines = 4,
                             maxLines = 12,
                         )
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        LinhaQuebravel {
                             TextButton(enabled = !dbBusy, onClick = {
                                 io({ model.approveLore(f.id, draftText) }) {
                                     if (it == null) loreDrafts.remove(f.id)
@@ -898,7 +924,7 @@ private fun Creator(
                         }
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                LinhaQuebravel {
                     TextButton(onClick = {
                         val saved = model.characterChoices(f.id)
                         raceId = saved.raceId
@@ -919,15 +945,6 @@ private fun Creator(
                     TextButton(enabled = !dbBusy, onClick = {
                         io({ model.archiveFicha(f.id, true) }) { libraryMessage = it ?: context.getString(R.string.char_archived) }
                     }) { Text(stringResource(R.string.char_archive)) }
-                    TextButton(onClick = {
-                        val raw = model.exportFicha(f.id)
-                        if (raw != null) {
-                            clipboard.setText(AnnotatedString(raw))
-                            libraryMessage = context.getString(R.string.char_json_copied)
-                        } else {
-                            libraryMessage = context.getString(R.string.char_export_failed)
-                        }
-                    }) { Text(stringResource(R.string.char_copy_json)) }
                 }
             }
         }
@@ -937,7 +954,7 @@ private fun Creator(
         model.archivedFichas.forEach { f ->
             AppCard {
                 Text(f.name, style = MaterialTheme.typography.titleSmall)
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                LinhaQuebravel {
                     TextButton(enabled = !dbBusy, onClick = {
                         io({ model.archiveFicha(f.id, false) }) { libraryMessage = it ?: context.getString(R.string.char_restored) }
                     }) { Text(stringResource(R.string.char_restore)) }
@@ -948,7 +965,6 @@ private fun Creator(
             }
         }
     }
-    libraryMessage?.let { Muted(it) }
 }
 
 /** M-01.8: nome do traço com a marcação do que o motor aplica ("efeito: ...") ou "narrativo" (só vantagem/desvantagem). */

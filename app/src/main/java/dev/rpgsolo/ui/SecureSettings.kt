@@ -28,6 +28,8 @@ data class StoredProviderSettings(
     val preset: String = "",
     /** Modelos reservas, na ordem, usados quando o principal esgota ou sai do ar. */
     val fallbackModels: List<String> = emptyList(),
+    /** Instante (ms) da última montagem automática da cadeia gratuita; 0 = nunca. */
+    val modelsRefreshedAt: Long = 0L,
 )
 
 class SecureSettings(context: Context) {
@@ -57,6 +59,7 @@ class SecureSettings(context: Context) {
             cacheCreationPricePerMillion = preferences.getString("price_cache_creation_per_million", "0")?.toDoubleOrNull() ?: 0.0,
             preset = preferences.getString("preset", "").orEmpty(),
             fallbackModels = preferences.getString("fallback_models", "").orEmpty().lines().filter { it.isNotBlank() },
+            modelsRefreshedAt = preferences.getLong("models_refreshed_at", 0L),
         )
     }
 
@@ -74,6 +77,7 @@ class SecureSettings(context: Context) {
             .putString("price_cache_creation_per_million", settings.cacheCreationPricePerMillion.toString())
             .putString("preset", settings.preset)
             .putString("fallback_models", settings.fallbackModels.joinToString("\n"))
+            .putLong("models_refreshed_at", settings.modelsRefreshedAt)
             .putString("api_key", encrypt(settings.apiKey))
             .apply()
     }

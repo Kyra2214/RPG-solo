@@ -46,6 +46,9 @@ fun ConfigScreen(model: AppModel) {
         mutableStateOf(if (stored != null && stored.preset.isNotBlank()) listOf(stored.model) + stored.fallbackModels else emptyList())
     }
     var discovering by remember { mutableStateOf(false) }
+    var autoBusy by remember { mutableStateOf(false) }
+    var autoResult by remember { mutableStateOf<FreeModelsResult?>(null) }
+    var advanced by remember { mutableStateOf(false) }
     var discoverResult by remember { mutableStateOf<FreeModelsResult?>(null) }
     var endpoint by remember { mutableStateOf(stored?.endpoint ?: "https://") }
     var modelName by remember { mutableStateOf(stored?.model.orEmpty()) }
@@ -124,53 +127,102 @@ fun ConfigScreen(model: AppModel) {
                     saved = false
                 }
             }
+            val busy = discovering || testing || autoBusy || model.freeModelsBusy
+            val readyChain = stored?.takeIf { it.preset == p.name && it.apiKey == key.trim() }?.let { listOf(it.model) + it.fallbackModels }.orEmpty()
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !discovering && !testing,
+                enabled = !busy && key.isNotBlank(),
                 onClick = {
                     val requestedKey = key.trim()
-                    discovering = true
-                    discoverResult = null
-                    freeModels = emptyList()
-                    modelName = ""
+                    autoBusy = true
+                    autoResult = null
                     saved = false
                     scope.launch {
-                        val result = cancellableIo { model.discoverFreeModels(p, requestedKey) }
-                        if (preset == p && key.trim() == requestedKey) {
-                            discoverResult = result
-                            if (result.success) {
-                                freeModels = result.models
-                                if (modelName !in result.models) modelName = result.models.first()
-                            }
-                        }
-                        discovering = false
+                        val result = cancellableIo { model.refreshFreeModels(force = true, presetOverride = p, keyOverride = requestedKey) }
+                        if (preset == p && key.trim() == requestedKey) autoResult = result
+                        autoBusy = false
                     }
                 },
-            ) { Text(stringResource(if (discovering) R.string.config_finding_free_models else R.string.config_find_free_models)) }
-            discoverResult?.let { result ->
-                if (result.success) {
-                    AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text(result.message) }
-                } else {
-                    ErrorText(result.message)
+            ) { Text(stringResource(if (busy) R.string.config_auto_preparing else R.string.config_auto_save_key)) }
+            val shownResult = autoResult
+            if (shownResult != null && !shownResult.success) {
+                ErrorText(shownResult.message)
+            } else if (shownResult != null || readyChain.isNotEmpty()) {
+                AppCard(accent = MaterialTheme.colorScheme.tertiary) {
+                    Text(stringResource(R.string.config_auto_ready, shownResult?.models?.size ?: readyChain.size))
+                    Muted(stringResource(R.string.config_auto_ready_help))
                 }
             }
-            if (freeModels.isNotEmpty()) {
-                Text(stringResource(R.string.config_free_models_title), style = MaterialTheme.typography.titleSmall)
-                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    freeModels.take(12).forEach { id ->
-                        FilterChip(
-                            selected = modelName == id,
-                            enabled = !discovering && !testing,
-                            onClick = {
-                                modelName = id
-                                testResult = null
-                                saved = false
-                            },
-                            label = { Text(id) },
-                        )
+            if (readyChain.isNotEmpty()) {
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    onClick = {
+                        val requestedKey = key.trim()
+                        autoBusy = true
+                        autoResult = null
+                        scope.launch {
+                            val result = cancellableIo { model.refreshFreeModels(force = true, presetOverride = p, keyOverride = requestedKey) }
+                            if (preset == p && key.trim() == requestedKey) autoResult = result
+                            autoBusy = false
+                        }
+                    },
+                ) { Text(stringResource(R.string.config_auto_refresh)) }
+            }
+            TextButton(onClick = { advanced = !advanced }) {
+                Text(stringResource(if (advanced) R.string.config_advanced_hide else R.string.config_advanced_show))
+            }
+            if (advanced) {
+                Muted(stringResource(R.string.config_advanced_help))
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !discovering && !testing,
+                    onClick = {
+                        val requestedKey = key.trim()
+                        discovering = true
+                        discoverResult = null
+                        freeModels = emptyList()
+                        modelName = ""
+                        saved = false
+                        scope.launch {
+                            val result = cancellableIo { model.discoverFreeModels(p, requestedKey) }
+                            if (preset == p && key.trim() == requestedKey) {
+                                discoverResult = result
+                                if (result.success) {
+                                    freeModels = result.models
+                                    if (modelName !in result.models) modelName = result.models.first()
+                                }
+                            }
+                            discovering = false
+                        }
+                    },
+                ) { Text(stringResource(if (discovering) R.string.config_finding_free_models else R.string.config_find_free_models)) }
+                discoverResult?.let { result ->
+                    if (result.success) {
+                        AppCard(accent = MaterialTheme.colorScheme.tertiary) { Text(result.message) }
+                    } else {
+                        ErrorText(result.message)
                     }
                 }
-                Muted(stringResource(R.string.config_free_models_auto_help))
+                if (freeModels.isNotEmpty()) {
+                    Text(stringResource(R.string.config_free_models_title), style = MaterialTheme.typography.titleSmall)
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        freeModels.take(12).forEach { id ->
+                            FilterChip(
+                                selected = modelName == id,
+                                enabled = !discovering && !testing,
+                                onClick = {
+                                    modelName = id
+                                    testResult = null
+                                    saved = false
+                                },
+                                label = { Text(id) },
+                            )
+                        }
+                    }
+                    Muted(stringResource(R.string.config_free_models_auto_help))
+                }
+
             }
             AppCard {
                 Text(stringResource(R.string.config_free_key_steps_title), style = MaterialTheme.typography.titleSmall)
@@ -220,53 +272,58 @@ fun ConfigScreen(model: AppModel) {
             )
             Muted(stringResource(R.string.config_cache_help))
         }
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            enabled =
-                !testing && !discovering &&
-                    (preset == null || (modelName.isNotBlank() && modelName in freeModels.take(12))),
-            onClick = {
-                testing = true
-                testResult = null
-                scope.launch {
-                    val result =
-                        cancellableIo {
-                            model.testConnection(effKind, effEndpoint, modelName, key, effCache)
-                        }
-                    testResult = result
-                    testing = false
-                }
-            },
-        ) { Text(stringResource(if (testing) R.string.config_testing_connection else R.string.config_test_connection)) }
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            enabled =
-                !discovering && !testing &&
-                    (preset == null || (modelName.isNotBlank() && modelName in freeModels.take(12))),
-            onClick = {
-                fun parsePrice(value: String): Double? =
-                    if (value.isBlank()) null else value.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
-                val input = parsePrice(inputPrice)
-                val output = parsePrice(outputPrice)
-                val cacheRead = parsePrice(cacheReadPrice)
-                val cacheCreation = parsePrice(cacheCreationPrice)
-                if ((!inputPrice.isBlank() && input == null) || (!outputPrice.isBlank() && output == null) ||
-                    (!cacheReadPrice.isBlank() && cacheRead == null) || (!cacheCreationPrice.isBlank() && cacheCreation == null)
-                ) {
-                    priceError = configPriceError
-                    saved = false
-                } else {
-                    priceError = null
-                    val baseInput = input ?: 0.0
-                    saved =
-                        model.applySettings(
-                            effKind, effEndpoint, modelName, key, effCheap, effPremium, effCache,
-                            baseInput, output ?: 0.0, cacheRead ?: baseInput, cacheCreation ?: baseInput,
-                            preset?.name.orEmpty(), freeModels.take(12).filter { it != modelName },
-                        )
-                }
-            },
-        ) { Text(stringResource(R.string.config_save_and_use)) }
+        if (preset == null || advanced) {
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                enabled =
+                    !testing && !discovering &&
+                        (preset == null || (modelName.isNotBlank() && modelName in freeModels.take(12))),
+                onClick = {
+                    testing = true
+                    testResult = null
+                    scope.launch {
+                        val result =
+                            cancellableIo {
+                                model.testConnection(effKind, effEndpoint, modelName, key, effCache)
+                            }
+                        testResult = result
+                        testing = false
+                    }
+                },
+            ) { Text(stringResource(if (testing) R.string.config_testing_connection else R.string.config_test_connection)) }
+        }
+        if (preset == null || advanced) {
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                enabled =
+                    !discovering && !testing &&
+                        (preset == null || (modelName.isNotBlank() && modelName in freeModels.take(12))),
+                onClick = {
+                    fun parsePrice(value: String): Double? =
+                        if (value.isBlank()) null else value.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0.0 }
+                    val input = parsePrice(inputPrice)
+                    val output = parsePrice(outputPrice)
+                    val cacheRead = parsePrice(cacheReadPrice)
+                    val cacheCreation = parsePrice(cacheCreationPrice)
+                    if ((!inputPrice.isBlank() && input == null) || (!outputPrice.isBlank() && output == null) ||
+                        (!cacheReadPrice.isBlank() && cacheRead == null) || (!cacheCreationPrice.isBlank() && cacheCreation == null)
+                    ) {
+                        priceError = configPriceError
+                        saved = false
+                    } else {
+                        priceError = null
+                        val baseInput = input ?: 0.0
+                        saved =
+                            model.applySettings(
+                                effKind, effEndpoint, modelName, key, effCheap, effPremium, effCache,
+                                baseInput, output ?: 0.0, cacheRead ?: baseInput, cacheCreation ?: baseInput,
+                                preset?.name.orEmpty(), freeModels.take(12).filter { it != modelName },
+                                System.currentTimeMillis(),
+                            )
+                    }
+                },
+            ) { Text(stringResource(R.string.config_save_and_use)) }
+        }
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             model.forgetProvider()
             key = ""
@@ -433,6 +490,7 @@ fun ConfigScreen(model: AppModel) {
             Muted(stringResource(R.string.config_usage, model.usage.calls, model.usage.inputTokens, model.usage.outputTokens))
             Muted(stringResource(R.string.config_cache_usage, model.usage.cacheReadInputTokens, model.usage.cacheCreationInputTokens))
         }
+        FichasJsonSection(model)
         val diagContext = LocalContext.current
         var hasCrash by remember { mutableStateOf(Diagnostics.lastCrash(diagContext) != null) }
         AppCard {

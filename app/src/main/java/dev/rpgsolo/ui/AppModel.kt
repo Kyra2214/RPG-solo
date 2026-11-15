@@ -22,6 +22,7 @@ import dev.rpgsolo.ai.CheckOption
 import dev.rpgsolo.ai.GameLoop
 import dev.rpgsolo.ai.IntentClassifier
 import dev.rpgsolo.ai.ModelDiscovery
+import dev.rpgsolo.ai.ModelProbe
 import dev.rpgsolo.ai.NewCampaignFlow
 import dev.rpgsolo.ai.PlayController
 import dev.rpgsolo.ai.PlayerSheet
@@ -68,6 +69,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+
+/** Tamanho da cadeia de modelos gratuitos (ASSUMINDO 6; ver PLANO_CORRECOES_POS_TESTE.md) e prazos de renovação. */
+/** Cadeia de modelos gratuitos: todos os que respondem texto (decisão do autor em 14/11/2026), sem teto de quantidade nem de sondas. */
+private const val FREE_CHAIN_SIZE = Int.MAX_VALUE
+private const val MODELS_MAX_AGE_MS = 24L * 60L * 60L * 1000L
+private const val MODELS_RETRY_GAP_MS = 10L * 60L * 1000L
 
 data class ConnectionTestResult(val success: Boolean, val message: String)
 
@@ -2272,6 +2279,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         cacheCreationPricePerMillion: Double = inputPricePerMillion,
         preset: String = "",
         fallbackModels: List<String> = emptyList(),
+        modelsRefreshedAt: Long = storedSettings?.modelsRefreshedAt ?: 0L,
     ): Boolean =
         try {
             require(apiKey.isNotBlank()) { "informe a chave de API" }
@@ -2287,6 +2295,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                         fallbackModels,
                         usage,
                         AiTestHooks.transportOrDefault(),
+                        onAllFailed = ::requestModelsRefreshAfterFailure,
                     )
                 } else {
                     ProviderFactory.buildRoles(
@@ -2315,6 +2324,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     cacheCreationPricePerMillion = cacheCreationPricePerMillion,
                     preset = preset,
                     fallbackModels = fallbackModels.map { it.trim() }.filter { it.isNotEmpty() },
+                    modelsRefreshedAt = modelsRefreshedAt,
                 ).also(secureSettings::save)
             configError = null
             true
@@ -2359,17 +2369,20 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                 provider.complete(
                     AiRequest(
                         messages = listOf(AiMessage(Role.USER, "Responda apenas OK.")),
-                        maxTokens = 8,
+                        // Modelos de raciocínio gastam tokens pensando antes de responder; 8 não bastava para eles.
+                        maxTokens = 256,
                         temperature = 0.0,
                     ),
                 )
             if (reply.text.isBlank()) {
-                ConnectionTestResult(false, "o provedor respondeu sem texto")
+                ConnectionTestResult(false, "o modelo ${model.trim()} respondeu sem texto")
             } else {
-                ConnectionTestResult(true, "conexão funcionando (${provider.name})")
+                ConnectionTestResult(true, "conexão funcionando (${provider.name}, modelo ${model.trim()})")
             }
         } catch (e: AiError) {
-            ConnectionTestResult(false, e.message ?: "falha na conexão")
+            val reason = e.message ?: "falha na conexão"
+            // Os erros de leitura já citam o modelo; os de rede e de HTTP ainda não.
+            ConnectionTestResult(false, if (model.isNotBlank() && model.trim() !in reason) "modelo ${model.trim()}: $reason" else reason)
         } catch (e: IllegalArgumentException) {
             ConnectionTestResult(false, e.message ?: "configuração inválida")
         } catch (e: Exception) {
@@ -2399,6 +2412,78 @@ class AppModel(application: Application) : AndroidViewModel(application) {
         } catch (e: Exception) {
             FreeModelsResult(false, emptyList(), "não foi possível buscar os modelos: ${e.message ?: "erro desconhecido"}")
         }
+
+    /** Estado da montagem automática da cadeia gratuita (para a tela de Configurações). */
+    var freeModelsBusy by mutableStateOf(false)
+        private set
+
+    @Volatile
+    private var lastAutoRefreshAttemptAt = 0L
+
+    /** Chamado pela cadeia quando nenhum modelo respondeu: pede nova busca, no máximo uma a cada 10 minutos. */
+    private fun requestModelsRefreshAfterFailure() {
+        val now = System.currentTimeMillis()
+        if (storedSettings?.preset.isNullOrBlank() || now - lastAutoRefreshAttemptAt < MODELS_RETRY_GAP_MS) return
+        startupScope.launch { refreshFreeModels(force = true) }
+    }
+
+    /**
+     * Monta sozinho a cadeia de modelos gratuitos: busca a lista do provedor, sonda os candidatos (só texto→texto) e
+     * grava o principal e as reservas. Sem [force], não faz nada se a cadeia atual tem menos de 24 h.
+     * [FreeModelsResult.models] traz a cadeia pronta (principal primeiro). Bloqueante: chamar fora da thread principal.
+     */
+    fun refreshFreeModels(
+        force: Boolean = false,
+        presetOverride: ProviderPreset? = null,
+        keyOverride: String? = null,
+    ): FreeModelsResult {
+        val saved = storedSettings
+        val preset = presetOverride ?: ProviderPreset.fromName(saved?.preset)
+        val key = (keyOverride ?: saved?.apiKey).orEmpty().trim()
+        if (preset == null) return FreeModelsResult(false, emptyList(), "escolha um provedor gratuito")
+        if (key.isBlank()) return FreeModelsResult(false, emptyList(), "informe a chave de API")
+        val sameChain = saved != null && saved.preset == preset.name && saved.apiKey == key
+        if (!force && sameChain && saved != null && saved.modelsRefreshedAt > 0L &&
+            System.currentTimeMillis() - saved.modelsRefreshedAt <= MODELS_MAX_AGE_MS
+        ) {
+            return FreeModelsResult(true, listOf(saved.model) + saved.fallbackModels, "${1 + saved.fallbackModels.size} modelos prontos")
+        }
+        synchronized(this) {
+            if (freeModelsBusy) return FreeModelsResult(false, emptyList(), "já estou atualizando os modelos")
+            freeModelsBusy = true
+        }
+        lastAutoRefreshAttemptAt = System.currentTimeMillis()
+        return try {
+            val transport = AiTestHooks.transportOrDefault()
+            val found = ModelDiscovery.fetch(preset, key, transport)
+            if (found.isEmpty()) {
+                FreeModelsResult(false, emptyList(), "nenhum modelo gratuito de texto disponível agora; tente de novo mais tarde")
+            } else {
+                val chain = ModelProbe.select(preset.chatEndpoint, key, found.map { it.id }, transport, want = FREE_CHAIN_SIZE, maxProbes = FREE_CHAIN_SIZE)
+                if (chain.isEmpty()) {
+                    FreeModelsResult(false, emptyList(), "nenhum modelo gratuito respondeu agora; tente de novo em alguns minutos")
+                } else {
+                    val applied =
+                        applySettings(
+                            ProviderKind.OPENAI_COMPATIBLE, preset.chatEndpoint, chain.first(), key,
+                            preset = preset.name, fallbackModels = chain.drop(1),
+                            modelsRefreshedAt = System.currentTimeMillis(),
+                        )
+                    if (applied) {
+                        FreeModelsResult(true, chain, "${chain.size} modelos prontos")
+                    } else {
+                        FreeModelsResult(false, emptyList(), configError ?: "não foi possível salvar a configuração")
+                    }
+                }
+            }
+        } catch (e: AiError) {
+            FreeModelsResult(false, emptyList(), e.message ?: "falha ao buscar os modelos")
+        } catch (e: Exception) {
+            FreeModelsResult(false, emptyList(), "não foi possível buscar os modelos: ${e.message ?: "erro desconhecido"}")
+        } finally {
+            freeModelsBusy = false
+        }
+    }
 
     /** Remove a chave cifrada e desativa o provedor atual. */
     fun forgetProvider() {
@@ -3762,8 +3847,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
                     saved.cheapModel, saved.premiumModel, saved.cacheSystemPrompt,
                     saved.inputPricePerMillion, saved.outputPricePerMillion,
                     saved.cacheReadPricePerMillion, saved.cacheCreationPricePerMillion,
-                    saved.preset, saved.fallbackModels,
+                    saved.preset, saved.fallbackModels, saved.modelsRefreshedAt,
                 )
+            }
+            if (saved.preset.isNotBlank() && System.currentTimeMillis() - saved.modelsRefreshedAt > MODELS_MAX_AGE_MS) {
+                startupScope.launch { refreshFreeModels(force = true) }
             }
         }
     }

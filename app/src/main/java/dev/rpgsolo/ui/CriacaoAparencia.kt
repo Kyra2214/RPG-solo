@@ -37,3 +37,25 @@ internal object CriacaoAparencia {
     /** Uma frase de cada categoria, em texto novo; não usa o que já foi escrito. */
     fun sortear(aleatorio: Random = Random.Default): String = categorias.joinToString(SEPARADOR) { it.second.random(aleatorio) }
 }
+
+/** Personalidade por escolha (PT-04): mesmas regras de alternar/sortear da aparência, sem texto livre. */
+internal object CriacaoPersonalidade {
+    val categorias: List<Pair<String, List<String>>> =
+        listOf(
+            "Temperamento" to listOf("calmo", "impulsivo", "curioso", "cauteloso", "ousado", "melancólico"),
+            "Jeito" to listOf("bem-humorado", "sério", "leal", "desconfiado", "generoso", "orgulhoso"),
+            "Motivação" to listOf("busca fama", "busca vingança", "busca conhecimento", "protege os fracos", "foge do passado", "busca riqueza"),
+        )
+
+    fun contem(
+        texto: String,
+        frase: String,
+    ): Boolean = CriacaoAparencia.contem(texto, frase)
+
+    fun alternar(
+        texto: String,
+        frase: String,
+    ): String = CriacaoAparencia.alternar(texto, frase)
+
+    fun sortear(aleatorio: Random = Random.Default): String = categorias.joinToString(", ") { it.second.random(aleatorio) }
+}

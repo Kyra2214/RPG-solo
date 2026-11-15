@@ -1,3 +1,44 @@
+## 14/11/2026 — Decisões do autor sobre o plano pós-teste
+
+- Cadeia de modelos gratuitos passa a incluir todos os que respondem texto: `AppModel` usa `want` e `maxProbes` ilimitados em `ModelProbe.select` (antes 6 e 16). História gerada continua com confirmação do jogador; exportar ficha continua uma por vez; as 4 predefinições de campanha foram mantidas. Escrito, não compilado; os testes do PT-02 não dependem do teto.
+
+## 14/11/2026 — PT-07: testes das correções pós-teste (validação)
+
+- Novos testes escritos: `RespostaProvedorPt01Test` (`ai`: `extractChoiceText`, conteúdo em lista, raciocínio como último recurso, `length`, recusa, erro com status 200), `ModelosAutomaticosPt02Test` (`ai`: filtro texto→texto, `ModelProbe.select`, limites de sondas, chave inválida/sem internet, `onAllFailed`), `CampanhaPorSelecaoPt03Test` (`ai`: descrição montada pela seleção) e `CriacaoChipsPt04Test` (`app`, JVM: aparência e personalidade por chips e sorteio). Sem mudança em código de produção.
+- **Não executados**: sem Gradle/JDK 17 neste ambiente. Falta rodar `ktlintCheck`, a suíte completa e os E2E no CI e conferir no aparelho (chave → modelos → nova campanha → ficha → história → importar/exportar → biblioteca em 360 dp). PT-07 só fecha com esse resultado registrado.
+
+## 14/11/2026 — PT-06: layout da biblioteca de fichas
+
+- Novo `LinhaQuebravel.kt` (`FlowRow`, botões quebram de linha em vez de rótulos letra por letra). `CharactersScreen.kt`: as 7 linhas de botões passam a usá-lo; mensagem de estado da biblioteca no topo dela; a mensagem solta "cole o JSON da ficha" saiu junto com a importação (PT-05). `TimeSimulationScreen.kt`: linha de velocidade quebrável.
+- Escrito, não compilado; sem teste novo até o PT-07.
+
+## 14/11/2026 — PT-05: importar e exportar JSON em Configurações
+
+- Novo `FichasJsonSection.kt` (seção "Fichas (JSON)" na `ConfigScreen`): importar colando o JSON ou escolhendo arquivo, com a validação de `AppModel.importFicha`; exportar escolhendo a ficha, com "Copiar JSON" e "Salvar arquivo". Removidos de `CharactersScreen` o cartão de importação e o botão "Copiar JSON" (e o estado do campo e os imports do clipboard). Sem mudança no formato do JSON nem no `AppModel`.
+- ASSUMINDO: ver `docs/PLANO_CORRECOES_POS_TESTE.md` (assunções do PT-05). Escrito, não compilado; sem teste novo até o PT-07.
+
+## 14/11/2026 — PT-04: história do personagem pela IA
+
+- `CriacaoAbas.kt`: removidos os campos de texto livre de aparência, personalidade e história e a regra 40–4000 como bloqueio de "Criar ficha"; personalidade por chips e "Sortear" (`CriacaoPersonalidade`, em `CriacaoAparencia.kt`). `CharactersScreen.kt`: após criar a ficha, cartão "Pedir à IA para criar a história" (gerar, editar, regenerar, salvar) usando `generateLore`/`approveLore` existentes; a IA só propõe, o jogador confirma. Strings novas.
+- ASSUMINDO: ver `docs/PLANO_CORRECOES_POS_TESTE.md` (assunções do PT-04). Escrito, não compilado; sem teste novo até o PT-07.
+
+## 14/11/2026 — PT-03: nova campanha por seleção
+
+- `NewCampaignSection.kt`: formulário por chips como padrão (tipo de aventura com 4 predefinições, tom, dificuldade, ritmo, modo) e "Detalhes extras (opcional)"; descrição livre ficou como atalho secundário. A descrição é montada por `CampaignForm` e segue para o `NewCampaignFlow` sem mudança no motor; o texto montado alimenta também a proposta de mundo próprio. Removido o formulário auxiliar de campos soltos. Strings novas em `strings.xml`.
+- ASSUMINDO: ver `docs/PLANO_CORRECOES_POS_TESTE.md` (assunções do PT-03). Escrito, não compilado; sem teste novo até o PT-07.
+
+## 14/11/2026 — PT-02: modelos gratuitos automáticos
+
+- `ai/FreeProviders.kt`: `ModelDiscovery` passa a exigir entrada e saída só `text` e exclui ids de visão, imagem, áudio, OCR, vídeo e rerank; novo `ModelProbe.select` sonda os candidatos (chamada curta) e mantém só os que respondem texto; `FallbackProvider` ganhou `onAllFailed`. `ProviderFactory.buildFreeFallback` repassa o gancho.
+- `app`: `AppModel.refreshFreeModels` (busca, sonda, grava a cadeia de até 6 modelos e o horário), `freeModelsBusy`, renovação na abertura se a cadeia tem mais de 24 h e após falha total (no máximo a cada 10 min); `StoredProviderSettings.modelsRefreshedAt` (persistido em `SecureSettings`). `ConfigScreen`: botão único "Salvar chave e preparar modelos", "N modelos prontos", "Atualizar modelos" e escolha manual recolhida em "Avançado".
+- ASSUMINDO: ver `docs/PLANO_CORRECOES_POS_TESTE.md` (assunções do PT-02). Escrito, não compilado; sem teste novo até o PT-07.
+
+## 14/11/2026 — Plano de correções pós-teste reformulado (PT-01 a PT-07) e início do PT-01
+
+- `docs/PLANO_CORRECOES_POS_TESTE.md` e linha 8 de `PLANO_RPG_SOLO.md` §9: provedor ilegível, modelos gratuitos automáticos, nova campanha por seleção, história pela IA, importar/exportar JSON movidos para Configurações, layout da biblioteca e validação. PT-00 (pontos de status) confirmado em aparelho pelo proprietário.
+- PT-01 (parte de código): `ai/Providers.kt` ganhou `extractChoiceText` (aceita `content` como texto ou lista de partes; `reasoning` só como último recurso; `refusal`, `finish_reason=length` e erro com status 200 viram `BadResponse` com o modelo). Escrito, não compilado; sem teste novo até o PT-07.
+- PT-01 (fechamento): `AppModel.testConnection` agora pede 256 tokens no teste (8 não bastava para modelos de raciocínio) e mostra o modelo testado no sucesso e o motivo, com o modelo, na falha. **PT-01 concluído em código.**
+
 ## 14/11/2026 — Correção: botão "+" dos pontos de status não atualizava na criação
 
 - Sintoma (aparelho): na aba Status da criação, "+" não alterava os valores e continuava "10 sobrando de 10". Causa provável: `PassoStatus` (`CriacaoAbas.kt`) não lia `est.tick`; o rascunho (`CharacterDraft`) não é estado do Compose e, com a recomposição inteligente (Kotlin 2.0.21), o passo era pulado após `setStat` + `tick++`. Correção: o passo agora lê `est.tick`. Escrito, não compilado nem testado em aparelho: confirmar no aparelho.

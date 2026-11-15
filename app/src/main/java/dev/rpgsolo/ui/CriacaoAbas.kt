@@ -1362,12 +1362,11 @@ private fun PassoInformacoes(
         ) { CharacterCreationCatalog.validateChoices(escolhas) + CharacterCreationCatalog.validateEffectScopes(pkg, escolhas) }
     val rotAparencia = stringResource(R.string.wiz_appearance)
     val rotPersonalidade = stringResource(R.string.wiz_personality)
-    val rotHistoria = stringResource(R.string.wiz_story)
+    // PT-04: sem história escrita à mão. Aparência e personalidade viram a base do pedido à IA, feito após criar a ficha.
     val lore =
-        listOf(rotAparencia to est.aparencia, rotPersonalidade to est.personalidade, rotHistoria to est.historia)
+        listOf(rotAparencia to est.aparencia, rotPersonalidade to est.personalidade)
             .filter { it.second.isNotBlank() }
             .joinToString("\n") { it.first + ": " + it.second.trim() }
-    val loreOk = lore.isEmpty() || lore.length in 40..4000
     val nomes =
         (listOf(est.raceId, est.subraceId, est.hybridId, est.classId, est.professionId) + est.mistas + est.extrasValidas())
             .filter { it.isNotBlank() }
@@ -1438,31 +1437,22 @@ private fun PassoInformacoes(
         }
     }
     OutlinedButton(onClick = { est.aparencia = CriacaoAparencia.sortear() }) { Text(stringResource(R.string.wiz_appearance_draw)) }
-    OutlinedTextField(
-        value = est.aparencia,
-        onValueChange = { est.aparencia = it },
-        label = { Text(rotAparencia) },
-        modifier = Modifier.fillMaxWidth(),
-        minLines = 2,
-        maxLines = 4,
-    )
-    OutlinedTextField(
-        value = est.personalidade,
-        onValueChange = { est.personalidade = it },
-        label = { Text(rotPersonalidade) },
-        modifier = Modifier.fillMaxWidth(),
-        minLines = 2,
-        maxLines = 4,
-    )
-    OutlinedTextField(
-        value = est.historia,
-        onValueChange = { est.historia = it },
-        label = { Text(rotHistoria) },
-        supportingText = { Text(stringResource(R.string.wiz_story_hint)) },
-        modifier = Modifier.fillMaxWidth(),
-        minLines = 3,
-        maxLines = 8,
-    )
+    if (est.aparencia.isNotBlank()) Muted(rotAparencia + ": " + est.aparencia)
+    Muted(rotPersonalidade)
+    CriacaoPersonalidade.categorias.forEach { (categoria, frases) ->
+        Muted(categoria)
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(CriacaoTokens.EspacoM)) {
+            frases.forEach { frase ->
+                FilterChip(
+                    selected = CriacaoPersonalidade.contem(est.personalidade, frase),
+                    onClick = { est.personalidade = CriacaoPersonalidade.alternar(est.personalidade, frase) },
+                    label = { Text(frase) },
+                )
+            }
+        }
+    }
+    OutlinedButton(onClick = { est.personalidade = CriacaoPersonalidade.sortear() }) { Text(stringResource(R.string.wiz_personality_draw)) }
+    Muted(stringResource(R.string.wiz_story_by_ai_hint))
 
     val faltas =
         buildList {
@@ -1473,7 +1463,6 @@ private fun PassoInformacoes(
             if (nome.isBlank()) add(stringResource(R.string.wiz_missing_name))
             if (est.sexo.isBlank()) add(stringResource(R.string.char_sex_required))
             if (est.idade() !in 1..IDADE_MAXIMA) add(stringResource(R.string.char_age_required, IDADE_MAXIMA))
-            if (!loreOk) add(stringResource(R.string.wiz_story_length))
             addAll(errosCatalogo)
         }
     val conceito = (nomes + listOf(origem)).filter { it.isNotBlank() }.joinToString(" · ")

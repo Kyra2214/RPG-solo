@@ -48,7 +48,11 @@ data class DiscoveredModel(
 
 /** Descobre os modelos gratuitos de texto e devolve do mais indicado para o menos indicado. */
 object ModelDiscovery {
-    private val notChat = listOf("whisper", "tts", "playai", "guard", "embed", "orpheus", "transcri", "moderation")
+    private val notChat =
+        listOf(
+            "whisper", "tts", "playai", "guard", "embed", "orpheus", "transcri", "moderation",
+            "-vl", "vl-", "vision", "image", "audio", "ocr", "video", "diffusion", "rerank",
+        )
     private val reasoning = listOf("r1", "reason", "thinking", "qwq", "think")
     private val sizeRegex = Regex("""(?<![a-z0-9])(\d+(?:\.\d+)?)b(?![a-z])""")
 
@@ -118,6 +122,10 @@ object ModelDiscovery {
             ((obj["architecture"] as? JsonObject)?.get("output_modalities") as? JsonArray)
                 ?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }
         if (outputs != null && outputs != listOf("text")) return null
+        val inputs =
+            ((obj["architecture"] as? JsonObject)?.get("input_modalities") as? JsonArray)
+                ?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }
+        if (inputs != null && inputs != listOf("text")) return null
         val params = (obj["supported_parameters"] as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }.orEmpty()
         return DiscoveredModel(
             id = id,
@@ -150,6 +158,8 @@ class FallbackProvider(
     private val rateLimitCooldownMs: Long = 5 * 60_000L,
     private val serverCooldownMs: Long = 2 * 60_000L,
     private val unavailableCooldownMs: Long = 10 * 60_000L,
+    /** Avisado (sem bloquear) quando nenhum modelo da cadeia conseguiu responder; serve para pedir nova busca. */
+    private val onAllFailed: (() -> Unit)? = null,
 ) : AiProvider {
     init {
         require(candidates.isNotEmpty()) { "informe ao menos um modelo" }
@@ -212,6 +222,49 @@ class FallbackProvider(
                 last = e
             }
         }
+        runCatching { onAllFailed?.invoke() }
         throw last ?: AiError.BadRequest("nenhum modelo disponível")
+    }
+}
+
+/**
+ * Sonda os modelos candidatos com uma chamada curta e fica só com os que respondem texto. Percorre a lista na
+ * ordem recebida (já do mais indicado ao menos) e para ao juntar [want] modelos ou ao esgotar [maxProbes] tentativas.
+ * Chave inválida ou falta de internet interrompem a sondagem (trocar de modelo não adiantaria).
+ */
+object ModelProbe {
+    fun select(
+        chatEndpoint: String,
+        apiKey: String,
+        candidates: List<String>,
+        transport: HttpTransport,
+        want: Int = 6,
+        maxProbes: Int = 16,
+    ): List<String> {
+        val ok = ArrayList<String>()
+        var probes = 0
+        for (id in candidates) {
+            if (ok.size >= want || probes >= maxProbes) break
+            probes++
+            val provider = OpenAiCompatibleProvider(ProviderConfig(chatEndpoint, id, apiKey.trim(), cacheSystemPrompt = false), transport)
+            try {
+                val reply =
+                    provider.complete(
+                        AiRequest(
+                            messages = listOf(AiMessage(Role.USER, "Responda apenas OK.")),
+                            maxTokens = 256,
+                            temperature = 0.0,
+                        ),
+                    )
+                if (reply.text.isNotBlank()) ok += id
+            } catch (e: AiError.InvalidKey) {
+                throw e
+            } catch (e: AiError.NoInternet) {
+                throw e
+            } catch (e: AiError) {
+                // Este modelo não serve agora (limite, erro, resposta ilegível): segue para o próximo.
+            }
+        }
+        return ok
     }
 }

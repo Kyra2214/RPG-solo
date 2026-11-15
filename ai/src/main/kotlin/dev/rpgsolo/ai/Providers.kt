@@ -21,6 +21,43 @@ private fun parseRoot(body: String): JsonObject =
 
 private fun JsonObject.intAt(key: String): Int? = (this[key] as? JsonPrimitive)?.intOrNull
 
+/**
+ * Texto de uma escolha no formato OpenAI. Aceita `content` como texto, como lista de partes (`{"type":"text","text":...}`)
+ * e, só se o conteúdo vier vazio com término normal, o raciocínio (`reasoning_content`/`reasoning`).
+ * Falhas viram [AiError.BadResponse] com o motivo e o modelo, para o aviso e a troca de modelo da cadeia.
+ */
+internal fun extractChoiceText(
+    choice: JsonObject?,
+    model: String,
+): String {
+    val message = choice?.get("message") as? JsonObject ?: throw AiError.BadResponse("sem choices[0].message ($model)")
+    val content = message["content"]
+    val direct =
+        when (content) {
+            is JsonPrimitive -> content.contentOrNull
+            is kotlinx.serialization.json.JsonArray ->
+                content.mapNotNull { part ->
+                    val o = part as? JsonObject
+                    val type = (o?.get("type") as? JsonPrimitive)?.contentOrNull
+                    if (type == null || type == "text" || type == "output_text") (o?.get("text") as? JsonPrimitive)?.contentOrNull else null
+                }.joinToString("")
+            else -> null
+        }
+    if (!direct.isNullOrBlank()) return direct
+    val refusal = (message["refusal"] as? JsonPrimitive)?.contentOrNull
+    if (!refusal.isNullOrBlank()) throw AiError.BadResponse("o modelo $model recusou responder: $refusal")
+    val finish = (choice["finish_reason"] as? JsonPrimitive)?.contentOrNull
+    if (finish == "length") {
+        throw AiError.BadResponse("o modelo $model usou o limite de tokens sem escrever resposta (modelo de raciocínio)")
+    }
+    val reasoning =
+        listOf("reasoning_content", "reasoning").firstNotNullOfOrNull { key ->
+            (message[key] as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
+        }
+    if (reasoning != null && (finish == null || finish == "stop")) return reasoning
+    throw AiError.BadResponse("resposta vazia do modelo $model (sem texto em choices[0].message.content)")
+}
+
 /** Provedores no estilo OpenAI (`/chat/completions`): vários serviços e modelos locais falam esse formato. */
 class OpenAiCompatibleProvider(
     private val config: ProviderConfig,
@@ -123,14 +160,18 @@ class OpenAiCompatibleProvider(
     private fun parseOpenAiResponse(reply: HttpReply): AiResponse {
         checkHttp(reply)
         val root = parseRoot(reply.body)
-        val text =
+        // Alguns serviços (OpenRouter) devolvem 200 com {"error": {...}} no corpo quando o modelo falha.
+        (root["error"] as? JsonObject)?.let { err ->
+            val msg = (err["message"] as? JsonPrimitive)?.contentOrNull ?: "erro sem mensagem"
+            throw AiError.BadResponse("o provedor devolveu erro (${config.model}): $msg")
+        }
+        val choice =
             try {
                 root["choices"]?.jsonArray?.firstOrNull()?.jsonObject
-                    ?.get("message")?.jsonObject?.get("content")?.jsonPrimitive?.contentOrNull
             } catch (e: Exception) {
                 null
             }
-                ?: throw AiError.BadResponse("sem texto em choices[0].message.content")
+        val text = extractChoiceText(choice, config.model)
         val usage =
             root["usage"]?.let { u ->
                 val o = (u as? JsonObject) ?: return@let null

@@ -94,6 +94,8 @@
     <string name="wiz_appearance_draw">Sortear aparência</string>
     <string name="wiz_appearance">Aparência (opcional)</string>
     <string name="wiz_personality">Personalidade (opcional)</string>
+    <string name="wiz_personality_draw">Sortear personalidade</string>
+    <string name="wiz_story_by_ai_hint">A história do personagem é criada pela IA depois que a ficha estiver pronta, a partir das suas escolhas, da aparência e da personalidade.</string>
     <string name="wiz_story">História (opcional)</string>
     <string name="wiz_story_hint">Aparência, personalidade e história juntas: entre 40 e 4000 caracteres, ou deixe os três em branco.</string>
     <string name="wiz_story_length">Aparência, personalidade e história juntas precisam ter entre 40 e 4000 caracteres, ou ficar em branco.</string>
