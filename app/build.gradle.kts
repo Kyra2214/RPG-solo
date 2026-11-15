@@ -49,6 +49,9 @@ android {
         }
     }
     buildTypes {
+        getByName("debug") {
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
+        }
         getByName("release") {
             if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true

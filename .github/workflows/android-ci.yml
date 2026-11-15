@@ -49,6 +49,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Preparar assinatura Android estável
+        env:
+          ANDROID_SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_SIGNING_KEYSTORE_BASE64" ]; then
+            echo "Secrets de assinatura estável ausentes; mantendo a assinatura debug padrão."
+            exit 0
+          fi
+          keystore_path="$RUNNER_TEMP/rpgsolo-stable-release.p12"
+          printf '%s' "$ANDROID_SIGNING_KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
+          {
+            echo "RELEASE_KEYSTORE_PATH=$keystore_path"
+            echo "RELEASE_KEYSTORE_PASSWORD=$RELEASE_KEYSTORE_PASSWORD"
+            echo "RELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS"
+            echo "RELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -74,7 +94,7 @@ jobs:
 
       - name: Build do APK debug
         if: ${{ !cancelled() }}
-        run: ./gradlew :app:assembleDebug --stacktrace
+        run: VERSION_CODE="${{ github.run_number }}" ./gradlew :app:assembleDebug --stacktrace
 
       - name: Relatórios de teste e ktlint
         if: always()
